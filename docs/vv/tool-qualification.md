@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.2.5                                  |
+| Revision                          | 0.2.6                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -38,8 +38,8 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`      | MISRA findings report         | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
-| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/` | emulated platform self-test PASS; functional `RENODE_TEST: PASS` (host-verified; in-Renode pending the RTEMS image) | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
-| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | reproducible open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
+| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP built; real cross build OK (plain + Renode image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
 
 ## Qualification procedure (per tool)
 
@@ -86,3 +86,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.3 | 2026-10-10 | frick-fsw | M10: new qualified tools T15 (Renode PolarFire SoC) and T16 (QEMU RISC-V), `tools/scripts/emulated_run.sh` (advisory) |
 | 0.2.4 | 2026-10-10 | frick-fsw | M10/N18: new qualified tool T17 (Renode V&V environment, `renode_vv.sh` + `tools/docker/renode/`) |
 | 0.2.5 | 2026-10-10 | frick-fsw | Open RTEMS alignment: T10 updated (open-source RTEMS project) and new qualified tool T18 (`tools/docker/rtems/Dockerfile`, containerised open RTEMS toolchain + BSP) |
+| 0.2.6 | 2026-10-10 | frick-fsw | T18 built and exercised (real cross build OK); T10/T17 evidence updated (real Renode functional run `RENODE_TEST: PASS`) |

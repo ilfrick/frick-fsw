@@ -139,6 +139,17 @@ change. All dates UTC, project language English (norm N2).
   (`make rtems-toolchain` / `make rtems-docker`, tool T18); the nightly workflow
   builds the open RTEMS Renode image and runs `make renode` (norm N18). ADR-0002,
   SSS-REQ-001 and all affected docs aligned.
+- **Real open RTEMS toolchain + Renode functional validation (N18 in force).**
+  The open-source RTEMS 6.2 toolchain (RSB tag `6.2`, BSP `riscv/mpfs64imafdc`,
+  `tools/docker/rtems`) is built and validated; the real cross build succeeds
+  (plain and Renode images) and the middleware runs on the Renode `polarfire-soc`
+  platform with `make renode` -> `RENODE_TEST: PASS` (boot U54_1 at entry
+  `0x1000000000`, console `mmuart1`). Defects found and fixed by the real build:
+  `pal_rtems.c` included an unused, non-existent RTEMS header
+  (`rtems/posix/time.h`) and other unused includes; `rtems_config.c` lacked the
+  `POSIX_Init` declaration before `<rtems/confdefs.h>`; the CMake toolchain file
+  now passes the BSP include/lib paths and `-mcmodel=medany` (multilib select).
+  Norm N18 is now **in force** (per-commit SKIP proxy, nightly real run).
 - **Milestone M11 — Renode HAL coverage.** Extend the Renode functional test
   (norm N18) so that **every HAL resource class** is bound to its emulated
   peripheral and exercised on the `polarfire-soc` platform (ETH, NET/TCP-IP, TSN,

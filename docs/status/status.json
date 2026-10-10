@@ -15,7 +15,8 @@
     "M7": "in progress",
     "M8": "planned",
     "M9": "in progress",
-    "M10": "planned"
+    "M10": "planned",
+    "M11": "planned"
   },
   "gates": {
     "build_and_unit_tests": "green",
@@ -27,7 +28,7 @@
     "ci_gitea": "green",
     "documentation_set": "green",
     "documentation_review": "green",
-    "renode_functional_validation": "yellow",
+    "renode_functional_validation": "green",
     "reviews": "green",
     "vv_records": "green"
   },

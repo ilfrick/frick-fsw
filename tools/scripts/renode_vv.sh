@@ -7,10 +7,10 @@
 # The Renode/docker process is run detached and killed after a bounded time, so
 # the script can never hang.
 #
-# PREREQUISITES to be blocking: the RTEMS toolchain (`make renode-image` builds
-# `build/renode/frick_fsw_renode.elf` with FF_ENABLE_RENODE_TEST=ON). Until then
-# this is an advisory proxy (SKIP, exit 0) so it does not block changes while the
-# environment is being brought up; see docs/vv/renode-environment.md.
+# The RTEMS image is built with `make renode-image` (FF_ENABLE_RENODE_TEST=ON).
+# When it is absent the run is a recorded SKIP proxy (exit 0); when it is present
+# the gate is in force: a missing marker fails (exit 1). See
+# docs/vv/renode-environment.md.
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -19,7 +19,6 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 IMG="antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061"
-RESC="${ROOT}/tools/docker/renode/frick-renode.resc"
 ELF="${ROOT}/build/renode/frick_fsw_renode.elf"
 NAME="frick-renode-vv"
 LOG="/tmp/frick-renode.log"
@@ -35,16 +34,16 @@ fi
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 mkdir -p "${ROOT}/build/renode"
 docker run -d --name "${NAME}" -v "${ROOT}:/workspace" "${IMG}" \
-  renode --disable-xwt "${RESC}" > /dev/null 2>&1
+  renode --disable-xwt /workspace/tools/docker/renode/frick-renode.resc > /dev/null 2>&1
 
 for _ in $(seq 1 120); do
-  running="$(docker inspect -f '{{.State.Running}}' "${NAME}" 2>/dev/null || echo false)"
-  [[ "${running}" == "true" ]] || break
+  status="$(docker inspect -f '{{.State.Status}}' "${NAME}" 2>/dev/null || echo gone)"
+  case "${status}" in exited|dead|gone) break ;; esac
   sleep 1
 done
 
 docker logs "${NAME}" > "${LOG}" 2>&1 || true
-cat "${ROOT}/build/renode/uart0.log" >> "${LOG}" 2>/dev/null || true
+cat "${ROOT}/build/renode/console.log" >> "${LOG}" 2>/dev/null || true
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 
 if grep -q "RENODE_TEST: PASS" "${LOG}"; then

@@ -55,7 +55,7 @@ make trace               # python3 tools/scripts/trace.py docs/requirements/trac
 make coverage            # gcov line/function coverage -> build/coverage/coverage.json
 make metrics             # regenerate the README status panel (coverage + semaphores)
 make renode-env          # Renode V&V environment self-test (norm N18; needs docker)
-make renode              # Renode functional validation (advisory until the RTEMS image exists)
+make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds
@@ -132,4 +132,4 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N15 | Every change re-runs the complete development+V&V cycle to success |
 | N16 | Detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17 | Documentation reviewed by the Senior SW documentation reviewer (R4) on every change; review loop closed before commit/push |
-| N18 | Functional validation of every change passes in the Renode emulated PolarFire SoC environment (advisory proxy until the RTEMS image is available, then blocking) |
+| N18 | Functional validation of every change passes in the Renode emulated PolarFire SoC environment (**in force**; real open-RTEMS image verified) |

@@ -50,7 +50,7 @@ misra:
 emulated:
 	bash tools/scripts/emulated_run.sh
 
-# Renode functional validation (norm N18); advisory proxy until the RTEMS image exists.
+# Renode functional validation (norm N18); SKIP proxy when the RTEMS image is absent.
 renode:
 	bash tools/scripts/renode_vv.sh
 

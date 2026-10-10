@@ -1,8 +1,8 @@
 # frick-fsw - Renode functional validation script (PolarFire SoC).
 #
 # Loads the Microchip PolarFire SoC platform, runs the middleware under test
-# (the RTEMS image built with FF_ENABLE_RENODE_TEST=1) and checks for the
-# "RENODE_TEST: PASS" marker. See docs/vv/renode-environment.md, norm N18.
+# (the RTEMS image built with FF_ENABLE_RENODE_TEST=ON) and captures the console
+# for the "RENODE_TEST: PASS" marker. See docs/vv/renode-environment.md, norm N18.
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -12,16 +12,16 @@ $program ?= @/workspace/build/renode/frick_fsw_renode.elf
 
 mach create "frick-renode"
 machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
-sysbus.uart0 CreateFileBackend @/workspace/build/renode/uart0.log
+# The RTEMS mpfs64imafdc console is mmuart1 (0x20100000); capture it to a file.
+sysbus.mmuart1 CreateFileBackend @/workspace/build/renode/console.log
 sysbus LoadELF $program
-# Run only the U54 boot hart at the program entry; halt the others.
-cpu0 IsHalted true
-cpu2 IsHalted true
-cpu3 IsHalted true
-cpu4 IsHalted true
-cpu1 IsHalted true
-cpu1 PC 0x80000000
-cpu1 IsHalted false
+# Run only the U54 boot hart (hart 1) at the RTEMS image entry (0x1000000000,
+# the PolarFire SoC/HSS high DDR alias); halt the E51 monitor and the other U54s.
+e51 IsHalted true
+u54_2 IsHalted true
+u54_3 IsHalted true
+u54_4 IsHalted true
+u54_1 PC 0x1000000000
 start
-sleep 5
+sleep 8
 quit

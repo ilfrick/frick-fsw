@@ -421,7 +421,7 @@ requirements:
     implementation: ["tools/docker/renode/Dockerfile", "tools/scripts/renode_vv.sh", "src/apps/app_renode_test.c", "docs/vv/renode-environment.md"]
     tests: ["ci:renode"]
     lean: []
-    lean_note: "Renode functional-validation environment (norm N18): the middleware test application emits RENODE_TEST: PASS on the emulated PolarFire SoC. Gate is an advisory proxy until the RTEMS toolchain/image are available in the V&V image, then blocking."
+    lean_note: "Renode functional-validation environment (norm N18): the middleware test application emits RENODE_TEST: PASS on the emulated PolarFire SoC. Gate is in force (verified on the real open RTEMS 6.2 image); per-commit runners without the image record a SKIP proxy and the nightly performs the real run."
 
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001

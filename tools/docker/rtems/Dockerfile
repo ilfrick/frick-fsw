@@ -39,3 +39,8 @@ RUN ../source-builder/sb-set-builder --jobs="$(nproc)" \
 
 ENV PATH="${RTEMS_PREFIX}/bin:${PATH}"
 ENV RTEMS_HOME=/opt/rtems
+
+# Build tooling so the cross build can run inside this image (make rtems-docker).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      cmake ninja-build \
+    && rm -rf /var/lib/apt/lists/*

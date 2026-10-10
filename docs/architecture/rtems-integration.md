@@ -46,7 +46,9 @@ Configuration Table (`CONFIGURE_*` + `<rtems/confdefs.h>`) for the
 - tick = 1 ms.
 
 The PAL confirms at build time that the POSIX API is enabled
-(`#if !defined(RTEMS_POSIX_API) #error`).
+(`#if !defined(RTEMS_POSIX_API) #error`). "RTEMS 6.2" refers to the RTEMS
+Source Builder release tag `6.2` from the RTEMS project; the kernel may report
+an internal version string (e.g. `6.0.0`), which is normal for RTEMS releases.
 
 ## 4. Build
 

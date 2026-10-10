@@ -51,6 +51,7 @@ jobs:
         run: |
           make renode-env
           make renode
+          grep -q "RENODE_TEST: PASS" build/renode/console.log
           echo "Renode functional validation: PASS"
 
       - name: Upload cross-build artifact

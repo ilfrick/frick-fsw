@@ -288,14 +288,15 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 
 - The environment is `docs/vv/renode-environment.md` (pinned Renode image,
   `polarfire-soc` platform; middleware test application `app_renode_test.c`
-  enabled with `FF_ENABLE_RENODE_TEST=1`; run via `make renode` /
+  enabled with `FF_ENABLE_RENODE_TEST=ON`; run via `make renode` /
   `tools/scripts/renode_vv.sh`, CI evidence `ci:renode`).
 - The gate passes when the emulated run produces the `RENODE_TEST: PASS` marker.
-- Until the RTEMS toolchain and the emulated image are available in the V&V
-  image, `renode_vv.sh` is a documented **advisory proxy** (SKIP/exit 0, like the
-  RTEMS cross-build proxy); it is then made **blocking** and reported in the
-  README status panel (`renode` semaphore). A SKIP is recorded, never silently
-  treated as a pass.
+- The gate is **in force**: verified end-to-end on the real open-source RTEMS 6.2
+  image (`make renode-image` then `make renode` -> `RENODE_TEST: PASS`). When the
+  RTEMS image is present, a missing marker **fails** the gate (exit 1); when it is
+  absent (per-commit runners without the toolchain image) the run is a recorded
+  SKIP proxy (never counted as a pass). The nightly workflow performs the real
+  run.
 
 ## Enforcement summary
 
@@ -318,7 +319,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N15  | every change re-runs the complete dev+V&V cycle until success; evidence recorded |
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
-| N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is reported (advisory proxy until the RTEMS toolchain/image is available, then blocking). **Temporary state (norm N12):** the gate is advisory and not yet in force until the RTEMS image is available; tracked to be made blocking, and the SKIP is recorded (never counted as a pass) |
+| N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is **in force** (verified on the real open RTEMS 6.2 image: `make renode` -> `RENODE_TEST: PASS`); per-commit runners without the toolchain image record a SKIP proxy (never counted as a pass) and the nightly performs the real run |
 
 ## Interpretation notes (non-derogable content unchanged)
 

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -67,19 +67,20 @@ headless on the `polarfire-soc` platform, loads the image, captures the UART and
 greps for `RENODE_TEST: PASS`. See also `make renode-env`
 (`tools/docker/renode/renode_env.resc`), the platform-load self-test.
 
-## 5. Validation status (honest)
+## 5. Validation status (verified)
 
-- **Verified now** (`make renode-env`, tool T17): the pinned Renode Docker image
-  runs, the `polarfire-soc` platform loads (`System bus created.`) and exits
-  cleanly; the check is reproducible from the repo and bounded (cannot hang).
-- **Prerequisites to make the gate blocking**: (a) the RTEMS cross toolchain in
-  the V&V image to produce `build/renode/frick_fsw_renode.elf`; (b) confirming
-  the RTEMS image boot in the `.resc` (the boot-hart PC / multi-hart handling is
-  applied in `frick-renode.resc`, mirroring the self-test).
-- Until then `renode_vv.sh` is an **advisory proxy** (SKIP/exit 0 when the image
-  is absent; it **fails** with exit 1 if the image is present but the marker is
-  missing), like the RTEMS cross-build proxy (norm N18 gate). It **must not** be
-  read as functional verification until the marker is actually produced.
+- **Environment** (`make renode-env`, tool T17): the pinned Renode image runs,
+  the `polarfire-soc` platform loads and exits cleanly (bounded, reproducible).
+- **Functional run (real)** (`make renode`, norm N18): with the open-source
+  RTEMS 6.2 toolchain image (`tools/docker/rtems`, T18) the middleware image is
+  built (`make renode-image`) and run on the emulated PolarFire SoC; the console
+  shows the banner and `RENODE_TEST: PASS`. Boot: U54_1 (hart 1) at the image
+  entry `0x1000000000` (PolarFire SoC/HSS high DDR alias), console UART
+  `mmuart1`. Recorded in `docs/vv/verification-results.md`.
+- **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
+  (per-commit proxy) and **fails (exit 1)** when the image is present but the
+  marker is missing; the nightly workflow performs the real run. Norm N18 is
+  **in force**.
 
 ## 6. Gap linkage
 
@@ -93,3 +94,4 @@ stays open (GAP-A4/A6).
 | 0.1 | 2026-10-10 | frick-fsw | Initial Renode V&V environment (norm N18); test application |
 | 0.2 | 2026-10-10 | frick-fsw | Review FRICK-REVIEW-0036 fixes: test app receives inline (marker PASS), CMake option + `renode-image`, `make renode-env` self-test, `renode_vv.sh` fails on missing marker, status wording |
 | 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |
+| 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |

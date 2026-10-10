@@ -17,12 +17,6 @@
 #ifdef FRICK_PLATFORM_MPFS
 
 #include <rtems.h>
-#include <rtems/posix/pthread.h>
-#include <rtems/posix/mqueue.h>
-#include <rtems/posix/semaphore.h>
-#include <rtems/posix/time.h>
-#include <stdio.h>
-#include <stdarg.h>
 
 /*
  * RTEMS POSIX API prerequisites. The flight configuration file
@@ -40,7 +34,8 @@
  */
 FF_Status_t FF_PalPlatformInit(void)
 {
-    /* Confirm the POSIX API is actually configured at build time. */
+    /* Confirm the POSIX API is actually configured at build time
+     * (RTEMS_POSIX_API is defined by the RTEMS headers/configuration). */
 #if !defined(RTEMS_POSIX_API)
 #error "RTEMS POSIX API must be enabled for frick-fsw"
 #endif

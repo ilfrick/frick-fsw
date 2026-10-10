@@ -17,6 +17,11 @@
  */
 #include <rtems.h>
 
+/* The POSIX initialization thread entry point (defined in
+ * src/core/pal/pal_rtems.c). CONFIGURE_POSIX_INIT_THREAD_TABLE below needs the
+ * declaration before <rtems/confdefs.h> (real-toolchain finding). */
+void *POSIX_Init(void *argument);
+
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
 

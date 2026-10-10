@@ -24,8 +24,8 @@ docker run -d --name "${NAME}" -v "${ROOT}:/workspace" "${IMG}" \
   renode --disable-xwt /workspace/tools/docker/renode/renode_env.resc > /dev/null 2>&1
 
 for _ in $(seq 1 60); do
-  running="$(docker inspect -f '{{.State.Running}}' "${NAME}" 2>/dev/null || echo false)"
-  [[ "${running}" == "true" ]] || break
+  status="$(docker inspect -f '{{.State.Status}}' "${NAME}" 2>/dev/null || echo gone)"
+  case "${status}" in exited|dead|gone) break ;; esac
   sleep 1
 done
 
