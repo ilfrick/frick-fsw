@@ -69,6 +69,16 @@ change. All dates UTC, project language English (norm N2).
   Lean `Frick.Sdls`; unit test `test_sdls` (69 checks, ASan-clean);
   ADR-0013 and `docs/architecture/security-sdls.md`; algorithm qualification /
   HSM / ground key management is GAP-A14.
+- **Milestone M4 — reference drivers and third-party integration (in progress).**
+  Reference **Ethernet driver** for the Cadence GEM of the PolarFire SoC MSS
+  (`src/drivers/eth/gem/`), implementing the `FF_EthMac_t` HAL contract with
+  static, allocation-free descriptor/buffer handling and injected MMIO + HAL DMA
+  translation (host-testable; `test_gem`, 23 checks). Requirements SSS-REQ-020 /
+  SRS-REQ-036; `FF_BUILD_DRIVERS` partition option; ADR-0014. Third-party
+  integration (fetched pinned, not committed): **lwIP** (BSD-3) for
+  `FF_NetStack_t` and **N7/ESA `asn1-pusc-lib`** (GPL-3.0) for
+  `FF_Pus_Backend_t`; `tools/scripts/fetch_third_party.sh`. TSN uses the GEM's
+  native block (802.1Q/Qbv/Qav/802.1AS).
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

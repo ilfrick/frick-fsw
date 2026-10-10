@@ -340,6 +340,16 @@ requirements:
     tests: ["tests/unit/test_sdls.c"]
     lean: ["req_srs035_sa_bound", "req_srs035_epoch_monotonic", "req_srs035_uses_reset"]
 
+  # -------------------------------------------- Reference drivers (M4)
+  - id: SRS-REQ-036
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/eth/gem/ff_gem.c", "src/drivers/eth/gem/ff_gem.h", "src/drivers/eth/gem/ff_gem_regs.h"]
+    tests: ["tests/unit/test_gem.c"]
+    lean: []
+    lean_note: "I/O-bound MAC driver: the register and descriptor logic is verified by host unit tests with a mock MMIO bus (test_gem.c); full device semantics and PHY/link behaviour require the target board (GAP-A5)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -483,6 +493,14 @@ requirements:
     implementation: ["src/security/ff_sdls.c", "src/security/ff_sdls.h"]
     tests: ["tests/unit/test_sdls.c"]
     lean: ["req_srs035_epoch_monotonic"]
+
+  - id: SSS-REQ-020
+    level: sss
+    derived: false
+    implementation: ["src/drivers/eth/gem/ff_gem.c", "CMakeLists.txt"]
+    tests: ["tests/unit/test_gem.c"]
+    lean: []
+    lean_note: "Reference Ethernet driver verified by host unit tests (mock MMIO)."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

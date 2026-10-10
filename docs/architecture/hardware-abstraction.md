@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0008                        |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N1, N3, N4, N8                         |
 | Requirements                      | SSS-REQ-017, SRS-REQ-025..032          |
@@ -48,7 +48,7 @@ through the FIC.
 | Core registry | `hal.h` | `FF_HalClass_t`, `FF_HalRegister/Get/Count` | — | — |
 | Ethernet | `hal_eth.h` | `FF_EthMac_t`, `FF_NetIf_t` | GEM x2 | MSS |
 | Network stack | `hal_net.h` | `FF_NetStack_t` (socket-like) | — (stack) | pluggable |
-| TSN | `hal_tsn.h` | `FF_TsnBackend_t` | — | fabric |
+| TSN | `hal_tsn.h` | `FF_TsnBackend_t` | GEM internal TSN block (802.1Q/Qbv/Qav/Qci/Qbb/802.1AS/1588/CB) | MSS (fabric CoreTSN only for multi-port switch/FRER) |
 | CAN | `hal_can.h` | `FF_CanBackend_t`, `FF_CanOpenStack_t` | CAN x2 (classic) | MSS; FD = fabric |
 | Serial | `hal_serial.h` | `FF_Serial_t` (RS-485 DE) | MMUART x5 | MSS |
 | SPI / I2C | `hal_spi.h` | `FF_Spi_t`, `FF_I2c_t` | SPI x2, I2C x2 | MSS |
@@ -121,3 +121,4 @@ unchanged. The same principle applies to CANopen, TSN and storage backends.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial HAL specification and contract catalogue (milestone M3) |
+| 0.2 | 2026-10-10 | frick-fsw | M4: correct TSN resource (GEM native TSN block) |

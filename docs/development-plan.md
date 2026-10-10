@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N17 (`docs/rules.md`)               |
@@ -47,6 +47,7 @@ is in `docs/roadmap.md`.
 | OBJ-12 | Keep the full cycle (norms N1-N17), independent reviews (R1/R2/R3) and the documentation review (R4) applied to every increment. | all |
 | OBJ-13 | Integrate a mathematics library (libm) behind a portable facade with determinism and licensing policy. | M6 |
 | OBJ-14 | Integrate CCSDS SDLS (355.0-B) middleware software: SDLS processing, security-association database and key management/rotation, with a pluggable cryptographic backend. | M7 |
+| OBJ-15 | Formal completeness (WP-FV-100): raise Lean coverage to 100% of generated requirements (theorem or explicit `lean_note`), mirror the pure-logic modules in Lean, and add C-level proof tooling (Frama-C/CBMC) alongside. | M5/M8 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -61,7 +62,7 @@ backend** (OBJ-07), without writing FPGA IP.
 | Resource | Requested protocol/feature | MPFS resource | Native/fabric | HAL contract | Reference backend (M4) |
 | -------- | -------------------------- | ------------- | ------------- | ------------ | ---------------------- |
 | Ethernet | 1 Gb/s (OBJ-11), TCP/IP | GEM x2 (RGMII/SGMII) | MSS | `FF_EthMac_t` + `FF_NetIf_t` | GEM driver + RTEMS libbsd/lwIP |
-| Ethernet | TSN: 802.1Q (VLAN/PCP), 802.1Qbv, 802.1Qav, 802.1AS | (GEM has no TSN) | fabric via FIC | `FF_TsnBackend_t` | soft-TSN / fabric backend |
+| Ethernet | TSN: 802.1Q (VLAN/PCP), 802.1Qbv, 802.1Qav, 802.1Qci/Qbb, 802.1AS, 1588, 802.1CB | GEM x2 (native TSN block) | MSS (fabric CoreTSN only for multi-port switch/FRER) | `FF_TsnBackend_t` | GEM TSN driver |
 | Ethernet | pluggable stack (Tuxera / open) | — | — | `FF_NetStack_t` (`socket`/`netif` vtable) | libbsd + lwIP adapters |
 | CAN | classic CAN 2.0 A/B (ISO 11898-1) | CAN x2 | MSS | `FF_CanBackend_t` | CAN controller driver |
 | CAN | CANopen (CiA 301/302/402) | (over CAN) | — | `FF_CanOpenStack_t` | CANopen stack adapter |
@@ -126,7 +127,7 @@ Deliverables (**interfaces and documentation; no drivers**):
   graphically marked implemented-in-this-repo vs interface-only vs user-provided.
 - README/AGENTS **middleware statement** (OBJ-01) and the development-plan link.
 
-### M4 — MPFS low-level layers and 1 Gb/s Ethernet (planned)
+### M4 — MPFS low-level layers and 1 Gb/s Ethernet (in progress)
 
 Deliverables (reference implementations behind the M3 contracts):
 
@@ -190,7 +191,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M1 | baseline middleware | done |
 | M2 | time base | done |
 | M3 | OBJ-01..OBJ-09 | in progress |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | planned |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress |
 | M5 | documentation & status program | in progress |
 | M6 | OBJ-13 (mathematics library integration) | in progress |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | in progress |
@@ -203,3 +204,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.2 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |
 | 0.3 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); objective OBJ-13 |
 | 0.4 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security + key management); objective OBJ-14 |
+| 0.5 | 2026-10-10 | frick-fsw | Correct TSN resource: the MPFS GEM has a native TSN block (Qbv/Qav/Qci/Qbb/802.1AS/1588/CB); fabric CoreTSN only for multi-port switch/FRER |

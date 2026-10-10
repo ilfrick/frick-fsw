@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ARCH-0004 |
 | ----------- | --------------- |
-| Revision    | 0.1 |
+| Revision    | 0.2 |
 | Date        | 2026-10-10 |
 
 ## 1. Purpose
@@ -44,3 +44,4 @@ SSS-REQ-001, SRS-REQ-015, SRS-REQ-016.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial platform and portability note (norm N8/N16) |
+| 0.2 | 2026-10-10 | frick-fsw | M4: note GEM native TSN (Qbv/Qav/Qci/Qbb/802.1AS/1588/CB); fabric CoreTSN only for multi-port/FRER |

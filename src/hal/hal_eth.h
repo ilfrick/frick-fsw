@@ -24,12 +24,12 @@ struct FF_EthMac
 {
     const char *name;
     uint32_t mtu; /* maximum frame payload, e.g. 1500 */
-    FF_Status_t (*init)(void);
-    FF_Status_t (*get_mac_address)(uint8_t out[6]);
-    FF_Status_t (*set_link_up)(uint8_t up);
-    FF_Status_t (*transmit)(const uint8_t *frame, uint16_t len);
-    void (*set_rx_callback)(FF_EthRxCb_t cb, void *ctx);
-    FF_Status_t (*get_stats)(uint32_t *tx, uint32_t *rx, uint32_t *err);
+    FF_Status_t (*init)(void *self);
+    FF_Status_t (*get_mac_address)(void *self, uint8_t out[6]);
+    FF_Status_t (*set_link_up)(void *self, uint8_t up);
+    FF_Status_t (*transmit)(void *self, const uint8_t *frame, uint16_t len);
+    void (*set_rx_callback)(void *self, FF_EthRxCb_t cb, void *ctx);
+    FF_Status_t (*get_stats)(void *self, uint32_t *tx, uint32_t *rx, uint32_t *err);
 };
 
 /* Network interface: a MAC paired with a network stack. */

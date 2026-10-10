@@ -5,6 +5,11 @@ build-*/
 *.a
 *.so
 
+# Third-party sources (fetched, pinned; see third_party/README.md)
+third_party/lwip/
+third_party/asn1-pusc-lib/
+third_party/pusopen/
+
 # RTEMS / toolchain
 /opt/
 

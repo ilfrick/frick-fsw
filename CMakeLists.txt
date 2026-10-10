@@ -19,6 +19,7 @@ option(FF_ENABLE_COVERAGE "Instrument the build for gcov coverage" OFF)
 option(FF_BUILD_HAL    "Build the HAL core registry (milestone M3)" ON)
 option(FF_USE_LIBM     "Link the platform math library (libm, milestone M6)" ON)
 option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" ON)
+option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -91,6 +92,12 @@ endif()
 # by the tests.
 if(FF_BUILD_SDLS)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/security/ff_sdls.c)
+endif()
+
+# Ethernet driver (Cadence GEM, PolarFire SoC MSS) - milestone M4. Static,
+# bounded, host-testable; the reference implementation is separable/optional.
+if(FF_BUILD_DRIVERS)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/eth/gem/ff_gem.c)
 endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})

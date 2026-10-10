@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.6 |
+| Revision    | 0.7 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -65,7 +65,7 @@ applications, drivers and third-party stacks:
   marking which layers are implemented in this repository and which are not.
 - See `docs/development-plan.md` (FRICK-PLAN-0001) for the full objective set.
 
-## M4 — MPFS low-level layers and 1 Gb/s Ethernet (planned)
+## M4 — MPFS low-level layers and 1 Gb/s Ethernet (in progress)
 
 Reference implementations behind the M3 contracts:
 
@@ -118,3 +118,4 @@ ADR-0013; `docs/architecture/security-sdls.md`; GAP-A14 (algorithm/HSM/ground).
 | 0.4 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |
 | 0.5 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); M3 delivered interfaces |
 | 0.6 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security and key management) |
+| 0.7 | 2026-10-10 | frick-fsw | M4 status set to in progress (Ethernet GEM driver) |

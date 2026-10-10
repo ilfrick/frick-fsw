@@ -69,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 69 (srs=36, sss=19, gap=14) |
-| Requirements with implementation | 69/69 |
-| Test coverage (requirements with tests) | 55/69 (79.7%) |
-| Formal verification coverage (requirements with Lean) | 20/69 (29.0%) |
-| Code line coverage | 1252/2005 (62.4%) - functions 175/217 |
+| Requirements in manifest | 71 (srs=37, sss=20, gap=14) |
+| Requirements with implementation | 71/71 |
+| Test coverage (requirements with tests) | 57/71 (80.3%) |
+| Formal verification coverage (requirements with Lean) | 20/71 (28.2%) |
+| Code line coverage | 1440/2245 (64.1%) - functions 194/237 |
 
 <!-- METRICS-END -->
 
@@ -126,11 +126,12 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Link loopback | `src/transport/link/link_loopback.c` | in-memory loopback (simulator/tests) |
 | Link UART | `src/transport/link/link_uart.c` | serial link (host `/dev/ttyUSB0` or RTEMS console) |
 | Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
+| Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
 
-No external device drivers (SpaceWire, CAN, Ethernet/IP, TSN, PPS) are
-implemented yet; they are interface-milestone deliverables (M3: HAL contracts)
-and reference-implementation deliverables (M4: MPFS BSP + 1 Gb/s Ethernet). See
-the detailed **driver development and integration guide** for humans and agents:
+Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, GPIO, storage,
+PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
+deliverables (M4: MPFS BSP + 1 Gb/s Ethernet + stacks). See the detailed
+**driver development and integration guide** for humans and agents:
 `docs/engineering/driver-development.md` and the
 [`docs/development-plan.md`](docs/development-plan.md).
 
@@ -241,7 +242,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 36 · SSS = 19 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 37 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -250,7 +251,7 @@ status panel above is authoritative; the single source of truth is
 
 | Path | Content |
 | ---- | ------- |
-| `src/` | C framework (core, transport, PUS, apps, BSP, main) |
+| `src/` | C framework (core, transport, PUS, apps, BSP, HAL, drivers, math, security, main) |
 | `config/` | single configuration point + mission tables + platform headers |
 | `tests/` | unit tests (ctest) |
 | `verification/lean/` | Lean 4 formal verification project |

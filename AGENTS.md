@@ -27,7 +27,7 @@
 
 | Path | Purpose |
 | ---- | ------- |
-| `src/` | C framework: `core/pal` (PAL), `core/sb` (Software Bus), `core/evs`, `core/es`, `core/tbl`, `core/time`, `transport/ccsds`, `transport/link`, `pus`, `apps`, `bsp/mpfs`, `main` |
+| `src/` | C framework: `core/pal` (PAL), `core/sb` (Software Bus), `core/evs`, `core/es`, `core/tbl`, `core/time`, `transport/ccsds`, `transport/link`, `pus`, `apps`, `hal` (HAL contracts), `drivers` (reference drivers), `math`, `security`, `bsp/mpfs`, `main` |
 | `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |

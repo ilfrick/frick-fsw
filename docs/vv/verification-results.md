@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -24,6 +24,7 @@ artifacts (no external state).
 | M3 HAL interfaces + ECSS docs, 2026-10-10 | PASS (Debug) | PASS (6/6; 205 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31) | PASS (`lake build` 19/19, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (63 reqs / 33 srs / 17 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | HAL registry + stack-independent contracts (SSS-REQ-017, SRS-REQ-025..032); ECSS SDD/CM/PA/validation/safety/compliance-matrix docs; gaps GAP-A8..A13; coverage 893/1515 (58.9%), functions 124/166 |
 | M6 libm integration, 2026-10-10 | PASS (Debug) | PASS (7/7; 225 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20) | PASS (`lake build` 19/19) | PASS (65 reqs / 34 srs / 18 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Mathematics facade over platform libm (SSS-REQ-018, SRS-REQ-033); ADR-0012, numerics policy, licence analysis; coverage 932/1575 (59.2%), functions 141/184 |
 | M7 CCSDS SDLS, 2026-10-10 | PASS (Debug) | PASS (8/8; 306 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81) | PASS (`lake build` 21/21) | PASS (69 reqs / 36 srs / 19 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format + ASan clean | proxy | SDLS processing + SA/key management/rotation, pluggable crypto backend (SSS-REQ-019, SRS-REQ-034/035); GAP-A14; coverage 1252/2005 (62.4%), functions 175/217 |
+| M4 Ethernet GEM driver (increment 1), 2026-10-10 | PASS (Debug) | PASS (9/9; 329 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81, gem 23) | PASS (`lake build` 21/21) | PASS (71 reqs / 37 srs / 20 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Cadence GEM Ethernet driver behind FF_EthMac_t (SSS-REQ-020, SRS-REQ-036); ADR-0014; third-party fetch scaffolding (lwIP, N7/ESA PUS); coverage 1440/2245 (64.1%), functions 194/237 |
 
 ## v0.1.0 baseline notes
 
@@ -237,6 +238,34 @@ Reviewed by R1/R2 (code/V&V), R3 (SSS, N14) and R4 (documentation, N17); NCs
 dispositioned and deltas re-reviewed (norm N12). Cryptographic algorithm/HSM/
 ground key management is class-A gap GAP-A14.
 
+## M4 Ethernet driver notes (2026-10-10)
+
+### Delivered (increment 1)
+
+The Cadence GEM Ethernet driver (`src/drivers/eth/gem/`) implementing the
+`FF_EthMac_t` HAL contract: static, allocation-free, with injected MMIO
+(`FF_GemBus_t`) and HAL `FF_Dma_t` translation so the register/descriptor logic
+is host-testable. Requirement SSS-REQ-020 / SRS-REQ-036; ADR-0014. Third-party
+integration scaffolding (fetched, pinned, not committed): lwIP and N7/ESA
+`asn1-pusc-lib` (`tools/scripts/fetch_third_party.sh`).
+
+### Verification (Tst / Inp)
+
+`test_gem` (18 checks) with a mock MMIO bus: init register programming, MAC
+address registers, transmit descriptor + completion, RX dispatch, error
+counting. Real PHY/link behaviour needs the board (GAP-A5); register map source:
+PolarFire SoC MSS TRM DS60001702.
+
+### Coverage
+
+`make coverage`: lines **1440/2245 (64.1%)**, functions **194/237**.
+
+### Remaining (M4)
+
+lwIP `FF_NetStack_t` adapter + GEM TSN (`FF_TsnBackend_t`), N7/ESA
+`FF_Pus_Backend_t` adapter, MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO drivers, filestore/
+CFDP/service 23.
+
 ## Documentation review (norm N17)
 
 Every commit is preceded by a documentation review loop by the independent
@@ -273,6 +302,9 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M7 SDLS code/V&V review | R1+R2 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m7-sdls-r1-r2-review.md |
 | M7 SDLS SSS/docs review | R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m7-sdls-r3-r4-review.md |
 | M7 SDLS delta | R1+R2+R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m7-sdls-delta-review.md |
+| M4 GEM driver review | R1+R2 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m4-gem-r1-r2-review.md |
+| M4 GEM SSS/docs review | R3+R4 (independent) | 2026-10-10 | REJECTED (R3), APPROVED WITH COMMENTS (R4) | docs/reviews/2026-10-10-m4-gem-r3-r4-review.md |
+| M4 GEM delta | R1+R2+R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-gem-delta-review.md |
 
 ## History
 
@@ -285,3 +317,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.4 | 2026-10-10 | frick-fsw | M3: HAL interfaces + ECSS design/assurance docs; 63 reqs / 45 theorems, coverage 893/1515; M3 reviews R1/R2/R3/R4 and deltas |
 | 0.5 | 2026-10-10 | frick-fsw | M6: libm mathematics facade; 65 reqs / 34 srs / 18 sss, coverage 932/1575 (59.2%) |
 | 0.6 | 2026-10-10 | frick-fsw | M7: CCSDS SDLS security + key management; 69 reqs / 36 srs / 19 sss / 14 gap, coverage 1252/2005 (62.4%) |
+| 0.7 | 2026-10-10 | frick-fsw | M4 (increment 1): Cadence GEM Ethernet driver; 71 reqs / 37 srs / 20 sss, coverage 1440/2245 (64.1%) |

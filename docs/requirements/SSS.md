@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -86,6 +86,10 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   telecommand, with security-association management and key management
   (session-key derivation, rotation and zeroisation), keeping the cryptographic
   algorithm a pluggable, mission-supplied backend. `method: Tst | Anl | Inp`.
+- **SSS-REQ-020** — *Reference low-level implementations*: the framework shall
+  provide reference implementations of the HAL contracts for the target platform
+  (starting with the Gigabit Ethernet MAC) as separable, optional components,
+  keeping the middleware independent of them. `method: Tst | Dem`.
 
 ## 3. Derived system requirements
 
@@ -112,3 +116,4 @@ deviations are resolved before every commit (norm N4).
 | 0.4 | 2026-10-10 | frick-fsw | M3: add SSS-REQ-017 hardware abstraction and integration interfaces |
 | 0.5 | 2026-10-10 | frick-fsw | M6: add SSS-REQ-018 numerical support (libm facade) |
 | 0.6 | 2026-10-10 | frick-fsw | M7: add SSS-REQ-019 data-link security (CCSDS SDLS) |
+| 0.7 | 2026-10-10 | frick-fsw | M4: add SSS-REQ-020 reference low-level implementations |

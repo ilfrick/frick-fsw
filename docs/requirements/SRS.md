@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -169,6 +169,16 @@ review).
   and time thresholds), and zeroise key material on rotation and removal.
   `method: Tst | Anl`.
 
+### Reference low-level implementations (milestone M4)
+
+- **SRS-REQ-036** — *Ethernet MAC reference driver (Cadence GEM)*: the framework
+  shall provide a reference implementation of the Ethernet MAC HAL contract
+  (`FF_EthMac_t`) for the Cadence GEM of the Microchip PolarFire SoC MSS, with
+  static, allocation-free descriptor/buffer handling and host-testable register
+  and descriptor logic (injected MMIO + DMA translation). TSN (802.1Q/Qbv/Qav/
+  802.1AS, native on the GEM) is delivered through `FF_TsnBackend_t` in a
+  separate planned increment. `method: Tst | Inp`.
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -204,3 +214,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.4 | 2026-10-10 | frick-fsw  | M3: add SRS-REQ-025..032 hardware abstraction (HAL registry, Ethernet/net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory/storage) |
 | 0.5 | 2026-10-10 | frick-fsw  | M6: add SRS-REQ-033 mathematics facade (libm) |
 | 0.6 | 2026-10-10 | frick-fsw  | M7: add SRS-REQ-034 SDLS processing and SRS-REQ-035 SA/key management |
+| 0.7 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-036 Ethernet MAC reference driver (Cadence GEM) |
