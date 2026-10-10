@@ -32,4 +32,9 @@
 #define FF_GPIO0_BASE 0x20120000u
 #define FF_GPIO0_PINS 14u /* MSS GPIO0 has 14 pins (GPIO1=24, GPIO2=32) */
 
+/* MSS MMUART0 (NS16550, wide registers). Used by the reference serial driver;
+ * exercised on the emulated SoC in the Renode functional test (M11). UART1
+ * (0x20100000) is the console. */
+#define FF_MMUART0_BASE 0x20000000u
+
 #endif /* FF_PLATFORM_MPFS_H */

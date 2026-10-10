@@ -110,6 +110,7 @@ if(FF_BUILD_DRIVERS)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/eth/gem/ff_gem_tsn.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/net/ff_net_loopback.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/gpio/mpfs/ff_gpio_mpfs.c)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/serial/mpfs/ff_serial_mpfs.c)
 endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})

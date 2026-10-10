@@ -186,12 +186,14 @@ change. All dates UTC, project language English (norm N2).
   or Middle-earth Enterprises, includes no Tolkien text, and does not use the name
   as a trademark; licensing contacts and a "not legal advice" note. Product name
   remains **frick-fsw**.
-- **M11: SERIAL increment deferred.** The reference MSS MMUART serial driver was
-  implemented and reviewed (FRICK-REVIEW-0043) but **reverted**: the MPFS MMUART
-  uses 4-byte register spacing while the default Renode `UART.NS16550` model is
-  compact, so the emulated check would not validate the real map. To be
-  re-implemented with hardware-correct 4-byte offsets and a wide-register platform
-  override (M4/M11; SRS-REQ-048 reserved).
+- **M11: reference MSS MMUART serial driver.** `FF_Serial_t` backend for the
+  Microchip PolarFire SoC MSS MMUART (NS16550 **wide registers**, 4-byte spaced:
+  THR 0x00, LCR 0x0C, LSR 0x14, SCR 0x1C; RS-422/RS-485 via transceiver),
+  bus-injected MMIO, allocation-free; host unit test `tests/unit/test_serial.c`
+  and an NS16550 scratch-register MMIO check on the emulated MMUART0 in the
+  Renode run (`hal_serial=PASS`). The first attempt with compact offsets was
+  reviewed (FRICK-REVIEW-0043) and reworked to hardware-correct wide offsets (the
+  Renode platform sets `wideRegisters: true`). Requirement SRS-REQ-048.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

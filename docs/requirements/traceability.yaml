@@ -450,6 +450,15 @@ requirements:
     lean: []
     lean_note: "MSS GPIO HAL backend: host unit test with a mock MMIO register bank; the MMIO round trip is exercised on the emulated MSS GPIO in the Renode functional test (milestone M11)."
 
+  - id: SRS-REQ-048
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/serial/mpfs/ff_serial_mpfs.c", "src/drivers/serial/mpfs/ff_serial_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_serial.c"]
+    lean: []
+    lean_note: "MSS MMUART (NS16550, 4-byte-spaced registers) HAL serial backend: host unit test (mock MMIO); NS16550 scratch-register MMIO round trip exercised on the emulated MSS MMUART0 in the Renode functional test (milestone M11)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

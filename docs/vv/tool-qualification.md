@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.2.7                                  |
+| Revision                          | 0.2.8                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -88,3 +88,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.5 | 2026-10-10 | frick-fsw | Open RTEMS alignment: T10 updated (open-source RTEMS project) and new qualified tool T18 (`tools/docker/rtems/Dockerfile`, containerised open RTEMS toolchain + BSP) |
 | 0.2.6 | 2026-10-10 | frick-fsw | T18 built and exercised (real cross build OK); T10/T17 evidence updated (real Renode functional run `RENODE_TEST: PASS`) |
 | 0.2.7 | 2026-10-10 | frick-fsw | M4/M11: T3 gains `tests/unit/test_gpio.c` (MSS GPIO, 21 checks, mock MMIO); Renode run also checks `hal_gpio=PASS` |
+| 0.2.8 | 2026-10-10 | frick-fsw | M4/M11: T3 gains `tests/unit/test_serial.c` (MSS MMUART, 30 checks, mock MMIO); Renode run also checks `hal_serial=PASS` |

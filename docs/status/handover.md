@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -77,12 +77,11 @@ occasion; prefer Docker.
 - **M11 in progress (Renode HAL coverage, OBJ-19):** one class done — **GPIO**
   (`src/drivers/gpio/mpfs/ff_gpio_mpfs.{c,h}`, SRS-REQ-047), host test
   `test_gpio` (30 checks), Renode MMIO round trip (`hal_gpio=PASS`) folded into
-  the marker. **SERIAL** implemented then **deferred/reverted**
-  (FRICK-REVIEW-0043: MPFS MMUART uses 4-byte register spacing; the default
-  Renode `UART.NS16550` model is compact — re-implement with a wide-register
-  platform override; SRS-REQ-048 reserved). Remaining M11 classes: ETH,
-  NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK,
-  NVM.
+  the marker. **SERIAL** (`src/drivers/serial/mpfs/ff_serial_mpfs.{c,h}`,
+  SRS-REQ-048) is being (re)implemented with hardware-correct 4-byte offsets (see
+  §6); a first attempt with compact offsets was reviewed (FRICK-REVIEW-0043) and
+  reverted. Remaining M11 classes: ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485,
+  SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK, NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: only GEM Ethernet (+TSN) and GPIO so far.
@@ -121,6 +120,13 @@ occasion; prefer Docker.
 - **MSS GPIO register map** (validated): per-pin `GPIO_CFG[pin]` at `0x00+pin*4`
   (bit0 output enable, bit1 input enable, bit3 int enable, bits5-7 int type);
   `GPIO_IN=0x84`, `GPIO_OUT=0x88`. GPIO0 has **14** pins.
+- **MSS MMUART register map** (validated): the Renode `polarfire-soc.repl`
+  instantiates the UARTs as `UART.NS16550` with **`wideRegisters: true`**, so the
+  MPFS MMUART uses **4-byte register spacing** on hardware *and* in Renode (the
+  model divides `offset` by 4 when `offset % 4 == 0`, so wide offsets
+  `0x00/0x04/0x08/0x0C/0x10/0x14/0x18/0x1C` alias the compact registers). A serial
+  driver must use the wide offsets (hardware-correct) — compact offsets also
+  "work" in Renode by aliasing but are wrong on silicon.
 - RTEMS image entry point is **0x1000000000** (HSS high DDR alias); set
   `u54_1 PC 0x1000000000`, halt `e51`/`u54_2..4`.
 - `make renode` passes only when `build/renode/frick_fsw_renode.elf` exists
@@ -136,3 +142,4 @@ occasion; prefer Docker.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial handover/resume document (N18 in force; M11 GPIO done) |
 | 0.2 | 2026-10-10 | frick-fsw | M11 serial deferred/reverted; codename "Eärendil" disclaimer added |
+| 0.3 | 2026-10-10 | frick-fsw | M11 serial re-implemented with hardware-correct 4-byte MMUART offsets (Renode wideRegisters); key fact recorded |

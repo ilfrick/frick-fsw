@@ -43,7 +43,7 @@
 | 2026-10-10 | Real open RTEMS toolchain + Renode functional run | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-real-rtems-renode-r1-r2-r4-review.md |
 | 2026-10-10 | M12/M13 plan + requirements (OBCP, mission services) | R3+R4 | REJECTED(R4) -> closed | 2026-10-10-m12-m13-plan-r3-r4-review.md |
 | 2026-10-10 | M4/M11 MSS GPIO driver + Renode check | R1+R2+R4 | REJECTED -> closed | 2026-10-10-m4-m11-gpio-r1-r2-r4-review.md |
-| 2026-10-10 | M4/M11 MSS MMUART serial driver (reverted/deferred) | R1+R2+R4 | REJECTED -> deferred | 2026-10-10-m4-m11-serial-r1-r2-r4-review.md |
+| 2026-10-10 | M4/M11 MSS MMUART serial driver | R1+R2+R4 | REJECTED -> closed (reworked, wide registers) | 2026-10-10-m4-m11-serial-r1-r2-r4-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

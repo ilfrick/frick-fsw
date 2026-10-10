@@ -70,11 +70,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 85 (srs=48, sss=23, gap=14) |
-| Requirements with implementation | 85/85 |
-| Test coverage (requirements with tests) | 71/85 (83.5%) |
-| Formal verification coverage (requirements with Lean) | 20/85 (23.5%) |
-| Code line coverage | 1723/2618 (65.8%) - functions 231/275 |
+| Requirements in manifest | 86 (srs=49, sss=23, gap=14) |
+| Requirements with implementation | 86/86 |
+| Test coverage (requirements with tests) | 72/86 (83.7%) |
+| Formal verification coverage (requirements with Lean) | 20/86 (23.3%) |
+| Code line coverage | 1803/2739 (65.8%) - functions 242/286 |
 
 <!-- METRICS-END -->
 
@@ -130,6 +130,7 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
 | TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv/802.1AS) |
 | Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
+| Serial (MSS MMUART) | `src/drivers/serial/mpfs/ff_serial_mpfs.c` | MSS MMUART (NS16550, 4-byte registers) backend behind `FF_Serial_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
@@ -257,7 +258,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 48 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 49 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.

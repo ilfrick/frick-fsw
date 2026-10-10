@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -37,6 +37,7 @@ milestone M11), then prints a machine-checkable marker:
 
 ```
 [renode-test] hal_gpio=PASS
+[renode-test] hal_serial=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -103,3 +104,4 @@ stays open (GAP-A4/A6).
 | 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |
 | 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |
 | 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |
+| 0.6 | 2026-10-10 | frick-fsw | M11: MSS MMUART serial HAL backend exercised (`hal_serial=PASS`) |

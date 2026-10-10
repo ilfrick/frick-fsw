@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.6                                    |
+| Revision                          | 1.7                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -238,6 +238,11 @@ review).
   register-based and allocation-free, validated by a host unit test (mock MMIO)
   and by an emulated-MMIO functional check on the Renode PolarFire SoC.
   `method: Tst | Dem`. (milestone M4/M11)
+- **SRS-REQ-048** — *Reference MSS MMUART serial driver*: a reference HAL backend
+  for the Microchip PolarFire SoC MSS MMUART (`FF_Serial_t`; RS-422/RS-485 via an
+  external transceiver), register-based (4-byte-spaced MMUART registers) and
+  allocation-free, validated by a host unit test (mock MMIO) and an emulated-MMIO
+  check on the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
 
 ## 6. Derived requirements
 
@@ -284,3 +289,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.4 | 2026-10-10 | frick-fsw  | N18/M10: add SRS-REQ-044 Renode functional-validation environment + test app |
 | 1.5 | 2026-10-10 | frick-fsw  | M12/M13: add SRS-REQ-045 OBCP engine (uPython/MicroPython) and SRS-REQ-046 reference mission services |
 | 1.6 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-047 reference MSS GPIO driver |
+| 1.7 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-048 reference MSS MMUART serial driver |

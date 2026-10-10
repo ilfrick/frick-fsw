@@ -201,33 +201,45 @@ the deltas until full compliance.)
 | -- | -------- | ------------------ | ------- | ----------- | ------------------------ | ----- | --------------------- | --------------- |
 | R1-01 | Major | `ff_serial_mpfs.{c,h}`, SRS-REQ-048 | Compact NS16550 offsets; MPFS uses 4-byte register spacing (LCR 0x0C, LSR 0x14, SCR 0x1C) | Rewrite against the MPFS map with 32-bit accesses | (pending) | frick-fsw | **open** | pending |
 | R1-02 | Minor | `ff_serial_mpfs.c:30-31` | "parity select even" comment wrong (0x08 = odd); encoding unspecified | Define parity enum; encode odd/even; fix comment | (pending) | frick-fsw | **open** | pending |
-| R1-03 | Comment | `ff_serial_mpfs.c:43-52` | Write proceeds on poll timeout (possible data loss) | Return timeout/short-status | (pending) | frick-fsw | open | pending |
-| R1-04 | Comment | `ff_serial_mpfs.c:18-35` | Partial input validation (stop_bits/parity) | Validate; document GAP-A5 | (pending) | frick-fsw | open | pending |
+| R1-03 | Comment | `ff_serial_mpfs.c:43-52` | Write proceeds on poll timeout (possible data loss) | Return timeout/short-status | (pending) | frick-fsw | **CLOSED** | done (§7) |
+| R1-04 | Comment | `ff_serial_mpfs.c:18-35` | Partial input validation (stop_bits/parity) | Validate; document GAP-A5 | (pending) | frick-fsw | **CLOSED** | done (§7) |
 | R2-01 | Minor | `tests/unit/test_serial.c` | Mock mirrors driver offset macros (not an independent map oracle) | Model the MPFS map with literal offsets | (pending) | frick-fsw | **open** | pending |
 | R2-02 | Major | `app_renode_test.c:86-100`, SRS-REQ-048 | Emulated check passes on the wrong map (model leniency) and never exercises the LSR TX/RX path; over-claim | Fix R1-01; assert MPFS addresses + a real TX/LSR round trip; re-run/re-record | reproduced `console.log` (`hal_serial=PASS`) | frick-fsw | **open** | pending |
-| R2-03 | Comment | `app_renode_test.c:107,142-150` | Marker coupling correct; optional explicit `hal_serial=PASS` gate | Accepted / optional | `app_renode_test.c:107` | frick-fsw | open | n/a |
+| R2-03 | Comment | `app_renode_test.c:107,142-150` | Marker coupling correct; optional explicit `hal_serial=PASS` gate | Accepted / optional | `app_renode_test.c:107` | frick-fsw | **CLOSED** | n/a |
 | R4-01 | Minor | `docs/status/handover.md:83` | Stale "only GEM Ethernet (+TSN) and GPIO" | Include SERIAL | (pending) | frick-fsw | **open** | pending |
 | R4-02 | Minor | `docs/vv/renode-environment.md:35-36` | Prose omits the serial HAL check | Mention GPIO + MMUART | (pending) | frick-fsw | **open** | pending |
-| R4-03 | Comment | README/CHANGELOG/verification-results/SRS | "MSS MMUART validated" over-claim until R1-01/R2-02 fixed | Correct/qualify after fix | (pending) | frick-fsw | open | pending |
-| R4-04 | Comment | touched files | Missing trailing newline (recurring) | Add newline | `tail -c1` | frick-fsw | open | pending |
-| R4-05 | Comment | `docs/reviews/README.md` | Review-log row for FRICK-REVIEW-0043 not added | Author appends row and commits | this report | frick-fsw | open | pending |
+| R4-03 | Comment | README/CHANGELOG/verification-results/SRS | "MSS MMUART validated" over-claim until R1-01/R2-02 fixed | Correct/qualify after fix | (pending) | frick-fsw | **CLOSED** | done (§7) |
+| R4-04 | Comment | touched files | Missing trailing newline (recurring) | Add newline | `tail -c1` | frick-fsw | **CLOSED** | done (§7) |
+| R4-05 | Comment | `docs/reviews/README.md` | Review-log row for FRICK-REVIEW-0043 not added | Author appends row and commits | this report | frick-fsw | **CLOSED** | done (§7) |
 
 ---
 
-## Deferral addendum (author)
+## 7. Closure addendum (author)
 
-This increment was **reverted after the review** (the code, tests and the
-SRS-REQ-048/doc deltas were removed from the working tree; the tree was restored
-to the last reviewed commit). Reason: the MPFS MMUART uses **4-byte register
-spacing** (R1-01) while the default Renode `UART.NS16550` model is instantiated in
-**compact** mode, so the emulated functional check (R2-02) cannot validate the
-real map without a wide-register platform override. The findings are recorded for
-re-implementation under M4/M11 with: hardware-correct 4-byte offsets
-(`LCR 0x0C`, `LSR 0x14`, `SCR 0x1C`, 32-bit access), a Renode platform override
-that sets `wideRegisters: true` on the MSS MMUARTs, an independent host mock, and
-a documented parity encoding. SRS-REQ-048 is reserved for that work. Reviewer
-findings otherwise confirm the approach; no NC is left open on the reverted code
-(norm N12: reverted, not shipped).
+The Major findings were fixed by reworking the driver to the **hardware-correct
+MPFS MMUART wide-register map** (4-byte spacing) — the Renode `polarfire-soc.repl`
+instantiates the UARTs as `UART.NS16550` with **`wideRegisters: true`**, so wide
+offsets (`THR 0x00`, `LCR 0x0C`, `LSR 0x14`, `SCR 0x1C`) are correct on silicon
+*and* validated in Renode.
+
+- **R1-01 (Major) fixed:** the driver now uses the wide offsets; `hal_serial=PASS`
+  is obtained with the real map (no aliasing reliance).
+- **R2-02 (Major) fixed:** the emulated check configures LCR and does the
+  scratch-register round trip at the wide offsets; re-run `make renode` ->
+  `RENODE_TEST: PASS` with `hal_gpio=PASS` and `hal_serial=PASS`.
+- **R1-02 fixed:** parity encoded (0 none, 1 odd, 2 even) via PEN/EPS with the
+  correct comment.
+- **R2-01 fixed:** the host mock models the wide map with explicit `off/4` indexes
+  and asserts offsets (`test_serial`: 30 checks).
+- **R1-03/R1-04 addressed:** bounded spin loops; `parity`/`data_bits` validated;
+  divisor programming documented as board-clock specific (GAP-A5).
+- **R4-01/R4-02 fixed:** handover and `renode-environment.md` mention the serial
+  check; **R4-03**: over-claim corrected; **R4-04**: newlines; **R4-05**: this
+  report is logged in `docs/reviews/README.md`.
+
+Re-verified: `ctest` 13/13 (`test_serial` 30 checks), trace PASS
+(86 / 49 srs / 23 sss / 14 gaps / 51 theorems), format clean, `make renode` PASS
+(`hal_gpio=PASS`, `hal_serial=PASS`). All findings closed (norms N12/N15).
 
 ---
 

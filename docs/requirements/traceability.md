@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.15                                   |
+| Revision                          | 0.16                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 48, SSS = 23, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 49, SSS = 23, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). Four of the
 requirements (SRS-REQ-045/046, SSS-REQ-022/023) are **planned** (M12/M13): they
@@ -44,7 +44,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
 | SSS-REQ-018 (numerical support) | SRS-REQ-033 |
 | SSS-REQ-019 (data-link security) | SRS-REQ-034, SRS-REQ-035 |
-| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047 |
+| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048 |
 | SSS-REQ-021 (code quality) | SRS-REQ-041, SRS-REQ-042 |
 | SSS-REQ-022 (on-board autonomy / OBCP) | SRS-REQ-045 |
 | SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
@@ -101,6 +101,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-045 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | OBCP engine uPython/MicroPython (planned, M12) |
 | SRS-REQ-046 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | Reference mission services (planned, M13) |
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
+| SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -181,3 +182,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.13 | 2026-10-10 | frick-fsw | N18/M10: SRS-REQ-044 Renode environment; counts 45/21/14 |
 | 0.14 | 2026-10-10 | frick-fsw | M12/M13: SSS-REQ-022/023, SRS-REQ-045/046 (OBCP engine, reference mission services); counts 47/23/14 |
 | 0.15 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-047 reference MSS GPIO driver (+Renode MMIO check); counts 48/23/14 |
+| 0.16 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-048 reference MSS MMUART serial driver (+Renode MMIO check); counts 49/23/14 |

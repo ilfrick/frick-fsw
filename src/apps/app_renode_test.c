@@ -26,6 +26,7 @@
 #if defined(FRICK_PLATFORM_MPFS)
 #include "platform/platform_mpfs.h"
 #include "drivers/gpio/mpfs/ff_gpio_mpfs.h"
+#include "drivers/serial/mpfs/ff_serial_mpfs.h"
 
 static uint32_t mpfs_gpio_read32(void *ctx, uint32_t off)
 {
@@ -69,6 +70,34 @@ static bool renode_hal_gpio_check(void)
     }
     return true;
 }
+
+static uint8_t mpfs_uart_read8(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    return *(volatile uint8_t *)(uintptr_t)(FF_MMUART0_BASE + off);
+}
+
+static void mpfs_uart_write8(void *ctx, uint32_t off, uint8_t val)
+{
+    (void)ctx;
+    *(volatile uint8_t *)(uintptr_t)(FF_MMUART0_BASE + off) = val;
+}
+
+/* HAL serial MMIO check on the emulated MSS MMUART0 (milestone M11): line
+ * control + NS16550 scratch-register round trip (wide registers). */
+static bool renode_hal_serial_check(void)
+{
+    static FF_SerialMpfs_t drv;
+    FF_SerialBus_t bus = {NULL, mpfs_uart_read8, mpfs_uart_write8};
+
+    if (FF_SerialMpfsSetup(&drv, &bus) != FF_SUCCESS) {
+        return false;
+    }
+    if (drv.serial.init(115200u, 8u, 0u, 1u) != FF_SUCCESS) {
+        return false;
+    }
+    return FF_SerialMpfsScratchSelfTest(&drv) == FF_SUCCESS;
+}
 #endif /* FRICK_PLATFORM_MPFS */
 
 void FF_AppRenodeTestMain(void *arg)
@@ -78,6 +107,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool pub_ok;
     bool rx_ok = false;
     bool hal_ok = true;
+    bool hal_serial_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -112,11 +142,13 @@ void FF_AppRenodeTestMain(void *arg)
 
 #if defined(FRICK_PLATFORM_MPFS)
     hal_ok = renode_hal_gpio_check();
+    hal_serial_ok = renode_hal_serial_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok) ? "PASS" : "FAIL");
+    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok) ? "PASS" : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);
