@@ -8,7 +8,7 @@
 
 This guide explains how to add a **low-level driver** to frick-fsw (a new link,
 a board/BSP peripheral such as a PPS input, a new PAL/RTOS port) so that it is
-buildable, testable, traceable and verifiable under the project norms (N1-N17).
+buildable, testable, traceable and verifiable under the project norms (N1-N18).
 It mirrors the way NASA cFS separates the OSAL (our PAL) and the PSP/BSP from
 the application code.
 

@@ -118,4 +118,10 @@
 #define FF_ENABLE_ASSERT 1
 #endif
 
+/* Renode functional test application (norm N18); off by default so the
+ * reference application set stays at six. */
+#ifndef FF_ENABLE_RENODE_TEST
+#define FF_ENABLE_RENODE_TEST 0
+#endif
+
 #endif /* FF_FSW_CONFIG_H */

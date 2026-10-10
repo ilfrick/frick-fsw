@@ -50,7 +50,7 @@ criticality-classification review, WCET / stack / determinism review.
 > 1. Correctness and safety of the real-time behaviour (determinism, priority,
 >    blocking, ISR context, stack and dynamic-memory usage).
 > 2. Consistency with ECSS-E-ST-40C / ECSS-Q-ST-80C and with the project
->    non-derogable norms N1-N17.
+>    non-derogable norms N1-N18.
 > 3. Defensive programming, fault containment, error propagation.
 > 4. Portability and hardware assumptions (RTEMS 6, RISC-V PolarFire SoC).
 > 5. Traceability from the reviewed item to requirements and tests.
@@ -105,7 +105,7 @@ consistency, and for system-facing portions of the interface documentation.
 > material placed before you and the applicable standards. You assess the
 > system-level specification (SSS) for correctness, completeness, feasibility
 > and consistency with the mission context, with ECSS-E-ST-40C and with the
-> project norms N1-N17.
+> project norms N1-N18.
 >
 > Focus areas:
 > 1. Are the SSS requirements complete, unambiguous, verifiable and free of
@@ -136,7 +136,7 @@ completeness and correctness (norm N17), on every change, prior to commit/push.
 > You are performing an **independent** review: you took **no part** in
 > authoring, executing or reviewing the work. Every claim in your report is
 > based solely on the repository contents and the applicable standards and
-> project norms (`docs/rules.md`, norms N1-N17).
+> project norms (`docs/rules.md`, norms N1-N18).
 >
 > Focus areas:
 > 1. **Completeness (norm N8 / N17):** every required document exists and is

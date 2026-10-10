@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra emulated
+        coverage metrics coverage-configure misra emulated renode renode-image renode-env
 
 all: build
 
@@ -50,6 +50,14 @@ misra:
 emulated:
 	bash tools/scripts/emulated_run.sh
 
+# Renode functional validation (norm N18); advisory proxy until the RTEMS image exists.
+renode:
+	bash tools/scripts/renode_vv.sh
+
+# Renode environment self-test (norm N18): image runs + polarfire-soc platform loads.
+renode-env:
+	bash tools/scripts/renode_env_selftest.sh
+
 # Complete local development & verification cycle (norm N15).
 check: build test verify-lean trace smoke gsw-selfcheck
 	@echo "frick-fsw: full local cycle PASS (norm N15)"
@@ -74,6 +82,14 @@ rtems:
 
 verify-rtems:
 	bash tools/scripts/ci_rtems_cross_build.sh
+
+# Build the RTEMS image for Renode functional validation (norm N18). Requires the
+# RTEMS toolchain in /opt/rtems 6; output build/renode/frick_fsw_renode.elf.
+renode-image:
+	$(CMAKE) -S . -B build/renode -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
+	  -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON
+	$(CMAKE) --build build/renode -j$(shell nproc)
+	cp build/renode/frick_fsw build/renode/frick_fsw_renode.elf
 
 clean:
 	rm -rf build

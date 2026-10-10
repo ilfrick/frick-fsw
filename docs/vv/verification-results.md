@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.13                                   |
+| Revision                          | 0.14                                   |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -25,6 +25,7 @@ artifacts (no external state).
 | M6 libm integration, 2026-10-10 | PASS (Debug) | PASS (7/7; 225 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20) | PASS (`lake build` 19/19) | PASS (65 reqs / 34 srs / 18 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Mathematics facade over platform libm (SSS-REQ-018, SRS-REQ-033); ADR-0012, numerics policy, licence analysis; coverage 932/1575 (59.2%), functions 141/184 |
 | M7 CCSDS SDLS, 2026-10-10 | PASS (Debug) | PASS (8/8; 306 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81) | PASS (`lake build` 21/21) | PASS (69 reqs / 36 srs / 19 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format + ASan clean | proxy | SDLS processing + SA/key management/rotation, pluggable crypto backend (SSS-REQ-019, SRS-REQ-034/035); GAP-A14; coverage 1252/2005 (62.4%), functions 175/217 |
 | M4 drivers + RTEMS + TSN + netstack + lwIP, 2026-10-10 | PASS (Debug) | PASS (11/11; 374 checks default; lwIP adapter built/tested separately with FF_USE_LWIP, `test_lwip` 19 checks) | PASS (`lake build` 21/21) | PASS (78 reqs / 43 srs / 21 sss / 14 gap, 51 theorems, 10 CI claims) | PASS (6 apps) | clang-format clean | proxy | Cadence GEM driver (SRS-REQ-036), RTEMS integration (SRS-REQ-037), GEM TSN (SRS-REQ-038), loopback netstack (SRS-REQ-039), lwIP adapter (SRS-REQ-040); coverage 1656/2521 (65.7%), functions 220/264 |
+| M10 Renode V&V env + N18, 2026-10-10 | PASS (Debug) | PASS (11/11; 374 checks; Renode test app: `FF_ENABLE_RENODE_TEST=1` builds 7 apps and prints `RENODE_TEST: PASS`; default build stays 6 apps) | PASS (`lake build` 21/21) | PASS (80 reqs / 45 srs / 21 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean; `make renode-env` PASS (Renode runs + `polarfire-soc` platform loads) | proxy | Renode-on-Docker V&V environment + norm N18 + middleware test application (SRS-REQ-044, tool T17); functional gate is an advisory proxy until the RTEMS image is available (then blocking); review FRICK-REVIEW-0036 + delta |
 
 ## v0.1.0 baseline notes
 
@@ -312,6 +313,7 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 netstack + M8 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Major fixed (netstack bounds) | docs/reviews/2026-10-10-m4-netstack-r1-r2-r4-review.md |
 | M4 lwIP + M9 code quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | M10 emulated-target review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m10-emulated-r1-r2-r4-review.md |
+| Renode env + N18 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED (F-01 Major) -> resolved + delta re-review | docs/reviews/2026-10-10-renode-env-r1-r2-r4-review.md |
 
 ## History
 
@@ -331,3 +333,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.11 | 2026-10-10 | frick-fsw | M4 (increment 5): lwIP network-stack adapter; 75 reqs / 41 srs / 20 sss |
 | 0.12 | 2026-10-10 | frick-fsw | M9: MISRA C:2012 process + declared coding style; 78 reqs / 43 srs / 21 sss |
 | 0.13 | 2026-10-10 | frick-fsw | M10: emulated-target verification (Renode/QEMU); 79 reqs / 44 srs / 21 sss |
+| 0.14 | 2026-10-10 | frick-fsw | N18/M10: Renode-on-Docker V&V environment + middleware test application (SRS-REQ-044, tool T17); 80 reqs / 45 srs / 21 sss; review FRICK-REVIEW-0036 + delta |

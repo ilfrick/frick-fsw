@@ -100,6 +100,10 @@ int ff_fsw_main(void)
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"HK", FF_AppHkMain, 16 * 1024, 50, 4}, NULL);
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"HS", FF_AppHsMain, 16 * 1024, 35, 4}, NULL);
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"SAMPLE", FF_AppSampleMain, 16 * 1024, 60, 8}, NULL);
+#if FF_ENABLE_RENODE_TEST
+    (void)FF_EsRegisterApp(&(FF_AppConfig_t){"RENODE_TEST", FF_AppRenodeTestMain, 16 * 1024, 45, 4},
+                           NULL);
+#endif
 
     FF_PalLog("frick-fsw: %u applications registered\n", (unsigned)FF_EsGetAppCount());
 

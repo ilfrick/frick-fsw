@@ -1,0 +1,27 @@
+# frick-fsw - Renode functional validation script (PolarFire SoC).
+#
+# Loads the Microchip PolarFire SoC platform, runs the middleware under test
+# (the RTEMS image built with FF_ENABLE_RENODE_TEST=1) and checks for the
+# "RENODE_TEST: PASS" marker. See docs/vv/renode-environment.md, norm N18.
+#
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: AGPL-3.0-only
+
+$program ?= @/workspace/build/renode/frick_fsw_renode.elf
+
+mach create "frick-renode"
+machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
+sysbus.uart0 CreateFileBackend @/workspace/build/renode/uart0.log
+sysbus LoadELF $program
+# Run only the U54 boot hart at the program entry; halt the others.
+cpu0 IsHalted true
+cpu2 IsHalted true
+cpu3 IsHalted true
+cpu4 IsHalted true
+cpu1 IsHalted true
+cpu1 PC 0x80000000
+cpu1 IsHalted false
+start
+sleep 5
+quit

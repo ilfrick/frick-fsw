@@ -1,7 +1,7 @@
 # Contributing to frick-fsw
 
 Thank you for contributing. This project is governed by the non-derogable
-norms N1-N17 in `docs/rules.md`; every contribution must comply with all of
+norms N1-N18 in `docs/rules.md`; every contribution must comply with all of
 them before it can be committed and pushed.
 
 ## 1. Before you start

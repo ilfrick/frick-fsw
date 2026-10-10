@@ -117,6 +117,19 @@ change. All dates UTC, project language English (norm N2).
   **QEMU** (`riscv/rv64imafdc`), verifying boot/PAL/drivers without hardware
   (partial GAP-A5 mitigation). `docs/vv/emulated-target.md`,
   `tools/scripts/emulated_run.sh`; requirement SRS-REQ-043; tools T15/T16.
+- **Norm N18 — Renode functional validation.** A Renode V&V environment
+  (pinned Antmicro image, `polarfire-soc` platform) runs the middleware on an
+  emulated PolarFire SoC; `src/apps/app_renode_test.c` (CMake option
+  `FF_ENABLE_RENODE_TEST=ON`; default build stays at six apps) prints the
+  machine-checkable `RENODE_TEST: PASS` marker; `make renode-env` self-tests the
+  environment (Renode runs + platform loads), `make renode-image` builds the
+  RTEMS image and `make renode` runs the functional validation
+  (`tools/scripts/renode_vv.sh`, CI evidence `ci:renode`). Requirement
+  SRS-REQ-044; `docs/vv/renode-environment.md`; tool T17. Functional gate is an
+  advisory proxy until the RTEMS image is available in the V&V image, then
+  blocking (the proxy SKIPs when the image is absent and fails when it is present
+  but the marker is missing). Reviews: FRICK-REVIEW-0036 (REJECTED, F-01 Major) +
+  delta (all NCs closed).
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

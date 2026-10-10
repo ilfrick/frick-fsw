@@ -1,10 +1,10 @@
-# Non-derogable Norms (Rules N1-N17)
+# Non-derogable Norms (Rules N1-N18)
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 1.1                                    |
+| Revision                          | 1.2                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
@@ -281,6 +281,22 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   semaphore in `docs/status/status.json`) and reflected in the enforcement
   summary below.
 
+## N18 - Functional validation in the Renode emulated PolarFire SoC
+
+> The functional validation of every change shall pass in the Renode emulated
+> Microchip PolarFire SoC environment.
+
+- The environment is `docs/vv/renode-environment.md` (pinned Renode image,
+  `polarfire-soc` platform; middleware test application `app_renode_test.c`
+  enabled with `FF_ENABLE_RENODE_TEST=1`; run via `make renode` /
+  `tools/scripts/renode_vv.sh`, CI evidence `ci:renode`).
+- The gate passes when the emulated run produces the `RENODE_TEST: PASS` marker.
+- Until the RTEMS toolchain and the emulated image are available in the V&V
+  image, `renode_vv.sh` is a documented **advisory proxy** (SKIP/exit 0, like the
+  RTEMS cross-build proxy); it is then made **blocking** and reported in the
+  README status panel (`renode` semaphore). A SKIP is recorded, never silently
+  treated as a pass.
+
 ## Enforcement summary
 
 | Norm | Gate / evidence |
@@ -302,6 +318,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N15  | every change re-runs the complete dev+V&V cycle until success; evidence recorded |
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
+| N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is reported (advisory proxy until the RTEMS toolchain/image is available, then blocking). **Temporary state (norm N12):** the gate is advisory and not yet in force until the RTEMS image is available; tracked to be made blocking, and the SKIP is recorded (never counted as a pass) |
 
 ## Interpretation notes (non-derogable content unchanged)
 
@@ -353,3 +370,4 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 0.9 | 2026-10-10 | frick-fsw | Add N17 (documentation review by the Senior SW documentation reviewer R4 before every commit/push) |
 | 1.0 | 2026-10-10 | frick-fsw | Add interpretation note 3: per-document History scope (ADRs exempt) — R4 review DOC-08 |
 | 1.1 | 2026-10-10 | frick-fsw | Scope N13 SPDX requirement to source/config/build files; docs covered by LICENSE/NOTICE (R4 M3 C-2) |
+| 1.2 | 2026-10-10 | frick-fsw | Add N18 (Renode functional-validation gate) |

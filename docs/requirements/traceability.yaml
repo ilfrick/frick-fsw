@@ -414,6 +414,15 @@ requirements:
     lean: []
     lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU) is an advisory demonstration path: it runs the committed RTEMS binary and checks the boot banner when the emulator is available, and records SKIP otherwise. It does not itself constitute verification; the emulator is qualified as a tool (N10), and real-silicon residual is GAP-A5."
 
+  - id: SRS-REQ-044
+    level: srs
+    parent_sss: SSS-REQ-013
+    derived: false
+    implementation: ["tools/docker/renode/Dockerfile", "tools/scripts/renode_vv.sh", "src/apps/app_renode_test.c", "docs/vv/renode-environment.md"]
+    tests: ["ci:renode"]
+    lean: []
+    lean_note: "Renode functional-validation environment (norm N18): the middleware test application emits RENODE_TEST: PASS on the emulated PolarFire SoC. Gate is an advisory proxy until the RTEMS toolchain/image are available in the V&V image, then blocking."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

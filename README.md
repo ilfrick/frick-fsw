@@ -17,7 +17,7 @@ applications for demonstration and V&V. See
 and the milestone/objective plan.
 
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
-> N1-N17): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
+> N1-N18): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
 > Licence: **AGPL-3.0-only** (`LICENSE`, `docs/quality/licensing.md`).
 
 ## Project index (table of contents)
@@ -58,10 +58,11 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
 | documentation review | 🟢 (GREEN) |
+| renode functional validation | 🟡 (YELLOW) |
 | reviews | 🟢 (GREEN) |
 | vv records | 🟢 (GREEN) |
 
-**Overall: 🟢 (GREEN)**
+**Overall: 🟡 (YELLOW)**
 
 Issues deferred by the user: none.
 
@@ -69,10 +70,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 79 (srs=44, sss=21, gap=14) |
-| Requirements with implementation | 79/79 |
-| Test coverage (requirements with tests) | 65/79 (82.3%) |
-| Formal verification coverage (requirements with Lean) | 20/79 (25.3%) |
+| Requirements in manifest | 80 (srs=45, sss=21, gap=14) |
+| Requirements with implementation | 80/80 |
+| Test coverage (requirements with tests) | 66/80 (82.5%) |
+| Formal verification coverage (requirements with Lean) | 20/80 (25.0%) |
 | Code line coverage | 1656/2521 (65.7%) - functions 220/264 |
 
 <!-- METRICS-END -->
@@ -238,13 +239,17 @@ make run                       # boot the native simulator (6 apps)
 make verify-lean               # lake build (formal verification, norm N1)
 make trace                     # traceability convergence gate (norm N4)
 
+# Renode V&V environment (norm N18):
+make renode-env                # self-test: Renode runs + polarfire-soc platform loads
+make renode-image renode       # build the RTEMS image + emulated functional validation
+
 # RTEMS 6.2 cross build (toolchain: tools/scripts/setup_rtems.sh):
 make rtems
 ```
 
 ## Requirements set (current)
 
-SRS = 44 · SSS = 21 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 45 · SSS = 21 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -265,7 +270,7 @@ status panel above is authoritative; the single source of truth is
 
 ## Documentation index
 
-- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N17) ·
+- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N18) ·
   [`AGENTS.md`](AGENTS.md)
 - **Requirements**: [`docs/requirements/SSS.md`](docs/requirements/SSS.md) ·
   [`SRS.md`](docs/requirements/SRS.md) ·
@@ -293,6 +298,7 @@ status panel above is authoritative; the single source of truth is
   [`validation-plan.md`](docs/vv/validation-plan.md) ·
   [`verification-results.md`](docs/vv/verification-results.md) ·
   [`emulated-target.md`](docs/vv/emulated-target.md) ·
+  [`renode-environment.md`](docs/vv/renode-environment.md) ·
   [`tool-qualification.md`](docs/vv/tool-qualification.md)
 - **Reviews**: [`docs/engineering/independent-review.md`](docs/engineering/independent-review.md) ·
   [`docs/reviews/`](docs/reviews/)

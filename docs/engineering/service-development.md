@@ -8,7 +8,7 @@
 
 This guide explains how to add a **PUS-C service or subservice** to frick-fsw
 (ECSS-E-ST-70-41C) on top of the backend-agnostic dispatcher, following the
-norms (N1-N17). It covers the handler contract, registration, telemetry
+norms (N1-N18). It covers the handler contract, registration, telemetry
 emission, telecommand verification, error reporting, the provider registration
 hooks (housekeeping, parameters, functions, memory) and the tests.
 

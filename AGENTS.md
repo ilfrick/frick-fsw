@@ -9,7 +9,7 @@
 > using only the repository contents and the commands below. Human entry point:
 > `README.md`.
 
-## 1. Ground rules (non-derogable, norm N1-N17)
+## 1. Ground rules (non-derogable, norm N1-N18)
 
 - Maintain `docs/rules.md` and the enforcement summary. Key gates before any
   commit/push:
@@ -31,7 +31,7 @@
 | `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers + `rtems/` RTEMS configuration table |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
-| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material |
+| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`) |
 | `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
 | `docs/` | rules, requirements (SSS/SRS/traceability), design (SDD), architecture, ADRs, interfaces (ICD), quality (class B/A + compliance/CM/PA/safety), V&V, engineering (independent review + driver/service/user guides), reviews, roadmap, **development plan**, status |
 | `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
@@ -54,6 +54,8 @@ make verify-lean         # lake build in verification/lean
 make trace               # python3 tools/scripts/trace.py docs/requirements/traceability.yaml
 make coverage            # gcov line/function coverage -> build/coverage/coverage.json
 make metrics             # regenerate the README status panel (coverage + semaphores)
+make renode-env          # Renode V&V environment self-test (norm N18; needs docker)
+make renode              # Renode functional validation (advisory until the RTEMS image exists)
 ```
 
 RTEMS cross build (requires toolchain; `tools/scripts/setup_rtems.sh` installs
@@ -127,3 +129,4 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N15 | Every change re-runs the complete development+V&V cycle to success |
 | N16 | Detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17 | Documentation reviewed by the Senior SW documentation reviewer (R4) on every change; review loop closed before commit/push |
+| N18 | Functional validation of every change passes in the Renode emulated PolarFire SoC environment (advisory proxy until the RTEMS image is available, then blocking) |

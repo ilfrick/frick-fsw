@@ -27,6 +27,7 @@
     "ci_gitea": "green",
     "documentation_set": "green",
     "documentation_review": "green",
+    "renode_functional_validation": "yellow",
     "reviews": "green",
     "vv_records": "green"
   },

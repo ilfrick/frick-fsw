@@ -21,6 +21,7 @@ option(FF_USE_LIBM     "Link the platform math library (libm, milestone M6)" ON)
 option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" ON)
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
 option(FF_USE_LWIP    "Build the lwIP network-stack adapter (milestone M4, needs third_party/lwip)" OFF)
+option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -75,6 +76,13 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/apps/app_sample.c
   ${CMAKE_CURRENT_SOURCE_DIR}/config/tables/fsw_tables.c
 )
+
+# Renode functional test application (norm N18): compiled and registered only
+# when enabled, so the default/flight reference set stays at six applications.
+if(FF_ENABLE_RENODE_TEST)
+  add_compile_definitions(FF_ENABLE_RENODE_TEST=1)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/apps/app_renode_test.c)
+endif()
 
 # HAL core registry: optional component so users can omit the abstraction layer
 # they do not need (partitioning, objective OBJ-07; norm N8). Header-only

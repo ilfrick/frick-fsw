@@ -21,6 +21,10 @@ void FF_AppHkMain(void *arg);
 void FF_AppHsMain(void *arg);
 void FF_AppSampleMain(void *arg);
 
+/* Renode functional test application (norm N18; registered only when
+ * FF_ENABLE_RENODE_TEST=1). */
+void FF_AppRenodeTestMain(void *arg);
+
 /* Initialisation hooks called before ES starts the tasks. */
 FF_Status_t FF_AppTmOutputInit(void);
 FF_Status_t FF_AppHkRegister(void);

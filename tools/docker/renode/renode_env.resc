@@ -1,0 +1,14 @@
+# frick-fsw - Renode environment self-test script (PolarFire SoC).
+#
+# Validates that the pinned Renode image starts and loads the Microchip
+# PolarFire SoC platform (the baseline "environment is ready" check, norm N18).
+# Reproduce with: make renode-env (tools/scripts/renode_env_selftest.sh).
+#
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: AGPL-3.0-only
+
+mach create "frick-renode-env"
+machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
+echo "RENODE_PLATFORM_OK"
+quit

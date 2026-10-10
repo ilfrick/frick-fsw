@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.3                                    |
+| Revision                          | 1.4                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -215,6 +215,11 @@ review).
   the drivers without hardware, documented as a partial mitigation of GAP-A5.
   The execution path is **advisory** (runs when the emulator is available;
   records SKIP otherwise) and is qualified as a V&V tool (N10). `method: Dem | Inp`.
+- **SRS-REQ-044** — *Renode functional-validation environment*: a Renode-based V&V
+  environment running the middleware on an emulated PolarFire SoC shall be
+  provided, with a middleware test application that emits a checkable result, and
+  the functional validation in that environment shall pass for every change
+  (norm N18). `method: Tst | Dem`.
 
 ## 6. Derived requirements
 
@@ -258,3 +263,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.1 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-040 lwIP network-stack adapter |
 | 1.2 | 2026-10-10 | frick-fsw  | M9: add SRS-REQ-041 MISRA C:2012 compliance and SRS-REQ-042 coding style |
 | 1.3 | 2026-10-10 | frick-fsw  | M10: add SRS-REQ-043 emulated-target verification (Renode/QEMU) |
+| 1.4 | 2026-10-10 | frick-fsw  | N18/M10: add SRS-REQ-044 Renode functional-validation environment + test app |

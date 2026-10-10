@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.12                                   |
+| Revision                          | 0.13                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,8 +15,8 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 44, SSS = 21, GAP = 14, Lean theorems = 51, CI evidence
-claims = 11 unique workflow claim names (10 referenced by the manifest; `ci-lean`
+Counts (current): SRS = 45, SSS = 21, GAP = 14, Lean theorems = 51, CI evidence
+claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
 ## 1. Top-down matrix (SSS -> SRS)
@@ -35,7 +35,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-010 (determinism) | SRS-REQ-015 |
 | SSS-REQ-011 (multi-target build) | SRS-REQ-016 |
 | SSS-REQ-012 (doc set) | FRICK-SRS-REQ-000 |
-| SSS-REQ-013 (continuous verification) | SRS-REQ-020, SRS-REQ-043 |
+| SSS-REQ-013 (continuous verification) | SRS-REQ-020, SRS-REQ-043, SRS-REQ-044 |
 | SSS-REQ-014 (link/transport) | SRS-REQ-012 |
 | SSS-REQ-015 (PUS backends) | SRS-REQ-018 |
 | SSS-REQ-016 (time base) | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
@@ -167,3 +167,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.10 | 2026-10-10 | frick-fsw | M4: SRS-REQ-040 lwIP adapter; counts 41/20/14 |
 | 0.11 | 2026-10-10 | frick-fsw | M9: SRS-REQ-041/042 code quality; counts 43/21/14 |
 | 0.12 | 2026-10-10 | frick-fsw | M10: SRS-REQ-043 emulated-target verification; counts 44/21/14 |
+| 0.13 | 2026-10-10 | frick-fsw | N18/M10: SRS-REQ-044 Renode environment; counts 45/21/14 |
