@@ -157,7 +157,9 @@ jobs:
           EOF
       - name: Doxygen
         run: |
-          if command -v doxygen > /dev/null; then doxygen Doxyfile; else echo "doxygen not available"; fi
+          if command -v doxygen > /dev/null; then
+            mkdir -p build/doxygen && doxygen Doxyfile
+          else echo "doxygen not available"; fi
 
   # evidence: ci-rtems-cross-build (SSS-REQ-001, SRS-REQ-016)
   # Per-commit proxy: if the RTEMS 6.2 toolchain is available, cross-build;

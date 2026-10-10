@@ -41,6 +41,9 @@ change. All dates UTC, project language English (norm N2).
   `/git` sub-path, so `actions/checkout` failed with `repository not found`. The
   Gitea workflow now clones the public mirror explicitly with `git`; the GitHub
   workflow is unchanged.
+- CI `documentation set`: the Doxygen step failed inside the pinned V&V image
+  (doxygen 1.9.8) because `build/doxygen` did not exist; both workflows now
+  create it first.
 
 ## [0.1.0] - 2026-10-10 - baseline release
 
