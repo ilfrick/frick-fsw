@@ -171,7 +171,14 @@ change. All dates UTC, project language English (norm N2).
   each with its backend behind the `hal_*.h` contract (M4-residual MSS
   peripherals), a binding in `frick-renode.resc` and a checkable clause in the
   marker. Objective OBJ-19; `docs/development-plan.md`,
-  `docs/roadmap.md`.
+  `docs/roadmap.md`. **Started (GPIO):** MSS GPIO driver
+  `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` (SRS-REQ-047) + host unit test
+  (`test_gpio`, mock MMIO) + a real MMIO round trip in the Renode run
+  (`hal_gpio=PASS`).
+- **Reference MSS GPIO driver (M4/M11).** `FF_Gpio_t` backend for the Microchip
+  PolarFire SoC MSS GPIO (bus-injected MMIO, allocation-free); host test
+  `tests/unit/test_gpio.c` and emulated-MMIO check on the Renode `polarfire-soc`
+  platform; requirement SRS-REQ-047.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

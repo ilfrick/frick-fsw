@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.5                                    |
+| Revision                          | 1.6                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -233,6 +233,11 @@ review).
   (device command/monitoring/reconfiguration, redundancy) and **fault management**
   (limit checking, stored command sequences, memory/file management).
   `method: Tst | Dem`. (milestone M13)
+- **SRS-REQ-047** — *Reference MSS GPIO driver*: the framework shall provide a
+  reference HAL backend for the Microchip PolarFire SoC MSS GPIO (`FF_Gpio_t`),
+  register-based and allocation-free, validated by a host unit test (mock MMIO)
+  and by an emulated-MMIO functional check on the Renode PolarFire SoC.
+  `method: Tst | Dem`. (milestone M4/M11)
 
 ## 6. Derived requirements
 
@@ -278,3 +283,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.3 | 2026-10-10 | frick-fsw  | M10: add SRS-REQ-043 emulated-target verification (Renode/QEMU) |
 | 1.4 | 2026-10-10 | frick-fsw  | N18/M10: add SRS-REQ-044 Renode functional-validation environment + test app |
 | 1.5 | 2026-10-10 | frick-fsw  | M12/M13: add SRS-REQ-045 OBCP engine (uPython/MicroPython) and SRS-REQ-046 reference mission services |
+| 1.6 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-047 reference MSS GPIO driver |

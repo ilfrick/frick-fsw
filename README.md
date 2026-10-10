@@ -70,11 +70,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 84 (srs=47, sss=23, gap=14) |
-| Requirements with implementation | 84/84 |
-| Test coverage (requirements with tests) | 70/84 (83.3%) |
-| Formal verification coverage (requirements with Lean) | 20/84 (23.8%) |
-| Code line coverage | 1656/2521 (65.7%) - functions 220/264 |
+| Requirements in manifest | 85 (srs=48, sss=23, gap=14) |
+| Requirements with implementation | 85/85 |
+| Test coverage (requirements with tests) | 71/85 (83.5%) |
+| Formal verification coverage (requirements with Lean) | 20/85 (23.5%) |
+| Code line coverage | 1723/2618 (65.8%) - functions 231/275 |
 
 <!-- METRICS-END -->
 
@@ -130,8 +130,14 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
 | TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv/802.1AS) |
 | Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
+| GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 
-Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, GPIO, storage,
+GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
+(bus-injected MMIO, allocation-free, single instance), validated by the host unit
+test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
+`polarfire-soc` platform (milestone M11; SRS-REQ-047).
+
+Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, storage,
 PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
 deliverables (M4: MPFS BSP + 1 Gb/s Ethernet + stacks). See the detailed
 **driver development and integration guide** for humans and agents:
@@ -251,7 +257,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 47 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 48 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.

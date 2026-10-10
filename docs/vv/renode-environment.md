@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -31,10 +31,12 @@ targets the RTPFS160ZT board is **designed to be executed** against the Renode
 
 `src/apps/app_renode_test.c` (`FF_AppRenodeTestMain`) is a middleware
 application used for the Renode functional test: it exercises the **Software
-Bus** (publish/subscribe round trip), **Event Services** and **Time Services**,
-then prints a machine-checkable marker:
+Bus** (publish/subscribe round trip), **Event Services** and **Time Services**
+and, on the target platform, a **HAL self-check** (MSS GPIO MMIO round trip,
+milestone M11), then prints a machine-checkable marker:
 
 ```
+[renode-test] hal_gpio=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -77,6 +79,11 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   shows the banner and `RENODE_TEST: PASS`. Boot: U54_1 (hart 1) at the image
   entry `0x1000000000` (PolarFire SoC/HSS high DDR alias), console UART
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
+- **HAL coverage (milestone M11, in progress):** the functional run also exercises
+  HAL backends on the emulated peripherals. Started with **GPIO**: the MSS GPIO
+  driver (`src/drivers/gpio/mpfs/ff_gpio_mpfs.c`, SRS-REQ-047) performs a real
+  MMIO round trip on `gpio0` and the app checks it (`hal_gpio=PASS`); the marker
+  is `PASS` only when it succeeds. Further HAL classes are added per M11.
 - **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
   (per-commit proxy) and **fails (exit 1)** when the image is present but the
   marker is missing; the nightly workflow performs the real run. Norm N18 is
@@ -95,3 +102,4 @@ stays open (GAP-A4/A6).
 | 0.2 | 2026-10-10 | frick-fsw | Review FRICK-REVIEW-0036 fixes: test app receives inline (marker PASS), CMake option + `renode-image`, `make renode-env` self-test, `renode_vv.sh` fails on missing marker, status wording |
 | 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |
 | 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |
+| 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |

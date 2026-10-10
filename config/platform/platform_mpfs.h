@@ -27,4 +27,9 @@
 #define FF_BOARD_NAME "RT PolarFire SoC RTPFS160ZT (FCVG784)"
 #define FF_MPFS_BOOT_HARTID 1u /* U54 #0 boots the flight software */
 
+/* MSS GPIO port 0 (Microchip PolarFire SoC GPIO). Used by the reference GPIO
+ * driver; exercised on the emulated SoC in the Renode functional test (M11). */
+#define FF_GPIO0_BASE 0x20120000u
+#define FF_GPIO0_PINS 14u /* MSS GPIO0 has 14 pins (GPIO1=24, GPIO2=32) */
+
 #endif /* FF_PLATFORM_MPFS_H */
