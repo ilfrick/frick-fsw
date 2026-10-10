@@ -118,9 +118,8 @@ requirements:
     parent_sss: SSS-REQ-007
     derived: false
     implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c"]
-    lean: []
-    lean_note: "CUC encoding verified via CCSDS TM round-trip in test_ccsds.c."
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c", "tests/unit/test_time.c"]
+    lean: ["req_srs024_cuc_field_roundtrip"]
 
   - id: SRS-REQ-011
     level: srs
@@ -210,6 +209,38 @@ requirements:
     lean: []
     lean_note: "Deployment-from-documentation is demonstrated by the CI jobs acting on the docs and by the agent-oriented quickstart in AGENTS.md."
 
+  - id: SRS-REQ-021
+    level: srs
+    parent_sss: SSS-REQ-016
+    derived: false
+    implementation: ["src/core/time/time.c", "src/core/time/pps.c", "src/pus/pus_services.c"]
+    tests: ["tests/unit/test_time.c", "tests/unit/test_pus.c"]
+    lean: ["req_srs021_sources_distinct", "req_srs021_source_set_disjoint", "req_srs021_utc_non_regression"]
+
+  - id: SRS-REQ-022
+    level: srs
+    parent_sss: SSS-REQ-016
+    derived: false
+    implementation: ["src/core/time/time.c"]
+    tests: ["tests/unit/test_time.c"]
+    lean: ["req_srs022_tone_second_advance", "req_srs022_tone_count_strict"]
+
+  - id: SRS-REQ-023
+    level: srs
+    parent_sss: SSS-REQ-016
+    derived: false
+    implementation: ["src/core/time/time.c"]
+    tests: ["tests/unit/test_time.c"]
+    lean: ["req_srs023_leap_cleared_at_tone", "req_srs023_leap_accumulated_at_tone"]
+
+  - id: SRS-REQ-024
+    level: srs
+    parent_sss: SSS-REQ-016
+    derived: false
+    implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
+    tests: ["tests/unit/test_time.c", "tests/unit/test_pus.c"]
+    lean: ["req_srs024_cuc_field_roundtrip", "req_srs024_fine_frac_bounded", "req_srs024_coarse_byte_decompose"]
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -259,10 +290,9 @@ requirements:
   - id: SSS-REQ-007
     level: sss
     derived: false
-    implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
-    tests: ["tests/unit/test_ccsds.c"]
-    lean: []
-    lean_note: "CUC encoding/decoding round-trip verified in test_ccsds.c."
+    implementation: ["src/core/time/time.c", "src/core/time/pps.c", "src/pus/pus_services.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_time.c", "tests/unit/test_pus.c"]
+    lean: ["req_srs024_cuc_field_roundtrip"]
 
   - id: SSS-REQ-008
     level: sss
@@ -326,6 +356,13 @@ requirements:
     implementation: ["src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
     tests: ["tests/unit/test_pus.c"]
 
+  - id: SSS-REQ-016
+    level: sss
+    derived: false
+    implementation: ["src/core/time/time.c", "src/core/time/pps.c", "config/fsw_config.h"]
+    tests: ["tests/unit/test_time.c"]
+    lean: ["req_srs022_tone_second_advance", "req_srs021_utc_non_regression"]
+
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1
     level: gap
@@ -372,5 +409,13 @@ requirements:
     gap: true
     justification: "Radiation / SEE performance, environmental qualification and long-duration soak testing require a HW campaign outside the software scope."
     implementation: ["docs/quality/class-a-gaps.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A7
+    level: gap
+    gap: true
+    justification: "On-target PPS capture (RTEMS MPFS GPIO/PLIC ISR feeding FF_TimeToneSignal) and a CCSDS 1958/TAI epoch correlation with a leap-second table require flight hardware and an on-board campaign; the host-level abstraction, software backend and formal model are delivered in M2."
+    implementation: ["src/core/time/pps.c", "src/bsp/mpfs"]
     tests: []
     lean: []

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,8 +15,9 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 21, SSS = 15, GAP = 6, Lean theorems = 20, CI evidence
-claims = 8.
+Counts (current): SRS = 25, SSS = 16, GAP = 7, Lean theorems = 41, CI evidence
+claims = 9 unique workflow claim names (8 referenced by the manifest; `ci-lean`
+is reported in CI but not claimed by any requirement, norm N1).
 
 ## 1. Top-down matrix (SSS -> SRS)
 
@@ -37,6 +38,7 @@ claims = 8.
 | SSS-REQ-013 (continuous verification) | SRS-REQ-020 |
 | SSS-REQ-014 (link/transport) | SRS-REQ-012 |
 | SSS-REQ-015 (PUS backends) | SRS-REQ-018 |
+| SSS-REQ-016 (time base) | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -52,7 +54,7 @@ claims = 8.
 | SRS-REQ-007 | pus.c | test_pus.c | req_srs007_counter_increases, req_srs007_counter_wrap_bounded | |
 | SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c | - | GAP-A2 formalisation |
 | SRS-REQ-009 | pus_services.c | test_pus.c | - | region bound asserted |
-| SRS-REQ-010 | time.c, pus_services.c | test_pus.c, test_ccsds.c | - | CUC round-trip |
+| SRS-REQ-010 | time.c, pps.c, pus_services.c | test_pus.c, test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip | CUC round-trip |
 | SRS-REQ-011 | evs.c, fsw_main.c, pus.c | test_pus.c, ci:simulator-smoke | - | observed in simulator |
 | SRS-REQ-012 | pus_services.c | test_pus.c | - | S17 ping/pong |
 | SRS-REQ-013 | tbl.c | test_tbl.c | - | atomic activate |
@@ -63,6 +65,10 @@ claims = 8.
 | SRS-REQ-018 | pus.h, adapters | test_pus.c | - | derived: ADR-0003 |
 | SRS-REQ-019 | fsw_config.h, fsw_tables.c | test_tbl.c | - | derived: cFS heritage |
 | SRS-REQ-020 | workflows, tools/docker, AGENTS.md, docs | ci:trace, ci:docs | - | derived: N6/N8 |
+| SRS-REQ-021 | time.c, pps.c | test_time.c | req_srs021_sources_distinct, req_srs021_source_set_disjoint, req_srs021_utc_non_regression | source selection |
+| SRS-REQ-022 | time.c | test_time.c | req_srs022_tone_second_advance, req_srs022_tone_count_strict | tone discipline |
+| SRS-REQ-023 | time.c | test_time.c | req_srs023_leap_cleared_at_tone, req_srs023_leap_accumulated_at_tone | leap at boundary |
+| SRS-REQ-024 | time.c | test_time.c | req_srs024_cuc_field_roundtrip, req_srs024_fine_frac_bounded, req_srs024_coarse_byte_decompose | CUC framing |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -79,7 +85,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-004 | pus.c | test_pus.c | req_srs006_acceptance_completion |
 | SSS-REQ-005 | pus_services.c, app_hk.c | ci:simulator-smoke | - |
 | SSS-REQ-006 | evs.c, fsw_main.c, pus.c | ci:simulator-smoke | - |
-| SSS-REQ-007 | time.c, pus_services.c | test_ccsds.c | - |
+| SSS-REQ-007 | time.c, pps.c, pus_services.c | test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip |
 | SSS-REQ-008 | app_hs.c, es.c | ci:simulator-smoke | - |
 | SSS-REQ-009 | tbl.c, fsw_tables.c | test_tbl.c | - |
 | SSS-REQ-010 | pal, fsw_config.h | ci:static-analysis | - |
@@ -88,6 +94,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-013 | workflows, tools/docker | ci:ci-pipeline | - |
 | SSS-REQ-014 | link.h, link_loopback.c, link_uart.c | test_pus.c | - |
 | SSS-REQ-015 | adapters | test_pus.c | - |
+| SSS-REQ-016 | time.c, pps.c, fsw_config.h | test_time.c | req_srs022_tone_second_advance, req_srs021_utc_non_regression |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -99,6 +106,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | GAP-A4 | MISRA evidence, WCET, stack analysis | class-a-gaps.md |
 | GAP-A5 | on-target RTEMS / HWIL qualification | class-a-gaps.md |
 | GAP-A6 | radiation / environmental campaign | class-a-gaps.md |
+| GAP-A7 | on-target PPS capture and CCSDS/TAI epoch | class-a-gaps.md |
 
 ## 5. Bottom-up checks performed by the gate
 
@@ -113,3 +121,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial matrices aligned with traceability.yaml |
+| 0.2 | 2026-10-10 | frick-fsw | Milestone M2: SSS-REQ-016, SRS-REQ-021..024, GAP-A7; counts updated |

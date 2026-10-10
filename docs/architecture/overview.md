@@ -24,7 +24,7 @@ configuration tables.
      |  | PAL    |  | SB |  | EVS|  | ES |  | TBL |  | TIME |   core         |
      |  +--------+  +----+  +----+  +----+  +-----+  +------+                |
      |  +--------------+  +-------------------+  +------------------+        |
-     |  | PUS layer (S1,S3,S5,S6,S8,S9,S17,S20)|  | CCSDS codec+CRC  |        |
+     |  | PUS layer (S1,S3,S5,S6,S8,S9,S11,S17,S20)|  | CCSDS codec+CRC  |        |
      |  +--------------+  +-------------------+  +------------------+        |
      |  +------------------+  +------------------+                            |
      |  | link (loopback/uart)| | apps (6 tasks)  |                         |
@@ -55,7 +55,7 @@ flowchart TB
     subgraph PUS["PUS-C layer - ECSS-E-ST-70-41C"]
         direction LR
         P1["TC dispatch and S1 verification"]
-        P2["Services S1 S3 S5 S6 S8 S9 S17 S20"]
+        P2["Services S1 S3 S5 S6 S8 S9 S11 S17 S20"]
         P3["Backend vtable FF_Pus_Backend_t"]
     end
 

@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
-| Tracking                          | GAP-A1..A6 in `docs/requirements/traceability.yaml` |
+| Tracking                          | GAP-A1..A7 in `docs/requirements/traceability.yaml` |
 
 The current baseline targets ECSS criticality **B** (`ecss-criticality-b.md`).
 The following gaps must be closed, together with the class-B baseline, to
@@ -70,6 +70,23 @@ traceability manifest (level `gap`, `justification` records the disposition).
 - SEE/radiation characterisation of the RTPFS160ZT and memory scrub schemes.
 - Environmental qualification and long-duration soak testing.
 
+## GAP-A7 - On-target PPS capture and CCSDS/TAI epoch
+
+**Status:** open (blocked on hardware)
+
+- A hardware PPS backend for the RTEMS/MPFS target (PLIC GPIO capture ISR
+  latching the timestamp and deferring to a task that calls
+  `FF_TimeToneSignal()`) is today served by the software backend on the host
+  simulator; the driver hook exists but needs the flight board to be validated
+  (see `docs/engineering/driver-development.md`). The **edge-qualification
+  criterion to be provided by the front-end/driver** at board bring-up is:
+  reject edges closer than a configurable fraction of the nominal 1 s tone
+  interval (spurious-edge / glitch removal) before the hook; the core enforces
+  strict monotonicity and the one-second epoch advance, while tone-spacing
+  plausibility remains a front-end responsibility (R1 review NC-06).
+- The CUC uses an agency-defined epoch on the simulator; a CCSDS 1958 (level 1)
+  / TAI epoch correlation and a leap-second table require on-board validation.
+
 ## Closure policy
 
 Each gap has an owner, a work package and an acceptance criterion set in the
@@ -82,3 +99,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial gap analysis GAP-A1..A6 (norm N5) |
+| 0.2 | 2026-10-10 | frick-fsw | Milestone M2: add GAP-A7 on-target PPS and TAI/CCSDS epoch |

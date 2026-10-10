@@ -42,3 +42,9 @@ the PAL mutex. Single-publish losslessness for subscribed pipes bounded at
 ## 5. Traceability
 
 SSS-REQ-002, SRS-REQ-001, SRS-REQ-002, SRS-REQ-015.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial Software Bus note (norm N8/N16) |

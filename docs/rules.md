@@ -1,10 +1,10 @@
-# Non-derogable Norms (Rules N1-N16)
+# Non-derogable Norms (Rules N1-N17)
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 0.8                                    |
+| Revision                          | 1.0                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
@@ -250,6 +250,34 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   requirement change, refactor, tooling) so the full trace of every change is
   auditable (norm N12/N15).
 
+## N17 - Documentation review by the Senior SW documentation reviewer
+
+> Before every commit/push, the project documentation shall be reviewed for
+> completeness and correctness by an independent **Senior SW documentation
+> reviewer** agent. The review loop (review -> correction -> re-review) shall
+> be closed with all findings resolved before the change is committed and
+> pushed; a REJECTED documentation review blocks commit/push.
+
+- The reviewer agent profile is **R4 - Senior SW documentation reviewer**
+  defined in `docs/engineering/independent-review.md`, instantiated with
+  independent context (norm N9) and stored evidence under `docs/reviews/`
+  (norm N11).
+- Scope: the documentation set affected by any change — `docs/**`, `README.md`,
+  `AGENTS.md`, status records (`docs/status/status.json`), CI workflow
+  comments, and the engineering guides — checked for completeness, correctness,
+  accuracy against the code/requirements/traceability (norm N8), internal
+  consistency (including counts, revisions, history tables and the README
+  metrics panel), and applicability to both human and agent users.
+- Trigger: on **every change** (norm N15), together with the other applicable
+  reviews (norms N9/N10/N14); at minimum one documentation-review loop per
+  committed change.
+- NC resolution follows norm N12: review -> correction -> re-review (fresh
+  context) until the conclusion is APPROVED or APPROVED WITH COMMENTS with all
+  NCs closed. All findings are tracked to closure in the review report.
+- The gate is reported in the README metrics panel (`documentation_review`
+  semaphore in `docs/status/status.json`) and reflected in the enforcement
+  summary below.
+
 ## Enforcement summary
 
 | Norm | Gate / evidence |
@@ -270,6 +298,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N14  | SSS requirements reviewed by Senior Systems Engineer (R3), NCs closed by repeated reviews (N12), reports in repo (N11) |
 | N15  | every change re-runs the complete dev+V&V cycle until success; evidence recorded |
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
+| N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
 
 ## Interpretation notes (non-derogable content unchanged)
 
@@ -298,6 +327,14 @@ NCs) and are reviewed on every change (norm N8/N16).
    `docs/vv/verification-results.md`. A gate not applicable to a change is
    recorded, not silently skipped.
 
+3. **Scope of the per-document history (N16).** The `## History` table is
+   required for the substantive engineering, system, quality, V&V and planning
+   documents (requirements, architecture notes, ICD, quality, V&V, engineering
+   guides, roadmap, development plan). ADRs (`docs/adr/`) record their evolution
+   through their `Status`/`Date` front-matter and the git history; a separate
+   `## History` table is not duplicated there. This keeps N16 authoritative for
+   auditable documents without duplicating the ADR status field.
+
 ## History
 
 | Rev | Date       | Author    | Reason |
@@ -310,3 +347,5 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 0.6 | 2026-10-10 | frick-fsw | Add N13 (AGPL-3.0 open source licensing) |
 | 0.7 | 2026-10-10 | frick-fsw | Add N14 (Senior Systems Engineer review of SSS) |
 | 0.8 | 2026-10-10 | frick-fsw | Add N15 (full cycle on every change) and N16 (detailed revision history) |
+| 0.9 | 2026-10-10 | frick-fsw | Add N17 (documentation review by the Senior SW documentation reviewer R4 before every commit/push) |
+| 1.0 | 2026-10-10 | frick-fsw | Add interpretation note 3: per-document History scope (ADRs exempt) — R4 review DOC-08 |

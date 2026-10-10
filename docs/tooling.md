@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TOOLING-001                      |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 
 This document describes the engineering approach and every tool used for
@@ -62,6 +62,8 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | Docker V&V image | Reproducible pipeline for humans and agents (norm N6/N8) | containerised `make ci-local` | T1 |
 | `tools/scripts/run_sim.sh` | Simulator bootstrap for humans/agents/CI | FT logs | T9 |
 | `tools/scripts/setup_rtems.sh` | RTEMS 6.2 toolchain bootstrap | cross build | T10 |
+| `tools/scripts/coverage.py` | gcov line/function coverage collector (`make coverage`) | `build/coverage/coverage.json` | T12 |
+| `tools/scripts/metrics.py` | README status panel generator (coverage + V&V semaphores) | README metrics panel | T13 |
 
 ## 4. CI/CD tools
 
@@ -110,3 +112,10 @@ Any change to the approach, to a tool, to its version or to its role MUST
 update this document and the qualification register in the same commit
 (norm N8/N10). The `docs` and `trace` CI jobs verify the referenced files
 exist.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial approach and tooling document (norm N8/N10) |
+| 0.2 | 2026-10-10 | frick-fsw | Add qualified V&V tools T12 (`coverage.py`), T13 (`metrics.py`) to the inventory |

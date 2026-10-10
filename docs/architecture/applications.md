@@ -24,3 +24,9 @@ see `src/apps/app.h` and `fsw_main.c`).
 ## Traceability
 
 SRS-REQ-011/014, SSS-REQ-005/008.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial reference-applications note (norm N8/N16) |

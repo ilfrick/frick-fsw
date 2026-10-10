@@ -134,4 +134,56 @@ static void test_memory_dump_bounded(void)
     }
 }
 
-FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded)
+/* ---- Service 9 : time management (SRS-REQ-010, R3 NC-1) -------------
+ * PUS-C on-wire time uses the 6-octet CUC T-field with the P-field implicit.
+ * A 7-octet input that includes an explicit P-field (the self-describing form
+ * produced by FF_TimeCucEncode) is rejected so that the P byte can never be
+ * mis-parsed as the MSB of the coarse field. */
+
+static void test_service9_time(void)
+{
+    uint8_t payload[7];
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    FF_Pus_TcHdr_t tc;
+    uint32_t coarse = 0u;
+    uint16_t fine = 0u;
+
+    FF_TimeInit();
+
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION;
+    tc.service = FF_PUS_SERVICE_TIME; /* 9 */
+    tc.subservice = 1u;               /* set time */
+    tc.source_id = 0x0102u;
+
+    /* Valid 6-octet T-field: coarse 5 s, fine 0. */
+    g_rx_count = 0u;
+    wr_u32be(&payload[0], 5u);
+    wr_u16be(&payload[4], 0u);
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, 6u, frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(stream_has(1u, 1u));
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 5u); /* deterministic: whole-second margin */
+
+    /* 7-octet input leading with an explicit P-field (0x2E) must be rejected
+     * with FF_BAD_SIZE: if it were parsed, 0x2E would become coarse MSB. */
+    g_rx_count = 0u;
+    payload[0] = 0x2Eu;
+    wr_u32be(&payload[1], 0x000000FFu); /* would mis-read as coarse 255 */
+    wr_u16be(&payload[5], 0u);
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, 7u, frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(stream_has(1u, 8u)); /* completion failure */
+    /* time unchanged: coarse not overwritten by the attempted mis-parse */
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 5u);
+}
+
+FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time)

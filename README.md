@@ -9,8 +9,15 @@ for a small/medium spacecraft OBC built on the **Microchip RT PolarFire SoC
 RTPFS160ZT** (RISC-V) under **RTEMS 6.2** (embedded brains ECSS pre-qualified
 baseline), target ECSS criticality **B**.
 
+**This is a middleware (framework), not a mission application.** It provides the
+command & data handling backbone and the interfaces to integrate your own
+applications, drivers and third-party stacks; the six `src/apps/*` are reference
+applications for demonstration and V&V. See
+[`docs/development-plan.md`](docs/development-plan.md) for the product boundary
+and the milestone/objective plan.
+
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
-> N1-N16): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
+> N1-N17): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
 > Licence: **AGPL-3.0-only** (`LICENSE`, `docs/quality/licensing.md`).
 
 ## Project index (table of contents)
@@ -50,6 +57,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci github | 🟢 (GREEN) |
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
+| documentation review | 🟢 (GREEN) |
 | reviews | 🟢 (GREEN) |
 | vv records | 🟢 (GREEN) |
 
@@ -61,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 42 (srs=21, sss=15, gap=6) |
-| Requirements with implementation | 42/42 |
-| Test coverage (requirements with tests) | 36/42 (85.7%) |
-| Formal verification coverage (requirements with Lean) | 9/42 (21.4%) |
-| Code line coverage | 571/1095 (52.1%) - functions 74/125 |
+| Requirements in manifest | 48 (srs=25, sss=16, gap=7) |
+| Requirements with implementation | 48/48 |
+| Test coverage (requirements with tests) | 41/48 (85.4%) |
+| Formal verification coverage (requirements with Lean) | 16/48 (33.3%) |
+| Code line coverage | 845/1446 (58.4%) - functions 114/156 |
 
 <!-- METRICS-END -->
 
@@ -103,8 +111,9 @@ CCSDS backend (`src/pus/pus.c`, `src/pus/pus_services.c`):
 | 17 | Test | 1 connection test (ping/pong) |
 | 20 | Parameter management | 1 set, 3 report (provider-registered) |
 
-Planned extensions (roadmap `docs/roadmap.md`): PUS service 23 file management
-and CFDP (M3); TCP/IP and TSN transport over PUS-C (M4).
+Planned extensions (`docs/roadmap.md`): HAL interfaces + integration manuals
+(M3); MPFS BSP layers, 1 Gb/s Ethernet driver, PUS service 23 file management +
+CFDP, and TCP/IP + TSN transport over PUS-C (M4).
 
 ## Low-level drivers
 
@@ -119,9 +128,11 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
 
 No external device drivers (SpaceWire, CAN, Ethernet/IP, TSN, PPS) are
-implemented yet; they are planned milestones (M2/M4). See the detailed
-**driver development and integration guide** for humans and agents:
-`docs/engineering/driver-development.md`.
+implemented yet; they are interface-milestone deliverables (M3: HAL contracts)
+and reference-implementation deliverables (M4: MPFS BSP + 1 Gb/s Ethernet). See
+the detailed **driver development and integration guide** for humans and agents:
+`docs/engineering/driver-development.md` and the
+[`docs/development-plan.md`](docs/development-plan.md).
 
 ## Architecture
 
@@ -248,8 +259,10 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 21 · SSS = 15 · GAP (to class A) = 6 · Lean theorems = 20. See
-`docs/requirements/`.
+SRS = 25 · SSS = 16 · GAP (to class A) = 7 · Lean theorems = 41. The generated
+status panel above is authoritative; the single source of truth is
+`docs/requirements/traceability.yaml` (mirrored in
+`docs/requirements/traceability.md`). See `docs/requirements/`.
 
 ## Repository layout
 
@@ -267,7 +280,7 @@ SRS = 21 · SSS = 15 · GAP (to class A) = 6 · Lean theorems = 20. See
 
 ## Documentation index
 
-- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N16) ·
+- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N17) ·
   [`AGENTS.md`](AGENTS.md)
 - **Requirements**: [`docs/requirements/SSS.md`](docs/requirements/SSS.md) ·
   [`SRS.md`](docs/requirements/SRS.md) ·
@@ -286,20 +299,24 @@ SRS = 21 · SSS = 15 · GAP (to class A) = 6 · Lean theorems = 20. See
 - **Reviews**: [`docs/engineering/independent-review.md`](docs/engineering/independent-review.md) ·
   [`docs/reviews/`](docs/reviews/)
 - **Engineering guides**: [`driver-development.md`](docs/engineering/driver-development.md) ·
-  [`service-development.md`](docs/engineering/service-development.md)
+  [`service-development.md`](docs/engineering/service-development.md) ·
+  [`user-integration-manual.md`](docs/engineering/user-integration-manual.md)
 - **Formal verification**: [`docs/verification/formal-verification.md`](docs/verification/formal-verification.md)
-- **Planning**: [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)
+- **Planning**: [`docs/development-plan.md`](docs/development-plan.md) ·
+  [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)
+- **Status & reference**: [`docs/status/status.json`](docs/status/status.json) ·
+  [`docs/glossary.md`](docs/glossary.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 ## Extending the framework
 
-- Add or integrate a **low-level driver** (link, board/PPS, PAL port):
+- Add or integrate a **low-level driver** (link, board/PPS, HAL backend):
   [`docs/engineering/driver-development.md`](docs/engineering/driver-development.md).
 - Add or extend a **PUS-C service**:
   [`docs/engineering/service-development.md`](docs/engineering/service-development.md).
-- Planned milestones (PPS + CUC, filestore + CFDP, TCP/IP + TSN over PUS-C):
+- Integrate your own **application**: see the
+  [`docs/engineering/user-integration-manual.md`](docs/engineering/user-integration-manual.md).
+- Planned milestones: [`docs/development-plan.md`](docs/development-plan.md) ·
   [`docs/roadmap.md`](docs/roadmap.md).
-
-## Repository layout
 
 ## Contributing
 

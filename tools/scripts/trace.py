@@ -176,9 +176,11 @@ def ci_evidence(root: Path) -> set:
         text = p.read_text(encoding="utf-8", errors="replace")
         for m in re.finditer(r"#\s*evidence:\s*(.+)", text):
             for tok in re.findall(r"[A-Za-z0-9_\-]+", m.group(1)):
+                # only explicit `ci:<name>` / `ci-<name>` tokens claim evidence;
+                # requirement references in the marker comment must not count
+                # (R2 M2-03 re-qualification).
                 if tok.startswith("ci:") or tok.startswith("ci-"):
-                    tok = tok[3:]
-                claims.add(tok)
+                    claims.add(tok[3:])
     return claims
 
 

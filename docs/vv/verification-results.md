@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -19,6 +19,8 @@ artifacts (no external state).
 | ------------ | ------------ | ----- | ---- | ----- | ----- | ------ | ----------- | ------- |
 | v0.1.0 initial, 2026-10-10 | PASS | PASS (4/4) | PASS | PASS | PASS (6 apps) | clang-tidy clean | PASS (toolchain artifacts) | Baseline release; formal verification details below |
 | v0.1.0 review closure, 2026-10-10 | PASS | PASS (4/4) | PASS (`lake build` 15/15 + 3/3 checks) | PASS (42 reqs, 20 theorems) | PASS (6 apps) | clean | proxy | Norm N15 re-run after review NCs (Lean proofs, S6 test, trace gate); see `docs/reviews/2026-10-10-*.md` |
+| M2 time base, 2026-10-10 | PASS (Debug + Release) | PASS (5/5) | PASS (`lake build` 17/17 + 3/3 checks) | PASS (48 reqs, 41 theorems) | PASS (6 apps) | clean | proxy | Milestone M2: PPS tone discipline, time-source selection, leap-at-boundary, CUC P-field framing; see M2 notes below |
+| M2 review closure, 2026-10-10 | PASS (Debug + Release) | PASS (5/5; 174 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101) | PASS (`lake build` 17/17, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (48 reqs / 25 srs / 16 sss / 7 gap, 41 theorems, 9 CI claims) | PASS (6 apps) | clang-format + clang-tidy clean | proxy | All M2 NCs (R1/R2/R3) resolved and delta-re-reviewed; coverage lines 845/1446 (58.4%), functions 114/156; see review evidence below |
 
 ## v0.1.0 baseline notes
 
@@ -67,6 +69,77 @@ documents, every srs -> sss parent resolved, every Lean link resolved, every
 None open at the v0.1.0 baseline. Class-A gaps (GAP-A1..A6) are tracked in
 `docs/quality/class-a-gaps.md` and are not NCs for the class-B baseline.
 
+## M2 time base notes (2026-10-10)
+
+### Formal verification (norm N1)
+
+The M2 model `Frick.Time` adds tones and leap arithmetic on top of the
+existing modules:
+
+- Time-source enum is a proper, disjoint set; CUC seconds never regress across
+  a tone boundary under a non-negative pending leap (SRS-REQ-021).
+- Each valid tone advances the second counter by exactly one second and the
+  tone counter strictly increases (SRS-REQ-022).
+- The pending leap is applied and cleared exactly at the tone boundary
+  (SRS-REQ-023).
+- CUC field round trip is lossless, the fine fraction of any sub-second count
+  fits 16 bits, and the coarse 4-octet decomposition recombines (SRS-REQ-024).
+
+Gate: `lake build` compiled 17/17 modules and `lake exe frick_verify_checks`
+reported 3/3 runtime checks PASS. The clean-rebuild transcript is committed at
+`verification/lean/lake-build.log` so the module count is re-derivable from the
+repository (R2 M2-05, norm N11). Lean 4 core v4.10.0 only (no Mathlib); the
+proofs use `omega` and structural induction (`verification/lean/lake-manifest.json`
+has no dependencies).
+
+### Unit test results (methods Tst)
+
+| Suite | Result | Coverage note |
+| ----- | ------ | ------------- |
+| test_ccsds | PASS (15 checks) | packet headers, length fields, CRC detect/append |
+| test_sb    | PASS (20 checks) | exact and wildcard subscriptions, FIFO, depth |
+| test_tbl   | PASS (9 checks) | load/validate/activate, atomic activation |
+| test_pus   | PASS (29 checks) | dispatch, S1 verification packets, S17 ping, S6 region bound, S9 set-time 6-octet enforcement |
+| test_time  | PASS (101 checks) | source selection, tone discipline (reject/jump/epoch), leap at boundary, no-tone pending, leap non-regression/skipped second, CUC encode/decode + fixed reference frame `{0x2E,0,0,0,5,0x40,0x00}` |
+
+### Code coverage (method Anl, gcov)
+
+`make coverage` (gcov, all suites executing): lines **845/1446 (58.4%)**,
+functions **114/156**. Recorded in `build/coverage/coverage.json` and the README
+metrics panel. The line count rose from the previously recorded 579/1310
+(44.2%) because the M2 `time` suite previously did not execute (R2 M2-01) and
+now does.
+
+### Traceability (norms N3/N4)
+
+`make trace` exits 0: 25 SRS, 16 SSS, 7 GAP items (incl. new GAP-A7), every id
+present in the documents, every srs -> sss parent resolved, every Lean link
+resolved, every `ci:*` evidence claim declared in a workflow. New links:
+SSS-REQ-016, SRS-REQ-021..024.
+
+### Non-conformance closure (norm N12)
+
+The M2 delta was reviewed independently by three profiles; all non-conformances
+were resolved to compliance and the deltas re-reviewed (norm N12):
+
+| Review | Profile | Findings | Disposition |
+| ------ | ------- | -------- | ----------- |
+| `2026-10-10-m2-time-base-r1-review.md` | R1 | 6 Minor + 2 Comments | Resolved (test determinism, TONE first-tone semantics + ARCH, tone-state mutex, PPS start/stop state, CUC macro `_Static_assert`s, tone-spacing dispositioned to GAP-A7, priority/stack note, extra tests) |
+| `2026-10-10-m2-vv-r2-review.md` | R2 | 2 Major + 4 Minor | Resolved (dead `main` fixed, tone test made clock-independent, `trace.py` `ci_evidence` scoping, Gitea `ci-lean` marker, Lean transcript committed, coverage/metrics regenerated) |
+| `2026-10-10-m2-sss-r3-review.md` | R3 | 1 Major + 4 Minor + 3 Comments | Resolved (CUC two-form wire truth in ICD/ARCH/SRS, source-switch semantics, tone-second-counter wording, no-tone leap clause, `ecss-criticality-b.md` GAP-A1..A7) |
+
+Open non-conformances: **none**. On-target PPS capture and the TAI/CCSDS epoch
+remain a documented class-A gap (GAP-A7, `docs/quality/class-a-gaps.md`), not an
+NC for the class-B baseline.
+
+## Documentation review (norm N17)
+
+Every commit is preceded by a documentation review loop by the independent
+**Senior SW documentation reviewer** (profile R4). The documentation set
+(README/AGENTS/`docs/**`/status) is reviewed for completeness and correctness
+against the code, requirements, traceability and CI; findings are resolved and
+re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`.
+
 ## Review evidence (norm N9/N11)
 
 | Review | Profile | Date | Conclusion | Report |
@@ -74,6 +147,15 @@ None open at the v0.1.0 baseline. Class-A gaps (GAP-A1..A6) are tracked in
 | Baseline V&V result assessment | R2 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-baseline-vv-review.md |
 | SSS requirements review (norm N14) | R3 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-sss-systems-review.md |
 | Norms N1-N16 conflict analysis | R1+R3 | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-rules-conflict-review.md |
+| M2 code review (time base) | R1 (independent) | 2026-10-10 | APPROVED WITH COMMENTS, NCs closed | docs/reviews/2026-10-10-m2-time-base-r1-review.md |
+| M2 code review delta | R1 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m2-time-base-r1-delta-review.md |
+| M2 V&V review | R2 (independent) | 2026-10-10 | REJECTED, NCs closed after fix | docs/reviews/2026-10-10-m2-vv-r2-review.md |
+| M2 V&V review delta | R2 (independent) | 2026-10-10 | APPROVED | docs/reviews/2026-10-10-m2-vv-r2-delta-review.md |
+| M2 SSS/SRS/CUC review (N14) | R3 (independent) | 2026-10-10 | REJECTED, NCs closed after fix | docs/reviews/2026-10-10-m2-sss-r3-review.md |
+| M2 SSS/SRS review delta (N14) | R3 (independent) | 2026-10-10 | APPROVED | docs/reviews/2026-10-10-m2-sss-r3-delta-review.md |
+| Documentation set review (N17) | R4 (independent) | 2026-10-10 | REJECTED, findings corrected (delta re-review in cycle) | docs/reviews/2026-10-10-doc-set-r4-review.md |
+| Documentation set review delta (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (findings corrected) | docs/reviews/2026-10-10-doc-set-r4-delta-review.md |
+| Documentation set review final (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (all NCs closed) | docs/reviews/2026-10-10-doc-set-r4-final-review.md |
 
 ## History
 
@@ -81,3 +163,5 @@ None open at the v0.1.0 baseline. Class-A gaps (GAP-A1..A6) are tracked in
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | v0.1.0 initial V&V record |
 | 0.1.1 | 2026-10-10 | frick-fsw | Review-closure cycle: Lean build fixed and verified, S6 test corrected, trace gate hardened |
+| 0.2 | 2026-10-10 | frick-fsw | Milestone M2 cycle: time base, PPS tone discipline, CUC framing, leap-at-boundary |
+| 0.3 | 2026-10-10 | frick-fsw | M2 review closure: NCs (R1/R2/R3) resolved, deterministic tests, coverage 845/1446, Lean transcript committed, norm N17 documentation review introduced |

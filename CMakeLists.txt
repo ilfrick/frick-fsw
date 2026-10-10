@@ -44,6 +44,7 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/core/es/es.c
   ${FF_SRC_DIR}/core/tbl/tbl.c
   ${FF_SRC_DIR}/core/time/time.c
+  ${FF_SRC_DIR}/core/time/pps.c
   ${FF_SRC_DIR}/bsp/mpfs/board.c
   ${FF_SRC_DIR}/transport/ccsds/ccsds.c
   ${FF_SRC_DIR}/transport/link/link.c

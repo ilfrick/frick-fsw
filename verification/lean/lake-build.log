@@ -1,0 +1,20 @@
+info: downloading https://releases.lean-lang.org/lean4/v4.10.0/lean-4.10.0-linux.tar.zst
+info: installing /root/.elan/toolchains/leanprover--lean4---v4.10.0
+✔ [1/17] Built Frick.LeanOmega
+✔ [2/17] Built Frick.LeanOmega:c.o
+✔ [3/17] Built Frick.Common
+✔ [4/17] Built Frick.Common:c.o
+✔ [5/17] Built Frick.Ccsds
+✔ [6/17] Built Frick.Ccsds:c.o
+✔ [7/17] Built Frick.SoftwareBus
+✔ [8/17] Built Frick.Pus
+✔ [9/17] Built Frick.SoftwareBus:c.o
+✔ [10/17] Built Frick.Pus:c.o
+✔ [11/17] Built Frick.Time
+✔ [12/17] Built Frick.Time:c.o
+✔ [13/17] Built Frick.Requirements
+✔ [14/17] Built Frick.Requirements:c.o
+✔ [15/17] Built Main
+✔ [16/17] Built Main:c.o
+✔ [17/17] Built frick_verify_checks
+Build completed successfully.

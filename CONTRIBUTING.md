@@ -1,7 +1,7 @@
 # Contributing to frick-fsw
 
 Thank you for contributing. This project is governed by the non-derogable
-norms N1-N16 in `docs/rules.md`; every contribution must comply with all of
+norms N1-N17 in `docs/rules.md`; every contribution must comply with all of
 them before it can be committed and pushed.
 
 ## 1. Before you start
@@ -24,9 +24,10 @@ requirement delta, refactor, tooling) - must:
    `make ci-local` (build + unit tests + simulator smoke + Lean + trace +
    static + docs) or the equivalent CI jobs;
 5. record the **evidence** in `docs/vv/verification-results.md` (N11);
-6. run the **applicable reviews** (N9/N10/N14): R1 code/design, R2 V&V, R3 SSS;
-   store reports in `docs/reviews/`; resolve NCs and re-run the cycle until
-   closure (N12);
+6. run the **applicable reviews** (N9/N10/N14/N17): R1 code/design, R2 V&V,
+   R3 SSS, R4 documentation; store reports in `docs/reviews/`; resolve NCs and
+   re-run the cycle until closure (N12); the R4 documentation review loop must
+   be closed before commit/push (N17);
 7. update the **revision history** (N16): `CHANGELOG.md` for the next release
    entry and the per-document `## History` tables that changed;
 8. commit with a **detailed message** (what, why, origin of the change, norm
@@ -52,6 +53,7 @@ Gates: build PASS, ctest PASS, lean PASS, trace PASS, smoke PASS
 | R1 Senior RT/space/defense SW developer | design/architecture/code review |
 | R2 Senior SW V&V engineer | verification plan, scripts/tools qualification, results |
 | R3 Senior Systems Engineer (space/aero) | SSS system requirements (N14) |
+| R4 Senior SW documentation reviewer | documentation completeness/correctness (N17) |
 
 Create reviewers per `docs/engineering/independent-review.md` (independent
 context, fresh session). Reports use `docs/reviews/review-template.md` and are

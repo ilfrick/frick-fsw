@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.1                                  |
+| Revision                          | 0.1.2                                  |
 | Date                              | 2026-10-10                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
-| Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12  |
+| Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17 |
 
 ## 1. Scope
 
@@ -60,7 +60,7 @@ flowchart TB
     SSS -.->|"validation"| ACC
     NEED -.-> ACC
 
-    GATES["Continuous gates on every change - Lean N1, traceability N4, CI and CD N6, docs N8, independent review N9, full cycle N15, revision history N16"]
+    GATES["Continuous gates on every change - Lean N1, traceability N4, CI and CD N6, docs N8, independent review N9, full cycle N15, revision history N16, documentation review N17"]
     IMP -.- GATES
     ACC -.- GATES
 ```
@@ -89,7 +89,8 @@ flowchart LR
     TEST --> TRACE["Traceability gate N4"]
     TRACE --> DOC["Update docs N8 and revision history N16"]
     DOC --> REV["Independent review N9"]
-    REV --> CI["Dual CI green - GitHub and Gitea N6"]
+    REV --> DREV["Documentation review R4 N17"]
+    DREV --> CI["Dual CI green - GitHub and Gitea N6"]
     CI --> PUSH["Commit and push both remotes N7"]
     PUSH -.->|"next change"| CH
     PUSH -->|"non-conformance"| REQ
@@ -118,6 +119,9 @@ All test scripts are versioned in the repository (norm N11) and qualified
 - `tests/unit/test_tbl.c` - table load/validate/activate lifecycle.
 - `tests/unit/test_pus.c` - PUS dispatch, service 1 verification, S17 ping,
   memory dump region bound, unknown service handling.
+- `tests/unit/test_time.c` - time-source selection, 1 Hz tone discipline
+  (reject/jump/epoch), leap-second application at the tone boundary, CUC
+  encode/decode framing (P-field 0x2E) and PPS backend registration (M2).
 - Execution: `ctest` in the build directory.
 
 ### Formal verification (Anl, norm N1)
@@ -158,9 +162,11 @@ All test scripts are versioned in the repository (norm N11) and qualified
 ## 7. Independence
 
 Any activity that the criticality class marks as independent (norm N9) is
-performed by an independent-context agent with profile R1 or R2
+performed by an independent-context agent with profile R1, R2, R3 or R4
 (`docs/engineering/independent-review.md`). At class B, the V&V result
-assessment and tool qualification changes are reviewed independently by R2.
+assessment and tool qualification changes are reviewed independently by R2. On
+every change, the documentation set is reviewed by R4 (norm N17) and the review
+loop is closed before commit/push.
 
 ## 8. Result recording
 
@@ -174,3 +180,4 @@ the update is committed and pushed with the cycle (norm N11).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial V&V plan (norm N6/N12) |
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid V-model and per-change cycle diagrams (norm N8) |
+| 0.1.2 | 2026-10-10 | frick-fsw | Add documentation review (R4, norm N17) to norms, gates, cycle and independence |

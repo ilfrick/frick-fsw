@@ -38,3 +38,9 @@ SSS-REQ-010). `FF_MEMORY_POOL_SIZE` reserves the target memory budget.
 ## 5. Traceability
 
 SSS-REQ-001, SRS-REQ-015, SRS-REQ-016.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial platform and portability note (norm N8/N16) |

@@ -9,7 +9,7 @@
 > using only the repository contents and the commands below. Human entry point:
 > `README.md`.
 
-## 1. Ground rules (non-derogable, norm N1-N12)
+## 1. Ground rules (non-derogable, norm N1-N17)
 
 - Maintain `docs/rules.md` and the enforcement summary. Key gates before any
   commit/push:
@@ -33,7 +33,7 @@
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
 | `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material |
 | `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
-| `docs/` | rules, requirements (SSS/SRS/traceability), architecture, ADRs, interfaces (ICD), quality (class B/A), V&V, engineering (independent review + driver/service guides), reviews, roadmap, status |
+| `docs/` | rules, requirements (SSS/SRS/traceability), architecture, ADRs, interfaces (ICD), quality (class B/A), V&V, engineering (independent review + driver/service/user guides), reviews, roadmap, **development plan**, status |
 | `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
 | `.github/workflows/`, `.gitea/workflows/` | CI pipelines |
 | `board/` | device-tree sources (`mpfs-rtpfs160zt.dts`) |
@@ -93,7 +93,12 @@ Actions executes the identical `.github/workflows/ci.yml`.
    `docs/engineering/independent-review.md`, and store the report in
    `docs/reviews/`.
 6. Resolve every finding to compliance (norm N12) before closing the NC.
-7. Commit + push to both `origin` (GitHub) and `gitea` remotes (norm N7).
+7. Run the **documentation review loop** (norm N17): instantiate the Senior SW
+   documentation reviewer (profile R4, `docs/engineering/independent-review.md`)
+   over the documentation affected by the change, correct every finding, and
+   re-review until the documentation review is APPROVED or APPROVED WITH
+   COMMENTS with all NCs closed.
+8. Commit + push to both `origin` (GitHub) and `gitea` remotes (norm N7).
 
 ## 6. Standards references used
 
@@ -121,3 +126,4 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N14 | SSS requirements reviewed by Senior Systems Engineer (R3); NCs to closure |
 | N15 | Every change re-runs the complete development+V&V cycle to success |
 | N16 | Detailed revision history maintained (CHANGELOG + per-doc history + commits) |
+| N17 | Documentation reviewed by the Senior SW documentation reviewer (R4) on every change; review loop closed before commit/push |

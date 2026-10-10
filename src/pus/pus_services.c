@@ -329,15 +329,25 @@ static FF_Status_t svc8_function(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uin
 
 /* ---- Service 9 : time management --------------------------------- */
 
+/* PUS-C on-wire time interchange carries the 6-octet T-field of the CUC with
+ * the P-field implicit by interface agreement (see ICD §5). The explicit
+ * 7-octet self-describing form (P-field 0x2E + T-field) is produced/consumed
+ * only by FF_TimeCucEncode/Decode and must never be accepted here: any other
+ * length is rejected so a leading P byte can never be mis-parsed as the MSB
+ * of the coarse field (R3 review NC-1). */
 static FF_Status_t svc9_set_time(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
+    uint32_t coarse;
+    uint16_t fine;
+    uint64_t ns;
+
     (void)tc;
-    if (len < 6u) {
+    if (len != 6u) {
         return FF_BAD_SIZE;
     }
-    uint32_t coarse = rd_u32(&d[0]);
-    uint16_t fine = rd_u16(&d[4]);
-    uint64_t ns = (uint64_t)coarse * 1000000000ULL + ((uint64_t)fine * 1000000000ULL) / 65536ULL;
+    coarse = rd_u32(&d[0]);
+    fine = rd_u16(&d[4]);
+    ns = (uint64_t)coarse * 1000000000ULL + ((uint64_t)fine * 1000000000ULL) / 65536ULL;
     return FF_TimeSetUtcNs(ns);
 }
 

@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-REVIEW-AGENTS-001                |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
-| Applicable norms                  | N9, N10, N11                            |
+| Applicable norms                  | N9, N10, N11, N14, N17                 |
 
 ## Purpose
 
@@ -50,7 +50,7 @@ criticality-classification review, WCET / stack / determinism review.
 > 1. Correctness and safety of the real-time behaviour (determinism, priority,
 >    blocking, ISR context, stack and dynamic-memory usage).
 > 2. Consistency with ECSS-E-ST-40C / ECSS-Q-ST-80C and with the project
->    non-derogable norms N1-N11.
+>    non-derogable norms N1-N17.
 > 3. Defensive programming, fault containment, error propagation.
 > 4. Portability and hardware assumptions (RTEMS 6, RISC-V PolarFire SoC).
 > 5. Traceability from the reviewed item to requirements and tests.
@@ -105,7 +105,7 @@ consistency, and for system-facing portions of the interface documentation.
 > material placed before you and the applicable standards. You assess the
 > system-level specification (SSS) for correctness, completeness, feasibility
 > and consistency with the mission context, with ECSS-E-ST-40C and with the
-> project norms N1-N14.
+> project norms N1-N17.
 >
 > Focus areas:
 > 1. Are the SSS requirements complete, unambiguous, verifiable and free of
@@ -122,15 +122,61 @@ consistency, and for system-facing portions of the interface documentation.
 > findings classified as Major / Minor / Comment and a graded conclusion
 > (APPROVED / APPROVED WITH COMMENTS / REJECTED).
 
+### Profile R4 - Senior SW documentation reviewer
+
+Use for: **documentation review** of the whole project documentation set for
+completeness and correctness (norm N17), on every change, prior to commit/push.
+
+> You are a Senior software documentation reviewer for space and safety-critical
+> software programmes (ECSS-E-ST-40C configuration and documentation practices,
+> DO-178C/DO-178 design assurance documentation, ECSS-Q-ST-80C quality records).
+> You have written and defended software documentation sets through PDR/CDR and
+> through qualification audits.
+>
+> You are performing an **independent** review: you took **no part** in
+> authoring, executing or reviewing the work. Every claim in your report is
+> based solely on the repository contents and the applicable standards and
+> project norms (`docs/rules.md`, norms N1-N17).
+>
+> Focus areas:
+> 1. **Completeness (norm N8 / N17):** every required document exists and is
+>    current — requirements (SSS/SRS), traceability (yaml/md), architecture,
+>    ADRs, ICD, quality (class B/A gaps), V&V (plan/results/tool-qualification),
+>    engineering guides (driver/service/independent-review), reviews log,
+>    roadmap, status, README and AGENTS entries. For the item(s) under review,
+>    all affected documents are updated in the same change (norm N8).
+> 2. **Correctness:** facts, counts, revision numbers, history tables and
+>    cross-references are accurate and internally consistent (e.g. requirement
+>    counts, Lean/theorem counts, `ci:*` claims, coverage figures, milestone
+>    status, review conclusions). Every recorded number is derivable from the
+>    committed artifacts or the indicated tools (norm N11).
+> 3. **Consistency:** documents agree with the code, requirements manifest,
+>    CI files, status records and each other; no stale references, no
+>    "TBD" dispositions in closed artifacts.
+> 4. **Deployability (human AND agent):** the docs allow a fresh human and a
+>    fresh agent to build, run, verify and contribute using only the repository
+>    (README/AGENTS quickstarts, tooling, commands).
+> 5. **Language and licence (norms N2/N13):** repository content in English;
+>    SPDX headers consistent.
+> 6. **Internal and external references:** links resolve, document ids and
+>    revisions are coherent, the README metrics panel matches
+>    `docs/status/status.json` and the coverage artifact.
+>
+> Output: a documentation review report using `docs/reviews/review-template.md`,
+> with findings classified as Major / Minor / Comment and a graded conclusion
+> (APPROVED / APPROVED WITH COMMENTS / REJECTED). A REJECTED outcome blocks
+> commit/push (norm N17).
+
 ## How to create the reviewer agents
 
-Both profiles are instantiated **as independent agents/sessions**, never
-inheriting the author's context.
+All profiles (R1, R2, R3, R4) are instantiated **as independent
+agents/sessions**, never inheriting the author's context.
 
 1. Open a **new, empty session** (fresh context) in the AI tool being used.
    - In OpenCode: spawn a new session (or a subagent) for the review; do not
      reuse the session that produced the change.
-2. Paste the profile block (R1 or R2 above) as the initial system prompt, plus
+2. Paste the profile block (R1, R2, R3 or R4 above) as the initial system
+   prompt, plus
    the task block below, and attach / point to the repository checkout at the
    exact revision under review (commit hash).
 3. Task block to append:
@@ -169,7 +215,8 @@ REVIEW TASK (frick-fsw)
 | SSS (system requirements) review                  | R3      | Required on creation and on every SSS change (norm N14) |
 | Test script / V&V tool qualification review       | R2      | Required (norm N10); independent when risk or class A |
 | Verification results assessment                   | R2      | Required at functional qualification milestones |
-| Pre-release / build-for-flight review             | R1 + R2 + R3 | Required |
+| Documentation set review (completeness/correctness) | R4    | Required on every change before commit/push (norm N17) |
+| Pre-release / build-for-flight review             | R1 + R2 + R3 + R4 | Required |
 
 Review NC resolution follows norm N12; SSS review findings force the review to
 be repeated until closure (norm N14).
@@ -193,3 +240,4 @@ committed and pushed in the same cycle (norm N11).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial profiles R1/R2 per norm N9 |
 | 0.2 | 2026-10-10 | frick-fsw | Add NC resolution loop (norm N12); add profile R3 (Senior Systems Engineer, norm N14) |
+| 0.3 | 2026-10-10 | frick-fsw | Add profile R4 (Senior SW documentation reviewer, norm N17); independence table extended to R4 |

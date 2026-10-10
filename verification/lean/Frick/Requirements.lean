@@ -14,6 +14,7 @@ import Frick.Common
 import Frick.Ccsds
 import Frick.SoftwareBus
 import Frick.Pus
+import Frick.Time
 
 namespace Frick.Requirements
 
@@ -21,6 +22,7 @@ open Frick.Common
 open Frick.Ccsds
 open Frick.SoftwareBus
 open Frick.Pus
+open Frick.Time
 
 -- =====================================================================
 -- SRS-REQ-003 : TM/TC frames never overflow the 16 bit CCSDS packet length.
@@ -92,5 +94,58 @@ theorem req_sss002_queue_bounded {subs : List Nat} (h : subs.length ≤ SbQueueD
 -- arbitrary-length induction is deferred to the Class A work package.
 -- =====================================================================
 example : crc16 (withCrc [1, 2, 3, 4]) = 0 := by native_decide
+
+-- =====================================================================
+-- M2 - Time base (milestone M2): PPS tone discipline, leap seconds, CUC.
+-- Theorems discharge SRS-REQ-021..024 (see docs/requirements/SRS.md and
+-- Frick.Time for the underlying model).
+-- =====================================================================
+
+-- SRS-REQ-021 : the time source enum is a proper, disjoint set and, with a
+-- non-negative pending leap, the CUC seconds never regress at a boundary.
+theorem req_srs021_sources_distinct : TimeSource.internal ≠ TimeSource.tone :=
+  sources_distinct.left
+
+theorem req_srs021_source_set_disjoint :
+    TimeSource.tone ≠ TimeSource.ground ∧ TimeSource.ground ≠ TimeSource.internal :=
+  sources_distinct.right
+
+theorem req_srs021_utc_non_regression {s : LeapState} (hp : 0 ≤ s.pending) :
+    cucSeconds s ≤ cucSeconds (onToneLeap s) := by
+  exact cuc_seconds_non_regression hp
+
+-- SRS-REQ-022 : each valid tone advances the second counter by exactly one
+-- second and the tone counter strictly increases.
+theorem req_srs022_tone_second_advance (s : ToneState) :
+    (onTone s).met_s = s.met_s + 1 := by
+  exact tone_second_advance s
+
+theorem req_srs022_tone_count_strict (s : ToneState) :
+    (onTone s).count = s.count + 1 := by
+  exact tone_count_strict s
+
+-- SRS-REQ-023 : a scheduled leap change is applied and cleared exactly at the
+-- next tone boundary, and CUC never regresses for a non-negative leap.
+theorem req_srs023_leap_cleared_at_tone (s : LeapState) :
+    (onToneLeap s).pending = 0 := by
+  exact leap_cleared_at_tone s
+
+theorem req_srs023_leap_accumulated_at_tone (s : LeapState) :
+    (onToneLeap s).leap = s.leap + s.pending := by
+  exact leap_accumulated_at_tone s
+
+-- SRS-REQ-024 : CUC field round trip is lossless and the fine fraction of a
+-- sub-second count always fits the 16 bit field.
+theorem req_srs024_cuc_field_roundtrip {c f : Nat} (hf : f < 65536) :
+    cucCoarse (cucT c f) = c ∧ cucFine (cucT c f) = f := by
+  exact cuc_field_roundtrip hf
+
+theorem req_srs024_fine_frac_bounded {frac : Nat} (h : frac < 1000000000) :
+    fineFraction frac < 65536 := by
+  exact fine_frac_bounded h
+
+theorem req_srs024_coarse_byte_decompose {c : Nat} :
+    (c / 2^24) * 2^24 + ((c / 2^16) % 2^8) * 2^16 + ((c / 2^8) % 2^8) * 2^8 + c % 2^8 = c := by
+  exact coarse_byte_decompose
 
 end Frick.Requirements

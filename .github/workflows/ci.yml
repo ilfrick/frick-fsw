@@ -131,11 +131,30 @@ jobs:
             "docs/vv/verification-plan.md", "docs/vv/verification-results.md",
             "docs/vv/tool-qualification.md", "docs/engineering/independent-review.md",
             "docs/reviews/review-template.md", "docs/interfaces/ICD.md",
+            "docs/development-plan.md", "docs/roadmap.md",
+            "docs/engineering/user-integration-manual.md",
           ]
           missing = [p for p in required if not Path(p).exists()]
           if missing:
               raise SystemExit("missing documents: " + ", ".join(missing))
-          print("documentation set: OK")
+          # document-id uniqueness (norm N8/N16)
+          import re
+          seen, dups = {}, []
+          for p in Path("docs").rglob("*.md"):
+              for line in p.read_text(encoding="utf-8", errors="ignore").splitlines():
+                  m = re.match(r"\|\s*Document id\s*\|\s*(FRICK-[A-Za-z0-9-]+)", line)
+                  if m:
+                      i = m.group(1)
+                      if i == "FRICK-REVIEW-XXXX":
+                          continue
+                      if i in seen:
+                          dups.append((i, seen[i], str(p)))
+                      else:
+                          seen[i] = str(p)
+          if dups:
+              raise SystemExit("duplicate document ids: " +
+                               "; ".join(f"{i} ({a}, {b})" for i, a, b in dups))
+          print(f"documentation set: OK ({len(seen)} unique document ids)")
           EOF
       - name: Licence check (norm N13)
         run: |

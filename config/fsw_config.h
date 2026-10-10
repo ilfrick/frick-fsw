@@ -62,6 +62,17 @@
 /* ------------------------------------------------------------------ */
 #define FF_TIME_MAX_CORRELATIONS 8u
 
+/* One nominal second in the monotonic domain (tone period, 1 Hz). */
+#define FF_TIME_TONE_NS 1000000000ULL
+/* CCSDS Unsegmented Time Code tailoring: 4 coarse + 2 fine octets. */
+#define FF_TIME_CUC_COARSE_OCTETS 4u
+#define FF_TIME_CUC_FINE_OCTETS 2u
+/* Leap-second schedule granularity (single seconds, ITU/ECSS practice). */
+#define FF_TIME_CUC_MAX_LEAP_S 1
+/* Software PPS backend tuning (host simulator / tests). */
+#define FF_TIME_SW_TONE_PERIOD_MS 1000u
+#define FF_TIME_TONE_TASK_PRIORITY 40u
+
 /* ------------------------------------------------------------------ */
 /* PUS                                                                 */
 /* ------------------------------------------------------------------ */

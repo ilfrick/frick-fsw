@@ -1,8 +1,8 @@
 # cFS Mapping for Reviewers
 
-| Document id | FRICK-ARCH-0006 |
+| Document id | FRICK-ARCH-0007 |
 | ----------- | --------------- |
-| Revision    | 0.1 |
+| Revision    | 0.2 |
 | Date        | 2026-10-10 |
 
 frick-fsw is inspired by NASA cFS; reviewers familiar with cFS can map the
@@ -23,3 +23,10 @@ concepts directly (ADR-0001). No cFS code is copied.
 The main divergences: PUS-C is the protocol layer (cFS cores do not mandate
 PUS), and Lean formal verification of requirement theorems is built-in
 (norm N1).
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial cFS mapping note (norm N8/N16) |
+| 0.2 | 2026-10-10 | frick-fsw | Assign unique document id FRICK-ARCH-0007 (R4 review DOC-06) |

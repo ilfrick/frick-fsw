@@ -2,13 +2,13 @@
 
 | Document id | FRICK-ENG-0003 |
 | ----------- | -------------- |
-| Revision    | 0.1 |
+| Revision    | 0.2 |
 | Date        | 2026-10-10 |
 | Audience    | humans and agents extending frick-fsw with low-level drivers |
 
 This guide explains how to add a **low-level driver** to frick-fsw (a new link,
 a board/BSP peripheral such as a PPS input, a new PAL/RTOS port) so that it is
-buildable, testable, traceable and verifiable under the project norms (N1-N16).
+buildable, testable, traceable and verifiable under the project norms (N1-N17).
 It mirrors the way NASA cFS separates the OSAL (our PAL) and the PSP/BSP from
 the application code.
 
@@ -93,16 +93,26 @@ Board-specific peripherals live under `src/bsp/<board>/`. `FF_BoardInit` is
 called once from the main sequence (`src/main/fsw_main.c`) before the link and
 the applications start.
 
-A **PPS / 1 Hz tone** input is the reference board driver: it captures a
-hardware edge and lets the time base steer UTC (milestones M2 in
-`docs/roadmap.md`; current time/PPS state in
-`docs/architecture/time-and-timecode.md`). The recommended shape:
+A **PPS / 1 Hz tone** input is delivered in milestone M2 as a time-base hook
+plus a backend vtable (`src/core/time/pps.h`): `FF_PpsRegister(backend)`
+selects the active backend, `FF_PpsStart`/`FF_PpsStop` run/stop it, and every
+physical or synthetic edge is delivered to `FF_TimeToneSignal(mono_ns)`. The
+native **software backend** (`FF_PpsSwBackend`, priority 40, 1000 ms period)
+is the reference and the host-simulator/test path.
+
+The board integrator's remaining job (tracked as GAP-A7 in
+`docs/quality/class-a-gaps.md`) is to replace the software backend with a
+hardware capture on the RTEMS/MPFS target:
 
 1. In `src/bsp/mpfs/board.c` register the interrupt (RTEMS `rtems_interrupt_*`
-   on the PLIC/GPIO) or timer-capture, and in the ISR call a time-base hook,
-   for example `FF_TimeToneSignal()`.
-2. Do the minimum in the ISR (latch the monotonic counter); do the UTC
-   correlation in a task context.
+   on the PLIC/GPIO) or timer-capture. The ISR must do the **minimum** (latch
+   the monotonic counter / post it to a queue) and must **not** call
+   `FF_TimeToneSignal` directly: the tone state is protected by a PAL mutex and
+   the hook runs in **task context** (a mutex is not ISR-safe). A dedicated
+   time-tone task dequeues the captured timestamp and calls
+   `FF_TimeToneSignal(captured_mono_ns)`.
+2. Do the minimum in the ISR; do the UTC correlation and the state update in the
+   time-tone task context.
 3. Keep the hook registered through a vtable so the simulator can inject a
    synthetic tone (see §6).
 
@@ -186,3 +196,4 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial driver development/integration guide (norm N8) |
+| 0.2 | 2026-10-10 | frick-fsw | Milestone M2: PPS backend vtable + software backend delivered; board hook = GAP-A7 |

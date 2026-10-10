@@ -33,3 +33,9 @@
 | TIME | Time Services (UTC correlation, CUC). |
 | V&V | Verification & Validation (norm N6). |
 | Wildcard | `FF_SB_WILDCARD` (0xFFFF) subscription matching every message id. |
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-10 | frick-fsw | Initial glossary (norm N8) |

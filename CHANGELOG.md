@@ -9,6 +9,40 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Milestone M2 — Time base: PPS tone discipline and CUC framing.** Hardware-
+  disciplined time base with time-source selection (`FF_TimeSetSource`, internal
+  CPU / external 1 Hz tone / ground correlation), a software PPS backend task on
+  the host (`src/core/time/pps.c`, `FF_PpsRegister/Start/Stop`) and an
+  RTEMS/MPFS GPIO/PLIC capture hook for the board integrator (GAP-A7). Tone
+  discipline (`FF_TimeToneSignal`): strictly increasing epoch, one-second CUC
+  jump per valid tone, UTC latched at the edge. Leap seconds scheduled with
+  `FF_TimeScheduleLeap` (single ±1 s) and applied/cleared exactly at the next
+  tone boundary. CUC framing per CCSDS 301.0-B-4 completed: 7-byte P+T code
+  (P-field `0x2E`, 4 coarse + 2 fine octets) with lossless
+  encode/decode (`FF_TimeCucEncode/Decode`) and rejection of malformed frames.
+  New requirements SSS-REQ-016, SRS-REQ-021..024; Lean model `Frick.Time`
+  (11 theorems) + 10 requirement wrappers; unit tests `test_time`
+  (ctest `time`, 5/5 suites, 174 checks total: ccsds 15, sb 20, tbl 9, pus 29,
+  time 101). Docs: `time-and-timecode.md` 0.3, ICD 0.3, class-A gaps GAP-A7,
+  roadmap M2 done. M2 review closure (norm N12): all R1/R2/R3 non-conformances
+  resolved and delta-re-reviewed; code line coverage 845/1446 (58.4%),
+  functions 114/156; Lean clean-rebuild transcript committed
+  (`verification/lean/lake-build.log`).
+- **Development plan** `docs/development-plan.md` (FRICK-PLAN-0001): the product
+  boundary (frick-fsw is a middleware), objectives OBJ-01..OBJ-12, the
+  resource/bus interface catalogue (Ethernet+pluggable TCP/IP/TSN, CAN/
+  CANopen/CAN-FD, RS-422/485, SPI, I2C, PCIe, GPIO, SpaceWire ECSS, memory),
+  and the milestone plan M1..M5.
+- **User & Integration Manual** `docs/engineering/user-integration-manual.md`
+  (FRICK-ENG-0005): how to integrate applications, drivers and pluggable stacks
+  on the middleware.
+- **Norm N17 — documentation review (profile R4).** New non-derogable norm:
+  before every commit/push the documentation set is reviewed for completeness
+  and correctness by an independent **Senior SW documentation reviewer** (profile
+  R4, `docs/engineering/independent-review.md`), and the review loop
+  (review → correction → re-review, norm N12) is closed before commit/push. The
+  gate is reported in the README status panel (`documentation_review` in
+  `docs/status/status.json`). First run: `docs/reviews/2026-10-10-doc-set-r4-review.md`.
 - Gitea CI/CD deployed and operational (norm N6): a self-hosted
   `act_runner` executes `.gitea/workflows/ci.yml`. The runner maps
   `ubuntu-24.04` to the pinned V&V image
@@ -33,10 +67,13 @@ change. All dates UTC, project language English (norm N2).
   PUS-C services catalogue and low-level driver inventory.
 - Engineering guides for humans and agents: `docs/engineering/driver-development.md`
   and `docs/engineering/service-development.md`.
-- Development roadmap `docs/roadmap.md`: M2 (PPS + CUC), M3 (virtual filestore,
-  CFDP, PUS service 23), M4 (TCP/IP and TSN over PUS-C) and M5 (documentation).
-- `docs/architecture/time-and-timecode.md`: how MET/UTC/CUC work today and the
-  PPS state (not implemented; roadmap M2).
+- Development roadmap `docs/roadmap.md` (rev 0.3) and development plan
+  `docs/development-plan.md`: M1 baseline (done), M2 PPS + CUC (done), M3 HAL
+  interfaces + integration manuals, M4 MPFS BSP + 1 Gb/s Ethernet (absorbs
+  virtual filestore, PUS service 23, CFDP, and TCP/IP + TSN over PUS-C), M5
+  documentation and status program.
+- `docs/architecture/time-and-timecode.md`: how MET/UTC/CUC and the PPS tone
+  discipline work (PPS delivered in M2).
 
 ### Changed
 
@@ -47,6 +84,18 @@ change. All dates UTC, project language English (norm N2).
 
 ### Fixed
 
+- Documentation consistency (first norm-N17 review loop,
+  `docs/reviews/2026-10-10-doc-set-r4-review.md`): README requirement counts
+  aligned to the machine-generated panel (25/16/7/41) and README status panel
+  regenerated to include the `documentation review` gate; revision headers
+  aligned with the history tables (SRS, SSS, traceability.md, roadmap,
+  driver-development, licensing, tool-qualification, verification-results,
+  tooling, formal-verification); `FRICK-ARCH-0006` id collision fixed
+  (`mapping-cfs.md` -> `FRICK-ARCH-0007`); review ids normalised to
+  `FRICK-REVIEW-00nn`; `docs/reviews/README.md` log completed (M2 R1 + R4 rows);
+  `## History` tables added to `tooling.md` and `glossary.md`;
+  `formal-verification.md` M2 scope added; duplicate README `## Repository
+  layout` heading removed.
 - CI `simulator smoke` (GitHub): the banner check grepped for `=` which the
   banner never contained; with `bash -e` the step failed. Now checks for
   `frick-fsw` and reports a clear error.

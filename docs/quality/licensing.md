@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |

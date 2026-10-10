@@ -2,7 +2,7 @@
 
 | Document id | FRICK-FV-001 |
 | ----------- | ------------ |
-| Revision    | 0.1 |
+| Revision    | 0.2 |
 | Date        | 2026-10-10 |
 
 ## 1. Goal
@@ -19,9 +19,11 @@ supports, and `tools/scripts/trace.py` validates the links (norm N4).
 | `verification/lean/lean-toolchain` | pins Lean 4.10.0 |
 | `verification/lean/lakefile.lean`  | package `frick_verify`, executable `frick_verify_checks` |
 | `Frick/Common.lean`                | shared sizes/constants, `omega` shim |
+| `Frick/LeanOmega.lean`             | `omega` helper lemmas (core Lean, no Mathlib) |
 | `Frick/Ccsds.lean`                 | CRC-16/CCITT-FALSE codec mirror + transmission-check theorem |
 | `Frick/SoftwareBus.lean`           | bus delivery counting, queue-depth bound |
 | `Frick/Pus.lean`                   | verification-count and TM counter monotonicity (mod 16384) |
+| `Frick/Time.lean`                  | M2 time base: source-set disjointness, tone discipline, leap-at-boundary, CUC round-trip/fine bound/coarse decomposition |
 | `Frick/Requirements.lean`          | `req_*` theorems discharging SRS/SSS/GAP ids |
 | `Main.lean`                        | closed-form runtime checks for CI |
 
@@ -48,11 +50,22 @@ the requirement-theorem links.
 
 Proved today: CRC transmission check on reference frames, CCSDS length
 arithmetic, bus single-publish bound, PUS verification count and TM counter
-bounds. Deferred to class A (GAP-A1): arbitrary-length CRC induction, full C
-memory model and dispatch formalisation.
+bounds, and (M2) the time-base properties in `Frick.Time`: the time-source set
+is disjoint, each valid tone advances the tone second counter by exactly one
+second and the tone epoch strictly increases, the exported CUC seconds never
+regress across a tone boundary under a non-negative scheduled leap, the pending
+leap is applied/cleared exactly at a boundary, the CUC field round trip is
+lossless, and the fine fraction of any sub-second count fits 16 bits (with the
+coarse 4-octet decomposition recombining). Deferred to class A (GAP-A1):
+arbitrary-length CRC induction, full C memory model and dispatch formalisation.
+Lean 4 core only (no Mathlib): proofs use `rfl`, `simp`, `omega` and
+`native_decide`, pinned by `lean-toolchain` (v4.10.0); no external math library
+is used in either the formal model or the flight C code (integer arithmetic
+only).
 
 ## History
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial formal verification document |
+| 0.2 | 2026-10-10 | frick-fsw | M2: add `Frick.Time` (and `Frick.LeanOmega`) to layout/scope; note Lean 4 core / no Mathlib / no math library |
