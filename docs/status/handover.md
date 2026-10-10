@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -74,11 +74,17 @@ occasion; prefer Docker.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
-- **M11 in progress (Renode HAL coverage, OBJ-19):** first class done — **GPIO**
+- **M11 in progress (Renode HAL coverage, OBJ-19):** one class done — **GPIO**
   (`src/drivers/gpio/mpfs/ff_gpio_mpfs.{c,h}`, SRS-REQ-047), host test
   `test_gpio` (30 checks), Renode MMIO round trip (`hal_gpio=PASS`) folded into
-  the marker. Remaining M11 classes: ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485,
-  SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK, NVM.
+  the marker. **SERIAL** implemented then **deferred/reverted**
+  (FRICK-REVIEW-0043: MPFS MMUART uses 4-byte register spacing; the default
+  Renode `UART.NS16550` model is compact — re-implement with a wide-register
+  platform override; SRS-REQ-048 reserved). Remaining M11 classes: ETH,
+  NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK,
+  NVM.
+- **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
+  disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: only GEM Ethernet (+TSN) and GPIO so far.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
   ESA) and **M13** (reference mission services: equipment manager + fault
@@ -129,3 +135,4 @@ occasion; prefer Docker.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial handover/resume document (N18 in force; M11 GPIO done) |
+| 0.2 | 2026-10-10 | frick-fsw | M11 serial deferred/reverted; codename "Eärendil" disclaimer added |
