@@ -20,6 +20,7 @@ option(FF_BUILD_HAL    "Build the HAL core registry (milestone M3)" ON)
 option(FF_USE_LIBM     "Link the platform math library (libm, milestone M6)" ON)
 option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" ON)
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
+option(FF_USE_LWIP    "Build the lwIP network-stack adapter (milestone M4, needs third_party/lwip)" OFF)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -112,6 +113,39 @@ endif()
 
 if(FF_USE_LIBM)
   target_link_libraries(frick_fsw_core PUBLIC m)
+endif()
+
+# ----------------------------------------------------------------------
+# lwIP network-stack adapter (milestone M4). Third-party BSD-3 stack, fetched
+# pinned (tools/scripts/fetch_third_party.sh); built only with FF_USE_LWIP=ON.
+# ----------------------------------------------------------------------
+if(FF_USE_LWIP)
+  set(FF_LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lwip)
+  if(NOT EXISTS ${FF_LWIP_DIR}/src/Filelists.cmake)
+    message(FATAL_ERROR "FF_USE_LWIP=ON but third_party/lwip is missing; run tools/scripts/fetch_third_party.sh")
+  endif()
+  set(LWIP_DIR ${FF_LWIP_DIR})
+  set(LWIP_CONTRIB_DIR ${FF_LWIP_DIR}/contrib)
+  set(LWIP_EXCLUDE_SLIPIF TRUE)
+  include(${LWIP_CONTRIB_DIR}/ports/CMakeCommon.cmake)
+  include(${LWIP_CONTRIB_DIR}/ports/unix/Filelists.cmake)
+  include(${FF_LWIP_DIR}/src/Filelists.cmake)
+  add_library(frick_lwip STATIC ${lwipnoapps_SRCS} ${lwipcontribportunix_SRCS})
+  target_include_directories(frick_lwip PUBLIC
+    ${FF_SRC_DIR}/hal/net/lwip
+    ${FF_LWIP_DIR}/src/include
+    ${LWIP_CONTRIB_DIR}/ports/unix/port/include)
+  # Third-party lwIP is not -Werror clean: do not apply LWIP_COMPILER_FLAGS.
+  find_package(Threads REQUIRED)
+  target_link_libraries(frick_lwip PUBLIC Threads::Threads)
+
+  # Our adapter, compiled with the project's strict warnings, against lwIP.
+  add_library(frick_net_lwip STATIC ${FF_SRC_DIR}/hal/net/lwip/ff_net_lwip.c)
+  target_include_directories(frick_net_lwip PRIVATE
+    ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_SRC_DIR}/hal/net/lwip)
+  target_compile_options(frick_net_lwip PRIVATE -Wall -Wextra)
+  target_link_libraries(frick_net_lwip PUBLIC frick_lwip)
+  target_link_libraries(frick_fsw_core PUBLIC frick_net_lwip)
 endif()
 
 if(FF_ENABLE_WERROR)

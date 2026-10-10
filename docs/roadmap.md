@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.8 |
+| Revision    | 0.9 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -112,6 +112,14 @@ Complete the deterministic-Ethernet feature set on the PolarFire SoC:
   documentation, and independent review. On-target timing/PTP accuracy remains
   GAP-A5.
 
+## M9 — Code quality: MISRA C:2012 and coding style (in progress)
+
+Declare and enforce a single C coding style (`.clang-format` normative) applied
+codebase-wide, and drive MISRA C:2012 compliance with an open-source scan
+(cppcheck addon, advisory → blocking) and a documented deviation process.
+`docs/engineering/coding-style.md`, `docs/quality/misra-c.md`; certified MISRA
+checker + formal report are GAP-A4.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -135,3 +143,4 @@ Complete the deterministic-Ethernet feature set on the PolarFire SoC:
 | 0.6 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security and key management) |
 | 0.7 | 2026-10-10 | frick-fsw | M4 status set to in progress (Ethernet GEM driver) |
 | 0.8 | 2026-10-10 | frick-fsw | Add M8 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) |
+| 0.9 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA C:2012 + coding style) |

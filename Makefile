@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure
+        coverage metrics coverage-configure misra
 
 all: build
 
@@ -41,6 +41,10 @@ verify-lean:
 # Traceability convergence check (rules N1..N4).
 trace:
 	python3 tools/scripts/trace.py docs/requirements/traceability.yaml
+
+# MISRA C:2012 scan (open-source cppcheck addon; advisory). See docs/quality/misra-c.md.
+misra:
+	bash tools/scripts/misra.sh
 
 # Complete local development & verification cycle (norm N15).
 check: build test verify-lean trace smoke gsw-selfcheck

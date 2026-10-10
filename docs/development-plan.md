@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N17 (`docs/rules.md`)               |
@@ -49,6 +49,7 @@ is in `docs/roadmap.md`.
 | OBJ-14 | Integrate CCSDS SDLS (355.0-B) middleware software: SDLS processing, security-association database and key management/rotation, with a pluggable cryptographic backend. | M7 |
 | OBJ-15 | Formal completeness (WP-FV-100): raise Lean coverage to 100% of generated requirements (theorem or explicit `lean_note`), mirror the pure-logic modules in Lean, and add C-level proof tooling (Frama-C/CBMC) alongside. | M5/M8 |
 | OBJ-16 | Complete deterministic Ethernet: full 802.1AS gPTP stack and the fabric CoreTSN path (multi-port switch / 802.1CB FRER). | M8 |
+| OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -168,6 +169,14 @@ GEM TSU) and the fabric CoreTSN path (multi-port switch / 802.1CB FRER) via the
 FIC generic fabric-device contract. Requirements, Lean models where feasible,
 tests, docs; on-target timing = GAP-A5. (OBJ-16.)
 
+### M9 — Code quality: MISRA C:2012 and coding style (in progress)
+
+Declare a single C coding style (`.clang-format` normative) applied and enforced
+codebase-wide (`docs/engineering/coding-style.md`), and drive MISRA C:2012
+compliance with the cppcheck MISRA scan (`tools/scripts/misra.sh`, CI advisory →
+blocking) and a documented deviation process (`docs/quality/misra-c.md`).
+Certified MISRA checker + formal report = GAP-A4. (OBJ-17.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -204,6 +213,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M6 | OBJ-13 (mathematics library integration) | in progress |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | in progress |
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned |
+| M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress |
 
 ## History
 
@@ -215,3 +225,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.4 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security + key management); objective OBJ-14 |
 | 0.5 | 2026-10-10 | frick-fsw | Correct TSN resource: the MPFS GEM has a native TSN block (Qbv/Qav/Qci/Qbb/802.1AS/1588/CB); fabric CoreTSN only for multi-port switch/FRER |
 | 0.6 | 2026-10-10 | frick-fsw | Add M8 (gPTP 802.1AS + fabric CoreTSN); objective OBJ-16 |
+| 0.7 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA + coding style); objective OBJ-17 |

@@ -12,7 +12,7 @@ ENV LANG=C.UTF-8
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential gcc g++ make cmake ninja-build \
       python3 python3-pip git curl ca-certificates \
-      doxygen clang clang-format clang-tidy \
+      doxygen clang clang-format clang-tidy cppcheck \
       nodejs npm \
       pkg-config libc6-dev \
     && rm -rf /var/lib/apt/lists/*

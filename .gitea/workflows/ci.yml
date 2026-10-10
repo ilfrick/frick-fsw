@@ -59,6 +59,19 @@ jobs:
           cmake --build build/asan
           ctest --test-dir build/asan --output-on-failure
 
+      - name: lwIP network-stack adapter (fetch + build + test)
+        run: |
+          bash tools/scripts/fetch_third_party.sh
+          cmake -S . -B build/lwip -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_LWIP=ON
+          cmake --build build/lwip
+          ctest --test-dir build/lwip -R lwip --output-on-failure
+
+      # evidence: ci-misra (SRS-REQ-041, SSS-REQ-021)
+      - name: MISRA C:2012 scan (cppcheck)
+        run: |
+          sudo apt-get update && sudo apt-get install -y cppcheck || true
+          bash tools/scripts/misra.sh
+
   # evidence: ci-static-analysis (SRS-REQ-015, SSS-REQ-010)
   static-analysis:
     name: static analysis
@@ -187,6 +200,9 @@ jobs:
             "docs/architecture/rtems-integration.md",
             "docs/architecture/numerics.md",
             "docs/architecture/security-sdls.md",
+            "docs/architecture/network-stack.md",
+            "docs/engineering/coding-style.md",
+            "docs/quality/misra-c.md",
             "docs/quality/configuration-management.md",
             "docs/quality/product-assurance.md",
             "docs/quality/safety-and-fdir.md",

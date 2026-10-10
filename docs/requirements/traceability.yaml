@@ -377,6 +377,34 @@ requirements:
     lean: []
     lean_note: "Reference loopback network stack verified by unit tests (test_netloop.c); it exercises the pluggable FF_NetStack_t contract. Third-party stacks (lwIP) plug in through the same vtable."
 
+  - id: SRS-REQ-040
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/hal/net/lwip/ff_net_lwip.c", "src/hal/net/lwip/ff_net_lwip.h", "src/hal/net/lwip/lwipopts.h"]
+    tests: ["tests/unit/test_lwip.c"]
+    lean: []
+    lean_note: "Adapter over the third-party lwIP socket API (fetched, pinned, BSD-3); verified by a host data-path test (test_lwip.c) using the lwIP loopback interface (127.0.0.1). On-target stack behaviour and hardware netif are mission/GAP-A5."
+
+  # ---------------------------------------------------- Code quality (M9)
+  - id: SRS-REQ-041
+    level: srs
+    parent_sss: SSS-REQ-021
+    derived: false
+    implementation: ["docs/quality/misra-c.md", "tools/scripts/misra.sh"]
+    tests: ["ci:misra"]
+    lean: []
+    lean_note: "MISRA C:2012 compliance driven by the cppcheck MISRA scan (advisory) with a documented deviation process; certified MISRA checker and formal report are GAP-A4."
+
+  - id: SRS-REQ-042
+    level: srs
+    parent_sss: SSS-REQ-021
+    derived: false
+    implementation: [".clang-format", "docs/engineering/coding-style.md"]
+    tests: ["ci:static-analysis"]
+    lean: []
+    lean_note: "Coding style enforced by the clang-format gate over src/config/tests (norm N10)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -528,6 +556,14 @@ requirements:
     tests: ["tests/unit/test_gem.c"]
     lean: []
     lean_note: "Reference Ethernet driver verified by host unit tests (mock MMIO)."
+
+  - id: SSS-REQ-021
+    level: sss
+    derived: false
+    implementation: [".clang-format", "docs/engineering/coding-style.md", "docs/quality/misra-c.md"]
+    tests: ["ci:static-analysis"]
+    lean: []
+    lean_note: "Code-quality process (declared coding style + MISRA C:2012); verified by the format gate and the MISRA scan (norm N10)."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

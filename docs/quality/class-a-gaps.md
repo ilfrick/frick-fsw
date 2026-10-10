@@ -49,7 +49,10 @@ traceability manifest (level `gap`, `justification` records the disposition).
 
 **Status:** open
 
-- MISRA-C:2012 compliance evidence (today: `-Wall -Wextra`, `.clang-tidy`).
+- MISRA-C:2012 compliance evidence: an open-source **cppcheck MISRA scan**
+  (`tools/scripts/misra.sh`, advisory → blocking) and a declared **coding style**
+  (`.clang-format`, `docs/engineering/coding-style.md`) are in place; a
+  **certified MISRA checker** and the formal compliance report remain the gap.
 - WCET and stack-depth analysis for the RTEMS/MPFS target.
 - Runtime platform qualification ("lowest terms") for the toolchain builder and
   BSP.

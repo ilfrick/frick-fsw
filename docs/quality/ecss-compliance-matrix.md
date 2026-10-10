@@ -26,6 +26,7 @@ legend: **present**, **partial**, **gap**.
 | **Software Design Document (SDD)** | architectural + detailed design | `docs/design/software-design.md` | present (added for this matrix) |
 | Interface Control Document (ICD) | TM/TC, link, time interfaces | `docs/interfaces/ICD.md` | present |
 | Hardware/OS abstraction interfaces | device/driver integration contracts | `src/hal/*.h`, `docs/architecture/hardware-abstraction.md` | present |
+| Code quality (MISRA + style) | coding standard + coding style applied codebase-wide | `docs/quality/misra-c.md`, `docs/engineering/coding-style.md`, `.clang-format` | present (certified MISRA checker = GAP-A4) |
 | Security (SDLS) | link-layer security, SA + key management | `src/security/`, `docs/architecture/security-sdls.md` | present (algorithm pluggable; GAP-A14) |
 | Software Verification Plan | verification approach and methods | `docs/vv/verification-plan.md` | present |
 | Software Validation Plan | validation against mission need | `docs/vv/validation-plan.md` | present (added for this matrix) |

@@ -96,7 +96,21 @@ change. All dates UTC, project language English (norm N2).
   implements the pluggable network-stack contract (`FF_NetStack_t`) as a bounded,
   static, in-process loopback, exercising the contract in unit tests and on the
   host; third-party stacks (lwIP, pinned) plug in through the same vtable.
-  Requirement SRS-REQ-039; unit test `test_netloop` (26 checks).
+  Requirement SRS-REQ-039; unit test `test_netloop` (29 checks).
+- **M4 — lwIP network-stack adapter.** `src/hal/net/lwip/ff_net_lwip.{c,h}`
+  implements the `FF_NetStack_t` contract over the lwIP socket API (third-party
+  BSD-3 stack, fetched pinned; `contrib` is part of the lwIP tree). Built with
+  `FF_USE_LWIP=ON` (CMake target `frick_lwip` + adapter); a host data-path test
+  (`test_lwip`, 19 checks) does a real TCP round trip over the lwIP loopback
+  interface. Requirement SRS-REQ-040; a CI job fetches lwIP, builds and runs it.
+- **Milestone M9 — code quality: MISRA C:2012 and coding style.** Declared the
+  **frick-fsw C style** (`.clang-format` normative, cFS-inspired, MISRA-friendly;
+  `docs/engineering/coding-style.md`), applied and enforced codebase-wide by the
+  format gate; and a **MISRA C:2012** process (`docs/quality/misra-c.md`) with an
+  open-source scan (`tools/scripts/misra.sh`, cppcheck addon, advisory → blocking)
+  wired into CI (evidence `ci:misra`) and a documented deviation process.
+  Requirements SSS-REQ-021 / SRS-REQ-041/042; certified MISRA checker + formal
+  report are GAP-A4.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

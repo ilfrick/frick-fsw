@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -90,6 +90,9 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   provide reference implementations of the HAL contracts for the target platform
   (starting with the Gigabit Ethernet MAC) as separable, optional components,
   keeping the middleware independent of them. `method: Tst | Dem`.
+- **SSS-REQ-021** — *Code quality and compliance*: the software shall follow a
+  single declared C coding style applied and enforced codebase-wide, and shall
+  be MISRA C:2012 compliant with a documented deviation process. `method: Inp`.
 
 ## 3. Derived system requirements
 
@@ -117,3 +120,4 @@ deviations are resolved before every commit (norm N4).
 | 0.5 | 2026-10-10 | frick-fsw | M6: add SSS-REQ-018 numerical support (libm facade) |
 | 0.6 | 2026-10-10 | frick-fsw | M7: add SSS-REQ-019 data-link security (CCSDS SDLS) |
 | 0.7 | 2026-10-10 | frick-fsw | M4: add SSS-REQ-020 reference low-level implementations |
+| 0.8 | 2026-10-10 | frick-fsw | M9: add SSS-REQ-021 code quality and compliance (MISRA + coding style) |

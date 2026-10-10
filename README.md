@@ -69,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 74 (srs=40, sss=20, gap=14) |
-| Requirements with implementation | 74/74 |
-| Test coverage (requirements with tests) | 60/74 (81.1%) |
-| Formal verification coverage (requirements with Lean) | 20/74 (27.0%) |
-| Code line coverage | 1643/2505 (65.6%) - functions 220/264 |
+| Requirements in manifest | 78 (srs=43, sss=21, gap=14) |
+| Requirements with implementation | 78/78 |
+| Test coverage (requirements with tests) | 64/78 (82.1%) |
+| Formal verification coverage (requirements with Lean) | 20/78 (25.6%) |
+| Code line coverage | 1656/2521 (65.7%) - functions 220/264 |
 
 <!-- METRICS-END -->
 
@@ -244,7 +244,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 40 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 43 · SSS = 21 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -278,6 +278,7 @@ status panel above is authoritative; the single source of truth is
   [`rtems-integration.md`](docs/architecture/rtems-integration.md) ·
   [`numerics.md`](docs/architecture/numerics.md) ·
   [`security-sdls.md`](docs/architecture/security-sdls.md) ·
+  [`network-stack.md`](docs/architecture/network-stack.md) ·
   [`design/software-design.md`](docs/design/software-design.md) ·
   [`docs/adr/`](docs/adr/) · [`docs/interfaces/ICD.md`](docs/interfaces/ICD.md)
 - **Quality**: [`docs/quality/ecss-criticality-b.md`](docs/quality/ecss-criticality-b.md) ·
@@ -286,6 +287,7 @@ status panel above is authoritative; the single source of truth is
   [`configuration-management.md`](docs/quality/configuration-management.md) ·
   [`product-assurance.md`](docs/quality/product-assurance.md) ·
   [`safety-and-fdir.md`](docs/quality/safety-and-fdir.md) ·
+  [`misra-c.md`](docs/quality/misra-c.md) ·
   [`licensing.md`](docs/quality/licensing.md)
 - **V&V**: [`docs/vv/verification-plan.md`](docs/vv/verification-plan.md) ·
   [`validation-plan.md`](docs/vv/validation-plan.md) ·
@@ -295,7 +297,8 @@ status panel above is authoritative; the single source of truth is
   [`docs/reviews/`](docs/reviews/)
 - **Engineering guides**: [`driver-development.md`](docs/engineering/driver-development.md) ·
   [`service-development.md`](docs/engineering/service-development.md) ·
-  [`user-integration-manual.md`](docs/engineering/user-integration-manual.md)
+  [`user-integration-manual.md`](docs/engineering/user-integration-manual.md) ·
+  [`coding-style.md`](docs/engineering/coding-style.md)
 - **Formal verification**: [`docs/verification/formal-verification.md`](docs/verification/formal-verification.md)
 - **Planning**: [`docs/development-plan.md`](docs/development-plan.md) ·
   [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)

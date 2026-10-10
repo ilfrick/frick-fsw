@@ -31,6 +31,7 @@
 | 2026-10-10 | M4 GEM TSN backend review | R1+R2+R4 | REJECTED | 2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
 | 2026-10-10 | M4 GEM TSN backend delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-gem-tsn-delta-review.md |
 | 2026-10-10 | M4 netstack + M8 review | R1+R2+R4 | REJECTED | 2026-10-10-m4-netstack-r1-r2-r4-review.md |
+| 2026-10-10 | M4 lwIP + M9 code quality review | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | 2026-10-10 | M2 time base code review delta | R1      | APPROVED WITH COMMENTS    | 2026-10-10-m2-time-base-r1-delta-review.md |
 | 2026-10-10 | M2 V&V review delta            | R2      | APPROVED                  | 2026-10-10-m2-vv-r2-delta-review.md |
 | 2026-10-10 | M2 SSS/SRS review delta (N14)  | R3      | APPROVED                  | 2026-10-10-m2-sss-r3-delta-review.md |

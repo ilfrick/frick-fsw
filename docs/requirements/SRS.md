@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.0                                    |
+| Revision                          | 1.2                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -194,6 +194,20 @@ review).
   exercises the pluggable TCP/IP interface without external dependencies
   (bounded, static, in-process loopback), for unit tests and the host simulator.
   `method: Tst`.
+- **SRS-REQ-040** — *lwIP network-stack adapter*: the framework shall provide a
+  reference adapter implementing the network-stack contract (`FF_NetStack_t`)
+  over the lwIP TCP/IP stack (socket API), so a mission can use lwIP without
+  changing the middleware; built with `FF_USE_LWIP`. `method: Tst | Inp`.
+
+### Code quality (milestone M9)
+
+- **SRS-REQ-041** — *MISRA C:2012 compliance*: the C sources shall be MISRA
+  C:2012 compliant; violations shall be fixed or raised as documented deviations
+  per `docs/quality/misra-c.md`. `method: Inp | Anl`.
+- **SRS-REQ-042** — *Coding style*: the C sources shall follow the single
+  declared frick-fsw C style (`.clang-format` normative), applied and enforced
+  codebase-wide by the format gate (`docs/engineering/coding-style.md`).
+  `method: Inp`.
 
 ## 6. Derived requirements
 
@@ -234,3 +248,5 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.8 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-037 RTEMS application integration |
 | 0.9 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-038 GEM native TSN backend |
 | 1.0 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-039 reference network stack |
+| 1.1 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-040 lwIP network-stack adapter |
+| 1.2 | 2026-10-10 | frick-fsw  | M9: add SRS-REQ-041 MISRA C:2012 compliance and SRS-REQ-042 coding style |
