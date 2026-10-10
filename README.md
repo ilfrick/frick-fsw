@@ -69,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 63 (srs=33, sss=17, gap=13) |
-| Requirements with implementation | 63/63 |
-| Test coverage (requirements with tests) | 50/63 (79.4%) |
-| Formal verification coverage (requirements with Lean) | 18/63 (28.6%) |
-| Code line coverage | 893/1515 (58.9%) - functions 124/166 |
+| Requirements in manifest | 65 (srs=34, sss=18, gap=13) |
+| Requirements with implementation | 65/65 |
+| Test coverage (requirements with tests) | 52/65 (80.0%) |
+| Formal verification coverage (requirements with Lean) | 18/65 (27.7%) |
+| Code line coverage | 932/1575 (59.2%) - functions 141/184 |
 
 <!-- METRICS-END -->
 
@@ -241,7 +241,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 33 · SSS = 17 · GAP (to class A) = 13 · Lean theorems = 45. The generated
+SRS = 34 · SSS = 18 · GAP (to class A) = 13 · Lean theorems = 45. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -272,6 +272,7 @@ status panel above is authoritative; the single source of truth is
   [`pus-layer.md`](docs/architecture/pus-layer.md) ·
   [`time-and-timecode.md`](docs/architecture/time-and-timecode.md) ·
   [`hardware-abstraction.md`](docs/architecture/hardware-abstraction.md) ·
+  [`numerics.md`](docs/architecture/numerics.md) ·
   [`design/software-design.md`](docs/design/software-design.md) ·
   [`docs/adr/`](docs/adr/) · [`docs/interfaces/ICD.md`](docs/interfaces/ICD.md)
 - **Quality**: [`docs/quality/ecss-criticality-b.md`](docs/quality/ecss-criticality-b.md) ·
@@ -320,10 +321,11 @@ Copyright (C) 2026 **Ilfrick**
 - Gitea: <https://www.housefz.com/git/ilfrick/frick-fsw>
 
 frick-fsw is free software, released under the **GNU Affero General Public
-License, version 3** (`AGPL-3.0-only`, `LICENSE`). Every authored file carries
-the copyright header and `SPDX-License-Identifier: AGPL-3.0-only`; third-party
-components retain their own licences (analysis in
-`docs/quality/licensing.md`, `NOTICE`).
+License, version 3** (`AGPL-3.0-only`, `LICENSE`). Every authored source,
+configuration and build file carries the copyright header and
+`SPDX-License-Identifier: AGPL-3.0-only`; engineering documentation is covered
+by `LICENSE`/`NOTICE`; third-party components retain their own licences
+(analysis in `docs/quality/licensing.md`, `NOTICE`).
 
 ## Mirrors
 

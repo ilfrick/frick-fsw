@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.4 |
+| Revision    | 0.5 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -81,6 +81,15 @@ Reference implementations behind the M3 contracts:
   reassembly, TCP/IP and TSN link backends) and the on-board file transfer set
   (virtual filestore, PUS service 23, CFDP).
 
+## M6 — Mathematics library integration (libm) (in progress)
+
+A documented, portable mathematics facade over the platform `libm`
+(`src/math/ff_math.{c,h}`, `FF_USE_LIBM`), for applications that need
+floating-point math, with the determinism policy (no use in hard real-time
+critical paths without a work-package analysis) and the licensing analysis
+documented. Requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012;
+`docs/architecture/numerics.md`.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -100,3 +109,4 @@ Reference implementations behind the M3 contracts:
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2 delivered (time source, tone discipline, leap-at-boundary, CUC framing, PPS backend vtable) |
 | 0.3 | 2026-10-10 | frick-fsw | Re-plan: M3 = HAL interfaces + integration manuals; M4 = MPFS BSP + 1 Gb/s Ethernet (absorbs filestore/CFDP/IP/TSN); pointer to `docs/development-plan.md` |
 | 0.4 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |
+| 0.5 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); M3 delivered interfaces |

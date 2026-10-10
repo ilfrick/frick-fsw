@@ -1,3 +1,8 @@
+# frick-fsw - unit test registration (CMake)
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: AGPL-3.0-only
+
 add_executable(test_ccsds unit/test_ccsds.c)
 add_executable(test_sb    unit/test_sb.c)
 add_executable(test_tbl   unit/test_tbl.c)
@@ -8,6 +13,10 @@ set(FF_TEST_TARGETS test_ccsds test_sb test_tbl test_pus test_time)
 if(FF_BUILD_HAL)
   add_executable(test_hal unit/test_hal.c)
   list(APPEND FF_TEST_TARGETS test_hal)
+endif()
+if(FF_USE_LIBM)
+  add_executable(test_math unit/test_math.c)
+  list(APPEND FF_TEST_TARGETS test_math)
 endif()
 
 foreach(t ${FF_TEST_TARGETS})
@@ -21,4 +30,7 @@ add_test(NAME pus   COMMAND test_pus)
 add_test(NAME time  COMMAND test_time)
 if(FF_BUILD_HAL)
   add_test(NAME hal COMMAND test_hal)
+endif()
+if(FF_USE_LIBM)
+  add_test(NAME math COMMAND test_math)
 endif()

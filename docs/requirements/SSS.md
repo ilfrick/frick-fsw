@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -77,6 +77,10 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   CAN/CANopen/CAN-FD, RS-422/RS-485, SPI, I2C, PCIe, GPIO, SpaceWire, and
   memory/storage resources) without modifying the framework (OS primitives are
   abstracted separately by the PAL). `method: Inp | Anl`.
+- **SSS-REQ-018** — *Numerical support*: the framework shall provide a
+  documented, portable numerical/mathematics interface (based on the platform
+  `libm`) usable by applications, with the determinism and licensing
+  implications documented. `method: Tst | Inp`.
 
 ## 3. Derived system requirements
 
@@ -101,3 +105,4 @@ deviations are resolved before every commit (norm N4).
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: add SSS-REQ-016 hardware-disciplined time base |
 | 0.3 | 2026-10-10 | frick-fsw | R3 review closure: SSS-REQ-016 capability wording and SSS-REQ-007/016 boundary |
 | 0.4 | 2026-10-10 | frick-fsw | M3: add SSS-REQ-017 hardware abstraction and integration interfaces |
+| 0.5 | 2026-10-10 | frick-fsw | M6: add SSS-REQ-018 numerical support (libm facade) |

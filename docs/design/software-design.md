@@ -40,6 +40,7 @@ confined to the BSP/driver layer and to the documented class-A gaps.
 | Transport | `src/transport/{ccsds,link}` | Space Packet codec + CRC; byte link | `FF_Ccsds*`, `FF_Link_t` |
 | OS abstraction | `src/core/pal/` | tasks, mutexes, queues, clock, log, panic | `FF_Pal*` |
 | Hardware abstraction | `src/hal/` | bus/device/memory contracts + registry | `FF_Hal*`, `FF_EthMac_t`, `FF_NetStack_t`, ... |
+| Mathematics | `src/math/` | portable `libm` facade for applications (M6) | `FF_Math*` |
 | Board support | `src/bsp/mpfs/` | RTPFS160ZT bring-up behind the HAL | `FF_BoardInit` |
 
 Data flow (nominal): link -> `FF_PusIngest` -> handler -> service action ->
@@ -71,6 +72,10 @@ Data flow (nominal): link -> `FF_PusIngest` -> handler -> service action ->
   `docs/architecture/hardware-abstraction.md`. Design obligations for
   integrators: caller-owned names, buffer ownership, DMA/cache rules, ISR/task
   split, no dynamic allocation.
+- **Math (`src/math/ff_math.c`)**: portable facade over the platform `libm`
+  (elementary functions plus angle/clamp helpers and a finiteness check) for
+  applications; the framework core uses integer arithmetic only
+  (SSS-REQ-018/SRS-REQ-033; `docs/architecture/numerics.md`).
 
 ## 4. Design for determinism and fault handling
 

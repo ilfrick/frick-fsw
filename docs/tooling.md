@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TOOLING-001                      |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 
 This document describes the engineering approach and every tool used for
@@ -47,6 +47,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | Doxygen | API documentation generation | `Doxyfile`, `make docs` |
 | Git | Version control | dual remotes (GitHub + Gitea) |
 | Docker / Docker Compose | Reproducible V&V environment and Gitea CI runner | `tools/docker/` |
+| Platform `libm` | Portable mathematics facade for applications (M6; `FF_USE_LIBM`) | `src/math/` |
 
 ## 3. Verification & validation tools
 
@@ -120,3 +121,4 @@ exist.
 | 0.1 | 2026-10-10 | frick-fsw | Initial approach and tooling document (norm N8/N10) |
 | 0.2 | 2026-10-10 | frick-fsw | Add qualified V&V tools T12 (`coverage.py`), T13 (`metrics.py`) to the inventory |
 | 0.3 | 2026-10-10 | frick-fsw | M3: `docs` CI job now checks the required-document list and document-id uniqueness; HAL added to the approach |
+| 0.4 | 2026-10-10 | frick-fsw | M6: platform `libm` mathematics facade added to the tools |

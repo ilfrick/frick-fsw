@@ -52,6 +52,12 @@ change. All dates UTC, project language English (norm N2).
   (`docs/quality/ecss-compliance-matrix.md`); gaps to class A extended to
   GAP-A8..A13 (SDP formalisation, SDD depth, FMEA, third-party IVV, OPD,
   maintenance).
+- **Milestone M6 — Mathematics library integration (libm).** Portable
+  mathematics facade `src/math/ff_math.{c,h}` over the platform `libm`
+  (`FF_USE_LIBM`, `FRICK_USE_LIBM=1`; glibc host / newlib RTEMS), linked with
+  `-lm`; unit test `test_math` (20 checks); requirements SSS-REQ-018 /
+  SRS-REQ-033; decision ADR-0012 and policy `docs/architecture/numerics.md`;
+  licence analysis updated.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

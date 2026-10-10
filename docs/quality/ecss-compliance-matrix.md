@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-COMP-001                    |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Target                            | ECSS software criticality **B** (norm N5) |
 | References                        | ECSS-E-ST-40C (software general requirements), ECSS-Q-ST-80C (software product assurance), ECSS-E-ST-10C (system engineering) |
@@ -36,7 +36,7 @@ legend: **present**, **partial**, **gap**.
 | Software Product/Quality Assurance Plan | PA/SQA organisation and audits | `docs/quality/product-assurance.md` | partial: plan present, independent QA organisation is a gap (GAP-A3) |
 | Software Criticality & hazard analysis / FDIR | safety, failure detection and recovery | `docs/quality/safety-and-fdir.md` | partial (added; on-target fault injection is GAP-A4/A5) |
 | Software metrics | process/product measures | README status panel, `tools/scripts/metrics.py` | present |
-| Software reuse / COTS analysis | reused components, licence, pedigree | `docs/quality/licensing.md`, ADR-0002/0003 | present |
+| Software reuse / COTS analysis | reused components, licence, pedigree | `docs/quality/licensing.md`, ADR-0002/0003/0012 | present |
 | Delivery / acceptance (DRDs) | deliverable list and acceptance | this matrix §3; `docs/quality/licensing.md` | partial |
 | Software maintenance plan | corrective/adaptive maintenance | `docs/quality/configuration-management.md` §6 | present |
 
@@ -105,3 +105,4 @@ A13), and are documented rather than silently omitted (norm N5).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial ECSS compliance matrix: outputs mapped, gaps GAP-A8..A13 identified |
+| 0.2 | 2026-10-10 | frick-fsw | M6: reuse row references ADR-0012 (libm) |

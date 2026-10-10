@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -145,6 +145,16 @@ review).
   50-53 CCSDS packet transfer) and memory/storage contracts (RAM pool, DMA,
   NOR/flash MTD, non-volatile memory, block device). `method: Inp`.
 
+### Numerical support (milestone M6)
+
+- **SRS-REQ-033** — *Mathematics facade*: the framework shall expose a
+  portable mathematics facade over the platform `libm` (elementary functions
+  `sqrt/sin/cos/tan/atan2/pow/exp/log/fabs/fmod` plus angle and clamp helpers),
+  shall link `libm`, and shall document the behaviour for out-of-domain
+  arguments (for example `sqrt(x<0)=NaN`, `log(x<=0)=-inf`). Results shall be
+  within the accuracy of the platform `libm`; the unit tests assert within a
+  documented tolerance (<= 1e-9 for the covered inputs). `method: Tst | Inp`.
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -178,3 +188,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.2 | 2026-10-10 | frick-fsw  | Milestone M2: add SRS-REQ-021..024 time source, tone, leap, CUC framing |
 | 0.3 | 2026-10-10 | frick-fsw  | R3 review closure: SRS-REQ-021 switch semantics, SRS-REQ-022 tone second counter, SRS-REQ-023 pending/no-tone clause, SRS-REQ-024 two CUC exchange forms |
 | 0.4 | 2026-10-10 | frick-fsw  | M3: add SRS-REQ-025..032 hardware abstraction (HAL registry, Ethernet/net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory/storage) |
+| 0.5 | 2026-10-10 | frick-fsw  | M6: add SRS-REQ-033 mathematics facade (libm) |

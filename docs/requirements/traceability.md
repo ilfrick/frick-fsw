@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 33, SSS = 17, GAP = 13, Lean theorems = 45, CI evidence
+Counts (current): SRS = 34, SSS = 18, GAP = 13, Lean theorems = 45, CI evidence
 claims = 9 unique workflow claim names (8 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
@@ -40,6 +40,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-015 (PUS backends) | SRS-REQ-018 |
 | SSS-REQ-016 (time base) | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
 | SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
+| SSS-REQ-018 (numerical support) | SRS-REQ-033 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -78,6 +79,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-030 | hal_serial.h | test_hal.c | - | RS-422/485 contract |
 | SRS-REQ-031 | hal_spi.h, hal_pcie.h, hal_gpio.h | test_hal.c | - | SPI/I2C/PCIe/GPIO contracts |
 | SRS-REQ-032 | hal_spacewire.h, hal_mem.h | test_hal.c | - | SpaceWire/RMAP + memory/storage |
+| SRS-REQ-033 | math/ff_math.c/h, CMake | test_math.c | - | libm facade (M6) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -105,6 +107,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-015 | adapters | test_pus.c | - |
 | SSS-REQ-016 | time.c, pps.c, fsw_config.h | test_time.c | req_srs022_tone_second_advance, req_srs021_utc_non_regression |
 | SSS-REQ-017 | hal.c/h + hal_*.h, fsw_config.h | test_hal.c | req_srs025_registry_bound |
+| SSS-REQ-018 | math/ff_math.c/h | test_math.c | - |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -139,3 +142,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.1 | 2026-10-10 | frick-fsw | Initial matrices aligned with traceability.yaml |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: SSS-REQ-016, SRS-REQ-021..024, GAP-A7; counts updated |
 | 0.3 | 2026-10-10 | frick-fsw | M3: SSS-REQ-017, SRS-REQ-025..032, GAP-A8..A13; counts 33/17/13, 45 theorems |
+| 0.4 | 2026-10-10 | frick-fsw | M6: SSS-REQ-018, SRS-REQ-033; counts 34/18/13 |

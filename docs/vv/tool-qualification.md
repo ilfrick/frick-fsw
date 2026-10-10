@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.1.5                                  |
+| Revision                          | 0.1.6                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -71,3 +71,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.1.3 | 2026-10-10 | frick-fsw | Re-qualification after CI fix: Gitea workflow clones the mirror explicitly (sub-path `/git`); Doxygen output dir created. New qualified tools T12 (`coverage.py`, gcov) and T13 (`metrics.py`); doc-only changes in README/guides |
 | 0.1.4 | 2026-10-10 | frick-fsw | Re-qualification after M2 review (R2 M2-03): T6 `trace.py` `ci_evidence()` scoping corrected so only `ci:`/`ci-` tokens count as claims (now 9 unique); the N6 undeclared-claim check can no longer be false-passed. T3 `test_time.c`/`test_pus.c` harness-entry and determinism defects corrected and re-run (R2 M2-01/02/06) |
 | 0.1.5 | 2026-10-10 | frick-fsw | Re-qualification after M3: T3 gains `tests/unit/test_hal.c` (HAL registry + contract presence, 31 checks); T5 Lean gains `Frick.Hal`; T6 gate re-run (63 reqs, 45 theorems, 9 CI claims); docs job gains the document-id uniqueness check and the M3 required documents |
+| 0.1.6 | 2026-10-10 | frick-fsw | Re-qualification after M6: T3 gains `tests/unit/test_math.c` (libm facade, 20 checks, tolerance-based) |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-10                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
@@ -152,8 +152,20 @@ Register a new test in `tests/CMakeLists.txt`; add requirement links in
 7. Independent reviews R1/R2/R3 and documentation review R4, NCs closed
 (N9/N10/N12/N14/N17). 8. Commit and push both remotes (N7).
 
+## 12. Mathematics (libm support)
+
+Applications that need floating-point mathematics (`sqrt/sin/cos/tan/atan2/pow/
+exp/log/fabs/fmod`) use the portable facade `src/math/ff_math.h`
+(`FF_MathSqrt`, `FF_MathSin`, ... plus `FF_MathDeg2Rad`, `FF_MathRad2Deg`,
+`FF_MathClamp`, `FF_MathIsFinite`). The framework core uses integer arithmetic
+only. Out-of-domain arguments follow the platform `libm` (`sqrt(x<0)=NaN`,
+`log(x<=0)=-inf`); test results with `FF_MathIsFinite()` when a defined fallback
+is required, and do not use transcendentals in hard real-time critical paths
+without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
+
 ## History
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial user & integration manual (OBJ-02, milestone M3) |
+| 0.2 | 2026-10-10 | frick-fsw | M6: add mathematics (libm) support section |

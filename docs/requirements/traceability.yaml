@@ -313,6 +313,15 @@ requirements:
     lean: []
     lean_note: "SpaceWire/RMAP and memory/storage (pool/DMA/MTD/NVM/block) contracts; inspection + contract-presence test. Fabric-attached backends in M4."
 
+  - id: SRS-REQ-033
+    level: srs
+    parent_sss: SSS-REQ-018
+    derived: false
+    implementation: ["src/math/ff_math.c", "src/math/ff_math.h", "CMakeLists.txt"]
+    tests: ["tests/unit/test_math.c"]
+    lean: []
+    lean_note: "The libm-backed elementary functions are third-party (not Lean-checkable) and verified by tolerance-based unit tests (test_math.c); the pure helpers (Deg2Rad/Rad2Deg/Clamp/IsFinite) are simple stateless wrappers covered by the same tests and inspection. Determinism and licensing policy documented in docs/architecture/numerics.md and docs/quality/licensing.md."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -441,6 +450,14 @@ requirements:
     implementation: ["src/hal/hal.c", "src/hal/hal.h", "src/hal/hal_eth.h", "src/hal/hal_net.h", "src/hal/hal_tsn.h", "src/hal/hal_can.h", "src/hal/hal_serial.h", "src/hal/hal_spi.h", "src/hal/hal_pcie.h", "src/hal/hal_gpio.h", "src/hal/hal_spacewire.h", "src/hal/hal_mem.h"]
     tests: ["tests/unit/test_hal.c"]
     lean: ["req_srs025_registry_bound"]
+
+  - id: SSS-REQ-018
+    level: sss
+    derived: false
+    implementation: ["src/math/ff_math.c", "src/math/ff_math.h"]
+    tests: ["tests/unit/test_math.c"]
+    lean: []
+    lean_note: "Third-party libm facade; verified by unit tests and inspection."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

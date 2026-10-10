@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
@@ -18,7 +18,8 @@ canonical license text is the file `LICENSE` at the repository root (verbatim
 text from the Free Software Foundation); the copyright holder and project links
 are also recorded in `NOTICE`.
 
-Every authored file carries the header:
+Every authored source, configuration and build file carries the header
+(engineering documentation is covered by `LICENSE`/`NOTICE`):
 
 ```text
 Copyright (C) 2026 Ilfrick
@@ -39,6 +40,7 @@ license compatibility:
 | RTEMS 6.2 + RSB | external toolchain / OS | BSD-2-Clause (kernel), GPL-2.0 parts in RSB tooling | LGPL/BSD parts are combinable; RSB is a build tool, not distributed with the flight binary |
 | PUSopen(R) | commercial library, **optional adapter only** (`FRICK_USE_PUSOPEN`), never distributed | commercial | not part of this repository's distribution; documented in `docs/interfaces/ICD.md` and `src/pus/adapters/pus_adapter_pusopen.c` |
 | Lean 4 / Mathlib-theorems | development toolchain | Apache-2.0 | build-time tool, not distributed in binaries |
+| Platform `libm` (glibc host / newlib RTEMS) | C standard math library, part of the toolchain already used; facade in `src/math/` (M6) | LGPL-2.1-or-later (glibc) / BSD-style (newlib) | dynamically linked toolchain library; no new component distributed by frick-fsw; combinable with AGPL-3.0 |
 
 Conclusion: no reused part restricts frick-fsw below AGPL-3.0. Any new third-
 party component added to this repository in the future must be AGPL-3.0
@@ -78,3 +80,4 @@ SPDX-License-Identifier: AGPL-3.0-only
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial licence decision (norm N13) |
 | 0.2 | 2026-10-10 | frick-fsw | Add Ilfrick copyright + project links (header, `NOTICE`); norm N13/N16 |
+| 0.3 | 2026-10-10 | frick-fsw | M6: analyse platform `libm` (glibc/newlib) compatibility; scope the SPDX statement to source/config/build files |

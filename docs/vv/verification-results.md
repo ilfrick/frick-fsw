@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -22,6 +22,7 @@ artifacts (no external state).
 | M2 time base, 2026-10-10 | PASS (Debug + Release) | PASS (5/5) | PASS (`lake build` 17/17 + 3/3 checks) | PASS (48 reqs, 41 theorems) | PASS (6 apps) | clean | proxy | Milestone M2: PPS tone discipline, time-source selection, leap-at-boundary, CUC P-field framing; see M2 notes below |
 | M2 review closure, 2026-10-10 | PASS (Debug + Release) | PASS (5/5; 174 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101) | PASS (`lake build` 17/17, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (48 reqs / 25 srs / 16 sss / 7 gap, 41 theorems, 9 CI claims) | PASS (6 apps) | clang-format + clang-tidy clean | proxy | All M2 NCs (R1/R2/R3) resolved and delta-re-reviewed; coverage lines 845/1446 (58.4%), functions 114/156; see review evidence below |
 | M3 HAL interfaces + ECSS docs, 2026-10-10 | PASS (Debug) | PASS (6/6; 205 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31) | PASS (`lake build` 19/19, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (63 reqs / 33 srs / 17 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | HAL registry + stack-independent contracts (SSS-REQ-017, SRS-REQ-025..032); ECSS SDD/CM/PA/validation/safety/compliance-matrix docs; gaps GAP-A8..A13; coverage 893/1515 (58.9%), functions 124/166 |
+| M6 libm integration, 2026-10-10 | PASS (Debug) | PASS (7/7; 225 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20) | PASS (`lake build` 19/19) | PASS (65 reqs / 34 srs / 18 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Mathematics facade over platform libm (SSS-REQ-018, SRS-REQ-033); ADR-0012, numerics policy, licence analysis; coverage 932/1575 (59.2%), functions 141/184 |
 
 ## v0.1.0 baseline notes
 
@@ -179,6 +180,29 @@ The M3 delta was reviewed by R1 (design/code), R2 (V&V), R3 (SSS, N14) and R4
 (documentation, N17); every non-conformance was dispositioned and the deltas
 re-reviewed until closure (norm N12). See the review evidence table below.
 
+## M6 mathematics library notes (2026-10-10)
+
+### Delivered
+
+Portable mathematics facade over the platform `libm` (`src/math/ff_math.{c,h}`,
+`FF_USE_LIBM`, `-lm`); requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012 and
+policy `docs/architecture/numerics.md`.
+
+### Unit tests (Tst)
+
+7/7 suites; `math` 20 checks (elementary functions within tolerance, helpers,
+domain/finiteness). Total 225 checks.
+
+### Inspection (Inp)
+
+The facade is a thin, allocation-free wrapper; the framework core remains free
+of floating point. A `lean_note` is recorded for SRS-REQ-033 (third-party libm,
+not Lean-checkable).
+
+### Coverage
+
+`make coverage`: lines **932/1575 (59.2%)**, functions **141/184**.
+
 ## Documentation review (norm N17)
 
 Every commit is preceded by a documentation review loop by the independent
@@ -209,6 +233,9 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M3 documentation review (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m3-doc-set-r4-review.md |
 | M3 R1+R2 delta | R1+R2 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (both R2 Majors closed) | docs/reviews/2026-10-10-m3-r1-r2-delta-review.md |
 | M3 R3+R4 delta | R3+R4 (independent) | 2026-10-10 | R3 APPROVED / R4 APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m3-r3-r4-delta-review.md |
+| M6 mathematics review | R1+R2 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m6-math-r1-r2-review.md |
+| M6 mathematics review | R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m6-math-r3-r4-review.md |
+| M6 mathematics delta | R1+R2+R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m6-math-delta-review.md |
 
 ## History
 
@@ -218,4 +245,5 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.1.1 | 2026-10-10 | frick-fsw | Review-closure cycle: Lean build fixed and verified, S6 test corrected, trace gate hardened |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2 cycle: time base, PPS tone discipline, CUC framing, leap-at-boundary |
 | 0.3 | 2026-10-10 | frick-fsw | M2 review closure: NCs (R1/R2/R3) resolved, deterministic tests, coverage 845/1446, Lean transcript committed, norm N17 documentation review introduced |
-| 0.4 | 2026-10-10 | frick-fsw | M3: HAL interfaces + ECSS design/assurance docs; 63 reqs / 45 theorems, coverage 892/1514; M3 reviews R1/R2/R3/R4 and deltas |
+| 0.4 | 2026-10-10 | frick-fsw | M3: HAL interfaces + ECSS design/assurance docs; 63 reqs / 45 theorems, coverage 893/1515; M3 reviews R1/R2/R3/R4 and deltas |
+| 0.5 | 2026-10-10 | frick-fsw | M6: libm mathematics facade; 65 reqs / 34 srs / 18 sss, coverage 932/1575 (59.2%) |

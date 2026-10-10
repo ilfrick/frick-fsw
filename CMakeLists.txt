@@ -1,3 +1,8 @@
+# frick-fsw - build system (CMake)
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: AGPL-3.0-only
+
 cmake_minimum_required(VERSION 3.20)
 project(frick_fsw
         VERSION 0.1.0
@@ -12,6 +17,7 @@ option(FF_USE_PUSOPEN  "Enable the commercial PUSopen backend"    OFF)
 option(FF_ENABLE_WERROR "Treat warnings as errors"                OFF)
 option(FF_ENABLE_COVERAGE "Instrument the build for gcov coverage" OFF)
 option(FF_BUILD_HAL    "Build the HAL core registry (milestone M3)" ON)
+option(FF_USE_LIBM     "Link the platform math library (libm, milestone M6)" ON)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -24,6 +30,9 @@ set(FF_CFG_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
 if(FF_PLATFORM STREQUAL "rtems")
   add_compile_definitions(FRICK_PLATFORM_MPFS)
+endif()
+if(FF_USE_LIBM)
+  add_compile_definitions(FRICK_USE_LIBM=1)
 endif()
 if(FF_USE_PUSOPEN)
   add_compile_definitions(FRICK_USE_PUSOPEN=1)
@@ -71,12 +80,21 @@ if(FF_BUILD_HAL)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/hal/hal.c)
 endif()
 
+# Portable mathematics facade over the platform libm (milestone M6).
+if(FF_USE_LIBM)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/math/ff_math.c)
+endif()
+
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
 target_include_directories(frick_fsw_core PUBLIC ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
 
 if(NOT FF_PLATFORM STREQUAL "rtems")
   find_package(Threads REQUIRED)
   target_link_libraries(frick_fsw_core PUBLIC Threads::Threads)
+endif()
+
+if(FF_USE_LIBM)
+  target_link_libraries(frick_fsw_core PUBLIC m)
 endif()
 
 if(FF_ENABLE_WERROR)
