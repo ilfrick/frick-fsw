@@ -86,6 +86,12 @@ change. All dates UTC, project language English (norm N2).
   from the same sources. Requirement SRS-REQ-037; guide
   `docs/architecture/rtems-integration.md`; toolchain flags aligned to the
   `riscv/mpfs64imafdc` BSP.
+- **M4 — GEM native TSN backend.** A reference `FF_TsnBackend_t` over the
+  Cadence GEM native TSN block (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`): 802.1Q
+  VLAN/PCP classification (screener type 2), 802.1Qbv time-aware scheduling
+  (ENST gate control lists) and 802.1AS time from the GEM TSU; 802.1Qav CBS is
+  documented as not exposed. Requirement SRS-REQ-038; unit test `test_gem_tsn`
+  (16 checks).
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

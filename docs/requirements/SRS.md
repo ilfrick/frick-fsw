@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -184,6 +184,11 @@ review).
   required by the PAL) and the `POSIX_Init` entry point running the shared
   bring-up sequence — so that the same sources build for the RTEMS target.
   `method: Inp` (on-target demonstration is GAP-A5).
+- **SRS-REQ-038** — *GEM native TSN backend*: the framework shall provide a
+  reference TSN backend (`FF_TsnBackend_t`) over the Cadence GEM native TSN
+  block: 802.1Q VLAN/PCP classification, 802.1Qbv time-aware scheduling (ENST
+  gate control lists) and 802.1AS time from the GEM TSU; credit-based shaping
+  (802.1Qav) is documented as not exposed in the GEM register subset. `method: Tst | Inp`.
 
 ## 6. Derived requirements
 
@@ -222,3 +227,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.6 | 2026-10-10 | frick-fsw  | M7: add SRS-REQ-034 SDLS processing and SRS-REQ-035 SA/key management |
 | 0.7 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-036 Ethernet MAC reference driver (Cadence GEM) |
 | 0.8 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-037 RTEMS application integration |
+| 0.9 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-038 GEM native TSN backend |

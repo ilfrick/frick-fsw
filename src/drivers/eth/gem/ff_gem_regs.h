@@ -32,6 +32,28 @@
 #define FF_GEM_SA1B 0x0088u /* specific address 1 bottom          */
 #define FF_GEM_SA1T 0x008Cu /* specific address 1 top             */
 
+/* TSN: 1588/TSU time (802.1AS). */
+#define FF_GEM_TSH 0x01C0u /* timer seconds high (bits 47:32) */
+#define FF_GEM_TSL 0x01D0u /* timer seconds low  (bits 31:0)  */
+#define FF_GEM_TN 0x01D4u  /* timer nanoseconds (30 bits)     */
+#define FF_GEM_TSH_SHIFT 32u
+#define FF_GEM_TN_MASK 0x3FFFFFFFu
+
+/* TSN: 802.1Qbv Enhanced Scheduled Traffic (ENST), per queue `q`. */
+#define FF_GEM_ENST_CONTROL 0x0880u
+#define FF_GEM_ENST_START_TIME(q) (0x0800u + ((uint32_t)(q) << 2))
+#define FF_GEM_ENST_ON_TIME(q) (0x0820u + ((uint32_t)(q) << 2))
+#define FF_GEM_ENST_OFF_TIME(q) (0x0840u + ((uint32_t)(q) << 2))
+#define FF_GEM_ENST_START_SEC_SHIFT 30u
+#define FF_GEM_ENST_START_NSEC_MASK 0x3FFFFFFFu
+#define FF_GEM_ENST_TIME_MASK 0x1FFFFu /* on/off time field (17 bits) */
+
+/* TSN: 802.1Q screener type 2 (VLAN/PCP -> queue). */
+#define FF_GEM_SCRT2 0x0540u
+#define FF_GEM_SCRT2_QUEUE_SHIFT 0u
+#define FF_GEM_SCRT2_VLANPR_SHIFT 4u
+#define FF_GEM_SCRT2_VLANEN_SHIFT 8u
+
 /* NCR bit positions (macb layout; GEM has no software reset). */
 #define FF_GEM_NCR_LLB 1u /* loopback local       */
 #define FF_GEM_NCR_RE 2u  /* receive enable       */

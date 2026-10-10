@@ -359,6 +359,15 @@ requirements:
     lean: []
     lean_note: "RTEMS configuration and startup are platform I/O code, not Lean-modelable; verified by inspection and the RTEMS cross build (real when the toolchain is present; per-commit proxy plus the scheduled workflow). Runtime on target is GAP-A5."
 
+  - id: SRS-REQ-038
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/eth/gem/ff_gem_tsn.c", "src/drivers/eth/gem/ff_gem_tsn.h"]
+    tests: ["tests/unit/test_gem_tsn.c"]
+    lean: []
+    lean_note: "TSN register/table logic verified by host unit tests with a mock MMIO bus (test_gem_tsn.c); on-target timing/PTP accuracy requires the board (GAP-A5)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

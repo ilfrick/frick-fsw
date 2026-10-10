@@ -24,7 +24,7 @@ artifacts (no external state).
 | M3 HAL interfaces + ECSS docs, 2026-10-10 | PASS (Debug) | PASS (6/6; 205 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31) | PASS (`lake build` 19/19, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (63 reqs / 33 srs / 17 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | HAL registry + stack-independent contracts (SSS-REQ-017, SRS-REQ-025..032); ECSS SDD/CM/PA/validation/safety/compliance-matrix docs; gaps GAP-A8..A13; coverage 893/1515 (58.9%), functions 124/166 |
 | M6 libm integration, 2026-10-10 | PASS (Debug) | PASS (7/7; 225 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20) | PASS (`lake build` 19/19) | PASS (65 reqs / 34 srs / 18 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Mathematics facade over platform libm (SSS-REQ-018, SRS-REQ-033); ADR-0012, numerics policy, licence analysis; coverage 932/1575 (59.2%), functions 141/184 |
 | M7 CCSDS SDLS, 2026-10-10 | PASS (Debug) | PASS (8/8; 306 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81) | PASS (`lake build` 21/21) | PASS (69 reqs / 36 srs / 19 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format + ASan clean | proxy | SDLS processing + SA/key management/rotation, pluggable crypto backend (SSS-REQ-019, SRS-REQ-034/035); GAP-A14; coverage 1252/2005 (62.4%), functions 175/217 |
-| M4 drivers + RTEMS integration, 2026-10-10 | PASS (Debug) | PASS (9/9; 329 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81, gem 23) | PASS (`lake build` 21/21) | PASS (72 reqs / 38 srs / 20 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Cadence GEM Ethernet driver behind FF_EthMac_t (SSS-REQ-020, SRS-REQ-036) + RTEMS application integration (SRS-REQ-037); ADR-0014; third-party fetch scaffolding (lwIP, N7/ESA PUS); coverage 1440/2245 (64.1%), functions 194/237 |
+| M4 drivers + RTEMS integration + GEM TSN, 2026-10-10 | PASS (Debug) | PASS (10/10; 345 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31, math 20, sdls 81, gem 23, gem_tsn 16) | PASS (`lake build` 21/21) | PASS (73 reqs / 39 srs / 20 sss / 14 gap, 51 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | Cadence GEM Ethernet driver (SSS-REQ-020/SRS-REQ-036), RTEMS integration (SRS-REQ-037), GEM native TSN backend (SRS-REQ-038); ADR-0014; coverage 1533/2357 (65.0%), functions 207/250 |
 
 ## v0.1.0 baseline notes
 
@@ -258,7 +258,7 @@ PolarFire SoC MSS TRM DS60001702.
 
 ### Coverage
 
-`make coverage`: lines **1440/2245 (64.1%)**, functions **194/237**.
+`make coverage`: lines **1533/2357 (65.0%)**, functions **207/250**.
 
 ### Remaining (M4)
 
@@ -307,6 +307,8 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 GEM delta | R1+R2+R3+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-gem-delta-review.md |
 | M4 RTEMS integration review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m4-rtems-r1-r2-r4-review.md |
 | M4 RTEMS integration delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-rtems-delta-review.md |
+| M4 GEM TSN backend review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
+| M4 GEM TSN backend delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-gem-tsn-delta-review.md |
 
 ## History
 
@@ -321,3 +323,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.6 | 2026-10-10 | frick-fsw | M7: CCSDS SDLS security + key management; 69 reqs / 36 srs / 19 sss / 14 gap, coverage 1252/2005 (62.4%) |
 | 0.7 | 2026-10-10 | frick-fsw | M4 (increment 1): Cadence GEM Ethernet driver; 71 reqs / 37 srs / 20 sss, coverage 1440/2245 (64.1%) |
 | 0.8 | 2026-10-10 | frick-fsw | M4 (increment 2): RTEMS application integration; 72 reqs / 38 srs / 20 sss |
+| 0.9 | 2026-10-10 | frick-fsw | M4 (increment 3): GEM native TSN backend; 73 reqs / 39 srs / 20 sss |
