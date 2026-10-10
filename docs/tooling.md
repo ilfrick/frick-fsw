@@ -72,6 +72,14 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | Gitea act_runner (Docker) | Self-hosted runner so Gitea has CI/CD in Docker (norm N6); maps `ubuntu-24.04` to `docker://frick-vv:local` | `tools/docker/act_runner/` |
 | Dockerfile (V&V image) | Pinned toolchain: cmake/ninja/gcc/python3/node/lean/doxygen/tidy | `tools/docker/Dockerfile` |
 
+The Gitea instance is served under the `/git` sub-path, but `act_runner`
+derives the job `GITHUB_SERVER_URL` without it, so `actions/checkout` builds an
+unreachable clone URL (`https://<host>/<owner>/<repo>` instead of
+`https://<host>/git/<owner>/<repo>`). As the mirror is public, the Gitea
+workflow therefore clones the repository explicitly with `git` instead of
+`actions/checkout`; the GitHub workflow keeps `actions/checkout`. The evidence
+markers are identical in both files (norm N4/N6).
+
 The pipeline stages (identical for both forges and `make ci-local`):
 
 1. `format` / `lint` (clang-format, clang-tidy)

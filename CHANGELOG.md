@@ -14,6 +14,13 @@ change. All dates UTC, project language English (norm N2).
   `ubuntu-24.04` to the pinned V&V image
   (`ubuntu-24.04:docker://frick-vv:local`) because the minimal
   `gitea/act_runner` Alpine image has no toolchain.
+- Project mark for codename "Eärendil": a white stylized ship with a sparkling
+  star on a midnight-blue field, in `assets/` (SVG source plus PNG), embedded in
+  `README.md`; see `assets/README.md`.
+- Mermaid diagrams, compatible with GitHub and Gitea: component architecture
+  (`docs/architecture/overview.md`, `README.md`), TC/TM sequence
+  (`docs/architecture/pus-layer.md`), and the V-model plus per-change cycle
+  (`docs/vv/verification-plan.md`, `README.md`).
 
 ### Changed
 
@@ -30,6 +37,10 @@ change. All dates UTC, project language English (norm N2).
 - CI `static analysis`: the `clang-format --dry-run --Werror` gate failed on
   files that had never been auto-formatted; all C sources are now formatted with
   clang-format 18 (the runner version), so the gate passes.
+- Gitea CI checkout: `act_runner` derives the job server URL without the Gitea
+  `/git` sub-path, so `actions/checkout` failed with `repository not found`. The
+  Gitea workflow now clones the public mirror explicitly with `git`; the GitHub
+  workflow is unchanged.
 
 ## [0.1.0] - 2026-10-10 - baseline release
 

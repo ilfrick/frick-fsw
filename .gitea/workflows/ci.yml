@@ -21,7 +21,15 @@ jobs:
     name: build (host Debug + Release) / unit tests
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
 
       - name: Configure Debug
         run: cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
@@ -46,7 +54,15 @@ jobs:
     name: static analysis
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Format check
         run: |
           if command -v clang-format > /dev/null; then
@@ -69,7 +85,15 @@ jobs:
     name: simulator smoke
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Build
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
@@ -84,7 +108,15 @@ jobs:
     name: Lean verification
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Install elan + Lean 4.10.0
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf \
@@ -99,7 +131,15 @@ jobs:
     name: traceability gate
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Run traceability convergence gate
         run: python3 tools/scripts/trace.py docs/requirements/traceability.yaml
 
@@ -108,7 +148,15 @@ jobs:
     name: documentation set
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Check required documents exist and are linked
         run: |
           python3 - <<'EOF'
@@ -158,7 +206,15 @@ jobs:
     env:
       RTEMS_HOME: /opt/rtems
     steps:
-      - uses: actions/checkout@v4
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
       - name: Cross build or proxy check
         run: bash tools/scripts/ci_rtems_cross_build.sh
 
