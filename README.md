@@ -362,3 +362,13 @@ by `LICENSE`/`NOTICE`; third-party components retain their own licences
 Architectural inspiration from NASA cFS (Draco); RTEMS 6.2 from the open-source
 RTEMS project; Lean 4 by the Lean community. The project is independent and contains
 no copied cFS/RTEMS code.
+
+**Codename / third-party name disclaimer.** The project name is **frick-fsw**;
+"**Eärendil**" is an internal codename taken from J. R. R. Tolkien's legendarium.
+A single name is not protected by copyright; the relevant right, if any, is
+trademark. This project is **not affiliated with, endorsed by, or associated
+with** the Tolkien Estate or Middle-earth Enterprises, includes no Tolkien text,
+and does not use the name as a trademark. "TOLKIEN", "THE LORD OF THE RINGS",
+"THE HOBBIT", "MIDDLE-EARTH" and many related names are trademarks of their
+owners. See `NOTICE` and `docs/quality/licensing.md §6` (incl. contacts for
+licensing and the note that this is not legal advice).

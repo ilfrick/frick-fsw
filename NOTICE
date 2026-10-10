@@ -23,4 +23,26 @@ references) are **not** relicensed: each retains its own copyright and license,
 and only permissive, AGPL-compatible material is used. The compatibility
 analysis is maintained in `docs/quality/licensing.md`.
 
+Project name and codename ("Eärendil")
+--------------------------------------
+The project name is **frick-fsw**; "**Eärendil**" (codename "Eärendil") is the
+project's internal codename. "Eärendil" is a name from J. R. R. Tolkien's
+legendarium. A single name is not protected by copyright (copyright protects the
+expression of works, not names or titles); the relevant right, if any, is
+**trademark**.
+
+This project is **not affiliated with, endorsed by, sponsored by, or otherwise
+associated with** the Tolkien Estate, Middle-earth Enterprises (Embracer Group),
+or any of their affiliates. It does **not** include or reproduce any text of
+Tolkien's works. The codename is used only as an internal/artistic project
+identifier and is **not** used as a trademark to designate the software or its
+origin, and no rights are claimed over it.
+
+"TOLKIEN" and "J. R. R. TOLKIEN" are registered trademarks of the Tolkien Estate;
+"THE LORD OF THE RINGS", "THE HOBBIT", "MIDDLE-EARTH" and numerous related names
+and characters are trademarks/licensed marks of Middle-earth Enterprises. Anyone
+intending to use such a name in commerce should verify the current trademark
+status and may need a licence (see `docs/quality/licensing.md §6`). This notice is
+**not legal advice**; consult qualified IP counsel before any commercial use.
+
 SPDX identifier: AGPL-3.0-only

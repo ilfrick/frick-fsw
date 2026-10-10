@@ -179,6 +179,19 @@ change. All dates UTC, project language English (norm N2).
   PolarFire SoC MSS GPIO (bus-injected MMIO, allocation-free); host test
   `tests/unit/test_gpio.c` and emulated-MMIO check on the Renode `polarfire-soc`
   platform; requirement SRS-REQ-047.
+- **Project codename / third-party name.** Non-affiliation disclaimer for the
+  codename "**Eärendil**" (a J. R. R. Tolkien name) added in `NOTICE`, `README.md`
+  and `docs/quality/licensing.md §6`: a single name is not copyright-protected
+  (copyright vs trademark); the project is not affiliated with the Tolkien Estate
+  or Middle-earth Enterprises, includes no Tolkien text, and does not use the name
+  as a trademark; licensing contacts and a "not legal advice" note. Product name
+  remains **frick-fsw**.
+- **M11: SERIAL increment deferred.** The reference MSS MMUART serial driver was
+  implemented and reviewed (FRICK-REVIEW-0043) but **reverted**: the MPFS MMUART
+  uses 4-byte register spacing while the default Renode `UART.NS16550` model is
+  compact, so the emulated check would not validate the real map. To be
+  re-implemented with hardware-correct 4-byte offsets and a wide-register platform
+  override (M4/M11; SRS-REQ-048 reserved).
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

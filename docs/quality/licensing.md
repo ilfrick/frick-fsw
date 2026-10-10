@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-10                             |
 | License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
@@ -77,6 +77,40 @@ Copyright (C) 2026 Ilfrick (https://github.com/ilfrick/frick-fsw, https://www.ho
 SPDX-License-Identifier: AGPL-3.0-only
 ```
 
+## 6. Project name / codename "Eärendil" (third-party names)
+
+The project name is **frick-fsw**; the internal **codename** is "**Eärendil**"
+(`FF_CODENAME`), shown in the banner and in `assets/`. "Eärendil" is a name from
+J. R. R. Tolkien's legendarium.
+
+- **Copyright**: a single name/title is **not** protected by copyright
+  (copyright covers the expression of works, not names); no copyright permission
+  is required to use the name as a codename, and no Tolkien text is included.
+- **Trademark**: the relevant risk is **trademark** (use in commerce that is
+  likely to cause confusion or imply affiliation). "TOLKIEN" and "J. R. R.
+  TOLKIEN" are registered trademarks of **The Tolkien Estate**;
+  "THE LORD OF THE RINGS", "THE HOBBIT", "MIDDLE-EARTH" and many related
+  names/characters are trademarks / licensed marks controlled by
+  **Middle-earth Enterprises** (a subsidiary of the Embracer Group; formerly
+  The Saul Zaentz Company / Tolkien Enterprises). Whether "Eärendil"
+  *specifically* is a registered trademark depends on jurisdiction/class and must
+  be verified per territory (e.g. EUIPO, USPTO, WIPO) for the relevant goods and
+  services (e.g. Nice class 9, software).
+- **Position of this project**: the codename is used only as an internal/artistic
+  identifier; the project is **not affiliated with, endorsed by, or associated
+  with** the Tolkien Estate or Middle-earth Enterprises, claims no rights over
+  the name, and does not use it as a trademark to designate the software or its
+  origin. The disclaimer is reproduced in `NOTICE` and `README.md`.
+- **If commercial use of the name is intended** (e.g. branding a product,
+  distribution under the name, merchandise): verify the trademark
+  registrations first and, if needed, seek a licence —
+  **Middle-earth Enterprises** (licensing: <https://www.middleearth.com/licensing>)
+  and **The Tolkien Estate** (<https://www.tolkienestate.com>). Alternatively,
+  rename the product to avoid third-party marks entirely (the software name
+  "frick-fsw" is unaffected and is the recommended product identifier).
+- **This is not legal advice**; obtain qualified IP counsel before any
+  commercial use of third-party names.
+
 ## History
 
 | Rev | Date       | Author    | Reason |
@@ -86,3 +120,4 @@ SPDX-License-Identifier: AGPL-3.0-only
 | 0.3 | 2026-10-10 | frick-fsw | M6: analyse platform `libm` (glibc/newlib) compatibility; scope the SPDX statement to source/config/build files |
 | 0.4 | 2026-10-10 | frick-fsw | M7: SDLS cryptographic backend is mission-supplied and not distributed; reference backend is test-only AGPL |
 | 0.5 | 2026-10-10 | frick-fsw | M4: lwIP (BSD-3) and N7/ESA asn1-pusc-lib (GPL-3.0) analysed; fetched pinned, not committed |
+| 0.6 | 2026-10-10 | frick-fsw | §6: project codename "Eärendil" — copyright vs trademark, non-affiliation, owners/contacts, per-territory verification |
