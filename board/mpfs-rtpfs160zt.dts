@@ -1,0 +1,45 @@
+/* frick-fsw device-tree template for the Microchip RT PolarFire SoC RTPFS160ZT
+ * (FCVG784 package).
+ *
+ * The RTEMS BSP riscv/mpfs64imafdc provides the base dts for the MPFS; this
+ * file is the project-level tailoring: U54 application cluster, MSS UART0 for
+ * the command/telemetry link, PLIC and the memory map for the flight software
+ * load address (0x80200000, see cmake/toolchains/rtems-riscv-mpfs.cmake).
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+/dts-v1/;
+
+#include "microchip/mpfs-clock.dtsi"
+#include "microchip/mpfs.dtsi"
+
+/ {
+	model = "Microchip RT PolarFire SoC RTPFS160ZT (FCVG784) - frick-fsw";
+	compatible = "microchip,mpfs-icicle-kit";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	/* Flight software executes on the U54 application cluster, boot hart #1. */
+	cpus {
+		U54_0: cpu@1 {
+			status = "okay";
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		/* 4 GiB DDR4 on the RTPFS160ZT reference design. */
+		reg = <0x0 0x80000000 0x0 0x100000000>;
+	};
+
+	/* Link: UART0 of the MSS console block. */
+	soc {
+		serial0: serial@10000000 {
+			status = "okay";
+			clock-frequency = <150000000>;
+		};
+	};
+};

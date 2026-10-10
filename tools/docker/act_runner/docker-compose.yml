@@ -1,0 +1,32 @@
+# frick-fsw runtime CI/CD deployment
+#
+# Gitea has no built-in CI/CD (norm N6): this Compose file deploys Gitea
+# Actions (act_runner) with Docker so the .gitea/workflows/ci.yml pipeline runs
+# on the Gitea mirror.
+#
+# Usage:
+#   docker compose -f tools/docker/act_runner/docker-compose.yml up -d
+#
+# Registration:
+#   1. Create a registration token in Gitea: forge UI -> Settings -> Actions
+#      -> Runners -> Create new runner.
+#   2. Export GITEA_RUNNER_REGISTRATION_TOKEN=<token> before `up -d` (or edit
+#        the file below).
+#   3. The runner then publishes the badge and executes pushes.
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+services:
+  act_runner:
+    image: gitea/act_runner:latest
+    container_name: frick-act-runner
+    restart: unless-stopped
+    environment:
+      - GITEA_INSTANCE_URL=${GITEA_INSTANCE_URL:-https://www.housefz.com/git}
+      - GITEA_RUNNER_NAME=${GITEA_RUNNER_NAME:-frick-runner}
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN:?set the runner registration token}
+      - GITEA_RUNNER_LABELS=${GITEA_RUNNER_LABELS:-ubuntu-24.04:host}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # runner schedules containers
+      - ./config.yaml:/config.yaml                  # optional runner config
+      - ./runner-data:/data                         # runner state
+    command: ["/opt/act_runner/act_runner", "daemon", "--config", "/config.yaml"]

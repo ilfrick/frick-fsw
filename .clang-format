@@ -1,0 +1,18 @@
+# clang-format configuration (based on the NASA cFS house style)
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterStruct: true
+  AfterClass: true
+  BeforeElse: true
+  SplitEmptyFunction: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+ColumnLimit: 100
+PointerAlignment: Right
+SortIncludes: false
+AlignAfterOpenBracket: Align

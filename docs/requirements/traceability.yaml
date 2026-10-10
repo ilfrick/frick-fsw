@@ -1,0 +1,376 @@
+# frick-fsw traceability manifest
+#
+# Single source of truth for bidirectional traceability (norm N4):
+#   SSS -> SRS -> implementation -> tests -> Lean theorems, and bottom-up.
+# This file is consumed by tools/scripts/trace.py; every change must re-verify
+# convergence (CI job `trace` and the pre-commit flow).
+#
+# Field meanings:
+#   id           requirement id; must appear verbatim in docs/requirements/SSS.md
+#                or SRS.md (or in docs/quality/class-a-gaps.md for GAP-*).
+#   level        srs | sss | gap
+#   parent_sss   id of the parent SSS requirement (srs entries only). Every sss
+#                entry must have at least one child and every srs entry exactly
+#                one parent (bidirectional trace, norm N4).
+#   derived      true when the requirement is derived from a higher level
+#                artifact / tailoring; `justification` is then required.
+#   gap          true for class-A gap items (norm N5); `justification` required.
+#   implementation   files / modules delivering the requirement (paths are
+#                checked to exist by trace.py).
+#   tests        test resources; file paths or `ci:<name>` pseudo-resources
+#                that must be claimed by a CI workflow (norm N6).
+#   lean         Lean theorem names discharging the requirement (norm N1/N3);
+#                matched against verification/lean/**/*.lean.
+#   lean_note    justification when a requirement is verified by analysis,
+#                inspection or test evidence instead of a Lean theorem.
+# ----------------------------------------------------------------------------
+schema_version: "1.0"
+
+requirements:
+  # ------------------------------------------------------------------ SRS
+  - id: FRICK-SRS-REQ-000
+    level: srs
+    parent_sss: SSS-REQ-012
+    derived: false
+    implementation: ["CMakeLists.txt", "CMakePresets.json", "Makefile"]
+    tests: ["ci:host-build"]
+    lean: []
+    lean_note: "Functional baseline; verified by the host build in CI."
+
+  - id: SRS-REQ-001
+    level: srs
+    parent_sss: SSS-REQ-002
+    derived: false
+    implementation: ["src/core/sb/sb.c", "src/core/sb/sb.h"]
+    tests: ["tests/unit/test_sb.c"]
+    lean: ["req_srs001_exact_and_wildcard", "req_srs001_no_match_no_delivery"]
+
+  - id: SRS-REQ-002
+    level: srs
+    parent_sss: SSS-REQ-002
+    derived: false
+    implementation: ["src/core/sb/sb.c", "src/core/pal/pal_posix.c"]
+    tests: ["tests/unit/test_sb.c"]
+    lean: []
+    lean_note: "FIFO ordering follows from the bounded ring-buffer queue semantics modeled in Frick.SoftwareBus; behaviour asserted in test_sb.c."
+
+  - id: SRS-REQ-003
+    level: srs
+    parent_sss: SSS-REQ-003
+    derived: false
+    implementation: ["src/transport/ccsds/ccsds.c"]
+    tests: ["tests/unit/test_ccsds.c"]
+    lean: ["req_srs003_tm_length", "req_srs003_tc_length"]
+
+  - id: SRS-REQ-004
+    level: srs
+    parent_sss: SSS-REQ-003
+    derived: false
+    implementation: ["src/transport/ccsds/ccsds.c"]
+    tests: ["tests/unit/test_ccsds.c"]
+    lean: ["req_srs004_crc_appended_zero", "req_srs004_crc_initial"]
+
+  - id: SRS-REQ-005
+    level: srs
+    parent_sss: SSS-REQ-004
+    derived: false
+    implementation: ["src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: []
+    lean_note: "Unknown service/subservice and malformed frame handling covered by unit/integration tests; the dispatch contract is modeled in Frick.Pus."
+
+  - id: SRS-REQ-006
+    level: srs
+    parent_sss: SSS-REQ-004
+    derived: false
+    implementation: ["src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: ["req_srs006_acceptance_completion", "complete_ack_produces_two", "ack_acceptance_is_counted"]
+
+  - id: SRS-REQ-007
+    level: srs
+    parent_sss: SSS-REQ-004
+    derived: false
+    implementation: ["src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: ["req_srs007_counter_increases", "req_srs007_counter_wrap_bounded"]
+
+  - id: SRS-REQ-008
+    level: srs
+    parent_sss: SSS-REQ-005
+    derived: false
+    implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: []
+    lean_note: "Housekeeping flow exercised end-to-end in the simulator; formalisation in the class-A work package (GAP-A2)."
+
+  - id: SRS-REQ-009
+    level: srs
+    parent_sss: SSS-REQ-003
+    derived: false
+    implementation: ["src/pus/pus_services.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: []
+    lean_note: "Memory dump bounded by registered regions; out-of-region requests rejected (asserted in test_pus.c)."
+
+  - id: SRS-REQ-010
+    level: srs
+    parent_sss: SSS-REQ-007
+    derived: false
+    implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c"]
+    lean: []
+    lean_note: "CUC encoding verified via CCSDS TM round-trip in test_ccsds.c."
+
+  - id: SRS-REQ-011
+    level: srs
+    parent_sss: SSS-REQ-006
+    derived: false
+    implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c", "ci:simulator-smoke"]
+    lean: []
+    lean_note: "Event-to-ground forwarding observed in the simulator smoke run; formal event-log invariant in GAP-A2."
+
+  - id: SRS-REQ-012
+    level: srs
+    parent_sss: SSS-REQ-014
+    derived: false
+    implementation: ["src/pus/pus_services.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: []
+    lean_note: "Ping/pong covered by test_pus.c (service 17)."
+
+  - id: SRS-REQ-013
+    level: srs
+    parent_sss: SSS-REQ-009
+    derived: false
+    implementation: ["src/core/tbl/tbl.c"]
+    tests: ["tests/unit/test_tbl.c"]
+    lean: []
+    lean_note: "Atomic activate verified by unit test (staging not visible until activate)."
+
+  - id: SRS-REQ-014
+    level: srs
+    parent_sss: SSS-REQ-008
+    derived: false
+    implementation: ["src/core/es/es.c", "src/apps/app_hs.c"]
+    tests: ["ci:simulator-smoke"]
+    lean: []
+    lean_note: "Application lifecycle and HS detection exercised in the simulator; dedicated HS unit tests are scheduled (docs/roadmap.md)."
+
+  - id: SRS-REQ-015
+    level: srs
+    parent_sss: SSS-REQ-010
+    derived: false
+    implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c"]
+    tests: ["ci:static-analysis"]
+    lean: []
+    lean_note: "No heap allocation after init; enforced by code inspection, clang-tidy and the class-A memory analysis (GAP-A4)."
+
+  - id: SRS-REQ-016
+    level: srs
+    parent_sss: SSS-REQ-011
+    derived: false
+    implementation: ["CMakeLists.txt", "cmake/toolchains/rtems-riscv-mpfs.cmake", "src/core/pal"]
+    tests: ["ci:dual-build"]
+    lean: []
+    lean_note: "Same sources build host and RTEMS; the CI dual-build job is the evidence."
+
+  - id: SRS-REQ-017
+    level: srs
+    parent_sss: SSS-REQ-001
+    derived: true
+    justification: "ECSS-E-ST-70-41C tailoring; mission identifiers, APIDs and frame profile from config/fsw_config.h and ICD-GND."
+    implementation: ["config/fsw_config.h", "src/transport/ccsds/ccsds.c"]
+    tests: ["tests/unit/test_ccsds.c"]
+
+  - id: SRS-REQ-018
+    level: srs
+    parent_sss: SSS-REQ-015
+    derived: true
+    justification: "ADR-0003: abstraction layer with open default and optional PUSopen adapter."
+    implementation: ["src/pus/pus.h", "src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
+    tests: ["tests/unit/test_pus.c"]
+
+  - id: SRS-REQ-019
+    level: srs
+    parent_sss: SSS-REQ-009
+    derived: true
+    justification: "cFS heritage: single configuration point plus tables (ADR-0008)."
+    implementation: ["config/fsw_config.h", "config/tables/fsw_tables.c"]
+    tests: ["tests/unit/test_tbl.c"]
+
+  - id: SRS-REQ-020
+    level: srs
+    parent_sss: SSS-REQ-013
+    derived: true
+    justification: "Norm N6/N8: the automated V&V pipeline and the always-current documentation set (readable by humans and agents) are project requirements."
+    implementation: [".github/workflows/ci.yml", ".gitea/workflows/ci.yml", "tools/docker", "AGENTS.md", "docs"]
+    tests: ["ci:trace", "ci:docs"]
+    lean: []
+    lean_note: "Deployment-from-documentation is demonstrated by the CI jobs acting on the docs and by the agent-oriented quickstart in AGENTS.md."
+
+  # ------------------------------------------------------------------ SSS
+  - id: SSS-REQ-001
+    level: sss
+    derived: false
+    implementation: ["src/bsp/mpfs/board.c", "config/platform/platform_mpfs.h", "src/core/pal/pal_rtems.c", "cmake/toolchains/rtems-riscv-mpfs.cmake"]
+    tests: ["ci:rtems-cross-build"]
+    lean: []
+    lean_note: "Target evidence requires on-board bring-up (GAP-A5); the cross-build is the continuous proxy."
+
+  - id: SSS-REQ-002
+    level: sss
+    derived: false
+    implementation: ["src/core/sb/sb.c", "config/fsw_config.h"]
+    tests: ["tests/unit/test_sb.c"]
+    lean: ["req_sss002_queue_bounded", "fits_queue_when_bounded"]
+
+  - id: SSS-REQ-003
+    level: sss
+    derived: false
+    implementation: ["src/transport/ccsds/ccsds.c", "src/pus/pus.c", "src/transport/link/link.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c"]
+    lean: ["crc16_append_makes_zero"]
+
+  - id: SSS-REQ-004
+    level: sss
+    derived: false
+    implementation: ["src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: ["req_srs006_acceptance_completion"]
+
+  - id: SSS-REQ-005
+    level: sss
+    derived: false
+    implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
+    tests: ["ci:simulator-smoke"]
+    lean: []
+    lean_note: "S3 housekeeping demonstrated in the simulator; formal coverage in GAP-A2."
+
+  - id: SSS-REQ-006
+    level: sss
+    derived: false
+    implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
+    tests: ["ci:simulator-smoke"]
+    lean: []
+    lean_note: "PUS service 5 event stream observed in simulator logs/TM."
+
+  - id: SSS-REQ-007
+    level: sss
+    derived: false
+    implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
+    tests: ["tests/unit/test_ccsds.c"]
+    lean: []
+    lean_note: "CUC encoding/decoding round-trip verified in test_ccsds.c."
+
+  - id: SSS-REQ-008
+    level: sss
+    derived: false
+    implementation: ["src/apps/app_hs.c", "src/core/es/es.c"]
+    tests: ["ci:simulator-smoke"]
+    lean: []
+    lean_note: "HS heartbeat and health checks demonstrated in the simulator."
+
+  - id: SSS-REQ-009
+    level: sss
+    derived: false
+    implementation: ["src/core/tbl/tbl.c", "config/tables/fsw_tables.c"]
+    tests: ["tests/unit/test_tbl.c"]
+    lean: []
+    lean_note: "Load/validate/activate lifecycle covered by the unit test."
+
+  - id: SSS-REQ-010
+    level: sss
+    derived: false
+    implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "config/fsw_config.h"]
+    tests: ["ci:static-analysis"]
+    lean: []
+    lean_note: "Deterministic memory enforced by design and static analysis; formal memory model in GAP-A4."
+
+  - id: SSS-REQ-011
+    level: sss
+    derived: false
+    implementation: ["CMakeLists.txt", "CMakePresets.json", "cmake/toolchains/rtems-riscv-mpfs.cmake"]
+    tests: ["ci:dual-build"]
+    lean: []
+    lean_note: "Dual-build evidence produced by CI."
+
+  - id: SSS-REQ-012
+    level: sss
+    derived: false
+    implementation: ["docs/requirements/SSS.md", "docs/requirements/SRS.md", "docs/requirements/traceability.md", "docs/quality/ecss-criticality-b.md", "docs/quality/class-a-gaps.md"]
+    tests: ["ci:trace", "ci:docs"]
+    lean: []
+    lean_note: "Documentation set asserted by the traceability CI job."
+
+  - id: SSS-REQ-013
+    level: sss
+    derived: false
+    implementation: [".github/workflows/ci.yml", ".gitea/workflows/ci.yml", "tools/docker"]
+    tests: ["ci:ci-pipeline"]
+    lean: []
+    lean_note: "Automated pipeline on GitHub Actions and Gitea via act_runner in Docker (norm N6)."
+
+  - id: SSS-REQ-014
+    level: sss
+    derived: true
+    justification: "ADR-0003/ADR-0009; transport and link decoupled; ICD-GND defines the tailoring."
+    implementation: ["src/transport/link/link.h", "src/transport/link/link_loopback.c", "src/transport/link/link_uart.c"]
+    tests: ["tests/unit/test_pus.c"]
+
+  - id: SSS-REQ-015
+    level: sss
+    derived: true
+    justification: "Norm N1 keeps the auditable open backend as the default; the PUSopen adapter is optional."
+    implementation: ["src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
+    tests: ["tests/unit/test_pus.c"]
+
+  # ------------------------------------------------------------------ GAPS (class A, norm N5)
+  - id: GAP-A1
+    level: gap
+    gap: true
+    justification: "CRC detection proved by native_decide on reference frames; arbitrary-length induction and the full formal C-embedding are a class-A work package."
+    implementation: ["verification/lean/Frick/Ccsds.lean"]
+    tests: []
+    lean: ["crc16_append_makes_zero"]
+
+  - id: GAP-A2
+    level: gap
+    gap: true
+    justification: "Full PUS-C service set and per-service unit coverage target class A; S3/S5/S6/S8 formalisation deferred."
+    implementation: ["src/pus/pus_services.c"]
+    tests: []
+    lean: []
+
+  - id: GAP-A3
+    level: gap
+    gap: true
+    justification: "Independent V&V, software quality assurance records and SES per ECSS-Q-ST-80 target class A."
+    implementation: ["docs/vv/"]
+    tests: []
+    lean: []
+
+  - id: GAP-A4
+    level: gap
+    gap: true
+    justification: "Full MISRA-C:2012 compliance evidence, WCET analysis, stack-depth analysis and runtime 'lowest terms' need class-A rigour."
+    implementation: ["src/core"]
+    tests: []
+    lean: []
+
+  - id: GAP-A5
+    level: gap
+    gap: true
+    justification: "On-target qualification on the RTPFS160ZT (RTEMS BSP tests, link-level PUS tests over UART, HWIL) needs flight hardware."
+    implementation: ["src/bsp/mpfs"]
+    tests: []
+    lean: []
+
+  - id: GAP-A6
+    level: gap
+    gap: true
+    justification: "Radiation / SEE performance, environmental qualification and long-duration soak testing require a HW campaign outside the software scope."
+    implementation: ["docs/quality/class-a-gaps.md"]
+    tests: []
+    lean: []

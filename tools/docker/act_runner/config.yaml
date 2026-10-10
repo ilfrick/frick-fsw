@@ -1,0 +1,25 @@
+# Gitea Actions runner configuration for frick-fsw.
+# See docker-compose.yml in the same directory.
+# SPDX-License-Identifier: AGPL-3.0-only
+log:
+  level: info
+
+runner:
+  file: /data/.runner
+  capacity: 1
+  envs:
+    RTEMS_HOME: /opt/rtems
+  timeout: 60m
+  insecure: true
+  fetch_timeout: 10s
+  fetch_interval: 2s
+
+container:
+  network: ""
+  privileged: false
+  options: ""
+  workdir_parent: ""
+  valid_volumes:
+    - /var/run/docker.sock
+  docker_host: unix:///var/run/docker.sock
+  force_pull: false

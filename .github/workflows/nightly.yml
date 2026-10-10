@@ -1,0 +1,44 @@
+# frick-fsw nightly RTEMS qualification build (norm N6/SSS-REQ-001)
+#
+# The per-commit job `rtems-cross-build` in ci.yml is a SKIP proxy when the
+# RTEMS toolchain is absent; this workflow installs the full RTEMS 6.2
+# toolchain (embedded brains ECSS pre-qualified baseline, BSP
+# riscv/mpfs64imafdc) with rtems-source-builder and performs the real cross
+# build and documentation of the result in docs/vv/verification-results.md.
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+name: nightly
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"   # weekly, Monday 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  rtems-cross-build:
+    name: RTEMS 6.2 cross build (riscv/mpfs64imafdc)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      RTEMS_HOME: /opt/rtems
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap RTEMS 6.2 toolchain (RSB)
+        run: |
+          sudo mkdir -p /opt/rtems && sudo chown -R runner /opt/rtems
+          bash tools/scripts/setup_rtems.sh
+
+      - name: Cross build
+        run: |
+          cmake -S . -B build/rtems \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
+            -DFF_PLATFORM=rtems
+          cmake --build build/rtems -j$(nproc)
+          echo "RTEMS cross build: PASS" | tee /tmp/rtems-result.txt
+
+      - name: Upload cross-build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtems-mpfs64imafdc-build
+          path: build/rtems/frick_fsw

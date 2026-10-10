@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use frick-fsw in your research or mission, please cite it as follows."
+title: "frick-fsw"
+abstract: >-
+  cFS-inspired flight software framework delivering PUS-C TM/TC on CCSDS Space
+  Packets for a small/medium spacecraft OBC (Microchip RT PolarFire SoC
+  RTPFS160ZT, RISC-V, RTEMS 6.2), target ECSS criticality B, with Lean 4 formal
+  verification and reproducible Docker-based V&V.
+authors:
+  - family-names: "ilfrick"
+    given-names: "FSW Team"
+    affiliation: "frick-fsw project"
+version: 0.1.0
+date-released: 2026-10-10
+license: AGPL-3.0-only
+keywords:
+  - flight software
+  - PUS-C
+  - CCSDS
+  - RTEMS
+  - RISC-V
+  - PolarFire SoC
+  - ECSS
+  - formal verification
+  - Lean 4
+repository-code: "https://github.com/ilfrick/frick-fsw"
+url: "https://www.housefz.com/git/ilfrick/frick-fsw"

@@ -1,0 +1,17 @@
+* text=auto eol=lf
+
+# Source
+*.c text
+*.h text
+CMakeLists.txt text
+*.cmake text
+*.py text
+*.yml text
+*.yaml text
+*.json text
+*.md text
+*.lean text
+
+# Binary
+*.pdf binary
+*.png binary

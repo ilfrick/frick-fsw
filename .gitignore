@@ -1,0 +1,36 @@
+# Builds
+build/
+build-*/
+*.o
+*.a
+*.so
+
+# RTEMS / toolchain
+/opt/
+
+# Lean / lake
+.elan/
+.lake/
+verification/lean/.lake/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+
+# Doxygen
+doxygen/html/
+doxygen/latex/
+
+# Local config
+.local/

@@ -1,0 +1,28 @@
+# Doxyfile for frick-fsw (run: doxygen Doxyfile; output: build/doxygen)
+# SPDX-License-Identifier: AGPL-3.0-only
+
+PROJECT_NAME           = "frick-fsw"
+PROJECT_NUMBER         = 0.1.0
+PROJECT_BRIEF          = "cFS-inspired flight software: PUS-C TM/TC, RTEMS 6 on PolarFire SoC"
+OUTPUT_DIRECTORY       = build/doxygen
+CREATE_SUBDIRS         = NO
+ALLOW_UNICODE_NAMES    = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+INPUT                  = README.md src config board
+FILE_PATTERNS          = *.c *.h *.dts
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+QUIET                  = NO
+JAVADOC_AUTOBRIEF      = YES
+OPTIMIZE_OUTPUT_FOR_C  = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+# (doxygen may not define these macros; harmless if ddox)
+PREDEFINED             = FRICK_PLATFORM_MPFS=1

@@ -1,0 +1,46 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 20, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "native",
+      "displayName": "Native host (Linux simulator)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/native",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "FF_PLATFORM": "native",
+        "FF_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "native-release",
+      "displayName": "Native host, release",
+      "inherits": "native",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "FF_ENABLE_WERROR": "ON"
+      }
+    },
+    {
+      "name": "rtems",
+      "displayName": "RTEMS 6.2 cross target (RTPFS160ZT)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/rtems",
+      "toolchainFile": "${sourceDir}/cmake/toolchains/rtems-riscv-mpfs.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "FF_PLATFORM": "rtems",
+        "FF_BUILD_TESTS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "native", "configurePreset": "native" },
+    { "name": "native-release", "configurePreset": "native-release" },
+    { "name": "rtems", "configurePreset": "rtems" }
+  ],
+  "testPresets": [
+    { "name": "native", "configurePreset": "native", "output": { "outputOnFailure": true } }
+  ]
+}
