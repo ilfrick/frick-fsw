@@ -69,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 73 (srs=39, sss=20, gap=14) |
-| Requirements with implementation | 73/73 |
-| Test coverage (requirements with tests) | 59/73 (80.8%) |
-| Formal verification coverage (requirements with Lean) | 20/73 (27.4%) |
-| Code line coverage | 1533/2357 (65.0%) - functions 207/250 |
+| Requirements in manifest | 74 (srs=40, sss=20, gap=14) |
+| Requirements with implementation | 74/74 |
+| Test coverage (requirements with tests) | 60/74 (81.1%) |
+| Formal verification coverage (requirements with Lean) | 20/74 (27.0%) |
+| Code line coverage | 1643/2505 (65.6%) - functions 220/264 |
 
 <!-- METRICS-END -->
 
@@ -127,6 +127,8 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Link UART | `src/transport/link/link_uart.c` | serial link (host `/dev/ttyUSB0` or RTEMS console) |
 | Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
+| TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv/802.1AS) |
+| Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
 
 Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, GPIO, storage,
 PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
@@ -242,7 +244,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 39 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 40 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.

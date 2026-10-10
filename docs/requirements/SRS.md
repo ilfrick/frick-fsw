@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.9                                    |
+| Revision                          | 1.0                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -189,6 +189,11 @@ review).
   block: 802.1Q VLAN/PCP classification, 802.1Qbv time-aware scheduling (ENST
   gate control lists) and 802.1AS time from the GEM TSU; credit-based shaping
   (802.1Qav) is documented as not exposed in the GEM register subset. `method: Tst | Inp`.
+- **SRS-REQ-039** — *Reference network stack*: the framework shall provide a
+  reference implementation of the network-stack contract (`FF_NetStack_t`) that
+  exercises the pluggable TCP/IP interface without external dependencies
+  (bounded, static, in-process loopback), for unit tests and the host simulator.
+  `method: Tst`.
 
 ## 6. Derived requirements
 
@@ -228,3 +233,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.7 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-036 Ethernet MAC reference driver (Cadence GEM) |
 | 0.8 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-037 RTEMS application integration |
 | 0.9 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-038 GEM native TSN backend |
+| 1.0 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-039 reference network stack |

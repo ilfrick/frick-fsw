@@ -133,6 +133,10 @@ deterministic: fixed-size queues, monotonic time, bounded blocking.
 - Platform selection is `-DFF_PLATFORM=rtems` (sets `FRICK_PLATFORM_MPFS`) or
   the default `native` (see `CMakeLists.txt`).
 - Register new sources in `FF_CORE_SOURCES`; tests in `tests/CMakeLists.txt`.
+- Reference implementations live under `src/drivers/` (e.g. the Cadence GEM MAC
+  `src/drivers/eth/gem/`, the GEM TSN backend, and the loopback `FF_NetStack_t`)
+  and implement the HAL contracts in `src/hal/`; they are separable via the
+  `FF_BUILD_DRIVERS` option.
 - Run the format gate locally before committing:
 
 ```bash

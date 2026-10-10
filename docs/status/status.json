@@ -12,7 +12,8 @@
     "M4": "in progress",
     "M5": "in progress",
     "M6": "in progress",
-    "M7": "in progress"
+    "M7": "in progress",
+    "M8": "planned"
   },
   "gates": {
     "build_and_unit_tests": "green",

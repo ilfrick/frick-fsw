@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 39, SSS = 20, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 40, SSS = 20, GAP = 14, Lean theorems = 51, CI evidence
 claims = 9 unique workflow claim names (8 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
@@ -42,7 +42,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
 | SSS-REQ-018 (numerical support) | SRS-REQ-033 |
 | SSS-REQ-019 (data-link security) | SRS-REQ-034, SRS-REQ-035 |
-| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038 |
+| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -87,6 +87,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-036 | drivers/eth/gem/ff_gem.c/h | test_gem.c | - | Cadence GEM Ethernet driver (M4) |
 | SRS-REQ-037 | config/rtems/rtems_config.c, pal_rtems.c | ci:rtems-cross-build | - | RTEMS application integration (M4) |
 | SRS-REQ-038 | drivers/eth/gem/ff_gem_tsn.c/h | test_gem_tsn.c | - | GEM native TSN backend (M4) |
+| SRS-REQ-039 | drivers/net/ff_net_loopback.c/h | test_netloop.c | - | Reference loopback network stack (M4) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -157,3 +158,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.6 | 2026-10-10 | frick-fsw | M4: SSS-REQ-020, SRS-REQ-036; counts 37/20/14 |
 | 0.7 | 2026-10-10 | frick-fsw | M4: SRS-REQ-037 RTEMS integration; counts 38/20/14 |
 | 0.8 | 2026-10-10 | frick-fsw | M4: SRS-REQ-038 GEM native TSN backend; counts 39/20/14 |
+| 0.9 | 2026-10-10 | frick-fsw | M4: SRS-REQ-039 reference network stack; counts 40/20/14 |

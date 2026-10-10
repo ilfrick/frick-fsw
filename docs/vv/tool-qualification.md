@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.1.9                                  |
+| Revision                          | 0.2.0                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -75,3 +75,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.1.7 | 2026-10-10 | frick-fsw | Re-qualification after M7: T3 gains `tests/unit/test_sdls.c` (SDLS SA/key management, 81 checks incl. bounds and removal/reuse; verified under AddressSanitizer) |
 | 0.1.8 | 2026-10-10 | frick-fsw | Re-qualification after M4 (increment 1): T3 gains `tests/unit/test_gem.c` (Cadence GEM register/descriptor logic, 23 checks, mock MMIO) |
 | 0.1.9 | 2026-10-10 | frick-fsw | Re-qualification after M4 (increment 3): T3 gains `tests/unit/test_gem_tsn.c` (GEM native TSN: VLAN/ENST/TSU, 16 checks, mock MMIO) |
+| 0.2.0 | 2026-10-10 | frick-fsw | Re-qualification after M4 (increment 4): T3 gains `tests/unit/test_netloop.c` (reference loopback network stack, 26 checks) |

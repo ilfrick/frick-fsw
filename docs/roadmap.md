@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.7 |
+| Revision    | 0.8 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -97,6 +97,21 @@ database and key management/rotation, with a pluggable cryptographic backend
 (`src/security/ff_sdls.{c,h}`). Requirements SSS-REQ-019 / SRS-REQ-034/-035;
 ADR-0013; `docs/architecture/security-sdls.md`; GAP-A14 (algorithm/HSM/ground).
 
+## M8 — Deterministic Ethernet completion: gPTP (802.1AS) and fabric CoreTSN (planned)
+
+Complete the deterministic-Ethernet feature set on the PolarFire SoC:
+
+- **Full 802.1AS (gPTP) stack**: BMCA, Sync/Follow_Up, PDelay, and a servo
+  disciplining the GEM TSU clock from the grandmaster; CMLDS/message-stamp
+  handling. The middleware exposes the timestamp/time access; the PTP state
+  machine is added in software (`FF_TsnBackend_t` + a PTP module).
+- **Fabric CoreTSN path**: a generic fabric-device backend (via the FIC) for a
+  multi-port TSN switch / Frame Replication and Elimination (802.1CB) when the
+  mission routes TSN through fabric IP instead of the GEM endpoint.
+- Requirements, Lean models (PTP state machine where feasible), unit tests,
+  documentation, and independent review. On-target timing/PTP accuracy remains
+  GAP-A5.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -119,3 +134,4 @@ ADR-0013; `docs/architecture/security-sdls.md`; GAP-A14 (algorithm/HSM/ground).
 | 0.5 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); M3 delivered interfaces |
 | 0.6 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security and key management) |
 | 0.7 | 2026-10-10 | frick-fsw | M4 status set to in progress (Ethernet GEM driver) |
+| 0.8 | 2026-10-10 | frick-fsw | Add M8 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) |

@@ -368,6 +368,15 @@ requirements:
     lean: []
     lean_note: "TSN register/table logic verified by host unit tests with a mock MMIO bus (test_gem_tsn.c); on-target timing/PTP accuracy requires the board (GAP-A5)."
 
+  - id: SRS-REQ-039
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/net/ff_net_loopback.c", "src/drivers/net/ff_net_loopback.h"]
+    tests: ["tests/unit/test_netloop.c"]
+    lean: []
+    lean_note: "Reference loopback network stack verified by unit tests (test_netloop.c); it exercises the pluggable FF_NetStack_t contract. Third-party stacks (lwIP) plug in through the same vtable."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

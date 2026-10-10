@@ -92,6 +92,13 @@ change. All dates UTC, project language English (norm N2).
   (ENST gate control lists) and 802.1AS time from the GEM TSU; 802.1Qav CBS is
   documented as not exposed. Requirement SRS-REQ-038; unit test `test_gem_tsn`
   (16 checks).
+- **M4 — Reference network stack (loopback).** `src/drivers/net/ff_net_loopback.{c,h}`
+  implements the pluggable network-stack contract (`FF_NetStack_t`) as a bounded,
+  static, in-process loopback, exercising the contract in unit tests and on the
+  host; third-party stacks (lwIP, pinned) plug in through the same vtable.
+  Requirement SRS-REQ-039; unit test `test_netloop` (26 checks).
+- **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
+  802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile
