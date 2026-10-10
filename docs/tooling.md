@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TOOLING-001                      |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 
 This document describes the engineering approach and every tool used for
@@ -90,7 +90,7 @@ The pipeline stages (identical for both forges and `make ci-local`):
 4. `verify-lean` (`lake build`)
 5. `trace` (traceability convergence, norms N3/N4/N10/N11)
 6. `rtems-cross-build` (RTEMS 6.2 / riscv-mpfs64imafdc cross compilation)
-7. `docs` (Doxygen + doc-set consistency)
+7. `docs` (Doxygen + required-document list + document-id uniqueness + doc-set consistency)
 
 ### CI evidence markers (norm N4/N6)
 
@@ -119,3 +119,4 @@ exist.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial approach and tooling document (norm N8/N10) |
 | 0.2 | 2026-10-10 | frick-fsw | Add qualified V&V tools T12 (`coverage.py`), T13 (`metrics.py`) to the inventory |
+| 0.3 | 2026-10-10 | frick-fsw | M3: `docs` CI job now checks the required-document list and document-id uniqueness; HAL added to the approach |

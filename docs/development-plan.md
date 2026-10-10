@@ -76,7 +76,7 @@ backend** (OBJ-07), without writing FPGA IP.
 | Memory | NVM (persistent params) | eNVM + sNVM + uPROM | MSS/fabric | `FF_Nvm_t` | eNVM/sNVM backend |
 | Memory | eMMC / SD | MMC 5.1 (eMMC, SD, SDIO) | MSS | `FF_BlockDev_t` | MMC driver + FTL |
 | Memory | SSD | via PCIe NVMe / USB | PCIe/USB | `FF_BlockDev_t` | NVMe backend |
-| Time | RTC / timer / watchdog | RTC x1, timer x2, watchdog x5 | MSS | `FF_Clock_t` | RTC/timer driver |
+| Time | RTC / timer / watchdog | RTC x1, timer x2, watchdog x5 | MSS | PAL clock (`FF_PalGet*`) + BSP watchdog | RTC/timer driver (M4) |
 
 ## 4. Milestones
 
@@ -99,7 +99,7 @@ leap-at-boundary, CUC framing (7-octet self-describing P + 6-octet PUS on-wire
 T). Requirements SSS-REQ-016, SRS-REQ-021..024; NCs from R1/R2/R3 resolved and
 delta-re-reviewed (see `docs/reviews/2026-10-10-m2-*-delta-review.md`).
 
-### M3 — Middleware integration & hardware-abstraction interfaces (planned)
+### M3 — Middleware integration & hardware-abstraction interfaces (in progress)
 
 Deliverables (**interfaces and documentation; no drivers**):
 
@@ -169,7 +169,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | --------- | ---------- | ------ |
 | M1 | baseline middleware | done |
 | M2 | time base | done |
-| M3 | OBJ-01..OBJ-09 | planned |
+| M3 | OBJ-01..OBJ-09 | in progress |
 | M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | planned |
 | M5 | documentation & status program | in progress |
 
@@ -178,3 +178,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial development plan: middleware boundary, objectives OBJ-01..OBJ-12, resource/bus interface catalogue, M1..M5 milestones |
+| 0.2 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |

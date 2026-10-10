@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 25, SSS = 16, GAP = 7, Lean theorems = 41, CI evidence
+Counts (current): SRS = 33, SSS = 17, GAP = 13, Lean theorems = 45, CI evidence
 claims = 9 unique workflow claim names (8 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
@@ -39,6 +39,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-014 (link/transport) | SRS-REQ-012 |
 | SSS-REQ-015 (PUS backends) | SRS-REQ-018 |
 | SSS-REQ-016 (time base) | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
+| SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -69,6 +70,14 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-022 | time.c | test_time.c | req_srs022_tone_second_advance, req_srs022_tone_count_strict | tone discipline |
 | SRS-REQ-023 | time.c | test_time.c | req_srs023_leap_cleared_at_tone, req_srs023_leap_accumulated_at_tone | leap at boundary |
 | SRS-REQ-024 | time.c | test_time.c | req_srs024_cuc_field_roundtrip, req_srs024_fine_frac_bounded, req_srs024_coarse_byte_decompose | CUC framing |
+| SRS-REQ-025 | hal.c/h, fsw_config.h | test_hal.c | req_srs025_registry_bound, req_srs025_dup_unchanged | HAL registry |
+| SRS-REQ-026 | hal_eth.h | test_hal.c | - | MAC + net interface contract |
+| SRS-REQ-027 | hal_net.h | test_hal.c | - | pluggable stack (Tuxera/lwIP/libbsd) |
+| SRS-REQ-028 | hal_tsn.h | test_hal.c | - | TSN backend contract |
+| SRS-REQ-029 | hal_can.h | test_hal.c | - | CAN / CAN-FD / CANopen |
+| SRS-REQ-030 | hal_serial.h | test_hal.c | - | RS-422/485 contract |
+| SRS-REQ-031 | hal_spi.h, hal_pcie.h, hal_gpio.h | test_hal.c | - | SPI/I2C/PCIe/GPIO contracts |
+| SRS-REQ-032 | hal_spacewire.h, hal_mem.h | test_hal.c | - | SpaceWire/RMAP + memory/storage |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -95,6 +104,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-014 | link.h, link_loopback.c, link_uart.c | test_pus.c | - |
 | SSS-REQ-015 | adapters | test_pus.c | - |
 | SSS-REQ-016 | time.c, pps.c, fsw_config.h | test_time.c | req_srs022_tone_second_advance, req_srs021_utc_non_regression |
+| SSS-REQ-017 | hal.c/h + hal_*.h, fsw_config.h | test_hal.c | req_srs025_registry_bound |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -107,6 +117,12 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | GAP-A5 | on-target RTEMS / HWIL qualification | class-a-gaps.md |
 | GAP-A6 | radiation / environmental campaign | class-a-gaps.md |
 | GAP-A7 | on-target PPS capture and CCSDS/TAI epoch | class-a-gaps.md |
+| GAP-A8 | Software Development Plan formalisation/tailoring | class-a-gaps.md |
+| GAP-A9 | SDD per-function detailed design completeness | class-a-gaps.md |
+| GAP-A10 | full software FMEA/FMECA (needs system hazards) | class-a-gaps.md |
+| GAP-A11 | third-party independent verification of unit tests | class-a-gaps.md |
+| GAP-A12 | operations manual / TM-TC database (OPD) | class-a-gaps.md |
+| GAP-A13 | maintenance and obsolescence plan | class-a-gaps.md |
 
 ## 5. Bottom-up checks performed by the gate
 
@@ -122,3 +138,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial matrices aligned with traceability.yaml |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: SSS-REQ-016, SRS-REQ-021..024, GAP-A7; counts updated |
+| 0.3 | 2026-10-10 | frick-fsw | M3: SSS-REQ-017, SRS-REQ-025..032, GAP-A8..A13; counts 33/17/13, 45 theorems |

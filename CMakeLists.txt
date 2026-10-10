@@ -11,6 +11,7 @@ option(FF_BUILD_TESTS   "Build the C unit test suite"             ON)
 option(FF_USE_PUSOPEN  "Enable the commercial PUSopen backend"    OFF)
 option(FF_ENABLE_WERROR "Treat warnings as errors"                OFF)
 option(FF_ENABLE_COVERAGE "Instrument the build for gcov coverage" OFF)
+option(FF_BUILD_HAL    "Build the HAL core registry (milestone M3)" ON)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -62,6 +63,13 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/apps/app_sample.c
   ${CMAKE_CURRENT_SOURCE_DIR}/config/tables/fsw_tables.c
 )
+
+# HAL core registry: optional component so users can omit the abstraction layer
+# they do not need (partitioning, objective OBJ-07; norm N8). Header-only
+# contracts always ship; this only toggles the registry implementation.
+if(FF_BUILD_HAL)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/hal/hal.c)
+endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
 target_include_directories(frick_fsw_core PUBLIC ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})

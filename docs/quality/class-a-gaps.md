@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
-| Tracking                          | GAP-A1..A7 in `docs/requirements/traceability.yaml` |
+| Tracking                          | GAP-A1..A13 in `docs/requirements/traceability.yaml` |
 
 The current baseline targets ECSS criticality **B** (`ecss-criticality-b.md`).
 The following gaps must be closed, together with the class-B baseline, to
@@ -16,7 +16,7 @@ traceability manifest (level `gap`, `justification` records the disposition).
 
 ## GAP-A1 - Deep formal verification
 
-**Status:** open (work package WP-FV-A)
+**Status:** open (class-A formal verification work package)
 
 - Arbitrary-length CRC-16/CCITT-FALSE induction (currently proved by
   `native_decide` on reference frames; see `verification/lean/Frick/Ccsds.lean`).
@@ -87,10 +87,59 @@ traceability manifest (level `gap`, `justification` records the disposition).
 - The CUC uses an agency-defined epoch on the simulator; a CCSDS 1958 (level 1)
   / TAI epoch correlation and a leap-second table require on-board validation.
 
+## GAP-A8 - Software Development Plan formalisation
+
+**Status:** open (process artefact)
+
+- The planning content (lifecycle, tailoring, cycle, reviews, gates) exists in
+  `docs/development-plan.md`, `docs/roadmap.md` and `docs/tooling.md`; the
+  ECSS-SDP formal title/tailoring record (with the criticality-B tailoring of
+  each process step) is closable by extending those documents.
+
+## GAP-A9 - SDD detailed design completeness
+
+**Status:** open (documentation work package)
+
+- `docs/design/software-design.md` gives the architectural and module-level
+  design. Per-function detailed design (data structures, algorithms, error
+  cases) for every module is closable incrementally.
+
+## GAP-A10 - Full software safety analysis (FMEA/FMECA)
+
+**Status:** open (needs system hazard inputs)
+
+- `docs/quality/safety-and-fdir.md` is a preliminary contribution analysis; a
+  full FMEA/FMECA requires the system-level hazard inputs from the programme.
+
+## GAP-A11 - Independent verification of unit tests by a third party
+
+**Status:** open (organisational, related to GAP-A3)
+
+- Unit-test and evidence review today is by independent-context agents (R2);
+  third-party/organisational independent verification of the test campaigns is
+  a company/programme function.
+
+## GAP-A12 - Operations manual and TM/TC database (OPD)
+
+**Status:** open (mission tailoring)
+
+- The PUS service catalogue and the integration manual exist, but a mission
+  operations manual and the ground TM/TC database are mission-specific and not
+  part of the framework deliverable.
+
+## GAP-A13 - Maintenance and obsolescence plan
+
+**Status:** open (programme work package)
+
+- Corrective/adaptive maintenance and third-party obsolescence are addressed by
+  the SCMP (`docs/quality/configuration-management.md` §6) and licensing review;
+  a formal long-term maintenance/obsolescence plan is a programme artefact.
+
 ## Closure policy
 
-Each gap has an owner, a work package and an acceptance criterion set in the
-roadmap (`docs/roadmap.md`). Gap closure is recorded in this document, in the
+Each gap has an owner and an acceptance criterion assigned by the programme; the
+class-A work packages are mapped in `docs/quality/ecss-compliance-matrix.md` and
+scheduled in `docs/roadmap.md`. Gap closure is recorded in this document, in the
 traceability manifest and in the V&V results, and is reviewed independently per
 norm N9/N12 before the class-A baseline can be claimed.
 
@@ -100,3 +149,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial gap analysis GAP-A1..A6 (norm N5) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: add GAP-A7 on-target PPS and TAI/CCSDS epoch |
+| 0.3 | 2026-10-10 | frick-fsw | ECSS compliance assessment: add GAP-A8..A13 (SDP, SDD depth, FMEA, third-party IVV, OPD, maintenance) |

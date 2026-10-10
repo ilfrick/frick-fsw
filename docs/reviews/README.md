@@ -11,6 +11,12 @@
 | 2026-10-10 | Documentation set review (N17) | R4      | REJECTED                  | 2026-10-10-doc-set-r4-review.md |
 | 2026-10-10 | Documentation set review delta (N17) | R4 | APPROVED WITH COMMENTS | 2026-10-10-doc-set-r4-delta-review.md |
 | 2026-10-10 | Documentation set review final (N17) | R4 | APPROVED WITH COMMENTS | 2026-10-10-doc-set-r4-final-review.md |
+| 2026-10-10 | M3 HAL design/code review | R1 | APPROVED WITH COMMENTS | 2026-10-10-m3-hal-r1-review.md |
+| 2026-10-10 | M3 V&V review | R2 | REJECTED | 2026-10-10-m3-vv-r2-review.md |
+| 2026-10-10 | M3 SSS/SRS review (N14) | R3 | APPROVED WITH COMMENTS | 2026-10-10-m3-sss-r3-review.md |
+| 2026-10-10 | M3 documentation review (N17) | R4 | APPROVED WITH COMMENTS | 2026-10-10-m3-doc-set-r4-review.md |
+| 2026-10-10 | M3 R1+R2 delta | R1+R2 | APPROVED WITH COMMENTS | 2026-10-10-m3-r1-r2-delta-review.md |
+| 2026-10-10 | M3 R3+R4 delta | R3+R4 | APPROVED / APPROVED WITH COMMENTS | 2026-10-10-m3-r3-r4-delta-review.md |
 | 2026-10-10 | M2 time base code review delta | R1      | APPROVED WITH COMMENTS    | 2026-10-10-m2-time-base-r1-delta-review.md |
 | 2026-10-10 | M2 V&V review delta            | R2      | APPROVED                  | 2026-10-10-m2-vv-r2-delta-review.md |
 | 2026-10-10 | M2 SSS/SRS review delta (N14)  | R3      | APPROVED                  | 2026-10-10-m2-sss-r3-delta-review.md |

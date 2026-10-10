@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 1.0                                    |
+| Revision                          | 1.1                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
@@ -185,8 +185,11 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 
 - The project license is **AGPL-3.0-only** (GNU Affero General Public License
   v3); the canonical text is in `LICENSE`.
-- All authored files carry the SPDX header `SPDX-License-Identifier:
-  AGPL-3.0-only` (already applied repo-wide; new files must add it).
+- All authored **source, configuration and build files** carry the SPDX header
+  `SPDX-License-Identifier: AGPL-3.0-only` (already applied repo-wide; new such
+  files must add it). Engineering documentation is covered by the project
+  `LICENSE`/`NOTICE` and the licence review (`docs/quality/licensing.md`); the
+  CI licence job remains authoritative.
 - The license context, compatibility analysis for reused/derived components and
   the review procedure are documented in `docs/quality/licensing.md`.
 - Any change that touches licence-relevant material (new dependency, reused
@@ -349,3 +352,4 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 0.8 | 2026-10-10 | frick-fsw | Add N15 (full cycle on every change) and N16 (detailed revision history) |
 | 0.9 | 2026-10-10 | frick-fsw | Add N17 (documentation review by the Senior SW documentation reviewer R4 before every commit/push) |
 | 1.0 | 2026-10-10 | frick-fsw | Add interpretation note 3: per-document History scope (ADRs exempt) — R4 review DOC-08 |
+| 1.1 | 2026-10-10 | frick-fsw | Scope N13 SPDX requirement to source/config/build files; docs covered by LICENSE/NOTICE (R4 M3 C-2) |

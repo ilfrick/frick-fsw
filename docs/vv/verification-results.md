@@ -21,6 +21,7 @@ artifacts (no external state).
 | v0.1.0 review closure, 2026-10-10 | PASS | PASS (4/4) | PASS (`lake build` 15/15 + 3/3 checks) | PASS (42 reqs, 20 theorems) | PASS (6 apps) | clean | proxy | Norm N15 re-run after review NCs (Lean proofs, S6 test, trace gate); see `docs/reviews/2026-10-10-*.md` |
 | M2 time base, 2026-10-10 | PASS (Debug + Release) | PASS (5/5) | PASS (`lake build` 17/17 + 3/3 checks) | PASS (48 reqs, 41 theorems) | PASS (6 apps) | clean | proxy | Milestone M2: PPS tone discipline, time-source selection, leap-at-boundary, CUC P-field framing; see M2 notes below |
 | M2 review closure, 2026-10-10 | PASS (Debug + Release) | PASS (5/5; 174 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101) | PASS (`lake build` 17/17, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (48 reqs / 25 srs / 16 sss / 7 gap, 41 theorems, 9 CI claims) | PASS (6 apps) | clang-format + clang-tidy clean | proxy | All M2 NCs (R1/R2/R3) resolved and delta-re-reviewed; coverage lines 845/1446 (58.4%), functions 114/156; see review evidence below |
+| M3 HAL interfaces + ECSS docs, 2026-10-10 | PASS (Debug) | PASS (6/6; 205 checks: ccsds 15, sb 20, tbl 9, pus 29, time 101, hal 31) | PASS (`lake build` 19/19, transcript `verification/lean/lake-build.log`; 3/3 checks) | PASS (63 reqs / 33 srs / 17 sss / 13 gap, 45 theorems, 9 CI claims) | PASS (6 apps) | clang-format clean | proxy | HAL registry + stack-independent contracts (SSS-REQ-017, SRS-REQ-025..032); ECSS SDD/CM/PA/validation/safety/compliance-matrix docs; gaps GAP-A8..A13; coverage 893/1515 (58.9%), functions 124/166 |
 
 ## v0.1.0 baseline notes
 
@@ -132,6 +133,52 @@ Open non-conformances: **none**. On-target PPS capture and the TAI/CCSDS epoch
 remain a documented class-A gap (GAP-A7, `docs/quality/class-a-gaps.md`), not an
 NC for the class-B baseline.
 
+## M3 hardware abstraction and ECSS documentation notes (2026-10-10)
+
+### Delivered
+
+The HAL registry and the stack-independent device/bus/memory contracts
+(SSS-REQ-017, SRS-REQ-025..032), plus the ECSS engineering set: Software Design
+Document, configuration management plan, product/quality assurance plan,
+validation plan, preliminary safety/FDIR analysis and the ECSS compliance
+matrix; gaps to class A extended to GAP-A8..A13.
+
+### Formal verification (norm N1)
+
+`Frick.Hal` proves the HAL registry bound and duplicate invariance
+(`hal_registry_count_bound`, `hal_dup_registration_unchanged`, wrapped as
+`req_srs025_registry_bound` / `req_srs025_dup_unchanged`). Gate: `lake build`
+19/19, `frick_verify_checks` 3/3; transcript committed
+(`verification/lean/lake-build.log`).
+
+### Unit tests (methods Tst)
+
+6/6 suites: ccsds 15, sb 20, tbl 9, pus 29, time 101, **hal 31** checks
+(205 total).
+
+### Inspection evidence (methods Inp)
+
+SRS-REQ-026..032 are **interface declarations** (non-executable). Their
+verification is inspection of the contract headers plus the contract-presence
+test (`tests/unit/test_hal.c::test_contract_presence`, which compiles and
+instantiates every contract type). This is the recorded `Inp` evidence for
+these requirements (manifest `lean_note`).
+
+### Coverage (method Anl, gcov)
+
+`make coverage`: lines **893/1515 (58.9%)**, functions **124/166**.
+
+### Traceability (norms N3/N4)
+
+`make trace` exits 0: 63 requirements (33 SRS / 17 SSS / 13 GAP), 45 Lean
+theorems, 9 CI evidence claims.
+
+### Non-conformance closure
+
+The M3 delta was reviewed by R1 (design/code), R2 (V&V), R3 (SSS, N14) and R4
+(documentation, N17); every non-conformance was dispositioned and the deltas
+re-reviewed until closure (norm N12). See the review evidence table below.
+
 ## Documentation review (norm N17)
 
 Every commit is preceded by a documentation review loop by the independent
@@ -156,6 +203,12 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | Documentation set review (N17) | R4 (independent) | 2026-10-10 | REJECTED, findings corrected (delta re-review in cycle) | docs/reviews/2026-10-10-doc-set-r4-review.md |
 | Documentation set review delta (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (findings corrected) | docs/reviews/2026-10-10-doc-set-r4-delta-review.md |
 | Documentation set review final (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (all NCs closed) | docs/reviews/2026-10-10-doc-set-r4-final-review.md |
+| M3 HAL code/design review | R1 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m3-hal-r1-review.md |
+| M3 V&V review | R2 (independent) | 2026-10-10 | REJECTED, NCs closed after fix | docs/reviews/2026-10-10-m3-vv-r2-review.md |
+| M3 SSS/SRS review (N14) | R3 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m3-sss-r3-review.md |
+| M3 documentation review (N17) | R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-10-m3-doc-set-r4-review.md |
+| M3 R1+R2 delta | R1+R2 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (both R2 Majors closed) | docs/reviews/2026-10-10-m3-r1-r2-delta-review.md |
+| M3 R3+R4 delta | R3+R4 (independent) | 2026-10-10 | R3 APPROVED / R4 APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m3-r3-r4-delta-review.md |
 
 ## History
 
@@ -165,3 +218,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.1.1 | 2026-10-10 | frick-fsw | Review-closure cycle: Lean build fixed and verified, S6 test corrected, trace gate hardened |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2 cycle: time base, PPS tone discipline, CUC framing, leap-at-boundary |
 | 0.3 | 2026-10-10 | frick-fsw | M2 review closure: NCs (R1/R2/R3) resolved, deterministic tests, coverage 845/1446, Lean transcript committed, norm N17 documentation review introduced |
+| 0.4 | 2026-10-10 | frick-fsw | M3: HAL interfaces + ECSS design/assurance docs; 63 reqs / 45 theorems, coverage 892/1514; M3 reviews R1/R2/R3/R4 and deltas |

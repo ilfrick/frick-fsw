@@ -241,6 +241,78 @@ requirements:
     tests: ["tests/unit/test_time.c", "tests/unit/test_pus.c"]
     lean: ["req_srs024_cuc_field_roundtrip", "req_srs024_fine_frac_bounded", "req_srs024_coarse_byte_decompose"]
 
+  # -------------------------------------------------- Hardware abstraction (M3)
+  - id: SRS-REQ-025
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal.c", "src/hal/hal.h", "config/fsw_config.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: ["req_srs025_registry_bound", "req_srs025_dup_unchanged"]
+
+  - id: SRS-REQ-026
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_eth.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "Pure interface declarations (MAC + net interface vtable); verified by inspection and the contract-presence test (test_hal.c). The drivers behind the contract are M4."
+
+  - id: SRS-REQ-027
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_net.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "Stack-independent network contract (socket-like vtable); inspection + contract-presence test. Enables plugging Tuxera/lwIP/libbsd without core change."
+
+  - id: SRS-REQ-028
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_tsn.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "TSN backend contract (802.1Q/Qbv/Qav/AS); inspection + contract-presence test."
+
+  - id: SRS-REQ-029
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_can.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "CAN/CAN-FD backend and CANopen stack contracts; inspection + contract-presence test."
+
+  - id: SRS-REQ-030
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_serial.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "Serial contract with RS-485 direction control; inspection + contract-presence test."
+
+  - id: SRS-REQ-031
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_spi.h", "src/hal/hal_pcie.h", "src/hal/hal_gpio.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "SPI/I2C/PCIe/GPIO contracts; inspection + contract-presence test. GPIO documents the ISR/task rule."
+
+  - id: SRS-REQ-032
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["src/hal/hal_spacewire.h", "src/hal/hal_mem.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: []
+    lean_note: "SpaceWire/RMAP and memory/storage (pool/DMA/MTD/NVM/block) contracts; inspection + contract-presence test. Fabric-attached backends in M4."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -363,6 +435,13 @@ requirements:
     tests: ["tests/unit/test_time.c"]
     lean: ["req_srs022_tone_second_advance", "req_srs021_utc_non_regression"]
 
+  - id: SSS-REQ-017
+    level: sss
+    derived: false
+    implementation: ["src/hal/hal.c", "src/hal/hal.h", "src/hal/hal_eth.h", "src/hal/hal_net.h", "src/hal/hal_tsn.h", "src/hal/hal_can.h", "src/hal/hal_serial.h", "src/hal/hal_spi.h", "src/hal/hal_pcie.h", "src/hal/hal_gpio.h", "src/hal/hal_spacewire.h", "src/hal/hal_mem.h"]
+    tests: ["tests/unit/test_hal.c"]
+    lean: ["req_srs025_registry_bound"]
+
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1
     level: gap
@@ -417,5 +496,53 @@ requirements:
     gap: true
     justification: "On-target PPS capture (RTEMS MPFS GPIO/PLIC ISR feeding FF_TimeToneSignal) and a CCSDS 1958/TAI epoch correlation with a leap-second table require flight hardware and an on-board campaign; the host-level abstraction, software backend and formal model are delivered in M2."
     implementation: ["src/core/time/pps.c", "src/bsp/mpfs"]
+    tests: []
+    lean: []
+
+  - id: GAP-A8
+    level: gap
+    gap: true
+    justification: "Software Development Plan formalisation/tailoring record; planning content exists in docs/development-plan.md and docs/tooling.md, closable by extending them (ECSS SDP)."
+    implementation: ["docs/development-plan.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A9
+    level: gap
+    gap: true
+    justification: "SDD per-function detailed design completeness; the architectural/module design is delivered in docs/design/software-design.md, detailed design is an incremental documentation work package."
+    implementation: ["docs/design/software-design.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A10
+    level: gap
+    gap: true
+    justification: "Full software FMEA/FMECA requires the system-level hazard inputs; a preliminary contribution analysis is delivered in docs/quality/safety-and-fdir.md."
+    implementation: ["docs/quality/safety-and-fdir.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A11
+    level: gap
+    gap: true
+    justification: "Third-party/organisational independent verification of the unit-test campaigns (related to GAP-A3); technical independence is provided by the R2 reviewer agents."
+    implementation: ["docs/vv/tool-qualification.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A12
+    level: gap
+    gap: true
+    justification: "Mission operations manual and ground TM/TC database (OPD) are mission-specific; the framework ships the PUS catalogue and the integration manual."
+    implementation: ["docs/engineering/user-integration-manual.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A13
+    level: gap
+    gap: true
+    justification: "Long-term maintenance and third-party obsolescence plan is a programme artefact; corrective/adaptive maintenance and licence review are in the SCMP and licensing doc."
+    implementation: ["docs/quality/configuration-management.md"]
     tests: []
     lean: []

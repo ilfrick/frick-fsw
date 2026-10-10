@@ -88,6 +88,12 @@
 #define FF_APID_TC 0x010u
 #define FF_APID_TM 0x020u
 
+/* ------------------------------------------------------------------ */
+/* Hardware abstraction layer (HAL, milestone M3)                     */
+/* ------------------------------------------------------------------ */
+/* Bounded registry capacity per resource class (no dynamic allocation). */
+#define FF_HAL_MAX_BACKENDS 8u
+
 /* Optional CRC-16/CCITT trailer on transfer frames */
 #ifndef FF_FRAME_WITH_CRC
 #define FF_FRAME_WITH_CRC 1

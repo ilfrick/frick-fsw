@@ -2,7 +2,7 @@
 
 | Document id | FRICK-FV-001 |
 | ----------- | ------------ |
-| Revision    | 0.2 |
+| Revision    | 0.3 |
 | Date        | 2026-10-10 |
 
 ## 1. Goal
@@ -24,6 +24,7 @@ supports, and `tools/scripts/trace.py` validates the links (norm N4).
 | `Frick/SoftwareBus.lean`           | bus delivery counting, queue-depth bound |
 | `Frick/Pus.lean`                   | verification-count and TM counter monotonicity (mod 16384) |
 | `Frick/Time.lean`                  | M2 time base: source-set disjointness, tone discipline, leap-at-boundary, CUC round-trip/fine bound/coarse decomposition |
+| `Frick/Hal.lean`                   | M3 HAL registry: bounded count, duplicate registration unchanged |
 | `Frick/Requirements.lean`          | `req_*` theorems discharging SRS/SSS/GAP ids |
 | `Main.lean`                        | closed-form runtime checks for CI |
 
@@ -56,7 +57,9 @@ second and the tone epoch strictly increases, the exported CUC seconds never
 regress across a tone boundary under a non-negative scheduled leap, the pending
 leap is applied/cleared exactly at a boundary, the CUC field round trip is
 lossless, and the fine fraction of any sub-second count fits 16 bits (with the
-coarse 4-octet decomposition recombining). Deferred to class A (GAP-A1):
+coarse 4-octet decomposition recombining), and (M3) the HAL registry bound in
+`Frick.Hal` (the registered count never exceeds the capacity and a duplicate
+registration leaves the registry unchanged). Deferred to class A (GAP-A1):
 arbitrary-length CRC induction, full C memory model and dispatch formalisation.
 Lean 4 core only (no Mathlib): proofs use `rfl`, `simp`, `omega` and
 `native_decide`, pinned by `lean-toolchain` (v4.10.0); no external math library
@@ -69,3 +72,4 @@ only).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial formal verification document |
 | 0.2 | 2026-10-10 | frick-fsw | M2: add `Frick.Time` (and `Frick.LeanOmega`) to layout/scope; note Lean 4 core / no Mathlib / no math library |
+| 0.3 | 2026-10-10 | frick-fsw | M3: add `Frick.Hal` (HAL registry bound) to layout/scope |

@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.3 |
+| Revision    | 0.4 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -46,7 +46,7 @@ Delivered scope (commit M2, 2026-10-10):
 - Documentation: `docs/architecture/time-and-timecode.md` rev 0.2, ICD rev 0.2,
   `docs/quality/class-a-gaps.md` GAP-A7.
 
-## M3 — Middleware integration & hardware-abstraction interfaces (planned)
+## M3 — Middleware integration & hardware-abstraction interfaces (in progress)
 
 Deliver the **interfaces and documentation** that let users integrate their own
 applications, drivers and third-party stacks:
@@ -99,3 +99,4 @@ Reference implementations behind the M3 contracts:
 | 0.1 | 2026-10-10 | frick-fsw | Initial roadmap: M2 (PPS/CUC), M3 (filestore/CFDP/service 23), M4 (IP+TSN over PUS-C), M5 (docs) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2 delivered (time source, tone discipline, leap-at-boundary, CUC framing, PPS backend vtable) |
 | 0.3 | 2026-10-10 | frick-fsw | Re-plan: M3 = HAL interfaces + integration manuals; M4 = MPFS BSP + 1 Gb/s Ethernet (absorbs filestore/CFDP/IP/TSN); pointer to `docs/development-plan.md` |
+| 0.4 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |

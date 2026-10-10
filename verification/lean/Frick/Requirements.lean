@@ -15,6 +15,7 @@ import Frick.Ccsds
 import Frick.SoftwareBus
 import Frick.Pus
 import Frick.Time
+import Frick.Hal
 
 namespace Frick.Requirements
 
@@ -23,6 +24,7 @@ open Frick.Ccsds
 open Frick.SoftwareBus
 open Frick.Pus
 open Frick.Time
+open Frick
 
 -- =====================================================================
 -- SRS-REQ-003 : TM/TC frames never overflow the 16 bit CCSDS packet length.
@@ -147,5 +149,21 @@ theorem req_srs024_fine_frac_bounded {frac : Nat} (h : frac < 1000000000) :
 theorem req_srs024_coarse_byte_decompose {c : Nat} :
     (c / 2^24) * 2^24 + ((c / 2^16) % 2^8) * 2^16 + ((c / 2^8) % 2^8) * 2^8 + c % 2^8 = c := by
   exact coarse_byte_decompose
+
+-- =====================================================================
+-- M3 - Hardware abstraction layer (milestone M3): the bounded registry.
+-- Discharges SRS-REQ-025 (see Frick.Hal for the model).
+-- =====================================================================
+
+-- SRS-REQ-025 : the bounded registry never exceeds its capacity and a duplicate
+-- registration leaves it unchanged.
+theorem req_srs025_registry_bound (r : HalReg) (n : String)
+    (h : r.names.length ≤ r.cap) :
+    (halRegister r n).names.length ≤ (halRegister r n).cap :=
+  Frick.hal_registry_count_bound r n h
+
+theorem req_srs025_dup_unchanged (r : HalReg) (n : String) (h : n ∈ r.names) :
+    halRegister r n = r :=
+  Frick.hal_dup_registration_unchanged r n h
 
 end Frick.Requirements

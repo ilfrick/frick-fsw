@@ -76,5 +76,5 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
-| 0.2 | 2026-10-10 | frick-fsw | Add Ilfrick copyright + project links (header, `NOTICE`); norm N13/N16 |
 | 0.1 | 2026-10-10 | frick-fsw | Initial licence decision (norm N13) |
+| 0.2 | 2026-10-10 | frick-fsw | Add Ilfrick copyright + project links (header, `NOTICE`); norm N13/N16 |

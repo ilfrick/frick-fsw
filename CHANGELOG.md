@@ -36,6 +36,22 @@ change. All dates UTC, project language English (norm N2).
 - **User & Integration Manual** `docs/engineering/user-integration-manual.md`
   (FRICK-ENG-0005): how to integrate applications, drivers and pluggable stacks
   on the middleware.
+- **Milestone M3 — Hardware abstraction interfaces.** A bounded, allocation-free
+  HAL registry (`src/hal/hal.{c,h}`) and stack-independent contracts per resource
+  (Ethernet MAC + net interface, pluggable TCP/IP stack, TSN, CAN/CANopen/CAN-FD,
+  serial RS-422/485, SPI, I2C, PCIe, GPIO, SpaceWire + RMAP, RAM/DMA/MTD/NVM/
+  block). Requirements SSS-REQ-017 / SRS-REQ-025..032; Lean model `Frick.Hal`;
+  unit test `test_hal`; spec `docs/architecture/hardware-abstraction.md`;
+  `FF_BUILD_HAL` partitioning option; layer-focused architecture diagrams.
+- **ECSS design and assurance documentation.** Software Design Document
+  (`docs/design/software-design.md`), configuration management plan
+  (`docs/quality/configuration-management.md`), product/quality assurance plan
+  (`docs/quality/product-assurance.md`), validation plan
+  (`docs/vv/validation-plan.md`), preliminary safety/FDIR analysis
+  (`docs/quality/safety-and-fdir.md`) and the ECSS compliance matrix
+  (`docs/quality/ecss-compliance-matrix.md`); gaps to class A extended to
+  GAP-A8..A13 (SDP formalisation, SDD depth, FMEA, third-party IVV, OPD,
+  maintenance).
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

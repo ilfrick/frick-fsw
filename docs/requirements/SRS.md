@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -112,6 +112,39 @@ review).
   payloads, which the service layer shall accept only in its exact 6-octet
   length. `method: Tst | Anl`.
 
+### Hardware abstraction (milestone M3)
+
+- **SRS-REQ-025** — *HAL registry*: the abstraction layer shall provide a
+  bounded, allocation-free registry that lets a backend be registered under a
+  stable name for a resource class; an invalid class or a duplicate name shall
+  be rejected and the registered count shall never exceed the configured
+  capacity (`FF_HAL_MAX_BACKENDS`). `method: Tst | Anl`.
+- **SRS-REQ-026** — *Ethernet MAC and net interface contract*: the framework
+  shall define a contract for an Ethernet MAC and a network interface that binds
+  a MAC to a network stack, independent of the specific PHY/MAC/controller.
+  `method: Inp`.
+- **SRS-REQ-027** — *Pluggable network stack contract*: the framework shall
+  address the network only through a stack-independent contract, so that a user
+  can integrate their own TCP/IP stack (for example Tuxera or an open stack)
+  without modifying the framework. `method: Inp | Anl`.
+- **SRS-REQ-028** — *TSN backend contract*: the framework shall define a backend
+  contract for deterministic Ethernet (IEEE 802.1Q VLAN/PCP, 802.1Qbv, 802.1Qav,
+  802.1AS), decoupled from the MAC and the stack. `method: Inp`.
+- **SRS-REQ-029** — *CAN/CANopen/CAN-FD contract*: the framework shall define a
+  CAN backend contract covering classic CAN (ISO 11898-1, CAN 2.0 A/B) and
+  CAN-FD, plus a CANopen (CiA 301/302/402) stack contract layered on it.
+  `method: Inp`.
+- **SRS-REQ-030** — *Serial RS-422/RS-485 contract*: the framework shall define a
+  serial contract with half-duplex RS-485 transceiver direction control.
+  `method: Inp`.
+- **SRS-REQ-031** — *SPI, I2C, PCIe and GPIO contracts*: the framework shall
+  define SPI, I2C, PCIe and GPIO (with interrupt) contracts; the GPIO interrupt
+  contract shall state that an ISR defers work to a task. `method: Inp`.
+- **SRS-REQ-032** — *SpaceWire and memory/storage contracts*: the framework
+  shall define SpaceWire (ECSS-E-ST-50-12 link, 50-51 protocol id, 50-52 RMAP,
+  50-53 CCSDS packet transfer) and memory/storage contracts (RAM pool, DMA,
+  NOR/flash MTD, non-volatile memory, block device). `method: Inp`.
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -144,3 +177,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.1 | 2026-10-10 | frick-fsw  | Initial release (backward from code, Lean-checked) |
 | 0.2 | 2026-10-10 | frick-fsw  | Milestone M2: add SRS-REQ-021..024 time source, tone, leap, CUC framing |
 | 0.3 | 2026-10-10 | frick-fsw  | R3 review closure: SRS-REQ-021 switch semantics, SRS-REQ-022 tone second counter, SRS-REQ-023 pending/no-tone clause, SRS-REQ-024 two CUC exchange forms |
+| 0.4 | 2026-10-10 | frick-fsw  | M3: add SRS-REQ-025..032 hardware abstraction (HAL registry, Ethernet/net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory/storage) |

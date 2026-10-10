@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ARCH-0001 |
 | ----------- | --------------- |
-| Revision    | 0.1.1 |
+| Revision    | 0.1.2 |
 | Date        | 2026-10-10 |
 
 ## 1. System context
@@ -40,67 +40,50 @@ in section 1; it renders on GitHub and Gitea.
 
 ```mermaid
 flowchart TB
-    GSW["Ground station<br/>tools/gsw/ff_gsw.py"]
+    classDef impl fill:#c7f9cc,stroke:#2b8a3e,color:#000
+    classDef iface fill:#fff3b0,stroke:#b8860b,color:#000
+    classDef m4 fill:#ffe0b3,stroke:#d9822b,color:#000
+    classDef user fill:#e0e0e0,stroke:#666,color:#000
+    classDef hw fill:#ffd6d6,stroke:#c92a2a,color:#000
 
-    subgraph APPS["Applications - 6 tasks"]
-        direction LR
-        A1["CMD_INGEST"]
-        A2["TM_OUTPUT"]
-        A3["SCHEDULER"]
-        A4["HK"]
-        A5["HS"]
-        A6["SAMPLE"]
-    end
+    GSW["Ground station (tools/gsw/ff_gsw.py)"]:::user
+    MISSION["Mission applications - written by users"]:::user
 
-    subgraph PUS["PUS-C layer - ECSS-E-ST-70-41C"]
-        direction LR
-        P1["TC dispatch and S1 verification"]
-        P2["Services S1 S3 S5 S6 S8 S9 S11 S17 S20"]
-        P3["Backend vtable FF_Pus_Backend_t"]
-    end
+    A1["Reference applications: CMD_INGEST, TM_OUTPUT, SCHEDULER, HK, HS, SAMPLE"]:::impl
+    P1["PUS-C services S1 S3 S5 S6 S8 S9 S11 S17 S20 + S1 verification"]:::impl
+    C1["Software Bus"]:::impl
+    C2["Event Services"]:::impl
+    C3["Executive Services"]:::impl
+    C4["Table Services"]:::impl
+    C5["Time Services"]:::impl
+    T1["CCSDS Space Packet codec + CRC-16"]:::impl
+    T2["Link layer: loopback / UART"]:::impl
+    PL1["PAL - OS abstraction (POSIX / RTEMS)"]:::impl
+    H1["HAL registry + contracts (M3): Eth/Net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory"]:::iface
+    B1["BSP + drivers (M4): MPFS peripherals, 1 Gb/s GEM Ethernet"]:::m4
+    HW["Microchip RT PolarFire SoC RTPFS160ZT: MSS peripherals + FPGA fabric"]:::hw
 
-    subgraph CORE["Core services"]
-        direction LR
-        C1["Software Bus"]
-        C2["Event Services"]
-        C3["Executive Services"]
-        C4["Table Services"]
-        C5["Time Services"]
-    end
-
-    subgraph TRANSPORT["CCSDS transport"]
-        direction LR
-        T1["Space Packet codec and CRC-16 CCITT-FALSE"]
-        T2["Link layer - loopback and UART"]
-    end
-
-    subgraph PLATFORM["Platform"]
-        direction LR
-        PL1["PAL - POSIX and RTEMS"]
-        PL2["BSP RTPFS160ZT boot"]
-        PL3["RTEMS 6.2 riscv/mpfs64imafdc"]
-    end
-
-    GSW <-->|"TC and TM frames"| T2
-    T2 <--> T1
-    T1 <--> P3
-    P3 <--> P1
-    P1 <--> P2
-    P2 <--> C1
-    C2 -.->|"events to S5"| P2
-    C1 <--> A1
-    C1 <--> A2
-    C1 <--> A3
-    C1 <--> A4
-    C1 <--> A5
-    C1 <--> A6
-    C5 --- C1
-    C4 --- C1
-    C3 --- C1
+    MISSION --> A1
+    GSW <-->|"TC / TM frames"| T2
+    A1 <--> C1
+    P1 <--> C1
+    P1 <-->|"TC/TM"| T1
+    C2 -.->|"events to S5"| P1
+    T1 <--> T2
+    C1 --- C5
+    C1 --- C4
+    C1 --- C3
     C1 --- PL1
-    PL1 --- PL2
-    PL2 --- PL3
+    PL1 --- H1
+    H1 --- B1
+    B1 --- HW
 ```
+
+**Legend** — green: implemented in this repository; yellow: interface/contract
+delivered here; orange: planned reference implementation (M4); grey:
+user-provided; red: hardware / FPGA IP (not in this repository). The identical
+software runs on the host simulator and on the MPFS target (see
+`docs/architecture/hardware-abstraction.md`).
 
 ## 3. Component overview
 
@@ -116,6 +99,7 @@ flowchart TB
 | Link layer | byte-stream transport (loopback / UART) | `src/transport/link/` |
 | PUS layer | TC dispatch, S1 verification, TM emission, open backend vtable | `src/pus/` |
 | Applications | scheduler, command ingest, TM output, HK, HS, sample telemetry | `src/apps/` |
+| Hardware abstraction (HAL) | bus/device/memory contracts + bounded registry (M3) | `src/hal/` |
 | Board support | RTPFS160ZT init, boot core selection | `src/bsp/mpfs/` |
 
 ## 4. Boot sequence
@@ -145,3 +129,4 @@ flowchart TB
 | ----- | ---------- | --------- | ------ |
 | 0.1   | 2026-10-10 | frick-fsw | Initial architecture overview |
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid component architecture diagram (norm N8) |
+| 0.1.2 | 2026-10-10 | frick-fsw | M3: layer-focused diagram on the MPFS (implemented vs interface vs user vs HW) and HAL component row |
