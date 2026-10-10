@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
-| Tracking                          | GAP-A1..A13 in `docs/requirements/traceability.yaml` |
+| Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` |
 
 The current baseline targets ECSS criticality **B** (`ecss-criticality-b.md`).
 The following gaps must be closed, together with the class-B baseline, to
@@ -135,6 +135,18 @@ traceability manifest (level `gap`, `justification` records the disposition).
   the SCMP (`docs/quality/configuration-management.md` §6) and licensing review;
   a formal long-term maintenance/obsolescence plan is a programme artefact.
 
+## GAP-A14 - SDLS cryptographic algorithm qualification and key store
+
+**Status:** open (mission/HW specific)
+
+- The middleware implements the CCSDS SDLS security-association and
+  key-management software and the SDLS processing, but does not implement a
+  cipher. A **certified cryptographic algorithm** (CCSDS 352.0-B: e.g.
+  AES-GCM/CMAC), a **hardware keystore** with a physically protected zeroisation
+  path, an **IV/counter uniqueness analysis**, and the **ground
+  key-management/key-distribution procedures** are mission/ground artefacts and
+  must be qualified independently. See `docs/architecture/security-sdls.md`.
+
 ## Closure policy
 
 Each gap has an owner and an acceptance criterion assigned by the programme; the
@@ -150,3 +162,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.1 | 2026-10-10 | frick-fsw | Initial gap analysis GAP-A1..A6 (norm N5) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: add GAP-A7 on-target PPS and TAI/CCSDS epoch |
 | 0.3 | 2026-10-10 | frick-fsw | ECSS compliance assessment: add GAP-A8..A13 (SDP, SDD depth, FMEA, third-party IVV, OPD, maintenance) |
+| 0.4 | 2026-10-10 | frick-fsw | M7: add GAP-A14 (SDLS crypto algorithm qualification and key store) |

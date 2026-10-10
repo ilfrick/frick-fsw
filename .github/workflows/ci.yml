@@ -48,6 +48,14 @@ jobs:
       - name: Unit tests (Release)
         run: ctest --test-dir build/release --output-on-failure
 
+      - name: AddressSanitizer (core suites)
+        run: |
+          cmake -S . -B build/asan -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
+          cmake --build build/asan
+          ctest --test-dir build/asan --output-on-failure
+
   # evidence: ci-static-analysis (SRS-REQ-015, SSS-REQ-010)
   static-analysis:
     name: static analysis
@@ -136,6 +144,7 @@ jobs:
             "docs/design/software-design.md",
             "docs/architecture/hardware-abstraction.md",
             "docs/architecture/numerics.md",
+            "docs/architecture/security-sdls.md",
             "docs/quality/configuration-management.md",
             "docs/quality/product-assurance.md",
             "docs/quality/safety-and-fdir.md",

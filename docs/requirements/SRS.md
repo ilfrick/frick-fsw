@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -155,6 +155,20 @@ review).
   within the accuracy of the platform `libm`; the unit tests assert within a
   documented tolerance (<= 1e-9 for the covered inputs). `method: Tst | Inp`.
 
+### Data-link security (milestone M7)
+
+- **SRS-REQ-034** — *SDLS processing*: the security sub-layer shall apply a
+  configurable SDLS security service (authentication-only, encryption-only,
+  authenticated-encryption) to a data unit, producing and validating the SDLS
+  header (SPI + IV) and message authentication code, through a **pluggable**
+  cryptographic backend that the middleware does not implement. `method: Tst | Inp`.
+- **SRS-REQ-035** — *Security-association and key management*: the sub-layer
+  shall maintain a bounded, SPI-indexed security-association database and manage
+  the key lifecycle: derive session keys from master keys, rotate them (the key
+  epoch shall strictly increase and the usage counter reset; rotation on frame
+  and time thresholds), and zeroise key material on rotation and removal.
+  `method: Tst | Anl`.
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -189,3 +203,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.3 | 2026-10-10 | frick-fsw  | R3 review closure: SRS-REQ-021 switch semantics, SRS-REQ-022 tone second counter, SRS-REQ-023 pending/no-tone clause, SRS-REQ-024 two CUC exchange forms |
 | 0.4 | 2026-10-10 | frick-fsw  | M3: add SRS-REQ-025..032 hardware abstraction (HAL registry, Ethernet/net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory/storage) |
 | 0.5 | 2026-10-10 | frick-fsw  | M6: add SRS-REQ-033 mathematics facade (libm) |
+| 0.6 | 2026-10-10 | frick-fsw  | M7: add SRS-REQ-034 SDLS processing and SRS-REQ-035 SA/key management |

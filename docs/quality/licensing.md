@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
@@ -41,6 +41,7 @@ license compatibility:
 | PUSopen(R) | commercial library, **optional adapter only** (`FRICK_USE_PUSOPEN`), never distributed | commercial | not part of this repository's distribution; documented in `docs/interfaces/ICD.md` and `src/pus/adapters/pus_adapter_pusopen.c` |
 | Lean 4 / Mathlib-theorems | development toolchain | Apache-2.0 | build-time tool, not distributed in binaries |
 | Platform `libm` (glibc host / newlib RTEMS) | C standard math library, part of the toolchain already used; facade in `src/math/` (M6) | LGPL-2.1-or-later (glibc) / BSD-style (newlib) | dynamically linked toolchain library; no new component distributed by frick-fsw; combinable with AGPL-3.0 |
+| SDLS cryptographic backend | user/mission-supplied algorithm (CCSDS 352.0-B) via `FF_CryptoBackend_t`; **not distributed** (M7) | mission/HW, typically proprietary | integration point only; the non-secure reference backend `src/security/ff_crypto_test.c` is AGPL and test-only |
 
 Conclusion: no reused part restricts frick-fsw below AGPL-3.0. Any new third-
 party component added to this repository in the future must be AGPL-3.0
@@ -81,3 +82,4 @@ SPDX-License-Identifier: AGPL-3.0-only
 | 0.1 | 2026-10-10 | frick-fsw | Initial licence decision (norm N13) |
 | 0.2 | 2026-10-10 | frick-fsw | Add Ilfrick copyright + project links (header, `NOTICE`); norm N13/N16 |
 | 0.3 | 2026-10-10 | frick-fsw | M6: analyse platform `libm` (glibc/newlib) compatibility; scope the SPDX statement to source/config/build files |
+| 0.4 | 2026-10-10 | frick-fsw | M7: SDLS cryptographic backend is mission-supplied and not distributed; reference backend is test-only AGPL |

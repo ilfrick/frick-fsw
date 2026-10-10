@@ -20,6 +20,9 @@
 | 2026-10-10 | M6 mathematics review | R1+R2 | APPROVED WITH COMMENTS | 2026-10-10-m6-math-r1-r2-review.md |
 | 2026-10-10 | M6 mathematics review | R3+R4 | APPROVED WITH COMMENTS | 2026-10-10-m6-math-r3-r4-review.md |
 | 2026-10-10 | M6 mathematics delta | R1+R2+R3+R4 | APPROVED WITH COMMENTS | 2026-10-10-m6-math-delta-review.md |
+| 2026-10-10 | M7 SDLS code/V&V review | R1+R2 | REJECTED | 2026-10-10-m7-sdls-r1-r2-review.md |
+| 2026-10-10 | M7 SDLS SSS/docs review | R3+R4 | APPROVED WITH COMMENTS | 2026-10-10-m7-sdls-r3-r4-review.md |
+| 2026-10-10 | M7 SDLS delta | R1+R2+R3+R4 | APPROVED WITH COMMENTS | 2026-10-10-m7-sdls-delta-review.md |
 | 2026-10-10 | M2 time base code review delta | R1      | APPROVED WITH COMMENTS    | 2026-10-10-m2-time-base-r1-delta-review.md |
 | 2026-10-10 | M2 V&V review delta            | R2      | APPROVED                  | 2026-10-10-m2-vv-r2-delta-review.md |
 | 2026-10-10 | M2 SSS/SRS review delta (N14)  | R3      | APPROVED                  | 2026-10-10-m2-sss-r3-delta-review.md |

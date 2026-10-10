@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N17 (`docs/rules.md`)               |
@@ -46,6 +46,7 @@ is in `docs/roadmap.md`.
 | OBJ-11 | Deliver a complete **1 Gb/s Ethernet driver** on the MPFS MSS GEM, integrated with the middleware link/network layer. | M4 |
 | OBJ-12 | Keep the full cycle (norms N1-N17), independent reviews (R1/R2/R3) and the documentation review (R4) applied to every increment. | all |
 | OBJ-13 | Integrate a mathematics library (libm) behind a portable facade with determinism and licensing policy. | M6 |
+| OBJ-14 | Integrate CCSDS SDLS (355.0-B) middleware software: SDLS processing, security-association database and key management/rotation, with a pluggable cryptographic backend. | M7 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -79,6 +80,7 @@ backend** (OBJ-07), without writing FPGA IP.
 | Memory | SSD | via PCIe NVMe / USB | PCIe/USB | `FF_BlockDev_t` | NVMe backend |
 | Time | RTC / timer / watchdog | RTC x1, timer x2, watchdog x5 | MSS | PAL clock (`FF_PalGet*`) + BSP watchdog | RTC/timer driver (M4) |
 | Mathematics | elementary functions (sqrt/sin/cos/atan2/pow/…) | toolchain `libm` | host glibc / RTEMS newlib | `FF_Math*` facade (`src/math/`) | libm (M6) |
+| Security | SDLS (CCSDS 355.0-B): auth/enc/auth-enc + key management | crypto algorithm/HSM | mission/HW | `FF_CryptoBackend_t`, `FF_Sa_t` (`src/security/`) | middleware SDLS core (M7) |
 
 ## 4. Milestones
 
@@ -149,6 +151,14 @@ math functions (geometry, attitude, transforms) with explicit determinism and
 licensing implications. Requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012;
 policy `docs/architecture/numerics.md`. The core remains integer/deterministic.
 
+### M7 — CCSDS SDLS (Space Data Link Security) (in progress)
+
+Middleware-side link-layer security: SDLS processing, security-association
+database and key management/rotation, with a pluggable cryptographic backend
+(`src/security/ff_sdls.{c,h}`). Requirements SSS-REQ-019 / SRS-REQ-034/-035;
+ADR-0013; `docs/architecture/security-sdls.md`. The certified algorithm, HSM
+keystore, IV-uniqueness analysis and ground key management are GAP-A14.
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -183,6 +193,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | planned |
 | M5 | documentation & status program | in progress |
 | M6 | OBJ-13 (mathematics library integration) | in progress |
+| M7 | OBJ-14 (CCSDS SDLS security + key management) | in progress |
 
 ## History
 
@@ -191,3 +202,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.1 | 2026-10-10 | frick-fsw | Initial development plan: middleware boundary, objectives OBJ-01..OBJ-12, resource/bus interface catalogue, M1..M5 milestones |
 | 0.2 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |
 | 0.3 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); objective OBJ-13 |
+| 0.4 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security + key management); objective OBJ-14 |

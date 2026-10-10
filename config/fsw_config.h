@@ -94,6 +94,14 @@
 /* Bounded registry capacity per resource class (no dynamic allocation). */
 #define FF_HAL_MAX_BACKENDS 8u
 
+/* ------------------------------------------------------------------ */
+/* CCSDS SDLS - Space Data Link Security (milestone M7)               */
+/* ------------------------------------------------------------------ */
+#define FF_SDLS_MAX_SA 8u   /* security associations (bounded)      */
+#define FF_SDLS_KEY_MAX 32u /* master/session key max bytes (AES-256) */
+#define FF_SDLS_MAC_MAX 16u /* message authentication code max bytes */
+#define FF_SDLS_IV_MAX 16u  /* initialisation vector max bytes      */
+
 /* Optional CRC-16/CCITT trailer on transfer frames */
 #ifndef FF_FRAME_WITH_CRC
 #define FF_FRAME_WITH_CRC 1

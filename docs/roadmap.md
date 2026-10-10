@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.5 |
+| Revision    | 0.6 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -90,6 +90,13 @@ critical paths without a work-package analysis) and the licensing analysis
 documented. Requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012;
 `docs/architecture/numerics.md`.
 
+## M7 — CCSDS SDLS (Space Data Link Security) (in progress)
+
+Middleware-side link-layer security: SDLS processing, security-association
+database and key management/rotation, with a pluggable cryptographic backend
+(`src/security/ff_sdls.{c,h}`). Requirements SSS-REQ-019 / SRS-REQ-034/-035;
+ADR-0013; `docs/architecture/security-sdls.md`; GAP-A14 (algorithm/HSM/ground).
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -110,3 +117,4 @@ documented. Requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012;
 | 0.3 | 2026-10-10 | frick-fsw | Re-plan: M3 = HAL interfaces + integration manuals; M4 = MPFS BSP + 1 Gb/s Ethernet (absorbs filestore/CFDP/IP/TSN); pointer to `docs/development-plan.md` |
 | 0.4 | 2026-10-10 | frick-fsw | M3 status set to in progress (HAL interfaces delivered) |
 | 0.5 | 2026-10-10 | frick-fsw | Add M6 (mathematics library integration, libm); M3 delivered interfaces |
+| 0.6 | 2026-10-10 | frick-fsw | Add M7 (CCSDS SDLS security and key management) |

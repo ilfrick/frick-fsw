@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-B-001                       |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Target                            | ECSS software criticality level B (norm N5) |
-| Gaps to class A                   | `docs/quality/class-a-gaps.md` (GAP-A1..A13) |
+| Gaps to class A                   | `docs/quality/class-a-gaps.md` (GAP-A1..A14) |
 | Compliance matrix                  | `docs/quality/ecss-compliance-matrix.md` |
 
 ## 1. Applicable references
@@ -81,3 +81,4 @@ verification baseline and close the listed gaps (norm N5).
 | 0.1 | 2026-10-10 | frick-fsw | Initial class B target baseline |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: class-A gap reference updated to GAP-A1..A7 (R3 review NC-5) |
 | 0.3 | 2026-10-10 | frick-fsw | ECSS compliance assessment: engineering data set extended (SDD, CM, PA, safety, validation, compliance matrix); gaps GAP-A1..A13 |
+| 0.4 | 2026-10-10 | frick-fsw | M7: gap reference GAP-A1..A14 (SDLS security) |

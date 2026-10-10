@@ -69,11 +69,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 65 (srs=34, sss=18, gap=13) |
-| Requirements with implementation | 65/65 |
-| Test coverage (requirements with tests) | 52/65 (80.0%) |
-| Formal verification coverage (requirements with Lean) | 18/65 (27.7%) |
-| Code line coverage | 932/1575 (59.2%) - functions 141/184 |
+| Requirements in manifest | 69 (srs=36, sss=19, gap=14) |
+| Requirements with implementation | 69/69 |
+| Test coverage (requirements with tests) | 55/69 (79.7%) |
+| Formal verification coverage (requirements with Lean) | 20/69 (29.0%) |
+| Code line coverage | 1252/2005 (62.4%) - functions 175/217 |
 
 <!-- METRICS-END -->
 
@@ -241,7 +241,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 34 · SSS = 18 · GAP (to class A) = 13 · Lean theorems = 45. The generated
+SRS = 36 · SSS = 19 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -273,6 +273,7 @@ status panel above is authoritative; the single source of truth is
   [`time-and-timecode.md`](docs/architecture/time-and-timecode.md) ·
   [`hardware-abstraction.md`](docs/architecture/hardware-abstraction.md) ·
   [`numerics.md`](docs/architecture/numerics.md) ·
+  [`security-sdls.md`](docs/architecture/security-sdls.md) ·
   [`design/software-design.md`](docs/design/software-design.md) ·
   [`docs/adr/`](docs/adr/) · [`docs/interfaces/ICD.md`](docs/interfaces/ICD.md)
 - **Quality**: [`docs/quality/ecss-criticality-b.md`](docs/quality/ecss-criticality-b.md) ·

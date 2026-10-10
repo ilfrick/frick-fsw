@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-COMP-001                    |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Target                            | ECSS software criticality **B** (norm N5) |
 | References                        | ECSS-E-ST-40C (software general requirements), ECSS-Q-ST-80C (software product assurance), ECSS-E-ST-10C (system engineering) |
@@ -26,6 +26,7 @@ legend: **present**, **partial**, **gap**.
 | **Software Design Document (SDD)** | architectural + detailed design | `docs/design/software-design.md` | present (added for this matrix) |
 | Interface Control Document (ICD) | TM/TC, link, time interfaces | `docs/interfaces/ICD.md` | present |
 | Hardware/OS abstraction interfaces | device/driver integration contracts | `src/hal/*.h`, `docs/architecture/hardware-abstraction.md` | present |
+| Security (SDLS) | link-layer security, SA + key management | `src/security/`, `docs/architecture/security-sdls.md` | present (algorithm pluggable; GAP-A14) |
 | Software Verification Plan | verification approach and methods | `docs/vv/verification-plan.md` | present |
 | Software Validation Plan | validation against mission need | `docs/vv/validation-plan.md` | present (added for this matrix) |
 | Verification/Validation report | executed evidence | `docs/vv/verification-results.md` | present |
@@ -85,6 +86,7 @@ items GAP-A3..A13):
 | GAP-A11 | independent verification of unit tests by a third party | organisational (GAP-A3) |
 | GAP-A12 | operations manual / TM/TC database (OPD) | mission tailoring WP |
 | GAP-A13 | maintenance & obsolescence plan beyond CM | programme WP |
+| GAP-A14 | SDLS cryptographic algorithm qualification, HSM/keystore, IV uniqueness, ground key management | mission/HW/ground artefacts |
 
 ## 5. Conclusion
 
@@ -106,3 +108,4 @@ A13), and are documented rather than silently omitted (norm N5).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial ECSS compliance matrix: outputs mapped, gaps GAP-A8..A13 identified |
 | 0.2 | 2026-10-10 | frick-fsw | M6: reuse row references ADR-0012 (libm) |
+| 0.3 | 2026-10-10 | frick-fsw | M7: security (SDLS) output added; GAP-A14 |

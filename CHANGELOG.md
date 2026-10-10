@@ -58,6 +58,17 @@ change. All dates UTC, project language English (norm N2).
   `-lm`; unit test `test_math` (20 checks); requirements SSS-REQ-018 /
   SRS-REQ-033; decision ADR-0012 and policy `docs/architecture/numerics.md`;
   licence analysis updated.
+- **Milestone M7 — CCSDS SDLS (Space Data Link Security).** Middleware-side
+  security sub-layer `src/security/ff_sdls.{c,h}`: SDLS processing (SDLS header
+  + MAC; plain/auth/enc/auth-enc services), a bounded SPI-indexed
+  security-association database, and key management (session-key derivation,
+  rotation on frame/time thresholds with strictly increasing epoch, and
+  zeroisation). The cryptographic primitive is a **pluggable backend**
+  (`FF_CryptoBackend_t`); a non-secure reference backend (`ff_crypto_test.c`,
+  test-only) exercises the logic. Requirements SSS-REQ-019 / SRS-REQ-034/-035;
+  Lean `Frick.Sdls`; unit test `test_sdls` (69 checks, ASan-clean);
+  ADR-0013 and `docs/architecture/security-sdls.md`; algorithm qualification /
+  HSM / ground key management is GAP-A14.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

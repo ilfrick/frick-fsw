@@ -322,6 +322,24 @@ requirements:
     lean: []
     lean_note: "The libm-backed elementary functions are third-party (not Lean-checkable) and verified by tolerance-based unit tests (test_math.c); the pure helpers (Deg2Rad/Rad2Deg/Clamp/IsFinite) are simple stateless wrappers covered by the same tests and inspection. Determinism and licensing policy documented in docs/architecture/numerics.md and docs/quality/licensing.md."
 
+  # --------------------------------------------------- Data-link security (M7)
+  - id: SRS-REQ-034
+    level: srs
+    parent_sss: SSS-REQ-019
+    derived: false
+    implementation: ["src/security/ff_sdls.c", "src/security/ff_sdls.h"]
+    tests: ["tests/unit/test_sdls.c"]
+    lean: []
+    lean_note: "SDLS processing (SDLS header + MAC, configurable security service) is verified end-to-end with the non-secure reference backend (test_sdls.c); the real cryptographic algorithm is a mission/HW-supplied backend (GAP-A14)."
+
+  - id: SRS-REQ-035
+    level: srs
+    parent_sss: SSS-REQ-019
+    derived: false
+    implementation: ["src/security/ff_sdls.c"]
+    tests: ["tests/unit/test_sdls.c"]
+    lean: ["req_srs035_sa_bound", "req_srs035_epoch_monotonic", "req_srs035_uses_reset"]
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -459,6 +477,13 @@ requirements:
     lean: []
     lean_note: "Third-party libm facade; verified by unit tests and inspection."
 
+  - id: SSS-REQ-019
+    level: sss
+    derived: false
+    implementation: ["src/security/ff_sdls.c", "src/security/ff_sdls.h"]
+    tests: ["tests/unit/test_sdls.c"]
+    lean: ["req_srs035_epoch_monotonic"]
+
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1
     level: gap
@@ -561,5 +586,13 @@ requirements:
     gap: true
     justification: "Long-term maintenance and third-party obsolescence plan is a programme artefact; corrective/adaptive maintenance and licence review are in the SCMP and licensing doc."
     implementation: ["docs/quality/configuration-management.md"]
+    tests: []
+    lean: []
+
+  - id: GAP-A14
+    level: gap
+    gap: true
+    justification: "Cryptographic algorithm qualification for SDLS: the middleware implements the security-association and key-management software and the SDLS processing, but the cipher/key store are mission/HW specific (CCSDS 352.0-B); a certified algorithm implementation, a hardware keystore with zeroisation, IV-uniqueness analysis and ground key-management procedures remain class-A gaps."
+    implementation: ["docs/architecture/security-sdls.md"]
     tests: []
     lean: []

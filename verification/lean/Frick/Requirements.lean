@@ -16,6 +16,7 @@ import Frick.SoftwareBus
 import Frick.Pus
 import Frick.Time
 import Frick.Hal
+import Frick.Sdls
 
 namespace Frick.Requirements
 
@@ -165,5 +166,22 @@ theorem req_srs025_registry_bound (r : HalReg) (n : String)
 theorem req_srs025_dup_unchanged (r : HalReg) (n : String) (h : n ∈ r.names) :
     halRegister r n = r :=
   Frick.hal_dup_registration_unchanged r n h
+
+-- =====================================================================
+-- M7 - CCSDS SDLS (milestone M7): SA database and key rotation.
+-- Discharges SRS-REQ-035 (see Frick.Sdls for the model).
+-- =====================================================================
+
+-- SRS-REQ-035 : the SA table is bounded and key rotation strictly increases the
+-- epoch and resets usage.
+theorem req_srs035_sa_bound (s : SaDb) (h : s.live ≤ s.cap) :
+    (saAdd s).live ≤ (saAdd s).cap :=
+  Frick.sa_add_bound s h
+
+theorem req_srs035_epoch_monotonic (k : SKey) : k.epoch < (keyRotate k).epoch :=
+  Frick.key_rotate_epoch_monotonic k
+
+theorem req_srs035_uses_reset (k : SKey) : (keyRotate k).uses = 0 :=
+  Frick.key_rotate_uses_reset k
 
 end Frick.Requirements
