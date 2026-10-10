@@ -74,21 +74,19 @@ occasion; prefer Docker.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
-- **M11 in progress (Renode HAL coverage, OBJ-19):** one class done — **GPIO**
-  (`src/drivers/gpio/mpfs/ff_gpio_mpfs.{c,h}`, SRS-REQ-047), host test
-  `test_gpio` (30 checks), Renode MMIO round trip (`hal_gpio=PASS`) folded into
-  the marker. **SERIAL** (`src/drivers/serial/mpfs/ff_serial_mpfs.{c,h}`,
-  SRS-REQ-048) is being (re)implemented with hardware-correct 4-byte offsets (see
-  §6); a first attempt with compact offsets was reviewed (FRICK-REVIEW-0043) and
-  reverted. Remaining M11 classes: ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485,
-  SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK, NVM.
+- **M11 in progress (Renode HAL coverage, OBJ-19):** two classes done — **GPIO**
+  (`src/drivers/gpio/mpfs/ff_gpio_mpfs.{c,h}`, SRS-REQ-047; `test_gpio`) and
+  **SERIAL** (`src/drivers/serial/mpfs/ff_serial_mpfs.{c,h}`, SRS-REQ-048;
+  `test_serial`), both with independent host mocks and Renode MMIO checks
+  (`hal_gpio=PASS`, `hal_serial=PASS`) folded into the marker. Remaining M11
+  classes: ETH, NET/TCP-IP, TSN, CAN, SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK, NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: only GEM Ethernet (+TSN) and GPIO so far.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
   ESA) and **M13** (reference mission services: equipment manager + fault
   management) are **planned** (requirements SSS-REQ-022/023, SRS-REQ-045/046).
-- Requirements: **85 (48 srs / 23 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **86 (49 srs / 23 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO) — all closed.
 
