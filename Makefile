@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra emulated renode renode-image renode-env
+        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker
 
 all: build
 
@@ -74,11 +74,21 @@ ci-local: docker-image
 docker-image:
 	docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
 
-# RTEMS 6.2 cross build (requires the RTEMS toolchain in /opt/rtems).
+# RTEMS 6.2 cross build (open-source RTEMS; requires the toolchain in /opt/rtems,
+# installed by tools/scripts/setup_rtems.sh).
 rtems:
 	$(CMAKE) -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
 	  -DFF_PLATFORM=rtems
 	$(CMAKE) --build build/rtems -j$(shell nproc)
+
+# Reproducible, containerised open-source RTEMS 6.2 toolchain (RTEMS project).
+rtems-toolchain:
+	docker build -t frick-rtems-toolchain:local tools/docker/rtems
+
+# Cross build inside the toolchain image (no host toolchain needed).
+rtems-docker:
+	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
+	  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems && cmake --build build/rtems -j$$(nproc)'
 
 verify-rtems:
 	bash tools/scripts/ci_rtems_cross_build.sh

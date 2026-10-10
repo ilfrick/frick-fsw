@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -50,7 +50,10 @@ applications and the host smoke is unchanged.
 make renode-env
 
 # 1. Build the RTEMS image with the Renode test application (needs the RTEMS
-#    toolchain in /opt/rtems/6); output build/renode/frick_fsw_renode.elf:
+#    toolchain in /opt/rtems/6, from the open-source RTEMS project); output
+#    build/renode/frick_fsw_renode.elf. The nightly workflow installs the
+#    open-source RTEMS toolchain (tools/scripts/setup_rtems.sh), builds this
+#    image and runs the validation.
 make renode-image
 
 # 2. Run the emulated functional validation (norm N18):
@@ -89,3 +92,4 @@ stays open (GAP-A4/A6).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial Renode V&V environment (norm N18); test application |
 | 0.2 | 2026-10-10 | frick-fsw | Review FRICK-REVIEW-0036 fixes: test app receives inline (marker PASS), CMake option + `renode-image`, `make renode-env` self-test, `renode_vv.sh` fails on missing marker, status wording |
+| 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TOOLING-001                      |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 
 This document describes the engineering approach and every tool used for
@@ -15,7 +15,7 @@ kept current; norm N10: V&V tools are qualified in `docs/vv/tool-qualification.m
 
 The project is a cFS-inspired, PUS-C and CCSDS Space-Packet capable flight
 software framework aimed at ECSS criticality B on the Microchip RT PolarFire
-SoC (RTPFS160ZT, RISC-V) under RTEMS 6.2. The approach is:
+SoC (RTPFS160ZT, RISC-V) under RTEMS 6.2 (open-source RTEMS project). The approach is:
 
 1. **Architecture first, verified backwards** (norm N3): the SRS/SSS are
    generated backwards from the architecture and code and traced in
@@ -42,7 +42,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | ---- | ------- | --------------- |
 | CMake + Ninja | Build system and generator | `CMakeLists.txt`, `CMakePresets.json` |
 | GCC (host) | Native simulator and unit tests (C99, `-Wall -Wextra`) | CI image |
-| RTEMS Source Builder (RSB) | RTEMS 6.2 toolchain (`riscv/mpfs64imafdc`) | `tools/scripts/setup_rtems.sh` |
+| RTEMS Source Builder (RSB) | Open-source RTEMS 6.2 toolchain (`riscv/mpfs64imafdc`) | `tools/scripts/setup_rtems.sh`, `tools/docker/rtems/` |
 | clang-format / clang-tidy | Formatting and static analysis | `.clang-format`, `.clang-tidy` |
 | Doxygen | API documentation generation | `Doxyfile`, `make docs` |
 | Git | Version control | dual remotes (GitHub + Gitea) |
@@ -62,9 +62,12 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | clang-tidy | Static analysis (memory, style, defects) | analysis report | T8 |
 | Docker V&V image | Reproducible pipeline for humans and agents (norm N6/N8) | containerised `make ci-local` | T1 |
 | `tools/scripts/run_sim.sh` | Simulator bootstrap for humans/agents/CI | FT logs | T9 |
-| `tools/scripts/setup_rtems.sh` | RTEMS 6.2 toolchain bootstrap | cross build | T10 |
+| `tools/scripts/setup_rtems.sh` | Open-source RTEMS 6.2 toolchain bootstrap (RSB, `riscv/mpfs64imafdc`) | cross build | T10 |
 | `tools/scripts/coverage.py` | gcov line/function coverage collector (`make coverage`) | `build/coverage/coverage.json` | T12 |
 | `tools/scripts/metrics.py` | README status panel generator (coverage + V&V semaphores) | README metrics panel | T13 |
+| `tools/scripts/renode_env_selftest.sh` | Renode V&V environment self-test (Renode runs + `polarfire-soc` platform loads) | `make renode-env` PASS | T17 |
+| `tools/scripts/renode_vv.sh` | Renode functional validation (`RENODE_TEST: PASS`, norm N18) | emulated run log; `make renode` | T17 |
+| `tools/docker/rtems/Dockerfile` | Reproducible open-source RTEMS 6.2 toolchain + BSP image | `make rtems-toolchain` / `make rtems-docker` | T18 |
 
 ## 4. CI/CD tools
 
@@ -74,6 +77,8 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | Gitea Actions workflows | Pipeline on the gitea mirror | `.gitea/workflows/ci.yml` |
 | Gitea act_runner (Docker) | Self-hosted runner so Gitea has CI/CD in Docker (norm N6); maps `ubuntu-24.04` to `docker://frick-vv:local` | `tools/docker/act_runner/` |
 | Dockerfile (V&V image) | Pinned toolchain: cmake/ninja/gcc/python3/node/lean/doxygen/tidy | `tools/docker/Dockerfile` |
+| Dockerfile (RTEMS toolchain image) | Open-source RTEMS 6.2 toolchain + BSP (T18) | `tools/docker/rtems/Dockerfile` |
+| Dockerfile (Renode V&V image) | Pinned Renode, norm N18 (T17) | `tools/docker/renode/Dockerfile` |
 
 The Gitea instance is served under the `/git` sub-path, but `act_runner`
 derives the job `GITHUB_SERVER_URL` without it, so `actions/checkout` builds an
@@ -122,3 +127,4 @@ exist.
 | 0.2 | 2026-10-10 | frick-fsw | Add qualified V&V tools T12 (`coverage.py`), T13 (`metrics.py`) to the inventory |
 | 0.3 | 2026-10-10 | frick-fsw | M3: `docs` CI job now checks the required-document list and document-id uniqueness; HAL added to the approach |
 | 0.4 | 2026-10-10 | frick-fsw | M6: platform `libm` mathematics facade added to the tools |
+| 0.5 | 2026-10-10 | frick-fsw | Open-source RTEMS 6.2 alignment + reproducible toolchain image (T18) and Renode V&V tools (T17) added to the inventory |

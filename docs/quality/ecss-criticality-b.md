@@ -17,7 +17,7 @@
 - ECSS-E-ST-70-41C *Ground systems and operations - Telemetry and telecommand
   packet utilisation* (PUS-C).
 - CCSDS 133.0-B-2 *Space Packet Protocol*; CCSDS 130.0-G.
-- RTEMS 6.2 (embedded brains ECSS pre-qualified baseline) and the
+- RTEMS 6.2 (open-source RTEMS project) and the
   `riscv/mpfs64imafdc` BSP for the Microchip RT PolarFire SoC RTPFS160ZT.
 
 ## 2. Class B baseline statement

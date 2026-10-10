@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.10 |
+| Revision    | 0.11 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -129,6 +129,16 @@ QSPI flash, eNVM, timers); **QEMU** runs the RTEMS `riscv/rv64imafdc` BSP. This
 **partially mitigates GAP-A5**; tool qualification (N10) and CI wiring included.
 See `docs/vv/emulated-target.md`; requirement SRS-REQ-043; objective OBJ-18.
 
+## M11 — Renode HAL coverage: exercise every HAL resource class on the emulated SoC (planned)
+
+Extend the Renode functional test (norm N18) so that **every HAL resource class**
+is bound to its emulated peripheral and exercised on the `polarfire-soc` platform:
+ETH, NET/TCP-IP, TSN, CAN, SERIAL (UART/RS-422/485), SPI, I2C, PCIE, GPIO/IRQ,
+SPACEWIRE (+RMAP), MEM (RAM/DMA), BLOCK (eMMC/SD/SSD), NVM. Each class gets its
+backend behind the `hal_*.h` contract (the M4-residual MSS peripherals where still
+missing), a binding in `frick-renode.resc`, and a checkable clause in the marker.
+Objective OBJ-19; builds on M10 and the M4-residual drivers.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -154,3 +164,4 @@ See `docs/vv/emulated-target.md`; requirement SRS-REQ-043; objective OBJ-18.
 | 0.8 | 2026-10-10 | frick-fsw | Add M8 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) |
 | 0.9 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA C:2012 + coding style) |
 | 0.10 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification: Renode PolarFire SoC + QEMU) |
+| 0.11 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class) |

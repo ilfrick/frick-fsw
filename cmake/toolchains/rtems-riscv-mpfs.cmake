@@ -1,12 +1,12 @@
 # RTEMS 6.2 cross toolchain for the Microchip RT PolarFire SoC (RTPFS160ZT)
 #
 # Prerequisites:
-#   RTEMS 6.2 source builder (rtems-source-builder) installed into
-#   $ENV{RTEMS_HOME}/rtems/6 so that:
-#     - $ENV{RTEMS_HOME}/rtems/6/bin contains riscv-rtems6-gcc
-#     - BSP riscv/mpfs64imafdc is built
+#   open-source RTEMS 6.2 (RTEMS project) installed into
+#   $ENV{RTEMS_HOME}/6 (default RTEMS_HOME=/opt/rtems -> /opt/rtems/6) so that:
+#     - $ENV{RTEMS_HOME}/6/bin contains riscv-rtems6-gcc
+#     - BSP mpfs64imafdc is built (sysroot $ENV{RTEMS_HOME}/6/riscv-rtems6/mpfs64imafdc)
 #
-# See tools/scripts/setup_rtems.sh
+# See tools/scripts/setup_rtems.sh (host) and tools/docker/rtems/ (container image).
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
@@ -21,12 +21,12 @@ if(NOT RTEMS_HOME)
 endif()
 
 set(RTEMS_VERSION "6")
-set(RTEMS_BSP "riscv/mpfs64imafdc")
+set(RTEMS_BSP "mpfs64imafdc")
 
-set(CMAKE_SYSROOT ${RTEMS_HOME}/rtems/${RTEMS_VERSION}/${RTEMS_BSP})
+set(CMAKE_SYSROOT ${RTEMS_HOME}/${RTEMS_VERSION}/riscv-rtems6/${RTEMS_BSP})
 set(CMAKE_PREFIX_PATH ${CMAKE_SYSROOT})
 
-set(CMAKE_C_COMPILER ${RTEMS_HOME}/rtems/${RTEMS_VERSION}/bin/riscv-rtems6-gcc)
+set(CMAKE_C_COMPILER ${RTEMS_HOME}/${RTEMS_VERSION}/bin/riscv-rtems6-gcc)
 # Match the BSP riscv/mpfs64imafdc (RV64GC: IMAFDC + lp64d ABI) and select the
 # RTEMS libraries with -qrtems (required by RTEMS 6; the BSP spec provides the
 # linker script and library paths). Do not override the load address.

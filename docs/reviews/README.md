@@ -38,6 +38,8 @@
 | 2026-10-10 | M10 emulated-target review (Renode/QEMU) | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m10-emulated-r1-r2-r4-review.md |
 | 2026-10-10 | Renode V&V env + norm N18 + test app | R1+R2+R4 | REJECTED | 2026-10-10-renode-env-r1-r2-r4-review.md |
 | 2026-10-10 | Renode V&V env + norm N18 delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-renode-env-delta-review.md |
+| 2026-10-10 | Open-source RTEMS alignment + toolchain | R1+R2+R4 | REJECTED | 2026-10-10-open-rtems-alignment-r1-r2-r4-review.md |
+| 2026-10-10 | Open-source RTEMS alignment delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-open-rtems-alignment-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

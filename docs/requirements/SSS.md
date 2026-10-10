@@ -8,7 +8,7 @@
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
-| RTOS baseline                     | RTEMS 6.2 (embedded brains ECSS pre-qualified baseline) |
+| RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |
 | Software criticality (target)     | ECSS Category B                        |
 
 The Software System Specification fixes the system-level (end item) behaviour
@@ -30,7 +30,7 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
 
 - **SSS-REQ-001** — *Flight target*: the flight software shall execute on the
   Microchip RT PolarFire SoC RTPFS160ZT, RISC-V U54 application cluster, under
-  RTEMS 6.2 (embedded brains ECSS pre-qualified baseline), using the
+  RTEMS 6.2 (open-source RTEMS project), using the
   `riscv/mpfs64imafdc` BSP as reference port. `method: Dem`.
 - **SSS-REQ-002** — *Software bus*: the software shall provide a
   publish/subscribe software bus with configurable pipe depth. `method: Tst | Anl`.

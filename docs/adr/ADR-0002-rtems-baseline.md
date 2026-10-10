@@ -1,6 +1,6 @@
-# ADR-0002 - RTEMS 6.2 embedded brains baseline on RTPFS160ZT
+# ADR-0002 - RTEMS 6.2 open-source baseline on RTPFS160ZT
 
-| Status | Accepted |
+| Status | Accepted (revised 2026-10-10: open-source RTEMS baseline) |
 | ------ | -------- |
 | Date   | 2026-10-10 |
 
@@ -11,9 +11,12 @@ determinism, a proven space track record and ECSS-relevant qualification
 evidence.
 
 ## Decision
-Use RTEMS **6.2** from the **embedded brains** ECSS pre-qualified baseline
-(release `esa/v6.2`), BSP `riscv/mpfs64imafdc`, toolchain installed with
-`rtems-source-builder` (`tools/scripts/setup_rtems.sh`).
+Use the **open-source RTEMS 6.2** release from the RTEMS project
+(`gitlab.rtems.org`, release tag `6.2`), BSP `riscv/mpfs64imafdc`, toolchain
+installed with `rtems-source-builder` from the RTEMS project
+(`tools/scripts/setup_rtems.sh`). No vendor-specific or pre-built commercial
+baseline/toolchain is used: the sources and the source builder are the upstream
+open-source RTEMS ones.
 
 ## Consequences
 - Cross toolchain prefix `riscv-rtems6-` (see

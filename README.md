@@ -6,8 +6,8 @@
 
 cFS-inspired flight software framework: PUS-C TM/TC over CCSDS Space Packets
 for a small/medium spacecraft OBC built on the **Microchip RT PolarFire SoC
-RTPFS160ZT** (RISC-V) under **RTEMS 6.2** (embedded brains ECSS pre-qualified
-baseline), target ECSS criticality **B**.
+RTPFS160ZT** (RISC-V) under **RTEMS 6.2** (open-source RTEMS project), target
+ECSS criticality **B**.
 
 **This is a middleware (framework), not a mission application.** It provides the
 command & data handling backbone and the interfaces to integrate your own
@@ -243,7 +243,9 @@ make trace                     # traceability convergence gate (norm N4)
 make renode-env                # self-test: Renode runs + polarfire-soc platform loads
 make renode-image renode       # build the RTEMS image + emulated functional validation
 
-# RTEMS 6.2 cross build (toolchain: tools/scripts/setup_rtems.sh):
+# RTEMS 6.2 cross build (open-source RTEMS; toolchain: tools/scripts/setup_rtems.sh):
+make rtems-toolchain           # build the open RTEMS 6.2 toolchain image
+make rtems-docker              # cross compile inside the image (no host toolchain)
 make rtems
 ```
 
@@ -349,6 +351,6 @@ by `LICENSE`/`NOTICE`; third-party components retain their own licences
 
 ## Acknowledgments
 
-Architectural inspiration from NASA cFS (Draco); RTEMS 6.2 baseline by embedded
-brains; Lean 4 by the Lean community. The project is independent and contains
+Architectural inspiration from NASA cFS (Draco); RTEMS 6.2 from the open-source
+RTEMS project; Lean 4 by the Lean community. The project is independent and contains
 no copied cFS/RTEMS code.

@@ -2,7 +2,7 @@
 #
 # The per-commit job `rtems-cross-build` in ci.yml is a SKIP proxy when the
 # RTEMS toolchain is absent; this workflow installs the full RTEMS 6.2
-# toolchain (embedded brains ECSS pre-qualified baseline, BSP
+# toolchain (open-source RTEMS project, BSP
 # riscv/mpfs64imafdc) with rtems-source-builder and performs the real cross
 # build and documentation of the result in docs/vv/verification-results.md.
 #
@@ -38,6 +38,20 @@ jobs:
             -DFF_PLATFORM=rtems
           cmake --build build/rtems -j$(nproc)
           echo "RTEMS cross build: PASS" | tee /tmp/rtems-result.txt
+
+      - name: Build Renode functional image (open RTEMS + test app)
+        run: |
+          cmake -S . -B build/renode \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
+            -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON
+          cmake --build build/renode -j$(nproc)
+          cp build/renode/frick_fsw build/renode/frick_fsw_renode.elf
+
+      - name: Renode functional validation (norm N18)
+        run: |
+          make renode-env
+          make renode
+          echo "Renode functional validation: PASS"
 
       - name: Upload cross-build artifact
         uses: actions/upload-artifact@v4

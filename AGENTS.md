@@ -31,7 +31,7 @@
 | `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers + `rtems/` RTEMS configuration table |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
-| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`) |
+| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`, `docker/rtems/`) |
 | `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
 | `docs/` | rules, requirements (SSS/SRS/traceability), design (SDD), architecture, ADRs, interfaces (ICD), quality (class B/A + compliance/CM/PA/safety), V&V, engineering (independent review + driver/service/user guides), reviews, roadmap, **development plan**, status |
 | `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
@@ -58,11 +58,14 @@ make renode-env          # Renode V&V environment self-test (norm N18; needs doc
 make renode              # Renode functional validation (advisory until the RTEMS image exists)
 ```
 
-RTEMS cross build (requires toolchain; `tools/scripts/setup_rtems.sh` installs
-the RSB toolchain into `/opt/rtems/6`):
+RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds
+the RSB toolchain into `/opt/rtems/6`, or use the reproducible containerised
+toolchain):
 
 ```bash
-make rtems              # cross compile for riscv/mpfs64imafdc
+make rtems-toolchain    # build the open RTEMS 6.2 toolchain image (T18)
+make rtems-docker       # cross compile inside the image (no host toolchain)
+make rtems              # cross compile for riscv/mpfs64imafdc (host /opt/rtems)
 ```
 
 ## 4. Deploying the CI/CD and V&V environments (norm N6)

@@ -130,6 +130,23 @@ change. All dates UTC, project language English (norm N2).
   blocking (the proxy SKIPs when the image is absent and fails when it is present
   but the marker is missing). Reviews: FRICK-REVIEW-0036 (REJECTED, F-01 Major) +
   delta (all NCs closed).
+- **Open-source RTEMS 6.2 baseline.** The RTOS baseline is the **open-source
+  RTEMS 6.2** release from the RTEMS project (`gitlab.rtems.org`, source-builder
+  ref `6.2`, BSP `riscv/mpfs64imafdc`); no vendor-specific or commercial
+  baseline/pre-built toolchain is used. `tools/scripts/setup_rtems.sh` corrected
+  (riscv tools bset + `6/rtems-kernel.bset --with-rtems-bsp=riscv/mpfs64imafdc`);
+  new reproducible containerised toolchain `tools/docker/rtems/Dockerfile`
+  (`make rtems-toolchain` / `make rtems-docker`, tool T18); the nightly workflow
+  builds the open RTEMS Renode image and runs `make renode` (norm N18). ADR-0002,
+  SSS-REQ-001 and all affected docs aligned.
+- **Milestone M11 — Renode HAL coverage.** Extend the Renode functional test
+  (norm N18) so that **every HAL resource class** is bound to its emulated
+  peripheral and exercised on the `polarfire-soc` platform (ETH, NET/TCP-IP, TSN,
+  CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM, BLOCK, NVM),
+  each with its backend behind the `hal_*.h` contract (M4-residual MSS
+  peripherals), a binding in `frick-renode.resc` and a checkable clause in the
+  marker. Objective OBJ-19; `docs/development-plan.md`,
+  `docs/roadmap.md`.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

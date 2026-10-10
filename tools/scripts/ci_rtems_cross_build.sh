@@ -14,7 +14,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RTEMS_HOME="${RTEMS_HOME:-/opt/rtems}"
-GCC="${RTEMS_HOME}/rtems/6/bin/riscv-rtems6-gcc"
+GCC="${RTEMS_HOME}/6/bin/riscv-rtems6-gcc"
 
 if [[ ! -x "${GCC}" ]]; then
   echo "[rtems-cross] SKIP (toolchain absent): run tools/scripts/setup_rtems.sh or the scheduled workflow"

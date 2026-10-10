@@ -50,12 +50,18 @@ The PAL confirms at build time that the POSIX API is enabled
 
 ## 4. Build
 
-Toolchain: `tools/scripts/setup_rtems.sh` builds RTEMS 6.2 +
-`riscv/mpfs64imafdc` with the RTEMS Source Builder into `$RTEMS_HOME` (default
-`/opt/rtems`). Then:
+The baseline is the **open-source RTEMS 6.2** release from the RTEMS project
+(`gitlab.rtems.org`, source-builder ref `6.2`); no vendor/commercial baseline or
+pre-built toolchain is used. Toolchain: `tools/scripts/setup_rtems.sh` builds the
+riscv toolchain and the RTEMS 6.2 kernel + `riscv/mpfs64imafdc` BSP with the RTEMS
+Source Builder into `$RTEMS_HOME/6` (default `/opt/rtems/6`), or the same build runs
+reproducibly in a container (`tools/docker/rtems/Dockerfile`). Then:
 
 ```bash
 RTEMS_HOME=/opt/rtems make rtems        # cmake with cmake/toolchains/rtems-riscv-mpfs.cmake
+# or, reproducible and without a host toolchain:
+make rtems-toolchain                    # build the open RTEMS 6.2 toolchain image (T18)
+make rtems-docker                       # cross compile inside the image
 ```
 
 The toolchain file selects `riscv-rtems6-gcc` with `-march=rv64imafdc -mabi=lp64d

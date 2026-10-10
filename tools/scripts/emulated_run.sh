@@ -14,7 +14,7 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RTEMS_HOME="${RTEMS_HOME:-/opt/rtems}"
-GCC="${RTEMS_HOME}/rtems/6/bin/riscv-rtems6-gcc"
+GCC="${RTEMS_HOME}/6/bin/riscv-rtems6-gcc"
 EXE_MPFS="${ROOT}/build/rtems/frick_fsw"
 EXE_GEN="${ROOT}/build/rtems-generic/frick_fsw"
 LOG="$(mktemp)"

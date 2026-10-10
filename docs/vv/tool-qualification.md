@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.2.4                                  |
+| Revision                          | 0.2.5                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -31,7 +31,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T7  | Ground station `ff_gsw.py`              | `tools/gsw/ff_gsw.py`           | TC injection / TM decode logs   | reviewed + CM              | independent (R2) on changes             | QUALIFIED |
 | T8  | clang-tidy static analysis              | `.clang-tidy`, CI job            | defect / style evidence         | reviewed + CM              | internal                                | QUALIFIED |
 | T9  | Simulator bootstrap                     | `tools/scripts/run_sim.sh`      | boot and TM evidence            | reviewed + CM              | internal                                | Traced to T4, QUALIFIED |
-| T10 | RTEMS toolchain bootstrap               | `tools/scripts/setup_rtems.sh`  | RTEMS cross toolchain           | upstream-tested + CM       | internal                                | QUALIFIED |
+| T10 | RTEMS toolchain bootstrap (open RTEMS project) | `tools/scripts/setup_rtems.sh`  | open-source RTEMS 6.2 cross toolchain + BSP | upstream-tested + CM       | internal                                | QUALIFIED |
 | T11 | CI workflows (GH Actions / Gitea)       | `.github/workflows`, `.gitea/workflows` | pipeline evidence `ci:*` | reviewed + CM              | internal                                | QUALIFIED |
 | T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T13 | Metrics panel generator                 | `tools/scripts/metrics.py`    | README coverage + V&V panel   | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
@@ -39,6 +39,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
 | T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/` | emulated platform self-test PASS; functional `RENODE_TEST: PASS` (host-verified; in-Renode pending the RTEMS image) | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | reproducible open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
 
 ## Qualification procedure (per tool)
 
@@ -84,3 +85,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.2 | 2026-10-10 | frick-fsw | M9: new qualified tool T14 (`tools/scripts/misra.sh`, cppcheck MISRA scan, advisory) |
 | 0.2.3 | 2026-10-10 | frick-fsw | M10: new qualified tools T15 (Renode PolarFire SoC) and T16 (QEMU RISC-V), `tools/scripts/emulated_run.sh` (advisory) |
 | 0.2.4 | 2026-10-10 | frick-fsw | M10/N18: new qualified tool T17 (Renode V&V environment, `renode_vv.sh` + `tools/docker/renode/`) |
+| 0.2.5 | 2026-10-10 | frick-fsw | Open RTEMS alignment: T10 updated (open-source RTEMS project) and new qualified tool T18 (`tools/docker/rtems/Dockerfile`, containerised open RTEMS toolchain + BSP) |

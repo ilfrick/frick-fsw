@@ -8,7 +8,7 @@
 ## 1. System context
 
 frick-fsw executes on the Microchip **RT PolarFire SoC RTPFS160ZT** (FCVG784)
-under **RTEMS 6.2** (embedded brains ECSS pre-qualified baseline, BSP
+under **RTEMS 6.2** (open-source RTEMS project, BSP
 `riscv/mpfs64imafdc`) and, for development/V&V, as a native POSIX-thread
 simulator. It is the command & data handling backbone of a small/medium
 spacecraft: it accepts PUS-C telecommands and produces PUS-C telemetry over

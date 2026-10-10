@@ -24,7 +24,7 @@
 | PAL | Portable Abstraction Layer (OSAL equivalent). |
 | PUS | Packet Utilisation Standard; PUS-C = ECSS-E-ST-70-41C. |
 | RSB | RTEMS Source Builder (toolchain build). |
-| RTEMS | Real-Time Executive for Multiprocessor Systems; version 6.2 (embedded brains ECSS baseline). |
+| RTEMS | Real-Time Executive for Multiprocessor Systems; version 6.2 (open-source RTEMS 6.2). |
 | SB | Software Bus (publish/subscribe, cFS-style). |
 | SES | Software Engineering Support (ECSS-Q-ST-80). |
 | SRS / SSS | Software Requirements Specification / Software System Specification (backwards ECSS docs, norm N3). |

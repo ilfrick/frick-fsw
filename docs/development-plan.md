@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N18 (`docs/rules.md`)               |
@@ -51,6 +51,7 @@ is in `docs/roadmap.md`.
 | OBJ-16 | Complete deterministic Ethernet: full 802.1AS gPTP stack and the fabric CoreTSN path (multi-port switch / 802.1CB FRER). | M8 |
 | OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
 | OBJ-18 | Emulated-target verification: run the RTEMS binary on Renode (PolarFire SoC) and QEMU to verify boot/PAL/drivers without hardware (partial GAP-A5 mitigation). | M10 |
+| OBJ-19 | Extend the Renode functional test to **every HAL resource class** (ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM/RAM-DMA, BLOCK eMMC/SD/SSD, NVM), so each interface is bound to its emulated peripheral and exercised on the emulated PolarFire SoC. | M11 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -185,6 +186,21 @@ and/or QEMU (`riscv/rv64imafdc`) to verify boot, PAL/RTEMS and drivers without
 hardware; partially mitigates GAP-A5. `docs/vv/emulated-target.md`,
 `tools/scripts/emulated_run.sh`, requirement SRS-REQ-043. (OBJ-18.)
 
+### M11 — Renode HAL coverage: exercise every HAL resource class on the emulated SoC (planned)
+
+Extend the Renode functional test (norm N18; `src/apps/app_renode_test.c`,
+`tools/docker/renode/frick-renode.resc`) so that **every HAL resource class**
+currently *not* connected in the emulated run is bound to its emulated peripheral
+and exercised: **ETH** (Cadence GEM), **NET/TCP-IP** (lwIP), **TSN** (GEM native),
+**CAN** (OPEN/FD), **SERIAL** (UART/RS-422/RS-485), **SPI**, **I2C**, **PCIE**,
+**GPIO/IRQ**, **SPACEWIRE** (+RMAP), **MEM** (RAM/DMA), **BLOCK** (eMMC/SD/SSD) and
+**NVM** (eNVM/sNVM). For each class: implement the backend behind its `hal_*.h`
+contract where still missing (the M4-residual MSS peripherals), attach it to the
+corresponding peripheral in the Renode `.resc`, and add a checkable clause to the
+functional result so the marker is only `PASS` when the exercised interfaces pass.
+This raises the emulated functional coverage from the current core-only test to
+the whole HAL surface. (OBJ-19; follows M10 and the M4-residual drivers.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -223,6 +239,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | planned |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | planned |
 
 ## History
 
@@ -236,3 +253,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.6 | 2026-10-10 | frick-fsw | Add M8 (gPTP 802.1AS + fabric CoreTSN); objective OBJ-16 |
 | 0.7 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA + coding style); objective OBJ-17 |
 | 0.8 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification); objective OBJ-18 |
+| 0.9 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class); objective OBJ-19 |
