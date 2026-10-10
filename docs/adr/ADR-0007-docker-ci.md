@@ -13,10 +13,14 @@ via Docker.
 - Identical pipelines: `.github/workflows/ci.yml` (GitHub) and
   `.gitea/workflows/ci.yml` (Gitea Actions).
 - Gitea CI is executed by a self-hosted **act_runner** deployed with Docker
-  Compose (`tools/docker/act_runner/docker-compose.yml`).
-- A pinned V&V image (`tools/docker/Dockerfile`) reproduces every verification
-  environment for humans and agents (`make ci-local` runs the pipeline in the
-  container).
+  Compose (`tools/docker/act_runner/docker-compose.yml`). The runner maps the
+  `ubuntu-24.04` label to the pinned V&V image
+  (`ubuntu-24.04:docker://frick-vv:local`): the `gitea/act_runner` image is a
+  minimal Alpine image with no toolchain, so `:host` jobs cannot build or test.
+- A pinned V&V image (`tools/docker/Dockerfile`, `make docker-image` ->
+  `frick-vv:local`) reproduces every verification environment for humans and
+  agents (`make ci-local` runs the pipeline in the container). The image carries
+  `nodejs`/`npm` so `actions/checkout` executes inside it.
 - Nightly RTEMS qualification build: `.github/workflows/nightly.yml`.
 
 ## Consequences

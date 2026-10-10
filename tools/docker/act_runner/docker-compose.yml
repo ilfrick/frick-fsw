@@ -14,6 +14,15 @@
 #        the file below).
 #   3. The runner then publishes the badge and executes pushes.
 #
+# Job execution model (important):
+#   The `gitea/act_runner` image is a minimal Alpine image WITHOUT build tools,
+#   so `ubuntu-24.04:host` would run every job inside it and fail. The label
+#   therefore maps `ubuntu-24.04` to the pinned V&V image
+#   (`ubuntu-24.04:docker://frick-vv:local`), which carries the toolchain plus
+#   nodejs for `actions/checkout`. Build that image first:
+#     docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
+#   (or `make docker-image`). Set GITEA_RUNNER_LABELS to override.
+#
 # SPDX-License-Identifier: AGPL-3.0-only
 services:
   act_runner:
@@ -24,7 +33,7 @@ services:
       - GITEA_INSTANCE_URL=${GITEA_INSTANCE_URL:-https://www.housefz.com/git}
       - GITEA_RUNNER_NAME=${GITEA_RUNNER_NAME:-frick-runner}
       - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN:?set the runner registration token}
-      - GITEA_RUNNER_LABELS=${GITEA_RUNNER_LABELS:-ubuntu-24.04:host}
+      - GITEA_RUNNER_LABELS=${GITEA_RUNNER_LABELS:-ubuntu-24.04:docker://frick-vv:local}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock   # runner schedules containers
       - ./config.yaml:/config.yaml                  # optional runner config

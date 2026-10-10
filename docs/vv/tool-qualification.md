@@ -65,3 +65,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial register T1-T11 (norm N10) |
 | 0.1.1 | 2026-10-10 | frick-fsw | Re-qualification after review-closure changes: T6 (`trace.py`) evidence-marker parser hardened and independently re-checked; T7 (`ff_gsw.py`) exercised via `--ping` self-check; T3 (`test_pus.c` S6 case) corrected and re-run |
+| 0.1.2 | 2026-10-10 | frick-fsw | Re-qualification after CI deployment fix: T1 image gains `nodejs`/`npm` (needed by Gitea `actions/checkout`); T11 workflows' smoke banner check corrected and format gate re-satisfied (`clang-format` 18 over all C sources) |

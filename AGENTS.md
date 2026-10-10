@@ -64,10 +64,11 @@ make rtems              # cross compile for riscv/mpfs64imafdc
 The project is deployable everywhere through Docker:
 
 ```bash
-# V&V image with pinned toolchain (cmake, ninja, gcc, python3, lean, doxygen, tidy)
-docker build -t frick-vv:0.1.0 -f tools/docker/Dockerfile tools/docker
+# V&V image with pinned toolchain (cmake, ninja, gcc, python3, node, lean, doxygen, tidy)
+make docker-image        # builds frick-vv:local from tools/docker/Dockerfile
 
 # Gitea CI/CD: self-hosted Gitea Actions runner (norm N6)
+# Requires GITEA_RUNNER_REGISTRATION_TOKEN; maps `ubuntu-24.04` to frick-vv:local.
 docker compose -f tools/docker/act_runner/docker-compose.yml up -d
 ```
 

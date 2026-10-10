@@ -7,10 +7,20 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Added
+
+- Gitea CI/CD deployed and operational (norm N6): a self-hosted
+  `act_runner` executes `.gitea/workflows/ci.yml`. The runner maps
+  `ubuntu-24.04` to the pinned V&V image
+  (`ubuntu-24.04:docker://frick-vv:local`) because the minimal
+  `gitea/act_runner` Alpine image has no toolchain.
+
 ### Changed
 
 - Project codename changed from **"Vela"** to **"Eärendil"** (README banner,
   `config/fsw_config.h` `FF_CODENAME`, simulator boot banner).
+- V&V image (`tools/docker/Dockerfile`) gains `nodejs`/`npm` so Gitea
+  `actions/checkout` can run inside the pinned image.
 
 ### Fixed
 

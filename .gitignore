@@ -34,3 +34,6 @@ doxygen/latex/
 
 # Local config
 .local/
+
+# Gitea act_runner registration state (contains a runner token)
+tools/docker/act_runner/runner-data/

@@ -69,8 +69,8 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | --------- | ---- | ----- |
 | GitHub Actions workflows | Pipeline on the github mirror | `.github/workflows/ci.yml` |
 | Gitea Actions workflows | Pipeline on the gitea mirror | `.gitea/workflows/ci.yml` |
-| Gitea act_runner (Docker) | Self-hosted runner so Gitea has CI/CD in Docker (norm N6) | `tools/docker/act_runner/` |
-| Dockerfile (V&V image) | Pinned toolchain: cmake/ninja/gcc/python3/lean/doxygen/tidy | `tools/docker/Dockerfile` |
+| Gitea act_runner (Docker) | Self-hosted runner so Gitea has CI/CD in Docker (norm N6); maps `ubuntu-24.04` to `docker://frick-vv:local` | `tools/docker/act_runner/` |
+| Dockerfile (V&V image) | Pinned toolchain: cmake/ninja/gcc/python3/node/lean/doxygen/tidy | `tools/docker/Dockerfile` |
 
 The pipeline stages (identical for both forges and `make ci-local`):
 
