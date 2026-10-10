@@ -17,23 +17,22 @@
  */
 typedef int32_t FF_Status_t;
 
-enum
-{
-    FF_SUCCESS            = 0,
-    FF_ERROR              = -1,
-    FF_INVALID_ARGUMENT   = -2,
-    FF_NO_RESOURCE        = -3,
-    FF_TIMEOUT            = -4,
-    FF_NOT_IMPLEMENTED    = -5,
-    FF_NAME_TOO_LONG      = -6,
-    FF_NOT_FOUND          = -7,
-    FF_BUSY               = -8,
-    FF_BAD_SIZE           = -9,
-    FF_BUFFER_FULL        = -10,
-    FF_CRC_ERROR          = -11,
-    FF_PARSE_ERROR        = -12,
-    FF_ALREADY_EXISTS     = -13,
-    FF_NOT_READY          = -14
+enum {
+    FF_SUCCESS = 0,
+    FF_ERROR = -1,
+    FF_INVALID_ARGUMENT = -2,
+    FF_NO_RESOURCE = -3,
+    FF_TIMEOUT = -4,
+    FF_NOT_IMPLEMENTED = -5,
+    FF_NAME_TOO_LONG = -6,
+    FF_NOT_FOUND = -7,
+    FF_BUSY = -8,
+    FF_BAD_SIZE = -9,
+    FF_BUFFER_FULL = -10,
+    FF_CRC_ERROR = -11,
+    FF_PARSE_ERROR = -12,
+    FF_ALREADY_EXISTS = -13,
+    FF_NOT_READY = -14
 };
 
 /* Compile-time assert usable in C99 */

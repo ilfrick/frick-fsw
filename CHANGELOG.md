@@ -7,6 +7,20 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Changed
+
+- Project codename changed from **"Vela"** to **"Eärendil"** (README banner,
+  `config/fsw_config.h` `FF_CODENAME`, simulator boot banner).
+
+### Fixed
+
+- CI `simulator smoke` (GitHub): the banner check grepped for `=` which the
+  banner never contained; with `bash -e` the step failed. Now checks for
+  `frick-fsw` and reports a clear error.
+- CI `static analysis`: the `clang-format --dry-run --Werror` gate failed on
+  files that had never been auto-formatted; all C sources are now formatted with
+  clang-format 18 (the runner version), so the gate passes.
+
 ## [0.1.0] - 2026-10-10 - baseline release
 
 **Origin:** rule set establishment (N1-N16) and initial development; review

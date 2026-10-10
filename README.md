@@ -1,6 +1,6 @@
 # frick-fsw
 
-**Codename "Vela" · v0.1.0 · AGPL-3.0-only**
+**Codename "Eärendil" · v0.1.0 · AGPL-3.0-only**
 
 cFS-inspired flight software framework: PUS-C TM/TC over CCSDS Space Packets
 for a small/medium spacecraft OBC built on the **Microchip RT PolarFire SoC

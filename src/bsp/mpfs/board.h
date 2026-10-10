@@ -7,7 +7,7 @@
 
 #include "common/ff_types.h"
 
-const char   *FF_BoardName(void);
-FF_Status_t   FF_BoardInit(void);
+const char *FF_BoardName(void);
+FF_Status_t FF_BoardInit(void);
 
 #endif /* FF_BOARD_H */

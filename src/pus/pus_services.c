@@ -26,38 +26,72 @@
 #define FF_PUS_MAX_MEM_REGIONS 8u
 #define FF_PUS_MAX_HK_REPORTS 16u
 
-typedef struct { bool used; uint8_t id; FF_Pus_DataProvider_t fn; } ff_provider_t;
-typedef struct { bool used; uint8_t id; FF_Pus_ParamSetter_t fn; } ff_setter_t;
-typedef struct { bool used; uint8_t id; FF_Pus_FunctionHandler_t fn; } ff_func_t;
-typedef struct { bool used; uint8_t report_id; uint8_t provider_id; bool enabled; } ff_hk_report_t;
-typedef struct { const uint8_t *base; uint32_t size; bool used; } ff_mem_region_t;
+typedef struct
+{
+    bool used;
+    uint8_t id;
+    FF_Pus_DataProvider_t fn;
+} ff_provider_t;
+typedef struct
+{
+    bool used;
+    uint8_t id;
+    FF_Pus_ParamSetter_t fn;
+} ff_setter_t;
+typedef struct
+{
+    bool used;
+    uint8_t id;
+    FF_Pus_FunctionHandler_t fn;
+} ff_func_t;
+typedef struct
+{
+    bool used;
+    uint8_t report_id;
+    uint8_t provider_id;
+    bool enabled;
+} ff_hk_report_t;
+typedef struct
+{
+    const uint8_t *base;
+    uint32_t size;
+    bool used;
+} ff_mem_region_t;
 
-static ff_provider_t    g_hk_providers[FF_PUS_MAX_REG];
-static ff_provider_t    g_param_providers[FF_PUS_MAX_REG];
-static ff_setter_t      g_param_setters[FF_PUS_MAX_REG];
-static ff_func_t        g_functions[FF_PUS_MAX_REG];
-static ff_hk_report_t   g_hk_reports[FF_PUS_MAX_HK_REPORTS];
-static ff_mem_region_t  g_mem_regions[FF_PUS_MAX_MEM_REGIONS];
+static ff_provider_t g_hk_providers[FF_PUS_MAX_REG];
+static ff_provider_t g_param_providers[FF_PUS_MAX_REG];
+static ff_setter_t g_param_setters[FF_PUS_MAX_REG];
+static ff_func_t g_functions[FF_PUS_MAX_REG];
+static ff_hk_report_t g_hk_reports[FF_PUS_MAX_HK_REPORTS];
+static ff_mem_region_t g_mem_regions[FF_PUS_MAX_MEM_REGIONS];
 
 /* ---- little big-endian helpers ----------------------------------- */
 
-static uint16_t rd_u16(const uint8_t *p) { return (uint16_t)(((uint16_t)p[0] << 8) | p[1]); }
+static uint16_t rd_u16(const uint8_t *p)
+{
+    return (uint16_t)(((uint16_t)p[0] << 8) | p[1]);
+}
 static uint32_t rd_u32(const uint8_t *p)
 {
     return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | p[3];
 }
-static void wr_u16(uint8_t *p, uint16_t v) { p[0] = (uint8_t)(v >> 8); p[1] = (uint8_t)v; }
+static void wr_u16(uint8_t *p, uint16_t v)
+{
+    p[0] = (uint8_t)(v >> 8);
+    p[1] = (uint8_t)v;
+}
 static void wr_u32(uint8_t *p, uint32_t v)
 {
-    p[0] = (uint8_t)(v >> 24); p[1] = (uint8_t)(v >> 16); p[2] = (uint8_t)(v >> 8); p[3] = (uint8_t)v;
+    p[0] = (uint8_t)(v >> 24);
+    p[1] = (uint8_t)(v >> 16);
+    p[2] = (uint8_t)(v >> 8);
+    p[3] = (uint8_t)v;
 }
 
 static FF_Pus_DataProvider_t find_provider(ff_provider_t *tbl, uint8_t id)
 {
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (tbl[i].used && (tbl[i].id == id))
-        {
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (tbl[i].used && (tbl[i].id == id)) {
             return tbl[i].fn;
         }
     }
@@ -68,10 +102,16 @@ static FF_Pus_DataProvider_t find_provider(ff_provider_t *tbl, uint8_t id)
 
 static FF_Status_t reg_provider(ff_provider_t *tbl, uint8_t id, FF_Pus_DataProvider_t fn)
 {
-    if (fn == NULL) { return FF_INVALID_ARGUMENT; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (!tbl[i].used) { tbl[i].used = true; tbl[i].id = id; tbl[i].fn = fn; return FF_SUCCESS; }
+    if (fn == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (!tbl[i].used) {
+            tbl[i].used = true;
+            tbl[i].id = id;
+            tbl[i].fn = fn;
+            return FF_SUCCESS;
+        }
     }
     return FF_NO_RESOURCE;
 }
@@ -87,12 +127,14 @@ FF_Status_t FF_PusRegisterParamProvider(uint8_t id, FF_Pus_DataProvider_t provid
 
 FF_Status_t FF_PusRegisterParamSetter(uint8_t id, FF_Pus_ParamSetter_t setter)
 {
-    if (setter == NULL) { return FF_INVALID_ARGUMENT; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (!g_param_setters[i].used)
-        {
-            g_param_setters[i].used = true; g_param_setters[i].id = id; g_param_setters[i].fn = setter;
+    if (setter == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (!g_param_setters[i].used) {
+            g_param_setters[i].used = true;
+            g_param_setters[i].id = id;
+            g_param_setters[i].fn = setter;
             return FF_SUCCESS;
         }
     }
@@ -101,12 +143,14 @@ FF_Status_t FF_PusRegisterParamSetter(uint8_t id, FF_Pus_ParamSetter_t setter)
 
 FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn)
 {
-    if (fn == NULL) { return FF_INVALID_ARGUMENT; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (!g_functions[i].used)
-        {
-            g_functions[i].used = true; g_functions[i].id = id; g_functions[i].fn = fn;
+    if (fn == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (!g_functions[i].used) {
+            g_functions[i].used = true;
+            g_functions[i].id = id;
+            g_functions[i].fn = fn;
             return FF_SUCCESS;
         }
     }
@@ -115,11 +159,11 @@ FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn)
 
 FF_Status_t FF_PusRegisterMemoryRegion(const void *base, uint32_t size)
 {
-    if ((base == NULL) || (size == 0u)) { return FF_INVALID_ARGUMENT; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++)
-    {
-        if (!g_mem_regions[i].used)
-        {
+    if ((base == NULL) || (size == 0u)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
+        if (!g_mem_regions[i].used) {
             g_mem_regions[i].used = true;
             g_mem_regions[i].base = (const uint8_t *)base;
             g_mem_regions[i].size = size;
@@ -134,20 +178,18 @@ FF_Status_t FF_PusRegisterMemoryRegion(const void *base, uint32_t size)
 static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 2u) { return FF_BAD_SIZE; }
+    if (len < 2u) {
+        return FF_BAD_SIZE;
+    }
     uint8_t report_id = d[0];
-    uint8_t provider  = d[1];
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == report_id))
-        {
+    uint8_t provider = d[1];
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == report_id)) {
             return FF_ALREADY_EXISTS;
         }
     }
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (!g_hk_reports[i].used)
-        {
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (!g_hk_reports[i].used) {
             g_hk_reports[i].used = true;
             g_hk_reports[i].report_id = report_id;
             g_hk_reports[i].provider_id = provider;
@@ -161,11 +203,11 @@ static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
 static FF_Status_t svc3_delete(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0]))
-        {
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0])) {
             g_hk_reports[i].used = false;
             return FF_SUCCESS;
         }
@@ -176,11 +218,11 @@ static FF_Status_t svc3_delete(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
 static FF_Status_t svc3_enable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0]))
-        {
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0])) {
             g_hk_reports[i].enabled = true;
             return FF_SUCCESS;
         }
@@ -191,11 +233,11 @@ static FF_Status_t svc3_enable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
 static FF_Status_t svc3_disable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0]))
-        {
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0])) {
             g_hk_reports[i].enabled = false;
             return FF_SUCCESS;
         }
@@ -208,27 +250,22 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
     (void)tc;
     uint8_t want = (len >= 1u) ? d[0] : 0u; /* 0 = all enabled reports */
     FF_Status_t rc = FF_SUCCESS;
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++)
-    {
-        if (!g_hk_reports[i].used || !g_hk_reports[i].enabled)
-        {
+    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        if (!g_hk_reports[i].used || !g_hk_reports[i].enabled) {
             continue;
         }
-        if ((want != 0u) && (g_hk_reports[i].report_id != want))
-        {
+        if ((want != 0u) && (g_hk_reports[i].report_id != want)) {
             continue;
         }
         FF_Pus_DataProvider_t prov = find_provider(g_hk_providers, g_hk_reports[i].provider_id);
-        if (prov == NULL)
-        {
+        if (prov == NULL) {
             rc = FF_NOT_FOUND;
             continue;
         }
-        uint8_t  payload[FF_PUS_MAX_TM_FRAME];
+        uint8_t payload[FF_PUS_MAX_TM_FRAME];
         uint16_t plen = sizeof(payload) - 1u;
         payload[0] = g_hk_reports[i].report_id;
-        if (prov(g_hk_reports[i].report_id, &payload[1], &plen) == FF_SUCCESS)
-        {
+        if (prov(g_hk_reports[i].report_id, &payload[1], &plen) == FF_SUCCESS) {
             (void)FF_PusSendTm(FF_PUS_SERVICE_HK, 25u, payload, (uint16_t)(plen + 1u));
         }
     }
@@ -240,24 +277,25 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
 static FF_Status_t svc6_dump(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 6u) { return FF_BAD_SIZE; }
+    if (len < 6u) {
+        return FF_BAD_SIZE;
+    }
     uint32_t addr = rd_u32(&d[0]);
     uint16_t size = rd_u16(&d[4]);
-    if (size > FF_PUS_MAX_TM_FRAME) { return FF_BAD_SIZE; }
+    if (size > FF_PUS_MAX_TM_FRAME) {
+        return FF_BAD_SIZE;
+    }
 
-    for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++)
-    {
-        if (!g_mem_regions[i].used)
-        {
+    for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
+        if (!g_mem_regions[i].used) {
             continue;
         }
         /* PUS memory management addresses are 32-bit. Bound the requested range
          * against each region with overflow-safe arithmetic, then read from the
          * registered (full-width) pointer so host simulators stay correct. */
         uint32_t base32 = (uint32_t)(uintptr_t)g_mem_regions[i].base;
-        uint32_t end32  = base32 + g_mem_regions[i].size;
-        if ((addr >= base32) && (addr <= end32) && ((uint32_t)size <= (end32 - addr)))
-        {
+        uint32_t end32 = base32 + g_mem_regions[i].size;
+        if ((addr >= base32) && (addr <= end32) && ((uint32_t)size <= (end32 - addr))) {
             const uint8_t *src = g_mem_regions[i].base + (ptrdiff_t)(addr - base32);
             return FF_PusSendTm(FF_PUS_SERVICE_MEMORY, 6u, src, size);
         }
@@ -270,12 +308,12 @@ static FF_Status_t svc6_dump(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_
 static FF_Status_t svc8_function(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
     uint8_t func_id = d[0];
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (g_functions[i].used && (g_functions[i].id == func_id))
-        {
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (g_functions[i].used && (g_functions[i].id == func_id)) {
             FF_Status_t rc = g_functions[i].fn(&d[1], (uint16_t)(len - 1u));
             uint8_t resp[2];
             resp[0] = func_id;
@@ -292,18 +330,21 @@ static FF_Status_t svc8_function(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uin
 static FF_Status_t svc9_set_time(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 6u) { return FF_BAD_SIZE; }
+    if (len < 6u) {
+        return FF_BAD_SIZE;
+    }
     uint32_t coarse = rd_u32(&d[0]);
-    uint16_t fine   = rd_u16(&d[4]);
-    uint64_t ns = (uint64_t)coarse * 1000000000ULL +
-                  ((uint64_t)fine * 1000000000ULL) / 65536ULL;
+    uint16_t fine = rd_u16(&d[4]);
+    uint64_t ns = (uint64_t)coarse * 1000000000ULL + ((uint64_t)fine * 1000000000ULL) / 65536ULL;
     return FF_TimeSetUtcNs(ns);
 }
 
 static FF_Status_t svc9_report_time(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
-    (void)tc; (void)d; (void)len;
-    uint8_t  payload[6];
+    (void)tc;
+    (void)d;
+    (void)len;
+    uint8_t payload[6];
     uint32_t coarse = 0u;
     uint16_t fine = 0u;
     (void)FF_TimeGetCuc(&coarse, &fine);
@@ -316,7 +357,9 @@ static FF_Status_t svc9_report_time(const FF_Pus_TcHdr_t *tc, const uint8_t *d, 
 
 static FF_Status_t svc11_stub(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
-    (void)tc; (void)d; (void)len;
+    (void)tc;
+    (void)d;
+    (void)len;
     return FF_NOT_IMPLEMENTED;
 }
 
@@ -333,11 +376,11 @@ static FF_Status_t svc17_ping(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16
 static FF_Status_t svc20_set(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
-    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++)
-    {
-        if (g_param_setters[i].used && (g_param_setters[i].id == d[0]))
-        {
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (g_param_setters[i].used && (g_param_setters[i].id == d[0])) {
             return g_param_setters[i].fn(d[0], &d[1], (uint16_t)(len - 1u));
         }
     }
@@ -347,13 +390,19 @@ static FF_Status_t svc20_set(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_
 static FF_Status_t svc20_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 1u) { return FF_BAD_SIZE; }
+    if (len < 1u) {
+        return FF_BAD_SIZE;
+    }
     FF_Pus_DataProvider_t prov = find_provider(g_param_providers, d[0]);
-    if (prov == NULL) { return FF_NOT_FOUND; }
-    uint8_t  payload[FF_PUS_MAX_TM_FRAME];
+    if (prov == NULL) {
+        return FF_NOT_FOUND;
+    }
+    uint8_t payload[FF_PUS_MAX_TM_FRAME];
     uint16_t plen = sizeof(payload) - 1u;
     payload[0] = d[0];
-    if (prov(d[0], &payload[1], &plen) != FF_SUCCESS) { return FF_ERROR; }
+    if (prov(d[0], &payload[1], &plen) != FF_SUCCESS) {
+        return FF_ERROR;
+    }
     return FF_PusSendTm(FF_PUS_SERVICE_PARAMETER, 4u, payload, (uint16_t)(plen + 1u));
 }
 
@@ -363,30 +412,20 @@ FF_Status_t FF_PusRegisterCoreServices(void)
 {
     struct
     {
-        uint8_t          service;
-        uint8_t          subservice;
+        uint8_t service;
+        uint8_t subservice;
         FF_Pus_Handler_t handler;
     } table[] = {
-        {3u, 1u, svc3_create},
-        {3u, 2u, svc3_delete},
-        {3u, 3u, svc3_enable},
-        {3u, 4u, svc3_disable},
-        {3u, 27u, svc3_report},
-        {6u, 5u, svc6_dump},
-        {8u, 1u, svc8_function},
-        {9u, 1u, svc9_set_time},
-        {9u, 2u, svc9_report_time},
-        {11u, 1u, svc11_stub},
-        {11u, 2u, svc11_stub},
-        {17u, 1u, svc17_ping},
-        {20u, 1u, svc20_set},
-        {20u, 3u, svc20_report},
+        {3u, 1u, svc3_create},   {3u, 2u, svc3_delete},   {3u, 3u, svc3_enable},
+        {3u, 4u, svc3_disable},  {3u, 27u, svc3_report},  {6u, 5u, svc6_dump},
+        {8u, 1u, svc8_function}, {9u, 1u, svc9_set_time}, {9u, 2u, svc9_report_time},
+        {11u, 1u, svc11_stub},   {11u, 2u, svc11_stub},   {17u, 1u, svc17_ping},
+        {20u, 1u, svc20_set},    {20u, 3u, svc20_report},
     };
 
-    for (size_t i = 0; i < (sizeof(table) / sizeof(table[0])); i++)
-    {
-        if (FF_PusRegisterService(table[i].service, table[i].subservice, table[i].handler) != FF_SUCCESS)
-        {
+    for (size_t i = 0; i < (sizeof(table) / sizeof(table[0])); i++) {
+        if (FF_PusRegisterService(table[i].service, table[i].subservice, table[i].handler) !=
+            FF_SUCCESS) {
             return FF_ERROR;
         }
     }

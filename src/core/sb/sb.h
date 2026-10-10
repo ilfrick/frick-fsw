@@ -18,11 +18,11 @@ typedef uint16_t FF_MsgId_t;
 
 typedef struct
 {
-    FF_MsgId_t msg_id;    /* routing key                       */
-    uint16_t   apid;      /* source application id             */
-    uint64_t   time_ns;   /* publish timestamp                 */
-    uint16_t   length;    /* number of valid payload bytes      */
-    uint8_t    payload[FF_SB_MSG_PAYLOAD_MAX];
+    FF_MsgId_t msg_id; /* routing key                       */
+    uint16_t apid;     /* source application id             */
+    uint64_t time_ns;  /* publish timestamp                 */
+    uint16_t length;   /* number of valid payload bytes      */
+    uint8_t payload[FF_SB_MSG_PAYLOAD_MAX];
 } FF_Msg_t;
 
 typedef struct

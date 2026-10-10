@@ -15,22 +15,18 @@
 void FF_AppCmdIngestMain(void *arg)
 {
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
-    uint8_t    frame[FF_PUS_MAX_TC_FRAME];
+    uint8_t frame[FF_PUS_MAX_TC_FRAME];
 
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "CI app listening on link '%s'",
                      (FF_LinkGet() != NULL) ? FF_LinkGet()->name : "?");
 
-    for (;;)
-    {
+    for (;;) {
         uint16_t len = 0u;
-        if (FF_LinkRecv(frame, (uint16_t)sizeof(frame), &len, 200u) == FF_SUCCESS)
-        {
-            if (len >= FF_PUS_TC_SEC_HDR_LEN)
-            {
+        if (FF_LinkRecv(frame, (uint16_t)sizeof(frame), &len, 200u) == FF_SUCCESS) {
+            if (len >= FF_PUS_TC_SEC_HDR_LEN) {
                 (void)FF_PusIngest(frame, len);
             }
-            else
-            {
+            else {
                 (void)FF_EvsSend(FF_EVS_PUS_TC_ERR, FF_EVS_WARNING, app,
                                  "short TC frame (%u bytes)", (unsigned)len);
             }

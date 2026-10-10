@@ -26,16 +26,17 @@
 
 typedef struct
 {
-    const char  *name;
+    const char *name;
     FF_Status_t (*init)(void);
     FF_Status_t (*encode_tm)(const FF_Pus_TmHdr_t *hdr, const uint8_t *data, uint16_t data_len,
                              uint8_t *out, size_t out_cap, uint16_t *out_len);
-    FF_Status_t (*decode_tc)(const uint8_t *raw, uint16_t len, uint16_t *apid,
-                             FF_Pus_TcHdr_t *hdr, const uint8_t **data, uint16_t *data_len);
+    FF_Status_t (*decode_tc)(const uint8_t *raw, uint16_t len, uint16_t *apid, FF_Pus_TcHdr_t *hdr,
+                             const uint8_t **data, uint16_t *data_len);
 } FF_Pus_Backend_t;
 
 typedef void (*FF_Pus_TmSink_t)(const uint8_t *packet, uint16_t len);
-typedef FF_Status_t (*FF_Pus_Handler_t)(const FF_Pus_TcHdr_t *tc, const uint8_t *data, uint16_t len);
+typedef FF_Status_t (*FF_Pus_Handler_t)(const FF_Pus_TcHdr_t *tc, const uint8_t *data,
+                                        uint16_t len);
 typedef FF_Status_t (*FF_Pus_DataProvider_t)(uint8_t id, uint8_t *out, uint16_t *len);
 typedef FF_Status_t (*FF_Pus_ParamSetter_t)(uint8_t id, const uint8_t *data, uint16_t len);
 typedef FF_Status_t (*FF_Pus_FunctionHandler_t)(const uint8_t *args, uint16_t len);
@@ -44,15 +45,14 @@ typedef FF_Status_t (*FF_Pus_FunctionHandler_t)(const uint8_t *args, uint16_t le
 FF_Status_t FF_PusInit(void);
 FF_Status_t FF_PusSetBackend(const FF_Pus_Backend_t *backend);
 const FF_Pus_Backend_t *FF_PusGetBackend(void);
-void        FF_PusSetTmSink(FF_Pus_TmSink_t sink);
+void FF_PusSetTmSink(FF_Pus_TmSink_t sink);
 
 /* ---- Telecommand ingestion and telemetry emission ---------------- */
 FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len);
 FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *data, uint16_t len);
-FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage,
-                                   uint8_t success, uint8_t code);
-FF_Status_t FF_PusEmitEvent(uint16_t event_id, uint8_t evs_type,
-                            const uint8_t *data, uint16_t len);
+FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
+                                   uint8_t code);
+FF_Status_t FF_PusEmitEvent(uint16_t event_id, uint8_t evs_type, const uint8_t *data, uint16_t len);
 
 /* ---- Registration ------------------------------------------------- */
 FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Handler_t handler);

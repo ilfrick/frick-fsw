@@ -16,12 +16,10 @@ static FF_Status_t uart_init(void)
 {
     struct termios tio;
     g_fd = open(FF_LINK_UART_DEVICE, O_RDWR | O_NOCTTY);
-    if (g_fd < 0)
-    {
+    if (g_fd < 0) {
         return FF_ERROR;
     }
-    if (tcgetattr(g_fd, &tio) == 0)
-    {
+    if (tcgetattr(g_fd, &tio) == 0) {
         cfmakeraw(&tio);
         cfsetispeed(&tio, B115200);
         cfsetospeed(&tio, B115200);
@@ -32,7 +30,9 @@ static FF_Status_t uart_init(void)
 
 static FF_Status_t uart_send(const uint8_t *data, uint16_t len)
 {
-    if (g_fd < 0) { return FF_NOT_READY; }
+    if (g_fd < 0) {
+        return FF_NOT_READY;
+    }
     ssize_t w = write(g_fd, data, len);
     return (w == (ssize_t)len) ? FF_SUCCESS : FF_ERROR;
 }
@@ -40,10 +40,11 @@ static FF_Status_t uart_send(const uint8_t *data, uint16_t len)
 static FF_Status_t uart_recv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
 {
     (void)timeout_ms;
-    if (g_fd < 0) { return FF_NOT_READY; }
+    if (g_fd < 0) {
+        return FF_NOT_READY;
+    }
     ssize_t r = read(g_fd, data, cap);
-    if (r < 0)
-    {
+    if (r < 0) {
         *len = 0u;
         return (errno == EAGAIN) ? FF_TIMEOUT : FF_ERROR;
     }

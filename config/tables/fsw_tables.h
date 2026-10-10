@@ -24,7 +24,7 @@ typedef struct
     uint16_t watchdog_timeout_s;
 } FF_MissionCfg_t;
 
-FF_Status_t              FF_MissionTablesInit(void);
-const FF_MissionCfg_t   *FF_GetMissionCfg(void);
+FF_Status_t FF_MissionTablesInit(void);
+const FF_MissionCfg_t *FF_GetMissionCfg(void);
 
 #endif /* FF_FSW_TABLES_H */

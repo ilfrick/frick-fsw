@@ -31,8 +31,8 @@ FF_Status_t FF_BoardInit(void)
      *  - UART console is opened by the link layer.
      * Device tree: board/mpfs-rtpfs160zt.dts
      */
-    FF_PalLog("board: %s booting (HSS released U54 hart %u)\n",
-              FF_BoardName(), (unsigned)FF_MPFS_BOOT_HARTID);
+    FF_PalLog("board: %s booting (HSS released U54 hart %u)\n", FF_BoardName(),
+              (unsigned)FF_MPFS_BOOT_HARTID);
     return FF_SUCCESS;
 #else
     FF_PalLog("board: host simulator (no hardware)\n");

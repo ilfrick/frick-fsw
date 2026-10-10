@@ -18,51 +18,51 @@
 #include <time.h>
 #include <errno.h>
 
-#define FF_PAL_MAX_TASKS    32u
-#define FF_PAL_MAX_MUTEXES  32u
-#define FF_PAL_MAX_QUEUES   32u
+#define FF_PAL_MAX_TASKS 32u
+#define FF_PAL_MAX_MUTEXES 32u
+#define FF_PAL_MAX_QUEUES 32u
 #define FF_PAL_MAX_QUEUE_DEPTH 32u
-#define FF_PAL_MAX_ITEM_SIZE   1024u
+#define FF_PAL_MAX_ITEM_SIZE 1024u
 
 typedef struct
 {
-    bool               used;
-    pthread_t          thread;
-    FF_PalTaskFunc_t   fn;
-    void              *arg;
-    char               name[FF_PAL_NAME_LEN];
+    bool used;
+    pthread_t thread;
+    FF_PalTaskFunc_t fn;
+    void *arg;
+    char name[FF_PAL_NAME_LEN];
 } ff_task_slot_t;
 
 typedef struct
 {
-    bool              used;
-    pthread_mutex_t   mtx;
-    char              name[FF_PAL_NAME_LEN];
+    bool used;
+    pthread_mutex_t mtx;
+    char name[FF_PAL_NAME_LEN];
 } ff_mutex_slot_t;
 
 typedef struct
 {
-    bool              used;
-    char              name[FF_PAL_NAME_LEN];
-    pthread_mutex_t   mtx;
-    pthread_cond_t    not_empty;
-    pthread_cond_t    not_full;
-    uint16_t          depth;
-    uint16_t          item_size;
-    uint16_t          head;
-    uint16_t          tail;
-    uint16_t          count;
-    uint64_t          dropped;
-    uint8_t           storage[FF_PAL_MAX_QUEUE_DEPTH][FF_PAL_MAX_ITEM_SIZE];
+    bool used;
+    char name[FF_PAL_NAME_LEN];
+    pthread_mutex_t mtx;
+    pthread_cond_t not_empty;
+    pthread_cond_t not_full;
+    uint16_t depth;
+    uint16_t item_size;
+    uint16_t head;
+    uint16_t tail;
+    uint16_t count;
+    uint64_t dropped;
+    uint8_t storage[FF_PAL_MAX_QUEUE_DEPTH][FF_PAL_MAX_ITEM_SIZE];
 } ff_queue_slot_t;
 
-static ff_task_slot_t  g_tasks[FF_PAL_MAX_TASKS];
+static ff_task_slot_t g_tasks[FF_PAL_MAX_TASKS];
 static ff_mutex_slot_t g_mutexes[FF_PAL_MAX_MUTEXES];
 static ff_queue_slot_t g_queues[FF_PAL_MAX_QUEUES];
 
 static pthread_mutex_t g_alloc_lock = PTHREAD_MUTEX_INITIALIZER;
-static int64_t         g_utc_offset_ns = 0;
-static bool            g_initialized = false;
+static int64_t g_utc_offset_ns = 0;
+static bool g_initialized = false;
 
 /* ------------------------------------------------------------------ */
 
@@ -76,10 +76,9 @@ static uint64_t ff_now_ns(void)
 static void ff_abs_deadline(struct timespec *ts, uint32_t timeout_ms)
 {
     clock_gettime(CLOCK_MONOTONIC, ts);
-    ts->tv_sec  += (time_t)(timeout_ms / 1000u);
+    ts->tv_sec += (time_t)(timeout_ms / 1000u);
     ts->tv_nsec += (long)((timeout_ms % 1000u) * 1000000u);
-    if (ts->tv_nsec >= 1000000000L)
-    {
+    if (ts->tv_nsec >= 1000000000L) {
         ts->tv_sec += 1;
         ts->tv_nsec -= 1000000000L;
     }
@@ -89,8 +88,7 @@ static void ff_abs_deadline(struct timespec *ts, uint32_t timeout_ms)
 
 FF_Status_t FF_PalInit(void)
 {
-    if (g_initialized)
-    {
+    if (g_initialized) {
         return FF_SUCCESS;
     }
     memset(g_tasks, 0, sizeof(g_tasks));
@@ -103,7 +101,10 @@ FF_Status_t FF_PalInit(void)
 }
 
 #ifndef FRICK_PLATFORM_MPFS
-FF_Status_t FF_PalPlatformInit(void) { return FF_SUCCESS; }
+FF_Status_t FF_PalPlatformInit(void)
+{
+    return FF_SUCCESS;
+}
 #endif
 
 void FF_PalShutdown(void)
@@ -120,30 +121,27 @@ static void *ff_task_trampoline(void *arg)
     return NULL;
 }
 
-FF_Status_t FF_PalTaskCreate(FF_TaskId_t *id, const char *name, FF_PalTaskFunc_t fn,
-                             void *arg, uint32_t stack_bytes, uint8_t priority)
+FF_Status_t FF_PalTaskCreate(FF_TaskId_t *id, const char *name, FF_PalTaskFunc_t fn, void *arg,
+                             uint32_t stack_bytes, uint8_t priority)
 {
     FF_TaskId_t idx;
     (void)stack_bytes;
 
-    if ((id == NULL) || (fn == NULL))
-    {
+    if ((id == NULL) || (fn == NULL)) {
         return FF_INVALID_ARGUMENT;
     }
 
     pthread_mutex_lock(&g_alloc_lock);
-    for (idx = 0; (idx < FF_PAL_MAX_TASKS) && g_tasks[idx].used; idx++)
-    {
+    for (idx = 0; (idx < FF_PAL_MAX_TASKS) && g_tasks[idx].used; idx++) {
         /* find a free slot */
     }
-    if (idx >= FF_PAL_MAX_TASKS)
-    {
+    if (idx >= FF_PAL_MAX_TASKS) {
         pthread_mutex_unlock(&g_alloc_lock);
         return FF_NO_RESOURCE;
     }
     g_tasks[idx].used = true;
-    g_tasks[idx].fn   = fn;
-    g_tasks[idx].arg  = arg;
+    g_tasks[idx].fn = fn;
+    g_tasks[idx].arg = arg;
     strncpy(g_tasks[idx].name, name != NULL ? name : "task", FF_PAL_NAME_LEN - 1);
     pthread_mutex_unlock(&g_alloc_lock);
 
@@ -151,15 +149,13 @@ FF_Status_t FF_PalTaskCreate(FF_TaskId_t *id, const char *name, FF_PalTaskFunc_t
         pthread_attr_t attr;
         struct sched_param sp;
         pthread_attr_init(&attr);
-        if (stack_bytes > 0)
-        {
+        if (stack_bytes > 0) {
             (void)pthread_attr_setstacksize(&attr, stack_bytes);
         }
         memset(&sp, 0, sizeof(sp));
         sp.sched_priority = (int)priority;
         (void)pthread_attr_setschedparam(&attr, &sp);
-        if (pthread_create(&g_tasks[idx].thread, &attr, ff_task_trampoline, &g_tasks[idx]) != 0)
-        {
+        if (pthread_create(&g_tasks[idx].thread, &attr, ff_task_trampoline, &g_tasks[idx]) != 0) {
             pthread_attr_destroy(&attr);
             g_tasks[idx].used = false;
             return FF_ERROR;
@@ -176,8 +172,7 @@ FF_Status_t FF_PalTaskCreate(FF_TaskId_t *id, const char *name, FF_PalTaskFunc_t
 
 FF_Status_t FF_PalTaskDelete(FF_TaskId_t id)
 {
-    if (id >= FF_PAL_MAX_TASKS || !g_tasks[id].used)
-    {
+    if (id >= FF_PAL_MAX_TASKS || !g_tasks[id].used) {
         return FF_NOT_FOUND;
     }
     pthread_cancel(g_tasks[id].thread);
@@ -189,22 +184,29 @@ FF_Status_t FF_PalTaskDelete(FF_TaskId_t id)
 void FF_PalTaskDelayMs(uint32_t ms)
 {
     struct timespec ts;
-    ts.tv_sec  = (time_t)(ms / 1000u);
+    ts.tv_sec = (time_t)(ms / 1000u);
     ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
     nanosleep(&ts, NULL);
 }
 
-void FF_PalTaskDelayTicks(uint32_t ticks) { FF_PalTaskDelayMs(ticks); }
-void FF_PalTaskYield(void) { sched_yield(); }
-void FF_PalTaskExit(void) { pthread_exit(NULL); }
+void FF_PalTaskDelayTicks(uint32_t ticks)
+{
+    FF_PalTaskDelayMs(ticks);
+}
+void FF_PalTaskYield(void)
+{
+    sched_yield();
+}
+void FF_PalTaskExit(void)
+{
+    pthread_exit(NULL);
+}
 
 FF_TaskId_t FF_PalTaskSelf(void)
 {
     pthread_t me = pthread_self();
-    for (FF_TaskId_t i = 0; i < FF_PAL_MAX_TASKS; i++)
-    {
-        if (g_tasks[i].used && pthread_equal(g_tasks[i].thread, me))
-        {
+    for (FF_TaskId_t i = 0; i < FF_PAL_MAX_TASKS; i++) {
+        if (g_tasks[i].used && pthread_equal(g_tasks[i].thread, me)) {
             return i;
         }
     }
@@ -216,16 +218,13 @@ FF_TaskId_t FF_PalTaskSelf(void)
 FF_Status_t FF_PalMutexCreate(FF_MutexId_t *id, const char *name)
 {
     FF_MutexId_t idx;
-    if (id == NULL)
-    {
+    if (id == NULL) {
         return FF_INVALID_ARGUMENT;
     }
     pthread_mutex_lock(&g_alloc_lock);
-    for (idx = 0; (idx < FF_PAL_MAX_MUTEXES) && g_mutexes[idx].used; idx++)
-    {
+    for (idx = 0; (idx < FF_PAL_MAX_MUTEXES) && g_mutexes[idx].used; idx++) {
     }
-    if (idx >= FF_PAL_MAX_MUTEXES)
-    {
+    if (idx >= FF_PAL_MAX_MUTEXES) {
         pthread_mutex_unlock(&g_alloc_lock);
         return FF_NO_RESOURCE;
     }
@@ -240,16 +239,13 @@ FF_Status_t FF_PalMutexCreate(FF_MutexId_t *id, const char *name)
 FF_Status_t FF_PalMutexLock(FF_MutexId_t id, uint32_t timeout_ms)
 {
     int rc;
-    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used)
-    {
+    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used) {
         return FF_NOT_FOUND;
     }
-    if (timeout_ms == FF_PAL_WAIT_FOREVER)
-    {
+    if (timeout_ms == FF_PAL_WAIT_FOREVER) {
         rc = pthread_mutex_lock(&g_mutexes[id].mtx);
     }
-    else
-    {
+    else {
         struct timespec ts;
         ff_abs_deadline(&ts, timeout_ms);
         rc = pthread_mutex_timedlock(&g_mutexes[id].mtx, &ts);
@@ -259,8 +255,7 @@ FF_Status_t FF_PalMutexLock(FF_MutexId_t id, uint32_t timeout_ms)
 
 FF_Status_t FF_PalMutexUnlock(FF_MutexId_t id)
 {
-    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used)
-    {
+    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used) {
         return FF_NOT_FOUND;
     }
     return (pthread_mutex_unlock(&g_mutexes[id].mtx) == 0) ? FF_SUCCESS : FF_ERROR;
@@ -268,8 +263,7 @@ FF_Status_t FF_PalMutexUnlock(FF_MutexId_t id)
 
 FF_Status_t FF_PalMutexDelete(FF_MutexId_t id)
 {
-    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used)
-    {
+    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used) {
         return FF_NOT_FOUND;
     }
     pthread_mutex_destroy(&g_mutexes[id].mtx);
@@ -279,28 +273,26 @@ FF_Status_t FF_PalMutexDelete(FF_MutexId_t id)
 
 /* ---- Queues ------------------------------------------------------ */
 
-FF_Status_t FF_PalQueueCreate(FF_QueueId_t *id, const char *name, uint16_t depth, uint16_t item_size)
+FF_Status_t FF_PalQueueCreate(FF_QueueId_t *id, const char *name, uint16_t depth,
+                              uint16_t item_size)
 {
     FF_QueueId_t idx;
-    if ((id == NULL) || (depth == 0u) || (item_size == 0u) ||
-        (depth > FF_PAL_MAX_QUEUE_DEPTH) || (item_size > FF_PAL_MAX_ITEM_SIZE))
-    {
+    if ((id == NULL) || (depth == 0u) || (item_size == 0u) || (depth > FF_PAL_MAX_QUEUE_DEPTH) ||
+        (item_size > FF_PAL_MAX_ITEM_SIZE)) {
         return FF_INVALID_ARGUMENT;
     }
     pthread_mutex_lock(&g_alloc_lock);
-    for (idx = 0; (idx < FF_PAL_MAX_QUEUES) && g_queues[idx].used; idx++)
-    {
+    for (idx = 0; (idx < FF_PAL_MAX_QUEUES) && g_queues[idx].used; idx++) {
     }
-    if (idx >= FF_PAL_MAX_QUEUES)
-    {
+    if (idx >= FF_PAL_MAX_QUEUES) {
         pthread_mutex_unlock(&g_alloc_lock);
         return FF_NO_RESOURCE;
     }
     {
         ff_queue_slot_t *q = &g_queues[idx];
         memset(q, 0, sizeof(*q));
-        q->used      = true;
-        q->depth     = depth;
+        q->used = true;
+        q->depth = depth;
         q->item_size = item_size;
         strncpy(q->name, name != NULL ? name : "q", FF_PAL_NAME_LEN - 1);
         pthread_mutex_init(&q->mtx, NULL);
@@ -316,32 +308,26 @@ FF_Status_t FF_PalQueuePut(FF_QueueId_t id, const void *item, uint32_t timeout_m
 {
     ff_queue_slot_t *q;
     int rc = 0;
-    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL)
-    {
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL) {
         return FF_NOT_FOUND;
     }
     q = &g_queues[id];
     pthread_mutex_lock(&q->mtx);
-    while (q->count >= q->depth)
-    {
-        if (timeout_ms == 0u)
-        {
+    while (q->count >= q->depth) {
+        if (timeout_ms == 0u) {
             q->dropped++;
             pthread_mutex_unlock(&q->mtx);
             return FF_BUFFER_FULL;
         }
-        if (timeout_ms == FF_PAL_WAIT_FOREVER)
-        {
+        if (timeout_ms == FF_PAL_WAIT_FOREVER) {
             rc = pthread_cond_wait(&q->not_full, &q->mtx);
         }
-        else
-        {
+        else {
             struct timespec ts;
             ff_abs_deadline(&ts, timeout_ms);
             rc = pthread_cond_timedwait(&q->not_full, &q->mtx, &ts);
         }
-        if (rc == ETIMEDOUT)
-        {
+        if (rc == ETIMEDOUT) {
             q->dropped++;
             pthread_mutex_unlock(&q->mtx);
             return FF_TIMEOUT;
@@ -359,31 +345,25 @@ FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms)
 {
     ff_queue_slot_t *q;
     int rc = 0;
-    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL)
-    {
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL) {
         return FF_NOT_FOUND;
     }
     q = &g_queues[id];
     pthread_mutex_lock(&q->mtx);
-    while (q->count == 0u)
-    {
-        if (timeout_ms == 0u)
-        {
+    while (q->count == 0u) {
+        if (timeout_ms == 0u) {
             pthread_mutex_unlock(&q->mtx);
             return FF_TIMEOUT;
         }
-        if (timeout_ms == FF_PAL_WAIT_FOREVER)
-        {
+        if (timeout_ms == FF_PAL_WAIT_FOREVER) {
             rc = pthread_cond_wait(&q->not_empty, &q->mtx);
         }
-        else
-        {
+        else {
             struct timespec ts;
             ff_abs_deadline(&ts, timeout_ms);
             rc = pthread_cond_timedwait(&q->not_empty, &q->mtx, &ts);
         }
-        if (rc == ETIMEDOUT)
-        {
+        if (rc == ETIMEDOUT) {
             pthread_mutex_unlock(&q->mtx);
             return FF_TIMEOUT;
         }
@@ -398,8 +378,7 @@ FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms)
 
 FF_Status_t FF_PalQueueDelete(FF_QueueId_t id)
 {
-    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used)
-    {
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used) {
         return FF_NOT_FOUND;
     }
     pthread_mutex_lock(&g_queues[id].mtx);
@@ -414,8 +393,7 @@ FF_Status_t FF_PalQueueDelete(FF_QueueId_t id)
 uint16_t FF_PalQueueCount(FF_QueueId_t id)
 {
     uint16_t n;
-    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used)
-    {
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used) {
         return 0u;
     }
     pthread_mutex_lock(&g_queues[id].mtx);
@@ -426,14 +404,23 @@ uint16_t FF_PalQueueCount(FF_QueueId_t id)
 
 /* ---- Time -------------------------------------------------------- */
 
-uint64_t FF_PalGetMonotonicNs(void) { return ff_now_ns(); }
-uint64_t FF_PalGetUtcNs(void) { return (uint64_t)((int64_t)ff_now_ns() + g_utc_offset_ns); }
+uint64_t FF_PalGetMonotonicNs(void)
+{
+    return ff_now_ns();
+}
+uint64_t FF_PalGetUtcNs(void)
+{
+    return (uint64_t)((int64_t)ff_now_ns() + g_utc_offset_ns);
+}
 FF_Status_t FF_PalSetUtcNs(uint64_t utc_ns)
 {
     g_utc_offset_ns = (int64_t)utc_ns - (int64_t)ff_now_ns();
     return FF_SUCCESS;
 }
-uint32_t FF_PalGetCpuLoadPpt(void) { return 0u; }
+uint32_t FF_PalGetCpuLoadPpt(void)
+{
+    return 0u;
+}
 
 /* ---- Console ----------------------------------------------------- */
 

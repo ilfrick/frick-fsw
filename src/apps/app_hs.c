@@ -28,7 +28,8 @@ static void ff_hs_reset(void)
 /* Exposed as PUS service 8 function #1. */
 static FF_Status_t ff_hs_fn_reset(const uint8_t *args, uint16_t len)
 {
-    (void)args; (void)len;
+    (void)args;
+    (void)len;
     ff_hs_reset();
     return FF_SUCCESS; /* not reached */
 }
@@ -40,15 +41,12 @@ void FF_AppHsMain(void *arg)
 
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "HS app monitoring");
 
-    for (;;)
-    {
+    for (;;) {
         /* Watchdog style check: every app must still be RUNNING. */
-        for (FF_AppId_t id = 1u; id <= (FF_AppId_t)FF_EsGetAppCount(); id++)
-        {
-            if (FF_EsGetState(id) == FF_APP_FAILED)
-            {
-                (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, app,
-                                 "HS: app %u failed", (unsigned)id);
+        for (FF_AppId_t id = 1u; id <= (FF_AppId_t)FF_EsGetAppCount(); id++) {
+            if (FF_EsGetState(id) == FF_APP_FAILED) {
+                (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, app, "HS: app %u failed",
+                                 (unsigned)id);
             }
         }
 

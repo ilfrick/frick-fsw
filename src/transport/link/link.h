@@ -15,17 +15,17 @@
 
 typedef struct
 {
-    const char  *name;
+    const char *name;
     FF_Status_t (*init)(void);
     FF_Status_t (*send)(const uint8_t *data, uint16_t len);
     FF_Status_t (*recv)(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms);
 } FF_Link_t;
 
-FF_Status_t      FF_LinkInit(void);
-FF_Status_t      FF_LinkSelect(const FF_Link_t *link);
+FF_Status_t FF_LinkInit(void);
+FF_Status_t FF_LinkSelect(const FF_Link_t *link);
 const FF_Link_t *FF_LinkGet(void);
-FF_Status_t      FF_LinkSend(const uint8_t *data, uint16_t len);
-FF_Status_t      FF_LinkRecv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms);
+FF_Status_t FF_LinkSend(const uint8_t *data, uint16_t len);
+FF_Status_t FF_LinkRecv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms);
 
 /* Loopback helpers (simulator + unit tests) */
 FF_Status_t FF_LinkLoopbackPush(const uint8_t *data, uint16_t len);

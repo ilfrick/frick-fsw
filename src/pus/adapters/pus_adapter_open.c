@@ -29,8 +29,8 @@ static FF_Status_t open_decode_tc(const uint8_t *raw, uint16_t len, uint16_t *ap
 }
 
 const FF_Pus_Backend_t FF_PusBackendOpen = {
-    .name      = "open",
-    .init      = open_init,
+    .name = "open",
+    .init = open_init,
     .encode_tm = open_encode_tm,
     .decode_tc = open_decode_tc,
 };

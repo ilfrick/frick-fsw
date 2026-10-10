@@ -28,8 +28,7 @@ void FF_AppTmOutputMain(void *arg)
 {
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "TO app telemetry sink installed");
-    for (;;)
-    {
+    for (;;) {
         FF_PalTaskDelayMs(1000u);
     }
 }

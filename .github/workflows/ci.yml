@@ -83,8 +83,9 @@ jobs:
         run: |
           set -o pipefail
           timeout 8 ./build/frick_fsw 2>&1 | tee /tmp/smoke.log || true
-          grep -q "applications registered" /tmp/smoke.log || (echo "APP REGISTRATION NOT FOUND" && exit 1)
-          grep -q "=" /tmp/smoke.log && echo "simulator banner seen"
+          grep -q "applications registered" /tmp/smoke.log || { echo "APP REGISTRATION NOT FOUND"; exit 1; }
+          grep -q "frick-fsw" /tmp/smoke.log || { echo "BANNER NOT FOUND"; exit 1; }
+          echo "simulator smoke: OK"
 
   # evidence: ci-lean (norm N1; not claimed in manifest but reported)
   verify-lean:
