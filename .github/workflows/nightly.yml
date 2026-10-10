@@ -6,6 +6,8 @@
 # riscv/mpfs64imafdc) with rtems-source-builder and performs the real cross
 # build and documentation of the result in docs/vv/verification-results.md.
 #
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 name: nightly
 

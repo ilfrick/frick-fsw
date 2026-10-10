@@ -5,6 +5,8 @@
  * of the cFS Executive Services. Applications are described by a static
  * FF_AppConfig_t and started as deterministic tasks of the PAL.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_ES_H

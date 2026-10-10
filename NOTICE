@@ -1,0 +1,26 @@
+frick-fsw - copyright and license notice
+=========================================
+
+Copyright (C) 2026 Ilfrick
+
+  GitHub: https://github.com/ilfrick/frick-fsw
+  Gitea:  https://www.housefz.com/git/ilfrick/frick-fsw
+
+frick-fsw is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free Software
+Foundation, version 3 of the License, or (at your option) any later version.
+The full license text is in `LICENSE` (`AGPL-3.0-only`).
+
+Every authored source, configuration and documentation file carries a header of
+the form:
+
+    Copyright (C) 2026 Ilfrick
+    https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+    SPDX-License-Identifier: AGPL-3.0-only
+
+Third-party components (toolchains, libraries, container images, standards
+references) are **not** relicensed: each retains its own copyright and license,
+and only permissive, AGPL-compatible material is used. The compatibility
+analysis is maintained in `docs/quality/licensing.md`.
+
+SPDX identifier: AGPL-3.0-only

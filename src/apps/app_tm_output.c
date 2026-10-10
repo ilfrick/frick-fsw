@@ -4,6 +4,8 @@
  * Installs the PUS telemetry sink that pushes encoded TM packets onto the
  * link. Analogue of the cFS Telemetry Output lab application.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "app.h"

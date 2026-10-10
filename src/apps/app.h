@@ -4,6 +4,8 @@
  * Every application is a task registered with Executive Services. The
  * signature matches FF_PalTaskFunc_t so it can be handed directly to ES.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_APP_H

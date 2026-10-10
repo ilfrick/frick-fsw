@@ -9,6 +9,8 @@
 # Result: $RTEMS_HOME/rtems/6/bin/riscv-rtems6-gcc (RTEMS_HOME defaults to
 #         /opt/rtems; the CMake toolchain file reads the same variable)
 #
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 set -euo pipefail
 

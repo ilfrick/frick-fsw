@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ARCH-0003 |
 | ----------- | --------------- |
-| Revision    | 0.1 |
+| Revision    | 0.1.1 |
 | Date        | 2026-10-10 |
 
 ## 1. Purpose
@@ -43,7 +43,30 @@ typedef struct FF_Pus_Backend {
 PUS secondary header + CRC) and forwards it to the registered TM sink
 (`FF_PusSetTmSink`) which the link layer consumes.
 
-## 5. Implemented services (open backend)
+## 5. TC/TM sequence (Mermaid)
+
+```mermaid
+sequenceDiagram
+    participant GS as Ground station
+    participant LNK as Link layer
+    participant PUS as PUS layer
+    participant SVC as Service handler
+    participant SB as Software Bus
+    participant EVS as Event Services
+
+    GS->>LNK: TC frame - CCSDS Space Packet
+    LNK->>PUS: FF_PusIngest
+    PUS->>PUS: decode and S1 acceptance verification
+    PUS->>SVC: dispatch service and subservice
+    SVC->>SB: publish or subscribe
+    SVC-->>PUS: handler result
+    PUS->>EVS: report event
+    EVS->>PUS: FF_PusEmitEvent S5 telemetry
+    PUS->>LNK: S1 completion and S5 TM
+    LNK->>GS: TM frames
+```
+
+## 6. Implemented services (open backend)
 
 | Service | Content |
 | ------- | ------- |
@@ -56,13 +79,20 @@ PUS secondary header + CRC) and forwards it to the registered TM sink
 | 17 | Test: connection test (ping/pong) |
 | 20 | Parameter: report (table-backed) |
 
-## 6. Formal model
+## 7. Formal model
 
 `Frick.Pus` (Lean) proves the verification-count and counter-monotonicity
 contracts of dispatch; `Frick.Ccsds` mirrors the codec
 (SRS-REQ-006/007/003/004).
 
-## 7. Traceability
+## 8. Traceability
 
 SSS-REQ-003/004/005/006/007/014/015 and the SRS-REQ-00x links in
 `docs/requirements/traceability.yaml`.
+
+## 9. History
+
+| Rev   | Date       | Author    | Reason |
+| ----- | ---------- | --------- | ------ |
+| 0.1   | 2026-10-10 | frick-fsw | Initial PUS layer architecture |
+| 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid TC/TM sequence diagram (norm N8) |

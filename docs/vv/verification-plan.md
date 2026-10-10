@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.1.1                                  |
 | Date                              | 2026-10-10                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12  |
@@ -26,7 +26,76 @@ development and verification cycle, and the results are recorded in
 - Product assurance: ECSS-Q-ST-80C (independence, tool qualification,
   non-conformance management).
 
-## 3. V&V environment
+## 3. Process on the V-model
+
+The left branch defines and decomposes the product; the right branch integrates
+and verifies it. The horizontal links are the verification relations that
+ECSS-E-ST-40C requires; the norms are placed on the element that enforces them.
+
+```mermaid
+flowchart TB
+    NEED["Mission and stakeholder needs"]
+
+    subgraph LEFT["Definition and decomposition"]
+        direction TB
+        SSS["SSS system requirements"]
+        SRS["SRS software requirements"]
+        DES["Architecture and detailed design"]
+        IMP["Implementation - C, config, tables"]
+    end
+
+    subgraph RIGHT["Integration and verification"]
+        direction TB
+        ACC["Acceptance and validation"]
+        SYST["System verification - SRS and SSS"]
+        INT["Integration verification"]
+        UNIT["Unit verification"]
+    end
+
+    NEED --> SSS --> SRS --> DES --> IMP
+    UNIT --> INT --> SYST --> ACC
+    IMP -->|"build and unit tests"| UNIT
+    DES -.->|"integration tests"| INT
+    SRS -.->|"system tests and traceability gate"| SYST
+    SSS -.->|"validation"| ACC
+    NEED -.-> ACC
+
+    GATES["Continuous gates on every change - Lean N1, traceability N4, CI and CD N6, docs N8, independent review N9, full cycle N15, revision history N16"]
+    IMP -.- GATES
+    ACC -.- GATES
+```
+
+### V-model step mapping
+
+| Left step (definition) | Artifact | Right step (verification) | Evidence |
+| ---------------------- | -------- | ------------------------- | -------- |
+| Mission and stakeholder needs | README, mission context | Acceptance and validation | independent review (N9), mission demonstration |
+| SSS system requirements | `docs/requirements/SSS.md` (R3 review, N14) | System verification | SRS/SSS tests, traceability gate (N4) |
+| SRS software requirements | `docs/requirements/SRS.md`, Lean (N3) | System verification | `ctest`, simulator smoke, Lean theorems (N1) |
+| Architecture and detailed design | `docs/architecture/`, ADRs, ICD | Integration verification | SB/PUS integration tests, smoke |
+| Implementation | `src/`, `config/`, `tests/` | Unit verification | `ctest`, Lean theorems (N1) |
+
+### Per-change cycle (norm N15)
+
+Every change, whatever its origin, walks the V again from requirements to the
+dual CI before it is pushed (norms N7/N12/N15).
+
+```mermaid
+flowchart LR
+    CH["Change - any origin"] --> REQ["Requirements delta - SSS and SRS, traceability N3 N4"]
+    REQ --> IMPL["Implement - C sources, config, tables"]
+    IMPL --> LEAN["Lean theorems N1"]
+    LEAN --> TEST["Build, unit, integration, smoke N6"]
+    TEST --> TRACE["Traceability gate N4"]
+    TRACE --> DOC["Update docs N8 and revision history N16"]
+    DOC --> REV["Independent review N9"]
+    REV --> CI["Dual CI green - GitHub and Gitea N6"]
+    CI --> PUSH["Commit and push both remotes N7"]
+    PUSH -.->|"next change"| CH
+    PUSH -->|"non-conformance"| REQ
+```
+
+## 4. V&V environment
 
 Deployable by humans and agents, identical everywhere (norm N6/N8):
 
@@ -41,7 +110,7 @@ Deployable by humans and agents, identical everywhere (norm N6/N8):
 All test scripts are versioned in the repository (norm N11) and qualified
 (norm N10): see `docs/vv/tool-qualification.md`.
 
-## 4. Verification activities and methods
+## 5. Verification activities and methods
 
 ### Unit level (Tst / Anl)
 - `tests/unit/test_ccsds.c` - CCSDS packet build/parse, CRC, length bounds.
@@ -73,7 +142,7 @@ All test scripts are versioned in the repository (norm N11) and qualified
 - Pre-release review with the independent review agents (norm N9) and NC
   closure loop (norm N12).
 
-## 5. Verification criteria
+## 6. Verification criteria
 
 | Criteria | Criterion satisfied when |
 | -------- | ------------------------ |
@@ -86,14 +155,14 @@ All test scripts are versioned in the repository (norm N11) and qualified
 | Qualification | every V&V tool used has a QUALIFIED entry in the register |
 | Reviews | independent review reports stored and NCs closed (norm N9/N12) |
 
-## 6. Independence
+## 7. Independence
 
 Any activity that the criticality class marks as independent (norm N9) is
 performed by an independent-context agent with profile R1 or R2
 (`docs/engineering/independent-review.md`). At class B, the V&V result
 assessment and tool qualification changes are reviewed independently by R2.
 
-## 7. Result recording
+## 8. Result recording
 
 Each cycle updates `docs/vv/verification-results.md` with the executed
 activities, environment (docker tag / commit hash), results and any NC opened;
@@ -104,3 +173,4 @@ the update is committed and pushed with the cycle (norm N11).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial V&V plan (norm N6/N12) |
+| 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid V-model and per-change cycle diagrams (norm N8) |

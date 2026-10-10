@@ -8,6 +8,8 @@
 #
 # Exit code 0 always (proxy semantics); the nightly workflow fails on real
 # build errors.
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 set -uo pipefail
 

@@ -7,9 +7,10 @@ project(frick_fsw
 # ----------------------------------------------------------------------
 # Options
 # ----------------------------------------------------------------------
-option(FF_BUILD_TESTS  "Build the C unit test suite"             ON)
+option(FF_BUILD_TESTS   "Build the C unit test suite"             ON)
 option(FF_USE_PUSOPEN  "Enable the commercial PUSopen backend"    OFF)
 option(FF_ENABLE_WERROR "Treat warnings as errors"                OFF)
+option(FF_ENABLE_COVERAGE "Instrument the build for gcov coverage" OFF)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -26,6 +27,10 @@ endif()
 if(FF_USE_PUSOPEN)
   add_compile_definitions(FRICK_USE_PUSOPEN=1)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/pusopen)
+endif()
+if(FF_ENABLE_COVERAGE)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
 endif()
 
 # ----------------------------------------------------------------------

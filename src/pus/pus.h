@@ -14,6 +14,8 @@
  * Services implemented by the reference core: 1, 3, 5, 6, 8, 9, 11 (stub),
  * 17, 20. See docs/architecture/pus-layer.md for the tailoring matrix.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_PUS_H

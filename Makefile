@@ -3,13 +3,16 @@
 # Full gates (norm N15) are aggregated by `make check`; `make ci-local` runs
 # the same cycle inside the pinned Docker V&V image (norm N6).
 #
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 
 BUILD_DIR ?= build/native
 CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
-        trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck
+        trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
+        coverage metrics coverage-configure
 
 all: build
 
@@ -72,3 +75,15 @@ format:
 
 docs:
 	doxygen Doxyfile
+
+coverage-configure:
+	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON
+
+coverage: coverage-configure
+	$(CMAKE) --build build/coverage -j$(shell nproc)
+	ctest --test-dir build/coverage --output-on-failure
+	python3 tools/scripts/coverage.py build/coverage
+
+metrics: coverage
+	python3 tools/scripts/metrics.py --readme
+	python3 tools/scripts/metrics.py

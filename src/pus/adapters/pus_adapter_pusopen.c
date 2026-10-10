@@ -9,6 +9,8 @@
  * docs/architecture/pus-layer.md, section "PUSopen integration", for how to
  * drop the PUSopen SDK into third_party/pusopen/ and enable the option.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "pus/pus.h"

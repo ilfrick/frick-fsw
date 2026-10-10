@@ -2,6 +2,8 @@
  * frick-fsw - Common types and status codes
  *
  * Part of the frick-fsw flight software architecture.
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_TYPES_H

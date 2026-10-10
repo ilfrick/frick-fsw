@@ -7,6 +7,8 @@
 #   * telemetry is produced on the loopback link (EVS -> PUS service 5).
 #
 # Exit code 0 = PASS, 1 = FAIL.
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 set -euo pipefail
 

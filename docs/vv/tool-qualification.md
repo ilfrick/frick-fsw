@@ -33,6 +33,8 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T9  | Simulator bootstrap                     | `tools/scripts/run_sim.sh`      | boot and TM evidence            | reviewed + CM              | internal                                | Traced to T4, QUALIFIED |
 | T10 | RTEMS toolchain bootstrap               | `tools/scripts/setup_rtems.sh`  | RTEMS cross toolchain           | upstream-tested + CM       | internal                                | QUALIFIED |
 | T11 | CI workflows (GH Actions / Gitea)       | `.github/workflows`, `.gitea/workflows` | pipeline evidence `ci:*` | reviewed + CM              | internal                                | QUALIFIED |
+| T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
+| T13 | Metrics panel generator                 | `tools/scripts/metrics.py`    | README coverage + V&V panel   | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 
 ## Qualification procedure (per tool)
 
@@ -66,3 +68,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.1 | 2026-10-10 | frick-fsw | Initial register T1-T11 (norm N10) |
 | 0.1.1 | 2026-10-10 | frick-fsw | Re-qualification after review-closure changes: T6 (`trace.py`) evidence-marker parser hardened and independently re-checked; T7 (`ff_gsw.py`) exercised via `--ping` self-check; T3 (`test_pus.c` S6 case) corrected and re-run |
 | 0.1.2 | 2026-10-10 | frick-fsw | Re-qualification after CI deployment fix: T1 image gains `nodejs`/`npm` (needed by Gitea `actions/checkout`); T11 workflows' smoke banner check corrected and format gate re-satisfied (`clang-format` 18 over all C sources) |
+| 0.1.3 | 2026-10-10 | frick-fsw | Re-qualification after CI fix: Gitea workflow clones the mirror explicitly (sub-path `/git`); Doxygen output dir created. New qualified tools T12 (`coverage.py`, gcov) and T13 (`metrics.py`); doc-only changes in README/guides |

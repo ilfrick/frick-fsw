@@ -6,6 +6,8 @@
  * contains the acceptance (1,1), completion (1,7) and ping reply (17,2)
  * packets.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "../ff_test.h"

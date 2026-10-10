@@ -14,6 +14,8 @@ Commands:
 Packet layout: CCSDS Space Packet with CRC-16/CCITT-FALSE trailer (see
 docs/interfaces/ICD.md).
 
+Copyright (C) 2026 Ilfrick
+https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 SPDX-License-Identifier: AGPL-3.0-only
 """
 from __future__ import annotations

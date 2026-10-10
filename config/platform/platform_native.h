@@ -1,5 +1,7 @@
 /*
  * frick-fsw - Platform configuration: native POSIX host (development / simulator)
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_PLATFORM_NATIVE_H

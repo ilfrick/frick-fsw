@@ -5,6 +5,8 @@
  * secondary header. An optional CRC-16/CCITT trailer is appended to every
  * packet, controlled by FF_FRAME_WITH_CRC.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_CCSDS_H

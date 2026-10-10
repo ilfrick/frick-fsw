@@ -5,6 +5,8 @@
  * that decouples applications. Publishers send a message identifier plus a
  * small payload; the bus copies it into the input queue of every subscriber.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_SB_H

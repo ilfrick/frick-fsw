@@ -7,6 +7,8 @@
  * controlled FF_PalPanic so the watchdog (RTEMS/monitor or system controller)
  * can step in.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "app.h"

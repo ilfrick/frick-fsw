@@ -5,6 +5,8 @@
 -- the machine-checked guarantees; this executable is a runtime smoke check
 -- used by CI.
 --
+-- Copyright (C) 2026 Ilfrick
+-- https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 -- SPDX-License-Identifier: AGPL-3.0-only
 import Frick.Requirements
 import Frick.Ccsds

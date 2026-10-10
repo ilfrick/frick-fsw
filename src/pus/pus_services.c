@@ -15,6 +15,8 @@
  *  Service 17 Test                   connection test / ping
  *  Service 20 On-board parameters    set/report parameter
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "pus.h"

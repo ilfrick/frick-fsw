@@ -4,6 +4,8 @@
  * Every tunable of the framework lives here (or in a mission table), mirroring
  * the cFS philosophy of a single, reviewable configuration point.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_FSW_CONFIG_H

@@ -4,6 +4,8 @@
  * Reads CCSDS TC frames from the link and feeds them to the PUS layer.
  * Analogue of the cFS Command Ingest lab application.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "app.h"

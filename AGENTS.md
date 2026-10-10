@@ -31,8 +31,10 @@
 | `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
-| `tools/` | scripts (`trace.py`, `setup_rtems.sh`, `run_sim.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material |
-| `docs/` | rules, requirements (SSS/SRS/traceability), architecture, ADRs, interfaces (ICD), quality (class B/A), V&V, engineering (independent review), reviews |
+| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material |
+| `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
+| `docs/` | rules, requirements (SSS/SRS/traceability), architecture, ADRs, interfaces (ICD), quality (class B/A), V&V, engineering (independent review + driver/service guides), reviews, roadmap, status |
+| `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
 | `.github/workflows/`, `.gitea/workflows/` | CI pipelines |
 | `board/` | device-tree sources (`mpfs-rtpfs160zt.dts`) |
 | `cmake/toolchains/` | RTEMS 6.2 riscv/mpfs64imafdc toolchain file |
@@ -50,6 +52,8 @@ make test                # ctest unit tests
 make run                 # boot the native simulator (6 apps)
 make verify-lean         # lake build in verification/lean
 make trace               # python3 tools/scripts/trace.py docs/requirements/traceability.yaml
+make coverage            # gcov line/function coverage -> build/coverage/coverage.json
+make metrics             # regenerate the README status panel (coverage + semaphores)
 ```
 
 RTEMS cross build (requires toolchain; `tools/scripts/setup_rtems.sh` installs

@@ -7,18 +7,22 @@
 | Revision                          | 0.1                                    |
 | Date                              | 2026-10-10                             |
 | License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
+| Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
 | Norm                              | N13 (open source; license documented, reviewed and updated) |
 
 ## 1. Decision
 
 The whole frick-fsw project is released under the **GNU Affero General Public
-License version 3** (`AGPL-3.0-only`). The canonical license text is the file
-`LICENSE` at the repository root (verbatim text from the Free Software
-Foundation).
+License version 3** (`AGPL-3.0-only`), **Copyright (C) 2026 Ilfrick**. The
+canonical license text is the file `LICENSE` at the repository root (verbatim
+text from the Free Software Foundation); the copyright holder and project links
+are also recorded in `NOTICE`.
 
-Every authored file carries the SPDX header:
+Every authored file carries the header:
 
 ```text
+Copyright (C) 2026 Ilfrick
+https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 SPDX-License-Identifier: AGPL-3.0-only
 ```
 
@@ -64,6 +68,7 @@ the same commit (norm N8):
 ## 5. SPDX expression
 
 ```text
+Copyright (C) 2026 Ilfrick (https://github.com/ilfrick/frick-fsw, https://www.housefz.com/git/ilfrick/frick-fsw)
 SPDX-License-Identifier: AGPL-3.0-only
 ```
 
@@ -71,4 +76,5 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
+| 0.2 | 2026-10-10 | frick-fsw | Add Ilfrick copyright + project links (header, `NOTICE`); norm N13/N16 |
 | 0.1 | 2026-10-10 | frick-fsw | Initial licence decision (norm N13) |

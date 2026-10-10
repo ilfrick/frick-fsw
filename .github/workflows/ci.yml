@@ -8,6 +8,8 @@
 # to validate the `ci:*` claims of docs/requirements/traceability.yaml. Rename
 # a job or a marker only together with the manifest (norm N4/N8/N10).
 #
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: AGPL-3.0-only
 name: ci
 

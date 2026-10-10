@@ -5,6 +5,8 @@
  * CCSDS Unsegmented Time Code (CUC) used inside PUS secondary headers.
  * Analogue of the cFS Time Services.
  *
+ * Copyright (C) 2026 Ilfrick
+ * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #ifndef FF_TIME_H
