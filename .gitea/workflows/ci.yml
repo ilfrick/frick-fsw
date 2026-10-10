@@ -214,6 +214,8 @@ jobs:
             "docs/engineering/coding-style.md",
             "docs/quality/misra-c.md",
             "docs/vv/emulated-target.md",
+            "docs/vv/renode-environment.md",
+            "docs/architecture/component-gap-analysis.md",
             "docs/quality/configuration-management.md",
             "docs/quality/product-assurance.md",
             "docs/quality/safety-and-fdir.md",

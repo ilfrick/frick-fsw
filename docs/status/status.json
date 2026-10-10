@@ -16,7 +16,9 @@
     "M8": "planned",
     "M9": "in progress",
     "M10": "planned",
-    "M11": "planned"
+    "M11": "planned",
+    "M12": "planned",
+    "M13": "planned"
   },
   "gates": {
     "build_and_unit_tests": "green",

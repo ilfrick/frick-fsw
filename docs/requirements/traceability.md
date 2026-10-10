@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.13                                   |
+| Revision                          | 0.14                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,9 +15,11 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 45, SSS = 21, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 47, SSS = 23, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
-is reported in CI but not claimed by any requirement, norm N1).
+is reported in CI but not claimed by any requirement, norm N1). Four of the
+requirements (SRS-REQ-045/046, SSS-REQ-022/023) are **planned** (M12/M13): they
+are documented-only, with `ci:docs` as evidence until their implementation lands.
 
 ## 1. Top-down matrix (SSS -> SRS)
 
@@ -44,6 +46,8 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-019 (data-link security) | SRS-REQ-034, SRS-REQ-035 |
 | SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040 |
 | SSS-REQ-021 (code quality) | SRS-REQ-041, SRS-REQ-042 |
+| SSS-REQ-022 (on-board autonomy / OBCP) | SRS-REQ-045 |
+| SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -93,6 +97,9 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-041 | docs/quality/misra-c.md, tools/scripts/misra.sh | ci:misra | - | MISRA C:2012 compliance (M9) |
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
 | SRS-REQ-043 | tools/scripts/emulated_run.sh, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10) |
+| SRS-REQ-044 | tools/docker/renode/, tools/scripts/renode_vv.sh, src/apps/app_renode_test.c | ci:renode | - | Renode functional validation, N18 in force (M10) |
+| SRS-REQ-045 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | OBCP engine uPython/MicroPython (planned, M12) |
+| SRS-REQ-046 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | Reference mission services (planned, M13) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -123,6 +130,9 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-018 | math/ff_math.c/h | test_math.c | - |
 | SSS-REQ-019 | security/ff_sdls.c/h | test_sdls.c | req_srs035_epoch_monotonic |
 | SSS-REQ-020 | drivers/eth/gem/ff_gem.c, CMakeLists.txt | test_gem.c | - |
+| SSS-REQ-021 | .clang-format, docs/engineering/coding-style.md, docs/quality/misra-c.md | ci:static-analysis | - |
+| SSS-REQ-022 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - |
+| SSS-REQ-023 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -168,3 +178,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.11 | 2026-10-10 | frick-fsw | M9: SRS-REQ-041/042 code quality; counts 43/21/14 |
 | 0.12 | 2026-10-10 | frick-fsw | M10: SRS-REQ-043 emulated-target verification; counts 44/21/14 |
 | 0.13 | 2026-10-10 | frick-fsw | N18/M10: SRS-REQ-044 Renode environment; counts 45/21/14 |
+| 0.14 | 2026-10-10 | frick-fsw | M12/M13: SSS-REQ-022/023, SRS-REQ-045/046 (OBCP engine, reference mission services); counts 47/23/14 |

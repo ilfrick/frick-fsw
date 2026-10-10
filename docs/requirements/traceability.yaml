@@ -423,6 +423,24 @@ requirements:
     lean: []
     lean_note: "Renode functional-validation environment (norm N18): the middleware test application emits RENODE_TEST: PASS on the emulated PolarFire SoC. Gate is in force (verified on the real open RTEMS 6.2 image); per-commit runners without the image record a SKIP proxy and the nightly performs the real run."
 
+  - id: SRS-REQ-045
+    level: srs
+    parent_sss: SSS-REQ-022
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "OBCP engine for uPython/MicroPython On-Board Control Procedures (milestone M12). First integration candidate: n7space/n7s-obcp (MicroPython-based, MIT, ESA-funded); if not integrable, develop an ECSS-compliant engine (ECSS-E-ST-70 series). Planned; no code in this baseline."
+
+  - id: SRS-REQ-046
+    level: srs
+    parent_sss: SSS-REQ-023
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference mission services (equipment manager + fault management: limit checker, stored command, memory/file management) on the PUS, as optional reference applications/middleware services (milestone M13). Planned."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -582,6 +600,22 @@ requirements:
     tests: ["ci:static-analysis"]
     lean: []
     lean_note: "Code-quality process (declared coding style + MISRA C:2012); verified by the format gate and the MISRA scan (norm N10)."
+
+  - id: SSS-REQ-022
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "On-board autonomy: execution of user-provided On-Board Control Procedures (OBCP) in uPython/MicroPython (milestone M12). Planned; the plan/roadmap/gap-analysis documents are checked by the docs job."
+
+  - id: SSS-REQ-023
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference mission services: an equipment manager (device command/monitoring/reconfiguration, redundancy) and fault management (limit checking, stored command sequences, memory/file management) layered on the PUS (milestone M13). Planned."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

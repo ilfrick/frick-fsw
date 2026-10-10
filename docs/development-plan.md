@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.9                                    |
+| Revision                          | 0.10                                   |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N18 (`docs/rules.md`)               |
@@ -52,6 +52,8 @@ is in `docs/roadmap.md`.
 | OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
 | OBJ-18 | Emulated-target verification: run the RTEMS binary on Renode (PolarFire SoC) and QEMU to verify boot/PAL/drivers without hardware (partial GAP-A5 mitigation). | M10 |
 | OBJ-19 | Extend the Renode functional test to **every HAL resource class** (ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM/RAM-DMA, BLOCK eMMC/SD/SSD, NVM), so each interface is bound to its emulated peripheral and exercised on the emulated PolarFire SoC. | M11 |
+| OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
+| OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -201,6 +203,33 @@ functional result so the marker is only `PASS` when the exercised interfaces pas
 This raises the emulated functional coverage from the current core-only test to
 the whole HAL surface. (OBJ-19; follows M10 and the M4-residual drivers.)
 
+### M12 — OBCP engine: uPython/MicroPython On-Board Control Procedures (planned)
+
+Integrate an engine that executes **On-Board Control Procedures written in
+uPython/MicroPython**, uploaded on board, with tight resource and safety bounds.
+First integration candidate: **`n7space/n7s-obcp`** (OBCP engine based on
+MicroPython, **MIT**, developed by N7 Space under an ESA contract), which exposes
+a small C interface (`obcpengine_init/execute_py/execute_mpy/provide_buffer`) and
+the OBCP modules `obcpio`, `obcpdatapool`, `obcpevents`, `obcpcontrol`,
+`obcptime`, `obcppackets`. If not integrable, **develop an ECSS-compliant engine**
+(ECSS-E-ST-70 series) with the same interface. Work: `FF_Obcp_t` contract; OBCP
+modules mapped to frick-fsw services (datapool → parameters, events → EVS/PUS S5,
+time → Time Services, packets → PUS); resource/safety bounds (stack/heap
+accounting, no dynamic growth, execution-time budget, watchdog, abort); OBCP
+state/verification via PUS (S18); ECSS/Renode validation (extend the N18 test).
+See `docs/architecture/component-gap-analysis.md §5`. Requirement SRS-REQ-045;
+SSS-REQ-022. (OBJ-20.)
+
+### M13 — Reference mission services: equipment manager + fault management (planned)
+
+Provide **optional reference services** on the PUS (not framework core): an
+**equipment manager** (device command/monitoring/reconfiguration, mode/redundancy
+selection) and **fault management** (limit checking / PUS S12, stored command
+sequences / PUS S11, memory/file management / PUS S6). Users may build their own
+on the SB/PUS/HAL seams. See
+`docs/architecture/component-gap-analysis.md §4`. Requirement SRS-REQ-046;
+SSS-REQ-023. (OBJ-21.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -240,6 +269,8 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | planned |
 | M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | planned |
+| M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned |
+| M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned |
 
 ## History
 
@@ -254,3 +285,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.7 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA + coding style); objective OBJ-17 |
 | 0.8 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification); objective OBJ-18 |
 | 0.9 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class); objective OBJ-19 |
+| 0.10 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs, candidate n7s-obcp; OBJ-20) and M13 (reference mission services: equipment manager + fault management; OBJ-21); component gap analysis |

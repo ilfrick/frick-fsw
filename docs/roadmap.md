@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.11 |
+| Revision    | 0.12 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -139,6 +139,24 @@ backend behind the `hal_*.h` contract (the M4-residual MSS peripherals where sti
 missing), a binding in `frick-renode.resc`, and a checkable clause in the marker.
 Objective OBJ-19; builds on M10 and the M4-residual drivers.
 
+## M12 — OBCP engine: uPython/MicroPython On-Board Control Procedures (planned)
+
+Integrate an engine that executes On-Board Control Procedures written in
+**uPython/MicroPython** (uploaded on board, resource/safety bounded). First
+candidate: **`n7space/n7s-obcp`** (MicroPython-based OBCP engine, MIT, ESA-funded)
+behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings; fallback: develop an
+ECSS-compliant engine. See `docs/architecture/component-gap-analysis.md §5`.
+Requirement SRS-REQ-045 / SSS-REQ-022; objective OBJ-20.
+
+## M13 — Reference mission services: equipment manager + fault management (planned)
+
+Optional reference services on the PUS: an **equipment manager** (device
+command/monitoring/reconfiguration, redundancy) and **fault management** (limit
+checking, stored command sequences, memory/file management). Users may build
+their own on the SB/PUS/HAL seams. See
+`docs/architecture/component-gap-analysis.md §4`. Requirement SRS-REQ-046 /
+SSS-REQ-023; objective OBJ-21.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -165,3 +183,4 @@ Objective OBJ-19; builds on M10 and the M4-residual drivers.
 | 0.9 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA C:2012 + coding style) |
 | 0.10 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification: Renode PolarFire SoC + QEMU) |
 | 0.11 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class) |
+| 0.12 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs) and M13 (reference mission services: equipment manager + fault management); component gap analysis |

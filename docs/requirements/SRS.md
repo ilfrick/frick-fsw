@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.4                                    |
+| Revision                          | 1.5                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -220,6 +220,19 @@ review).
   provided, with a middleware test application that emits a checkable result, and
   the functional validation in that environment shall pass for every change
   (norm N18). `method: Tst | Dem`.
+- **SRS-REQ-045** — *OBCP engine (uPython/MicroPython)*: the framework shall
+  integrate an engine that executes On-Board Control Procedures written in
+  uPython/MicroPython behind an `FF_Obcp_t` contract, with OBCP modules bound to
+  SB/EVS/Time/PUS (datapool, events, time, packets, control), bounded resources
+  and safety (stack/heap accounting, execution-time budget, abort, reporting;
+  OBCP state/verification via PUS S18).
+  First integration candidate: `n7space/n7s-obcp` (MIT, ESA-funded); otherwise an
+  ECSS-compliant engine. `method: Tst | Dem`. (milestone M12)
+- **SRS-REQ-046** — *Reference mission services*: the framework shall provide, as
+  optional reference applications/services on the PUS, an **equipment manager**
+  (device command/monitoring/reconfiguration, redundancy) and **fault management**
+  (limit checking, stored command sequences, memory/file management).
+  `method: Tst | Dem`. (milestone M13)
 
 ## 6. Derived requirements
 
@@ -264,3 +277,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.2 | 2026-10-10 | frick-fsw  | M9: add SRS-REQ-041 MISRA C:2012 compliance and SRS-REQ-042 coding style |
 | 1.3 | 2026-10-10 | frick-fsw  | M10: add SRS-REQ-043 emulated-target verification (Renode/QEMU) |
 | 1.4 | 2026-10-10 | frick-fsw  | N18/M10: add SRS-REQ-044 Renode functional-validation environment + test app |
+| 1.5 | 2026-10-10 | frick-fsw  | M12/M13: add SRS-REQ-045 OBCP engine (uPython/MicroPython) and SRS-REQ-046 reference mission services |

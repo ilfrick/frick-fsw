@@ -150,6 +150,20 @@ change. All dates UTC, project language English (norm N2).
   `POSIX_Init` declaration before `<rtems/confdefs.h>`; the CMake toolchain file
   now passes the BSP include/lib paths and `-mcmodel=medany` (multilib select).
   Norm N18 is now **in force** (per-commit SKIP proxy, nightly real run).
+- **Milestone M12 — OBCP engine (uPython/MicroPython).** Execute On-Board Control
+  Procedures written in uPython/MicroPython behind an `FF_Obcp_t` contract (OBCP
+  modules bound to SB/EVS/Time/PUS), resource/safety bounded. First integration
+  candidate **`n7space/n7s-obcp`** (MicroPython-based OBCP engine, MIT,
+  ESA-funded); fallback: an ECSS-compliant engine. Objective OBJ-20; SSS-REQ-022 /
+  SRS-REQ-045.
+- **Milestone M13 — Reference mission services.** Optional PUS-based reference
+  services: an **equipment manager** (device command/monitoring/reconfiguration,
+  redundancy) and **fault management** (limit checking, stored command sequences,
+  memory/file management). Objective OBJ-21; SSS-REQ-023 / SRS-REQ-046.
+- **Component gap analysis.** `docs/architecture/component-gap-analysis.md`
+  positions frick-fsw against NASA cFS (missing: LC/SC/MM/MD/CS/FM/DS/CF/SBN/ECI,
+  equipment manager, several PUS services) and other FSW (F′, TASTE, N7 MBEP,
+  OPS-SAT NMF).
 - **Milestone M11 — Renode HAL coverage.** Extend the Renode functional test
   (norm N18) so that **every HAL resource class** is bound to its emulated
   peripheral and exercised on the `polarfire-soc` platform (ETH, NET/TCP-IP, TSN,
