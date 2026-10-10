@@ -319,6 +319,7 @@ status panel above is authoritative; the single source of truth is
 - **Planning**: [`docs/development-plan.md`](docs/development-plan.md) ·
   [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)
 - **Status & reference**: [`docs/status/status.json`](docs/status/status.json) ·
+  [`docs/status/handover.md`](docs/status/handover.md) (resume point) ·
   [`docs/glossary.md`](docs/glossary.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 ## Extending the framework

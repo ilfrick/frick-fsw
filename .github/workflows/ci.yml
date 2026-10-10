@@ -175,6 +175,7 @@ jobs:
             "docs/vv/emulated-target.md",
             "docs/vv/renode-environment.md",
             "docs/architecture/component-gap-analysis.md",
+            "docs/status/handover.md",
             "docs/quality/configuration-management.md",
             "docs/quality/product-assurance.md",
             "docs/quality/safety-and-fdir.md",
