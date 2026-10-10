@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.2.2                                  |
+| Revision                          | 0.2.3                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -36,6 +36,8 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T13 | Metrics panel generator                 | `tools/scripts/metrics.py`    | README coverage + V&V panel   | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`      | MISRA findings report         | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
+| T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
+| T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
 
 ## Qualification procedure (per tool)
 
@@ -79,3 +81,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.0 | 2026-10-10 | frick-fsw | Re-qualification after M4 (increment 4): T3 gains `tests/unit/test_netloop.c` (reference loopback network stack, 29 checks) |
 | 0.2.1 | 2026-10-10 | frick-fsw | Re-qualification after M4 (increment 5): T3 gains `tests/unit/test_lwip.c` (lwIP adapter TCP round trip, 19 checks; built with FF_USE_LWIP + fetched lwIP) |
 | 0.2.2 | 2026-10-10 | frick-fsw | M9: new qualified tool T14 (`tools/scripts/misra.sh`, cppcheck MISRA scan, advisory) |
+| 0.2.3 | 2026-10-10 | frick-fsw | M10: new qualified tools T15 (Renode PolarFire SoC) and T16 (QEMU RISC-V), `tools/scripts/emulated_run.sh` (advisory) |

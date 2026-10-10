@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra
+        coverage metrics coverage-configure misra emulated
 
 all: build
 
@@ -45,6 +45,10 @@ trace:
 # MISRA C:2012 scan (open-source cppcheck addon; advisory). See docs/quality/misra-c.md.
 misra:
 	bash tools/scripts/misra.sh
+
+# Emulated-target verification (Renode PolarFire SoC / QEMU); advisory.
+emulated:
+	bash tools/scripts/emulated_run.sh
 
 # Complete local development & verification cycle (norm N15).
 check: build test verify-lean trace smoke gsw-selfcheck

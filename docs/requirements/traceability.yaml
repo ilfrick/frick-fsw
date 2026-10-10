@@ -405,6 +405,15 @@ requirements:
     lean: []
     lean_note: "Coding style enforced by the clang-format gate over src/config/tests (norm N10)."
 
+  - id: SRS-REQ-043
+    level: srs
+    parent_sss: SSS-REQ-013
+    derived: false
+    implementation: ["tools/scripts/emulated_run.sh", "docs/vv/emulated-target.md"]
+    tests: ["ci:emulated-run"]
+    lean: []
+    lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU) is an advisory demonstration path: it runs the committed RTEMS binary and checks the boot banner when the emulator is available, and records SKIP otherwise. It does not itself constitute verification; the emulator is qualified as a tool (N10), and real-silicon residual is GAP-A5."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

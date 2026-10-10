@@ -69,10 +69,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 78 (srs=43, sss=21, gap=14) |
-| Requirements with implementation | 78/78 |
-| Test coverage (requirements with tests) | 64/78 (82.1%) |
-| Formal verification coverage (requirements with Lean) | 20/78 (25.6%) |
+| Requirements in manifest | 79 (srs=44, sss=21, gap=14) |
+| Requirements with implementation | 79/79 |
+| Test coverage (requirements with tests) | 65/79 (82.3%) |
+| Formal verification coverage (requirements with Lean) | 20/79 (25.3%) |
 | Code line coverage | 1656/2521 (65.7%) - functions 220/264 |
 
 <!-- METRICS-END -->
@@ -244,7 +244,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 43 · SSS = 21 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 44 · SSS = 21 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -292,6 +292,7 @@ status panel above is authoritative; the single source of truth is
 - **V&V**: [`docs/vv/verification-plan.md`](docs/vv/verification-plan.md) ·
   [`validation-plan.md`](docs/vv/validation-plan.md) ·
   [`verification-results.md`](docs/vv/verification-results.md) ·
+  [`emulated-target.md`](docs/vv/emulated-target.md) ·
   [`tool-qualification.md`](docs/vv/tool-qualification.md)
 - **Reviews**: [`docs/engineering/independent-review.md`](docs/engineering/independent-review.md) ·
   [`docs/reviews/`](docs/reviews/)

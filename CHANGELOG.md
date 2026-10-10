@@ -111,6 +111,12 @@ change. All dates UTC, project language English (norm N2).
   wired into CI (evidence `ci:misra`) and a documented deviation process.
   Requirements SSS-REQ-021 / SRS-REQ-041/042; certified MISRA checker + formal
   report are GAP-A4.
+- **Milestone M10 — emulated-target verification.** Run the RTEMS target binary
+  on an emulated Microchip PolarFire SoC (**Renode** `polarfire-soc`: 5 CPUs,
+  UART, GEM, CAN, SPI, I2C, GPIO, PCIe, SD/eMMC, QSPI flash, eNVM, timers) and/or
+  **QEMU** (`riscv/rv64imafdc`), verifying boot/PAL/drivers without hardware
+  (partial GAP-A5 mitigation). `docs/vv/emulated-target.md`,
+  `tools/scripts/emulated_run.sh`; requirement SRS-REQ-043; tools T15/T16.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

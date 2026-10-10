@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.11                                   |
+| Revision                          | 0.12                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,8 +15,8 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 43, SSS = 21, GAP = 14, Lean theorems = 51, CI evidence
-claims = 10 unique workflow claim names (9 referenced by the manifest; `ci-lean`
+Counts (current): SRS = 44, SSS = 21, GAP = 14, Lean theorems = 51, CI evidence
+claims = 11 unique workflow claim names (10 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
 ## 1. Top-down matrix (SSS -> SRS)
@@ -35,7 +35,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SSS-REQ-010 (determinism) | SRS-REQ-015 |
 | SSS-REQ-011 (multi-target build) | SRS-REQ-016 |
 | SSS-REQ-012 (doc set) | FRICK-SRS-REQ-000 |
-| SSS-REQ-013 (continuous verification) | SRS-REQ-020 |
+| SSS-REQ-013 (continuous verification) | SRS-REQ-020, SRS-REQ-043 |
 | SSS-REQ-014 (link/transport) | SRS-REQ-012 |
 | SSS-REQ-015 (PUS backends) | SRS-REQ-018 |
 | SSS-REQ-016 (time base) | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
@@ -92,6 +92,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-040 | hal/net/lwip/ff_net_lwip.c/h | test_lwip.c | - | lwIP network-stack adapter (M4) |
 | SRS-REQ-041 | docs/quality/misra-c.md, tools/scripts/misra.sh | ci:misra | - | MISRA C:2012 compliance (M9) |
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
+| SRS-REQ-043 | tools/scripts/emulated_run.sh, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -165,3 +166,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.9 | 2026-10-10 | frick-fsw | M4: SRS-REQ-039 reference network stack; counts 40/20/14 |
 | 0.10 | 2026-10-10 | frick-fsw | M4: SRS-REQ-040 lwIP adapter; counts 41/20/14 |
 | 0.11 | 2026-10-10 | frick-fsw | M9: SRS-REQ-041/042 code quality; counts 43/21/14 |
+| 0.12 | 2026-10-10 | frick-fsw | M10: SRS-REQ-043 emulated-target verification; counts 44/21/14 |

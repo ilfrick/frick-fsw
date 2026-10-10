@@ -62,7 +62,10 @@ traceability manifest (level `gap`, `justification` records the disposition).
 
 **Status:** open (blocked on hardware)
 
-- RTEMS BSP qualification tests on the RTPFS160ZT board.
+- RTEMS BSP qualification tests on the RTPFS160ZT board. **Emulated execution**
+  (Renode `polarfire-soc` / QEMU `riscv/rv64imafdc`, milestone M10,
+  `docs/vv/emulated-target.md`) partially mitigates this without hardware; the
+  real-silicon residual remains open.
 - Link-level PUS TM/TC verification over the real UART plus loopback on target.
 - Hardware-in-the-loop closed-loop scenarios (housekeeping, time, HS recovery).
 

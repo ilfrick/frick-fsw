@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N17 (`docs/rules.md`)               |
@@ -50,6 +50,7 @@ is in `docs/roadmap.md`.
 | OBJ-15 | Formal completeness (WP-FV-100): raise Lean coverage to 100% of generated requirements (theorem or explicit `lean_note`), mirror the pure-logic modules in Lean, and add C-level proof tooling (Frama-C/CBMC) alongside. | M5/M8 |
 | OBJ-16 | Complete deterministic Ethernet: full 802.1AS gPTP stack and the fabric CoreTSN path (multi-port switch / 802.1CB FRER). | M8 |
 | OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
+| OBJ-18 | Emulated-target verification: run the RTEMS binary on Renode (PolarFire SoC) and QEMU to verify boot/PAL/drivers without hardware (partial GAP-A5 mitigation). | M10 |
 
 ## 3. Resource and bus interface catalogue
 
@@ -177,6 +178,13 @@ compliance with the cppcheck MISRA scan (`tools/scripts/misra.sh`, CI advisory �
 blocking) and a documented deviation process (`docs/quality/misra-c.md`).
 Certified MISRA checker + formal report = GAP-A4. (OBJ-17.)
 
+### M10 — Emulated-target verification: Renode (PolarFire SoC) and QEMU (planned)
+
+Run the RTEMS target binary on an emulated PolarFire SoC (Renode `polarfire-soc`)
+and/or QEMU (`riscv/rv64imafdc`) to verify boot, PAL/RTEMS and drivers without
+hardware; partially mitigates GAP-A5. `docs/vv/emulated-target.md`,
+`tools/scripts/emulated_run.sh`, requirement SRS-REQ-043. (OBJ-18.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -214,6 +222,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | in progress |
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress |
+| M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | planned |
 
 ## History
 
@@ -226,3 +235,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.5 | 2026-10-10 | frick-fsw | Correct TSN resource: the MPFS GEM has a native TSN block (Qbv/Qav/Qci/Qbb/802.1AS/1588/CB); fabric CoreTSN only for multi-port switch/FRER |
 | 0.6 | 2026-10-10 | frick-fsw | Add M8 (gPTP 802.1AS + fabric CoreTSN); objective OBJ-16 |
 | 0.7 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA + coding style); objective OBJ-17 |
+| 0.8 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification); objective OBJ-18 |

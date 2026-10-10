@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.2                                    |
+| Revision                          | 1.3                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -208,6 +208,13 @@ review).
   declared frick-fsw C style (`.clang-format` normative), applied and enforced
   codebase-wide by the format gate (`docs/engineering/coding-style.md`).
   `method: Inp`.
+- **SRS-REQ-043** — *Emulated-target verification*: the project shall provide an
+  emulated-target verification path that runs the RTEMS target binary on an
+  emulated PolarFire SoC (Renode `polarfire-soc`) and/or QEMU
+  (`riscv/rv64imafdc`), verifying the boot sequence, the PAL/RTEMS backend and
+  the drivers without hardware, documented as a partial mitigation of GAP-A5.
+  The execution path is **advisory** (runs when the emulator is available;
+  records SKIP otherwise) and is qualified as a V&V tool (N10). `method: Dem | Inp`.
 
 ## 6. Derived requirements
 
@@ -250,3 +257,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.0 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-039 reference network stack |
 | 1.1 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-040 lwIP network-stack adapter |
 | 1.2 | 2026-10-10 | frick-fsw  | M9: add SRS-REQ-041 MISRA C:2012 compliance and SRS-REQ-042 coding style |
+| 1.3 | 2026-10-10 | frick-fsw  | M10: add SRS-REQ-043 emulated-target verification (Renode/QEMU) |

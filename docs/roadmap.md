@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.9 |
+| Revision    | 0.10 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -120,6 +120,15 @@ codebase-wide, and drive MISRA C:2012 compliance with an open-source scan
 `docs/engineering/coding-style.md`, `docs/quality/misra-c.md`; certified MISRA
 checker + formal report are GAP-A4.
 
+## M10 — Emulated-target verification: Renode (PolarFire SoC) and QEMU (planned)
+
+Run the actual RTEMS target binary on an emulated PolarFire SoC to verify boot,
+PAL/RTEMS and drivers without hardware. **Renode** has official `polarfire-soc`
+/ `icicle-kit` platforms (5 CPUs, UART, GEM, CAN, SPI, I2C, GPIO, PCIe, SD/eMMC,
+QSPI flash, eNVM, timers); **QEMU** runs the RTEMS `riscv/rv64imafdc` BSP. This
+**partially mitigates GAP-A5**; tool qualification (N10) and CI wiring included.
+See `docs/vv/emulated-target.md`; requirement SRS-REQ-043; objective OBJ-18.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -144,3 +153,4 @@ checker + formal report are GAP-A4.
 | 0.7 | 2026-10-10 | frick-fsw | M4 status set to in progress (Ethernet GEM driver) |
 | 0.8 | 2026-10-10 | frick-fsw | Add M8 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) |
 | 0.9 | 2026-10-10 | frick-fsw | Add M9 (code quality: MISRA C:2012 + coding style) |
+| 0.10 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification: Renode PolarFire SoC + QEMU) |
