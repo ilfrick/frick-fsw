@@ -27,8 +27,11 @@ set(CMAKE_SYSROOT ${RTEMS_HOME}/rtems/${RTEMS_VERSION}/${RTEMS_BSP})
 set(CMAKE_PREFIX_PATH ${CMAKE_SYSROOT})
 
 set(CMAKE_C_COMPILER ${RTEMS_HOME}/rtems/${RTEMS_VERSION}/bin/riscv-rtems6-gcc)
-set(CMAKE_C_FLAGS_INIT "-mcpu=e54 -mabi=lp64d -mcmodel=medany -O2")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-Ttext,0x80200000")
+# Match the BSP riscv/mpfs64imafdc (RV64GC: IMAFDC + lp64d ABI) and select the
+# RTEMS libraries with -qrtems (required by RTEMS 6; the BSP spec provides the
+# linker script and library paths). Do not override the load address.
+set(CMAKE_C_FLAGS_INIT "-march=rv64imafdc -mabi=lp64d -mcmodel=medany -O2")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-qrtems")
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})

@@ -69,10 +69,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 71 (srs=37, sss=20, gap=14) |
-| Requirements with implementation | 71/71 |
-| Test coverage (requirements with tests) | 57/71 (80.3%) |
-| Formal verification coverage (requirements with Lean) | 20/71 (28.2%) |
+| Requirements in manifest | 72 (srs=38, sss=20, gap=14) |
+| Requirements with implementation | 72/72 |
+| Test coverage (requirements with tests) | 58/72 (80.6%) |
+| Formal verification coverage (requirements with Lean) | 20/72 (27.8%) |
 | Code line coverage | 1440/2245 (64.1%) - functions 194/237 |
 
 <!-- METRICS-END -->
@@ -242,7 +242,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 37 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 38 · SSS = 20 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -273,6 +273,7 @@ status panel above is authoritative; the single source of truth is
   [`pus-layer.md`](docs/architecture/pus-layer.md) ·
   [`time-and-timecode.md`](docs/architecture/time-and-timecode.md) ·
   [`hardware-abstraction.md`](docs/architecture/hardware-abstraction.md) ·
+  [`rtems-integration.md`](docs/architecture/rtems-integration.md) ·
   [`numerics.md`](docs/architecture/numerics.md) ·
   [`security-sdls.md`](docs/architecture/security-sdls.md) ·
   [`design/software-design.md`](docs/design/software-design.md) ·

@@ -28,7 +28,7 @@
 | Path | Purpose |
 | ---- | ------- |
 | `src/` | C framework: `core/pal` (PAL), `core/sb` (Software Bus), `core/evs`, `core/es`, `core/tbl`, `core/time`, `transport/ccsds`, `transport/link`, `pus`, `apps`, `hal` (HAL contracts), `drivers` (reference drivers), `math`, `security`, `bsp/mpfs`, `main` |
-| `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers |
+| `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers + `rtems/` RTEMS configuration table |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
 | `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material |

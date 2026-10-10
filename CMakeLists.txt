@@ -122,6 +122,10 @@ endif()
 add_executable(frick_fsw ${FF_SRC_DIR}/main/fsw_main.c)
 if(NOT FF_PLATFORM STREQUAL "rtems")
   target_sources(frick_fsw PRIVATE ${FF_SRC_DIR}/main/main_native.c)
+else()
+  # RTEMS application configuration table (CONFIGURE_* + confdefs) + entry
+  # point POSIX_Init() (in pal_rtems.c). See docs/architecture/rtems-integration.md.
+  target_sources(frick_fsw PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/config/rtems/rtems_config.c)
 endif()
 target_link_libraries(frick_fsw PRIVATE frick_fsw_core)
 

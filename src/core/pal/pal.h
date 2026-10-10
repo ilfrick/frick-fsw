@@ -8,7 +8,10 @@
  *
  *   - pal_posix.c : POSIX pthread/mqueue based, used both on the Linux host
  *                   simulator and on RTEMS 6, which ships a POSIX API.
- *   - pal_rtems.c : RTEMS specific bootstrap (POSIX keys, clock, panic).
+ *   - pal_rtems.c : RTEMS 6 specific bootstrap (POSIX_API check, the
+ *                   POSIX_Init() application entry point, clock, panic; the
+ *                   RTEMS configuration table is config/rtems/rtems_config.c,
+ *                   see docs/architecture/rtems-integration.md).
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw

@@ -79,6 +79,13 @@ change. All dates UTC, project language English (norm N2).
   `FF_NetStack_t` and **N7/ESA `asn1-pusc-lib`** (GPL-3.0) for
   `FF_Pus_Backend_t`; `tools/scripts/fetch_third_party.sh`. TSN uses the GEM's
   native block (802.1Q/Qbv/Qav/802.1AS).
+- **M4 — RTEMS application integration.** A bounded RTEMS 6.2 configuration
+  table (`config/rtems/rtems_config.c`: console/clock + POSIX objects +
+  `CONFIGURE_POSIX_INIT_THREAD_TABLE`) and the `POSIX_Init` entry point
+  (`pal_rtems.c`) running the shared bring-up; the RTEMS executable is built
+  from the same sources. Requirement SRS-REQ-037; guide
+  `docs/architecture/rtems-integration.md`; toolchain flags aligned to the
+  `riscv/mpfs64imafdc` BSP.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -178,6 +178,12 @@ review).
   and descriptor logic (injected MMIO + DMA translation). TSN (802.1Q/Qbv/Qav/
   802.1AS, native on the GEM) is delivered through `FF_TsnBackend_t` in a
   separate planned increment. `method: Tst | Inp`.
+- **SRS-REQ-037** — *RTEMS application integration*: the framework shall provide
+  a complete RTEMS 6.2 integration for the `riscv/mpfs64imafdc` BSP — an
+  application configuration table (bounded `CONFIGURE_*` incl. the POSIX objects
+  required by the PAL) and the `POSIX_Init` entry point running the shared
+  bring-up sequence — so that the same sources build for the RTEMS target.
+  `method: Inp` (on-target demonstration is GAP-A5).
 
 ## 6. Derived requirements
 
@@ -215,3 +221,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 0.5 | 2026-10-10 | frick-fsw  | M6: add SRS-REQ-033 mathematics facade (libm) |
 | 0.6 | 2026-10-10 | frick-fsw  | M7: add SRS-REQ-034 SDLS processing and SRS-REQ-035 SA/key management |
 | 0.7 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-036 Ethernet MAC reference driver (Cadence GEM) |
+| 0.8 | 2026-10-10 | frick-fsw  | M4: add SRS-REQ-037 RTEMS application integration |

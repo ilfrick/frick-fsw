@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ARCH-0004 |
 | ----------- | --------------- |
-| Revision    | 0.2 |
+| Revision    | 0.3 |
 | Date        | 2026-10-10 |
 
 ## 1. Purpose
@@ -30,6 +30,11 @@ Platform-specific configuration: `config/platform/platform_native.h` and
 frequency (625 MHz), UART console (`/dev/console`, 115200 baud). The device
 tree template lives in `board/mpfs-rtpfs160zt.dts`.
 
+RTEMS application integration (configuration table + `POSIX_Init` entry point,
+build and verification) is documented in
+[`rtems-integration.md`](rtems-integration.md); the configuration table is
+`config/rtems/rtems_config.c` and the POSIX/RTEMS glue is `pal_rtems.c`.
+
 ## 4. Memory model
 
 Static allocation everywhere; no heap usage after init (SRS-REQ-015 /
@@ -45,3 +50,4 @@ SSS-REQ-001, SRS-REQ-015, SRS-REQ-016.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial platform and portability note (norm N8/N16) |
 | 0.2 | 2026-10-10 | frick-fsw | M4: note GEM native TSN (Qbv/Qav/Qci/Qbb/802.1AS/1588/CB); fabric CoreTSN only for multi-port/FRER |
+| 0.3 | 2026-10-10 | frick-fsw | M4: reference RTEMS application integration (rtems_config.c, POSIX_Init) |

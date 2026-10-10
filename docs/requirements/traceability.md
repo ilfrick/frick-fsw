@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 37, SSS = 20, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 38, SSS = 20, GAP = 14, Lean theorems = 51, CI evidence
 claims = 9 unique workflow claim names (8 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1).
 
@@ -23,7 +23,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 
 | SSS | SRS children |
 | --- | ------------ |
-| SSS-REQ-001 (flight target) | SRS-REQ-017 |
+| SSS-REQ-001 (flight target) | SRS-REQ-017, SRS-REQ-037 |
 | SSS-REQ-002 (software bus) | SRS-REQ-001, SRS-REQ-002 |
 | SSS-REQ-003 (TM/TC chain) | SRS-REQ-003, SRS-REQ-004, SRS-REQ-009 |
 | SSS-REQ-004 (request verification) | SRS-REQ-005, SRS-REQ-006, SRS-REQ-007 |
@@ -85,6 +85,7 @@ is reported in CI but not claimed by any requirement, norm N1).
 | SRS-REQ-034 | security/ff_sdls.c/h | test_sdls.c | - | SDLS processing (M7) |
 | SRS-REQ-035 | security/ff_sdls.c | test_sdls.c | req_srs035_sa_bound, req_srs035_epoch_monotonic, req_srs035_uses_reset | SA + key rotation |
 | SRS-REQ-036 | drivers/eth/gem/ff_gem.c/h | test_gem.c | - | Cadence GEM Ethernet driver (M4) |
+| SRS-REQ-037 | config/rtems/rtems_config.c, pal_rtems.c | ci:rtems-cross-build | - | RTEMS application integration (M4) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -153,3 +154,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.4 | 2026-10-10 | frick-fsw | M6: SSS-REQ-018, SRS-REQ-033; counts 34/18/13 |
 | 0.5 | 2026-10-10 | frick-fsw | M7: SSS-REQ-019, SRS-REQ-034/-035, GAP-A14; counts 36/19/14, 51 theorems |
 | 0.6 | 2026-10-10 | frick-fsw | M4: SSS-REQ-020, SRS-REQ-036; counts 37/20/14 |
+| 0.7 | 2026-10-10 | frick-fsw | M4: SRS-REQ-037 RTEMS integration; counts 38/20/14 |

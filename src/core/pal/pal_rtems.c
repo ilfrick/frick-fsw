@@ -26,14 +26,17 @@
 
 /*
  * RTEMS POSIX API prerequisites. The flight configuration file
- * (see config/rtems/rtems_config.c) must provide at least:
+ * (see config/rtems/rtems_config.c) provides:
  *
  *   CONFIGURE_MAXIMUM_POSIX_THREADS        32
- *   CONFIGURE_MAXIMUM_POSIX_MUTEXES        32
- *   CONFIGURE_MAXIMUM_POSIX_CONDITION_VARIABLES 64
  *   CONFIGURE_MAXIMUM_POSIX_TIMERS         8
  *   CONFIGURE_MAXIMUM_POSIX_KEYS           8
+ *   CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES 8
  *   CONFIGURE_POSIX_INIT_THREAD_STACK_SIZE (256 * 1024)
+ *
+ * In RTEMS 6 POSIX mutexes and condition variables are self-contained (no
+ * CONFIGURE_* option); the *_MUTEXES / *_CONDITION_VARIABLES options are
+ * obsolete since RTEMS 5.1.
  */
 FF_Status_t FF_PalPlatformInit(void)
 {

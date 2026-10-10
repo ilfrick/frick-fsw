@@ -143,6 +143,7 @@ jobs:
             "docs/engineering/user-integration-manual.md",
             "docs/design/software-design.md",
             "docs/architecture/hardware-abstraction.md",
+            "docs/architecture/rtems-integration.md",
             "docs/architecture/numerics.md",
             "docs/architecture/security-sdls.md",
             "docs/quality/configuration-management.md",
@@ -199,7 +200,7 @@ jobs:
             mkdir -p build/doxygen && doxygen Doxyfile
           else echo "doxygen not available"; fi
 
-  # evidence: ci-rtems-cross-build (SSS-REQ-001, SRS-REQ-016)
+  # evidence: ci-rtems-cross-build (SSS-REQ-001, SRS-REQ-016, SRS-REQ-037)
   # Per-commit proxy: if the RTEMS 6.2 toolchain is available, cross-build;
   # otherwise this job is a SKIP marker and the nightly job builds it for real.
   rtems-cross-build:
