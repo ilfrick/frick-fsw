@@ -13,6 +13,20 @@ work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
 
+## 0. How to resume in a new session
+
+Start a fresh session in the repository root and use a kickoff prompt like:
+
+> "Read `AGENTS.md`, `docs/rules.md` and `docs/status/handover.md`; then continue
+> the frick-fsw roadmap from the handover's §5 next steps, respecting norms N1-N18
+> (full cycle + independent review + trace + Renode N18), and keep pushing to
+> both remotes."
+
+Everything needed is in the repo (no external state): objectives/roadmap
+(`docs/development-plan.md`, `docs/roadmap.md`), rules (`docs/rules.md`), status
+and this handover. Verify the tree is clean (`git status`) and the gates are green
+before starting a new increment.
+
 ## 1. What the project is
 
 A **cFS-inspired flight-software middleware** (not an application): PUS-C TM/TC on
@@ -141,3 +155,5 @@ occasion; prefer Docker.
 | 0.1 | 2026-10-10 | frick-fsw | Initial handover/resume document (N18 in force; M11 GPIO done) |
 | 0.2 | 2026-10-10 | frick-fsw | M11 serial deferred/reverted; codename "Eärendil" disclaimer added |
 | 0.3 | 2026-10-10 | frick-fsw | M11 serial re-implemented with hardware-correct 4-byte MMUART offsets (Renode wideRegisters); key fact recorded |
+| 0.4 | 2026-10-10 | frick-fsw | M11 GPIO + SERIAL done (SRS-REQ-047/048); counts 86/49/23/14 |
+| 0.5 | 2026-10-11 | frick-fsw | Add §0 "How to resume in a new session" (kickoff prompt) |
