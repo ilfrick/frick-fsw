@@ -7,6 +7,16 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Table Services validation bypass (FRICK-REVIEW-0077 Major, SRS-REQ-013).**
+  `FF_TblLoad` left a previously-staged image valid when a new load failed
+  validation, so `FF_TblActivate` could commit a rejected image. It now clears
+  `staged` on a validator rejection; a regression test reproduces and guards it.
+- **`FF_PusInit` idempotence.** `FF_PusRegisterCoreServices` now resets the
+  provider/function/HK/mem registries so repeated init is clean (fixes the
+  order-dependence of the new PUS tests, FRICK-REVIEW-0077 R1-02).
+
 ### Added
 
 - **Test-coverage gap closure (R2 + R3 task).** Two new host suites close the

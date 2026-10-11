@@ -773,6 +773,18 @@ static void test_tbl_atomic_activate_revert(void)
     FF_TEST_ASSERT(dumped_len == sizeof(dumped));
     FF_TEST_ASSERT(dumped.gain == 100u);
 
+    /* Regression (FRICK-REVIEW-0077 Major, SRS-REQ-013): after an activate, a
+     * rejected load must invalidate the staged image - activate must NOT commit
+     * the rejected image and must return FF_NOT_READY. */
+    staged.magic = 0u; /* invalid magic -> validator rejects */
+    staged.gain = 999u;
+    FF_TEST_ASSERT(FF_TblLoad(h, &staged, sizeof(staged)) == FF_ERROR);
+    FF_TEST_ASSERT(FF_TblActivate(h) == FF_NOT_READY);
+    {
+        const r3_cfg_t *cur = (const r3_cfg_t *)FF_TblGet(h, NULL);
+        FF_TEST_ASSERT(cur->gain == 100u); /* rejected image never committed */
+    }
+
     /* Revert discards the staged image; activate then reports NOT_READY. */
     FF_TEST_ASSERT(FF_TblRevert(h) == FF_SUCCESS);
     FF_TEST_ASSERT(FF_TblActivate(h) == FF_NOT_READY);

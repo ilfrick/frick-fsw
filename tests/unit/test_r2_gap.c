@@ -29,7 +29,9 @@
 #include "core/es/es.h"
 #include "core/tbl/tbl.h"
 #include "core/time/time.h"
+#if !defined(FF_TEST_NO_HAL)
 #include "hal/hal.h"
+#endif
 #include "transport/ccsds/ccsds.h"
 #include "pus/pus.h"
 #include "pus/pus_types.h"
@@ -655,6 +657,15 @@ static FF_Status_t pus_function_fail(const uint8_t *args, uint16_t len)
     return FF_ERROR;
 }
 
+static void pus_register_all(void)
+{
+    (void)FF_PusRegisterParamProvider(5u, pus_param_provider);
+    (void)FF_PusRegisterParamSetter(5u, pus_param_setter);
+    (void)FF_PusRegisterFunction(7u, pus_function_ok);
+    (void)FF_PusRegisterFunction(8u, pus_function_fail);
+    (void)FF_PusRegisterHkProvider(9u, pus_hk_provider);
+}
+
 static void test_pus_core_gaps(void)
 {
     uint16_t c0;
@@ -720,6 +731,7 @@ static void test_pus_service3_hk(void)
     FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(pus_sink);
+    pus_register_all();
 
     /* Create: too-short payload, success, duplicate. */
     FF_TEST_ASSERT(pus_ingest(3u, 1u, bad_size, 0u) == FF_BAD_SIZE);
@@ -761,6 +773,7 @@ static void test_pus_service8_function(void)
     FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(pus_sink);
+    pus_register_all();
 
     FF_TEST_ASSERT(pus_ingest(8u, 1u, NULL, 0u) == FF_BAD_SIZE);
 
@@ -788,6 +801,7 @@ static void test_pus_service20_parameters(void)
     FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(pus_sink);
+    pus_register_all();
 
     /* Set: too short, unknown id, success with captured value. */
     FF_TEST_ASSERT(pus_ingest(20u, 1u, NULL, 0u) == FF_BAD_SIZE);

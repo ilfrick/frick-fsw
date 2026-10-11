@@ -392,7 +392,7 @@ requirements:
     parent_sss: SSS-REQ-021
     derived: false
     implementation: ["docs/quality/misra-c.md", "tools/scripts/misra.sh"]
-    tests: ["ci:misra", "tests/unit/test_r2_gap.c"]
+    tests: ["ci:misra"]
     lean: []
     lean_note: "MISRA C:2012 compliance driven by the cppcheck MISRA scan (advisory) with a documented deviation process; certified MISRA checker and formal report are GAP-A4."
 
@@ -473,7 +473,7 @@ requirements:
     parent_sss: SSS-REQ-015
     derived: false
     implementation: ["src/pus/adapters/pus_adapter_n7.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
-    tests: ["tests/unit/test_pus.c", "ci:renode", "tests/unit/test_r2_gap.c"]
+    tests: ["tests/unit/test_pus.c", "ci:renode"]
     lean: []
     lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled at build time) is the DEFAULT PUS backend (FF_PusBackendN7): the PUS-C field vocabulary/widths come from the generated ASN.1 types and the packet error control uses the N7/ESA ECSS Annex B.1 CRC; verified on host (14/14) and on the emulated SoC (make renode PASS). Deep per-service ASN.1 type codecs = M15."
 
@@ -586,7 +586,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "config/fsw_config.h"]
-    tests: ["ci:static-analysis", "tests/unit/test_r2_gap.c"]
+    tests: ["ci:static-analysis"]
     lean: []
     lean_note: "Deterministic memory enforced by design and static analysis; formal memory model in GAP-A4."
 

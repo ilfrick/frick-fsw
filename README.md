@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 96/96 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 82/96 (85.4%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/96 (20.8%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 1917/2920 (65.7%) | gcov |
-| Code function coverage | 257/302 (85.1%) | gcov |
+| Code statement (line) coverage | 2831/3961 (71.5%) | gcov |
+| Code function coverage | 371/376 (98.7%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

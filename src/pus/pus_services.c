@@ -422,6 +422,15 @@ static FF_Status_t svc20_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
 
 FF_Status_t FF_PusRegisterCoreServices(void)
 {
+    /* Reset the service registries so init is idempotent and tests are
+     * order-independent (FRICK-REVIEW-0077 R1-02). */
+    memset(g_hk_providers, 0, sizeof(g_hk_providers));
+    memset(g_param_providers, 0, sizeof(g_param_providers));
+    memset(g_param_setters, 0, sizeof(g_param_setters));
+    memset(g_functions, 0, sizeof(g_functions));
+    memset(g_hk_reports, 0, sizeof(g_hk_reports));
+    memset(g_mem_regions, 0, sizeof(g_mem_regions));
+
     struct
     {
         uint8_t service;

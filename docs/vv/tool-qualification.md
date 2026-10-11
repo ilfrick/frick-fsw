@@ -103,3 +103,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.5 | 2026-10-11 | frick-fsw | T13: single consolidated panel; PA findings F1-F3 addressed (strict verification, Lean coverage restored, review-stream keying); CI currency gate added; PA approval FRICK-REVIEW-0068 |
 | 0.3.6 | 2026-10-11 | frick-fsw | T13: address PA delta D1 + R2 source-review Minors (canon M1/M10, derived coverage %, proxy label, sprint source, gate wording); cite FRICK-REVIEW-0070; PA final approval FRICK-REVIEW-0071 |
 | 0.3.7 | 2026-10-11 | frick-fsw | T3 gains the R2/R3 test-gap suites `test_r2_gap.c` (487 checks) + `test_r3_gap.c` (198 checks) covering uncovered functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076) |
+| 0.3.8 | 2026-10-11 | frick-fsw | T3 re-qualification after the FRICK-REVIEW-0077 fix: TBL regression added (`test_r3_gap` 198 -> 201), `test_r2_gap` made order-independent; source `tbl.c` fix + `FF_PusInit` idempotence |

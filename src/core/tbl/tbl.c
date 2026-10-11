@@ -68,6 +68,7 @@ FF_Status_t FF_TblLoad(FF_TblHandle_t h, const void *src, size_t len)
 
     if (g_tables[h].validate != NULL) {
         if (g_tables[h].validate(g_staging[h], len) != FF_SUCCESS) {
+            g_tables[h].staged = false; /* invalidate the rejected staged image */
             return FF_ERROR;
         }
     }
