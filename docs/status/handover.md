@@ -98,7 +98,7 @@ occasion; prefer Docker.
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
   **ETH** (Cadence GEM **identification** via the read-only Module ID,
-  SRS-REQ-036) and **NVM** (`ff_nvm_mpfs`, SRS-REQ-055; eNVM MMIO presence check).
+  SRS-REQ-036) and **NVM** (`ff_nvm_mpfs`, SRS-REQ-055; eNVM data write/read check).
   Additionally a **NET `FF_NetStack_t` contract check** through the reference
   loopback stack (SRS-REQ-039; in-process — **not** peripheral-bound).
   GPIO/SERIAL/MEM/NVM go through their HAL backends; the ETH check is an MMIO

@@ -42,8 +42,9 @@
  * (0x20100000) is the console. */
 #define FF_MMUART0_BASE 0x20000000u
 
-/* MSS eNVM (embedded non-volatile memory). Used by the reference NVM driver;
- * exercised on the emulated SoC in the Renode functional test (M11). */
-#define FF_ENVM0_BASE 0x20200000u
+/* MSS eNVM (embedded non-volatile memory) DATA region (writable). Used by the
+ * reference NVM driver; exercised on the emulated SoC in the Renode functional
+ * test (M11). The config/control block is at 0x20200000. */
+#define FF_ENVM0_BASE 0x20220000u
 
 #endif /* FF_PLATFORM_MPFS_H */

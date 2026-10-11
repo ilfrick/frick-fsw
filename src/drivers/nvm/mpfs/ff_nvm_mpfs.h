@@ -44,9 +44,8 @@ typedef struct
 /* Bind the instance and complete the FF_Nvm_t vtable. */
 FF_Status_t FF_NvmMpfsSetup(FF_NvmMpfs_t *n, const FF_NvmBus_t *bus);
 
-/* MMIO self-test (scratch round trip): used by the host unit test and available
- * for on-target MMIO round-trip checks; on the emulated SoC the eNVM region is
- * read-only, so the Renode check is a read presence check (app_renode_test.c). */
+/* MMIO self-test (scratch round trip): used by the host unit test and by the
+ * Renode functional check (the eNVM DATA region at 0x20220000 is writable). */
 FF_Status_t FF_NvmMpfsSelfTest(FF_NvmMpfs_t *n);
 
 #endif /* FF_NVM_MPFS_H */

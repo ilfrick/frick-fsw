@@ -218,23 +218,19 @@ static void mpfs_envm_write8(void *ctx, uint32_t off, uint8_t val)
     *(volatile uint8_t *)(uintptr_t)(FF_ENVM0_BASE + off) = val;
 }
 
-/* HAL NVM check on the emulated MSS eNVM (milestone M11): a bounded read of the
- * first parameter slot must succeed (the eNVM region is mapped and readable). It
- * is an MMIO presence/identification check **only**: the emulated eNVM region is
- * not writable in the platform model, so the write/erase register logic is
- * host-tested (`test_nvm`) and the on-target flash write/endurance/retention is
- * GAP-A5. This scope is deliberate (a write round trip faults on the model). */
+/* HAL NVM check on the emulated MSS eNVM (milestone M11): write/read round trip
+ * on the scratch region, outside the parameter id table (the eNVM DATA region at
+ * 0x20220000 is writable; the config block at 0x20200000 is not). On-target flash
+ * write/endurance/retention remains GAP-A5. */
 static bool renode_hal_nvm_check(void)
 {
     static FF_NvmMpfs_t drv;
     FF_NvmBus_t bus = {NULL, mpfs_envm_read8, mpfs_envm_write8};
-    uint8_t buf[4];
-    uint16_t len = 0u;
 
     if (FF_NvmMpfsSetup(&drv, &bus) != FF_SUCCESS) {
         return false;
     }
-    return drv.nvm.read(0u, buf, sizeof(buf), &len) == FF_SUCCESS;
+    return FF_NvmMpfsSelfTest(&drv) == FF_SUCCESS;
 }
 #endif /* FRICK_PLATFORM_MPFS */
 

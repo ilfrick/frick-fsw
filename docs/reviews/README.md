@@ -87,6 +87,7 @@
 | 2026-10-11 | NVM backend — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-11-nvm-r1-delta-review.md |
 | 2026-10-11 | NVM backend — R2 delta review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-nvm-r2-delta-review.md |
 | 2026-10-11 | NVM backend — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-nvm-r4-delta-review.md |
+| 2026-10-11 | NVM backend — PA final review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (N20 gate satisfied) | 2026-10-11-nvm-pa-final-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in
