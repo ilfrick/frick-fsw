@@ -4,14 +4,17 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.30                                   |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.32                                   |
+| Date                              | 2026-10-12                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
 
 This log is the running verification record. Every development/verification
-cycle appends a row with the evidence produced; rows reference the committed
-artifacts (no external state).
+cycle appends a row with the evidence produced; rows reference committed
+artifacts. Emulator console captures (Renode `build/renode/console.log`, QEMU
+`build/rtems-generic/qemu-console.log`) are regenerable build outputs (not
+tracked), reproduced by `make renode` / `make qemu` from the committed sources,
+toolchain and scripts.
 
 ## Cycle log
 
@@ -39,6 +42,7 @@ artifacts (no external state).
 | M4 QSPI NOR MTD backend, 2026-10-11 | PASS (Debug) | PASS (18/18; `test_mtd` 4123 checks) | PASS (`lake build` 21/21) | PASS (98 reqs / 57 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | proxy | Reference `FF_Mtd_t` NOR/QSPI backend (SRS-REQ-056): byte read/write, sector-aligned erase; host test (mock MMIO). On-SoC QSPI check pending (needs the board repl `MPFS_QSPI` + `Micron_MT25Q` and the flash command path) - M11 follow-up. |
 | Renode board repl enabled (BeagleV-Fire), 2026-10-11 | PASS (Debug) | PASS (18/18) | PASS (`lake build` 21/21) | PASS (98/57/27/14, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm=PASS`) | V&V environment switched from the SoC-only platform to the `beaglev-fire` board repl (includes the SoC). New peripherals available for drivers: QSPI controller `SPI.MPFS_QSPI`@0x21000000 + `SPI.Micron_MT25Q` NOR flash, `MPFS_SystemServices`@0x37020000 (+ its QSPI/flash), board button. The QSPI NOR still needs the controller command path (M11 task). |
 | M4/M11 MSS CAN backend, 2026-10-11 | PASS (Debug) | PASS (19/19; `test_can` 129 checks) | PASS (`lake build` 21/21) | PASS (99 reqs / 58 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_can=PASS`) | Reference `FF_CanBackend_t` MSS CAN backend (SRS-REQ-057): classic CAN 2.0 A/B, round-robin TX buffers (32), accept-all RX buffer with poll dispatch, reference bit timing; host test (mock MMIO, 129 checks) + Renode MSS CAN MMIO register round trips; M11 6/13 peripheral-bound. CAN-FD rejected (fabric device). Review NC R2/PA-09 fixed: the accept-all RX mask is left-aligned into the AMR identifier field (the host test discriminates the fix: 9 failures at the old constant). Limitations: no bus-off/error handling, polling-only RX. Reference bit timing from the MSS CAN clock (16 tq, 87.5% SP): the MSS CAN clock is one of 8..80 MHz from the MSS PLL (R1-D-01 corrected the earlier 125 MHz assumption); at the 80 MHz reference the standard rates 125/250/500 kbit/s and 1 Mbit/s are exact (prescaler 40/20/10/5). On-target confirmation of the configured clock = GAP-A5. |
+| M10 QEMU emulated target, 2026-10-12 | PASS (Debug) | PASS (19/19) | PASS (`lake build` 21/21) | PASS (99 reqs / 58 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **QEMU PASS** (`make qemu`: `platform : qemu-virt-rtems`, banner + 6 apps registered) | M10 closed: the generic `riscv/rv64imafdc` RTEMS image (platform `qemu-virt-rtems`, `FF_PLATFORM=rtems-generic`, no MPFS board module) runs on `qemu-system-riscv64 -M virt` (`-bios`, entry `0x80000000`); tool T20 (`tools/scripts/qemu_vv.sh`) asserts the app count and records the toolchain image id; the nightly workflow runs it. Complements Renode (MPFS image, norm N18). |
 
 ## v0.1.0 baseline notes
 
@@ -424,3 +428,5 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.28 | 2026-10-11 | frick-fsw | Renode V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services available); all HAL checks still PASS |
 | 0.29 | 2026-10-11 | frick-fsw | M4/M11: reference MSS CAN backend (SRS-REQ-057) - `ff_can_mpfs`, `test_can` (ctest 19/19, 60 checks), `hal_can=PASS` in Renode; M11 6/13 |
 | 0.30 | 2026-10-11 | frick-fsw | CAN review NCs: RX accept-all mask fixed (identifier domain, R2-01/PA-09), `test_can` 60 -> 129 checks (regression discriminates the fix; boundary/negative cases; TX wraparound; raw AMR write assert), poll ack re-read, reference clock 125 -> 80 MHz (R1-D-01, MSS PLL range); M11 6/13 |
+| 0.31 | 2026-10-11 | frick-fsw | M10 closed: QEMU generic-BSP (`riscv/rv64imafdc`) run (`make qemu`, T20, `qemu-system-riscv64 -M virt`); toolchain image gains the rv64imafdc BSP + QEMU |
+| 0.32 | 2026-10-12 | frick-fsw | M10 review NCs (FRICK-REVIEW-0120..0123): generic `qemu-virt-rtems` platform (no MPFS board module), T20 asserts the app count + records the image id, nightly QEMU job |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.27                                   |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.28                                   |
+| Date                              | 2026-10-12                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -102,7 +102,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-040 | hal/net/lwip/ff_net_lwip.c/h | test_lwip.c | - | lwIP network-stack adapter (M4) |
 | SRS-REQ-041 | docs/quality/misra-c.md, tools/scripts/misra.sh | ci:misra | - | MISRA C:2012 compliance (M9) |
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
-| SRS-REQ-043 | tools/scripts/emulated_run.sh, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10) |
+| SRS-REQ-043 | tools/scripts/emulated_run.sh, tools/scripts/qemu_vv.sh, cmake/toolchains/rtems-riscv-generic.cmake, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10, done: Renode + QEMU generic-BSP) |
 | SRS-REQ-044 | tools/docker/renode/, tools/scripts/renode_vv.sh, src/apps/app_renode_test.c | ci:renode | - | Renode functional validation, N18 in force (M10) |
 | SRS-REQ-045 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | OBCP engine uPython/MicroPython (planned, M12) |
 | SRS-REQ-046 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | Reference mission services (planned, M13) |
@@ -213,3 +213,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.25 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-056 reference NOR/QSPI MTD backend; counts 57/27/14 |
 | 0.26 | 2026-10-11 | frick-fsw | SRS-REQ-056 evidence corrected to host-only (on-SoC QSPI check tracked M11) |
 | 0.27 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-057 reference MSS CAN driver; counts 58/27/14 |
+| 0.28 | 2026-10-12 | frick-fsw | M10: SRS-REQ-043 mirror row adds `qemu_vv.sh` + the generic toolchain file (done) |

@@ -409,10 +409,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-013
     derived: false
-    implementation: ["tools/scripts/emulated_run.sh", "docs/vv/emulated-target.md"]
+    implementation: ["tools/scripts/emulated_run.sh", "tools/scripts/qemu_vv.sh", "cmake/toolchains/rtems-riscv-generic.cmake", "docs/vv/emulated-target.md"]
     tests: ["ci:emulated-run"]
     lean: []
-    lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU) is an advisory demonstration path: it runs the committed RTEMS binary and checks the boot banner when the emulator is available, and records SKIP otherwise. It does not itself constitute verification; the emulator is qualified as a tool (N10), and real-silicon residual is GAP-A5."
+    lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU). Renode runs the MPFS image (functional validation, norm N18). QEMU (`make qemu`, tool T20) builds and runs the generic riscv/rv64imafdc RTEMS image on `qemu-system-riscv64 -M virt` and checks the boot banner + 6 applications registered; the tools are qualified (N10), SKIP is recorded when an image/tool is absent, and the real-silicon residual is GAP-A5. Parent SSS-REQ-013 (continuous verification) is justified: the capability feeds the pipeline; peripheral/driver-level verification lives with the reference-driver requirements (SSS-REQ-020)."
 
   - id: SRS-REQ-044
     level: srs

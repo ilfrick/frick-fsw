@@ -18,6 +18,8 @@ FROM ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884
 
 ARG RTEMS_RSB_REF=6.2
 ARG RTEMS_BSP=riscv/mpfs64imafdc
+# Generic RISC-V BSP used only for the QEMU (virt) emulated-target path (M10).
+ARG RTEMS_BSP_QEMU=riscv/rv64imafdc
 ARG RTEMS_PREFIX=/opt/rtems/6
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,12 +37,17 @@ RUN ../source-builder/sb-set-builder --jobs="$(nproc)" \
       --prefix="${RTEMS_PREFIX}" 6/rtems-riscv.bset \
  && ../source-builder/sb-set-builder --jobs="$(nproc)" \
       --prefix="${RTEMS_PREFIX}" 6/rtems-kernel.bset \
-      --with-rtems-bsp="${RTEMS_BSP}"
+      --with-rtems-bsp="${RTEMS_BSP}" \
+ && ../source-builder/sb-set-builder --jobs="$(nproc)" \
+      --prefix="${RTEMS_PREFIX}" 6/rtems-kernel.bset \
+      --with-rtems-bsp="${RTEMS_BSP_QEMU}"
 
 ENV PATH="${RTEMS_PREFIX}/bin:${PATH}"
 ENV RTEMS_HOME=/opt/rtems
 
-# Build tooling so the cross build can run inside this image (make rtems-docker).
+# Build tooling (so the cross build runs inside this image: make rtems-docker /
+# make qemu-image) and QEMU (so the generic-BSP image can be run on the QEMU
+# `virt` machine: make qemu, M10).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      cmake ninja-build \
+      cmake ninja-build qemu-system-misc \
     && rm -rf /var/lib/apt/lists/*

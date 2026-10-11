@@ -102,7 +102,7 @@ FF_Status_t FF_PalInit(void)
     return FF_SUCCESS;
 }
 
-#ifndef FRICK_PLATFORM_MPFS
+#if !defined(FRICK_PLATFORM_MPFS) && !defined(FRICK_PLATFORM_QEMU)
 FF_Status_t FF_PalPlatformInit(void)
 {
     return FF_SUCCESS;

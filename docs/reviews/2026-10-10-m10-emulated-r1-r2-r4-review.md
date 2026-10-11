@@ -156,20 +156,23 @@ the deltas until full compliance.)
 
 | NC | Severity | Item / Requirement | Finding | Disposition | Re-verification evidence | Owner | Status (open/closed) | Delta re-review |
 | -- | -------- | ------------------ | ------- | ----------- | ------------------------ | ----- | --------------------- | --------------- |
-| R1-01 | Minor | `emulated-target.md`, `emulated_run.sh`, SRS-REQ-043 | QEMU doc BSP `rv64imafdc` vs script builds `mpfs64imafdc` | Build `rv64imafdc` for QEMU or align all docs to the MPFS image + caveats | (pending) | frick-fsw | open | (pending) |
-| R1-02 | Comment | `emulated-target.md:23` | E51 ISA and QSPI/MT25Q claims inaccurate | Correct ISA; drop/attribute QSPI/MT25Q | (pending) | frick-fsw | open | (pending) |
-| R1-03 | Comment | `emulated_run.sh:38-45` | Renode banner not captured (no `showAnalyzer`) | Add analyzer/file backend; validate with Renode | (pending) | frick-fsw | open | (pending) |
-| R2-01 | Minor | SRS-REQ-043, `emulated_run.sh`, `traceability.yaml` | Evidence non-falsifiable / over-claims drivers+app registration | Disclose advisory proxy; grep `applications registered`; add driver tests to claim drivers; define pass criteria | (pending) | frick-fsw | open | (pending) |
-| R2-02 | Comment | CI + manifest + `traceability.md:95` | `ci:emulated-run` not labelled proxy vs `ci:rtems-cross-build` | Mirror the proxy wording | (pending) | frick-fsw | open | (pending) |
-| R4-01 | Minor | `traceability.md:38` | Top-down matrix omits SRS-REQ-043 | Add to SSS-REQ-013 row | (pending) | frick-fsw | open | (pending) |
-| R4-02 | Minor | `traceability.md:18-20` | CI-claim count stale (10/9 vs 11/10) | Update to 11 unique / 10 referenced | (pending) | frick-fsw | open | (pending) |
-| R4-03 | Minor | `README.md:40-78` | Generated metrics panel stale (78/43, 64/78) | Run `metrics.py --readme` | (pending) | frick-fsw | open | (pending) |
-| R4-04 | Minor | `verification-results.md` | No M10 row; counts stale | Add M10 cycle row; refresh counts | (pending) | frick-fsw | open | (pending) |
-| R4-05 | Minor | `tool-qualification.md:54-65` | T15/T16 absent from evidence-claims mapping | Map T15/T16 -> `ci:emulated-run` | (pending) | frick-fsw | open | (pending) |
-| R4-06 | Comment | `traceability.md:104-125` | SSS-REQ-021 missing from SSS summary | Add row | (pending) | frick-fsw | open | (pending) |
-| R4-07 | Comment | SRS-REQ-043 parentage | Parent SSS-REQ-013 looser than its text | Justify parent choice | (pending) | frick-fsw | open | (pending) |
-| R4-08 | Comment | `verification-plan.md` | Emulated path not in V&V plan/environment | Add environment/activity row; cross-link | (pending) | frick-fsw | open | (pending) |
-| R4-09 | Comment | touched files | Missing trailing newlines | Add newline | (pending) | frick-fsw | open | (pending) |
+| R1-01 | Minor | `emulated-target.md`, `emulated_run.sh`, SRS-REQ-043 | QEMU doc BSP `rv64imafdc` vs script builds `mpfs64imafdc` | **closed**: the generic `riscv/rv64imafdc` BSP is now built for QEMU (`make qemu-image`, `FF_PLATFORM=rtems-generic`) and actually run on QEMU `virt` | `make qemu` PASS (`platform : qemu-virt-rtems`); `docs/vv/verification-results.md` M10 row; FRICK-REVIEW-0120/0123 | frick-fsw | **closed** | FRICK-REVIEW-0123 (PA) |
+| R1-02 | Comment | `emulated-target.md:23` | E51 ISA and QSPI/MT25Q claims inaccurate | **closed**: per-core ISA corrected (E51 `rv64imac_zicsr_zifencei` no F/D; U54 `rv64imafdc`); QSPI/MT25Q attributed to the `beaglev-fire` board repl | `docs/vv/emulated-target.md` rev 0.3 | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+| R1-03 | Comment | `emulated_run.sh:38-45` | Renode banner not captured (no `showAnalyzer`) | **closed**: `showAnalyzer sysbus.mmuart1` added to the advisory Renode leg (the console is MMUART1) | `tools/scripts/emulated_run.sh` | frick-fsw | **closed** | FRICK-REVIEW-0120 (R1) |
+| R2-01 | Minor | SRS-REQ-043, `emulated_run.sh`, `traceability.yaml` | Evidence non-falsifiable / over-claims drivers+app registration | **closed**: a binding QEMU check (`tools/scripts/qemu_vv.sh`, T20) asserts the app count and can FAIL; the advisory `emulated_run.sh` disclosure kept; the QEMU driver scope explicitly excluded | `make qemu`; `docs/vv/emulated-target.md` §5; nightly workflow | frick-fsw | **closed** | FRICK-REVIEW-0121 (R2) |
+| R2-02 | Comment | CI + manifest + `traceability.md:95` | `ci:emulated-run` not labelled proxy vs `ci:rtems-cross-build` | **closed**: the advisory/proxy wording is retained for the CI step; the binding QEMU check is documented separately (nightly, T20) | `docs/requirements/traceability.md`; `tool-qualification.md` | frick-fsw | **closed** | FRICK-REVIEW-0121 (R2) |
+| R4-01 | Minor | `traceability.md:38` | Top-down matrix omits SRS-REQ-043 | **closed**: SSS-REQ-013 row lists SRS-REQ-043 | `docs/requirements/traceability.md:42` | frick-fsw | **closed** | prior cycle |
+| R4-02 | Minor | `traceability.md:18-20` | CI-claim count stale (10/9 vs 11/10) | **closed**: counts now 12 unique / 11 referenced | `traceability.md:18` | frick-fsw | **closed** | prior cycle |
+| R4-03 | Minor | `README.md:40-78` | Generated metrics panel stale | **closed**: `metrics.py --readme` regenerated every cycle | `README.md` panel; `metrics.py --check` | frick-fsw | **closed** | prior cycle |
+| R4-04 | Minor | `verification-results.md` | No M10 row; counts stale | **closed**: M10 cycle row added (rev 0.32) | `docs/vv/verification-results.md` | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+| R4-05 | Minor | `tool-qualification.md:54-65` | T15/T16 absent from evidence-claims mapping | **closed**: mapping extended (T15/T16/T20) | `docs/vv/tool-qualification.md` | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+| R4-06 | Comment | `traceability.md:104-125` | SSS-REQ-021 missing from SSS summary | **closed**: SSS-REQ-021 row present | `traceability.md:150` | frick-fsw | **closed** | prior cycle |
+| R4-07 | Comment | SRS-REQ-043 parentage | Parent SSS-REQ-013 looser than its text | **closed**: parentage justified in the manifest note | `traceability.yaml` SRS-REQ-043 `lean_note` | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+| R4-08 | Comment | `verification-plan.md` | Emulated path not in V&V plan/environment | **closed**: environment row + "Emulated target (Dem, M10)" activity added | `docs/vv/verification-plan.md` rev 0.1.3 | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+| R4-09 | Comment | touched files | Missing trailing newlines | **closed**: trailing newlines added (incl. `sprint-plan.md`) | `git diff --check` | frick-fsw | **closed** | FRICK-REVIEW-0122 (R4) |
+
+Closed in the M10 closure increment (2026-10-12) with the independent reviews
+FRICK-REVIEW-0120..0123 (norm N12).
 
 ---
 

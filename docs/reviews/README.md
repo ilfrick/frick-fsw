@@ -117,6 +117,15 @@
 | 2026-10-11 | CAN — PA closure review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (loop closed; freeze at commit) | 2026-10-11-can-pa-closure-review.md |
 | 2026-10-11 | CAN — R2 R2-D5 closure (N12) | R2 (Senior SW V&V engineer) | APPROVED (R2-D5 closed) | 2026-10-11-can-r2-d5-closure.md |
 | 2026-10-11 | CAN — PA freeze sign-off (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (freeze confirmed) | 2026-10-11-can-pa-freeze-signoff.md |
+| 2026-10-12 | M10 QEMU emulated target — FSW code review | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-12-m10-r1-review.md |
+| 2026-10-12 | M10 QEMU emulated target — V&V review | R2 (Senior SW V&V engineer) | REJECTED (Major R2-01 T20 qualification) -> fixed | 2026-10-12-m10-r2-review.md |
+| 2026-10-12 | M10 QEMU emulated target — docs review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-12-m10-r4-review.md |
+| 2026-10-12 | M10 QEMU emulated target — PA review (N20) | PA (Senior SW PA engineer) | REJECTED (Major PA-01/PA-03) -> fixed | 2026-10-12-m10-pa-review.md |
+| 2026-10-12 | M10 — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01..04 closed) | 2026-10-12-m10-r1-delta-review.md |
+| 2026-10-12 | M10 — R2 delta review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (Major R2-01 closed) | 2026-10-12-m10-r2-delta-review.md |
+| 2026-10-12 | M10 — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (R4-01..08 closed) | 2026-10-12-m10-r4-delta-review.md |
+| 2026-10-12 | M10 — PA delta review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Majors PA-01/PA-03 closed) | 2026-10-12-m10-pa-delta-review.md |
+| 2026-10-12 | M10 — PA final closure (N12/N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (M10 loop closed) | 2026-10-12-m10-pa-final-closure.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

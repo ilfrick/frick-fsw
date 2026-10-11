@@ -40,7 +40,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-11. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-12. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the user - **🔴 (RED)** failures.
 
@@ -48,7 +48,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| Sprints completed | 2/26 (7.7%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 53/58 (91.4%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 58/58 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
@@ -141,7 +141,7 @@ scope (implemented / interface-only / planned / user-provided):
 | File transfer | — | — | **CFDP + virtual filestore (VFS) + PUS-C S23** (**M15**) | — |
 | Autonomy | — | — | **OBCP engine integration (uPython)** (**M12**) + **in-house OBCP engine** (**M16**); equipment manager + fault mgmt (**M13**) | mission apps |
 | Execution cores | single U54 | — | **RTEMS SMP / multicore** (**M14**) | — |
-| V&V | host simulator; **Renode (open RTEMS)**; trace/Lean/format gates | — | QEMU run (**M10**); certified MISRA checker (**GAP-A4**) | HWIL (**GAP-A5**) |
+| V&V | host simulator; **Renode (open RTEMS)**; **QEMU generic-BSP run (`make qemu`)**; trace/Lean/format gates | — | certified MISRA checker (**GAP-A4**) | HWIL (**GAP-A5**) |
 
 ## PUS-C services implemented
 
@@ -307,6 +307,10 @@ make pus-asn1                  # ASN1SCC generation; default ON (FF_USE_PUS_ASN1
 make renode-env                # self-test: Renode runs + PolarFire SoC board platform loads
 make renode-image renode       # build the RTEMS image + emulated functional validation
 
+# QEMU emulated target (milestone M10, generic riscv/rv64imafdc BSP):
+make qemu-image qemu           # build the generic image + run it on qemu-system-riscv64 -M virt
+make qemu-image-docker         # same build inside the RTEMS toolchain image (no host toolchain)
+
 # RTEMS 6.2 cross build (open-source RTEMS; toolchain: tools/scripts/setup_rtems.sh):
 make rtems-toolchain           # build the open RTEMS 6.2 toolchain image
 make rtems-docker              # cross compile inside the image (no host toolchain)
@@ -402,13 +406,13 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 
 | Milestone | Status |
 | --- | --- |
-| M1, M2, M3, M6, M7 | ✅ done |
-| M4, M5, M9, M10, M11 | 🟡 in progress |
+| M1, M2, M3, M6, M7, M10 | ✅ done |
+| M4, M5, M9, M11 | 🟡 in progress |
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
-Current focus: **Sprint 0** (closure of the open M16 reviews + the ECSS
-traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN done; SPI +
-M10 QEMU). Full sequence in the sprint plan above.
+Current focus: **Sprint 1** complete (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN done;
+**M10 closed** via the QEMU generic-BSP run). Next per plan: **Sprint 3** (I2C MSS backend). Full
+sequence in the sprint plan above.
 
 ## Contributing
 

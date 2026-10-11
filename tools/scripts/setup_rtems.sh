@@ -7,8 +7,9 @@
 # No vendor/commercial baseline or pre-built toolchain is used.
 #
 # Installs rtems-source-builder, builds the riscv toolchain and the RTEMS 6.2
-# kernel for the mpfs64imafdc BSP, so that `make rtems` produces the flight
-# binary. Requires: git, gcc, make, python3 and the RSB prerequisites.
+# kernel for the mpfs64imafdc BSP (and the generic rv64imafdc BSP used by the
+# QEMU emulated-target path, milestone M10), so that `make rtems` produces the
+# flight binary. Requires: git, gcc, make, python3 and the RSB prerequisites.
 #
 # Usage:  ./tools/scripts/setup_rtems.sh [jobs]
 # Result: $RTEMS_HOME/6/bin/riscv-rtems6-gcc (RTEMS_HOME defaults to /opt/rtems,
@@ -29,6 +30,8 @@ JOBS="${1:-$(nproc)}"
 RSB_REF="6.2"
 SRC="${RSB_SRC:-$HOME/rtems-source-builder}"
 BSP="riscv/mpfs64imafdc"
+# Generic RISC-V BSP for the QEMU `virt` emulated-target path (milestone M10).
+BSP_QEMU="riscv/rv64imafdc"
 
 echo "[setup_rtems] RTEMS_HOME=${RTEMS_HOME} jobs=${JOBS} rsb=${RSB_REF} bsp=${BSP}"
 
@@ -42,7 +45,7 @@ if [[ ! -d "${RTEMS_HOME}/${RTEMS_VERSION}/bin" ]]; then
       https://gitlab.rtems.org/rtems/tools/rtems-source-builder.git "${SRC}"
   fi
 
-  echo "[setup_rtems] step 1/2: riscv toolchain (this takes a while)"
+  echo "[setup_rtems] step 1/3: riscv toolchain (this takes a while)"
   (
     cd "${SRC}/rtems"
     ../source-builder/sb-set-builder \
@@ -51,7 +54,7 @@ if [[ ! -d "${RTEMS_HOME}/${RTEMS_VERSION}/bin" ]]; then
       6/rtems-riscv.bset
   )
 
-  echo "[setup_rtems] step 2/2: RTEMS 6.2 kernel + BSP ${BSP}"
+  echo "[setup_rtems] step 2/3: RTEMS 6.2 kernel + BSP ${BSP}"
   (
     cd "${SRC}/rtems"
     ../source-builder/sb-set-builder \
@@ -59,6 +62,16 @@ if [[ ! -d "${RTEMS_HOME}/${RTEMS_VERSION}/bin" ]]; then
       --prefix="${RTEMS_HOME}/${RTEMS_VERSION}" \
       6/rtems-kernel.bset \
       --with-rtems-bsp="${BSP}"
+  )
+
+  echo "[setup_rtems] step 3/3: generic RISC-V BSP ${BSP_QEMU} (QEMU)"
+  (
+    cd "${SRC}/rtems"
+    ../source-builder/sb-set-builder \
+      --jobs="${JOBS}" \
+      --prefix="${RTEMS_HOME}/${RTEMS_VERSION}" \
+      6/rtems-kernel.bset \
+      --with-rtems-bsp="${BSP_QEMU}"
   )
 fi
 

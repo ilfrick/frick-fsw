@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.6                                    |
+| Revision                          | 1.7                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,12 +84,18 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit a95cafb + the M4/M11 CAN increment, SRS-REQ-057; reviews `docs/reviews/2026-10-11-can-*`)
+## 4. Current state (as of commit aee4135 + the M10 QEMU increment; norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
+- **M10 done (emulated-target verification, OBJ-18):** Renode real run PASS plus a
+  **QEMU run** of the generic `riscv/rv64imafdc` RTEMS image
+  (`make qemu-image` + `make qemu`; tool T20 `tools/scripts/qemu_vv.sh`; console
+  `build/rtems-generic/qemu-console.log`) — banner + 6 applications registered on
+  `qemu-system-riscv64 -M virt`. The toolchain image (`tools/docker/rtems`, T18)
+  now also builds the `rv64imafdc` BSP and carries QEMU.
 - **PUS-C ASN.1 default (SRS-REQ-050, ADR-0016):** `FF_PusBackendN7` (N7/ESA
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
@@ -125,9 +131,9 @@ occasion; prefer Docker.
 
 ## 5. Immediate next steps (priority order)
 
-> Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). Current: S0
-> (close the open M16 reviews + ECSS NC PA-67-01), then S1 (M4/M11 HAL classes + M10
-> QEMU). NVM + NOR/QSPI MTD + MSS CAN done; next: SPI, ...
+> Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). S1 is complete
+> (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
+> done. Next per plan: **S3 — I2C `FF_I2c_t` MSS backend** (`hal_i2c=PASS`).
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
@@ -190,3 +196,4 @@ occasion; prefer Docker.
 | 1.4 | 2026-10-11 | frick-fsw | Sprint 1.2: reference NOR/QSPI MTD backend (SRS-REQ-056); counts 98/57/27/14 |
 | 1.5 | 2026-10-11 | frick-fsw | Sprint 1.3: reference MSS CAN backend (SRS-REQ-057); M11 6/13 (`hal_can=PASS`); counts 99/58/27/14 |
 | 1.6 | 2026-10-11 | frick-fsw | CAN review set closed (FRICK-REVIEW-0106..0119: R1/R2/R4 + PA initial/delta/closure + freeze); accept-all mask, clock 80 MHz, test 129 checks |
+| 1.7 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20); toolchain image gains the rv64imafdc BSP + QEMU |

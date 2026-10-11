@@ -6,7 +6,8 @@
  * glue that is genuinely RTEMS specific: the POSIX API configuration check,
  * the RTEMS clock and the panic/reboot path.
  *
- * Compiled only when FRICK_PLATFORM_MPFS is defined.
+ * Compiled only for the RTEMS platforms (FRICK_PLATFORM_MPFS, the flight target,
+ * or FRICK_PLATFORM_QEMU, the generic-BSP QEMU emulated-target build, M10).
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -14,7 +15,7 @@
  */
 #include "pal.h"
 
-#ifdef FRICK_PLATFORM_MPFS
+#if defined(FRICK_PLATFORM_MPFS) || defined(FRICK_PLATFORM_QEMU)
 
 #include <rtems.h>
 
@@ -56,4 +57,4 @@ void *POSIX_Init(void *argument)
     return NULL;
 }
 
-#endif /* FRICK_PLATFORM_MPFS */
+#endif /* FRICK_PLATFORM_MPFS || FRICK_PLATFORM_QEMU */

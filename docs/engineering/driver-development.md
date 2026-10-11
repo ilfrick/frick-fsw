@@ -130,8 +130,10 @@ deterministic: fixed-size queues, monotonic time, bounded blocking.
 ## 5. Configuration and build integration
 
 - `config/fsw_config.h` is the single configuration point; add tunables there.
-- Platform selection is `-DFF_PLATFORM=rtems` (sets `FRICK_PLATFORM_MPFS`) or
-  the default `native` (see `CMakeLists.txt`).
+- Platform selection is `-DFF_PLATFORM=rtems` (sets `FRICK_PLATFORM_MPFS`), the
+  default `native`, or `-DFF_PLATFORM=rtems-generic` (sets `FRICK_PLATFORM_QEMU`,
+  the generic RISC-V QEMU emulated-target build; no MPFS peripherals) — see
+  `CMakeLists.txt` and `config/platform/`.
 - Register new sources in `FF_CORE_SOURCES`; tests in `tests/CMakeLists.txt`.
 - Reference implementations live under `src/drivers/` (e.g. the Cadence GEM MAC
   `src/drivers/eth/gem/`, the GEM TSN backend, and the loopback `FF_NetStack_t`)

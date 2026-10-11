@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.9                                    |
-| Date                              | 2026-10-11                             |
-| Baseline commit                   | a95cafb + M4/M11 CAN increment (audited revision) |
+| Revision                          | 0.11                                   |
+| Date                              | 2026-10-12                             |
+| Baseline commit                   | aee4135 + M10 QEMU closure increment (audited revision) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -30,7 +30,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
-| M10 emulated target | Renode/QEMU | **Renode real run PASS; QEMU pending** | partial | tracked: M10 |
+| M10 emulated target | Renode/QEMU | **Renode real run PASS (MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20)** | none | closed |
 | M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN done (6/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 7 classes pending** | partial | tracked: M11 |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
@@ -53,7 +53,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N7 | push to both remotes | compliant | none | closed |
 | N8 | complete/current docs | compliant | some stale-word recurrences found by reviews | closed per review |
 | N9 | independent reviews | R1/R2/R3/R4 + PA per change | none | closed |
-| N10 | tools qualified | registry T1-T19 | new tools each change | closed |
+| N10 | tools qualified | registry T1-T20 | new tools each change | closed |
 | N11 | scripts/reviews/results committed | compliant | none | closed |
 | N12 | NC close-out loop | compliant | none | closed |
 | N13 | AGPL-3.0; licensing reviewed | compliant (+ Eärendil disclaimer) | none | closed |
@@ -121,11 +121,12 @@ Found by this audit (not previously tracked as such):
 1. **PUS-C ASN.1 default** — §3 (being reconciled this loop).
 2. **Multicore/SMP** — never planned despite the 4×U54 target; now **M14/OBJ-22**
    (user directive; after all other milestones).
-3. **QEMU** emulated target (M10) — script is a proxy; QEMU run pending.
+3. **QEMU** emulated target (M10) — **closed**: generic `riscv/rv64imafdc` RTEMS
+   image run on `qemu-system-riscv64 -M virt` (`make qemu`, tool T20).
 4. **Certified MISRA checker** (M9/GAP-A4) — process only.
 5. **Full PUS-C service coverage** — partial (GAP-A2).
 6. **Full formal C refinement** — GAP-A1 (Lean model only).
-These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
+These are now explicitly tracked (M14/GAP-A1/A2/A4/M11/M13); **QEMU (M10) is closed**.
 
 ## 5. Dispositions summary
 
@@ -137,7 +138,8 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | PUS-C ASN.1 not wired/default | **reconciled**: `FF_PusBackendN7` default (build-time; ADR-0016); host `test_pus` + Renode | frick-fsw | M4/now |
 | Multicore/SMP | tracked | frick-fsw | **M14** |
 | In-house fundamental PUS-C service set (+ CFDP + virtual filestore) | tracked (assessment FRICK-ARCH-0015, ~34 PM; hybrid) | frick-fsw | **M15** |
-| QEMU target | tracked | frick-fsw | M10 |
+| QEMU target | **closed** (`make qemu`, T20; generic `rv64imafdc` BSP on QEMU `virt`) | frick-fsw | M10 |
+| T18 image reproducibility caveat (recorded pass used a hand-assembled image) | tracked: complete one clean `make rtems-toolchain` build + re-run `make qemu`/`make renode` | frick-fsw | M10 closure / next CI run |
 | Certified MISRA checker | tracked | frick-fsw | GAP-A4 |
 | PUS-C service coverage | tracked | frick-fsw | GAP-A2 / M13 |
 | Formal C refinement | tracked | frick-fsw | GAP-A1 / M8 |
@@ -160,3 +162,5 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.7 | 2026-10-11 | frick-fsw | NOR/QSPI MTD driver (SRS-REQ-056) host-verified; counts 98/57/27/14; on-SoC QSPI task opened |
 | 0.8 | 2026-10-11 | frick-fsw | Renode V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services reachable) |
 | 0.9 | 2026-10-11 | frick-fsw | M4/M11: MSS CAN done (SRS-REQ-057); M11 6/13; counts 99/58/27/14; re-baselined to the CAN increment |
+| 0.10 | 2026-10-11 | frick-fsw | M10 closed: QEMU generic-BSP emulated-target run (`make qemu`, T20); M11 6/13; counts 99/58/27/14 |
+| 0.11 | 2026-10-12 | frick-fsw | M10 review NCs (FRICK-REVIEW-0120..0123): N10 registry T1-T20; QEMU gap rows closed; QEMU run recorded |

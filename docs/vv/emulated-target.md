@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-EMU-001                       |
-| Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.3                                    |
+| Date                              | 2026-10-12                             |
 | Norms                             | N5, N6, N10                            |
 | Requirement                       | SRS-REQ-043                            |
 
@@ -20,8 +20,8 @@ closing part of GAP-A5 without hardware.
 
 | Tool | Role | Notes |
 | ---- | ---- | ----- |
-| **Renode** | full PolarFire SoC emulation | official Microchip/Antmicro platforms `polarfire-soc` and `icicle-kit`: 5 RiscV64 CPUs (E51 `rv64imac` + 4x U54 `rv64gc`), CLINT, PLIC, PDMA, 5x NS16550 UART, SD/eMMC, 2x SPI, 2x I2C, 2x CAN, 2x CadenceGEM (+ PHY), 3x GPIO, watchdog/RTC/timer, QSPI controller, eNVM, USB, 2x PCIe, crypto, DDR mock; runs the same unmodified binaries; GDB + headless test scripts; UART analyzer for console capture; FPGA fabric co-simulation (Verilator). Runs the **MPFS image** (`make rtems`). |
-| **QEMU** | generic RISC-V run | `qemu-system-riscv64 -M virt -nographic -bios <rtems.exe>` runs the RTEMS **generic `riscv/rv64imafdc` BSP** (a separate build from the MPFS image); no MPFS peripherals. |
+| **Renode** | full PolarFire SoC emulation | official Microchip/Antmicro platform `polarfire-soc` (and the `beaglev-fire` board repl used by this project, `@platforms/boards/beaglev-fire.repl`): 5 RISC-V64 CPUs (E51 `rv64imac_zicsr_zifencei`, no F/D; 4x U54 `rv64gc_zicsr_zifencei` = `rv64imafdc`), CLINT, PLIC, PDMA, 5x NS16550 UART, SD/eMMC, 2x SPI, 2x I2C, 2x CAN, 2x CadenceGEM (+ PHY), 3x GPIO, watchdog/RTC/timer, eNVM, USB, 2x PCIe, crypto, DDR mock; the **board repl** additionally instantiates the QSPI NOR (`SPI.MPFS_QSPI` + `SPI.Micron_MT25Q`) and `MPFS_SystemServices` (the open `polarfire-soc` platform alone has no QSPI/MT25Q device). Runs the same unmodified binaries; GDB + headless test scripts; UART analyzer for console capture; FPGA fabric co-simulation (Verilator). Runs the **MPFS image** (`make rtems`). |
+| **QEMU** | generic RISC-V run | `qemu-system-riscv64 -M virt -nographic -bios <rtems.exe>` runs the RTEMS **generic `riscv/rv64imafdc` BSP** (a separate build from the MPFS image; toolchain file `cmake/toolchains/rtems-riscv-generic.cmake`, targets `make qemu-image` / `make qemu-image-docker`); no MPFS peripherals. The generic BSP links at the QEMU `virt` RAM base `0x80000000`, so `-bios` boots it directly. |
 
 ## 3. Scope of verification
 
@@ -49,10 +49,25 @@ closing part of GAP-A5 without hardware.
   what ran (SKIP when absent) and does not itself constitute verification; the
   emulator is qualified as a tool (T15/T16) and evidence is recorded in
   `docs/vv/verification-results.md` when a run is available.
-- CI: a job builds the RTEMS image and, when Renode/QEMU is available, runs it
-  and checks the boot banner + app registration; evidence recorded in
-  `docs/vv/verification-results.md`.
-- Tool qualification (N10): Renode and QEMU registered (T15/T16).
+- `tools/scripts/qemu_vv.sh` (`make qemu`, tool T20): the **binding** QEMU check.
+  Builds/loads the generic-BSP image (`make qemu-image`/`qemu-image-docker`) and
+  runs it on `qemu-system-riscv64 -M virt` in the toolchain image (which carries
+  QEMU + the `rv64imafdc` BSP), captures the UART console to
+  `build/rtems-generic/qemu-console.log`, and checks the boot banner +
+  application registration. SKIP proxy when the image is absent; FAIL when
+  present but the banner is missing.
+- CI: the per-commit `ci-emulated-run` step runs `emulated_run.sh` (advisory;
+  T15/T16) and the **nightly** workflow (`.github/workflows/nightly.yml`) builds
+  the generic image and runs the QEMU check (`make qemu`, T20); evidence recorded
+  in `docs/vv/verification-results.md`.
+- Tool qualification (N10): Renode and QEMU registered (T15/T16) and the QEMU
+  functional check (**T20**, run by the nightly workflow). The QEMU generic build
+  carries **no MPFS peripherals**, so
+  the QEMU path establishes RTEMS boot / PAL / tasking / framework bring-up only
+  (no driver verification); driver verification is Renode's (and on-target = GAP-A5).
+  Note: the generic image still links the reference driver translation units
+  (`FF_BUILD_DRIVERS` default ON) but none is bound or touched on QEMU (no MMIO
+  access), so the evidence is unaffected.
 
 ## 6. Gaps linkage
 
@@ -65,3 +80,5 @@ GAP-A5 (on-target) is **partially mitigated** by emulated execution; the residua
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial emulated-target V&V note (Renode PolarFire SoC + QEMU); milestone M10 |
+| 0.2 | 2026-10-11 | frick-fsw | M10 closed: QEMU generic-BSP (`riscv/rv64imafdc`) run added (`make qemu-image`/`make qemu`, tool T20, `qemu_vv.sh`); toolchain image (T18) gains the rv64imafdc BSP + QEMU |
+| 0.3 | 2026-10-12 | frick-fsw | Review NCs: per-core ISA corrected (E51 no F/D; U54 `rv64imafdc`), QSPI/MT25Q attributed to the board repl, QEMU driver-scope clarified, T20 in the tool list; generic `qemu-virt-rtems` platform (no MPFS board module) |

@@ -54,6 +54,23 @@ jobs:
           grep -q "RENODE_TEST: PASS" build/renode/console.log
           echo "Renode functional validation: PASS"
 
+      # QEMU leg of the emulated-target evidence (SRS-REQ-043, tool T20); the
+      # `ci-emulated-run` claim itself is declared in ci.yml (trace.py scans
+      # ci.yml/.gitea ci.yml only, so no `# evidence:` marker is used here).
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-misc
+
+      - name: Build generic-BSP image (rv64imafdc) for QEMU
+        run: make qemu-image
+
+      - name: QEMU emulated-target validation (milestone M10)
+        run: |
+          make qemu
+          grep -aq "applications registered" build/rtems-generic/qemu-console.log
+          echo "QEMU emulated-target validation: PASS"
+
       - name: Upload cross-build artifact
         uses: actions/upload-artifact@v4
         with:

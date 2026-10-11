@@ -13,6 +13,8 @@
 
 #if defined(FRICK_PLATFORM_MPFS)
 #include "platform/platform_mpfs.h"
+#elif defined(FRICK_PLATFORM_QEMU)
+#include "platform/platform_qemu.h"
 #else
 #include "platform/platform_native.h"
 #endif

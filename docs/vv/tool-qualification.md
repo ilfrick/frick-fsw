@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.14                                 |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.3.16                                 |
+| Date                              | 2026-10-12                             |
 | Applicable norms                  | N6, N10, N11                           |
 
 Norm N10 requires every test script / V&V tool to be **qualified** per
@@ -39,9 +39,10 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
 | T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
-| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP built; real cross build OK (plain + Renode image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
+| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + `mpfs64imafdc` BSP (flight/Renode) and `rv64imafdc` BSP (QEMU) built; real cross build OK (plain + Renode + generic image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED (see note) |
 | T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
-| —   | Evidence-claims mapping                 | `ci:renode` -> T17 (Renode V&V environment) | Renode functional run (`RENODE_TEST: PASS`, HAL checks) | — | — | — |
+| T20 | QEMU emulated-target functional check (M10) | `tools/scripts/qemu_vv.sh`, `cmake/toolchains/rtems-riscv-generic.cmake` (`make qemu-image`/`qemu-image-docker`, `make qemu`) | generic `rv64imafdc` image boots under `qemu-system-riscv64 -M virt -bios`: banner + 6 applications registered | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| —   | Evidence-claims mapping                 | `ci:renode` -> T17 (Renode V&V environment); `ci:emulated-run` -> T15/T16 (advisory CI step) and T20 (nightly QEMU job `.github/workflows/nightly.yml`) | Renode functional run (`RENODE_TEST: PASS`, HAL checks); QEMU `virt` generic-BSP boot | — | — | — |
 
 ## Qualification procedure (per tool)
 
@@ -54,6 +55,15 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
    qualification evidence.
 5. Any change to a qualified tool/script invalidates its qualification: the
    review is repeated and the register updated in the same commit (norm N11).
+
+**T18 note (reproducibility caveat).** The `frick-rtems-toolchain:local` image
+that produced the recorded M10 QEMU pass was assembled by applying the updated
+`Dockerfile`'s steps individually (the extra `riscv/rv64imafdc` kernel-bset build
+and the `qemu-system-misc`/`cmake`/`ninja-build` install), each executed and
+verified in this environment; a single clean `docker build` of the updated
+`Dockerfile` was not completed locally. The clean, reproducible build is provided
+by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
+`make qemu`/`make renode`) is tracked as a closure action.
 
 ## Evidence claims mapping
 
@@ -69,6 +79,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T11              | `ci:ci-pipeline`, `ci:dual-build`, `ci:trace`, `ci:docs`, `ci:host-build`, `ci:simulator-smoke` |
 | T13              | README completion/coverage panel (CI currency gate: `make coverage` + `metrics.py --check`; the non-coverage panel must match, coverage-row drift is warned) |
 | T17              | `ci:renode` (Renode V&V environment; functional run + HAL checks) |
+| T20              | `ci:emulated-run` (QEMU `virt` generic-BSP functional check) |
 | T19              | `ci:pus-asn1` / PUS-C ASN.1 generation for `ci:renode` (SRS-REQ-050) |
 
 ## History
@@ -110,3 +121,5 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.12 | 2026-10-11 | frick-fsw | Re-qualification: T17 `frick-renode.resc` and `renode_env.resc` now load the BeagleV-Fire board repl (QSPI NOR + system services); header/History reconciled |
 | 0.3.13 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_can.c` (reference MSS CAN driver, SRS-REQ-057); T17 Renode functional check gains `hal_can` |
 | 0.3.14 | 2026-10-11 | frick-fsw | Re-qualification: T17 `renode_vv.sh` now also retains the full Renode process log (`build/renode/renode-process.log`) next to the UART console (evidence retention, PA-0109-06) |
+| 0.3.15 | 2026-10-11 | frick-fsw | M10: new qualified tool T20 (QEMU generic-BSP functional check, `qemu_vv.sh`); T18 builds the `rv64imafdc` BSP (QEMU) alongside `mpfs64imafdc`; `ci:emulated-run` mapped to T15/T16/T20 |
+| 0.3.16 | 2026-10-12 | frick-fsw | Review NCs: `ci:emulated-run` mapping clarified (T20 exercised by the nightly QEMU job); T18 reproducibility caveat recorded (clean `make rtems-toolchain` build tracked) |

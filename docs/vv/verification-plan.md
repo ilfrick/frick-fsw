@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.2                                  |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.1.3                                  |
+| Date                              | 2026-10-12                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17 |
 
@@ -104,9 +104,11 @@ Deployable by humans and agents, identical everywhere (norm N6/N8):
 | ----------- | ----------- |
 | Host simulator | `frick_fsw` native build (POSIX threads) with loopback link |
 | RTEMS cross build | RTEMS 6.2 `riscv/mpfs64imafdc` cross compilation (`make rtems`) |
+| Emulated target | Renode PolarFire SoC (`make renode`, norm N18, `renode_vv.sh`, T17) and QEMU `virt` generic BSP (`make qemu`, `qemu_vv.sh`, T20) - `docs/vv/emulated-target.md`; see tool register T15-T17/T20 |
 | V&V container | `tools/docker/Dockerfile` - pinned toolchain |
+| RTEMS toolchain container | `tools/docker/rtems/` - open RTEMS 6.2 toolchain + `mpfs64imafdc`/`rv64imafdc` BSPs + QEMU (`make rtems-toolchain`) |
 | Gitea CI/CD | `act_runner` in Docker (`tools/docker/act_runner/`) |
-| GitHub CI | `.github/workflows/ci.yml` |
+| GitHub CI | `.github/workflows/ci.yml` (per-commit) + `.github/workflows/nightly.yml` (RTEMS + Renode + QEMU) |
 
 All test scripts are versioned in the repository (norm N11) and qualified
 (norm N10): see `docs/vv/tool-qualification.md`.
@@ -134,6 +136,14 @@ All test scripts are versioned in the repository (norm N11) and qualified
   loopback link (simulator smoke).
 - `tools/gsw/ff_gsw.py` may be used to inject telecommands and decode telemetry
   for end-to-end checks.
+
+### Emulated target (Dem, M10)
+- `make renode` runs the MPFS RTEMS image on the emulated PolarFire SoC
+  (norm N18, tool T17) and checks `RENODE_TEST: PASS` plus the HAL checks.
+- `make qemu` runs the generic `riscv/rv64imafdc` RTEMS image on
+  `qemu-system-riscv64 -M virt` (tool T20) and checks the boot banner + the six
+  registered applications. Tools qualified per N10; the real-silicon residual is
+  GAP-A5. See `docs/vv/emulated-target.md`.
 
 ### Static analysis (Inp)
 - `clang-format` (format), `clang-tidy` (defects/style), code inspection for
@@ -181,3 +191,4 @@ the update is committed and pushed with the cycle (norm N11).
 | 0.1 | 2026-10-10 | frick-fsw | Initial V&V plan (norm N6/N12) |
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid V-model and per-change cycle diagrams (norm N8) |
 | 0.1.2 | 2026-10-10 | frick-fsw | Add documentation review (R4, norm N17) to norms, gates, cycle and independence |
+| 0.1.3 | 2026-10-12 | frick-fsw | M10: add the emulated-target environment/activity (Renode T17 + QEMU T20, `docs/vv/emulated-target.md`) |

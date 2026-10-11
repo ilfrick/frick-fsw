@@ -24,7 +24,7 @@ option(FF_USE_LWIP    "Build the lwIP network-stack adapter (milestone M4, needs
 option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
 option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C ASN.1 default backend (needs generated code; see make pus-asn1)" ON)
 
-set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
+set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems | rtems-generic")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -35,6 +35,10 @@ set(FF_CFG_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
 if(FF_PLATFORM STREQUAL "rtems")
   add_compile_definitions(FRICK_PLATFORM_MPFS)
+elseif(FF_PLATFORM STREQUAL "rtems-generic")
+  # Generic RTEMS BSP (riscv/rv64imafdc) for the QEMU emulated-target path (M10):
+  # no PolarFire SoC board module / MPFS MMIO; see config/platform/platform_qemu.h.
+  add_compile_definitions(FRICK_PLATFORM_QEMU)
 endif()
 if(FF_USE_LIBM)
   add_compile_definitions(FRICK_USE_LIBM=1)
@@ -134,7 +138,7 @@ endif()
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
 target_include_directories(frick_fsw_core PUBLIC ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
 
-if(NOT FF_PLATFORM STREQUAL "rtems")
+if(NOT FF_PLATFORM MATCHES "^rtems")
   find_package(Threads REQUIRED)
   target_link_libraries(frick_fsw_core PUBLIC Threads::Threads)
 endif()
@@ -208,7 +212,7 @@ endif()
 # Executable
 # ----------------------------------------------------------------------
 add_executable(frick_fsw ${FF_SRC_DIR}/main/fsw_main.c)
-if(NOT FF_PLATFORM STREQUAL "rtems")
+if(NOT FF_PLATFORM MATCHES "^rtems")
   target_sources(frick_fsw PRIVATE ${FF_SRC_DIR}/main/main_native.c)
 else()
   # RTEMS application configuration table (CONFIGURE_* + confdefs) + entry
@@ -220,7 +224,7 @@ target_link_libraries(frick_fsw PRIVATE frick_fsw_core)
 # ----------------------------------------------------------------------
 # Tests (host only)
 # ----------------------------------------------------------------------
-if(FF_BUILD_TESTS AND NOT FF_PLATFORM STREQUAL "rtems")
+if(FF_BUILD_TESTS AND NOT FF_PLATFORM MATCHES "^rtems")
   enable_testing()
   add_subdirectory(tests)
 endif()

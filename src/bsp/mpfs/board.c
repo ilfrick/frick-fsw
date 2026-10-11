@@ -36,6 +36,11 @@ FF_Status_t FF_BoardInit(void)
     FF_PalLog("board: %s booting (HSS released U54 hart %u)\n", FF_BoardName(),
               (unsigned)FF_MPFS_BOOT_HARTID);
     return FF_SUCCESS;
+#elif defined(FRICK_PLATFORM_QEMU)
+    /* Generic RTEMS BSP on QEMU `virt` (emulated-target verification, M10): no
+     * HSS/MPFS hardware; the RTEMS console is the QEMU `virt` UART. */
+    FF_PalLog("board: %s booting (generic RTEMS BSP)\n", FF_BoardName());
+    return FF_SUCCESS;
 #else
     FF_PalLog("board: host simulator (no hardware)\n");
     return FF_SUCCESS;

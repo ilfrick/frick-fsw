@@ -9,6 +9,17 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M10 - QEMU emulated-target run (SRS-REQ-043, OBJ-18).** A **generic**
+  `riscv/rv64imafdc` RTEMS image (platform `qemu-virt-rtems`, `FF_PLATFORM=rtems-generic`,
+  no PolarFire SoC board module; `config/platform/platform_qemu.h`) is built
+  (`cmake/toolchains/rtems-riscv-generic.cmake`, `make qemu-image`/`qemu-image-docker`)
+  and run on `qemu-system-riscv64 -M virt` (`make qemu`, V&V tool **T20**
+  `tools/scripts/qemu_vv.sh`, which asserts the app count and records the toolchain
+  image id): boot banner + **6 applications registered**, console retained at
+  `build/rtems-generic/qemu-console.log`. Complements the Renode MPFS run (norm
+  N18); the nightly workflow runs the QEMU check. The open-source RTEMS toolchain
+  image (`tools/docker/rtems`, T18) now builds the `rv64imafdc` BSP and carries
+  QEMU + cmake/ninja. M10 closed.
 - **M4/M11 - reference MSS CAN backend (SRS-REQ-057).** `src/drivers/can/mpfs/ff_can_mpfs.{c,h}`
   implements the HAL CAN contract `FF_CanBackend_t` (classic CAN 2.0 A/B) over the
   Microchip PolarFire SoC MSS CAN: run/bit-timing set-up, round-robin TX buffers,
@@ -36,6 +47,15 @@ change. All dates UTC, project language English (norm N2).
 
 ### Fixed
 
+- **M10 QEMU review NCs (FRICK-REVIEW-0120..0123; also closes the predecessor
+  M10 review FRICK-REVIEW-0035 NCs).** The QEMU image is now a genuinely generic
+  RTEMS build (no PolarFire SoC board module / MPFS banner, per `platform_qemu.h`);
+  tool **T20** asserts the `6 applications registered` count and records the
+  toolchain image id; the `ci:emulated-run` evidence mapping is corrected and the
+  QEMU check is exercised by the **nightly** workflow (`.github/workflows/nightly.yml`);
+  the T18 cleanliness caveat is recorded; the emulated-target doc's per-core ISA and
+  QSPI/MT25Q attribution are corrected and the driver scope is explicit; status.json,
+  loop-audit, traceability mirror, verification-plan, README and trailing newlines fixed.
 - **MSS CAN RX accept-all mask (FRICK-REVIEW-0107 R2-01 / 0109 PA-09 Major,
   SRS-REQ-057).** The RX acceptance mask was written to the AMR register in the
   raw identifier domain instead of the register's left-aligned identifier field

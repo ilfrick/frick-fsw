@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.17                                   |
+| Revision                          | 0.18                                   |
 | Date                              | 2026-10-11                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -298,7 +298,7 @@ connection retains one of four slots until `init()` resets the table
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned | — |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
-| M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | in progress | Renode real run PASS (`make renode`); QEMU run pending |
+| M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
 | M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (6/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM)/TSN/SPI/I2C/PCIE/SPACEWIRE/BLOCK |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
@@ -333,3 +333,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.15 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development; OBJ-24); note the sprint plan FRICK-PLAN-0002 as the execution view |
 | 0.16 | 2026-10-11 | frick-fsw | M4 residual: eNVM NVM + NOR/QSPI MTD driver done (M11 5/13); note the on-SoC QSPI task |
 | 0.17 | 2026-10-11 | frick-fsw | M4/M11: reference MSS CAN driver done (SRS-REQ-057); M11 6/13 (CAN peripheral-bound, `hal_can=PASS`) |
+| 0.18 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20) closes the M10 exit criterion |

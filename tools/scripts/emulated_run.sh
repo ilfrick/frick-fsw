@@ -34,22 +34,30 @@ if command -v renode > /dev/null 2>&1 && [[ -x "${EXE_MPFS}" ]]; then
   timeout 30 renode --disable-xwt -e "\
     mach create; \
     machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl; \
-    showAnalyzer sysbus.uart0; \
+    showAnalyzer sysbus.mmuart1; \
     sysbus LoadELF @${EXE_MPFS}; \
     start; sleep 5; quit" > "${LOG}" 2>&1 || true
-  grep -qi "frick-fsw" "${LOG}" && echo "[emulated] Renode boot banner: OK" \
+  grep -aq "frick-fsw" "${LOG}" && echo "[emulated] Renode boot banner: OK" \
     || echo "[emulated] Renode output captured (advisory; see ${LOG})"
 else
   echo "[emulated] SKIP Renode: renode or MPFS image absent"
 fi
 
-if command -v qemu-system-riscv64 > /dev/null 2>&1 && [[ -x "${EXE_GEN}" ]]; then
+if [[ -x "${EXE_GEN}" ]] && docker image inspect frick-rtems-toolchain:local > /dev/null 2>&1; then
+  echo "[emulated] QEMU (virt, -bios; generic rv64imafdc image, via the toolchain image)"
+  docker run --rm -v "${ROOT}:/workspace" -w /workspace frick-rtems-toolchain:local \
+    bash -lc 'timeout 20 qemu-system-riscv64 -M virt -nographic -bios build/rtems-generic/frick_fsw' \
+    > "${LOG}" 2>&1 || true
+  grep -aq "frick-fsw" "${LOG}" && grep -aq "applications registered" "${LOG}" \
+    && echo "[emulated] QEMU boot banner: OK" \
+    || echo "[emulated] QEMU banner: not found (advisory; see ${LOG})"
+elif command -v qemu-system-riscv64 > /dev/null 2>&1 && [[ -x "${EXE_GEN}" ]]; then
   echo "[emulated] QEMU (virt, -bios; generic rv64imafdc image)"
   timeout 10 qemu-system-riscv64 -M virt -nographic -bios "${EXE_GEN}" > "${LOG}" 2>&1 || true
-  grep -q "frick-fsw" "${LOG}" && echo "[emulated] QEMU boot banner: OK" \
+  grep -aq "frick-fsw" "${LOG}" && echo "[emulated] QEMU boot banner: OK" \
     || echo "[emulated] QEMU banner: not found (advisory)"
 else
-  echo "[emulated] SKIP QEMU: qemu-system-riscv64 or generic image absent (build riscv/rv64imafdc)"
+  echo "[emulated] SKIP QEMU: qemu or generic image absent (build with 'make qemu-image')"
 fi
 
 echo "[emulated] done (advisory; see docs/vv/emulated-target.md)"

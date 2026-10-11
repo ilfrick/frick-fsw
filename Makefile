@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1
+        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
 
@@ -104,6 +104,24 @@ renode-image:
 	  -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON
 	$(CMAKE) --build build/renode -j$(shell nproc)
 	cp build/renode/frick_fsw build/renode/frick_fsw_renode.elf
+
+# Build the generic-BSP RTEMS image for QEMU `virt` emulated-target verification
+# (milestone M10 / SRS-REQ-043). Requires the RTEMS toolchain with BSP
+# rv64imafdc in /opt/rtems 6; output build/rtems-generic/frick_fsw.
+qemu-image:
+	$(CMAKE) -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake \
+	  -DFF_PLATFORM=rtems-generic
+	$(CMAKE) --build build/rtems-generic -j$(shell nproc)
+
+# Same, containerised (no host toolchain; the image has cmake + qemu + the BSP).
+qemu-image-docker:
+	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
+	  bash -lc 'cmake -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake -DFF_PLATFORM=rtems-generic && cmake --build build/rtems-generic -j$$(nproc)'
+
+# QEMU emulated-target verification (milestone M10, SRS-REQ-043); SKIP proxy when
+# the generic image is absent.
+qemu:
+	bash tools/scripts/qemu_vv.sh
 
 clean:
 	rm -rf build

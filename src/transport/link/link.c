@@ -11,8 +11,8 @@ static const FF_Link_t *g_link;
 
 FF_Status_t FF_LinkInit(void)
 {
-    /* Default link: loopback on the host, UART on the flight target. */
-#if defined(FRICK_PLATFORM_MPFS)
+    /* Default link: loopback on the host, UART on the RTEMS platforms. */
+#if defined(FRICK_PLATFORM_MPFS) || defined(FRICK_PLATFORM_QEMU)
     g_link = &FF_LinkUartBackend;
 #else
     g_link = &FF_LinkLoopbackBackend;

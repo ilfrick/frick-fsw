@@ -31,7 +31,7 @@
 | `config/` | single configuration point (`fsw_config.h`) + mission tables + platform headers + `rtems/` RTEMS configuration table |
 | `tests/` | unit tests (C, ctest) on `tests/ff_test.h` harness |
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
-| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`, `docker/rtems/`) |
+| `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `qemu_vv.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`, `docker/rtems/`) |
 | `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
 | `docs/` | rules, requirements (SSS/SRS/traceability), design (SDD), architecture, ADRs, interfaces (ICD), quality (class B/A + compliance/CM/PA/safety), V&V, engineering (independent review + driver/service/user guides), reviews, roadmap, **development plan**, status (**`handover.md` = resume point**) |
 | `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
@@ -56,6 +56,8 @@ make coverage            # gcov line/function coverage -> build/coverage/coverag
 make metrics             # regenerate the README status panel (coverage + semaphores)
 make renode-env          # Renode V&V environment self-test (norm N18; needs docker)
 make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
+make qemu-image          # generic riscv/rv64imafdc RTEMS image for QEMU (milestone M10)
+make qemu                # QEMU `virt` emulated-target check (M10; SKIP proxy if the image is absent)
 make pus-asn1            # generate the PUS-C ASN.1 (N7/ESA) default backend C (build-time; ASN1SCC)
                          # (default FF_USE_PUS_ASN1=ON; if the generated code is absent the
                          #  build warns and falls back to the open backend; -DFF_USE_PUS_ASN1=OFF forces open)
