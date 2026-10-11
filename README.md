@@ -188,7 +188,8 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
 test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
-`polarfire-soc` platform (milestone M11; SRS-REQ-047).
+PolarFire SoC board platform (`beaglev-fire`, which includes the SoC; milestone
+M11; SRS-REQ-047).
 
 Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, storage,
 PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
@@ -302,7 +303,7 @@ make trace                     # traceability convergence gate (norm N4)
 make pus-asn1                  # ASN1SCC generation; default ON (FF_USE_PUS_ASN1)
 
 # Renode V&V environment (norm N18):
-make renode-env                # self-test: Renode runs + polarfire-soc platform loads
+make renode-env                # self-test: Renode runs + PolarFire SoC board platform loads
 make renode-image renode       # build the RTEMS image + emulated functional validation
 
 # RTEMS 6.2 cross build (open-source RTEMS; toolchain: tools/scripts/setup_rtems.sh):

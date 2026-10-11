@@ -98,6 +98,8 @@
 | 2026-10-11 | MTD — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-mtd-r4-delta-review.md |
 | 2026-10-11 | MTD — PA final review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (N20 satisfied) | 2026-10-11-mtd-pa-final-review.md |
 | 2026-10-11 | MTD — PA closure (N12) | PA (Senior SW PA engineer) | APPROVED (MTD loop closed) | 2026-10-11-mtd-pa-99-closure.md |
+| 2026-10-11 | Renode board repl (BeagleV-Fire) — docs review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-renode-board-r4-review.md |
+| 2026-10-11 | Renode board repl (BeagleV-Fire) — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS | 2026-10-11-renode-board-pa-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

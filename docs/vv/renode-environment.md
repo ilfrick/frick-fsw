@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.9                                    |
+| Revision                          | 0.10                                   |
 | Date                              | 2026-10-11                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -42,6 +42,7 @@ milestone M11), then prints a machine-checkable marker:
 [renode-test] hal_mem=PASS
 [renode-test] hal_eth=PASS
 [renode-test] hal_net=PASS
+[renode-test] hal_nvm=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -70,14 +71,16 @@ make renode            # tools/scripts/renode_vv.sh
 `renode-image` configures an RTEMS cross build with `FF_ENABLE_RENODE_TEST=ON`
 (the CMake option that compiles and registers the test application; the default
 build keeps six applications). `renode_vv.sh` runs the pinned Renode image
-headless on the `polarfire-soc` platform, loads the image, captures the UART and
+headless on the PolarFire SoC board platform (`beaglev-fire`), loads the image,
+captures the UART and
 greps for `RENODE_TEST: PASS`. See also `make renode-env`
 (`tools/docker/renode/renode_env.resc`), the platform-load self-test.
 
 ## 5. Validation status (verified)
 
 - **Environment** (`make renode-env`, tool T17): the pinned Renode image runs,
-  the `polarfire-soc` platform loads and exits cleanly (bounded, reproducible).
+  the PolarFire SoC board platform (`beaglev-fire`) loads and exits cleanly
+  (bounded, reproducible).
 - **Functional run (real)** (`make renode`, norm N18): with the open-source
   RTEMS 6.2 toolchain image (`tools/docker/rtems`, T18) the middleware image is
   built (`make renode-image`) and run on the emulated PolarFire SoC; the console
@@ -88,12 +91,13 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   HAL backends and, additionally, a **contract check**:
   - **Peripheral-bound** (5/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
-    SRS-REQ-049) and **ETH** (Cadence GEM identification, SRS-REQ-036). The app
-    checks each and the marker is `PASS` only when all succeed
-    (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`). The
+    SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036) and **NVM**
+    (MSS eNVM data region write/read round trip, SRS-REQ-055). The app checks
+    each and the marker is `PASS` only when all succeed (`hal_gpio=PASS`,
+    `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`). The
     MEM pool is exercised over the in-image RAM (emulated DDR); the reference
-    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH check is an
-    MMIO identification (full driver/DMA path host-tested).
+    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH and NVM checks
+    are MMIO identification/round-trip checks (full driver/DMA path host-tested).
   - **Contract check** (not peripheral-bound): **NET** — a socket round trip
     through the pluggable `FF_NetStack_t` contract using the reference loopback
     stack (`hal_net=PASS`; in-process).
@@ -122,3 +126,4 @@ stays open (GAP-A4/A6).
 | 0.7 | 2026-10-11 | frick-fsw | M11: static RAM pool + DMA HAL backend exercised (`hal_mem=PASS`) |
 | 0.8 | 2026-10-11 | frick-fsw | M11: ETH (Cadence GEM identification) exercised (`hal_eth=PASS`); console capture via container-local path + docker cp |
 | 0.9 | 2026-10-11 | frick-fsw | M11: NET (pluggable TCP/IP, loopback stack) exercised (`hal_net=PASS`) |
+| 0.10 | 2026-10-11 | frick-fsw | V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services); NVM (`hal_nvm`) added to the HAL coverage (5/13) |

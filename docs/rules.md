@@ -288,7 +288,8 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 > Microchip PolarFire SoC environment.
 
 - The environment is `docs/vv/renode-environment.md` (pinned Renode image,
-  `polarfire-soc` platform; middleware test application `app_renode_test.c`
+  PolarFire SoC board platform (`beaglev-fire`); middleware test application
+  `app_renode_test.c`
   enabled with `FF_ENABLE_RENODE_TEST=ON`; run via `make renode` /
   `tools/scripts/renode_vv.sh`, CI evidence `ci:renode`).
 - The gate passes when the emulated run produces the `RENODE_TEST: PASS` marker.

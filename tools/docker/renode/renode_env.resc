@@ -9,6 +9,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 mach create "frick-renode-env"
-machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
 echo "RENODE_PLATFORM_OK"
 quit

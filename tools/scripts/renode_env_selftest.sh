@@ -33,7 +33,7 @@ docker logs "${NAME}" > "${LOG}" 2>&1 || true
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 
 if grep -q "System bus created." "${LOG}" && ! grep -qiE "exception|unhandled|error" "${LOG}"; then
-  echo "[renode-env] PASS: Renode runs and the polarfire-soc platform loads"
+  echo "[renode-env] PASS: Renode runs and the PolarFire SoC board platform loads"
   exit 0
 fi
 echo "[renode-env] FAIL: platform did not load (see ${LOG})"
