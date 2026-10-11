@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SDD-001                          |
-| Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.2                                    |
+| Date                              | 2026-10-11                             |
 | Audience                          | software engineers, reviewers, integrators |
 | References                        | ECSS-E-ST-40C (software design), `docs/requirements/SRS.md`, `docs/architecture/*`, `docs/interfaces/ICD.md` |
 
@@ -89,13 +89,51 @@ Data flow (nominal): link -> `FF_PusIngest` -> handler -> service action ->
 - External: `docs/interfaces/ICD.md` (CCSDS/PUS, CUC, link).
 - Internal: public headers under `src/`; the HAL contracts under `src/hal/`.
 
-## 6. Traceability
+## 6. Design traceability matrix (SRS -> design component)
 
-Design elements trace to SRS/SSS through `docs/requirements/traceability.yaml`
-(implementation paths). Requirements whose design is deferred (on-target PPS,
-TAI/CCSDS epoch) are the documented gaps GAP-A5/A7.
+ECSS SDD DRD (ECSS-E-ST-40C Annex F <6>): every software requirement is allocated
+to a design element. The matrix below is the requirements->design trace; the
+requirement->code->test trace is the manifest `docs/requirements/traceability.yaml`
+(gate `tools/scripts/trace.py`).
 
-## 7. Hardware independence and deferred design
+| Design component | Design element | SRS requirements |
+| ---------------- | -------------- | ---------------- |
+| PAL / OS abstraction | `src/core/pal/` (`pal.h`, `pal_posix.c`, `pal_rtems.c`) | SRS-REQ-015, SRS-REQ-016 |
+| Software Bus | `src/core/sb/sb.c` | SRS-REQ-001, SRS-REQ-002 |
+| CCSDS codec | `src/transport/ccsds/ccsds.c` | SRS-REQ-003, SRS-REQ-004, SRS-REQ-017 |
+| PUS-C engine | `src/pus/pus.c`, `pus_services.c`, `adapters/` | SRS-REQ-005, SRS-REQ-006, SRS-REQ-007, SRS-REQ-008, SRS-REQ-009, SRS-REQ-010, SRS-REQ-012, SRS-REQ-018, SRS-REQ-050 |
+| Event Services | `src/core/evs/evs.c` | SRS-REQ-011 |
+| Executive Services | `src/core/es/es.c`, `src/apps/app_hs.c` | SRS-REQ-014 |
+| Table Services | `src/core/tbl/tbl.c` | SRS-REQ-013, SRS-REQ-019 |
+| Time Services | `src/core/time/time.c`, `pps.c` | SRS-REQ-021, SRS-REQ-022, SRS-REQ-023, SRS-REQ-024 |
+| Link layer | `src/transport/link/link.c` (+ backends) | SRS-REQ-039, SRS-REQ-040 |
+| HAL registry + contracts | `src/hal/hal.c`, `hal_*.h` | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
+| Mathematics facade | `src/math/ff_math.c` | SRS-REQ-033 |
+| Security (SDLS) | `src/security/ff_sdls.c` | SRS-REQ-034, SRS-REQ-035 |
+| Reference drivers | `src/drivers/{eth/gem,gpio/mpfs,serial/mpfs,mem,net}` | SRS-REQ-036, SRS-REQ-038, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049 |
+| Board / RTEMS integration | `src/bsp/mpfs/`, `config/rtems/rtems_config.c` | SRS-REQ-037 |
+| Quality & process | `.clang-format`, `tools/scripts/misra.sh`, `docs/quality/` | SRS-REQ-041, SRS-REQ-042 |
+| Emulated-target V&V | `tools/scripts/emulated_run.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | SRS-REQ-043, SRS-REQ-044 |
+| Build / CI / configuration | `CMakeLists.txt`, `.github/workflows`, `.gitea/workflows`, `config/` | FRICK-SRS-REQ-000, SRS-REQ-020 |
+| OBCP support (M12) - planned | `src/obcp/` behind `FF_Obcp_t` (TBD) | SRS-REQ-045 |
+| Mission services (M13) - planned | equipment manager + fault management (TBD) | SRS-REQ-046 |
+| Multicore / SMP (M14) - planned | RTEMS SMP path (TBD) | SRS-REQ-051 |
+| PUS-C service set (M15) - planned | in-house `FF_Pus_Backend_t` (TBD) | SRS-REQ-052 |
+| CFDP + VFS (M15) - planned | file transfer + virtual filestore (TBD) | SRS-REQ-053 |
+| In-house OBCP engine (M16) - planned | in-house engine behind `FF_Obcp_t` (TBD) | SRS-REQ-054 |
+
+Components marked *planned* have no code in this baseline; the design intent is
+recorded here and detailed at their milestone (ECSS allows a phased design; the
+requirement->code trace is deferred until implementation, tracked in norm N19).
+
+## 7. Traceability
+
+Design elements trace to SRS/SSS through the matrix in §6 and through
+`docs/requirements/traceability.yaml` (implementation paths). Requirements whose
+design is deferred (on-target PPS, TAI/CCSDS epoch) are the documented gaps
+GAP-A5/A7.
+
+## 8. Hardware independence and deferred design
 
 The design above is complete and testable on the host simulator. The following
 are intentionally deferred to board integration and documented as gaps:
@@ -108,3 +146,4 @@ SpaceWire, TSN) as generic fabric-device backends.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial architectural and detailed design (ECSS-E-ST-40C software design output) |
+| 0.2 | 2026-10-11 | frick-fsw | Add the SRS->design-component traceability matrix (ECSS Annex F <6>) addressing NC PA-67-01 (closure pending review) |

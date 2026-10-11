@@ -51,7 +51,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 21/27 (77.8%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 49/55 (89.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 2/55 (3.6%) | SRS referenced in the SDD (proxy for ECSS design DRD Annex F) - open NC `PA-67-01` |
+| Design traceability | 55/55 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
 | Review streams closed | 21/22 (95.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
@@ -89,7 +89,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 Issues deferred by the user: none.
 
-> **Metrics note.** ECSS does not fix universal numeric thresholds; the figures above are the completion/coverage indicators commonly adopted for software of this criticality, computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD does not yet carry the requirements->design matrices (open NC `PA-67-01`). Common practice at criticality B is **100% statement + branch/decision coverage with justified exceptions**; the current statement coverage (65.7%) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
+> **Metrics note.** ECSS does not fix universal numeric thresholds; the figures above are the completion/coverage indicators commonly adopted for software of this criticality, computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD carries the requirements->design matrices (SDD section 6). Common practice at criticality B is **100% statement + branch/decision coverage with justified exceptions**; the measured statement coverage (see the Coverage table above) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
 
 <!-- METRICS-END -->
 

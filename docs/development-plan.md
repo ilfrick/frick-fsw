@@ -328,6 +328,6 @@ in `docs/status/status.json`; the live resume point is
 | 0.10 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs, candidate n7s-obcp; OBJ-20) and M13 (reference mission services: equipment manager + fault management; OBJ-21); component gap analysis |
 | 0.11 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP on the 4×U54, after all other milestones; OBJ-22); PUS-C ASN.1 (N7/ESA) as default tracked (N19 audit) |
 | 0.12 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set; OBJ-23) from the PUS-C assessment FRICK-ARCH-0015 |
-| 0.13 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development; OBJ-24); note the sprint plan FRICK-PLAN-0002 as the execution view |
 | 0.13 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP (CCSDS 727.0-B) + virtual filestore (VFS) and PUS-C S23 file management |
 | 0.14 | 2026-10-11 | frick-fsw | Update §6 objective-to-milestone status to the actual completion state (M3/M6/M7 done; M10/M11 progress; M14/M15 planned) + completion policy (N19) |
+| 0.15 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development; OBJ-24); note the sprint plan FRICK-PLAN-0002 as the execution view |

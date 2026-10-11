@@ -18,7 +18,7 @@ document is regenerated/reviewed in the same commit (norms N8/N11).
 Counts (current): SRS = 55, SSS = 27, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). Four of the
-requirements (SRS-REQ-045/046/054, SSS-REQ-022/023/027) are **planned** (M12/M13/M16): they
+requirements (SRS-REQ-045/046/051/052/053/054, SSS-REQ-022/023/024/025/026/027) are **planned** (M12..M16): they
 are documented-only, with `ci:docs` as evidence until their implementation lands.
 
 ## 1. Top-down matrix (SSS -> SRS)
@@ -201,6 +201,6 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |
 | 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
 | 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |
-| 0.21 | 2026-10-11 | frick-fsw | M16: SSS-REQ-027, SRS-REQ-054 (in-house OBCP engine); counts 55/27/14; complete the SSS summary (024-027) |
 | 0.21 | 2026-10-11 | frick-fsw | M11: SRS-REQ-036 Renode GEM identification (ci:renode); SRS-REQ-047/048/049 add ci:renode |
 | 0.22 | 2026-10-11 | frick-fsw | M11: SRS-REQ-039 FF_NetStack_t contract check (ci:renode; not peripheral-bound) |
+| 0.23 | 2026-10-11 | frick-fsw | M16: SSS-REQ-027, SRS-REQ-054 (in-house OBCP engine); counts 55/27/14; complete the SSS summary (024-027) |

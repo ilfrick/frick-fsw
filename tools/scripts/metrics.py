@@ -219,7 +219,6 @@ def render(items, status, coverage):
     st = overall(gates, status["deferred"])
 
     pct = lambda n, d: "100%" if d and n == d else (f"{100.0 * n / d:.1f}%" if d else "n/a")
-    cov_pct = pct(coverage['lines_covered'], coverage['lines_total']) if coverage else "not measured"
 
     L = []
     L.append(MARK_BEGIN)
@@ -248,7 +247,7 @@ def render(items, status, coverage):
     L.append(f"| SRS requirements delivered | {c['srs_delivered']}/{c['srs_total']} "
              f"({pct(c['srs_delivered'], c['srs_total'])}) | implemented (non-doc) + verified (non-`ci:docs`) |")
     L.append(f"| Design traceability | {c['design_ok']}/{c['srs_total']} "
-             f"({pct(c['design_ok'], c['srs_total'])}) | SRS referenced in the SDD (proxy for ECSS design DRD Annex F) - open NC `PA-67-01` |")
+             f"({pct(c['design_ok'], c['srs_total'])}) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |")
     L.append(f"| Review streams closed | {c['rev_closed']}/{c['rev_total']} "
              f"({pct(c['rev_closed'], c['rev_total'])}) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |")
     L.append("")
@@ -296,10 +295,11 @@ def render(items, status, coverage):
              "(T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as "
              "a **matrix** (Annex R applies it at criticality B; in-source requirement "
              "tagging is a permitted means, not a requirement). *Design traceability* "
-             "follows the SDD DRD (Annex F <6>); the SDD does not yet carry the "
-             "requirements->design matrices (open NC `PA-67-01`). Common practice at "
+             "follows the SDD DRD (Annex F <6>); the SDD carries the "
+             "requirements->design matrices (SDD section 6). Common practice at "
              "criticality B is **100% statement + branch/decision coverage with justified "
-             f"exceptions**; the current statement coverage ({cov_pct}) and the absent "
+             "exceptions**; the measured statement coverage (see the Coverage table "
+             "above) and the absent "
              "branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* "
              "and *sprint* figures are process indicators, and the completion "
              "percentages are **indicators, not claims of ECSS compliance or "
