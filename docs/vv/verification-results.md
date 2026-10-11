@@ -364,6 +364,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | NVM backend — R2 V&V review | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-nvm-r2-review.md |
 | NVM backend — R4 docs review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-nvm-r4-review.md |
 | NVM backend — PA review (N20) | PA (independent) | 2026-10-11 | REJECTED (Major F1 process) -> fixed | docs/reviews/2026-10-11-nvm-pa-review.md |
+| NVM backend — PA delta review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (Major closed) | docs/reviews/2026-10-11-nvm-pa-delta-review.md |
+| NVM backend — R1 delta review | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-nvm-r1-delta-review.md |
+| NVM backend — R2 delta review | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-nvm-r2-delta-review.md |
+| NVM backend — R4 delta review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-nvm-r4-delta-review.md |
 
 ## History
 

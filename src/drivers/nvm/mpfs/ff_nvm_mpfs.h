@@ -44,8 +44,9 @@ typedef struct
 /* Bind the instance and complete the FF_Nvm_t vtable. */
 FF_Status_t FF_NvmMpfsSetup(FF_NvmMpfs_t *n, const FF_NvmBus_t *bus);
 
-/* MMIO presence/round-trip self-test used by the Renode functional test (not part
- * of the HAL contract). */
+/* MMIO self-test (scratch round trip): used by the host unit test and available
+ * for on-target MMIO round-trip checks; on the emulated SoC the eNVM region is
+ * read-only, so the Renode check is a read presence check (app_renode_test.c). */
 FF_Status_t FF_NvmMpfsSelfTest(FF_NvmMpfs_t *n);
 
 #endif /* FF_NVM_MPFS_H */

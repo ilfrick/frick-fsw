@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.2                                    |
+| Revision                          | 1.3                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -122,11 +122,12 @@ occasion; prefer Docker.
 ## 5. Immediate next steps (priority order)
 
 > Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). Current: S0
-> (close the open M16 reviews + ECSS NC PA-67-01), then S1 (NVM/NOR + M10 QEMU).
+> (close the open M16 reviews + ECSS NC PA-67-01), then S1 (M4/M11 HAL classes + M10
+> QEMU). NVM done; next classes: NOR MTD, CAN, ...
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
-   - **NVM (eNVM)** or **MEM/NOR MTD** via `hal_mem.h` (memory-backed, robust);
+   - **NOR/QSPI MTD** via `hal_mem.h` (memory-backed, robust); [NVM done]
    - **SERIAL (MMUART/RS-422/485)** via `hal_serial.h` (NS16550 scratch reg);
    - **CAN** (`CAN.MPFS_CAN`), **SPI** (`SPI.MPFS_SPI`), **I2C** (loopback made
      explicit in `frick-renode.resc`), **BLOCK (eMMC/SD)**, **PCIe**,
@@ -182,3 +183,4 @@ occasion; prefer Docker.
 | 1.0 | 2026-10-11 | frick-fsw | Norm N20 (Senior SW PA review of every phase product); counts refreshed 94/54/26/14/51; PA gate added |
 | 1.1 | 2026-10-11 | frick-fsw | N12 loop closed: independent R1/R2/R4 reviews of the N20 set and FRICK-REVIEW-0032 to closure; PA review PASS (FRICK-REVIEW-0063) |
 | 1.2 | 2026-10-11 | frick-fsw | Milestone M16 added; counts 96/55/27/14; sprint plan published; next steps point to Sprint 0/1 |
+| 1.3 | 2026-10-11 | frick-fsw | Sprint 1.1: reference eNVM NVM backend (SRS-REQ-055), M11 5/13, counts 97/56/27/14 |

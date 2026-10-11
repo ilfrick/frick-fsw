@@ -52,7 +52,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 51/56 (91.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 56/56 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 24/28 (85.7%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 25/28 (89.3%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 97/97 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 83/97 (85.6%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/97 (20.6%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 2898/4061 (71.4%) | gcov |
-| Code function coverage | 381/387 (98.4%) | gcov |
+| Code statement (line) coverage | 2903/4070 (71.3%) | gcov |
+| Code function coverage | 381/386 (98.7%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -404,7 +404,7 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
 Current focus: **Sprint 0** (closure of the open M16 reviews + the ECSS
-traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM/NOR +
+traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM done; NOR/CAN +
 M10 QEMU). Full sequence in the sprint plan above.
 
 ## Contributing

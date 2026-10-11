@@ -105,4 +105,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.7 | 2026-10-11 | frick-fsw | T3 gains the R2/R3 test-gap suites `test_r2_gap.c` (487 checks) + `test_r3_gap.c` (198 checks) covering uncovered functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076) |
 | 0.3.8 | 2026-10-11 | frick-fsw | T3 re-qualification after the FRICK-REVIEW-0077 fix: TBL regression added (`test_r3_gap` 198 -> 201), `test_r2_gap` made order-independent; source `tbl.c` fix + `FF_PusInit` idempotence |
 | 0.3.9 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_nvm.c` (reference eNVM NVM backend, SRS-REQ-055); T17 Renode functional check gains `hal_nvm` |
-| 0.3.10 | 2026-10-11 | frick-fsw | T17 row lists `hal_nvm`; T3 `test_nvm` 14 -> 36 checks; header/History reconciled (FRICK-REVIEW-0081/0082/0083/0084) |
+| 0.3.10 | 2026-10-11 | frick-fsw | T17 row lists `hal_nvm`; T3 `test_nvm` 29 -> 36 checks; header/History reconciled (FRICK-REVIEW-0081/0082/0083/0084) |

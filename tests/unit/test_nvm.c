@@ -15,7 +15,7 @@
 
 typedef struct
 {
-    uint8_t mem[FF_NVM_MAX_IDS * FF_NVM_SLOT_SIZE];
+    uint8_t mem[FF_NVM_MAX_IDS * FF_NVM_SLOT_SIZE + 8u]; /* + scratch region */
 } MockNvm_t;
 
 static MockNvm_t g_mem;
@@ -24,13 +24,15 @@ static FF_NvmMpfs_t g_drv;
 static uint8_t mock_read8(void *ctx, uint32_t off)
 {
     MockNvm_t *m = (MockNvm_t *)ctx;
-    return m->mem[off % sizeof(m->mem)];
+    return (off < sizeof(m->mem)) ? m->mem[off] : 0u;
 }
 
 static void mock_write8(void *ctx, uint32_t off, uint8_t val)
 {
     MockNvm_t *m = (MockNvm_t *)ctx;
-    m->mem[off % sizeof(m->mem)] = val;
+    if (off < sizeof(m->mem)) {
+        m->mem[off] = val;
+    }
 }
 
 static void test_nvm(void)

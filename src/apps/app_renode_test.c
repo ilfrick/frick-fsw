@@ -219,9 +219,11 @@ static void mpfs_envm_write8(void *ctx, uint32_t off, uint8_t val)
 }
 
 /* HAL NVM check on the emulated MSS eNVM (milestone M11): a bounded read of the
- * first parameter slot must succeed (the eNVM region is mapped). It is an MMIO
- * presence/identification check; the write/erase register logic is host-tested
- * (`test_nvm`), and the real flash endurance is GAP-A5. */
+ * first parameter slot must succeed (the eNVM region is mapped and readable). It
+ * is an MMIO presence/identification check **only**: the emulated eNVM region is
+ * not writable in the platform model, so the write/erase register logic is
+ * host-tested (`test_nvm`) and the on-target flash write/endurance/retention is
+ * GAP-A5. This scope is deliberate (a write round trip faults on the model). */
 static bool renode_hal_nvm_check(void)
 {
     static FF_NvmMpfs_t drv;
