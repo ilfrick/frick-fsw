@@ -1,6 +1,7 @@
 # frick-fsw - Renode functional validation script (PolarFire SoC).
 #
-# Loads the Microchip PolarFire SoC platform, runs the middleware under test
+# Loads the Microchip PolarFire SoC board (BeagleV-Fire, which includes the SoC
+# and adds the QSPI NOR flash + system services), runs the middleware under test
 # (the RTEMS image built with FF_ENABLE_RENODE_TEST=ON) and captures the console
 # for the "RENODE_TEST: PASS" marker. See docs/vv/renode-environment.md, norm N18.
 #
@@ -11,7 +12,7 @@
 $program ?= @/workspace/build/renode/frick_fsw_renode.elf
 
 mach create "frick-renode"
-machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
 # The RTEMS mpfs64imafdc console is mmuart1 (0x20100000); capture it to a file.
 sysbus.mmuart1 CreateFileBackend @/tmp/frick-uart.log
 sysbus LoadELF $program

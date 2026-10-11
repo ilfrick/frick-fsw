@@ -144,7 +144,7 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | Loopback relay/`pending` orphan (FRICK-REVIEW-0032 R1-02; `backlog` ignored, second `connect` overwrites `pending`) | tracked (bounded 4-slot reference backend; `init()` resets) | frick-fsw | M4/M11 |
 | PA-review dispositions (FRICK-REVIEW-0052/0053) | tracked | frick-fsw | now |
 | ECSS traceability - SDD requirements->design matrices (FRICK-REVIEW-0067 PA-67-01) | tracked | frick-fsw | **S0/S1** (`docs/planning/sprint-plan.md`) |
-| On-SoC QSPI NOR write/erase check (MTD) - needs the board repl `MPFS_QSPI`+`Micron_MT25Q` + flash command path | tracked | frick-fsw | **M11** (task opened; FRICK-REVIEW-0091/0094) |
+| On-SoC QSPI NOR write/erase check (MTD) - board repl `MPFS_QSPI`+`Micron_MT25Q` now loaded; needs the QSPI controller command driver | tracked | frick-fsw | **M11** (environment enabled; driver pending) |
 | M16 review NCs (FRICK-REVIEW-0064/0065/0066) | tracked | frick-fsw | **S0** |
 
 ## History

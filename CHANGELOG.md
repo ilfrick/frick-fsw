@@ -9,6 +9,12 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Renode V&V environment: board repl (BeagleV-Fire).** The functional test now
+  loads `@platforms/boards/beaglev-fire.repl` (which includes the SoC platform)
+  instead of the SoC-only repl, adding the **QSPI NOR flash** (`SPI.MPFS_QSPI` +
+  `SPI.Micron_MT25Q`) and `MPFS_SystemServices` models. All existing HAL checks
+  still pass (`RENODE_TEST: PASS`). A genuine QSPI write/erase check still needs
+  the QSPI controller command driver (M11 task).
 - **M4/M11 - reference NOR/QSPI MTD backend (SRS-REQ-056).** `src/drivers/mtd/mpfs/ff_mtd_mpfs.{c,h}`
   implements the HAL memory contract `FF_Mtd_t` (byte read/write, sector-aligned
   erase) over the MSS QSPI NOR; host unit test `test_mtd` (mock, 4123 checks).

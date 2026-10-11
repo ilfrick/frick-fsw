@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.27                                   |
+| Revision                          | 0.28                                   |
 | Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -37,6 +37,7 @@ artifacts (no external state).
 | R2/R3 test-gap task + TBL fix, 2026-10-11 | PASS (Debug) | PASS (16/16; `test_r2_gap` 487 checks, `test_r3_gap` 201 checks) | PASS (`lake build` 21/21) | PASS (96 reqs / 55 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean; cppcheck MISRA 0 findings on the new suites | proxy | Two new host suites close previously unexecuted functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076); **real defect fixed** in `src/core/tbl/tbl.c` (rejected table image was committed by activate - FRICK-REVIEW-0077 Major) and `FF_PusInit` made idempotent (registries reset); coverage 1917/2920 -> 2831/3961 lines (71.5%), functions 257/302 -> 371/376 (98.7%). |
 | M4/M11 eNVM NVM backend, 2026-10-11 | PASS (Debug) | PASS (17/17; `test_nvm` 36 checks) | PASS (`lake build` 21/21) | PASS (97 reqs / 56 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_nvm=PASS`) | Reference `FF_Nvm_t` eNVM backend (SRS-REQ-055): bounded slot table (32 ids x 32 B), host test (mock MMIO) + Renode eNVM data write/read check; M11 5/13 peripheral-bound. |
 | M4 QSPI NOR MTD backend, 2026-10-11 | PASS (Debug) | PASS (18/18; `test_mtd` 4123 checks) | PASS (`lake build` 21/21) | PASS (98 reqs / 57 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | proxy | Reference `FF_Mtd_t` NOR/QSPI backend (SRS-REQ-056): byte read/write, sector-aligned erase; host test (mock MMIO). On-SoC QSPI check pending (needs the board repl `MPFS_QSPI` + `Micron_MT25Q` and the flash command path) - M11 follow-up. |
+| Renode board repl enabled (BeagleV-Fire), 2026-10-11 | PASS (Debug) | PASS (18/18) | PASS (`lake build` 21/21) | PASS (98/57/27/14, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm=PASS`) | V&V environment switched from the SoC-only platform to the `beaglev-fire` board repl (includes the SoC). New peripherals available for drivers: QSPI controller `SPI.MPFS_QSPI`@0x21000000 + `SPI.Micron_MT25Q` NOR flash, `MPFS_SystemServices`@0x37020000 (+ its QSPI/flash), board button. The QSPI NOR still needs the controller command path (M11 task). |
 
 ## v0.1.0 baseline notes
 
@@ -413,3 +414,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.25 | 2026-10-11 | frick-fsw | R2/R3 test-gap task: new suites `test_r2_gap` (487 checks) + `test_r3_gap` (201 checks); ctest 14 -> 16; trace manifest tests evidence extended; TBL defect fix + `FF_PusInit` idempotence; SDD section 6 requirements->design matrix added |
 | 0.26 | 2026-10-11 | frick-fsw | M4/M11: reference eNVM NVM backend (SRS-REQ-055) - `ff_nvm_mpfs`, `test_nvm` (ctest 17/17), `hal_nvm=PASS` in Renode; M11 5/13 |
 | 0.27 | 2026-10-11 | frick-fsw | M4: reference NOR/QSPI MTD backend (SRS-REQ-056) - `ff_mtd_mpfs`, `test_mtd` (ctest 18/18); on-SoC QSPI check pending board repl (M11) |
+| 0.28 | 2026-10-11 | frick-fsw | Renode V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services available); all HAL checks still PASS |

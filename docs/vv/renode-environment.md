@@ -14,7 +14,8 @@
 A **Renode** based V&V environment that runs the frick-fsw middleware on an
 **emulated Microchip PolarFire SoC** (norm **N18**): the same RTEMS binary that
 targets the RTPFS160ZT board is **designed to be executed** against the Renode
-`polarfire-soc` platform, providing functional validation without hardware
+PolarFire SoC board (`beaglev-fire`, which includes the SoC platform), providing
+functional validation without hardware
 (partial GAP-A5 mitigation).
 
 ## 2. Environment
@@ -22,7 +23,7 @@ targets the RTPFS160ZT board is **designed to be executed** against the Renode
 | Element | Value |
 | ------- | ----- |
 | Emulator | Renode (official Antmicro image, pinned by digest `sha256:7905c3…`) |
-| Platform | `@platforms/cpus/polarfire-soc.repl` (E51 + 4x U54, UART/GEM/CAN/SPI/I2C/GPIO/PCIe/SD/eNVM/timers) |
+| Platform | `@platforms/boards/beaglev-fire.repl` (includes `cpus/polarfire-soc.repl`: E51 + 4x U54, UART/GEM/CAN/SPI/I2C/GPIO/PCIe/SD/eNVM/timers; the board adds the **QSPI NOR flash** `SPI.MPFS_QSPI` + `SPI.Micron_MT25Q`, `MPFS_SystemServices`, a board button on GPIO0) |
 | Image build | `docker build -t frick-renode:local tools/docker/renode` |
 | Scripts | `tools/docker/renode/*.resc`, `tools/scripts/renode_vv.sh` |
 | Tool qualification | T17 (`docs/vv/tool-qualification.md`) |
