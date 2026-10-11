@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -38,6 +38,7 @@ milestone M11), then prints a machine-checkable marker:
 ```
 [renode-test] hal_gpio=PASS
 [renode-test] hal_serial=PASS
+[renode-test] hal_mem=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -81,10 +82,12 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   entry `0x1000000000` (PolarFire SoC/HSS high DDR alias), console UART
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run also exercises
-  HAL backends on the emulated peripherals. Started with **GPIO**: the MSS GPIO
-  driver (`src/drivers/gpio/mpfs/ff_gpio_mpfs.c`, SRS-REQ-047) performs a real
-  MMIO round trip on `gpio0` and the app checks it (`hal_gpio=PASS`); the marker
-  is `PASS` only when it succeeds. Further HAL classes are added per M11.
+  HAL backends on the emulated peripherals: **GPIO** (MSS GPIO, SRS-REQ-047),
+  **SERIAL** (MSS MMUART, SRS-REQ-048) and **MEM** (static RAM pool + reference
+  DMA, SRS-REQ-049). The app checks each and the marker is `PASS` only when all
+  succeed (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`). The MEM pool is
+  exercised over the in-image RAM (emulated DDR); the reference DMA cache hooks
+  are a seam (real cache ops = GAP-A5). Further HAL classes are added per M11.
 - **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
   (per-commit proxy) and **fails (exit 1)** when the image is present but the
   marker is missing; the nightly workflow performs the real run. Norm N18 is
@@ -105,3 +108,4 @@ stays open (GAP-A4/A6).
 | 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |
 | 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |
 | 0.6 | 2026-10-10 | frick-fsw | M11: MSS MMUART serial HAL backend exercised (`hal_serial=PASS`) |
+| 0.7 | 2026-10-11 | frick-fsw | M11: static RAM pool + DMA HAL backend exercised (`hal_mem=PASS`) |

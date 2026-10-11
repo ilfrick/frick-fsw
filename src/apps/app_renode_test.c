@@ -27,6 +27,7 @@
 #include "platform/platform_mpfs.h"
 #include "drivers/gpio/mpfs/ff_gpio_mpfs.h"
 #include "drivers/serial/mpfs/ff_serial_mpfs.h"
+#include "drivers/mem/ff_mem_static.h"
 
 static uint32_t mpfs_gpio_read32(void *ctx, uint32_t off)
 {
@@ -98,6 +99,29 @@ static bool renode_hal_serial_check(void)
     }
     return FF_SerialMpfsScratchSelfTest(&drv) == FF_SUCCESS;
 }
+
+/* HAL memory check (milestone M11): static RAM pool over the emulated DDR +
+ * reference DMA translation. */
+static bool renode_hal_mem_check(void)
+{
+    static FF_MemStaticPool_t pool;
+    static uint8_t area[256];
+    uint8_t *p;
+
+    if (FF_MemStaticPoolInit(&pool, "ddr-pool", area, sizeof(area)) != FF_SUCCESS) {
+        return false;
+    }
+    p = (uint8_t *)pool.pool.alloc(16u);
+    if (p == NULL) {
+        return false;
+    }
+    p[0] = 0xAAu;
+    p[15] = 0x55u;
+    if ((p[0] != 0xAAu) || (p[15] != 0x55u)) {
+        return false;
+    }
+    return FF_DmaIdentity.virt_to_phys(p) != 0u;
+}
 #endif /* FRICK_PLATFORM_MPFS */
 
 void FF_AppRenodeTestMain(void *arg)
@@ -108,6 +132,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool rx_ok = false;
     bool hal_ok = true;
     bool hal_serial_ok = true;
+    bool hal_mem_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -143,12 +168,15 @@ void FF_AppRenodeTestMain(void *arg)
 #if defined(FRICK_PLATFORM_MPFS)
     hal_ok = renode_hal_gpio_check();
     hal_serial_ok = renode_hal_serial_check();
+    hal_mem_ok = renode_hal_mem_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok) ? "PASS" : "FAIL");
+    FF_PalLog("RENODE_TEST: %s\n",
+              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok) ? "PASS" : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

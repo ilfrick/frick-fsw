@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -88,19 +88,20 @@ occasion; prefer Docker.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
-- **M11 in progress (Renode HAL coverage, OBJ-19):** two classes done — **GPIO**
-  (`src/drivers/gpio/mpfs/ff_gpio_mpfs.{c,h}`, SRS-REQ-047; `test_gpio`) and
-  **SERIAL** (`src/drivers/serial/mpfs/ff_serial_mpfs.{c,h}`, SRS-REQ-048;
-  `test_serial`), both with independent host mocks and Renode MMIO checks
-  (`hal_gpio=PASS`, `hal_serial=PASS`) folded into the marker. Remaining M11
-  classes: ETH, NET/TCP-IP, TSN, CAN, SPI, I2C, PCIE, SPACEWIRE, MEM, BLOCK, NVM.
+- **M11 in progress (Renode HAL coverage, OBJ-19):** three classes done — **GPIO**
+  (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL** (`ff_serial_mpfs`, SRS-REQ-048) and
+  **MEM** (`ff_mem_static`, SRS-REQ-049), each with an independent host test and a
+  Renode check (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`) folded into
+  the marker. Remaining M11 classes: ETH, NET/TCP-IP, TSN, CAN, SPI, I2C, PCIE,
+  SPACEWIRE, BLOCK, NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
-- **M4-residual MSS drivers**: only GEM Ethernet (+TSN) and GPIO so far.
+- **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART and the
+  static RAM pool/DMA helper so far.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
   ESA) and **M13** (reference mission services: equipment manager + fault
   management) are **planned** (requirements SSS-REQ-022/023, SRS-REQ-045/046).
-- Requirements: **86 (49 srs / 23 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **87 (50 srs / 23 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO) — all closed.
 
@@ -157,3 +158,4 @@ occasion; prefer Docker.
 | 0.3 | 2026-10-10 | frick-fsw | M11 serial re-implemented with hardware-correct 4-byte MMUART offsets (Renode wideRegisters); key fact recorded |
 | 0.4 | 2026-10-10 | frick-fsw | M11 GPIO + SERIAL done (SRS-REQ-047/048); counts 86/49/23/14 |
 | 0.5 | 2026-10-11 | frick-fsw | Add §0 "How to resume in a new session" (kickoff prompt) |
+| 0.6 | 2026-10-11 | frick-fsw | M11 GPIO + SERIAL + MEM done (SRS-REQ-047/048/049); counts 87/50/23/14 |

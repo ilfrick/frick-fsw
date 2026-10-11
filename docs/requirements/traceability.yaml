@@ -459,6 +459,15 @@ requirements:
     lean: []
     lean_note: "MSS MMUART (NS16550, 4-byte-spaced registers) HAL serial backend: host unit test (mock MMIO); NS16550 scratch-register MMIO round trip exercised on the emulated MSS MMUART0 in the Renode functional test (milestone M11)."
 
+  - id: SRS-REQ-049
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/mem/ff_mem_static.c", "src/drivers/mem/ff_mem_static.h"]
+    tests: ["tests/unit/test_mem.c"]
+    lean: []
+    lean_note: "Static RAM pool (FF_MemPool_t, bounded bump allocator, no heap) + reference FF_Dma_t (identity translation, cache seam): host unit test; pool exercised over the emulated DDR in the Renode functional test (milestone M11). The DMA cache-maintenance hooks are a seam (real cache ops = on-target work, GAP-A5)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

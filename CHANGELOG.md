@@ -194,6 +194,13 @@ change. All dates UTC, project language English (norm N2).
   Renode run (`hal_serial=PASS`). The first attempt with compact offsets was
   reviewed (FRICK-REVIEW-0043) and reworked to hardware-correct wide offsets (the
   Renode platform sets `wideRegisters: true`). Requirement SRS-REQ-048.
+- **M11: reference static RAM pool + DMA helper.** `FF_MemPool_t` (bounded,
+  heap-free bump allocator over a caller-provided region, usually DDR) and a
+  reference `FF_Dma_t` (identity address translation; cache-maintenance seam) in
+  `src/drivers/mem/ff_mem_static.c`; host unit test `test_mem` and a RAM-pool + DMA
+  check over the in-image RAM (emulated DDR) in the Renode run (`hal_mem=PASS`;
+  the DMA cache hooks are a seam, real cache ops = GAP-A5). Requirement
+  SRS-REQ-049.
 - **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
   802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:

@@ -70,11 +70,11 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 86 (srs=49, sss=23, gap=14) |
-| Requirements with implementation | 86/86 |
-| Test coverage (requirements with tests) | 72/86 (83.7%) |
-| Formal verification coverage (requirements with Lean) | 20/86 (23.3%) |
-| Code line coverage | 1803/2739 (65.8%) - functions 242/286 |
+| Requirements in manifest | 87 (srs=50, sss=23, gap=14) |
+| Requirements with implementation | 87/87 |
+| Test coverage (requirements with tests) | 73/87 (83.9%) |
+| Formal verification coverage (requirements with Lean) | 20/87 (23.0%) |
+| Code line coverage | 1854/2812 (65.9%) - functions 251/295 |
 
 <!-- METRICS-END -->
 
@@ -132,6 +132,7 @@ The framework hides the hardware behind three interfaces. Currently available:
 | Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
 | Serial (MSS MMUART) | `src/drivers/serial/mpfs/ff_serial_mpfs.c` | MSS MMUART (NS16550, 4-byte registers) backend behind `FF_Serial_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
+| Memory (RAM pool + DMA) | `src/drivers/mem/ff_mem_static.c` | static `FF_MemPool_t` + reference `FF_Dma_t`; host test + Renode DDR check (M4/M11) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
@@ -258,7 +259,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 49 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 50 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
