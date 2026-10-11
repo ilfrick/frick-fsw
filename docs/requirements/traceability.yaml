@@ -529,7 +529,7 @@ requirements:
     implementation: ["src/drivers/mtd/mpfs/ff_mtd_mpfs.c", "src/drivers/mtd/mpfs/ff_mtd_mpfs.h"]
     tests: ["tests/unit/test_mtd.c"]
     lean: []
-    lean_note: "Reference NOR/QSPI MTD backend behind FF_Mtd_t (M4/M11): byte read/write, sector-aligned erase; register logic host-tested (the on-SoC QSPI check needs the board repl - M11 follow-up)."
+    lean_note: "Reference NOR/QSPI MTD backend behind FF_Mtd_t (M4/M11): byte read/write, sector-aligned erase; register logic host-tested (the on-SoC QSPI check needs the QSPI controller command driver; the board repl is now loaded - M11 follow-up)."
 
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001

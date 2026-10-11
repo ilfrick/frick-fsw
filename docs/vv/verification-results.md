@@ -383,6 +383,8 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | MTD — PA closure (N12) | PA (independent) | 2026-10-11 | APPROVED (MTD loop closed) | docs/reviews/2026-10-11-mtd-pa-99-closure.md |
 | Renode board repl — R4 docs review | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-renode-board-r4-review.md |
 | Renode board repl — PA review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-renode-board-pa-review.md |
+| Renode board repl — PA delta review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-renode-board-pa-delta-review.md |
+| Renode V&V scripts — R2 T17/T15 re-qualification | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-renode-resc-r2-requal-review.md |
 
 ## History
 

@@ -114,7 +114,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
 | SRS-REQ-054 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - | In-house OBCP engine (planned, M16) |
 | SRS-REQ-055 | drivers/nvm/mpfs/ff_nvm_mpfs.c/h, config/platform/platform_mpfs.h | test_nvm.c, ci:renode | - | Reference eNVM NVM backend (M4/M11) |
-| SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending board repl) |
+| SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending the QSPI controller command driver) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration

@@ -183,7 +183,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | Memory (RAM pool + DMA) | `src/drivers/mem/ff_mem_static.c` | static `FF_MemPool_t` + reference `FF_Dma_t`; host test + Renode DDR check (M4/M11) |
 | NVM (MSS eNVM) | `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` | bounded eNVM key/value backend behind `FF_Nvm_t`; host test (mock MMIO) + Renode eNVM data write/read check (M4/M11) |
-| NOR flash (MSS QSPI) | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | byte-addressed NOR MTD backend behind `FF_Mtd_t` (sector-aligned erase); host test (mock MMIO); Renode check pending (board repl `MPFS_QSPI`+`Micron_MT25Q`) (M4) |
+| NOR flash (MSS QSPI) | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | byte-addressed NOR MTD backend behind `FF_Mtd_t` (sector-aligned erase); host test (mock MMIO); Renode check pending the QSPI controller command driver (M4) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit

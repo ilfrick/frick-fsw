@@ -107,4 +107,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.9 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_nvm.c` (reference eNVM NVM backend, SRS-REQ-055); T17 Renode functional check gains `hal_nvm` |
 | 0.3.10 | 2026-10-11 | frick-fsw | T17 row lists `hal_nvm`; T3 `test_nvm` 29 -> 36 checks; header/History reconciled (FRICK-REVIEW-0081/0082/0083/0084) |
 | 0.3.11 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_mtd.c` (NOR/QSPI MTD, SRS-REQ-056) |
-| 0.3.12 | 2026-10-11 | frick-fsw | Re-qualification: T17 `frick-renode.resc` now loads the BeagleV-Fire board repl (QSPI NOR + system services); header/History reconciled |
+| 0.3.12 | 2026-10-11 | frick-fsw | Re-qualification: T17 `frick-renode.resc` and `renode_env.resc` now load the BeagleV-Fire board repl (QSPI NOR + system services); header/History reconciled |

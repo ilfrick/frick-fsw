@@ -18,8 +18,8 @@ change. All dates UTC, project language English (norm N2).
 - **M4/M11 - reference NOR/QSPI MTD backend (SRS-REQ-056).** `src/drivers/mtd/mpfs/ff_mtd_mpfs.{c,h}`
   implements the HAL memory contract `FF_Mtd_t` (byte read/write, sector-aligned
   erase) over the MSS QSPI NOR; host unit test `test_mtd` (mock, 4123 checks).
-  The on-SoC check needs the QSPI NOR board repl (`MPFS_QSPI` + `Micron_MT25Q`) and
-  the flash command path (M11 follow-up).
+  The on-SoC check needs the QSPI controller command driver (the board repl with
+  `MPFS_QSPI` + `Micron_MT25Q` is now loaded) (M11 follow-up).
 - **M4/M11 - reference eNVM NVM backend (SRS-REQ-055).** `src/drivers/nvm/mpfs/ff_nvm_mpfs.{c,h}`
   implements the HAL memory contract `FF_Nvm_t` (key/value by id) over a bounded
   eNVM slot table (32 ids x 32-byte slots); host unit test `test_nvm` (mock MMIO,
