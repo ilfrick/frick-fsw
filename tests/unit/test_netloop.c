@@ -139,14 +139,33 @@ static void test_loopback_boundaries(void)
     FF_TEST_ASSERT(s->connect(cli, addr7, 1u) == FF_SUCCESS);
     acc = s->accept(srv, peer, &peer_len);
     FF_TEST_ASSERT(acc >= 0);
-    memset(buf, 0xAB, sizeof(buf));
-    FF_TEST_ASSERT(s->send(cli, buf, 300u, &n) == FF_SUCCESS);
-    FF_TEST_ASSERT(n == 256u); /* requested 300, ring holds 256 */
-    FF_TEST_ASSERT(s->recv(acc, buf, sizeof(buf), &got, 0u) == FF_SUCCESS);
-    FF_TEST_ASSERT(got == 256u);
+    /* advance the ring head by 10 bytes, then fill the full 256-byte ring so the
+     * write crosses the 256-byte index boundary (255 -> 0); read it back intact */
+    for (i = 0; i < 10; i++) {
+        buf[i] = (uint8_t)(0x10u + (unsigned)i);
+    }
     FF_TEST_ASSERT(s->send(cli, buf, 10u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(n == 10u);
     FF_TEST_ASSERT(s->recv(acc, buf, sizeof(buf), &got, 0u) == FF_SUCCESS);
     FF_TEST_ASSERT(got == 10u);
+    for (i = 0; i < 256; i++) {
+        buf[i] = (uint8_t)i;
+    }
+    FF_TEST_ASSERT(s->send(cli, buf, 256u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(n == 256u); /* full ring, wrapped across the boundary */
+    memset(buf, 0, sizeof(buf));
+    FF_TEST_ASSERT(s->recv(acc, buf, 256u, &got, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(got == 256u);
+    for (i = 0; i < 256; i++) {
+        FF_TEST_ASSERT(buf[i] == (uint8_t)i);
+    }
+    /* a partial send on a full ring transfers 0, and a 300-byte send caps at 256 */
+    FF_TEST_ASSERT(s->send(cli, buf, 256u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(n == 256u);
+    FF_TEST_ASSERT(s->send(cli, buf, 300u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(n == 0u); /* ring already full */
+    FF_TEST_ASSERT(s->recv(acc, buf, sizeof(buf), &got, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(got == 256u);
     (void)s->close(acc);
     (void)s->close(cli);
     (void)s->close(srv);

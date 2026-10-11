@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.23                                   |
+| Revision                          | 0.24                                   |
 | Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -267,7 +267,7 @@ PolarFire SoC MSS TRM DS60001702.
 
 ### Coverage
 
-`make coverage`: lines **1656/2521 (65.7%)**, functions **220/264**. `test_netloop` (65 checks) exercises the loopback `FF_NetStack_t` (bind/listen/connect/accept, bidirectional send/recv, boundary/negative arguments, descriptor exhaustion, full-ring partial send, cross-socket duplicate bind, out-of-range handle rejection).
+`make coverage`: lines **1656/2521 (65.7%)**, functions **220/264**. `test_netloop` (328 checks) exercises the loopback `FF_NetStack_t` (bind/listen/connect/accept, bidirectional send/recv, boundary/negative arguments, descriptor exhaustion, full-ring partial send, cross-socket duplicate bind, out-of-range handle rejection).
 
 ### Remaining (M4)
 
@@ -366,4 +366,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.21 | 2026-10-11 | frick-fsw | M11: ETH HAL class exercised in Renode (`hal_eth=PASS`, SRS-REQ-036) |
 | 0.22 | 2026-10-11 | frick-fsw | M11: NET HAL class (pluggable TCP/IP, loopback stack) exercised in Renode (`hal_net=PASS`, SRS-REQ-039) |
 | 0.23 | 2026-10-11 | frick-fsw | Record all 2026-10-11 reviews (MEM, PUS-C ASN.1, README, ETH, NET R1/R2/R4+delta, PA N20 + delta); header date refreshed (PA-10) |
-| 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 65 checks |
+| 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 328 checks |

@@ -33,6 +33,9 @@ struct FF_NetStack
      * for the reference backend and `timeout_ms` semantics are backend-specific. */
     FF_NetSock_t (*open)(int domain, int type, int proto);
     FF_Status_t (*connect)(FF_NetSock_t sd, const uint8_t *addr, uint16_t addr_len);
+    /* `bind` fails if the address/port is already in use: the reference backend
+     * returns FF_ALREADY_EXISTS (same socket or another socket on the backend);
+     * adapters may map a platform error (e.g. EADDRINUSE) to FF_ERROR. */
     FF_Status_t (*bind)(FF_NetSock_t sd, const uint8_t *addr, uint16_t addr_len);
     FF_Status_t (*listen)(FF_NetSock_t sd, uint16_t backlog);
     FF_NetSock_t (*accept)(FF_NetSock_t sd, uint8_t *peer, uint16_t *peer_len);

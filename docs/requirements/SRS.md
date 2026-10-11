@@ -191,9 +191,9 @@ review).
   (802.1Qav) is documented as not exposed in the GEM register subset. `method: Tst | Inp`.
 - **SRS-REQ-039** — *Reference network stack*: the framework shall provide a
   reference implementation of the network-stack contract (`FF_NetStack_t`) that
-  exercises the pluggable TCP/IP interface without external dependencies
-  (bounded, static, in-process loopback), for unit tests and the host simulator.
-  `method: Tst`.
+  exercises the pluggable network-stack interface without external dependencies
+  (bounded, static, in-process loopback), for the unit tests and the emulated-target
+  (Renode) functional check. `method: Tst`.
 - **SRS-REQ-040** — *lwIP network-stack adapter*: the framework shall provide a
   reference adapter implementing the network-stack contract (`FF_NetStack_t`)
   over the lwIP TCP/IP stack (socket API), so a mission can use lwIP without

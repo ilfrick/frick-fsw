@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.2                                  |
+| Revision                          | 0.3.3                                  |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -97,4 +97,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.0 | 2026-10-11 | frick-fsw | N19/PUS: new qualified tool T19 (ASN1SCC PUS-C code generation, `gen_pus_asn1.sh` + `tools/docker/asn1scc/`) |
 | 0.3.1 | 2026-10-11 | frick-fsw | Re-qualification: T17 now also covers the Renode testware `src/apps/app_renode_test.c` (HAL checks), and the console is captured to a container-local path + `docker cp` (robustness) |
 | 0.3.2 | 2026-10-11 | frick-fsw | Evidence-claims mapping adds T17 (`ci:renode`) and T19 (PUS-C ASN.1); header date refreshed (PA-11) |
-| 0.3.3 | 2026-10-11 | frick-fsw | Re-qualification after the N12 delta: T3 `test_netloop` grows to 65 checks (boundary/negative paths, exhaustion, full-ring partial send, cross-socket duplicate bind) |
+| 0.3.3 | 2026-10-11 | frick-fsw | Re-qualification after the N12 delta: T3 `test_netloop` grows to 328 checks (boundary/negative paths, exhaustion, full-ring partial send, cross-socket duplicate bind) |

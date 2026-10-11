@@ -9,6 +9,15 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **N12 PA-review closure loop (norms N12/N20).** Independent Senior reviews
+  (R1/R2/R4) of the N20 governance change and of `FRICK-REVIEW-0032` were run,
+  their findings fixed and re-reviewed to closure: the reference loopback now
+  rejects a duplicate `bind` across sockets; `test_netloop` gains boundary,
+  negative, exhaustion and full-ring partial-send cases (29 -> 328 checks); the
+  network-stack contract states the timeout/partial-transfer and `bind` semantics;
+  SRS-REQ-039 wording corrected; review log, loop-audit, development plan, V&V
+  records and the tool register reconciled. PA/documentation semaphores are driven
+  by the review verdict.
 - **Norm N20 — independent Senior SW product-assurance review of every phase
   product.** New non-derogable norm: every phase product is independently
   reviewed also by the **Senior SW Product Assurance engineer (PA)**, and
@@ -104,9 +113,10 @@ change. All dates UTC, project language English (norm N2).
   (16 checks).
 - **M4 — Reference network stack (loopback).** `src/drivers/net/ff_net_loopback.{c,h}`
   implements the pluggable network-stack contract (`FF_NetStack_t`) as a bounded,
-  static, in-process loopback, exercising the contract in unit tests and on the
-  host; third-party stacks (lwIP, pinned) plug in through the same vtable.
-  Requirement SRS-REQ-039; unit test `test_netloop` (65 checks).
+  static, in-process loopback, exercising the contract in the unit tests and the
+  emulated-target (Renode) functional check; third-party stacks (lwIP, pinned) plug
+  in through the same vtable.
+  Requirement SRS-REQ-039; unit test `test_netloop` (328 checks).
 - **M4 — lwIP network-stack adapter.** `src/hal/net/lwip/ff_net_lwip.{c,h}`
   implements the `FF_NetStack_t` contract over the lwIP socket API (third-party
   BSD-3 stack, fetched pinned; `contrib` is part of the lwIP tree). Built with
