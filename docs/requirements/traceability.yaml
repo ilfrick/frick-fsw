@@ -520,7 +520,7 @@ requirements:
     implementation: ["src/drivers/nvm/mpfs/ff_nvm_mpfs.c", "src/drivers/nvm/mpfs/ff_nvm_mpfs.h", "config/platform/platform_mpfs.h"]
     tests: ["tests/unit/test_nvm.c", "ci:renode"]
     lean: []
-    lean_note: "Reference eNVM key/value backend behind FF_Nvm_t (M4/M11): bounded slots/ids; register logic host-tested; MMIO presence check on the emulated SoC (hal_nvm)."
+    lean_note: "Reference eNVM key/value backend behind FF_Nvm_t (M4/M11): bounded slots/ids; register logic host-tested; data-region write/read check on the emulated SoC (hal_nvm)."
 
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
