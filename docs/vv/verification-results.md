@@ -355,6 +355,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | Completion-metrics panel — PA final approval (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (owner approval satisfied) | docs/reviews/2026-10-11-metrics-panel-pa-approval.md |
 | Test-coverage gap analysis + tests (V&V) | R2 (independent) | 2026-10-11 | test_r2_gap.c, 487 checks | docs/reviews/2026-10-11-test-coverage-r2-report.md |
 | Requirement-level test-gap analysis + tests (systems) | R3 (independent) | 2026-10-11 | test_r3_gap.c, 198 checks | docs/reviews/2026-10-11-requirements-test-gap-r3-report.md |
+| New test suites — R1 code review | R1 (independent) | 2026-10-11 | REJECTED (Major TBL bypass) -> fixed | docs/reviews/2026-10-11-test-gap-r1-review.md |
+| Test-gap increment — PA review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-test-gap-pa-review.md |
+| TBL fix — R1 delta re-review | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (Major closed) | docs/reviews/2026-10-11-test-gap-r1-delta-review.md |
+| Test-gap increment — PA delta review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (all closed) | docs/reviews/2026-10-11-test-gap-pa-delta-review.md |
 
 ## History
 

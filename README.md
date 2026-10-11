@@ -52,7 +52,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 50/55 (90.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 55/55 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 21/24 (87.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 23/26 (88.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 

@@ -75,6 +75,10 @@
 | 2026-10-11 | Completion-metrics panel — PA final approval | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (owner approval satisfied) | 2026-10-11-metrics-panel-pa-approval.md |
 | 2026-10-11 | Test-coverage gap analysis + new tests (task) | R2 (Senior SW V&V engineer) | report + test_r2_gap.c (487 checks) | 2026-10-11-test-coverage-r2-report.md |
 | 2026-10-11 | Requirement-level test-gap analysis + new tests (task) | R3 (Senior Systems engineer) | report + test_r3_gap.c (198 checks) | 2026-10-11-requirements-test-gap-r3-report.md |
+| 2026-10-11 | New test suites — FSW code review | R1 (Senior FSW engineer) | REJECTED (Major TBL bypass) -> fixed | 2026-10-11-test-gap-r1-review.md |
+| 2026-10-11 | Test-gap increment — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS | 2026-10-11-test-gap-pa-review.md |
+| 2026-10-11 | TBL fix — FSW delta re-review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (Major closed) | 2026-10-11-test-gap-r1-delta-review.md |
+| 2026-10-11 | Test-gap increment — PA delta review (N12/N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (all closed) | 2026-10-11-test-gap-pa-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

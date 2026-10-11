@@ -13,6 +13,9 @@ change. All dates UTC, project language English (norm N2).
   `FF_TblLoad` left a previously-staged image valid when a new load failed
   validation, so `FF_TblActivate` could commit a rejected image. It now clears
   `staged` on a validator rejection; a regression test reproduces and guards it.
+- **Test bug fixed (ASan):** `test_r2_gap` cast a TC secondary header to a TM
+  header pointer in the CCSDS TM test, causing a stack-buffer-overflow READ under
+  AddressSanitizer; corrected to use a real `FF_Pus_TmHdr_t`.
 - **`FF_PusInit` idempotence.** `FF_PusRegisterCoreServices` now resets the
   provider/function/HK/mem registries so repeated init is clean (fixes the
   order-dependence of the new PUS tests, FRICK-REVIEW-0077 R1-02).

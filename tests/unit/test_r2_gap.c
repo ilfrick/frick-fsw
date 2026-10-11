@@ -488,6 +488,7 @@ static void test_ccsds_telecommand(void)
 {
     FF_Pus_TcHdr_t tc;
     FF_Pus_TcHdr_t dec;
+    FF_Pus_TmHdr_t tmh;
     uint8_t frame[128];
     uint8_t tmframe[128];
     uint16_t frame_len = 0u;
@@ -545,8 +546,14 @@ static void test_ccsds_telecommand(void)
                                     (uint16_t)(FF_CCSDS_HDR_LEN + FF_PUS_TC_SEC_HDR_LEN - 1u),
                                     &apid, &dec, &data, &data_len) == FF_PARSE_ERROR);
 
-    FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, (const FF_Pus_TmHdr_t *)&dec, NULL, 0u, tmframe,
-                                    sizeof(tmframe), &tm_len) == FF_SUCCESS);
+    (void)memset(&tmh, 0, sizeof(tmh));
+    tmh.version = FF_PUS_VERSION;
+    tmh.service = 3u;
+    tmh.subservice = 25u;
+    tmh.counter = 1u;
+    tmh.destination_id = 0x0102u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, &tmh, NULL, 0u, tmframe, sizeof(tmframe), &tm_len) ==
+                   FF_SUCCESS);
     FF_TEST_ASSERT(FF_CcsdsDecodeTc(tmframe, tm_len, &apid, &dec, &data, &data_len) ==
                    FF_PARSE_ERROR); /* a TM frame is not a TC */
 
