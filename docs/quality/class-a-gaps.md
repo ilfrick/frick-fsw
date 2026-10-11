@@ -41,6 +41,15 @@ traceability manifest (level `gap`, `justification` records the disposition).
   (norm N19). **Tooling:** Frama-C/CBMC are build-time analysis tools (not
   distributed); Lean 4 core (no Mathlib).
 
+## GAP-A1b - ASN1SCC generation in the build (PUS-C ASN.1 default)
+
+The PUS-C ASN.1 default (SRS-REQ-050) requires the **ASN1SCC** compiler at build
+time; ASN1SCC is not distributed as a tool in the V&V image. Handled by
+`tools/docker/asn1scc/Dockerfile` (pinned) + `tools/scripts/gen_pus_asn1.sh`
+(tool T19); generation is validated and the code is git-ignored. Residual: the
+generated code must be consumed by CMake and the backend defaulted — tracked in
+`docs/status/loop-audit.md` (N19). Not a class-A flight gap (build-time tool).
+
 ## GAP-A2 - Full PUS-C service coverage
 
 **Status:** open

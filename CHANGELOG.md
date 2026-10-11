@@ -201,8 +201,18 @@ change. All dates UTC, project language English (norm N2).
   check over the in-image RAM (emulated DDR) in the Renode run (`hal_mem=PASS`;
   the DMA cache hooks are a seam, real cache ops = GAP-A5). Requirement
   SRS-REQ-049.
-- **Roadmap: milestone M8 added** — deterministic Ethernet completion (full
-  802.1AS gPTP stack + fabric CoreTSN path), objective OBJ-16.
+- **PUS-C ASN.1 (N7/ESA) default — toolchain enabled.** Reproducible ASN1SCC
+  compiler image (`tools/docker/asn1scc/Dockerfile`, pinned esa/asn1scc) and code
+  generation from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model
+  (`tools/scripts/gen_pus_asn1.sh`, `make pus-asn1`, tool T19); generation
+  validated (`BasicTypes.h`, `asn1crt.c/h`, module codecs). Remaining: consume the
+  generated code in CMake, implement `FF_PusBackendN7` and switch the default
+  (SRS-REQ-050). Tracked by the N19 audit (`docs/status/loop-audit.md`).
+- **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
+  of every loop, compare declared objectives + adherence to N1-N19 with the actual
+  implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.
+- **Roadmap: milestone M14 added** — multicore/SMP on the 4×U54 (after all other
+  milestones), objective OBJ-22 (SSS-REQ-024 / SRS-REQ-051).
 - **Norm N17 — documentation review (profile R4).** New non-derogable norm:
   before every commit/push the documentation set is reviewed for completeness
   and correctness by an independent **Senior SW documentation reviewer** (profile

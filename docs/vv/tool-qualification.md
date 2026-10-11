@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.2.9                                  |
+| Revision                          | 0.3.0                                  |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -40,6 +40,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
 | T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
 | T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP built; real cross build OK (plain + Renode image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
+| T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
 
 ## Qualification procedure (per tool)
 
@@ -90,3 +91,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.7 | 2026-10-10 | frick-fsw | M4/M11: T3 gains `tests/unit/test_gpio.c` (MSS GPIO, 21 checks, mock MMIO); Renode run also checks `hal_gpio=PASS` |
 | 0.2.8 | 2026-10-10 | frick-fsw | M4/M11: T3 gains `tests/unit/test_serial.c` (MSS MMUART, 30 checks, mock MMIO); Renode run also checks `hal_serial=PASS` |
 | 0.2.9 | 2026-10-11 | frick-fsw | M4/M11: T3 gains `tests/unit/test_mem.c` (RAM pool + DMA, 20 checks); Renode run also checks `hal_mem=PASS` |
+| 0.3.0 | 2026-10-11 | frick-fsw | N19/PUS: new qualified tool T19 (ASN1SCC PUS-C code generation, `gen_pus_asn1.sh` + `tools/docker/asn1scc/`) |

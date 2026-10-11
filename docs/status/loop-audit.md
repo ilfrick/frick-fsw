@@ -89,13 +89,20 @@ default PUS backend is the project's own CCSDS `FF_PusBackendOpen`.
 and make it the **default** PUS basis:
 - Fetch/build **ASN1SCC** (ESA, GPL-with-runtime-exception; generated code and
   runtime are not GPL-restricted) and generate C from `asn1-pusc-lib`
-  (`tools/scripts/gen_pus_asn1.sh`).
+  (`tools/scripts/gen_pus_asn1.sh`, tool T19).
 - Add `FF_PusBackendN7` on the generated codecs + wrappers
   (packet error control/CRC, ISO checksum, packet length, UInt16 coder).
 - Make it the **default** backend (`FF_PusBackendDefault`), keeping the previous
   open backend and PUSopen as alternatives.
 - Requirement SRS-REQ-050; verify (host + Renode). Blocked on the ASN1SCC
   toolchain in the V&V image (see §4).
+
+**Status update (validated this loop):** the ASN1SCC toolchain **builds**
+(`tools/docker/asn1scc/Dockerfile`, pinned esa/asn1scc `3124590a…`; T19) and
+**generation is proven** — `asn1scc -c -ACN -typePrefix Pusc_` over
+`asn1-pusc-lib` produces `BasicTypes.h`, `asn1crt.c/h` and the module codecs.
+Remaining: commit/consume the generated code in CMake, implement `FF_PusBackendN7`
+and switch the default; then verify (host + Renode) and close SRS-REQ-050.
 
 ## 4. Other gaps of the same class (declared-but-not-delivered)
 

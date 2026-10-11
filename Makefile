@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker
+        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1
 
 all: build
 
@@ -92,6 +92,10 @@ rtems-docker:
 
 verify-rtems:
 	bash tools/scripts/ci_rtems_cross_build.sh
+
+# Generate C from the N7/ESA asn1-pusc-lib ASN.1/ACN PUS-C model (needs Docker).
+pus-asn1:
+	bash tools/scripts/gen_pus_asn1.sh
 
 # Build the RTEMS image for Renode functional validation (norm N18). Requires the
 # RTEMS toolchain in /opt/rtems 6; output build/renode/frick_fsw_renode.elf.

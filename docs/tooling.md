@@ -68,6 +68,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | `tools/scripts/renode_env_selftest.sh` | Renode V&V environment self-test (Renode runs + `polarfire-soc` platform loads) | `make renode-env` PASS | T17 |
 | `tools/scripts/renode_vv.sh` | Renode functional validation (`RENODE_TEST: PASS`, norm N18) | emulated run log; `make renode` | T17 |
 | `tools/docker/rtems/Dockerfile` | Reproducible open-source RTEMS 6.2 toolchain + BSP image | `make rtems-toolchain` / `make rtems-docker` | T18 |
+| `tools/scripts/gen_pus_asn1.sh` | Generate C from the N7/ESA `asn1-pusc-lib` ASN.1/ACN PUS-C model with ASN1SCC | `make pus-asn1` -> `third_party/asn1-pusc-lib-generated/` | T19 |
 
 ## 4. CI/CD tools
 
