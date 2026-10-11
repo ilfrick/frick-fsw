@@ -78,7 +78,11 @@ verification, S3 housekeeping, S8 function management, S12 on-board monitoring),
 not as a mandatory framework core. Tracked as **milestone M13** (SSS-REQ-023 /
 SRS-REQ-046); users may build their own on the SB/PUS/HAL seams.
 
-## 5. OBCP engine — decision (milestone M12)
+## 5. OBCP engine — decision (milestones M12 and M16)
+
+> M12 integrates an existing engine (first candidate `n7space/n7s-obcp`); **M16**
+> develops an in-house, ECSS-compliant engine behind the same `FF_Obcp_t`
+> contract as the fallback/hardened engine (requirement SRS-REQ-054 / SSS-REQ-027).
 
 Requirement: execute **On-Board Control Procedures written in uPython** (a subset
 of Python for embedded targets — MicroPython), uploaded on board, with tight

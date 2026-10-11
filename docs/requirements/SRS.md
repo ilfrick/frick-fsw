@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.11                                   |
+| Revision                          | 1.12                                   |
 | Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -269,6 +269,14 @@ review).
   (RAM/flash/eMMC/SSD); PUS-C **S23** file management shall operate on the VFS.
   `method: Tst | Dem`. (milestone M15)
 
+- **SRS-REQ-054** — *In-house OBCP engine*: the framework shall provide an in-house,
+  MISRA-oriented OBCP engine implementing the `FF_Obcp_t` contract for
+  uPython/MicroPython On-Board Control Procedures (bounded resource accounting,
+  isolation, execution-time budget, abort, reporting; OBCP state/management via
+  PUS S18), developed within the project as the ECSS-compliant fallback to the
+  integrated third-party engine (SRS-REQ-045); engine development is milestone
+  **M16**. `method: Tst`. (milestone M16)
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -319,3 +327,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.9 | 2026-10-11 | frick-fsw  | N19/M14: add SRS-REQ-050 PUS-C ASN.1 (N7/ESA) default backend, SRS-REQ-051 multicore/SMP |
 | 1.10 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-052 fundamental PUS-C service set (from FRICK-ARCH-0015) |
 | 1.11 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-053 CFDP + virtual filestore |
+| 1.12 | 2026-10-11 | frick-fsw  | M16: add SRS-REQ-054 in-house OBCP engine |

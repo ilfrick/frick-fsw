@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.12                                   |
+| Revision                          | 0.13                                   |
 | Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -115,6 +115,14 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   backend (RAM/flash/eMMC/SSD); PUS-C **S23** file management shall operate on the
   same VFS. `method: Tst | Dem`.
 
+- **SSS-REQ-027** — *On-board autonomy — in-house engine development*: in
+  addition to integrating an existing OBCP engine (M12), the system shall be able
+  to execute OBCPs on an **in-house, ECSS-compliant OBCP engine** developed within
+  the project, with bounded resource accounting, isolation, execution-time budget,
+  abort and reporting, and OBCP state/management via PUS S18, as the fallback /
+  hardened engine and to remove a permanent third-party dependency.
+  `method: Tst | Dem`. (milestone M16)
+
 ## 3. Derived system requirements
 
 - **SSS-REQ-014** (derived) — the reference communication link is a UART
@@ -146,3 +154,4 @@ deviations are resolved before every commit (norm N4).
 | 0.10 | 2026-10-11 | frick-fsw | Add SSS-REQ-024 multicore / SMP |
 | 0.11 | 2026-10-11 | frick-fsw | Add SSS-REQ-025 fundamental PUS-C service capability set (M15) |
 | 0.12 | 2026-10-11 | frick-fsw | M15: add SSS-REQ-026 CFDP + virtual filestore |
+| 0.13 | 2026-10-11 | frick-fsw | M16: add SSS-REQ-027 in-house OBCP engine development |

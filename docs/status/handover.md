@@ -63,7 +63,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 # Host build + unit tests (14/14) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 94/54/26/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 96/55/27/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -112,7 +112,7 @@ occasion; prefer Docker.
   ESA), **M13** (reference mission services: equipment manager + fault
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
   service set + CFDP + virtual filestore) are **planned**.
-- Requirements: **94 (54 srs / 26 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **96 (55 srs / 27 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs)
   — all closed.

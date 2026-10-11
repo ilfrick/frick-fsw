@@ -55,6 +55,7 @@ is in `docs/roadmap.md`.
 | OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
 | OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
 | OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
+| OBJ-24 | Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind `FF_Obcp_t` (bounded resource accounting, isolation, execution-time budget, abort, reporting; OBCP state/management via PUS S18), as the fallback/hardened engine to the integrated third-party engine (M12) and to remove a permanent third-party dependency. | **M16** (after M12) |
 | OBJ-23 | Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the **fundamental PUS-C service behaviour** (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the `asn1-pusc-lib` default data model, with a bounded on-board parameter **datapool**, **plus CFDP (CCSDS 727.0-B) and the virtual filestore (VFS) it operates on** (S23 file management built on the VFS). | **M15** (after M14) |
 
 ## 3. Resource and bus interface catalogue
@@ -303,6 +304,7 @@ connection retains one of four slots until `init()` resets the table
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
 | M15 | OBJ-23 (in-house fundamental PUS-C service set on the asn1-pusc-lib data model, after M14) | planned | + CFDP + virtual filestore (VFS) + PUS-C S23 |
+| M16 | OBJ-24 (in-house OBCP engine development, after M12) | planned | ECSS-compliant engine behind `FF_Obcp_t`; complements M12 (integration) |
 
 **Completion policy (norm N19):** this table is updated at the start of every
 development loop together with the review of objectives/rules vs implementation

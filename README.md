@@ -72,10 +72,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 94 (srs=54, sss=26, gap=14) |
-| Requirements with implementation | 94/94 |
-| Test coverage (requirements with tests) | 80/94 (85.1%) |
-| Formal verification coverage (requirements with Lean) | 20/94 (21.3%) |
+| Requirements in manifest | 96 (srs=55, sss=27, gap=14) |
+| Requirements with implementation | 96/96 |
+| Test coverage (requirements with tests) | 82/96 (85.4%) |
+| Formal verification coverage (requirements with Lean) | 20/96 (20.8%) |
 | Code line coverage | 1917/2920 (65.7%) - functions 257/302 |
 
 <!-- METRICS-END -->
@@ -126,7 +126,7 @@ scope (implemented / interface-only / planned / user-provided):
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
 | File transfer | — | — | **CFDP + virtual filestore (VFS) + PUS-C S23** (**M15**) | — |
-| Autonomy | — | — | **OBCP engine (uPython)** (**M12**); equipment manager + fault mgmt (**M13**) | mission apps |
+| Autonomy | — | — | **OBCP engine integration (uPython)** (**M12**) + **in-house OBCP engine** (**M16**); equipment manager + fault mgmt (**M13**) | mission apps |
 | Execution cores | single U54 | — | **RTEMS SMP / multicore** (**M14**) | — |
 | V&V | host simulator; **Renode (open RTEMS)**; trace/Lean/format gates | — | QEMU run (**M10**); certified MISRA checker (**GAP-A4**) | HWIL (**GAP-A5**) |
 

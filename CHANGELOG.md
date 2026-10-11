@@ -9,6 +9,12 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Milestone M16 — In-house OBCP engine development.** Added a milestone
+  (objective OBJ-24; SSS-REQ-027 / SRS-REQ-054) to develop, within the project, an
+  ECSS-compliant OBCP engine behind `FF_Obcp_t` (bounded resources, isolation,
+  execution-time budget, abort, reporting, PUS S18 state management) as the
+  fallback/hardened engine to the integrated third-party engine (M12). Execution
+  order: after M12, before M13. Origin: user directive.
 - **N12 PA-review closure loop (norms N12/N20).** Independent Senior reviews
   (R1/R2/R4) of the N20 governance change and of `FRICK-REVIEW-0032` were run,
   their findings fixed and re-reviewed to closure: the reference loopback now

@@ -504,6 +504,15 @@ requirements:
     lean: []
     lean_note: "CFDP entity (CCSDS 727.0-B) + bounded virtual filestore (pluggable RAM/flash/eMMC/SSD) with PUS-C S23 on the VFS (milestone M15, planned)."
 
+  - id: SRS-REQ-054
+    level: srs
+    parent_sss: SSS-REQ-027
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "In-house OBCP engine behind FF_Obcp_t (uPython/MicroPython OBCPs) as the ECSS-compliant fallback to the integrated engine (SRS-REQ-045); milestone M16, planned."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -703,6 +712,14 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "CFDP (CCSDS 727.0-B) + bounded virtual filestore (VFS) on which PUS-C S23 file management is built (milestone M15): planned."
+
+  - id: SSS-REQ-027
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "In-house / ECSS-compliant OBCP engine development (milestone M16, planned): bounded resource accounting, isolation, time budget, abort, reporting, PUS S18 state management."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

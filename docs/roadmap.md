@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.16 |
+| Revision    | 0.17 |
 | Date        | 2026-10-11 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -81,6 +81,17 @@ Reference implementations behind the M3 contracts:
   reassembly, TCP/IP and TSN link backends) and the on-board file transfer set
   (virtual filestore, PUS service 23, CFDP).
 
+## M16 — In-house OBCP engine development (planned, after M12)
+
+Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind
+the `FF_Obcp_t` contract: bounded resource accounting (stack/heap), isolation,
+execution-time budget, abort and reporting; OBCP state/management via PUS **S18**.
+It is the fallback / hardened engine to the integrated third-party engine (M12),
+removes a permanent third-party dependency, and reuses the M12 `FF_Obcp_t`
+contract and SB/EVS/Time/PUS bindings. Requirement SRS-REQ-054 / SSS-REQ-027;
+objective OBJ-24. **Execution order: after M12, before M13**; M14/M15 remain the
+last milestones.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -150,14 +161,16 @@ backend behind the `hal_*.h` contract (the M4-residual MSS peripherals where sti
 missing), a binding in `frick-renode.resc`, and a checkable clause in the marker.
 Objective OBJ-19; builds on M10 and the M4-residual drivers.
 
-## M12 — OBCP engine: uPython/MicroPython On-Board Control Procedures (planned)
+## M12 — OBCP support: integrate an OBCP engine (planned)
 
 Integrate an engine that executes On-Board Control Procedures written in
 **uPython/MicroPython** (uploaded on board, resource/safety bounded). First
 candidate: **`n7space/n7s-obcp`** (MicroPython-based OBCP engine, MIT, ESA-funded)
-behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings; fallback: develop an
-ECSS-compliant engine. See `docs/architecture/component-gap-analysis.md §5`.
-Requirement SRS-REQ-045 / SSS-REQ-022; objective OBJ-20.
+behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings. See
+`docs/architecture/component-gap-analysis.md §5`.
+Requirement SRS-REQ-045 / SSS-REQ-022; objective OBJ-20. The **in-house**
+ECSS-compliant engine (fallback/hardening, to remove a permanent third-party
+dependency) is delivered by **M16**.
 
 ## M13 — Reference mission services: equipment manager + fault management (planned)
 
@@ -207,3 +220,4 @@ recommendation). Requirement SRS-REQ-052/053 / SSS-REQ-025/026; objective OBJ-23
 | 0.14 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set) from FRICK-ARCH-0015 |
 | 0.15 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP + virtual filestore (VFS) and PUS-C S23 |
 | 0.16 | 2026-10-11 | frick-fsw | Reconcile heading statuses with the actual state (N19): M3/M6/M7 done, M10/M11 in progress; M5 section moved into milestone order |
+| 0.17 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development, after M12); M12 reframed as engine integration (user directive) |
