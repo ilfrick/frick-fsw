@@ -10,7 +10,7 @@
 | Date                              | YYYY-MM-DD                             |
 | Scope                             | (what was verified and against which ECSS references) |
 | Independence declaration          | (reviewer had no part in authoring/executing the items; fresh context) |
-| Norms applied                     | N1-N19 (see docs/rules.md)             |
+| Norms applied                     | N1-N20 (see docs/rules.md)             |
 
 ## 1. Scope
 
@@ -19,7 +19,7 @@ assumptions.)
 
 ## 2. References
 
-- Project norms: `docs/rules.md` (N1-N19)
+- Project norms: `docs/rules.md` (N1-N20)
 - Traceability manifest: `docs/requirements/traceability.yaml`
 - ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2
 

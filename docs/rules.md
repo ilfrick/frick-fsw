@@ -1,10 +1,10 @@
-# Non-derogable Norms (Rules N1-N19)
+# Non-derogable Norms (Rules N1-N20)
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 1.3                                    |
+| Revision                          | 1.4                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
@@ -303,7 +303,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 
 > At the start of every development/verification loop, the declared project
 > objectives (the milestones/OBJs of `docs/development-plan.md` / `docs/roadmap.md`)
-> and adherence to **all** non-derogable rules (N1-N19) shall be compared against
+> and adherence to **all** non-derogable rules (N1-N20) shall be compared against
 > the **actual implementation** reached up to that point; the gaps and
 > discrepancies so identified shall be reconciled within the loop or explicitly
 > tracked with a disposition.
@@ -317,6 +317,24 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   (e.g. a third-party integration recorded in a decision but never wired into the
   build/runtime, or an objective claimed but not delivered) from surviving
   unnoticed across loops.
+
+## N20 - Independent Senior SW Product Assurance review of every phase
+
+> The products of every phase (requirements, design, code, tests, tool scripts,
+> configuration, documentation, verification evidence and records) shall be
+> reviewed **with independence also by the Senior SW Product Assurance engineer**
+> (profile **PA**); every finding shall be corrected and the reviews repeated
+> until they pass.
+
+- Reviewer: the Senior SW Product Assurance engineer agent
+  (`aeronautics-space-sw-pa-engineer`; profile PA in
+  `docs/engineering/independent-review.md`).
+- Scope: **every phase product, on every change** (not only code); PA review is
+  additional to the R1/R2/R3/R4 reviews.
+- Loop (norm N12): review -> findings -> correction -> **re-review**, repeated
+  until the PA review passes (no open Major/Minor) before commit/push.
+- Reports are stored under `docs/reviews/` and logged in `docs/reviews/README.md`
+  (norms N11/N17).
 
 ## Enforcement summary
 
@@ -340,7 +358,8 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
 | N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is **in force** (verified on the real open RTEMS 6.2 image: `make renode` -> `RENODE_TEST: PASS`); per-commit runners without the toolchain image record a SKIP proxy (never counted as a pass) and the nightly performs the real run |
-| N19  | at the start of every development loop, `docs/status/loop-audit.md` compares declared objectives and adherence to N1-N19 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone (no silent gap) |
+| N19  | at the start of every development loop, `docs/status/loop-audit.md` compares declared objectives and adherence to N1-N20 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone (no silent gap) |
+| N20  | every phase product is independently reviewed also by the Senior SW PA engineer (`aeronautics-space-sw-pa-engineer`); findings are corrected and the reviews repeated until they pass, before commit/push |
 
 ## Interpretation notes (non-derogable content unchanged)
 
@@ -394,3 +413,4 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 1.1 | 2026-10-10 | frick-fsw | Scope N13 SPDX requirement to source/config/build files; docs covered by LICENSE/NOTICE (R4 M3 C-2) |
 | 1.2 | 2026-10-10 | frick-fsw | Add N18 (Renode functional-validation gate) |
 | 1.3 | 2026-10-11 | frick-fsw | Add N19 (development-loop objective/rule conformance audit; `docs/status/loop-audit.md`) |
+| 1.4 | 2026-10-11 | frick-fsw | Add N20 (independent Senior SW PA review of every phase product; findings fixed and reviews repeated until pass) |

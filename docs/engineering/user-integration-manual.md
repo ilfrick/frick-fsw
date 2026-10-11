@@ -12,7 +12,7 @@ This manual explains how to use frick-fsw as a **middleware**: you write your
 own mission applications on top of it, integrate your own hardware drivers, and
 optionally plug third-party stacks. Read first `AGENTS.md`, `README.md`,
 `docs/development-plan.md` (product boundary and milestones) and
-`docs/rules.md` (norms N1-N19).
+`docs/rules.md` (norms N1-N20).
 
 > **frick-fsw is a framework, not an application.** The six `src/apps/*` are
 > reference applications (demonstration and V&V), not mission software.

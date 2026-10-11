@@ -17,7 +17,7 @@ applications for demonstration and V&V. See
 and the milestone/objective plan.
 
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
-> N1-N19): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
+> N1-N20): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
 > Licence: **AGPL-3.0-only** (`LICENSE`, `docs/quality/licensing.md`).
 
 ## Project index (table of contents)
@@ -317,7 +317,7 @@ status panel above is authoritative; the single source of truth is
 
 ## Documentation index
 
-- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N19) ·
+- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N20) ·
   [`AGENTS.md`](AGENTS.md)
 - **Requirements**: [`docs/requirements/SSS.md`](docs/requirements/SSS.md) ·
   [`SRS.md`](docs/requirements/SRS.md) ·
