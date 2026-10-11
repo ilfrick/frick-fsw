@@ -214,6 +214,9 @@ change. All dates UTC, project language English (norm N2).
   PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/18-surface/19/20) on the
   `asn1-pusc-lib` default data model (+ bounded datapool); est. ~34 PM; hybrid
   recommendation. Objective OBJ-23; SSS-REQ-025 / SRS-REQ-052. Placed after M14.
+  **M15 also includes CFDP (CCSDS 727.0-B) and the virtual filestore (VFS) it
+  operates on** (pluggable RAM/flash/eMMC/SSD) with PUS-C S23 on the VFS
+  (SSS-REQ-026 / SRS-REQ-053).
 - **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
   of every loop, compare declared objectives + adherence to N1-N19 with the actual
   implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.

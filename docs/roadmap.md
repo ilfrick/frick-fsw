@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.14 |
+| Revision    | 0.15 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -171,8 +171,10 @@ Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the fundamental
 PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the
 `asn1-pusc-lib` default data model, with a bounded on-board parameter datapool;
 cover every in-scope subservice with verification and requirement-level Lean
-theorems. Assessment FRICK-ARCH-0015 (est. ~34 PM; hybrid recommendation).
-Requirement SRS-REQ-052 / SSS-REQ-025; objective OBJ-23.
+theorems. Also: the CFDP entity (CCSDS 727.0-B) and the **virtual filestore (VFS)**
+it operates on (pluggable storage: RAM/flash/eMMC/SSD), on which PUS-C S23 file
+management is built. Assessment FRICK-ARCH-0015 (est. ~34 PM; hybrid
+recommendation). Requirement SRS-REQ-052/053 / SSS-REQ-025/026; objective OBJ-23.
 
 ## M5 — Documentation and status program (in progress)
 
@@ -203,3 +205,4 @@ Requirement SRS-REQ-052 / SSS-REQ-025; objective OBJ-23.
 | 0.12 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs) and M13 (reference mission services: equipment manager + fault management); component gap analysis |
 | 0.13 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP, after all other milestones) |
 | 0.14 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set) from FRICK-ARCH-0015 |
+| 0.15 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP + virtual filestore (VFS) and PUS-C S23 |

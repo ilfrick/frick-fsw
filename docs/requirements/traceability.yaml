@@ -495,6 +495,15 @@ requirements:
     lean: []
     lean_note: "Fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/19/20) in in-house MISRA-clean C behind FF_Pus_Backend_t on the ASN.1/ACN data model (milestone M15, planned)."
 
+  - id: SRS-REQ-053
+    level: srs
+    parent_sss: SSS-REQ-026
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "CFDP entity (CCSDS 727.0-B) + bounded virtual filestore (pluggable RAM/flash/eMMC/SSD) with PUS-C S23 on the VFS (milestone M15, planned)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -686,6 +695,14 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "Fundamental PUS-C service capability set (milestone M15): planned; scope/effort in FRICK-ARCH-0015."
+
+  - id: SSS-REQ-026
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "CFDP (CCSDS 727.0-B) + bounded virtual filestore (VFS) on which PUS-C S23 file management is built (milestone M15): planned."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

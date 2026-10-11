@@ -70,10 +70,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 92 (srs=53, sss=25, gap=14) |
-| Requirements with implementation | 92/92 |
-| Test coverage (requirements with tests) | 78/92 (84.8%) |
-| Formal verification coverage (requirements with Lean) | 20/92 (21.7%) |
+| Requirements in manifest | 94 (srs=54, sss=26, gap=14) |
+| Requirements with implementation | 94/94 |
+| Test coverage (requirements with tests) | 80/94 (85.1%) |
+| Formal verification coverage (requirements with Lean) | 20/94 (21.3%) |
 | Code line coverage | 1854/2812 (65.9%) - functions 251/295 |
 
 <!-- METRICS-END -->
@@ -259,7 +259,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 53 · SSS = 25 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 54 · SSS = 26 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.

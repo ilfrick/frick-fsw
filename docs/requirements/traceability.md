@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.19                                   |
+| Revision                          | 0.20                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 53, SSS = 25, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 54, SSS = 26, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). Four of the
 requirements (SRS-REQ-045/046, SSS-REQ-022/023) are **planned** (M12/M13): they
@@ -50,6 +50,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
 | SSS-REQ-024 (multicore / SMP) | SRS-REQ-051 |
 | SSS-REQ-025 (fundamental PUS-C service set) | SRS-REQ-052 |
+| SSS-REQ-026 (CFDP + virtual filestore) | SRS-REQ-053 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -108,6 +109,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-050 | docs/status/loop-audit.md, third_party/asn1-pusc-lib | ci:docs | - | PUS-C ASN.1 (N7/ESA) default backend (N19 reconciliation) |
 | SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 | SRS-REQ-052 | docs/architecture/pus-c-from-scratch-assessment.md, src/pus/pus.h | ci:docs | - | Fundamental PUS-C service set (planned, M15) |
+| SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -192,3 +194,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.17 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-049 static RAM pool + DMA helper (+Renode DDR check); counts 50/23/14 |
 | 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |
 | 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
+| 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.10                                   |
+| Revision                          | 1.11                                   |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -263,6 +263,11 @@ review).
   the default ASN.1/ACN data model, with a bounded on-board parameter datapool;
   every in-scope subservice shall be tested and its pure logic modelled in Lean.
   `method: Tst | Anl`. (milestone M15)
+- **SRS-REQ-053** — *CFDP and virtual filestore*: the framework shall implement a
+  **CFDP** entity (CCSDS 727.0-B) delivering files to/from the ground, and a
+  bounded **virtual filestore (VFS)** with a pluggable storage backend
+  (RAM/flash/eMMC/SSD); PUS-C **S23** file management shall operate on the VFS.
+  `method: Tst | Dem`. (milestone M15)
 
 ## 6. Derived requirements
 
@@ -313,3 +318,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.8 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-049 reference static RAM pool + DMA helper |
 | 1.9 | 2026-10-11 | frick-fsw  | N19/M14: add SRS-REQ-050 PUS-C ASN.1 (N7/ESA) default backend, SRS-REQ-051 multicore/SMP |
 | 1.10 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-052 fundamental PUS-C service set (from FRICK-ARCH-0015) |
+| 1.11 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-053 CFDP + virtual filestore |

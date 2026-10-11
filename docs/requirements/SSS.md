@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.11                                   |
+| Revision                          | 0.12                                   |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -109,6 +109,11 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   provide the fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/
   19/20) with the associated packet/state behaviour and a bounded on-board
   parameter datapool, on the default ASN.1/ACN data model. `method: Tst | Anl`.
+- **SSS-REQ-026** — *On-board file delivery and storage*: the system shall provide
+  a **CFDP** entity (CCSDS 727.0-B) delivering files to/from the ground over the
+  mission link, on a bounded **virtual filestore (VFS)** with a pluggable storage
+  backend (RAM/flash/eMMC/SSD); PUS-C **S23** file management shall operate on the
+  same VFS. `method: Tst | Dem`.
 
 ## 3. Derived system requirements
 
@@ -140,3 +145,4 @@ deviations are resolved before every commit (norm N4).
 | 0.9 | 2026-10-10 | frick-fsw | Add SSS-REQ-022 on-board autonomy (OBCP) and SSS-REQ-023 reference mission services |
 | 0.10 | 2026-10-11 | frick-fsw | Add SSS-REQ-024 multicore / SMP |
 | 0.11 | 2026-10-11 | frick-fsw | Add SSS-REQ-025 fundamental PUS-C service capability set (M15) |
+| 0.12 | 2026-10-11 | frick-fsw | M15: add SSS-REQ-026 CFDP + virtual filestore |
