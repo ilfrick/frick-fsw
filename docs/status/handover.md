@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -92,12 +92,14 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** three classes done — **GPIO**
-  (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL** (`ff_serial_mpfs`, SRS-REQ-048) and
-  **MEM** (`ff_mem_static`, SRS-REQ-049), each with an independent host test and a
-  Renode check (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`) folded into
-  the marker. Remaining M11 classes: ETH, NET/TCP-IP, TSN, CAN, SPI, I2C, PCIE,
-  SPACEWIRE, BLOCK, NVM.
+- **M11 in progress (Renode HAL coverage, OBJ-19):** four classes done — **GPIO**
+  (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL** (`ff_serial_mpfs`, SRS-REQ-048),
+  **MEM** (`ff_mem_static`, SRS-REQ-049) and **ETH** (Cadence GEM **identification**
+  via the read-only Module ID, SRS-REQ-036). GPIO/SERIAL/MEM go through their HAL
+  backends; the ETH check is an MMIO identification (the full GEM driver/DMA path
+  is host-tested, `test_gem`). Renode checks: `hal_gpio`/`hal_serial`/`hal_mem`/
+  `hal_eth=PASS` folded into the marker. Remaining M11 classes: NET/TCP-IP, TSN,
+  CAN, SPI, I2C, PCIE, SPACEWIRE, BLOCK, NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART and the
@@ -166,3 +168,4 @@ occasion; prefer Docker.
 | 0.5 | 2026-10-11 | frick-fsw | Add §0 "How to resume in a new session" (kickoff prompt) |
 | 0.6 | 2026-10-11 | frick-fsw | M11 GPIO + SERIAL + MEM done (SRS-REQ-047/048/049); counts 87/50/23/14 |
 | 0.7 | 2026-10-11 | frick-fsw | PUS-C ASN.1 default backend (SRS-REQ-050, ADR-0016); M14/M15 added; counts 94/54/26/14 |
+| 0.8 | 2026-10-11 | frick-fsw | M11 ETH HAL class exercised in Renode (`hal_eth=PASS`) |

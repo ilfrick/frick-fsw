@@ -13,7 +13,7 @@ $program ?= @/workspace/build/renode/frick_fsw_renode.elf
 mach create "frick-renode"
 machine LoadPlatformDescription @platforms/cpus/polarfire-soc.repl
 # The RTEMS mpfs64imafdc console is mmuart1 (0x20100000); capture it to a file.
-sysbus.mmuart1 CreateFileBackend @/workspace/build/renode/console.log
+sysbus.mmuart1 CreateFileBackend @/tmp/frick-uart.log
 sysbus LoadELF $program
 # Run only the U54 boot hart (hart 1) at the RTEMS image entry (0x1000000000,
 # the PolarFire SoC/HSS high DDR alias); halt the E51 monitor and the other U54s.

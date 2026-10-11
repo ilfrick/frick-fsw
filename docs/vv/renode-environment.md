@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -39,6 +39,7 @@ milestone M11), then prints a machine-checkable marker:
 [renode-test] hal_gpio=PASS
 [renode-test] hal_serial=PASS
 [renode-test] hal_mem=PASS
+[renode-test] hal_eth=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -83,11 +84,15 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run also exercises
   HAL backends on the emulated peripherals: **GPIO** (MSS GPIO, SRS-REQ-047),
-  **SERIAL** (MSS MMUART, SRS-REQ-048) and **MEM** (static RAM pool + reference
-  DMA, SRS-REQ-049). The app checks each and the marker is `PASS` only when all
-  succeed (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`). The MEM pool is
-  exercised over the in-image RAM (emulated DDR); the reference DMA cache hooks
-  are a seam (real cache ops = GAP-A5). Further HAL classes are added per M11.
+  **SERIAL** (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference
+  DMA, SRS-REQ-049) and **ETH** (Cadence GEM identification, SRS-REQ-036). The app
+  checks each and the marker is `PASS` only when all succeed
+  (`hal_gpio=PASS`, `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`). GPIO/
+  SERIAL/MEM are exercised through their HAL backends; the ETH check is an MMIO
+  identification of the emulated GEM (the full driver/DMA path is host-tested).
+  The MEM pool is exercised over the in-image RAM (emulated DDR); the reference
+  DMA cache hooks are a seam (real cache ops = GAP-A5). Further HAL classes are
+  added per M11.
 - **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
   (per-commit proxy) and **fails (exit 1)** when the image is present but the
   marker is missing; the nightly workflow performs the real run. Norm N18 is
@@ -109,3 +114,4 @@ stays open (GAP-A4/A6).
 | 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |
 | 0.6 | 2026-10-10 | frick-fsw | M11: MSS MMUART serial HAL backend exercised (`hal_serial=PASS`) |
 | 0.7 | 2026-10-11 | frick-fsw | M11: static RAM pool + DMA HAL backend exercised (`hal_mem=PASS`) |
+| 0.8 | 2026-10-11 | frick-fsw | M11: ETH (Cadence GEM identification) exercised (`hal_eth=PASS`); console capture via container-local path + docker cp |

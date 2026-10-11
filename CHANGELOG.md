@@ -225,6 +225,10 @@ change. All dates UTC, project language English (norm N2).
   committed). Falls back to the open backend (with a warning) when the generated
   code is absent; `-DFF_USE_PUS_ASN1=OFF` forces the open backend. Verified on
   host (14/14) and on the emulated SoC (`make renode` PASS).
+- **M11: ETH HAL class exercised in the Renode run.** The functional test now
+  identifies the emulated Cadence GEM via its read-only Module ID register
+  (`hal_eth=PASS`), in addition to GPIO/SERIAL/MEM (SRS-REQ-036; the full GEM
+  DMA/link path stays host-tested + GAP-A5).
 - **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
   of every loop, compare declared objectives + adherence to N1-N19 with the actual
   implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.

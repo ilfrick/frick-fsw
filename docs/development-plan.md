@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.13                                   |
+| Revision                          | 0.14                                   |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N19 (`docs/rules.md`)               |
@@ -281,21 +281,27 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 
 | Milestone | Objectives | Status |
 | --------- | ---------- | ------ |
-| M1 | baseline middleware | done |
-| M2 | time base | done |
-| M3 | OBJ-01..OBJ-09 | in progress |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress |
-| M5 | documentation & status program | in progress |
-| M6 | OBJ-13 (mathematics library integration) | in progress |
-| M7 | OBJ-14 (CCSDS SDLS security + key management) | in progress |
-| M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned |
-| M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress |
-| M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | planned |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | planned |
-| M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned |
-| M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned |
-| M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned |
-| M15 | OBJ-23 (in-house fundamental PUS-C service set on the asn1-pusc-lib data model, after M14) | planned |
+| M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
+| M2 | time base | done | PPS, CUC, time sources |
+| M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA done; CAN/SPI/I2C/QSPI/MMC/eMMC/storage/PCIe/SpaceWire pending (CFDP/VFS → M15) |
+| M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
+| M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
+| M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
+| M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned | — |
+| M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
+| M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | in progress | Renode real run PASS (`make renode`); QEMU run pending |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (4/13) | GPIO, SERIAL, MEM, ETH done (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth=PASS`); NET/TSN/CAN/SPI/I2C/PCIE/SPACEWIRE/BLOCK/NVM pending |
+| M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
+| M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
+| M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
+| M15 | OBJ-23 (in-house fundamental PUS-C service set on the asn1-pusc-lib data model, after M14) | planned | + CFDP + virtual filestore (VFS) + PUS-C S23 |
+
+**Completion policy (norm N19):** this table is updated at the start of every
+development loop together with the review of objectives/rules vs implementation
+(`docs/status/loop-audit.md`). The authoritative machine-readable semaphores are
+in `docs/status/status.json`; the live resume point is
+`docs/status/handover.md`.
 
 ## History
 
@@ -314,3 +320,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.11 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP on the 4×U54, after all other milestones; OBJ-22); PUS-C ASN.1 (N7/ESA) as default tracked (N19 audit) |
 | 0.12 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set; OBJ-23) from the PUS-C assessment FRICK-ARCH-0015 |
 | 0.13 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP (CCSDS 727.0-B) + virtual filestore (VFS) and PUS-C S23 file management |
+| 0.14 | 2026-10-11 | frick-fsw | Update §6 objective-to-milestone status to the actual completion state (M3/M6/M7 done; M10/M11 progress; M14/M15 planned) + completion policy (N19) |

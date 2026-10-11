@@ -346,9 +346,9 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/eth/gem/ff_gem.c", "src/drivers/eth/gem/ff_gem.h", "src/drivers/eth/gem/ff_gem_regs.h"]
-    tests: ["tests/unit/test_gem.c"]
+    tests: ["tests/unit/test_gem.c", "ci:renode"]
     lean: []
-    lean_note: "I/O-bound MAC driver: the register and descriptor logic is verified by host unit tests with a mock MMIO bus (test_gem.c); full device semantics and PHY/link behaviour require the target board (GAP-A5)."
+    lean_note: "I/O-bound MAC driver: the register and descriptor logic is verified by host unit tests with a mock MMIO bus (test_gem.c); the emulated Cadence GEM is identified on target (Renode M11, `hal_eth=PASS`); full device semantics and PHY/link behaviour require the target board (GAP-A5)."
 
   - id: SRS-REQ-037
     level: srs
@@ -446,7 +446,7 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/gpio/mpfs/ff_gpio_mpfs.c", "src/drivers/gpio/mpfs/ff_gpio_mpfs.h", "config/platform/platform_mpfs.h"]
-    tests: ["tests/unit/test_gpio.c"]
+    tests: ["tests/unit/test_gpio.c", "ci:renode"]
     lean: []
     lean_note: "MSS GPIO HAL backend: host unit test with a mock MMIO register bank; the MMIO round trip is exercised on the emulated MSS GPIO in the Renode functional test (milestone M11)."
 
@@ -455,7 +455,7 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/serial/mpfs/ff_serial_mpfs.c", "src/drivers/serial/mpfs/ff_serial_mpfs.h", "config/platform/platform_mpfs.h"]
-    tests: ["tests/unit/test_serial.c"]
+    tests: ["tests/unit/test_serial.c", "ci:renode"]
     lean: []
     lean_note: "MSS MMUART (NS16550, 4-byte-spaced registers) HAL serial backend: host unit test (mock MMIO); NS16550 scratch-register MMIO round trip exercised on the emulated MSS MMUART0 in the Renode functional test (milestone M11)."
 
@@ -464,7 +464,7 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/mem/ff_mem_static.c", "src/drivers/mem/ff_mem_static.h"]
-    tests: ["tests/unit/test_mem.c"]
+    tests: ["tests/unit/test_mem.c", "ci:renode"]
     lean: []
     lean_note: "Static RAM pool (FF_MemPool_t, bounded bump allocator, no heap) + reference FF_Dma_t (identity translation, cache seam): host unit test; pool exercised over the emulated DDR in the Renode functional test (milestone M11). The DMA cache-maintenance hooks are a seam (real cache ops = on-target work, GAP-A5)."
 

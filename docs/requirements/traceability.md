@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.20                                   |
+| Revision                          | 0.21                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -92,7 +92,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-033 | math/ff_math.c/h, CMake | test_math.c | - | libm facade (M6) |
 | SRS-REQ-034 | security/ff_sdls.c/h | test_sdls.c | - | SDLS processing (M7) |
 | SRS-REQ-035 | security/ff_sdls.c | test_sdls.c | req_srs035_sa_bound, req_srs035_epoch_monotonic, req_srs035_uses_reset | SA + key rotation |
-| SRS-REQ-036 | drivers/eth/gem/ff_gem.c/h | test_gem.c | - | Cadence GEM Ethernet driver (M4) |
+| SRS-REQ-036 | drivers/eth/gem/ff_gem.c/h | test_gem.c, ci:renode | - | Cadence GEM Ethernet driver + Renode GEM identification (M4/M11) |
 | SRS-REQ-037 | config/rtems/rtems_config.c, pal_rtems.c | ci:rtems-cross-build | - | RTEMS application integration (M4) |
 | SRS-REQ-038 | drivers/eth/gem/ff_gem_tsn.c/h | test_gem_tsn.c | - | GEM native TSN backend (M4) |
 | SRS-REQ-039 | drivers/net/ff_net_loopback.c/h | test_netloop.c | - | Reference loopback network stack (M4) |
@@ -195,3 +195,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |
 | 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
 | 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |
+| 0.21 | 2026-10-11 | frick-fsw | M11: SRS-REQ-036 Renode GEM identification (ci:renode); SRS-REQ-047/048/049 add ci:renode |

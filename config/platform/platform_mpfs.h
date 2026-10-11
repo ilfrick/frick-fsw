@@ -32,6 +32,11 @@
 #define FF_GPIO0_BASE 0x20120000u
 #define FF_GPIO0_PINS 14u /* MSS GPIO0 has 14 pins (GPIO1=24, GPIO2=32) */
 
+/* GEM Ethernet MAC 0 (Cadence GEM). Used by the ETH HAL check on the emulated
+ * SoC (M11); the reference driver is `src/drivers/eth/gem/`. */
+#define FF_GEM0_BASE 0x20110000u
+#define FF_GEM_MODID_OFF 0xFCu /* Module ID/revision (read-only identification) */
+
 /* MSS MMUART0 (NS16550, wide registers). Used by the reference serial driver;
  * exercised on the emulated SoC in the Renode functional test (M11). UART1
  * (0x20100000) is the console. */

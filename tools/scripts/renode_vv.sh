@@ -43,6 +43,7 @@ for _ in $(seq 1 120); do
 done
 
 docker logs "${NAME}" > "${LOG}" 2>&1 || true
+docker cp "${NAME}:/tmp/frick-uart.log" "${ROOT}/build/renode/console.log" > /dev/null 2>&1 || true
 cat "${ROOT}/build/renode/console.log" >> "${LOG}" 2>/dev/null || true
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 

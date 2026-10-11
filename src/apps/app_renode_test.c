@@ -100,6 +100,24 @@ static bool renode_hal_serial_check(void)
     return FF_SerialMpfsScratchSelfTest(&drv) == FF_SUCCESS;
 }
 
+static uint32_t mpfs_gem_read32(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    return *(volatile uint32_t *)(uintptr_t)(FF_GEM0_BASE + off);
+}
+
+/* HAL Ethernet check on the emulated Cadence GEM (milestone M11): identify the
+ * MAC via the read-only Module ID/revision register. The emulated GEM uses the
+ * Cadence defaults (identification 0x002, revision 0x118). (This is an MMIO
+ * presence/identification check; the full GEM driver/DMA/link path is host-tested
+ * and on-target PHY/link is GAP-A5.) */
+static bool renode_hal_eth_check(void)
+{
+    uint32_t modid = mpfs_gem_read32(NULL, FF_GEM_MODID_OFF);
+    /* Cadence GEM MODID: [15:0] module revision, [27:16] module identification. */
+    return (((modid >> 16) & 0x0FFFu) == 0x002u) && ((modid & 0xFFFFu) == 0x0118u);
+}
+
 /* HAL memory check (milestone M11): static RAM pool over the emulated DDR +
  * reference DMA translation. */
 static bool renode_hal_mem_check(void)
@@ -133,6 +151,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_ok = true;
     bool hal_serial_ok = true;
     bool hal_mem_ok = true;
+    bool hal_eth_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -169,14 +188,17 @@ void FF_AppRenodeTestMain(void *arg)
     hal_ok = renode_hal_gpio_check();
     hal_serial_ok = renode_hal_serial_check();
     hal_mem_ok = renode_hal_mem_check();
+    hal_eth_ok = renode_hal_eth_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_eth=%s\n", hal_eth_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
     FF_PalLog("RENODE_TEST: %s\n",
-              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok) ? "PASS" : "FAIL");
+              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok) ? "PASS"
+                                                                                       : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);
