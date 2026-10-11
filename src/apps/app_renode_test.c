@@ -28,6 +28,7 @@
 #include "drivers/gpio/mpfs/ff_gpio_mpfs.h"
 #include "drivers/serial/mpfs/ff_serial_mpfs.h"
 #include "drivers/mem/ff_mem_static.h"
+#include "drivers/nvm/mpfs/ff_nvm_mpfs.h"
 #include "drivers/net/ff_net_loopback.h"
 #include <string.h>
 
@@ -204,6 +205,35 @@ static bool renode_hal_mem_check(void)
     }
     return FF_DmaIdentity.virt_to_phys(p) != 0u;
 }
+
+static uint8_t mpfs_envm_read8(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    return *(volatile uint8_t *)(uintptr_t)(FF_ENVM0_BASE + off);
+}
+
+static void mpfs_envm_write8(void *ctx, uint32_t off, uint8_t val)
+{
+    (void)ctx;
+    *(volatile uint8_t *)(uintptr_t)(FF_ENVM0_BASE + off) = val;
+}
+
+/* HAL NVM check on the emulated MSS eNVM (milestone M11): a bounded read of the
+ * first parameter slot must succeed (the eNVM region is mapped). It is an MMIO
+ * presence/identification check; the write/erase register logic is host-tested
+ * (`test_nvm`), and the real flash endurance is GAP-A5. */
+static bool renode_hal_nvm_check(void)
+{
+    static FF_NvmMpfs_t drv;
+    FF_NvmBus_t bus = {NULL, mpfs_envm_read8, mpfs_envm_write8};
+    uint8_t buf[4];
+    uint16_t len = 0u;
+
+    if (FF_NvmMpfsSetup(&drv, &bus) != FF_SUCCESS) {
+        return false;
+    }
+    return drv.nvm.read(0u, buf, sizeof(buf), &len) == FF_SUCCESS;
+}
 #endif /* FRICK_PLATFORM_MPFS */
 
 void FF_AppRenodeTestMain(void *arg)
@@ -217,6 +247,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_mem_ok = true;
     bool hal_eth_ok = true;
     bool hal_net_ok = true;
+    bool hal_nvm_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -255,18 +286,20 @@ void FF_AppRenodeTestMain(void *arg)
     hal_mem_ok = renode_hal_mem_check();
     hal_eth_ok = renode_hal_eth_check();
     hal_net_ok = renode_hal_net_check();
+    hal_nvm_ok = renode_hal_nvm_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_eth=%s\n", hal_eth_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_net=%s\n", hal_net_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_nvm=%s\n", hal_nvm_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n",
-              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok && hal_net_ok)
-                  ? "PASS"
-                  : "FAIL");
+    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok &&
+                                    hal_eth_ok && hal_net_ok && hal_nvm_ok)
+                                       ? "PASS"
+                                       : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

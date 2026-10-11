@@ -31,7 +31,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS; QEMU pending** | partial | tracked: M10 |
-| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH done; NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 9 classes pending** | partial | tracked: M11 |
+| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM done; NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 8 classes pending** | partial | tracked: M11 |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
 | **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
@@ -46,7 +46,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (96 reqs) | planned reqs documented-only | tracked: M12-M16 |
+| N3 | SRS/SSS for all code | compliant (97 reqs) | planned reqs documented-only | tracked: M12-M16 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |

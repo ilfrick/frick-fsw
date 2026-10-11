@@ -24,7 +24,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | --- | --------------------------------------- | ------------------------------- | ------------------------------- | -------------------------- | ---------------------------------------- | ------ |
 | T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | reproducibility of all evidence | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T2  | Unit test harness `ff_test.h`           | `tests/ff_test.h`               | unit test results               | reviewed + CM              | internal                                | QUALIFIED |
-| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
+| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
 | T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | QUALIFIED |
 | T5  | Lean 4 / lake / formal theorems         | `verification/lean/`            | norm N1 machine-checked proofs  | tool is self-checking; sources reviewed | review of theorem statements (R1/R2) | QUALIFIED |
 | T6  | Traceability gate                       | `tools/scripts/trace.py`        | norm N4 convergence             | reviewed + CM              | independent (R2), qualified once, reviewed at change | QUALIFIED |
@@ -104,3 +104,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.6 | 2026-10-11 | frick-fsw | T13: address PA delta D1 + R2 source-review Minors (canon M1/M10, derived coverage %, proxy label, sprint source, gate wording); cite FRICK-REVIEW-0070; PA final approval FRICK-REVIEW-0071 |
 | 0.3.7 | 2026-10-11 | frick-fsw | T3 gains the R2/R3 test-gap suites `test_r2_gap.c` (487 checks) + `test_r3_gap.c` (198 checks) covering uncovered functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076) |
 | 0.3.8 | 2026-10-11 | frick-fsw | T3 re-qualification after the FRICK-REVIEW-0077 fix: TBL regression added (`test_r3_gap` 198 -> 201), `test_r2_gap` made order-independent; source `tbl.c` fix + `FF_PusInit` idempotence |
+| 0.3.9 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_nvm.c` (reference eNVM NVM backend, SRS-REQ-055); T17 Renode functional check gains `hal_nvm` |

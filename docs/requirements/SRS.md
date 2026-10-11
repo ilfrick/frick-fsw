@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.12                                   |
+| Revision                          | 1.13                                   |
 | Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -277,6 +277,11 @@ review).
   integrated third-party engine (SRS-REQ-045); engine development is milestone
   **M16**. `method: Tst | Dem`. (milestone M16)
 
+- **SRS-REQ-055** — *Reference NVM backend (eNVM)*: the framework shall provide a
+  reference non-volatile-memory backend implementing the HAL memory contract
+  (`FF_Nvm_t`, key/value by id) over the PolarFire SoC MSS embedded NVM (eNVM),
+  with bounded slots and bounded ids. `method: Tst | Inp`. (milestone M4/M11)
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -328,3 +333,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.10 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-052 fundamental PUS-C service set (from FRICK-ARCH-0015) |
 | 1.11 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-053 CFDP + virtual filestore |
 | 1.12 | 2026-10-11 | frick-fsw  | M16: add SRS-REQ-054 in-house OBCP engine |
+| 1.13 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-055 reference eNVM NVM backend |

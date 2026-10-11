@@ -63,7 +63,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 # Host build + unit tests (14/14) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 96/55/27/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 97/56/27/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -94,15 +94,16 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** **4/13 peripheral-bound**
+- **M11 in progress (Renode HAL coverage, OBJ-19):** **5/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
-  (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049) and
+  (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
   **ETH** (Cadence GEM **identification** via the read-only Module ID,
-  SRS-REQ-036). Additionally a **NET `FF_NetStack_t` contract check** through the
-  reference loopback stack (SRS-REQ-039; in-process — **not** peripheral-bound).
-  GPIO/SERIAL/MEM go through their HAL backends; the ETH check is an MMIO
+  SRS-REQ-036) and **NVM** (`ff_nvm_mpfs`, SRS-REQ-055; eNVM MMIO presence check).
+  Additionally a **NET `FF_NetStack_t` contract check** through the reference
+  loopback stack (SRS-REQ-039; in-process — **not** peripheral-bound).
+  GPIO/SERIAL/MEM/NVM go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
-  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net=PASS`. Remaining
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm=PASS`. Remaining
   M11 peripheral classes: NET(lwIP-on-GEM)/TSN/CAN/SPI/I2C/PCIE/SPACEWIRE/BLOCK/NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
@@ -113,7 +114,7 @@ occasion; prefer Docker.
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
   service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
   development) are **planned**.
-- Requirements: **96 (55 srs / 27 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **97 (56 srs / 27 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs)
   — all closed.

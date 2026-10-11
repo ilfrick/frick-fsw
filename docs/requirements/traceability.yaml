@@ -513,6 +513,15 @@ requirements:
     lean: []
     lean_note: "In-house OBCP engine behind FF_Obcp_t (uPython/MicroPython OBCPs) as the ECSS-compliant fallback to the integrated engine (SRS-REQ-045); milestone M16, planned."
 
+  - id: SRS-REQ-055
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/nvm/mpfs/ff_nvm_mpfs.c", "src/drivers/nvm/mpfs/ff_nvm_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_nvm.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference eNVM key/value backend behind FF_Nvm_t (M4/M11): bounded slots/ids; register logic host-tested; MMIO presence check on the emulated SoC (hal_nvm)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

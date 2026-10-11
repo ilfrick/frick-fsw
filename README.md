@@ -50,20 +50,20 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ------ | ----- | ---------- |
 | Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 50/55 (90.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 55/55 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
+| SRS requirements delivered | 51/56 (91.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 55/56 (98.2%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
 | Review streams closed | 23/26 (88.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 96 (srs=55, sss=27, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 96/96 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 82/96 (85.4%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/96 (20.8%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 2831/3961 (71.5%) | gcov |
-| Code function coverage | 371/376 (98.7%) | gcov |
+| Requirements in manifest | 97 (srs=56, sss=27, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 97/97 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 83/97 (85.6%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/97 (20.6%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 2898/4061 (71.4%) | gcov |
+| Code function coverage | 381/387 (98.4%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -182,6 +182,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | Serial (MSS MMUART) | `src/drivers/serial/mpfs/ff_serial_mpfs.c` | MSS MMUART (NS16550, 4-byte registers) backend behind `FF_Serial_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | Memory (RAM pool + DMA) | `src/drivers/mem/ff_mem_static.c` | static `FF_MemPool_t` + reference `FF_Dma_t`; host test + Renode DDR check (M4/M11) |
+| NVM (MSS eNVM) | `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` | bounded eNVM key/value backend behind `FF_Nvm_t`; host test (mock MMIO) + Renode MMIO presence check (M4/M11) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
