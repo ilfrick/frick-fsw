@@ -3,7 +3,8 @@
  *
  * A bounded, static, in-process implementation of the pluggable network-stack
  * contract (SRS-REQ-027 / SRS-REQ-039): socket-like API over a loopback pair.
- * It exercises the contract in unit tests and on the host simulator, and
+ * It exercises the contract in the unit tests and the emulated-target (Renode)
+ * functional check, and
  * documents how a third-party stack (lwIP) plugs in through the same vtable.
  * No dynamic memory.
  *

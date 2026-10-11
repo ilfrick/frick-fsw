@@ -16,8 +16,8 @@ change. All dates UTC, project language English (norm N2).
   negative, exhaustion and full-ring partial-send cases (29 -> 328 checks); the
   network-stack contract states the timeout/partial-transfer and `bind` semantics;
   SRS-REQ-039 wording corrected; review log, loop-audit, development plan, V&V
-  records and the tool register reconciled. PA/documentation semaphores are driven
-  by the review verdict.
+  records and the tool register reconciled (FRICK-REVIEW-0054..0062). PA/documentation
+  semaphores are driven by the review verdict.
 - **Norm N20 — independent Senior SW product-assurance review of every phase
   product.** New non-derogable norm: every phase product is independently
   reviewed also by the **Senior SW Product Assurance engineer (PA)**, and

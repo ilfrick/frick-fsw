@@ -337,6 +337,12 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 netstack delta re-review (N12) — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m4-netstack-delta-r2-review.md |
 | N20 governance documentation review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-n20-governance-r4-review.md |
 | M4 lwIP + M9 code-quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m4-lwip-r1-r2-r4-review.md |
+| M4 netstack delta closure (N12) — R1 | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (all R1 closed) | docs/reviews/2026-10-11-m4-netstack-delta-r1-closure.md |
+| M4 netstack delta closure (N12) — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m4-netstack-delta-r2-closure.md |
+| N20 governance documentation closure (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (DOC-01..12 closed) | docs/reviews/2026-10-11-n20-governance-r4-closure.md |
+| M4 netstack final confirmation — R1 | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (D-CL closed) | docs/reviews/2026-10-11-m4-netstack-final-r1.md |
+| M4 netstack final confirmation — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (no V&V barrier) | docs/reviews/2026-10-11-m4-netstack-final-r2.md |
+| N20 governance final confirmation (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (DOC-13..17 closed) | docs/reviews/2026-10-11-n20-governance-final-r4.md |
 
 ## History
 

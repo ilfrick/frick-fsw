@@ -30,7 +30,7 @@
 | 2026-10-10 | M4 RTEMS integration delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-rtems-delta-review.md |
 | 2026-10-10 | M4 GEM TSN backend review | R1+R2+R4 | REJECTED | 2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
 | 2026-10-10 | M4 GEM TSN backend delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-gem-tsn-delta-review.md |
-| 2026-10-10 | M4 netstack + M8 review | R1+R2+R4 | REJECTED -> closure pending independent delta (R1-01/R1-03 fixed; R1-02 residual tracked) | 2026-10-10-m4-netstack-r1-r2-r4-review.md |
+| 2026-10-10 | M4 netstack + M8 review | R1+R2+R4 | REJECTED -> CLOSED (independent deltas FRICK-REVIEW-0057/0058/0060/0061; R1-02 bounded residual tracked) | 2026-10-10-m4-netstack-r1-r2-r4-review.md |
 | 2026-10-10 | M4 lwIP + M9 code quality review | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | 2026-10-10 | M2 time base code review delta | R1      | APPROVED WITH COMMENTS    | 2026-10-10-m2-time-base-r1-delta-review.md |
 | 2026-10-10 | M2 V&V review delta            | R2      | APPROVED                  | 2026-10-10-m2-vv-r2-delta-review.md |
@@ -58,6 +58,12 @@
 | 2026-10-11 | M4 netstack delta re-review (N12) — FSW | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01 closed) | 2026-10-11-m4-netstack-delta-r1-review.md |
 | 2026-10-11 | M4 netstack delta re-review (N12) — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-m4-netstack-delta-r2-review.md |
 | 2026-10-11 | N20 governance documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-n20-governance-r4-review.md |
+| 2026-10-11 | M4 netstack delta re-review closure (N12) — FSW | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (all R1 closed) | 2026-10-11-m4-netstack-delta-r1-closure.md |
+| 2026-10-11 | M4 netstack delta re-review closure (N12) — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (all prior closed) | 2026-10-11-m4-netstack-delta-r2-closure.md |
+| 2026-10-11 | N20 governance documentation closure (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (DOC-01..12 closed) | 2026-10-11-n20-governance-r4-closure.md |
+| 2026-10-11 | M4 netstack final confirmation — FSW | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (D-CL-01..04 closed) | 2026-10-11-m4-netstack-final-r1.md |
+| 2026-10-11 | M4 netstack final confirmation — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (no V&V barrier) | 2026-10-11-m4-netstack-final-r2.md |
+| 2026-10-11 | N20 governance final confirmation (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (DOC-13..17 closed) | 2026-10-11-n20-governance-final-r4.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

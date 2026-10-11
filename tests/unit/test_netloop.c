@@ -159,7 +159,7 @@ static void test_loopback_boundaries(void)
     for (i = 0; i < 256; i++) {
         FF_TEST_ASSERT(buf[i] == (uint8_t)i);
     }
-    /* a partial send on a full ring transfers 0, and a 300-byte send caps at 256 */
+    /* refill the full ring, then a further (300-byte) send on it transfers 0 */
     FF_TEST_ASSERT(s->send(cli, buf, 256u, &n) == FF_SUCCESS);
     FF_TEST_ASSERT(n == 256u);
     FF_TEST_ASSERT(s->send(cli, buf, 300u, &n) == FF_SUCCESS);

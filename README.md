@@ -57,7 +57,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci github | 🟢 (GREEN) |
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
-| documentation review | 🔴 (RED) |
+| documentation review | 🟢 (GREEN) |
 | product assurance review | 🔴 (RED) |
 | loop audit | 🔴 (RED) |
 | renode functional validation | 🟢 (GREEN) |
