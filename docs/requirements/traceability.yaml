@@ -472,10 +472,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-015
     derived: false
-    implementation: ["docs/status/loop-audit.md", "docs/architecture/pus-layer.md", "docs/requirements/SRS.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/pus/adapters/pus_adapter_n7.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
+    tests: ["tests/unit/test_pus.c", "ci:renode"]
     lean: []
-    lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled) as the default PUS-C basis behind FF_Pus_Backend_t; wired into build/runtime (norm N19 reconciliation). Planned/being wired; tracked in docs/status/loop-audit.md."
+    lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled at build time) is the DEFAULT PUS backend (FF_PusBackendN7): the PUS-C field vocabulary/widths come from the generated ASN.1 types and the packet error control uses the N7/ESA ECSS Annex B.1 CRC; verified on host (14/14) and on the emulated SoC (make renode PASS). Deep per-service ASN.1 type codecs = M15."
 
   - id: SRS-REQ-051
     level: srs

@@ -56,6 +56,7 @@ make coverage            # gcov line/function coverage -> build/coverage/coverag
 make metrics             # regenerate the README status panel (coverage + semaphores)
 make renode-env          # Renode V&V environment self-test (norm N18; needs docker)
 make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
+make pus-asn1            # generate the PUS-C ASN.1 (N7/ESA) default backend C (build-time; ASN1SCC)
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds

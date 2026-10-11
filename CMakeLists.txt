@@ -22,6 +22,7 @@ option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" 
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
 option(FF_USE_LWIP    "Build the lwIP network-stack adapter (milestone M4, needs third_party/lwip)" OFF)
 option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
+option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C ASN.1 default backend (needs generated code; see make pus-asn1)" ON)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems")
 
@@ -45,6 +46,19 @@ endif()
 if(FF_ENABLE_COVERAGE)
   add_compile_options(--coverage)
   add_link_options(--coverage)
+endif()
+if(FF_USE_PUS_ASN1)
+  set(FF_PUS_ASN1_LIB ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asn1-pusc-lib)
+  set(FF_PUS_ASN1_GEN ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asn1-pusc-lib-generated/common)
+  if((NOT EXISTS "${FF_PUS_ASN1_GEN}/BasicTypes.h") OR (NOT EXISTS "${FF_PUS_ASN1_LIB}/wrappers/c/Crc.c"))
+    message(WARNING
+      "FF_USE_PUS_ASN1=ON (default) but the generated PUS-C ASN.1 code / N7 wrappers are missing; "
+      "falling back to the open CCSDS backend. Run 'make pus-asn1' to enable the PUS-C ASN.1 default.")
+    set(FF_USE_PUS_ASN1 FALSE)
+  else()
+    add_compile_definitions(FF_USE_PUS_ASN1=1)
+    message(STATUS "PUS-C ASN.1 (N7/ESA) default backend ENABLED")
+  endif()
 endif()
 
 # ----------------------------------------------------------------------
@@ -157,6 +171,30 @@ if(FF_USE_LWIP)
   target_compile_options(frick_net_lwip PRIVATE -Wall -Wextra)
   target_link_libraries(frick_net_lwip PUBLIC frick_lwip)
   target_link_libraries(frick_fsw_core PUBLIC frick_net_lwip)
+endif()
+
+# PUS-C ASN.1 (N7 Space / ESA) default backend (SRS-REQ-050). Build-time code
+# generation: the C is produced by `make pus-asn1` (tools/scripts/gen_pus_asn1.sh)
+# from the pinned asn1-pusc-lib model with the ESA ASN1SCC compiler; nothing
+# generated or third-party is committed. Disable with -DFF_USE_PUS_ASN1=OFF to
+# fall back to the open CCSDS backend.
+if(FF_USE_PUS_ASN1)
+  add_library(frick_pus_asn1 STATIC
+    ${FF_PUS_ASN1_GEN}/BasicTypes.c
+    ${FF_PUS_ASN1_GEN}/asn1crt.c
+    ${FF_PUS_ASN1_GEN}/asn1crt_encoding.c
+    ${FF_PUS_ASN1_GEN}/asn1crt_encoding_acn.c
+    ${FF_PUS_ASN1_LIB}/wrappers/c/Crc.c
+    ${FF_PUS_ASN1_LIB}/wrappers/c/IsoChecksum.c)
+  target_include_directories(frick_pus_asn1 PUBLIC
+    ${FF_PUS_ASN1_GEN} ${FF_PUS_ASN1_LIB}/wrappers/c)
+  # Generated + N7/ESA wrapper code is third-party: do not impose our warnings.
+  target_compile_options(frick_pus_asn1 PRIVATE -w)
+  target_link_libraries(frick_fsw_core PUBLIC frick_pus_asn1)
+  # The N7 backend adapter is part of the core (it uses the generated headers).
+  target_include_directories(frick_fsw_core PRIVATE
+    ${FF_PUS_ASN1_GEN} ${FF_PUS_ASN1_LIB}/wrappers/c)
+  target_sources(frick_fsw_core PRIVATE ${FF_SRC_DIR}/pus/adapters/pus_adapter_n7.c)
 endif()
 
 if(FF_ENABLE_WERROR)

@@ -104,6 +104,13 @@ and make it the **default** PUS basis:
 Remaining: commit/consume the generated code in CMake, implement `FF_PusBackendN7`
 and switch the default; then verify (host + Renode) and close SRS-REQ-050.
 
+**Reconciled (build-time, ADR-0016):** `FF_PusBackendN7` is the default
+(`FF_USE_PUS_ASN1=ON`, build-time generation via `make pus-asn1`; T19), verified on
+host (14/14) and on the emulated SoC (`make renode` PASS). SRS-REQ-050 implemented
+for the field/error-control layer; the deep per-service ASN.1 type codecs and the
+fundamental service behaviour are **M15**. Falls back to the open backend with a
+warning when the generated code is absent.
+
 ## 4. Other gaps of the same class (declared-but-not-delivered)
 
 Found by this audit (not previously tracked as such):
@@ -121,7 +128,7 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 
 | Gap | Disposition | Owner | Milestone |
 | --- | --- | --- | --- |
-| PUS-C ASN.1 not wired/default | **close this loop** (blocked: ASN1SCC toolchain) | frick-fsw | M4/now |
+| PUS-C ASN.1 not wired/default | **reconciled**: `FF_PusBackendN7` default (build-time; ADR-0016); host `test_pus` + Renode | frick-fsw | M4/now |
 | Multicore/SMP | tracked | frick-fsw | **M14** |
 | In-house fundamental PUS-C service set (+ CFDP + virtual filestore) | tracked (assessment FRICK-ARCH-0015, ~34 PM; hybrid) | frick-fsw | **M15** |
 | QEMU target | tracked | frick-fsw | M10 |

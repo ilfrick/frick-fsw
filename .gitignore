@@ -8,6 +8,7 @@ build-*/
 # Third-party sources (fetched, pinned; see third_party/README.md)
 third_party/lwip/
 third_party/asn1-pusc-lib/
+third_party/asn1-pusc-lib-generated/
 third_party/pusopen/
 
 # RTEMS / toolchain

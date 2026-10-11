@@ -6,9 +6,12 @@
  * distinguishes one PUS product from another (secondary header layout, CRC,
  * transfer framing, ASM/CLTU) lives behind the FF_Pus_Backend_t vtable.
  *
- * Two backends are defined:
- *   - FF_PusBackendOpen    : open reference backend, built on the local CCSDS
- *                            codec (default, always available, AGPL-3.0-only).
+ * Three backends are defined:
+ *   - FF_PusBackendN7    : PUS-C ASN.1 (N7 Space / ESA asn1-pusc-lib,
+ *                          ASN1SCC-compiled) DEFAULT backend when FF_USE_PUS_ASN1
+ *                          is enabled (SRS-REQ-050, ADR-0016).
+ *   - FF_PusBackendOpen  : open reference backend on the local CCSDS codec
+ *                          (always available; the fallback).
  *   - FF_PusBackendPusopen : adapter for the commercial PUSopen(R) C library.
  *
  * Services implemented by the reference core: 1, 3, 5, 6, 8, 9, 11 (stub),
@@ -72,6 +75,11 @@ uint32_t FF_PusGetTcCount(void);
 
 /* ---- Backends ----------------------------------------------------- */
 extern const FF_Pus_Backend_t FF_PusBackendOpen;
+
+#if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
+/* PUS-C ASN.1 (N7 Space / ESA) default backend (SRS-REQ-050). */
+extern const FF_Pus_Backend_t FF_PusBackendN7;
+#endif
 
 #if defined(FRICK_USE_PUSOPEN) && (FRICK_USE_PUSOPEN == 1)
 extern const FF_Pus_Backend_t FF_PusBackendPusopen;

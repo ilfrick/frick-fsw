@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.19                                   |
+| Revision                          | 0.20                                   |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -31,6 +31,7 @@ artifacts (no external state).
 | MSS GPIO driver + Renode MMIO (M4/M11), 2026-10-10 | PASS (Debug) | PASS (12/12; `test_gpio` 27 checks, mock MMIO) | PASS (`lake build` 21/21) | PASS (85 reqs / 48 srs / 23 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio=PASS`) | Reference MSS GPIO driver (`FF_Gpio_t`, bus-injected MMIO, allocation-free) behind the HAL; host unit test with an independent mock MMIO register bank (per-pin CFG, IN=0x84, OUT=0x88); real MMIO round trip on the emulated MSS GPIO in the Renode run (milestone M11 first class). Requirement SRS-REQ-047. |
 | MSS MMUART serial driver + Renode MMIO (M4/M11), 2026-10-10 | PASS (Debug) | PASS (13/13; `test_serial` 30 checks, mock MMIO) | PASS (`lake build` 21/21) | PASS (86 reqs / 49 srs / 23 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio=PASS`, `hal_serial=PASS`) | Reference MSS MMUART (NS16550, 4-byte-spaced registers) driver (`FF_Serial_t`, bus-injected MMIO, allocation-free) behind the HAL; host unit test with an independent mock; NS16550 scratch-register MMIO round trip on the emulated MSS MMUART0 (milestone M11). Requirement SRS-REQ-048. |
 | Static RAM pool + DMA + Renode DDR (M4/M11), 2026-10-11 | PASS (Debug) | PASS (14/14; `test_mem` 20 checks) | PASS (`lake build` 21/21) | PASS (87 reqs / 50 srs / 23 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio`/`hal_serial`/`hal_mem=PASS`) | Bounded, heap-free `FF_MemPool_t` (bump allocator) + reference `FF_Dma_t` (identity translation; cache hooks are a seam = GAP-A5); host unit test; the pool is exercised over the in-image RAM (emulated DDR) in the Renode run (milestone M11). Requirement SRS-REQ-049. |
+| PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050), 2026-10-11 | PASS (Debug) | PASS (14/14) | PASS (`lake build` 21/21) | PASS (94 reqs / 54 srs / 26 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`) | `FF_PusBackendN7` is the **default** PUS backend (ADR-0016): ASN1SCC-generated `asn1-pusc-lib` types + N7/ESA ECSS Annex B.1 CRC; build-time generation (`make pus-asn1`, T19); host unit test `test_pus` asserts the N7 backend is byte-identical to the reference (36 checks); fallback to open backend with a warning when the generated code is absent. Deep per-service codecs = M15. |
 
 ## v0.1.0 baseline notes
 
@@ -344,3 +345,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.17 | 2026-10-10 | frick-fsw | M4/M11: reference MSS GPIO driver + host unit test (12/12) + Renode MMIO check (`hal_gpio=PASS`); SRS-REQ-047 |
 | 0.18 | 2026-10-10 | frick-fsw | M4/M11: reference MSS MMUART serial driver + host unit test (13/13) + Renode MMIO check (`hal_serial=PASS`); SRS-REQ-048 |
 | 0.19 | 2026-10-11 | frick-fsw | M4/M11: static RAM pool + DMA helper + host unit test (14/14) + Renode DDR check (`hal_mem=PASS`); SRS-REQ-049 |
+| 0.20 | 2026-10-11 | frick-fsw | PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050, ADR-0016, build-time generation T19); host 14/14 + Renode PASS |

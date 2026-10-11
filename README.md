@@ -74,7 +74,7 @@ Issues deferred by the user: none.
 | Requirements with implementation | 94/94 |
 | Test coverage (requirements with tests) | 80/94 (85.1%) |
 | Formal verification coverage (requirements with Lean) | 20/94 (21.3%) |
-| Code line coverage | 1854/2812 (65.9%) - functions 251/295 |
+| Code line coverage | 1878/2848 (65.9%) - functions 256/301 |
 
 <!-- METRICS-END -->
 

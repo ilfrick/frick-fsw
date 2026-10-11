@@ -74,6 +74,34 @@ static void test_ping_roundtrip(void)
     FF_TEST_ASSERT(stream_has(1u, 3u));
     FF_TEST_ASSERT(stream_has(1u, 7u));
     FF_TEST_ASSERT(stream_has(17u, 2u));
+
+#if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
+    /* SRS-REQ-050: the default N7/ESA ASN.1 backend must not corrupt the
+     * reference framing — its TM output is byte-identical to the open backend
+     * (same ECSS Annex B.1 CRC). */
+    {
+        FF_Pus_TmHdr_t h;
+        uint8_t a[128];
+        uint8_t b[128];
+        uint16_t la = 0u;
+        uint16_t lb = 0u;
+
+        memset(&h, 0, sizeof(h));
+        h.version = FF_PUS_VERSION;
+        h.service = FF_PUS_SERVICE_TEST;
+        h.subservice = 2u;
+        FF_TEST_ASSERT(FF_PusBackendOpen.encode_tm(&h, payload, sizeof(payload), a, sizeof(a),
+                                                   &la) == FF_SUCCESS);
+        FF_TEST_ASSERT(FF_PusBackendN7.encode_tm(&h, payload, sizeof(payload), b, sizeof(b), &lb) ==
+                       FF_SUCCESS);
+        FF_TEST_ASSERT(la == lb);
+        FF_TEST_ASSERT(la > 0u);
+        FF_TEST_ASSERT(memcmp(a, b, la) == 0);
+        /* And the N7 backend can be selected as the active backend. */
+        FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendN7) == FF_SUCCESS);
+        FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    }
+#endif
 }
 
 /* ---- Service 6 : memory dump bounded to registered regions (SRS-REQ-009) */

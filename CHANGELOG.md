@@ -217,6 +217,14 @@ change. All dates UTC, project language English (norm N2).
   **M15 also includes CFDP (CCSDS 727.0-B) and the virtual filestore (VFS) it
   operates on** (pluggable RAM/flash/eMMC/SSD) with PUS-C S23 on the VFS
   (SSS-REQ-026 / SRS-REQ-053).
+- **PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050, ADR-0016).**
+  `FF_PusBackendN7` is the **default** PUS backend: the PUS-C field
+  vocabulary/widths come from the ASN1SCC-generated `asn1-pusc-lib` types and the
+  packet error control uses the N7/ESA ECSS Annex B.1 CRC; build-time generation
+  (`make pus-asn1`, `tools/docker/asn1scc/`, T19; nothing generated/third-party
+  committed). Falls back to the open backend (with a warning) when the generated
+  code is absent; `-DFF_USE_PUS_ASN1=OFF` forces the open backend. Verified on
+  host (14/14) and on the emulated SoC (`make renode` PASS).
 - **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
   of every loop, compare declared objectives + adherence to N1-N19 with the actual
   implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.
