@@ -32,8 +32,8 @@
     "ci_gitea": "green",
     "documentation_set": "green",
     "documentation_review": "green",
-    "product_assurance_review": "red",
-    "loop_audit": "red",
+    "product_assurance_review": "green",
+    "loop_audit": "green",
     "renode_functional_validation": "green",
     "reviews": "green",
     "vv_records": "green"

@@ -319,7 +319,7 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 RTEMS integration delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-rtems-delta-review.md |
 | M4 GEM TSN backend review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
 | M4 GEM TSN backend delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-gem-tsn-delta-review.md |
-| M4 netstack + M8 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED; Major fixed in code, closure pending independent delta | docs/reviews/2026-10-10-m4-netstack-r1-r2-r4-review.md |
+| M4 netstack + M8 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED -> CLOSED (independent deltas/N12 0057/0058/0059/0060/0061/0062) | docs/reviews/2026-10-10-m4-netstack-r1-r2-r4-review.md |
 | M4 lwIP + M9 code quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | M10 emulated-target review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m10-emulated-r1-r2-r4-review.md |
 | Renode env + N18 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED (F-01 Major) -> resolved + delta re-review | docs/reviews/2026-10-10-renode-env-r1-r2-r4-review.md |
@@ -343,6 +343,7 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 netstack final confirmation — R1 | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (D-CL closed) | docs/reviews/2026-10-11-m4-netstack-final-r1.md |
 | M4 netstack final confirmation — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (no V&V barrier) | docs/reviews/2026-10-11-m4-netstack-final-r2.md |
 | N20 governance final confirmation (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (DOC-13..17 closed) | docs/reviews/2026-10-11-n20-governance-final-r4.md |
+| PA final review of all phase products (N20) | PA (independent) | 2026-10-11 | PASS | docs/reviews/2026-10-11-pa-final-review-967f563.md |
 
 ## History
 

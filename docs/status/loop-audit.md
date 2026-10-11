@@ -61,7 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N17 | documentation review (R4) | per change; one N20-change review was initially missed (FRICK-REVIEW-0056 DOC-10) then performed | none | closed |
 | N18 | Renode functional validation | **in force** (`make renode` PASS) | per-commit SKIP proxy (no image) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
-| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 dispositions under N12 | open findings | in progress (tracked: FRICK-REVIEW-0053) |
+| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 findings closed, PA PASS (FRICK-REVIEW-0063) | R1-02 bounded residual (tracked) | closed (residual tracked: loopback R1-02) |
 
 ## 3. The PUS-C ASN.1 gap: root cause and reconciliation
 
