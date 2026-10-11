@@ -55,6 +55,9 @@
 | 2026-10-11 | M4 lwIP + M9 code-quality review | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-lwip-r1-r2-r4-review.md |
 | 2026-10-11 | PA review of all phase products (norm N20) at c5f51bc | PA (Senior SW PA engineer) | REJECTED (3 Major) | 2026-10-11-pa-review-c5f51bc.md |
 | 2026-10-11 | PA delta re-review of dispositions at 077d38b (N12/N20) | PA (Senior SW PA engineer) | REJECTED -> dispositions in progress | 2026-10-11-pa-delta-review-077d38b.md |
+| 2026-10-11 | M4 netstack delta re-review (N12) — FSW | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01 closed) | 2026-10-11-m4-netstack-delta-r1-review.md |
+| 2026-10-11 | M4 netstack delta re-review (N12) — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-m4-netstack-delta-r2-review.md |
+| 2026-10-11 | N20 governance documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-n20-governance-r4-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

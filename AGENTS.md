@@ -106,7 +106,10 @@ Actions executes the identical `.github/workflows/ci.yml`.
    over the documentation affected by the change, correct every finding, and
    re-review until the documentation review is APPROVED or APPROVED WITH
    COMMENTS with all NCs closed.
-8. Commit + push to both `origin` (GitHub) and `gitea` remotes (norm N7).
+8. Run the **product-assurance review** (norm N20): instantiate the Senior SW PA
+   reviewer (`aeronautics-space-sw-pa-engineer`) over the products of the phase;
+   correct every finding and repeat until it passes.
+9. Commit + push to both `origin` (GitHub) and `gitea` remotes (norm N7).
 
 ## 6. Standards references used
 
@@ -126,7 +129,7 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N6 | Full SW V&V; deploy CI/CD via Docker (Gitea has no CI/CD) |
 | N7 | Commit and push compliant changes to both repositories |
 | N8 | Complete, current, deployable documentation (humans + agents) |
-| N9 | Independent reviews by independent-context agents (R1/R2 + PA (N20) profiles) |
+| N9 | Independent reviews by independent-context agents (R1/R2/R3/R4 + PA (N20) profiles) |
 | N10 | Test scripts / V&V tools reviewed & qualified per ECSS |
 | N11 | Test scripts and review results committed/pushed every cycle |
 | N12 | Non-conformances resolved by re-applying all rules to full compliance |

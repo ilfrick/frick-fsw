@@ -57,7 +57,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci github | 🟢 (GREEN) |
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
-| documentation review | 🟢 (GREEN) |
+| documentation review | 🔴 (RED) |
 | product assurance review | 🔴 (RED) |
 | loop audit | 🔴 (RED) |
 | renode functional validation | 🟢 (GREEN) |
@@ -76,7 +76,7 @@ Issues deferred by the user: none.
 | Requirements with implementation | 94/94 |
 | Test coverage (requirements with tests) | 80/94 (85.1%) |
 | Formal verification coverage (requirements with Lean) | 20/94 (21.3%) |
-| Code line coverage | 1880/2848 (66.0%) - functions 256/301 |
+| Code line coverage | 1912/2907 (65.8%) - functions 257/302 |
 
 <!-- METRICS-END -->
 

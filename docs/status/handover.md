@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.9                                    |
+| Revision                          | 1.0                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit c5f51bc)
+## 4. Current state (as of commit e1def89)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross

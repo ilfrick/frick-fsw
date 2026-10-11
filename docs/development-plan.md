@@ -278,6 +278,12 @@ registers, throughput/latency, DMA and cache coherency, ISR latencies, RTEMS
 scheduling on silicon (GAP-A5/A7, GAP-A4 stack/WCET). The HAL seam confines this
 residual risk to the BSP/driver layer; board bring-up closes it.
 
+**Tracked residuals (norm N19).** Bounded limitation of the *reference* loopback
+network stack: a relay slot is paired at `connect` (eager), `backlog` is ignored
+and a second `connect` before `accept` overwrites `pending`, so an un-accepted
+connection retains one of four slots until `init()` resets the table
+(FRICK-REVIEW-0032 R1-02; owner frick-fsw; M4/M11; lwIP is the production path).
+
 ## 6. Objective-to-milestone status
 
 | Milestone | Objectives | Status |

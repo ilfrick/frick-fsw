@@ -45,7 +45,7 @@ user-supplied adapters.
 
 ## 5. Verification
 
-- `tests/unit/test_netloop.c` (29 checks): the loopback contract.
+- `tests/unit/test_netloop.c` (65 checks): the loopback contract (incl. boundary/negative paths, descriptor exhaustion, full-ring partial send, cross-socket duplicate bind).
 - `tests/unit/test_lwip.c` (15 checks, `FF_USE_LWIP`): a real TCP round trip
   over the lwIP loopback interface (127.0.0.1), plus negative address handling.
 - CI: a job fetches lwIP, builds with `FF_USE_LWIP=ON` and runs the lwIP test.

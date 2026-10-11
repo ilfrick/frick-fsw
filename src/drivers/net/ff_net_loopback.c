@@ -79,11 +79,19 @@ static FF_NetSock_t netloop_open(int domain, int type, int proto)
 static FF_Status_t netloop_bind(FF_NetSock_t sd, const uint8_t *addr, uint16_t addr_len)
 {
     FF_NetLoopSock_t *s = sock_of(sd);
+    uint16_t i;
     if ((s == NULL) || (addr == NULL) || (addr_len < 1u)) {
         return FF_INVALID_ARGUMENT;
     }
     if (s->bound != 0u) {
-        return FF_ALREADY_EXISTS; /* already bound */
+        return FF_ALREADY_EXISTS; /* this socket is already bound */
+    }
+    /* reject a port already bound by another socket (address already in use) */
+    for (i = 0u; i < FF_NETLOOP_MAX; i++) {
+        if ((i != (uint16_t)sd) && (g_sock[i].used != 0u) && (g_sock[i].bound != 0u) &&
+            (g_sock[i].port == addr[0])) {
+            return FF_ALREADY_EXISTS;
+        }
     }
     s->bound = 1u;
     s->port = addr[0];

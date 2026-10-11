@@ -27,8 +27,10 @@ struct FF_NetStack
     /* Optional: bind a link-layer driver to the stack (netif registration). */
     FF_Status_t (*attach_netif)(void *netif);
 
-    /* Socket-like API (blocking, bounded). `open`/`accept` return a negative
-     * FF_NetSock_t on failure (FF_NetSock_t is signed for that reason). */
+    /* Socket-like API (bounded). `open`/`accept` return a negative FF_NetSock_t
+     * on failure (FF_NetSock_t is signed for that reason). `send` may transfer
+     * fewer bytes than requested (always check `*sent`); `recv` is non-blocking
+     * for the reference backend and `timeout_ms` semantics are backend-specific. */
     FF_NetSock_t (*open)(int domain, int type, int proto);
     FF_Status_t (*connect)(FF_NetSock_t sd, const uint8_t *addr, uint16_t addr_len);
     FF_Status_t (*bind)(FF_NetSock_t sd, const uint8_t *addr, uint16_t addr_len);

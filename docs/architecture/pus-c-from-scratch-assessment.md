@@ -272,7 +272,7 @@ the current last milestone).
 - `docs/architecture/pus-layer.md`, `docs/interfaces/ICD.md`, `ADR-0003`,
   `ADR-0004`, `docs/status/loop-audit.md`, `docs/quality/class-a-gaps.md`,
   `docs/requirements/{SSS,SRS,traceability}.md`.
-- `src/pus/`, `third_party/asn1-pusc-lib` (v1.1.1), `docs/rules.md` (N1-N19).
+- `src/pus/`, `third_party/asn1-pusc-lib` (v1.1.1), `docs/rules.md` (N1-N20).
 
 ## History
 

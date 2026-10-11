@@ -267,13 +267,14 @@ PolarFire SoC MSS TRM DS60001702.
 
 ### Coverage
 
-`make coverage`: lines **1656/2521 (65.7%)**, functions **220/264**. `test_netloop` (29 checks) exercises the loopback `FF_NetStack_t` (bind/listen/connect/accept, bidirectional send/recv, close unpairing, error paths, out-of-range handle rejection).
+`make coverage`: lines **1656/2521 (65.7%)**, functions **220/264**. `test_netloop` (65 checks) exercises the loopback `FF_NetStack_t` (bind/listen/connect/accept, bidirectional send/recv, boundary/negative arguments, descriptor exhaustion, full-ring partial send, cross-socket duplicate bind, out-of-range handle rejection).
 
 ### Remaining (M4)
 
-lwIP `FF_NetStack_t` adapter + GEM TSN (`FF_TsnBackend_t`), N7/ESA
-`FF_Pus_Backend_t` adapter, MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO drivers, filestore/
-CFDP/service 23.
+CAN/SPI/I2C/QSPI/MMC/eMMC/storage/PCIe/SpaceWire MSS drivers (M4 residual),
+N7/ESA `FF_Pus_Backend_t` per-service mapping (M15), filestore/CFDP/service 23
+(M15). Delivered since the original list: lwIP adapter, GEM TSN, MSS MMUART and
+MSS GPIO (kept here only as history).
 
 ## Documentation review (norm N17)
 
@@ -318,7 +319,7 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 RTEMS integration delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-rtems-delta-review.md |
 | M4 GEM TSN backend review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Majors fixed | docs/reviews/2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
 | M4 GEM TSN backend delta | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS (Majors closed) | docs/reviews/2026-10-10-m4-gem-tsn-delta-review.md |
-| M4 netstack + M8 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED, Major fixed (netstack bounds) | docs/reviews/2026-10-10-m4-netstack-r1-r2-r4-review.md |
+| M4 netstack + M8 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED; Major fixed in code, closure pending independent delta | docs/reviews/2026-10-10-m4-netstack-r1-r2-r4-review.md |
 | M4 lwIP + M9 code quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | M10 emulated-target review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m10-emulated-r1-r2-r4-review.md |
 | Renode env + N18 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED (F-01 Major) -> resolved + delta re-review | docs/reviews/2026-10-10-renode-env-r1-r2-r4-review.md |
@@ -332,6 +333,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M11 NET delta | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS -> closed | docs/reviews/2026-10-11-m11-net-delta-review.md |
 | PA review of all phase products (N20) | PA (independent) | 2026-10-11 | REJECTED (3 Major) | docs/reviews/2026-10-11-pa-review-c5f51bc.md |
 | PA delta re-review of dispositions (N12/N20) | PA (independent) | 2026-10-11 | REJECTED -> dispositions in progress | docs/reviews/2026-10-11-pa-delta-review-077d38b.md |
+| M4 netstack delta re-review (N12) — R1 | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (R1-01 closed; R1-02 tracking held) | docs/reviews/2026-10-11-m4-netstack-delta-r1-review.md |
+| M4 netstack delta re-review (N12) — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m4-netstack-delta-r2-review.md |
+| N20 governance documentation review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-n20-governance-r4-review.md |
+| M4 lwIP + M9 code-quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m4-lwip-r1-r2-r4-review.md |
 
 ## History
 
@@ -361,3 +366,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.21 | 2026-10-11 | frick-fsw | M11: ETH HAL class exercised in Renode (`hal_eth=PASS`, SRS-REQ-036) |
 | 0.22 | 2026-10-11 | frick-fsw | M11: NET HAL class (pluggable TCP/IP, loopback stack) exercised in Renode (`hal_net=PASS`, SRS-REQ-039) |
 | 0.23 | 2026-10-11 | frick-fsw | Record all 2026-10-11 reviews (MEM, PUS-C ASN.1, README, ETH, NET R1/R2/R4+delta, PA N20 + delta); header date refreshed (PA-10) |
+| 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 65 checks |

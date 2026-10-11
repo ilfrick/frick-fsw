@@ -31,7 +31,7 @@
     "ci_github": "green",
     "ci_gitea": "green",
     "documentation_set": "green",
-    "documentation_review": "green",
+    "documentation_review": "red",
     "product_assurance_review": "red",
     "loop_audit": "red",
     "renode_functional_validation": "green",

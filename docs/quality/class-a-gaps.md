@@ -195,4 +195,5 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.1 | 2026-10-10 | frick-fsw | Initial gap analysis GAP-A1..A6 (norm N5) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: add GAP-A7 on-target PPS and TAI/CCSDS epoch |
 | 0.3 | 2026-10-10 | frick-fsw | ECSS compliance assessment: add GAP-A8..A13 (SDP, SDD depth, FMEA, third-party IVV, OPD, maintenance) |
+| 0.5 | 2026-10-11 | frick-fsw | GAP-A1b reframed as a sub-item of GAP-A1 (delivered, ADR-0016); tracking clarified (PA-08) |
 | 0.4 | 2026-10-10 | frick-fsw | M7: add GAP-A14 (SDLS crypto algorithm qualification and key store) |

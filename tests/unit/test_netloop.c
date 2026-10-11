@@ -76,4 +76,80 @@ static void test_loopback_errors(void)
     FF_TEST_ASSERT(s->send((FF_NetSock_t)65536, buf, 1u, &sent) == FF_INVALID_ARGUMENT);
 }
 
-FF_TEST_MAIN(test_loopback_stream, test_loopback_errors)
+static void test_loopback_boundaries(void)
+{
+    FF_NetStack_t *s = &FF_NetStackLoopback;
+    FF_NetSock_t a;
+    FF_NetSock_t b;
+    FF_NetSock_t srv;
+    FF_NetSock_t cli;
+    FF_NetSock_t acc;
+    uint8_t addr7[1] = {7u};
+    uint8_t addr8[1] = {8u};
+    uint16_t n = 0u;
+    uint16_t got = 0u;
+    uint8_t buf[300];
+    uint8_t peer[1];
+    uint16_t peer_len = 1u;
+    int i;
+
+    s->init();
+
+    /* argument and binding boundaries */
+    a = s->open(0, 0, 0);
+    FF_TEST_ASSERT(a >= 0);
+    FF_TEST_ASSERT(s->bind(a, NULL, 1u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->bind(a, addr7, 0u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->bind(a, addr7, 1u) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->bind(a, addr7, 1u) == FF_ALREADY_EXISTS); /* same socket */
+    b = s->open(0, 0, 0);
+    FF_TEST_ASSERT(b >= 0);
+    FF_TEST_ASSERT(s->bind(b, addr7, 1u) == FF_ALREADY_EXISTS); /* port in use by a */
+    FF_TEST_ASSERT(s->bind(b, addr8, 1u) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->listen(a, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->accept(a, peer, &peer_len) == -1); /* empty accept queue */
+    FF_TEST_ASSERT(s->send(a, buf, 1u, NULL) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->recv(a, NULL, 1u, &got, 0u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->recv(a, buf, 1u, NULL, 0u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->close(a) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->close(b) == FF_SUCCESS);
+
+    /* listen without bind is rejected */
+    a = s->open(0, 0, 0);
+    FF_TEST_ASSERT(a >= 0);
+    FF_TEST_ASSERT(s->listen(a, 1u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(s->close(a) == FF_SUCCESS);
+
+    /* descriptor exhaustion returns -1 (bounded 4-slot table), and init resets */
+    s->init();
+    for (i = 0; i < 4; i++) {
+        FF_TEST_ASSERT(s->open(0, 0, 0) >= 0);
+    }
+    FF_TEST_ASSERT(s->open(0, 0, 0) < 0);
+
+    /* partial send when the peer ring (256 bytes) is full; then a wrap-around
+     * send/receive still delivers intact */
+    s->init();
+    srv = s->open(0, 0, 0);
+    cli = s->open(0, 0, 0);
+    FF_TEST_ASSERT(srv >= 0);
+    FF_TEST_ASSERT(cli >= 0);
+    FF_TEST_ASSERT(s->bind(srv, addr7, 1u) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->listen(srv, 1u) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->connect(cli, addr7, 1u) == FF_SUCCESS);
+    acc = s->accept(srv, peer, &peer_len);
+    FF_TEST_ASSERT(acc >= 0);
+    memset(buf, 0xAB, sizeof(buf));
+    FF_TEST_ASSERT(s->send(cli, buf, 300u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(n == 256u); /* requested 300, ring holds 256 */
+    FF_TEST_ASSERT(s->recv(acc, buf, sizeof(buf), &got, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(got == 256u);
+    FF_TEST_ASSERT(s->send(cli, buf, 10u, &n) == FF_SUCCESS);
+    FF_TEST_ASSERT(s->recv(acc, buf, sizeof(buf), &got, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(got == 10u);
+    (void)s->close(acc);
+    (void)s->close(cli);
+    (void)s->close(srv);
+}
+
+FF_TEST_MAIN(test_loopback_stream, test_loopback_errors, test_loopback_boundaries)

@@ -6,7 +6,7 @@
 | Document id                      | FRICK-AUDIT-001                        |
 | Revision                          | 0.2                                    |
 | Date                              | 2026-10-11                             |
-| Baseline commit                   | e8daab3                                |
+| Baseline commit                   | e1def89 (audited revision)             |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -144,3 +144,4 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-11 | frick-fsw | First N19 loop audit: objective/rule conformance; PUS-C ASN.1 gap root cause + reconciliation; multicore M14 |
+| 0.2 | 2026-10-11 | frick-fsw | Re-baselined at e1def89: counts 94/54/26/14/51, registry T1-T19, N9 row + PA, N20 in progress, R1-02 residual tracked (PA-review loop) |

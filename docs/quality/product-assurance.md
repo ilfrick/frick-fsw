@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-PA-001                      |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-11                             |
 | References                        | ECSS-Q-ST-80C, `docs/rules.md`, `docs/quality/ecss-compliance-matrix.md` |
 

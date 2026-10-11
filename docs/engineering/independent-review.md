@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-REVIEW-AGENTS-001                |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N9, N10, N11, N14, N17, N20            |
 
@@ -130,5 +130,4 @@ committed and pushed in the same cycle (norm N11).
 | 0.3 | 2026-10-10 | frick-fsw | Add profile R4 (Senior SW documentation reviewer, norm N17); independence table extended to R4 |
 | 0.4 | 2026-10-11 | frick-fsw | Map reviewer profiles to the five Senior OpenCode agents (`~/.config/opencode/agents/aeronautics-space-*`, from `~/agents/*.md`); add SW PA profile (PA) |
 | 0.5 | 2026-10-11 | frick-fsw | Neutral agent names (dropped `frick-`); norm N20: independent Senior SW PA review of every phase product (fixed + repeated until pass) |
-| 0.6 | 2026-10-11 | frick-fsw | Five Senior personas versioned in-repo (`reviewer-agents/`) + project `.opencode/agents/`; header norms add N20; path harmonised (PA-05) |
 | 0.6 | 2026-10-11 | frick-fsw | Five Senior personas versioned in-repo (`reviewer-agents/`) + project `.opencode/agents/`; header norms add N20; path harmonised (PA-05) |

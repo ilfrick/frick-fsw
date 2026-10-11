@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-CM-001                      |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-11                             |
 | References                        | ECSS-E-ST-40C, ECSS-Q-ST-80C, `docs/rules.md` (N7/N11/N16) |
 
