@@ -24,7 +24,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | --- | --------------------------------------- | ------------------------------- | ------------------------------- | -------------------------- | ---------------------------------------- | ------ |
 | T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | reproducibility of all evidence | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T2  | Unit test harness `ff_test.h`           | `tests/ff_test.h`               | unit test results               | reviewed + CM              | internal                                | QUALIFIED |
-| T3  | CTest / unit tests                      | `tests/unit/*.c`                | SRS/SSS test evidence           | reviewed + CM              | internal; independent at release (R2)   | QUALIFIED |
+| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
 | T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | QUALIFIED |
 | T5  | Lean 4 / lake / formal theorems         | `verification/lean/`            | norm N1 machine-checked proofs  | tool is self-checking; sources reviewed | review of theorem statements (R1/R2) | QUALIFIED |
 | T6  | Traceability gate                       | `tools/scripts/trace.py`        | norm N4 convergence             | reviewed + CM              | independent (R2), qualified once, reviewed at change | QUALIFIED |
@@ -102,3 +102,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.4 | 2026-10-11 | frick-fsw | Re-qualification: T13 `metrics.py` now also computes the completion/metrics panel (sprints, SSS/SRS/design/review completion + coverage) rendered in README; definitions under PA review (N20) |
 | 0.3.5 | 2026-10-11 | frick-fsw | T13: single consolidated panel; PA findings F1-F3 addressed (strict verification, Lean coverage restored, review-stream keying); CI currency gate added; PA approval FRICK-REVIEW-0068 |
 | 0.3.6 | 2026-10-11 | frick-fsw | T13: address PA delta D1 + R2 source-review Minors (canon M1/M10, derived coverage %, proxy label, sprint source, gate wording); cite FRICK-REVIEW-0070; PA final approval FRICK-REVIEW-0071 |
+| 0.3.7 | 2026-10-11 | frick-fsw | T3 gains the R2/R3 test-gap suites `test_r2_gap.c` (487 checks) + `test_r3_gap.c` (198 checks) covering uncovered functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076) |

@@ -49,10 +49,10 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
 | Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 21/27 (77.8%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 49/55 (89.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 50/55 (90.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 55/55 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 21/22 (95.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 21/24 (87.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 

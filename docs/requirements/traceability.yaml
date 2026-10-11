@@ -42,7 +42,7 @@ requirements:
     parent_sss: SSS-REQ-002
     derived: false
     implementation: ["src/core/sb/sb.c", "src/core/sb/sb.h"]
-    tests: ["tests/unit/test_sb.c"]
+    tests: ["tests/unit/test_sb.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: ["req_srs001_exact_and_wildcard", "req_srs001_no_match_no_delivery"]
 
   - id: SRS-REQ-002
@@ -50,7 +50,7 @@ requirements:
     parent_sss: SSS-REQ-002
     derived: false
     implementation: ["src/core/sb/sb.c", "src/core/pal/pal_posix.c"]
-    tests: ["tests/unit/test_sb.c"]
+    tests: ["tests/unit/test_sb.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "FIFO ordering follows from the bounded ring-buffer queue semantics modeled in Frick.SoftwareBus; behaviour asserted in test_sb.c."
 
@@ -75,7 +75,7 @@ requirements:
     parent_sss: SSS-REQ-004
     derived: false
     implementation: ["src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Unknown service/subservice and malformed frame handling covered by unit/integration tests; the dispatch contract is modeled in Frick.Pus."
 
@@ -84,7 +84,7 @@ requirements:
     parent_sss: SSS-REQ-004
     derived: false
     implementation: ["src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
     lean: ["req_srs006_acceptance_completion", "complete_ack_produces_two", "ack_acceptance_is_counted"]
 
   - id: SRS-REQ-007
@@ -92,7 +92,7 @@ requirements:
     parent_sss: SSS-REQ-004
     derived: false
     implementation: ["src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
     lean: ["req_srs007_counter_increases", "req_srs007_counter_wrap_bounded"]
 
   - id: SRS-REQ-008
@@ -100,7 +100,7 @@ requirements:
     parent_sss: SSS-REQ-005
     derived: false
     implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Housekeeping flow exercised end-to-end in the simulator; formalisation in the class-A work package (GAP-A2)."
 
@@ -118,7 +118,7 @@ requirements:
     parent_sss: SSS-REQ-007
     derived: false
     implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c", "tests/unit/test_time.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c", "tests/unit/test_time.c", "tests/unit/test_r3_gap.c"]
     lean: ["req_srs024_cuc_field_roundtrip"]
 
   - id: SRS-REQ-011
@@ -126,7 +126,7 @@ requirements:
     parent_sss: SSS-REQ-006
     derived: false
     implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c", "ci:simulator-smoke"]
+    tests: ["tests/unit/test_pus.c", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Event-to-ground forwarding observed in the simulator smoke run; formal event-log invariant in GAP-A2."
 
@@ -144,7 +144,7 @@ requirements:
     parent_sss: SSS-REQ-009
     derived: false
     implementation: ["src/core/tbl/tbl.c"]
-    tests: ["tests/unit/test_tbl.c"]
+    tests: ["tests/unit/test_tbl.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Atomic activate verified by unit test (staging not visible until activate)."
 
@@ -153,7 +153,7 @@ requirements:
     parent_sss: SSS-REQ-008
     derived: false
     implementation: ["src/core/es/es.c", "src/apps/app_hs.c"]
-    tests: ["ci:simulator-smoke"]
+    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c"]
     lean: []
     lean_note: "Application lifecycle and HS detection exercised in the simulator; dedicated HS unit tests are scheduled (docs/roadmap.md)."
 
@@ -247,7 +247,7 @@ requirements:
     parent_sss: SSS-REQ-017
     derived: false
     implementation: ["src/hal/hal.c", "src/hal/hal.h", "config/fsw_config.h"]
-    tests: ["tests/unit/test_hal.c"]
+    tests: ["tests/unit/test_hal.c", "tests/unit/test_r2_gap.c"]
     lean: ["req_srs025_registry_bound", "req_srs025_dup_unchanged"]
 
   - id: SRS-REQ-026
@@ -392,7 +392,7 @@ requirements:
     parent_sss: SSS-REQ-021
     derived: false
     implementation: ["docs/quality/misra-c.md", "tools/scripts/misra.sh"]
-    tests: ["ci:misra"]
+    tests: ["ci:misra", "tests/unit/test_r2_gap.c"]
     lean: []
     lean_note: "MISRA C:2012 compliance driven by the cppcheck MISRA scan (advisory) with a documented deviation process; certified MISRA checker and formal report are GAP-A4."
 
@@ -473,7 +473,7 @@ requirements:
     parent_sss: SSS-REQ-015
     derived: false
     implementation: ["src/pus/adapters/pus_adapter_n7.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
-    tests: ["tests/unit/test_pus.c", "ci:renode"]
+    tests: ["tests/unit/test_pus.c", "ci:renode", "tests/unit/test_r2_gap.c"]
     lean: []
     lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled at build time) is the DEFAULT PUS backend (FF_PusBackendN7): the PUS-C field vocabulary/widths come from the generated ASN.1 types and the packet error control uses the N7/ESA ECSS Annex B.1 CRC; verified on host (14/14) and on the emulated SoC (make renode PASS). Deep per-service ASN.1 type codecs = M15."
 
@@ -491,7 +491,7 @@ requirements:
     parent_sss: SSS-REQ-025
     derived: false
     implementation: ["docs/development-plan.md", "docs/architecture/pus-c-from-scratch-assessment.md", "src/pus/pus.h"]
-    tests: ["ci:docs"]
+    tests: ["ci:docs", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/19/20) in in-house MISRA-clean C behind FF_Pus_Backend_t on the ASN.1/ACN data model (milestone M15, planned)."
 
@@ -526,7 +526,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/core/sb/sb.c", "config/fsw_config.h"]
-    tests: ["tests/unit/test_sb.c"]
+    tests: ["tests/unit/test_sb.c", "tests/unit/test_r2_gap.c"]
     lean: ["req_sss002_queue_bounded", "fits_queue_when_bounded"]
 
   - id: SSS-REQ-003
@@ -547,7 +547,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
-    tests: ["ci:simulator-smoke"]
+    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "S3 housekeeping demonstrated in the simulator; formal coverage in GAP-A2."
 
@@ -555,7 +555,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
-    tests: ["ci:simulator-smoke"]
+    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "PUS service 5 event stream observed in simulator logs/TM."
 
@@ -578,7 +578,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/core/tbl/tbl.c", "config/tables/fsw_tables.c"]
-    tests: ["tests/unit/test_tbl.c"]
+    tests: ["tests/unit/test_tbl.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
     lean_note: "Load/validate/activate lifecycle covered by the unit test."
 
@@ -586,7 +586,7 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "config/fsw_config.h"]
-    tests: ["ci:static-analysis"]
+    tests: ["ci:static-analysis", "tests/unit/test_r2_gap.c"]
     lean: []
     lean_note: "Deterministic memory enforced by design and static analysis; formal memory model in GAP-A4."
 

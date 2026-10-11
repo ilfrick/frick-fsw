@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.24                                   |
+| Revision                          | 0.25                                   |
 | Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -352,6 +352,8 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | Completion-metrics panel — PA delta approval (N12/N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (F1-F5 closed) | docs/reviews/2026-10-11-metrics-panel-pa-delta-review.md |
 | Completion-metrics tool T13 source review (N10) | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-metrics-tool-r2-review.md |
 | Completion-metrics panel — PA final approval (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (owner approval satisfied) | docs/reviews/2026-10-11-metrics-panel-pa-approval.md |
+| Test-coverage gap analysis + tests (V&V) | R2 (independent) | 2026-10-11 | test_r2_gap.c, 487 checks | docs/reviews/2026-10-11-test-coverage-r2-report.md |
+| Requirement-level test-gap analysis + tests (systems) | R3 (independent) | 2026-10-11 | test_r3_gap.c, 198 checks | docs/reviews/2026-10-11-requirements-test-gap-r3-report.md |
 
 ## History
 
@@ -382,3 +384,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.22 | 2026-10-11 | frick-fsw | M11: NET HAL class (pluggable TCP/IP, loopback stack) exercised in Renode (`hal_net=PASS`, SRS-REQ-039) |
 | 0.23 | 2026-10-11 | frick-fsw | Record all 2026-10-11 reviews (MEM, PUS-C ASN.1, README, ETH, NET R1/R2/R4+delta, PA N20 + delta); header date refreshed (PA-10) |
 | 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 328 checks |
+| 0.25 | 2026-10-11 | frick-fsw | R2/R3 test-gap task: new suites `test_r2_gap` (487 checks) + `test_r3_gap` (198 checks); ctest 14 -> 16; trace manifest tests evidence extended; SDD section 6 design matrix (PA-67-01) |

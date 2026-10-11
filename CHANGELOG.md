@@ -9,6 +9,14 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Test-coverage gap closure (R2 + R3 task).** Two new host suites close the
+  functions/branches that were unexecuted and the requirement-level flows that
+  were `ci:docs`-only: `tests/unit/test_r2_gap.c` (487 checks: EVS/ES lifecycle,
+  SB wildcard/saturation/drop, TBL revert/dump, Time MET/UTC, HAL invalid-class,
+  CCSDS TC/decode errors, PUS core counters + S3/S8/S9/S20/S11, Math NaN/inf, PAL
+  lifecycle) and `tests/unit/test_r3_gap.c` (198 checks: TC->dispatch->TM, S1
+  verification codes, EVS->S5, TBL activate/revert, S9 set/report, PUS malformed
+  TC). ctest 14 -> 16 suites. Reports FRICK-REVIEW-0075 (R2) / 0076 (R3).
 - **Completion-metrics panel (README).** `tools/scripts/metrics.py` (V&V tool
   T13) now computes and renders, **above the semaphores**, a completion panel:
   sprint completion (`docs/planning/sprint-plan.md`), SSS/SRS requirements
