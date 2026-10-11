@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-10                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
