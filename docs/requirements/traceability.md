@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
 | Revision                          | 0.22                                   |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 

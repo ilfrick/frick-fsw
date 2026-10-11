@@ -50,18 +50,20 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 5. **N18**: functional validation in **Renode** must pass — `make renode`
    (blocking when `build/renode/frick_fsw_renode.elf` exists; per-commit SKIP
    proxy otherwise; nightly does the real run).
-6. N9/N12: independent review (R1/R2/R3/R4 as applicable) + NC closure; reports
+6. N9/N12: independent review (R1/R2/R3/R4/PA as applicable) + NC closure; reports
    under `docs/reviews/` and logged in `docs/reviews/README.md`.
 7. N8/N16: update all affected docs + revision histories.
 8. N17: documentation review (R4).
+9. **N20**: independent **Senior SW PA** review of every phase product; findings
+   fixed and reviews repeated until pass (`docs/engineering/reviewer-agents/`).
 
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (12/12) + trace + format
+# Host build + unit tests (14/14) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 85/48/23/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 94/54/26/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -172,3 +174,4 @@ occasion; prefer Docker.
 | 0.7 | 2026-10-11 | frick-fsw | PUS-C ASN.1 default backend (SRS-REQ-050, ADR-0016); M14/M15 added; counts 94/54/26/14 |
 | 0.8 | 2026-10-11 | frick-fsw | M11 ETH HAL class exercised in Renode (`hal_eth=PASS`) |
 | 0.9 | 2026-10-11 | frick-fsw | M11 NET `FF_NetStack_t` contract check exercised in Renode (`hal_net=PASS`) |
+| 1.0 | 2026-10-11 | frick-fsw | Norm N20 (Senior SW PA review of every phase product); counts refreshed 94/54/26/14/51; PA gate added |

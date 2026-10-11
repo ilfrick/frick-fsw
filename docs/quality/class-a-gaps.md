@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.4                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.5                                    |
+| Date                              | 2026-10-11                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
-| Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` |
+| Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
 
 The current baseline targets ECSS criticality **B** (`ecss-criticality-b.md`).
 The following gaps must be closed, together with the class-B baseline, to
@@ -41,14 +41,16 @@ traceability manifest (level `gap`, `justification` records the disposition).
   (norm N19). **Tooling:** Frama-C/CBMC are build-time analysis tools (not
   distributed); Lean 4 core (no Mathlib).
 
-## GAP-A1b - ASN1SCC generation in the build (PUS-C ASN.1 default)
+## GAP-A1b - ASN1SCC generation in the build (PUS-C ASN.1 default; sub-item of GAP-A1)
 
 The PUS-C ASN.1 default (SRS-REQ-050) requires the **ASN1SCC** compiler at build
 time; ASN1SCC is not distributed as a tool in the V&V image. Handled by
 `tools/docker/asn1scc/Dockerfile` (pinned) + `tools/scripts/gen_pus_asn1.sh`
-(tool T19); generation is validated and the code is git-ignored. Residual: the
-generated code must be consumed by CMake and the backend defaulted — tracked in
-`docs/status/loop-audit.md` (N19). Not a class-A flight gap (build-time tool).
+(tool T19); generation is validated and the code is git-ignored.
+**Delivered (ADR-0016):** the generated code is consumed by CMake and
+`FF_PusBackendN7` is the default (`FF_USE_PUS_ASN1=ON`); the former residual is
+closed. Tracked as a sub-item of GAP-A1 (no separate manifest entry); not a
+class-A flight gap (build-time tool, re-qualified as T19).
 
 ## GAP-A2 - Full PUS-C service coverage
 

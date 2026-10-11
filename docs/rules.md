@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
 | Revision                          | 1.4                                    |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
 

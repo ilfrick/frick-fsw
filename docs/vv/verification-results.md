@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.22                                   |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.23                                   |
+| Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
 
@@ -322,6 +322,16 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 lwIP + M9 code quality review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | M10 emulated-target review | R1+R2+R4 (independent) | 2026-10-10 | APPROVED WITH COMMENTS | docs/reviews/2026-10-10-m10-emulated-r1-r2-r4-review.md |
 | Renode env + N18 review | R1+R2+R4 (independent) | 2026-10-10 | REJECTED (F-01 Major) -> resolved + delta re-review | docs/reviews/2026-10-10-renode-env-r1-r2-r4-review.md |
+| M4/M11 static RAM pool + DMA review | R1+R2+R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (NCs closed) | docs/reviews/2026-10-11-m4-m11-mem-r1-r2-r4-review.md |
+| PUS-C ASN.1 (N7/ESA) default backend review | R1+R2+R4 (independent) | 2026-10-11 | REJECTED -> closed (CRC guard + test) | docs/reviews/2026-10-11-pus-c-asn1-default-r1-r2-r4-review.md |
+| README scope + integration/service docs (N17) | R4 (independent) | 2026-10-11 | REJECTED -> closed | docs/reviews/2026-10-11-readme-scope-r4-review.md |
+| M11 ETH HAL class (Cadence GEM) review | R1+R2+R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS -> closed | docs/reviews/2026-10-11-m11-eth-r1-r2-r4-review.md |
+| M11 NET contract check (loopback) — FSW | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m11-net-r1-review.md |
+| M11 NET contract check (loopback) — V&V | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m11-net-r2-review.md |
+| M11 NET contract check (loopback) — docs | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-m11-net-r4-review.md |
+| M11 NET delta | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS -> closed | docs/reviews/2026-10-11-m11-net-delta-review.md |
+| PA review of all phase products (N20) | PA (independent) | 2026-10-11 | REJECTED (3 Major) | docs/reviews/2026-10-11-pa-review-c5f51bc.md |
+| PA delta re-review of dispositions (N12/N20) | PA (independent) | 2026-10-11 | REJECTED -> dispositions in progress | docs/reviews/2026-10-11-pa-delta-review-077d38b.md |
 
 ## History
 
@@ -350,3 +360,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.20 | 2026-10-11 | frick-fsw | PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050, ADR-0016, build-time generation T19); host 14/14 + Renode PASS |
 | 0.21 | 2026-10-11 | frick-fsw | M11: ETH HAL class exercised in Renode (`hal_eth=PASS`, SRS-REQ-036) |
 | 0.22 | 2026-10-11 | frick-fsw | M11: NET HAL class (pluggable TCP/IP, loopback stack) exercised in Renode (`hal_net=PASS`, SRS-REQ-039) |
+| 0.23 | 2026-10-11 | frick-fsw | Record all 2026-10-11 reviews (MEM, PUS-C ASN.1, README, ETH, NET R1/R2/R4+delta, PA N20 + delta); header date refreshed (PA-10) |

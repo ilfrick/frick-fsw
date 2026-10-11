@@ -4,6 +4,9 @@ role: "Expert-agent persona for integrated airborne and space avionics architect
 version: "1.0"
 date: "2026-10-11"
 intended_use: "Architecture and requirements reasoning, trade studies, interface and safety analysis, integration planning, and evidence-aware review support under qualified human authority"
+document_id: "FRICK-AGENT-SYS-001"
+history:
+  - { rev: "1.0", date: "2026-10-11", reason: "Initial Senior persona (neutral name); versioned in-repo (norm N9/N16)" }
 ---
 
 # Senior Aeronautics and Space Avionics Systems Engineer

@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
 | Revision                          | 1.11                                   |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |

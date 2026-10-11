@@ -30,7 +30,7 @@
 | 2026-10-10 | M4 RTEMS integration delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-rtems-delta-review.md |
 | 2026-10-10 | M4 GEM TSN backend review | R1+R2+R4 | REJECTED | 2026-10-10-m4-gem-tsn-r1-r2-r4-review.md |
 | 2026-10-10 | M4 GEM TSN backend delta | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-gem-tsn-delta-review.md |
-| 2026-10-10 | M4 netstack + M8 review | R1+R2+R4 | REJECTED -> closed (R1-02 documented limitation; residual tracked) | 2026-10-10-m4-netstack-r1-r2-r4-review.md |
+| 2026-10-10 | M4 netstack + M8 review | R1+R2+R4 | REJECTED -> closure pending independent delta (R1-01/R1-03 fixed; R1-02 residual tracked) | 2026-10-10-m4-netstack-r1-r2-r4-review.md |
 | 2026-10-10 | M4 lwIP + M9 code quality review | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m9-codequality-r1-r2-r4-review.md |
 | 2026-10-10 | M2 time base code review delta | R1      | APPROVED WITH COMMENTS    | 2026-10-10-m2-time-base-r1-delta-review.md |
 | 2026-10-10 | M2 V&V review delta            | R2      | APPROVED                  | 2026-10-10-m2-vv-r2-delta-review.md |
@@ -52,7 +52,9 @@
 | 2026-10-11 | M11 NET contract check (loopback) — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-m11-net-r2-review.md |
 | 2026-10-11 | M11 NET contract check (loopback) — docs | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-m11-net-r4-review.md |
 | 2026-10-11 | M11 NET delta | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS -> closed | 2026-10-11-m11-net-delta-review.md |
-| 2026-10-11 | PA review of all phase products (norm N20) at c5f51bc | PA (Senior SW PA engineer) | REJECTED -> dispositions closed | 2026-10-11-pa-review-c5f51bc.md |
+| 2026-10-11 | M4 lwIP + M9 code-quality review | R1+R2+R4 | APPROVED WITH COMMENTS | 2026-10-10-m4-lwip-r1-r2-r4-review.md |
+| 2026-10-11 | PA review of all phase products (norm N20) at c5f51bc | PA (Senior SW PA engineer) | REJECTED (3 Major) | 2026-10-11-pa-review-c5f51bc.md |
+| 2026-10-11 | PA delta re-review of dispositions at 077d38b (N12/N20) | PA (Senior SW PA engineer) | REJECTED -> dispositions in progress | 2026-10-11-pa-delta-review-077d38b.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

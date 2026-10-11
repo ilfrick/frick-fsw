@@ -41,7 +41,7 @@ and the milestone/objective plan.
 
 ## Status panel - coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (norm N8/N10); last updated 2026-10-10.
+Maintained by `tools/scripts/metrics.py` (norm N8/N10); last updated 2026-10-11.
 
 Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the user - **🔴 (RED)** failures.
 
@@ -58,13 +58,13 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
 | documentation review | 🟢 (GREEN) |
-| product assurance review | 🟢 (GREEN) |
-| loop audit | 🟢 (GREEN) |
+| product assurance review | 🔴 (RED) |
+| loop audit | 🔴 (RED) |
 | renode functional validation | 🟢 (GREEN) |
 | reviews | 🟢 (GREEN) |
 | vv records | 🟢 (GREEN) |
 
-**Overall: 🟢 (GREEN)**
+**Overall: 🔴 (RED)**
 
 Issues deferred by the user: none.
 
@@ -76,7 +76,7 @@ Issues deferred by the user: none.
 | Requirements with implementation | 94/94 |
 | Test coverage (requirements with tests) | 80/94 (85.1%) |
 | Formal verification coverage (requirements with Lean) | 20/94 (21.3%) |
-| Code line coverage | 1878/2848 (65.9%) - functions 256/301 |
+| Code line coverage | 1880/2848 (66.0%) - functions 256/301 |
 
 <!-- METRICS-END -->
 

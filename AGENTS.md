@@ -126,7 +126,7 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N6 | Full SW V&V; deploy CI/CD via Docker (Gitea has no CI/CD) |
 | N7 | Commit and push compliant changes to both repositories |
 | N8 | Complete, current, deployable documentation (humans + agents) |
-| N9 | Independent reviews by independent-context agents (R1/R2 profiles) |
+| N9 | Independent reviews by independent-context agents (R1/R2 + PA (N20) profiles) |
 | N10 | Test scripts / V&V tools reviewed & qualified per ECSS |
 | N11 | Test scripts and review results committed/pushed every cycle |
 | N12 | Non-conformances resolved by re-applying all rules to full compliance |

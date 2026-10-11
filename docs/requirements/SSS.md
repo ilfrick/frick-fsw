@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
 | Revision                          | 0.12                                   |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
 | RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |

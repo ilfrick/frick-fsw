@@ -1,6 +1,6 @@
 {
   "meta": {
-    "updated": "2026-10-10",
+    "updated": "2026-10-11",
     "source": "tools/scripts/metrics.py + docs/status/status.json",
     "note": "Semaphores are maintained by the V&V coordinator each cycle (norm N8/N11); coverage metrics are computed automatically.",
     "ci_gitea_verification": "act_runner deployed on the Gitea mirror (frick-act-runner, norm N6); runner log shows jobs executed for ilfrick/frick-fsw on 2026-10-10 (verified; README panel reflects an operational pipeline)."
@@ -8,14 +8,14 @@
   "milestones": {
     "M1": "done",
     "M2": "done",
-    "M3": "in progress",
+    "M3": "done",
     "M4": "in progress",
     "M5": "in progress",
-    "M6": "in progress",
-    "M7": "in progress",
+    "M6": "done",
+    "M7": "done",
     "M8": "planned",
     "M9": "in progress",
-    "M10": "planned",
+    "M10": "in progress",
     "M11": "in progress",
     "M12": "planned",
     "M13": "planned",
@@ -32,8 +32,8 @@
     "ci_gitea": "green",
     "documentation_set": "green",
     "documentation_review": "green",
-    "product_assurance_review": "green",
-    "loop_audit": "green",
+    "product_assurance_review": "red",
+    "loop_audit": "red",
     "renode_functional_validation": "green",
     "reviews": "green",
     "vv_records": "green"

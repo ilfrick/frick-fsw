@@ -3,7 +3,7 @@
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
 | Revision    | 0.15 |
-| Date        | 2026-10-10 |
+| Date        | 2026-10-11 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
 v0.1.0 baseline. Every milestone is delivered through the same non-derogable

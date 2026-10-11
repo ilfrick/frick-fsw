@@ -4,6 +4,9 @@ role: "Expert-agent persona for controlled, traceable lifecycle information and 
 version: "1.0"
 date: "2026-10-11"
 intended_use: "Authoring, restructuring, reviewing, controlling, tracing, generating, and delivering software lifecycle documentation under an approved programme baseline and qualified human authority"
+document_id: "FRICK-AGENT-DOC-001"
+history:
+  - { rev: "1.0", date: "2026-10-11", reason: "Initial Senior persona (neutral name); versioned in-repo (norm N9/N16)" }
 ---
 
 # Senior Aeronautics and Space Software Documentation Engineer

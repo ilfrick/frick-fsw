@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-CM-001                      |
 | Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | References                        | ECSS-E-ST-40C, ECSS-Q-ST-80C, `docs/rules.md` (N7/N11/N16) |
 
 ## 1. Scope
@@ -38,7 +38,8 @@ two mirrors (GitHub `origin` and Gitea).
 ## 4. Change control
 
 - Every change (feature, defect, review NC, requirement delta) follows the full
-  cycle (norm N15) and the documentation review loop (norm N17) before commit.
+  cycle (norm N15), the documentation review loop (norm N17) and the
+  product-assurance review (norm N20) before commit.
 - Non-conformances are recorded and closed per norm N12; review reports are
   configuration items (norm N11).
 - The requirements manifest is the traceability gate (norm N4); it converges at
@@ -63,3 +64,4 @@ two mirrors (GitHub `origin` and Gitea).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial configuration management plan |
+| 0.2 | 2026-10-11 | frick-fsw | Review list adds the N20 product-assurance review (PA-07) |

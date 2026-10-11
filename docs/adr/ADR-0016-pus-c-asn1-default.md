@@ -1,10 +1,14 @@
 # ADR-0016 - PUS-C ASN.1 default: build-time generation vs vendoring
 
-| Status | Accepted |
+| Status | Accepted (supersedes ADR-0003/ADR-0014 default-backend choice; ADR-0015 skipped) |
 | ------ | -------- |
 | Date   | 2026-10-11 |
 
 ## Context
+_(Naming note: ADR-0015 is intentionally skipped; no decision was taken under
+that number. This ADR **supersedes** the "open backend as default" choice of
+ADR-0003/ADR-0014 for the PUS-C data model.)_
+
 The PUS-C layer must use the N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model
 (ASN1SCC-compiled) as the **default** basis (SRS-REQ-050, norm N19
 reconciliation). `asn1-pusc-lib` is an ASN.1 model plus small C wrappers that

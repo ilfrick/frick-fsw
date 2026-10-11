@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-11                             |
 | Baseline commit                   | e8daab3                                |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
@@ -44,14 +44,14 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (87 reqs) | planned reqs documented-only | tracked: M12-M14 |
+| N3 | SRS/SSS for all code | compliant (94 reqs) | planned reqs documented-only | tracked: M12-M14 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
 | N7 | push to both remotes | compliant | none | closed |
 | N8 | complete/current docs | compliant | some stale-word recurrences found by reviews | closed per review |
-| N9 | independent reviews | R1/R2/R3/R4 per change | none | closed |
-| N10 | tools qualified | registry T1-T18 | new tools each change | closed |
+| N9 | independent reviews | R1/R2/R3/R4 + PA per change | none | closed |
+| N10 | tools qualified | registry T1-T19 | new tools each change | closed |
 | N11 | scripts/reviews/results committed | compliant | none | closed |
 | N12 | NC close-out loop | compliant | none | closed |
 | N13 | AGPL-3.0; licensing reviewed | compliant (+ Eärendil disclaimer) | none | closed |
@@ -61,7 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N17 | documentation review (R4) | per change | none | closed |
 | N18 | Renode functional validation | **in force** (`make renode` PASS) | per-commit SKIP proxy (no image) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
-| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | introduced now (c5f51bc) | none | closed |
+| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 dispositions under N12 | open findings | in progress (tracked: FRICK-REVIEW-0053) |
 
 ## 3. The PUS-C ASN.1 gap: root cause and reconciliation
 
@@ -136,7 +136,8 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | Certified MISRA checker | tracked | frick-fsw | GAP-A4 |
 | PUS-C service coverage | tracked | frick-fsw | GAP-A2 / M13 |
 | Formal C refinement | tracked | frick-fsw | GAP-A1 / M8 |
-| M4/M11 remaining drivers | tracked | frick-fsw | M4/M11 |
+| Loopback relay/`pending` orphan (FRICK-REVIEW-0032 R1-02; `backlog` ignored, second `connect` overwrites `pending`) | tracked (bounded 4-slot reference backend; `init()` resets) | frick-fsw | M4/M11 |
+| PA-review dispositions (FRICK-REVIEW-0052/0053) | tracked | frick-fsw | now |
 
 ## History
 

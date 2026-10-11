@@ -182,6 +182,11 @@ jobs:
             "docs/quality/safety-and-fdir.md",
             "docs/quality/ecss-compliance-matrix.md",
             "docs/vv/validation-plan.md",
+            "docs/engineering/reviewer-agents/aeronautics-space-fsw-engineer.md",
+            "docs/engineering/reviewer-agents/aeronautics-space-sw-vv-engineer.md",
+            "docs/engineering/reviewer-agents/aeronautics-space-avionics-systems-engineer.md",
+            "docs/engineering/reviewer-agents/aeronautics-space-sw-documentation-engineer.md",
+            "docs/engineering/reviewer-agents/aeronautics-space-sw-pa-engineer.md",
           ]
           missing = [p for p in required if not Path(p).exists()]
           if missing:
@@ -191,7 +196,7 @@ jobs:
           seen, dups = {}, []
           for p in Path("docs").rglob("*.md"):
               for line in p.read_text(encoding="utf-8", errors="ignore").splitlines():
-                  m = re.match(r"\|\s*Document id\s*\|\s*(FRICK-[A-Za-z0-9-]+)", line)
+                  m = re.match(r"\|\s*Document id\s*\|\s*(FRICK-[A-Za-z0-9-]+)", line) or re.match(r"document_id:\s*\"?(FRICK-[A-Za-z0-9-]+)", line)
                   if m:
                       i = m.group(1)
                       if i == "FRICK-REVIEW-XXXX":
@@ -204,6 +209,21 @@ jobs:
               raise SystemExit("duplicate document ids: " +
                                "; ".join(f"{i} ({a}, {b})" for i, a, b in dups))
           print(f"documentation set: OK ({len(seen)} unique document ids)")
+          EOF
+      - name: Reviewer-agent persona drift check (norm N9)
+        run: |
+          python3 - <<'EOF'
+          from pathlib import Path
+          names = ['fsw','sw-vv','avionics-systems','sw-documentation','sw-pa']
+          bad = []
+          for n in names:
+              a = Path(f'docs/engineering/reviewer-agents/aeronautics-space-{n}-engineer.md').read_text()
+              b = Path(f'.opencode/agents/aeronautics-space-{n}-engineer.md').read_text()
+              if a.split('---', 2)[2].lstrip('\n') != b.split('---', 2)[2].lstrip('\n'):
+                  bad.append(n)
+          if bad:
+              raise SystemExit('persona body drift (docs vs .opencode): ' + ', '.join(bad))
+          print('reviewer-agent personas: bodies in sync')
           EOF
       - name: Licence check (norm N13)
         run: |

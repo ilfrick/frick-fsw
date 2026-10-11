@@ -5,7 +5,7 @@
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
 | Revision                          | 0.14                                   |
-| Date                              | 2026-10-10                             |
+| Date                              | 2026-10-11                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
 
@@ -44,7 +44,7 @@ is in `docs/roadmap.md`.
 | OBJ-09 | Fix the **architecture diagrams** to focus on the software layers running on the PolarFire SoC, marking graphically which layers are implemented in this repository and which are not. | M3 |
 | OBJ-10 | Implement the **MPFS low-level layers** behind the HAL (native MSS peripherals), so the middleware runs on the target. | M4 |
 | OBJ-11 | Deliver a complete **1 Gb/s Ethernet driver** on the MPFS MSS GEM, integrated with the middleware link/network layer. | M4 |
-| OBJ-12 | Keep the full cycle (norms N1-N20), independent reviews (R1/R2/R3) and the documentation review (R4) applied to every increment. | all |
+| OBJ-12 | Keep the full cycle (norms N1-N20), independent reviews (R1/R2/R3), the documentation review (R4) and the product-assurance review (PA, N20) applied to every increment. | all |
 | OBJ-13 | Integrate a mathematics library (libm) behind a portable facade with determinism and licensing policy. | M6 |
 | OBJ-14 | Integrate CCSDS SDLS (355.0-B) middleware software: SDLS processing, security-association database and key management/rotation, with a pluggable cryptographic backend. | M7 |
 | OBJ-15 | Formal completeness (WP-FV-100): raise Lean coverage to 100% of generated requirements (theorem or explicit `lean_note`), mirror the pure-logic modules in Lean, and add C-level proof tooling (Frama-C/CBMC) alongside. | M5/M8 |
@@ -270,7 +270,8 @@ Full detail in `docs/vv/verification-plan.md` and
   traceability manifest;
 - **integration/smoke** boots six reference applications and exercises the link;
 - **cross-compilation** to RTEMS 6.2 `riscv/mpfs64imafdc` proves portability;
-- **independent reviews** (R1/R2/R3/R4) and NC closure per norm N12/N17.
+- **independent reviews** (R1/R2/R3/R4) + **product-assurance review** (PA, N20)
+  and NC closure per norm N12/N17/N20.
 
 Not verified without hardware (documented class-A gaps, not hidden): real MSS
 registers, throughput/latency, DMA and cache coherency, ISR latencies, RTEMS

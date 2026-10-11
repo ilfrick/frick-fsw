@@ -9,6 +9,16 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Norm N20 — independent Senior SW product-assurance review of every phase
+  product.** New non-derogable norm: every phase product is independently
+  reviewed also by the **Senior SW Product Assurance engineer (PA)**, and
+  findings are corrected and the reviews repeated until they pass
+  (`docs/engineering/reviewer-agents/aeronautics-space-sw-pa-engineer.md`).
+  The five Senior reviewer personas are now **versioned in this repository**
+  under `docs/engineering/reviewer-agents/` (R1 FSW, R2 V&V, R3 Avionics
+  Systems, R4 Documentation, PA), superseding the previous inline R1-R4
+  profile blocks, and exposed as OpenCode subagents (project `.opencode/agents/`).
+  Origin: user directive; ADR-0010 revised; norm N20 (see `docs/rules.md`).
 - **Milestone M2 — Time base: PPS tone discipline and CUC framing.** Hardware-
   disciplined time base with time-source selection (`FF_TimeSetSource`, internal
   CPU / external 1 Hz tone / ground correlation), a software PPS backend task on
@@ -208,6 +218,8 @@ change. All dates UTC, project language English (norm N2).
   validated (`BasicTypes.h`, `asn1crt.c/h`, module codecs). Remaining: consume the
   generated code in CMake, implement `FF_PusBackendN7` and switch the default
   (SRS-REQ-050). Tracked by the N19 audit (`docs/status/loop-audit.md`).
+  _(Superseded by the "default backend" entry below: the generated code is now
+  consumed in CMake and `FF_PusBackendN7` is the default, ADR-0016.)_
 - **M15 (new) — In-house fundamental PUS-C service set** (from the PUS-C
   assessment `docs/architecture/pus-c-from-scratch-assessment.md`, FRICK-ARCH-0015):
   implement in MISRA-clean in-house C behind `FF_Pus_Backend_t` the fundamental

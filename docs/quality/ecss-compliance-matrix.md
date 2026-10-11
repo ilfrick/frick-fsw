@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-COMP-001                    |
-| Revision                          | 0.3                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.4                                    |
+| Date                              | 2026-10-11                             |
 | Target                            | ECSS software criticality **B** (norm N5) |
 | References                        | ECSS-E-ST-40C (software general requirements), ECSS-Q-ST-80C (software product assurance), ECSS-E-ST-10C (system engineering) |
 | Gap tracker                       | `docs/quality/class-a-gaps.md` (GAP-A*) |
@@ -49,7 +49,7 @@ legend: **present**, **partial**, **gap**.
 | Software product assurance plan | `docs/quality/product-assurance.md` | present |
 | Configuration management | `docs/quality/configuration-management.md` | present |
 | Non-conformance / problem reporting and closure | `docs/rules.md` N12, `docs/reviews/` | present |
-| Independent verification | `docs/engineering/independent-review.md`, `docs/reviews/` (R1/R2/R3/R4) | present (technical); organisational independence is GAP-A3 |
+| Independent verification | `docs/engineering/independent-review.md`, `docs/reviews/` (R1/R2/R3/R4/PA, norm N20) | present (technical); organisational independence is GAP-A3 |
 | Verification tool qualification | `docs/vv/tool-qualification.md` | present |
 | Software criticality categorisation | `docs/quality/safety-and-fdir.md` | present |
 | Procurement / COTS pedigree | `docs/quality/licensing.md`, ADRs | partial (no supplier audits) |
@@ -63,7 +63,7 @@ The repository delivers, versioned and traced: `docs/rules.md`,
 `docs/engineering/**`, `docs/reviews/**`, `docs/development-plan.md`,
 `docs/roadmap.md`, `src/`, `config/`, `tests/`, `verification/lean/`, `tools/`,
 `README.md`, `AGENTS.md`, `CHANGELOG.md`. Every change is committed and pushed
-to both mirrors (norm N7) and reviewed (norms N9/N10/N14/N17).
+to both mirrors (norm N7) and reviewed (norms N9/N10/N14/N17/N20).
 
 ## 4. Residual gaps and dispositions (class A / programme)
 
@@ -110,3 +110,4 @@ A13), and are documented rather than silently omitted (norm N5).
 | 0.1 | 2026-10-10 | frick-fsw | Initial ECSS compliance matrix: outputs mapped, gaps GAP-A8..A13 identified |
 | 0.2 | 2026-10-10 | frick-fsw | M6: reuse row references ADR-0012 (libm) |
 | 0.3 | 2026-10-10 | frick-fsw | M7: security (SDLS) output added; GAP-A14 |
+| 0.4 | 2026-10-11 | frick-fsw | Independent verification/review rows add the N20 PA review; review norms N9/N10/N14/N17/N20 (PA-07) |

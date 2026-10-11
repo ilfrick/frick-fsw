@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.1                                  |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.3.2                                  |
+| Date                              | 2026-10-11                             |
 | Applicable norms                  | N6, N10, N11                           |
 
 Norm N10 requires every test script / V&V tool to be **qualified** per
@@ -67,6 +67,8 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T8               | `ci:static-analysis` |
 | T10              | `ci:rtems-cross-build` |
 | T11              | `ci:ci-pipeline`, `ci:dual-build`, `ci:trace`, `ci:docs`, `ci:host-build`, `ci:simulator-smoke` |
+| T17              | `ci:renode` (Renode V&V environment; functional run + HAL checks) |
+| T19              | `ci:pus-asn1` / PUS-C ASN.1 generation for `ci:renode` (SRS-REQ-050) |
 
 ## History
 
@@ -94,3 +96,4 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.2.9 | 2026-10-11 | frick-fsw | M4/M11: T3 gains `tests/unit/test_mem.c` (RAM pool + DMA, 20 checks); Renode run also checks `hal_mem=PASS` |
 | 0.3.0 | 2026-10-11 | frick-fsw | N19/PUS: new qualified tool T19 (ASN1SCC PUS-C code generation, `gen_pus_asn1.sh` + `tools/docker/asn1scc/`) |
 | 0.3.1 | 2026-10-11 | frick-fsw | Re-qualification: T17 now also covers the Renode testware `src/apps/app_renode_test.c` (HAL checks), and the console is captured to a container-local path + `docker cp` (robustness) |
+| 0.3.2 | 2026-10-11 | frick-fsw | Evidence-claims mapping adds T17 (`ci:renode`) and T19 (PUS-C ASN.1); header date refreshed (PA-11) |
