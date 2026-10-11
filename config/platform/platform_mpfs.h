@@ -47,4 +47,9 @@
  * test (M11). The config/control block is at 0x20200000. */
 #define FF_ENVM0_BASE 0x20220000u
 
+/* MSS QSPI NOR flash (memory-mapped read window + program/erase). Used by the
+ * reference MTD driver; exercised on the emulated SoC in the Renode functional
+ * test (M11). */
+#define FF_QSPI0_BASE 0x21000000u
+
 #endif /* FF_PLATFORM_MPFS_H */

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.3                                    |
+| Revision                          | 1.4                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -63,7 +63,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 # Host build + unit tests (14/14) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 97/56/27/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 98/57/27/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -114,7 +114,7 @@ occasion; prefer Docker.
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
   service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
   development) are **planned**.
-- Requirements: **97 (56 srs / 27 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **98 (57 srs / 27 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs)
   — all closed.
@@ -127,7 +127,7 @@ occasion; prefer Docker.
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
-   - **NOR/QSPI MTD** via `hal_mem.h` (memory-backed, robust); [NVM done]
+   - **CAN** (`CAN.MPFS_CAN`), then I2C/SPI/BLOCK/PCIe/SpaceWire; [NVM + NOR/QSPI MTD done]
    - **SERIAL (MMUART/RS-422/485)** via `hal_serial.h` (NS16550 scratch reg);
    - **CAN** (`CAN.MPFS_CAN`), **SPI** (`SPI.MPFS_SPI`), **I2C** (loopback made
      explicit in `frick-renode.resc`), **BLOCK (eMMC/SD)**, **PCIe**,
@@ -184,3 +184,4 @@ occasion; prefer Docker.
 | 1.1 | 2026-10-11 | frick-fsw | N12 loop closed: independent R1/R2/R4 reviews of the N20 set and FRICK-REVIEW-0032 to closure; PA review PASS (FRICK-REVIEW-0063) |
 | 1.2 | 2026-10-11 | frick-fsw | Milestone M16 added; counts 96/55/27/14; sprint plan published; next steps point to Sprint 0/1 |
 | 1.3 | 2026-10-11 | frick-fsw | Sprint 1.1: reference eNVM NVM backend (SRS-REQ-055), M11 5/13, counts 97/56/27/14 |
+| 1.4 | 2026-10-11 | frick-fsw | Sprint 1.2: reference NOR/QSPI MTD backend (SRS-REQ-056); counts 98/57/27/14 |

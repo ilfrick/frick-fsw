@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.26                                   |
+| Revision                          | 0.27                                   |
 | Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -36,6 +36,7 @@ artifacts (no external state).
 | M11 NET HAL class in Renode (SRS-REQ-039), 2026-10-11 | PASS (Debug) | PASS (14/14) | PASS (`lake build` 21/21) | PASS (94 reqs / 54 srs / 26 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_net=PASS`) | The Renode functional test performs a socket round trip through the pluggable `FF_NetStack_t` contract using the reference loopback stack (`hal_net=PASS`), in addition to GPIO/SERIAL/MEM/ETH (M11). |
 | R2/R3 test-gap task + TBL fix, 2026-10-11 | PASS (Debug) | PASS (16/16; `test_r2_gap` 487 checks, `test_r3_gap` 201 checks) | PASS (`lake build` 21/21) | PASS (96 reqs / 55 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean; cppcheck MISRA 0 findings on the new suites | proxy | Two new host suites close previously unexecuted functions/branches and requirement-level flows (FRICK-REVIEW-0075/0076); **real defect fixed** in `src/core/tbl/tbl.c` (rejected table image was committed by activate - FRICK-REVIEW-0077 Major) and `FF_PusInit` made idempotent (registries reset); coverage 1917/2920 -> 2831/3961 lines (71.5%), functions 257/302 -> 371/376 (98.7%). |
 | M4/M11 eNVM NVM backend, 2026-10-11 | PASS (Debug) | PASS (17/17; `test_nvm` 36 checks) | PASS (`lake build` 21/21) | PASS (97 reqs / 56 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_nvm=PASS`) | Reference `FF_Nvm_t` eNVM backend (SRS-REQ-055): bounded slot table (32 ids x 32 B), host test (mock MMIO) + Renode eNVM data write/read check; M11 5/13 peripheral-bound. |
+| M4/M11 QSPI NOR MTD backend, 2026-10-11 | PASS (Debug) | PASS (18/18; `test_mtd` 4123 checks) | PASS (`lake build` 21/21) | PASS (98 reqs / 57 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_mtd=PASS`) | Reference `FF_Mtd_t` NOR/QSPI backend (SRS-REQ-056): byte read/write, sector-aligned erase; host test (mock MMIO) + Renode XIP read check (the QSPI XIP window is read-only in the model). |
 
 ## v0.1.0 baseline notes
 
@@ -402,3 +403,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 328 checks |
 | 0.25 | 2026-10-11 | frick-fsw | R2/R3 test-gap task: new suites `test_r2_gap` (487 checks) + `test_r3_gap` (201 checks); ctest 14 -> 16; trace manifest tests evidence extended; TBL defect fix + `FF_PusInit` idempotence; SDD section 6 requirements->design matrix added |
 | 0.26 | 2026-10-11 | frick-fsw | M4/M11: reference eNVM NVM backend (SRS-REQ-055) - `ff_nvm_mpfs`, `test_nvm` (ctest 17/17), `hal_nvm=PASS` in Renode; M11 5/13 |
+| 0.27 | 2026-10-11 | frick-fsw | M4/M11: reference NOR/QSPI MTD backend (SRS-REQ-056) - `ff_mtd_mpfs`, `test_mtd` (ctest 18/18), `hal_mtd=PASS` in Renode |

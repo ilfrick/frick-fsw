@@ -292,7 +292,7 @@ connection retains one of four slots until `init()` resets the table
 | M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
 | M2 | time base | done | PPS, CUC, time sources |
 | M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA done; CAN/SPI/I2C/QSPI/MMC/eMMC/storage/PCIe/SpaceWire pending (CFDP/VFS → M15) |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA done; CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire pending; QSPI/NOR MTD done (CFDP/VFS → M15) |
 | M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
 | M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |

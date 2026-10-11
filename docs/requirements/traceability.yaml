@@ -522,6 +522,15 @@ requirements:
     lean: []
     lean_note: "Reference eNVM key/value backend behind FF_Nvm_t (M4/M11): bounded slots/ids; register logic host-tested; data-region write/read check on the emulated SoC (hal_nvm)."
 
+  - id: SRS-REQ-056
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/mtd/mpfs/ff_mtd_mpfs.c", "src/drivers/mtd/mpfs/ff_mtd_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_mtd.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference NOR/QSPI MTD backend behind FF_Mtd_t (M4/M11): byte read/write, sector-aligned erase; register logic host-tested; write/read check on the emulated SoC (hal_mtd)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

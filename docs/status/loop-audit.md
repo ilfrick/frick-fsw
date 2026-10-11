@@ -24,7 +24,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool done; CAN/SPI/I2C/QSPI/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM, NOR/QSPI MTD done; CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
@@ -46,7 +46,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (97 reqs) | planned reqs documented-only | tracked: M12-M16 |
+| N3 | SRS/SSS for all code | compliant (98 reqs) | planned reqs documented-only | tracked: M12-M16 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
