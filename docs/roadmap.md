@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.12 |
+| Revision    | 0.13 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -157,6 +157,14 @@ their own on the SB/PUS/HAL seams. See
 `docs/architecture/component-gap-analysis.md §4`. Requirement SRS-REQ-046 /
 SSS-REQ-023; objective OBJ-21.
 
+## M14 — Multicore / SMP (planned, after all other milestones)
+
+Enable and validate RTEMS **SMP** on the PolarFire SoC 4×U54 cluster: SMP tasking
+and priorities, per-core interrupts/timers, cache coherency for shared data and
+DMA, and a shared-memory Software Bus/queues path. Depends on every earlier
+milestone; do not start before they are complete. Requirement SRS-REQ-051 /
+SSS-REQ-024; objective OBJ-22.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -184,3 +192,4 @@ SSS-REQ-023; objective OBJ-21.
 | 0.10 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification: Renode PolarFire SoC + QEMU) |
 | 0.11 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class) |
 | 0.12 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs) and M13 (reference mission services: equipment manager + fault management); component gap analysis |
+| 0.13 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP, after all other milestones) |

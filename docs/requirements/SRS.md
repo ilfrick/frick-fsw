@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.8                                    |
+| Revision                          | 1.9                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -248,6 +248,15 @@ review).
   reference `FF_Dma_t` (address translation + cache-maintenance seam), validated
   by a host unit test and exercised over the emulated DDR in the Renode
   functional test. `method: Tst | Dem`. (milestone M4/M11)
+- **SRS-REQ-050** — *PUS-C ASN.1 (N7/ESA) default backend*: the framework shall
+  use the N7 Space / ESA `asn1-pusc-lib` (ASN.1/ACN PUS-C model, compiled with the
+  ESA ASN1SCC compiler) as the **default** PUS-C basis behind `FF_Pus_Backend_t`,
+  with the local open backend and the PUSopen(R) adapter retained as alternatives.
+  `method: Tst | Dem`. (norm N19 reconciliation)
+- **SRS-REQ-051** — *Multicore / SMP*: the framework shall run on the PolarFire
+  SoC 4×U54 cluster under **RTEMS SMP** (multi-core tasking, per-core interrupts,
+  cache-coherent shared data, shared-memory Software Bus), validated on the
+  emulated SoC. `method: Tst | Dem`. (milestone M14)
 
 ## 6. Derived requirements
 
@@ -296,3 +305,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.6 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-047 reference MSS GPIO driver |
 | 1.7 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-048 reference MSS MMUART serial driver |
 | 1.8 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-049 reference static RAM pool + DMA helper |
+| 1.9 | 2026-10-11 | frick-fsw  | N19/M14: add SRS-REQ-050 PUS-C ASN.1 (N7/ESA) default backend, SRS-REQ-051 multicore/SMP |

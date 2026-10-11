@@ -176,6 +176,7 @@ jobs:
             "docs/vv/renode-environment.md",
             "docs/architecture/component-gap-analysis.md",
             "docs/status/handover.md",
+            "docs/status/loop-audit.md",
             "docs/quality/configuration-management.md",
             "docs/quality/product-assurance.md",
             "docs/quality/safety-and-fdir.md",

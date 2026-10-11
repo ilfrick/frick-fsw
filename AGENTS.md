@@ -9,7 +9,7 @@
 > using only the repository contents and the commands below. Human entry point:
 > `README.md`.
 
-## 1. Ground rules (non-derogable, norm N1-N18)
+## 1. Ground rules (non-derogable, norm N1-N19)
 
 - Maintain `docs/rules.md` and the enforcement summary. Key gates before any
   commit/push:
@@ -133,3 +133,4 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N16 | Detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17 | Documentation reviewed by the Senior SW documentation reviewer (R4) on every change; review loop closed before commit/push |
 | N18 | Functional validation of every change passes in the Renode emulated PolarFire SoC environment (**in force**; real open-RTEMS image verified) |
+| N19 | At the start of every development loop, `docs/status/loop-audit.md` audits conformance of the declared objectives (milestones) and all norms N1-N19 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.17                                   |
+| Revision                          | 0.18                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 50, SSS = 23, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 52, SSS = 24, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). Four of the
 requirements (SRS-REQ-045/046, SSS-REQ-022/023) are **planned** (M12/M13): they
@@ -48,6 +48,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SSS-REQ-021 (code quality) | SRS-REQ-041, SRS-REQ-042 |
 | SSS-REQ-022 (on-board autonomy / OBCP) | SRS-REQ-045 |
 | SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
+| SSS-REQ-024 (multicore / SMP) | SRS-REQ-051 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -103,6 +104,8 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-049 | drivers/mem/ff_mem_static.c/h | test_mem.c | - | Static RAM pool + DMA helper + Renode DDR check (M4/M11) |
+| SRS-REQ-050 | docs/status/loop-audit.md, third_party/asn1-pusc-lib | ci:docs | - | PUS-C ASN.1 (N7/ESA) default backend (N19 reconciliation) |
+| SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -185,3 +188,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.15 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-047 reference MSS GPIO driver (+Renode MMIO check); counts 48/23/14 |
 | 0.16 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-048 reference MSS MMUART serial driver (+Renode MMIO check); counts 49/23/14 |
 | 0.17 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-049 static RAM pool + DMA helper (+Renode DDR check); counts 50/23/14 |
+| 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |

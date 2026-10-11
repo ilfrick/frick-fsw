@@ -468,6 +468,24 @@ requirements:
     lean: []
     lean_note: "Static RAM pool (FF_MemPool_t, bounded bump allocator, no heap) + reference FF_Dma_t (identity translation, cache seam): host unit test; pool exercised over the emulated DDR in the Renode functional test (milestone M11). The DMA cache-maintenance hooks are a seam (real cache ops = on-target work, GAP-A5)."
 
+  - id: SRS-REQ-050
+    level: srs
+    parent_sss: SSS-REQ-015
+    derived: false
+    implementation: ["docs/status/loop-audit.md", "docs/architecture/pus-layer.md", "docs/requirements/SRS.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled) as the default PUS-C basis behind FF_Pus_Backend_t; wired into build/runtime (norm N19 reconciliation). Planned/being wired; tracked in docs/status/loop-audit.md."
+
+  - id: SRS-REQ-051
+    level: srs
+    parent_sss: SSS-REQ-024
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Multicore / SMP on the 4xU54 cluster under RTEMS SMP (milestone M14). Planned."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -643,6 +661,14 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "Reference mission services: an equipment manager (device command/monitoring/reconfiguration, redundancy) and fault management (limit checking, stored command sequences, memory/file management) layered on the PUS (milestone M13). Planned."
+
+  - id: SSS-REQ-024
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Multicore / SMP on the 4xU54 cluster (milestone M14, after all other milestones): planned; tracked in the plan/roadmap and the N19 loop audit."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

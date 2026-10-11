@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 1.2                                    |
+| Revision                          | 1.3                                    |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
@@ -298,6 +298,25 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   SKIP proxy (never counted as a pass). The nightly workflow performs the real
   run.
 
+## N19 - Development-loop objective/rule conformance audit
+
+> At the start of every development/verification loop, the declared project
+> objectives (the milestones/OBJs of `docs/development-plan.md` / `docs/roadmap.md`)
+> and adherence to **all** non-derogable rules (N1-N19) shall be compared against
+> the **actual implementation** reached up to that point; the gaps and
+> discrepancies so identified shall be reconciled within the loop or explicitly
+> tracked with a disposition.
+
+- The audit is recorded in `docs/status/loop-audit.md`, objective-by-objective and
+  rule-by-rule, with `status / gap / disposition`; each loop starts by updating it.
+- A gap is either **closed in the loop**, or **tracked** in
+  `docs/quality/class-a-gaps.md` (class A) / `docs/development-plan.md` with an
+  owner and a milestone. No gap is left silent.
+- Rationale: this norm prevents "declared intent not implemented" discrepancies
+  (e.g. a third-party integration recorded in a decision but never wired into the
+  build/runtime, or an objective claimed but not delivered) from surviving
+  unnoticed across loops.
+
 ## Enforcement summary
 
 | Norm | Gate / evidence |
@@ -320,6 +339,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
 | N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is **in force** (verified on the real open RTEMS 6.2 image: `make renode` -> `RENODE_TEST: PASS`); per-commit runners without the toolchain image record a SKIP proxy (never counted as a pass) and the nightly performs the real run |
+| N19  | at the start of every development loop, `docs/status/loop-audit.md` compares declared objectives and adherence to N1-N19 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone (no silent gap) |
 
 ## Interpretation notes (non-derogable content unchanged)
 
@@ -372,3 +392,4 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 1.0 | 2026-10-10 | frick-fsw | Add interpretation note 3: per-document History scope (ADRs exempt) — R4 review DOC-08 |
 | 1.1 | 2026-10-10 | frick-fsw | Scope N13 SPDX requirement to source/config/build files; docs covered by LICENSE/NOTICE (R4 M3 C-2) |
 | 1.2 | 2026-10-10 | frick-fsw | Add N18 (Renode functional-validation gate) |
+| 1.3 | 2026-10-11 | frick-fsw | Add N19 (development-loop objective/rule conformance audit; `docs/status/loop-audit.md`) |

@@ -17,7 +17,7 @@ applications for demonstration and V&V. See
 and the milestone/objective plan.
 
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
-> N1-N18): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
+> N1-N19): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
 > Licence: **AGPL-3.0-only** (`LICENSE`, `docs/quality/licensing.md`).
 
 ## Project index (table of contents)
@@ -70,10 +70,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 87 (srs=50, sss=23, gap=14) |
-| Requirements with implementation | 87/87 |
-| Test coverage (requirements with tests) | 73/87 (83.9%) |
-| Formal verification coverage (requirements with Lean) | 20/87 (23.0%) |
+| Requirements in manifest | 90 (srs=52, sss=24, gap=14) |
+| Requirements with implementation | 90/90 |
+| Test coverage (requirements with tests) | 76/90 (84.4%) |
+| Formal verification coverage (requirements with Lean) | 20/90 (22.2%) |
 | Code line coverage | 1854/2812 (65.9%) - functions 251/295 |
 
 <!-- METRICS-END -->
@@ -259,7 +259,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 50 · SSS = 23 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 52 · SSS = 24 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -322,6 +322,7 @@ status panel above is authoritative; the single source of truth is
   [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)
 - **Status & reference**: [`docs/status/status.json`](docs/status/status.json) ·
   [`docs/status/handover.md`](docs/status/handover.md) (resume point) ·
+  [`docs/status/loop-audit.md`](docs/status/loop-audit.md) (norm N19 audit) ·
   [`docs/glossary.md`](docs/glossary.md) · [`CHANGELOG.md`](CHANGELOG.md)
 
 ## Extending the framework

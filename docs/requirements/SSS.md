@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.9                                    |
+| Revision                          | 0.10                                   |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -102,6 +102,9 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   optional reference services on the PUS, an **equipment manager** (device
   command/monitoring/reconfiguration, redundancy) and **fault management** (limit
   checking, stored command sequences, memory/file management). `method: Tst | Dem`.
+- **SSS-REQ-024** — *Multicore / SMP*: the system shall execute on the target's
+  multi-core RISC-V cluster (RTEMS SMP) with correct concurrency and cache
+  coherency. `method: Tst | Dem`.
 
 ## 3. Derived system requirements
 
@@ -131,3 +134,4 @@ deviations are resolved before every commit (norm N4).
 | 0.7 | 2026-10-10 | frick-fsw | M4: add SSS-REQ-020 reference low-level implementations |
 | 0.8 | 2026-10-10 | frick-fsw | M9: add SSS-REQ-021 code quality and compliance (MISRA + coding style) |
 | 0.9 | 2026-10-10 | frick-fsw | Add SSS-REQ-022 on-board autonomy (OBCP) and SSS-REQ-023 reference mission services |
+| 0.10 | 2026-10-11 | frick-fsw | Add SSS-REQ-024 multicore / SMP |

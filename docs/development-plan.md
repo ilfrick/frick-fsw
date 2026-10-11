@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.10                                   |
+| Revision                          | 0.11                                   |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N18 (`docs/rules.md`)               |
@@ -54,6 +54,7 @@ is in `docs/roadmap.md`.
 | OBJ-19 | Extend the Renode functional test to **every HAL resource class** (ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM/RAM-DMA, BLOCK eMMC/SD/SSD, NVM), so each interface is bound to its emulated peripheral and exercised on the emulated PolarFire SoC. | M11 |
 | OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
 | OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
+| OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
 
 ## 3. Resource and bus interface catalogue
 
@@ -230,6 +231,14 @@ on the SB/PUS/HAL seams. See
 `docs/architecture/component-gap-analysis.md §4`. Requirement SRS-REQ-046;
 SSS-REQ-023. (OBJ-21.)
 
+### M14 — Multicore / SMP (planned, after all other milestones)
+
+Enable and validate **RTEMS SMP** on the PolarFire SoC 4×U54 cluster: SMP tasking
+and priorities, per-core interrupts/timers, **cache coherency** for shared data
+and DMA, and a **shared-memory Software Bus / queues** path, exercised on the
+emulated SoC and (later) on hardware. Depends on every earlier milestone; do not
+start before they are complete. Requirement SRS-REQ-051; SSS-REQ-024. (OBJ-22.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -271,6 +280,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | planned |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned |
+| M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned |
 
 ## History
 
@@ -286,3 +296,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.8 | 2026-10-10 | frick-fsw | Add M10 (emulated-target verification); objective OBJ-18 |
 | 0.9 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class); objective OBJ-19 |
 | 0.10 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs, candidate n7s-obcp; OBJ-20) and M13 (reference mission services: equipment manager + fault management; OBJ-21); component gap analysis |
+| 0.11 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP on the 4×U54, after all other milestones; OBJ-22); PUS-C ASN.1 (N7/ESA) as default tracked (N19 audit) |

@@ -25,6 +25,22 @@ traceability manifest (level `gap`, `justification` records the disposition).
 - Propositional and functional correctness proofs for every SRS requirement
   that is today justified by `lean_note`.
 
+**Closure plan / exit criteria (when will GAP-A1 be closed):**
+- **(a) C refinement:** the pure-logic C modules are proven to implement the Lean
+  model — via **Frama-C/CBMC** (deductive/verification) or a whole-program
+  extraction — not merely "mirrored definitionally close".
+- **(b) Requirement discharge:** every SRS requirement is discharged by a theorem
+  or, where not formalisable, a justified `lean_note` accepted in independent
+  review (no silent waiver).
+- **Milestone linkage:** work package **WP-FV-100 / OBJ-15**, executed from **M5**
+  (documentation/formal program) and **completed within M8**; it is a **gated
+  work package, not a calendar date** — it does not start before the M4/M8 core
+  (drivers/network) is stable, and it must be complete before any **class-A**
+  claim is made.
+- **Owner:** frick-fsw. **Tracking:** this document + `docs/status/loop-audit.md`
+  (norm N19). **Tooling:** Frama-C/CBMC are build-time analysis tools (not
+  distributed); Lean 4 core (no Mathlib).
+
 ## GAP-A2 - Full PUS-C service coverage
 
 **Status:** open
