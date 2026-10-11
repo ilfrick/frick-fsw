@@ -57,6 +57,8 @@ make metrics             # regenerate the README status panel (coverage + semaph
 make renode-env          # Renode V&V environment self-test (norm N18; needs docker)
 make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
 make pus-asn1            # generate the PUS-C ASN.1 (N7/ESA) default backend C (build-time; ASN1SCC)
+                         # (default FF_USE_PUS_ASN1=ON; if the generated code is absent the
+                         #  build warns and falls back to the open backend; -DFF_USE_PUS_ASN1=OFF forces open)
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds

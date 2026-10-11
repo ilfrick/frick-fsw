@@ -81,8 +81,10 @@ Issues deferred by the user: none.
 ## Highlights
 
 - **PUS-C** (ECSS-E-ST-70-41C) on CCSDS Space Packets (CCSDS 133.0-B-2) with
-  CRC-16/CCITT-FALSE trailer; pluggable backend: open codec (default) and
-  documented commercial PUSopen adapter (optional, `FRICK_USE_PUSOPEN`).
+  CRC-16/CCITT-FALSE trailer; pluggable backend: the N7 Space / ESA ASN.1/ACN
+  PUS-C library (`asn1-pusc-lib`, ASN1SCC-compiled) is the **default**
+  (`make pus-asn1`, `FF_USE_PUS_ASN1`), the open CCSDS codec is the fallback, and
+  a documented commercial PUSopen adapter is optional (`FRICK_USE_PUSOPEN`).
 - **cFS-style core**: PAL, Software Bus, Event Services, Executive Services,
   Table Services, Time Services; six reference applications.
 - **Same sources** for the native simulator and the RTEMS 6 target
@@ -94,6 +96,37 @@ Issues deferred by the user: none.
   `act_runner` (norm N6), traceability gate `tools/scripts/trace.py`.
 - **Backwards ECSS engineering data**: SSS, SRS, traceability matrices,
   architecture, ADRs, ICD, quality (class B baseline + class A gaps).
+- **Security**: CCSDS **SDLS** (355.0-B) with security-association and
+  **key management/rotation**, pluggable cryptographic backend (`src/security/`).
+- **Mathematics**: portable **libm** facade (`src/math/`) for deterministic,
+  licensed use; no `<math.h>` in the deterministic core.
+- **Networking**: pluggable TCP/IP (`FF_NetStack_t`; lwIP reference, Tuxera/custom
+  by the user) and native **TSN** on the GEM (802.1Q/Qbv/802.1AS), plus a loopback
+  backend (`src/drivers/net/`, `src/hal/net/`).
+- **Renode + open-source RTEMS 6.2 V&V** (norm N18): functional validation on an
+  emulated PolarFire SoC (`make renode-env`, `make renode`).
+
+## Project scope (what is included)
+
+frick-fsw is a **middleware/framework**: the applications under `src/apps/` are
+**reference/demo only** — you write your own on the SB/PUS/HAL seams. Consolidated
+scope (implemented / interface-only / planned / user-provided):
+
+| Layer / resource | Implemented now (this repo) | Interface-only | Planned | User-provided |
+| ---------------- | --------------------------- | -------------- | ------- | ------------- |
+| PAL (tasks/mutex/queue/time/console) | POSIX (host + RTEMS) + RTEMS bootstrap | — | — | — |
+| Core services | SB, EVS, ES, TBL, Time (+ PPS) | — | — | — |
+| PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
+| Transport | CCSDS Space Packets, link (loopback/UART) | `FF_Link_t` | — | radio/SpaceWire back-ends |
+| HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA | — | CAN, SPI, I2C, QSPI/NOR, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
+| Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
+| Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
+| Mathematics | libm facade | — | — | — |
+| File transfer | — | — | **CFDP + virtual filestore (VFS) + PUS-C S23** (**M15**) | — |
+| Autonomy | — | — | **OBCP engine (uPython)** (**M12**); equipment manager + fault mgmt (**M13**) | mission apps |
+| Execution cores | single U54 | — | **RTEMS SMP / multicore** (**M14**) | — |
+| V&V | host simulator; **Renode (open RTEMS)**; trace/Lean/format gates | — | QEMU run (**M10**); certified MISRA checker (**GAP-A4**) | HWIL (**GAP-A5**) |
 
 ## PUS-C services implemented
 
@@ -118,7 +151,8 @@ service 23 file management + CFDP, and TCP/IP + TSN transport over PUS-C (M4).
 
 ## Low-level drivers
 
-The framework hides the hardware behind three interfaces. Currently available:
+The framework hides the hardware behind the PAL, the transport link(s) and the
+**HAL contracts** (`src/hal/hal_*.h`). Reference implementations available:
 
 | Driver | File | Notes |
 | ------ | ---- | ----- |
@@ -247,6 +281,9 @@ make run                       # boot the native simulator (6 apps)
 make verify-lean               # lake build (formal verification, norm N1)
 make trace                     # traceability convergence gate (norm N4)
 
+# PUS-C ASN.1 default backend (N7/ESA); regenerate the generated C (build-time):
+make pus-asn1                  # ASN1SCC generation; default ON (FF_USE_PUS_ASN1)
+
 # Renode V&V environment (norm N18):
 make renode-env                # self-test: Renode runs + polarfire-soc platform loads
 make renode-image renode       # build the RTEMS image + emulated functional validation
@@ -280,7 +317,7 @@ status panel above is authoritative; the single source of truth is
 
 ## Documentation index
 
-- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N18) ·
+- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N19) ·
   [`AGENTS.md`](AGENTS.md)
 - **Requirements**: [`docs/requirements/SSS.md`](docs/requirements/SSS.md) ·
   [`SRS.md`](docs/requirements/SRS.md) ·

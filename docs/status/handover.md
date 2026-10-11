@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.6                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.7                                    |
+| Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -82,12 +82,16 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit 12abdf4)
+## 4. Current state (as of commit 2fbdeec)
 
-- **M1..M10 delivered** (see `docs/roadmap.md` / `docs/development-plan.md`).
+- **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
+- **PUS-C ASN.1 default (SRS-REQ-050, ADR-0016):** `FF_PusBackendN7` (N7/ESA
+  `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
+  default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
+  warning when the generated code is absent).
 - **M11 in progress (Renode HAL coverage, OBJ-19):** three classes done — **GPIO**
   (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL** (`ff_serial_mpfs`, SRS-REQ-048) and
   **MEM** (`ff_mem_static`, SRS-REQ-049), each with an independent host test and a
@@ -99,11 +103,13 @@ occasion; prefer Docker.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART and the
   static RAM pool/DMA helper so far.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
-  ESA) and **M13** (reference mission services: equipment manager + fault
-  management) are **planned** (requirements SSS-REQ-022/023, SRS-REQ-045/046).
-- Requirements: **87 (50 srs / 23 sss / 14 gap)**; Lean 51 theorems.
+  ESA), **M13** (reference mission services: equipment manager + fault
+  management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
+  service set + CFDP + virtual filestore) are **planned**.
+- Requirements: **94 (54 srs / 26 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
-  0042 (GPIO) — all closed.
+  0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs)
+  — all closed.
 
 ## 5. Immediate next steps (priority order)
 
@@ -159,3 +165,4 @@ occasion; prefer Docker.
 | 0.4 | 2026-10-10 | frick-fsw | M11 GPIO + SERIAL done (SRS-REQ-047/048); counts 86/49/23/14 |
 | 0.5 | 2026-10-11 | frick-fsw | Add §0 "How to resume in a new session" (kickoff prompt) |
 | 0.6 | 2026-10-11 | frick-fsw | M11 GPIO + SERIAL + MEM done (SRS-REQ-047/048/049); counts 87/50/23/14 |
+| 0.7 | 2026-10-11 | frick-fsw | PUS-C ASN.1 default backend (SRS-REQ-050, ADR-0016); M14/M15 added; counts 94/54/26/14 |

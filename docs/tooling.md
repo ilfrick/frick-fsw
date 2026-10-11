@@ -24,8 +24,10 @@ SoC (RTPFS160ZT, RISC-V) under RTEMS 6.2 (open-source RTEMS project). The approa
    mission tables (cFS heritage).
 3. **Portable abstraction layer (PAL)** so the same sources run on the host
    simulator (POSIX threads) and on RTEMS 6 / RISC-V.
-4. **Pluggable PUS backend**: open backend (default) and documented commercial
-   PUSopen adapter.
+4. **Pluggable PUS backend**: the N7 Space / ESA ASN.1/ACN PUS-C backend is the
+   default (build-time ASN1SCC generation via `make pus-asn1`, `FF_USE_PUS_ASN1`);
+   the open CCSDS backend is the fallback and a documented commercial PUSopen
+   adapter is provided.
 5. **Formal verification with Lean 4** of the requirement-level theorems
    (norm N1).
 6. **Continuous, reproducible V&V** (norm N6): every change goes through the

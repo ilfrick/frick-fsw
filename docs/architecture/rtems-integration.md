@@ -78,7 +78,7 @@ RTEMS boot -> POSIX_Init()            [src/core/pal/pal_rtems.c]
   -> ff_fsw_main()                    [src/main/fsw_main.c]
        -> FF_PalInit / FF_PalPlatformInit (checks POSIX API)
        -> SB, EVS, ES, TBL, TIME, board, mission tables
-       -> PUS (open backend), link
+       -> PUS (N7/ESA ASN.1 backend, default), link
        -> register + start the applications
 ```
 

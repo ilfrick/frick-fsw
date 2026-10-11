@@ -12,7 +12,7 @@ This manual explains how to use frick-fsw as a **middleware**: you write your
 own mission applications on top of it, integrate your own hardware drivers, and
 optionally plug third-party stacks. Read first `AGENTS.md`, `README.md`,
 `docs/development-plan.md` (product boundary and milestones) and
-`docs/rules.md` (norms N1-N18).
+`docs/rules.md` (norms N1-N19).
 
 > **frick-fsw is a framework, not an application.** The six `src/apps/*` are
 > reference applications (demonstration and V&V), not mission software.
@@ -110,7 +110,13 @@ PUS service**, follow `docs/engineering/service-development.md`.
   `docs/engineering/driver-development.md`.
 - Received frames are fed to `FF_PusIngest(raw, len)`; telemetry is emitted
   through `FF_PusSendTm(...)` and the TM sink. Program against
-  `FF_Pus_Backend_t` to swap the PUS product.
+  `FF_Pus_Backend_t` to swap the PUS product. The **default** backend is the
+  N7/ESA ASN.1 one (`FF_PusBackendN7`, build-time generation `make pus-asn1`,
+  `FF_USE_PUS_ASN1`); select the open backend explicitly if needed with
+  `FF_PusSetBackend(&FF_PusBackendOpen)`.
+- Secure links: the CCSDS **SDLS** sub-layer (`src/security/`) wraps the
+  telemetry/telecommand with a pluggable cryptographic backend
+  (`FF_CryptoBackend_t`); enable/configure it where the mission link requires it.
 
 ## 8. Integrating a driver / hardware
 

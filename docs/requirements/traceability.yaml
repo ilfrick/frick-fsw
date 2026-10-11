@@ -615,7 +615,7 @@ requirements:
   - id: SSS-REQ-015
     level: sss
     derived: true
-    justification: "Norm N1 keeps the auditable open backend as the default; the PUSopen adapter is optional."
+    justification: "Applicable PUS-C backends are pluggable behind FF_Pus_Backend_t: the auditable N7/ESA ASN.1 backend is the default (SRS-REQ-050, ADR-0016), the open CCSDS backend is always available as the fallback, and the PUSopen adapter is optional (commercial, never distributed)."
     implementation: ["src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
     tests: ["tests/unit/test_pus.c"]
 

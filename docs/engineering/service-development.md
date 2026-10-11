@@ -8,7 +8,7 @@
 
 This guide explains how to add a **PUS-C service or subservice** to frick-fsw
 (ECSS-E-ST-70-41C) on top of the backend-agnostic dispatcher, following the
-norms (N1-N18). It covers the handler contract, registration, telemetry
+norms (N1-N19). It covers the handler contract, registration, telemetry
 emission, telecommand verification, error reporting, the provider registration
 hooks (housekeeping, parameters, functions, memory) and the tests.
 
@@ -73,7 +73,7 @@ registration slots.
 - Reply telemetry: `FF_PusSendTm(service, subservice, data, len)`. By convention
   a report is `request subservice + 1` (e.g. S17 `ping` → S17,2);
   housekeeping dumps use S3,25; memory dumps S6,6.
-- Events: emit through EVS (`FF_EvsReport`), which the core maps to service 5
+- Events: emit through EVS (`FF_EvsSend`), which the core maps to service 5
   (`FF_PusEmitEvent`). Do not build service 5 packets by hand.
 - Timestamps: the TM secondary header CUC is filled by the core
   (`FF_PusSendTm` → `FF_TimeGetCuc`); never stamp manually.
@@ -113,7 +113,8 @@ static FF_Status_t svc23_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
     uint16_t name_len = (uint16_t)((d[0] << 8) | d[1]);
     if ((uint16_t)(n) < (uint16_t)(2u + name_len)) { return FF_ERROR; }
 
-    /* call the virtual filestore (see docs/engineering/... and src/fs/) */
+    /* call the virtual filestore: ff_vfs_create(...) once M15 delivers the VFS/
+     * S23 support (see docs/development-plan.md, milestone M15) */
     if (ff_vfs_create((const char *)&d[2], name_len, d[2 + name_len]) != FF_SUCCESS) {
         return FF_ERROR;                       /* → S1 completion failure */
     }
@@ -122,7 +123,9 @@ static FF_Status_t svc23_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
 ```
 
 Then register `{23u, 1u, svc23_create}` and add the S23 rows next to the others.
-Milestone M3 of `docs/roadmap.md` builds this on the virtual filestore.
+Milestone **M15** of `docs/development-plan.md` builds this on the virtual
+filestore (CFDP + VFS). `ff_vfs_create` is the intended VFS API, not yet
+implemented in this baseline.
 
 ## 8. Testing a service
 

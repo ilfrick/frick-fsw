@@ -106,7 +106,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-049 | drivers/mem/ff_mem_static.c/h | test_mem.c | - | Static RAM pool + DMA helper + Renode DDR check (M4/M11) |
-| SRS-REQ-050 | docs/status/loop-audit.md, third_party/asn1-pusc-lib | ci:docs | - | PUS-C ASN.1 (N7/ESA) default backend (N19 reconciliation) |
+| SRS-REQ-050 | src/pus/adapters/pus_adapter_n7.c, tools/scripts/gen_pus_asn1.sh, tools/docker/asn1scc/Dockerfile | test_pus.c, ci:renode | - | PUS-C ASN.1 (N7/ESA) default backend (implemented; ADR-0016) |
 | SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 | SRS-REQ-052 | docs/architecture/pus-c-from-scratch-assessment.md, src/pus/pus.h | ci:docs | - | Fundamental PUS-C service set (planned, M15) |
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |

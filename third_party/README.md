@@ -20,6 +20,10 @@ tools/scripts/fetch_third_party.sh          # into third_party/{lwip,asn1-pusc-l
 ## Build switches
 
 - `FF_USE_LWIP=ON`  → build the lwIP `FF_NetStack_t` adapter.
-- `FF_USE_N7PUS=ON` → build the N7/ESA PUS `FF_Pus_Backend_t` adapter.
+- `FF_USE_PUS_ASN1=ON` (default) → build the N7/ESA PUS-C ASN.1
+  `FF_Pus_Backend_t` default backend (build-time ASN1SCC generation, `make pus-asn1`).
+  With `-DFF_USE_PUS_ASN1=OFF` the open CCSDS backend is used.
 
-Both default OFF; the middleware builds and its tests pass without them.
+`FF_USE_LWIP` defaults OFF; `FF_USE_PUS_ASN1` defaults ON and falls back to the
+open backend (with a warning) when the generated code is absent, so the
+middleware builds and its tests pass either way.
