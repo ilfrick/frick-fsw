@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.15 |
+| Revision    | 0.16 |
 | Date        | 2026-10-11 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -46,7 +46,7 @@ Delivered scope (commit M2, 2026-10-10):
 - Documentation: `docs/architecture/time-and-timecode.md` rev 0.2, ICD rev 0.2,
   `docs/quality/class-a-gaps.md` GAP-A7.
 
-## M3 — Middleware integration & hardware-abstraction interfaces (in progress)
+## M3 — Middleware integration & hardware-abstraction interfaces (done)
 
 Deliver the **interfaces and documentation** that let users integrate their own
 applications, drivers and third-party stacks:
@@ -81,7 +81,18 @@ Reference implementations behind the M3 contracts:
   reassembly, TCP/IP and TSN link backends) and the on-board file transfer set
   (virtual filestore, PUS service 23, CFDP).
 
-## M6 — Mathematics library integration (libm) (in progress)
+## M5 — Documentation and status program (in progress)
+
+- README index, documentation index and repository map (norm N8).
+- PUS services catalogue and low-level driver inventory in README.
+- `docs/engineering/driver-development.md` — human + agent guide.
+- `docs/engineering/service-development.md` — human + agent guide.
+- `docs/engineering/user-integration-manual.md` — human + agent guide.
+- `docs/development-plan.md` — milestone/objective plan.
+- README metrics panel: coverage plus review/V&V traffic lights
+  (red = failures, yellow = issues deferred by the user, green = all pass).
+
+## M6 — Mathematics library integration (libm) (done)
 
 A documented, portable mathematics facade over the platform `libm`
 (`src/math/ff_math.{c,h}`, `FF_USE_LIBM`), for applications that need
@@ -90,7 +101,7 @@ critical paths without a work-package analysis) and the licensing analysis
 documented. Requirements SSS-REQ-018 / SRS-REQ-033; ADR-0012;
 `docs/architecture/numerics.md`.
 
-## M7 — CCSDS SDLS (Space Data Link Security) (in progress)
+## M7 — CCSDS SDLS (Space Data Link Security) (done)
 
 Middleware-side link-layer security: SDLS processing, security-association
 database and key management/rotation, with a pluggable cryptographic backend
@@ -120,7 +131,7 @@ codebase-wide, and drive MISRA C:2012 compliance with an open-source scan
 `docs/engineering/coding-style.md`, `docs/quality/misra-c.md`; certified MISRA
 checker + formal report are GAP-A4.
 
-## M10 — Emulated-target verification: Renode (PolarFire SoC) and QEMU (planned)
+## M10 — Emulated-target verification: Renode (PolarFire SoC) and QEMU (in progress)
 
 Run the actual RTEMS target binary on an emulated PolarFire SoC to verify boot,
 PAL/RTEMS and drivers without hardware. **Renode** has official `polarfire-soc`
@@ -129,7 +140,7 @@ QSPI flash, eNVM, timers); **QEMU** runs the RTEMS `riscv/rv64imafdc` BSP. This
 **partially mitigates GAP-A5**; tool qualification (N10) and CI wiring included.
 See `docs/vv/emulated-target.md`; requirement SRS-REQ-043; objective OBJ-18.
 
-## M11 — Renode HAL coverage: exercise every HAL resource class on the emulated SoC (planned)
+## M11 — Renode HAL coverage: exercise every HAL resource class on the emulated SoC (in progress)
 
 Extend the Renode functional test (norm N18) so that **every HAL resource class**
 is bound to its emulated peripheral and exercised on the `polarfire-soc` platform:
@@ -176,17 +187,6 @@ it operates on (pluggable storage: RAM/flash/eMMC/SSD), on which PUS-C S23 file
 management is built. Assessment FRICK-ARCH-0015 (est. ~34 PM; hybrid
 recommendation). Requirement SRS-REQ-052/053 / SSS-REQ-025/026; objective OBJ-23.
 
-## M5 — Documentation and status program (in progress)
-
-- README index, documentation index and repository map (norm N8).
-- PUS services catalogue and low-level driver inventory in README.
-- `docs/engineering/driver-development.md` — human + agent guide.
-- `docs/engineering/service-development.md` — human + agent guide.
-- `docs/engineering/user-integration-manual.md` — human + agent guide.
-- `docs/development-plan.md` — milestone/objective plan.
-- README metrics panel: coverage plus review/V&V traffic lights
-  (red = failures, yellow = issues deferred by the user, green = all pass).
-
 ## History
 
 | Rev | Date | Author | Reason |
@@ -206,3 +206,4 @@ recommendation). Requirement SRS-REQ-052/053 / SSS-REQ-025/026; objective OBJ-23
 | 0.13 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP, after all other milestones) |
 | 0.14 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set) from FRICK-ARCH-0015 |
 | 0.15 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP + virtual filestore (VFS) and PUS-C S23 |
+| 0.16 | 2026-10-11 | frick-fsw | Reconcile heading statuses with the actual state (N19): M3/M6/M7 done, M10/M11 in progress; M5 section moved into milestone order |

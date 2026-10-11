@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-11                             |
 | Baseline commit                   | e1def89 (audited revision)             |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
@@ -31,10 +31,11 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS; QEMU pending** | partial | tracked: M10 |
-| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH done; NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 8 classes pending** | partial | tracked: M11 |
+| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH done; NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 9 classes pending** | partial | tracked: M11 |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
-| **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | **not planned until now** | **new** | added: M14/OBJ-22 (user directive) |
+| **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
+| **M15 in-house fundamental PUS-C set (+ CFDP + VFS)** | OBJ-23 (fundamental PUS-C behaviour + CFDP + virtual filestore + S23) | planned | none yet | tracked: M15 (after M14) |
 | OBJ-05 pluggable TCP/IP+TSN | Tuxera/lwIP/libbsd/custom | lwIP integrated; Tuxera = user adapter (documented) | none | closed (documented) |
 | **PUS-C ASN.1 (N7/ESA) as default** | integrate N7/ESA PUS-C library as the open/default PUS basis | **only fetched (`third_party/asn1-pusc-lib`); NOT wired into build/runtime; default stays the local CCSDS "open" backend** | **GAP (see §3)** | **reconcile this loop** (wire as default) |
 
@@ -145,3 +146,4 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-11 | frick-fsw | First N19 loop audit: objective/rule conformance; PUS-C ASN.1 gap root cause + reconciliation; multicore M14 |
 | 0.2 | 2026-10-11 | frick-fsw | Re-baselined at e1def89: counts 94/54/26/14/51, registry T1-T19, N9 row + PA, N20 in progress, R1-02 residual tracked (PA-review loop) |
+| 0.3 | 2026-10-11 | frick-fsw | N19 reconciliation: add the M15 objective row, refresh M14 wording, correct the M11 pending-class count (9) to match development-plan/roadmap |
