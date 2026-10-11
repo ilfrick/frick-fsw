@@ -127,7 +127,7 @@ occasion; prefer Docker.
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
-   - **CAN** (`CAN.MPFS_CAN`), then I2C/SPI/BLOCK/PCIe/SpaceWire; [NVM + NOR/QSPI MTD done]
+   - **CAN** (`CAN.MPFS_CAN`), then I2C/SPI/BLOCK/PCIe/SpaceWire; [NVM done; NOR/QSPI MTD driver done, on-SoC QSPI check pending board repl]
    - **SERIAL (MMUART/RS-422/485)** via `hal_serial.h` (NS16550 scratch reg);
    - **CAN** (`CAN.MPFS_CAN`), **SPI** (`SPI.MPFS_SPI`), **I2C** (loopback made
      explicit in `frick-renode.resc`), **BLOCK (eMMC/SD)**, **PCIe**,

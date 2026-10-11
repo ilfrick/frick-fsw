@@ -24,7 +24,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM, NOR/QSPI MTD done; CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, NOR/QSPI MTD driver host-verified (on-SoC check pending); CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
@@ -144,6 +144,7 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | Loopback relay/`pending` orphan (FRICK-REVIEW-0032 R1-02; `backlog` ignored, second `connect` overwrites `pending`) | tracked (bounded 4-slot reference backend; `init()` resets) | frick-fsw | M4/M11 |
 | PA-review dispositions (FRICK-REVIEW-0052/0053) | tracked | frick-fsw | now |
 | ECSS traceability - SDD requirements->design matrices (FRICK-REVIEW-0067 PA-67-01) | tracked | frick-fsw | **S0/S1** (`docs/planning/sprint-plan.md`) |
+| On-SoC QSPI NOR write/erase check (MTD) - needs the board repl `MPFS_QSPI`+`Micron_MT25Q` + flash command path | tracked | frick-fsw | **M11** (task opened; FRICK-REVIEW-0091/0094) |
 | M16 review NCs (FRICK-REVIEW-0064/0065/0066) | tracked | frick-fsw | **S0** |
 
 ## History
