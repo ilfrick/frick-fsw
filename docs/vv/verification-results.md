@@ -379,6 +379,7 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | MTD (QSPI) — R1 delta review | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r1-delta-review.md |
 | MTD — R4 delta review | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r4-delta-review.md |
 | MTD — PA final review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-pa-final-review.md |
+| MTD — PA closure (N12) | PA (independent) | 2026-10-11 | APPROVED (MTD loop closed) | docs/reviews/2026-10-11-mtd-pa-99-closure.md |
 
 ## History
 
