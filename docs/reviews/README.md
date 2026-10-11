@@ -102,6 +102,7 @@
 | 2026-10-11 | Renode board repl (BeagleV-Fire) — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS | 2026-10-11-renode-board-pa-review.md |
 | 2026-10-11 | Renode board repl — PA delta review (N12) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (D1/D2 closed) | 2026-10-11-renode-board-pa-delta-review.md |
 | 2026-10-11 | Renode V&V scripts — R2 T17/T15 re-qualification (N10) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (D2 closed) | 2026-10-11-renode-resc-r2-requal-review.md |
+| 2026-10-11 | Renode board repl — PA D1/D2 closure (N12) | PA (Senior SW PA engineer) | APPROVED (loop closed) | 2026-10-11-renode-board-pa-d1d2-closure.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in
