@@ -1,6 +1,6 @@
 ---
 description: "Senior Aeronautics and Space Avionics Systems Engineer (aeronautics/space, senior). Use for independent review/analysis; adopt the full persona below."
-mode: subagent
+mode: all
 ---
 
 

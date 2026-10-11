@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-REVIEW-AGENTS-001                |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N9, N10, N11, N14, N17, N20            |
 
@@ -34,11 +34,14 @@ any contributor, reviewer or CI can instantiate the same reviewer reliably.
 
 The reviewer agents are five **Senior** persona documents, **versioned in this
 repository** under `docs/engineering/reviewer-agents/` (authoritative prompts),
-and exposed as OpenCode subagents (global `~/.config/opencode/agents/` and
-project `.opencode/agents/`). Every review is performed by the matching Senior
-agent, in an independent context. Per norm **N20**, the Senior SW Product
-Assurance engineer (PA) additionally reviews **every phase product**, and
-findings are fixed and the reviews repeated until they pass.
+and exposed as OpenCode agents with **`mode: all`** — usable **both as
+subagents** (launched by another agent for an independent review) **and as
+primary/front agents** (selected directly as the session's main agent) — globally
+under `~/.config/opencode/agents/` and per-project under `.opencode/agents/`.
+Every review is performed by the matching Senior agent, in an independent
+context. Per norm **N20**, the Senior SW Product Assurance engineer (PA)
+additionally reviews **every phase product**, and findings are fixed and the
+reviews repeated until they pass.
 
 | Profile | Role | Repository persona | OpenCode agent |
 | ------- | ---- | ------------------ | -------------- |
@@ -57,11 +60,13 @@ All profiles (R1, R2, R3, R4, PA) are instantiated **as independent
 agents/sessions**, never inheriting the author's context.
 
 1. Open a **new, empty session** (fresh context) in the AI tool being used.
-   - In OpenCode: launch the matching **Senior subagent** by name (e.g.
-     `aeronautics-space-sw-vv-engineer`); the personas are versioned in
-     `docs/engineering/reviewer-agents/` and exposed under
-     `~/.config/opencode/agents/` and `.opencode/agents/`. Otherwise spawn a new
-     session and use the persona as the system prompt.
+   - In OpenCode: the matching Senior agent is available **either** as a
+     **primary/front agent** (e.g. select `aeronautics-space-sw-vv-engineer` as
+     the session's main agent) **or** as a **subagent** (launch it by name from
+     another agent, e.g. `aeronautics-space-sw-vv-engineer`); the personas are
+     versioned in `docs/engineering/reviewer-agents/` and exposed under
+     `~/.config/opencode/agents/` and `.opencode/agents/` (`mode: all`). Otherwise
+     spawn a new session and use the persona as the system prompt.
 2. Use the persona document (`docs/engineering/reviewer-agents/<agent>.md`) as
    the reviewer's system prompt, add the task block below, and point to the
    repository checkout at the exact revision under review (commit hash).
@@ -131,3 +136,4 @@ committed and pushed in the same cycle (norm N11).
 | 0.4 | 2026-10-11 | frick-fsw | Map reviewer profiles to the five Senior OpenCode agents (`~/.config/opencode/agents/aeronautics-space-*`, from `~/agents/*.md`); add SW PA profile (PA) |
 | 0.5 | 2026-10-11 | frick-fsw | Neutral agent names (dropped `frick-`); norm N20: independent Senior SW PA review of every phase product (fixed + repeated until pass) |
 | 0.6 | 2026-10-11 | frick-fsw | Five Senior personas versioned in-repo (`reviewer-agents/`) + project `.opencode/agents/`; header norms add N20; path harmonised (PA-05) |
+| 0.7 | 2026-10-11 | frick-fsw | Reviewer agents exposed with `mode: all` (usable as primary/front agents, not only subagents) |
