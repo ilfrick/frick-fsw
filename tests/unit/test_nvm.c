@@ -98,10 +98,13 @@ static void test_nvm(void)
     }
 
     /* A corrupt length byte (> max) is clamped to the maximum slot payload. */
-    g_mem.mem[FF_NVM_SLOT_SIZE] = 200u; /* id 1 length byte, out of range */
-    FF_TEST_ASSERT(g_drv.nvm.read(1u, out, sizeof(out), &len) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(g_drv.nvm.read(1u, out, FF_NVM_MAX_VALUE, &len) == FF_SUCCESS);
-    FF_TEST_ASSERT(len == FF_NVM_MAX_VALUE);
+    {
+        uint8_t clamp_out[FF_NVM_MAX_VALUE];
+        g_mem.mem[FF_NVM_SLOT_SIZE] = 200u; /* id 1 length byte, out of range */
+        FF_TEST_ASSERT(g_drv.nvm.read(1u, out, sizeof(out), &len) == FF_BAD_SIZE);
+        FF_TEST_ASSERT(g_drv.nvm.read(1u, clamp_out, sizeof(clamp_out), &len) == FF_SUCCESS);
+        FF_TEST_ASSERT(len == FF_NVM_MAX_VALUE);
+    }
 
     /* MMIO self-test. */
     FF_TEST_ASSERT(FF_NvmMpfsSelfTest(&g_drv) == FF_SUCCESS);
