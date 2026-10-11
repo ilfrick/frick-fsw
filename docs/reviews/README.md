@@ -103,6 +103,20 @@
 | 2026-10-11 | Renode board repl — PA delta review (N12) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (D1/D2 closed) | 2026-10-11-renode-board-pa-delta-review.md |
 | 2026-10-11 | Renode V&V scripts — R2 T17/T15 re-qualification (N10) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (D2 closed) | 2026-10-11-renode-resc-r2-requal-review.md |
 | 2026-10-11 | Renode board repl — PA D1/D2 closure (N12) | PA (Senior SW PA engineer) | APPROVED (loop closed) | 2026-10-11-renode-board-pa-d1d2-closure.md |
+| 2026-10-11 | reference MSS CAN backend (SRS-REQ-057) — FSW code review | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-11-can-r1-review.md |
+| 2026-10-11 | reference MSS CAN backend — V&V review | R2 (Senior SW V&V engineer) | REJECTED (Major R2-01 accept-all mask) -> fixed | 2026-10-11-can-r2-review.md |
+| 2026-10-11 | reference MSS CAN backend — docs review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-can-r4-review.md |
+| 2026-10-11 | reference MSS CAN backend — PA review (N20) | PA (Senior SW PA engineer) | REJECTED (Major PA-01/PA-09) -> fixed | 2026-10-11-can-pa-review.md |
+| 2026-10-11 | CAN — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-11-can-r1-delta-review.md |
+| 2026-10-11 | CAN — R2 delta review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (Major R2-01 closed) | 2026-10-11-can-r2-delta-review.md |
+| 2026-10-11 | CAN — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED (R4-01..R4-13 closed) | 2026-10-11-can-r4-delta-review.md |
+| 2026-10-11 | CAN — PA delta review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Majors PA-01/PA-09 closed) | 2026-10-11-can-pa-delta-review.md |
+| 2026-10-11 | CAN — R1 closure review (N12) | R1 (Senior FSW engineer) | APPROVED (R1-D-01 closed) | 2026-10-11-can-r1-closure-review.md |
+| 2026-10-11 | CAN — R2 closure review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (R2-D1/D2 closed; R2-D5 tracked) | 2026-10-11-can-r2-closure-review.md |
+| 2026-10-11 | CAN — R4 closure review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-can-r4-closure-review.md |
+| 2026-10-11 | CAN — PA closure review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (loop closed; freeze at commit) | 2026-10-11-can-pa-closure-review.md |
+| 2026-10-11 | CAN — R2 R2-D5 closure (N12) | R2 (Senior SW V&V engineer) | APPROVED (R2-D5 closed) | 2026-10-11-can-r2-d5-closure.md |
+| 2026-10-11 | CAN — PA freeze sign-off (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (freeze confirmed) | 2026-10-11-can-pa-freeze-signoff.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

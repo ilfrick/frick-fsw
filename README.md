@@ -50,20 +50,20 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ------ | ----- | ---------- |
 | Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 52/57 (91.2%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 57/57 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 27/30 (90.0%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| SRS requirements delivered | 53/58 (91.4%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 58/58 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
+| Review streams closed | 28/32 (87.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 98 (srs=57, sss=27, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 98/98 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 84/98 (85.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/98 (20.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 2961/4165 (71.1%) | gcov |
-| Code function coverage | 390/395 (98.7%) | gcov |
+| Requirements in manifest | 99 (srs=58, sss=27, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 99/99 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 85/99 (85.9%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/99 (20.2%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 3193/4512 (70.8%) | gcov |
+| Code function coverage | 408/413 (98.8%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -134,7 +134,7 @@ scope (implemented / interface-only / planned / user-provided):
 | PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
 | Transport | CCSDS Space Packets, link (loopback/UART) | `FF_Link_t` | — | radio/SpaceWire back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
-| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD | — | CAN, SPI, I2C, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN | — | SPI, I2C, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
 | Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
@@ -184,6 +184,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | Memory (RAM pool + DMA) | `src/drivers/mem/ff_mem_static.c` | static `FF_MemPool_t` + reference `FF_Dma_t`; host test + Renode DDR check (M4/M11) |
 | NVM (MSS eNVM) | `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` | bounded eNVM key/value backend behind `FF_Nvm_t`; host test (mock MMIO) + Renode eNVM data write/read check (M4/M11) |
 | NOR flash (MSS QSPI) | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | byte-addressed NOR MTD backend behind `FF_Mtd_t` (sector-aligned erase); host test (mock MMIO); Renode check pending the QSPI controller command driver (M4) |
+| CAN (MSS) | `src/drivers/can/mpfs/ff_can_mpfs.c` | classic CAN 2.0 A/B backend behind `FF_CanBackend_t` (round-robin TX, accept-all RX + poll); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
@@ -191,7 +192,7 @@ test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
 PolarFire SoC board platform (`beaglev-fire`, which includes the SoC; milestone
 M11; SRS-REQ-047).
 
-Other device drivers (SpaceWire, CAN/CANopen, SPI/I2C, PCIe, storage,
+Other device drivers (SpaceWire, SPI/I2C, PCIe, storage,
 PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
 deliverables (M4: MPFS BSP + 1 Gb/s Ethernet + stacks). See the detailed
 **driver development and integration guide** for humans and agents:
@@ -406,7 +407,7 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
 Current focus: **Sprint 0** (closure of the open M16 reviews + the ECSS
-traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM + NOR/QSPI MTD done; CAN +
+traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN done; SPI +
 M10 QEMU). Full sequence in the sprint plan above.
 
 ## Contributing

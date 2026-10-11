@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-11                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
 | Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
@@ -87,7 +87,8 @@ class-A flight gap (build-time tool, re-qualified as T19).
 
 ## GAP-A5 - On-target qualification
 
-**Status:** open (blocked on hardware)
+**Status:** open (blocked on hardware). **Owner:** programme / hardware access
+(the RTPFS160ZT board); **milestone:** on-target bring-up (M10/M14 follow-up).
 
 - RTEMS BSP qualification tests on the RTPFS160ZT board. **Emulated execution**
   (Renode `polarfire-soc` / QEMU `riscv/rv64imafdc`, milestone M10,
@@ -197,3 +198,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.3 | 2026-10-10 | frick-fsw | ECSS compliance assessment: add GAP-A8..A13 (SDP, SDD depth, FMEA, third-party IVV, OPD, maintenance) |
 | 0.4 | 2026-10-10 | frick-fsw | M7: add GAP-A14 (SDLS crypto algorithm qualification and key store) |
 | 0.5 | 2026-10-11 | frick-fsw | GAP-A1b reframed as a sub-item of GAP-A1 (delivered, ADR-0016); tracking clarified (PA-08) |
+| 0.6 | 2026-10-11 | frick-fsw | GAP-A5 owner/milestone recorded (programme/hardware; on-target bring-up M10/M14); PA-0109-08 |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.14                                   |
+| Revision                          | 1.16                                   |
 | Date                              | 2026-10-11                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -280,13 +280,26 @@ review).
 - **SRS-REQ-055** — *Reference NVM backend (eNVM)*: the framework shall provide a
   reference non-volatile-memory backend implementing the HAL memory contract
   (`FF_Nvm_t`, key/value by id) over the PolarFire SoC MSS embedded NVM (eNVM),
-  with bounded slots and bounded ids. `method: Tst | Inp`. (milestone M4/M11)
+  with bounded slots and bounded ids. `method: Tst | Dem`. (milestone M4/M11)
 
 - **SRS-REQ-056** — *Reference NOR/QSPI MTD backend*: the framework shall provide a
   reference NOR/flash memory-technology-device backend implementing the HAL memory
   contract (`FF_Mtd_t`: byte-addressed read/write, sector-aligned erase) over the
-  PolarFire SoC MSS QSPI NOR flash, with a bounded window. `method: Tst | Inp`.
-  (milestone M4/M11)
+  PolarFire SoC MSS QSPI NOR flash, with a bounded window. `method: Tst | Inp`
+  (host-tested; the live on-SoC QSPI check is not yet in place, see the pending
+  QSPI controller command driver). (milestone M4/M11)
+
+- **SRS-REQ-057** — *Reference MSS CAN driver*: the framework shall provide a
+  reference HAL CAN backend for the Microchip PolarFire SoC MSS CAN controllers
+  (`FF_CanBackend_t`, classic CAN 2.0 A/B frame transmit and receive dispatch,
+  and set-up) over bounded TX/RX buffers (32 each), register-based and
+  allocation-free, with CAN-FD rejected (FD is a fabric device reached through
+  the FIC, not an MSS CAN feature). The HAL CAN contract carries no receive entry
+  point, so received frames are dispatched by the driver-specific poll
+  (`FF_CanMpfsPoll`); bit timing is a reference derivation from the configured
+  MSS CAN clock (per-rate accuracy and on-target timing are tracked, GAP-A5).
+  Validated by a host unit test (mock MMIO) and by an emulated-MMIO register
+  check on the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
 
 ## 6. Derived requirements
 
@@ -341,3 +354,5 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.12 | 2026-10-11 | frick-fsw  | M16: add SRS-REQ-054 in-house OBCP engine |
 | 1.13 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-055 reference eNVM NVM backend |
 | 1.14 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-056 reference NOR/QSPI MTD backend |
+| 1.15 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-057 reference MSS CAN driver |
+| 1.16 | 2026-10-11 | frick-fsw  | M4/M11: SRS-REQ-057 review NCs (receive via driver-specific poll, bounded TX/RX buffers, bit-timing basis/GAP-A5); align SRS-REQ-055 method to Tst\|Dem and note SRS-REQ-056 host-only |

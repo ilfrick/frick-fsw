@@ -9,6 +9,13 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M4/M11 - reference MSS CAN backend (SRS-REQ-057).** `src/drivers/can/mpfs/ff_can_mpfs.{c,h}`
+  implements the HAL CAN contract `FF_CanBackend_t` (classic CAN 2.0 A/B) over the
+  Microchip PolarFire SoC MSS CAN: run/bit-timing set-up, round-robin TX buffers,
+  accept-all RX buffer with poll dispatch, reference bit timing. Host unit test
+  `test_can` (mock MMIO, 129 checks) and a Renode MMIO register round-trip check
+  (`hal_can=PASS` on the emulated SoC). CAN-FD is rejected (fabric device).
+  M11 peripheral-bound HAL coverage 5/13 -> 6/13.
 - **Renode V&V environment: board repl (BeagleV-Fire).** The functional test now
   loads `@platforms/boards/beaglev-fire.repl` (which includes the SoC platform)
   instead of the SoC-only repl, adding the **QSPI NOR flash** (`SPI.MPFS_QSPI` +
@@ -28,6 +35,22 @@ change. All dates UTC, project language English (norm N2).
   M11 peripheral-bound HAL coverage 4/13 -> 5/13.
 
 ### Fixed
+
+- **MSS CAN RX accept-all mask (FRICK-REVIEW-0107 R2-01 / 0109 PA-09 Major,
+  SRS-REQ-057).** The RX acceptance mask was written to the AMR register in the
+  raw identifier domain instead of the register's left-aligned identifier field
+  (bits 3-31), so extended identifiers >= 0x04000000 were silently rejected; the
+  reference accept-all filter (`FF_CAN_ACCEPT_ALL`) is now left-aligned into the
+  identifier field with the RTR/IDE mask bits set. `test_can` gained a regression
+  that discriminates the fix (9 failures at the old constant) and boundary /
+  negative cases; `FF_CanMpfsPoll` re-reads the RX control word before
+  acknowledging so a callback reconfiguration is not clobbered; the raw AMR write
+  (including the RTR/IDE mask bits the emulator does not model) is asserted.
+- **MSS CAN reference clock (FRICK-REVIEW-0110 R1-D-01 Minor, SRS-REQ-057).** The
+  reference bit-timing clock was corrected from an assumed 125 MHz to **80 MHz**
+  (the MSS CAN clock is one of 8..80 MHz from the MSS PLL per the PolarFire SoC
+  MSS TRM); at 80 MHz the standard rates 125/250/500 kbit/s and 1 Mbit/s are
+  exact (prescaler 40/20/10/5). On-target confirmation remains GAP-A5.
 
 - **Table Services validation bypass (FRICK-REVIEW-0077 Major, SRS-REQ-013).**
   `FF_TblLoad` left a previously-staged image valid when a new load failed

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.26                                   |
+| Revision                          | 0.27                                   |
 | Date                              | 2026-10-11                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,12 +15,13 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 57, SSS = 27, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 58, SSS = 27, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
-is reported in CI but not claimed by any requirement, norm N1). Six of the
-requirements (SRS-REQ-045/046/051/052/053/054 with their SSS parents
-SSS-REQ-022/023/024/025/026/027) are **planned** (M12..M16): they
-are documented-only, with `ci:docs` as evidence until their implementation lands.
+is reported in CI but not claimed by any requirement, norm N1). Five of the
+requirements (SRS-REQ-045/046/051/053/054 with their SSS parents
+SSS-REQ-022/023/024/026/027) are **planned** (M12..M16): they
+are documented-only, with `ci:docs` as evidence until their implementation lands
+(SRS-REQ-052 is delivered by the fundamental PUS-C service set, M15).
 
 ## 1. Top-down matrix (SSS -> SRS)
 
@@ -45,7 +46,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
 | SSS-REQ-018 (numerical support) | SRS-REQ-033 |
 | SSS-REQ-019 (data-link security) | SRS-REQ-034, SRS-REQ-035 |
-| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056 |
+| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056, SRS-REQ-057 |
 | SSS-REQ-021 (code quality) | SRS-REQ-041, SRS-REQ-042 |
 | SSS-REQ-022 (on-board autonomy / OBCP) | SRS-REQ-045 |
 | SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
@@ -115,6 +116,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-054 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - | In-house OBCP engine (planned, M16) |
 | SRS-REQ-055 | drivers/nvm/mpfs/ff_nvm_mpfs.c/h, config/platform/platform_mpfs.h | test_nvm.c, ci:renode | - | Reference eNVM NVM backend (M4/M11) |
 | SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending the QSPI controller command driver) |
+| SRS-REQ-057 | drivers/can/mpfs/ff_can_mpfs.c/h, config/platform/platform_mpfs.h | test_can.c, ci:renode | - | Reference MSS CAN backend (M4/M11; classic 2.0 A/B, CAN-FD rejected) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -210,3 +212,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.24 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-055 reference eNVM NVM backend; counts 56/27/14 |
 | 0.25 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-056 reference NOR/QSPI MTD backend; counts 57/27/14 |
 | 0.26 | 2026-10-11 | frick-fsw | SRS-REQ-056 evidence corrected to host-only (on-SoC QSPI check tracked M11) |
+| 0.27 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-057 reference MSS CAN driver; counts 58/27/14 |

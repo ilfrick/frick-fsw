@@ -77,7 +77,7 @@ jobs:
       - name: Emulated-target verification (Renode/QEMU; advisory)
         run: bash tools/scripts/emulated_run.sh
 
-      # evidence: ci-renode (SRS-REQ-036, SRS-REQ-039, SRS-REQ-044, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-050, SSS-REQ-013, SSS-REQ-020; norm N18)
+      # evidence: ci-renode (SRS-REQ-036, SRS-REQ-039, SRS-REQ-044, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-050, SRS-REQ-055, SRS-REQ-057, SSS-REQ-013, SSS-REQ-020; norm N18)
       - name: Renode V&V environment + functional validation (PolarFire SoC)
         run: |
           bash tools/scripts/renode_env_selftest.sh

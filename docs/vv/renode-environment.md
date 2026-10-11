@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.10                                   |
+| Revision                          | 0.12                                   |
 | Date                              | 2026-10-11                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -43,6 +43,7 @@ milestone M11), then prints a machine-checkable marker:
 [renode-test] hal_eth=PASS
 [renode-test] hal_net=PASS
 [renode-test] hal_nvm=PASS
+[renode-test] hal_can=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -89,15 +90,21 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run exercises
   HAL backends and, additionally, a **contract check**:
-  - **Peripheral-bound** (5/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
+  - **Peripheral-bound** (6/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
-    SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036) and **NVM**
-    (MSS eNVM data region write/read round trip, SRS-REQ-055). The app checks
+    SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036), **NVM**
+    (MSS eNVM data region write/read round trip, SRS-REQ-055) and **CAN**
+    (MSS CAN register round trips, SRS-REQ-057). The app checks
     each and the marker is `PASS` only when all succeed (`hal_gpio=PASS`,
-    `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`). The
+    `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`,
+    `hal_can=PASS`). The
     MEM pool is exercised over the in-image RAM (emulated DDR); the reference
-    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH and NVM checks
-    are MMIO identification/round-trip checks (full driver/DMA path host-tested).
+    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH, NVM and CAN
+    checks are MMIO identification/round-trip checks (full driver/DMA path host-tested).
+    *Scope limit (CAN):* the emulated `MPFS_CAN` models only the AMR identifier
+    field, not the AMR RTR/IDE mask bits (bits 1-2); the register check therefore
+    uses the fully-modelled registers, and the RX acceptance filter is verified in
+    the host unit test (identifier domain).
   - **Contract check** (not peripheral-bound): **NET** — a socket round trip
     through the pluggable `FF_NetStack_t` contract using the reference loopback
     stack (`hal_net=PASS`; in-process).
@@ -127,3 +134,5 @@ stays open (GAP-A4/A6).
 | 0.8 | 2026-10-11 | frick-fsw | M11: ETH (Cadence GEM identification) exercised (`hal_eth=PASS`); console capture via container-local path + docker cp |
 | 0.9 | 2026-10-11 | frick-fsw | M11: NET (pluggable TCP/IP, loopback stack) exercised (`hal_net=PASS`) |
 | 0.10 | 2026-10-11 | frick-fsw | V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services); NVM (`hal_nvm`) added to the HAL coverage (5/13) |
+| 0.11 | 2026-10-11 | frick-fsw | M11: CAN (`hal_can`) added to the HAL coverage (6/13; SRS-REQ-057) |
+| 0.12 | 2026-10-11 | frick-fsw | Note the CAN scope limit: the emulated `MPFS_CAN` does not model the AMR RTR/IDE mask bits (R4-0108-11) |

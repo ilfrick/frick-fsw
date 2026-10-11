@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.28                                   |
+| Revision                          | 0.30                                   |
 | Date                              | 2026-10-11                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -38,6 +38,7 @@ artifacts (no external state).
 | M4/M11 eNVM NVM backend, 2026-10-11 | PASS (Debug) | PASS (17/17; `test_nvm` 36 checks) | PASS (`lake build` 21/21) | PASS (97 reqs / 56 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_nvm=PASS`) | Reference `FF_Nvm_t` eNVM backend (SRS-REQ-055): bounded slot table (32 ids x 32 B), host test (mock MMIO) + Renode eNVM data write/read check; M11 5/13 peripheral-bound. |
 | M4 QSPI NOR MTD backend, 2026-10-11 | PASS (Debug) | PASS (18/18; `test_mtd` 4123 checks) | PASS (`lake build` 21/21) | PASS (98 reqs / 57 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | proxy | Reference `FF_Mtd_t` NOR/QSPI backend (SRS-REQ-056): byte read/write, sector-aligned erase; host test (mock MMIO). On-SoC QSPI check pending (needs the board repl `MPFS_QSPI` + `Micron_MT25Q` and the flash command path) - M11 follow-up. |
 | Renode board repl enabled (BeagleV-Fire), 2026-10-11 | PASS (Debug) | PASS (18/18) | PASS (`lake build` 21/21) | PASS (98/57/27/14, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm=PASS`) | V&V environment switched from the SoC-only platform to the `beaglev-fire` board repl (includes the SoC). New peripherals available for drivers: QSPI controller `SPI.MPFS_QSPI`@0x21000000 + `SPI.Micron_MT25Q` NOR flash, `MPFS_SystemServices`@0x37020000 (+ its QSPI/flash), board button. The QSPI NOR still needs the controller command path (M11 task). |
+| M4/M11 MSS CAN backend, 2026-10-11 | PASS (Debug) | PASS (19/19; `test_can` 129 checks) | PASS (`lake build` 21/21) | PASS (99 reqs / 58 srs / 27 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_can=PASS`) | Reference `FF_CanBackend_t` MSS CAN backend (SRS-REQ-057): classic CAN 2.0 A/B, round-robin TX buffers (32), accept-all RX buffer with poll dispatch, reference bit timing; host test (mock MMIO, 129 checks) + Renode MSS CAN MMIO register round trips; M11 6/13 peripheral-bound. CAN-FD rejected (fabric device). Review NC R2/PA-09 fixed: the accept-all RX mask is left-aligned into the AMR identifier field (the host test discriminates the fix: 9 failures at the old constant). Limitations: no bus-off/error handling, polling-only RX. Reference bit timing from the MSS CAN clock (16 tq, 87.5% SP): the MSS CAN clock is one of 8..80 MHz from the MSS PLL (R1-D-01 corrected the earlier 125 MHz assumption); at the 80 MHz reference the standard rates 125/250/500 kbit/s and 1 Mbit/s are exact (prescaler 40/20/10/5). On-target confirmation of the configured clock = GAP-A5. |
 
 ## v0.1.0 baseline notes
 
@@ -275,10 +276,11 @@ PolarFire SoC MSS TRM DS60001702.
 
 ### Remaining (M4)
 
-CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire MSS drivers (M4 residual),
+SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire MSS drivers (M4 residual),
 N7/ESA `FF_Pus_Backend_t` per-service mapping (M15), filestore/CFDP/service 23
-(M15). Delivered since the original list: lwIP adapter, GEM TSN, MSS MMUART and
-MSS GPIO (kept here only as history).
+(M15). Delivered since the original list: lwIP adapter, GEM TSN, MSS MMUART,
+MSS GPIO, the eNVM NVM backend, the NOR/QSPI MTD backend and the MSS CAN
+backend (kept here only as history).
 
 ## Documentation review (norm N17)
 
@@ -420,3 +422,5 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.26 | 2026-10-11 | frick-fsw | M4/M11: reference eNVM NVM backend (SRS-REQ-055) - `ff_nvm_mpfs`, `test_nvm` (ctest 17/17), `hal_nvm=PASS` in Renode; M11 5/13 |
 | 0.27 | 2026-10-11 | frick-fsw | M4: reference NOR/QSPI MTD backend (SRS-REQ-056) - `ff_mtd_mpfs`, `test_mtd` (ctest 18/18); on-SoC QSPI check pending board repl (M11) |
 | 0.28 | 2026-10-11 | frick-fsw | Renode V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services available); all HAL checks still PASS |
+| 0.29 | 2026-10-11 | frick-fsw | M4/M11: reference MSS CAN backend (SRS-REQ-057) - `ff_can_mpfs`, `test_can` (ctest 19/19, 60 checks), `hal_can=PASS` in Renode; M11 6/13 |
+| 0.30 | 2026-10-11 | frick-fsw | CAN review NCs: RX accept-all mask fixed (identifier domain, R2-01/PA-09), `test_can` 60 -> 129 checks (regression discriminates the fix; boundary/negative cases; TX wraparound; raw AMR write assert), poll ack re-read, reference clock 125 -> 80 MHz (R1-D-01, MSS PLL range); M11 6/13 |

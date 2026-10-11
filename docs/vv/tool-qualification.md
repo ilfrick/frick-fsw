@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.12                                 |
+| Revision                          | 0.3.14                                 |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -24,7 +24,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | --- | --------------------------------------- | ------------------------------- | ------------------------------- | -------------------------- | ---------------------------------------- | ------ |
 | T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | reproducibility of all evidence | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T2  | Unit test harness `ff_test.h`           | `tests/ff_test.h`               | unit test results               | reviewed + CM              | internal                                | QUALIFIED |
-| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
+| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`, `test_can.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
 | T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | QUALIFIED |
 | T5  | Lean 4 / lake / formal theorems         | `verification/lean/`            | norm N1 machine-checked proofs  | tool is self-checking; sources reviewed | review of theorem statements (R1/R2) | QUALIFIED |
 | T6  | Traceability gate                       | `tools/scripts/trace.py`        | norm N4 convergence             | reviewed + CM              | independent (R2), qualified once, reviewed at change | QUALIFIED |
@@ -38,7 +38,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`      | MISRA findings report         | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
-| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`) | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
 | T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + mpfs64imafdc BSP built; real cross build OK (plain + Renode image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED |
 | T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
 | —   | Evidence-claims mapping                 | `ci:renode` -> T17 (Renode V&V environment) | Renode functional run (`RENODE_TEST: PASS`, HAL checks) | — | — | — |
@@ -108,3 +108,5 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.10 | 2026-10-11 | frick-fsw | T17 row lists `hal_nvm`; T3 `test_nvm` 29 -> 36 checks; header/History reconciled (FRICK-REVIEW-0081/0082/0083/0084) |
 | 0.3.11 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_mtd.c` (NOR/QSPI MTD, SRS-REQ-056) |
 | 0.3.12 | 2026-10-11 | frick-fsw | Re-qualification: T17 `frick-renode.resc` and `renode_env.resc` now load the BeagleV-Fire board repl (QSPI NOR + system services); header/History reconciled |
+| 0.3.13 | 2026-10-11 | frick-fsw | T3 gains `tests/unit/test_can.c` (reference MSS CAN driver, SRS-REQ-057); T17 Renode functional check gains `hal_can` |
+| 0.3.14 | 2026-10-11 | frick-fsw | Re-qualification: T17 `renode_vv.sh` now also retains the full Renode process log (`build/renode/renode-process.log`) next to the UART console (evidence retention, PA-0109-06) |

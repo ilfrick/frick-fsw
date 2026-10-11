@@ -531,6 +531,15 @@ requirements:
     lean: []
     lean_note: "Reference NOR/QSPI MTD backend behind FF_Mtd_t (M4/M11): byte read/write, sector-aligned erase; register logic host-tested (the on-SoC QSPI check needs the QSPI controller command driver; the board repl is now loaded - M11 follow-up)."
 
+  - id: SRS-REQ-057
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/can/mpfs/ff_can_mpfs.c", "src/drivers/can/mpfs/ff_can_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_can.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference MSS CAN (classic 2.0 A/B) backend behind FF_CanBackend_t (M4/M11): register logic host-tested (bounded 32 TX/RX buffers; accept-all filter in the identifier domain); MMIO register round trip on the emulated SoC (hal_can). RX dispatch is via the driver-specific FF_CanMpfsPoll (the HAL contract has no receive entry point). CAN-FD rejected (fabric device, reached through the FIC). Bit timing is a reference derivation from the MSS CAN clock (per-rate accuracy / on-target timing = GAP-A5)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -775,7 +784,7 @@ requirements:
   - id: GAP-A5
     level: gap
     gap: true
-    justification: "On-target qualification on the RTPFS160ZT (RTEMS BSP tests, link-level PUS tests over UART, HWIL) needs flight hardware."
+    justification: "On-target qualification on the RTPFS160ZT (RTEMS BSP tests, link-level PUS tests over UART, HWIL) needs flight hardware. Owner: programme/hardware access; milestone: on-target bring-up (M10/M14 follow-up)."
     implementation: ["src/bsp/mpfs"]
     tests: []
     lean: []

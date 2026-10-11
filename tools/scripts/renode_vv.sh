@@ -7,6 +7,10 @@
 # The Renode/docker process is run detached and killed after a bounded time, so
 # the script can never hang.
 #
+# Two logs are retained for evidence (norm N11): the UART console
+# (build/renode/console.log) and the full Renode/docker process log
+# (build/renode/renode-process.log), both best-effort host copies.
+#
 # The RTEMS image is built with `make renode-image` (FF_ENABLE_RENODE_TEST=ON).
 # When it is absent the run is a recorded SKIP proxy (exit 0); when it is present
 # the gate is in force: a missing marker fails (exit 1). See
@@ -49,8 +53,10 @@ docker logs "${NAME}" > "${LOG}" 2>&1 || true
 : > "${CONSOLE}"
 docker cp "${NAME}:/tmp/frick-uart.log" "${CONSOLE}" > /dev/null 2>&1 || true
 cat "${CONSOLE}" >> "${LOG}" 2>/dev/null || true
-# Best-effort artifact copy for documentation/grepping convenience.
+# Best-effort artifact copies for documentation/grepping convenience: the UART
+# console and the full Renode process log (norm N11 evidence retention).
 docker cp "${NAME}:/tmp/frick-uart.log" "${ROOT}/build/renode/console.log" > /dev/null 2>&1 || true
+cp "${LOG}" "${ROOT}/build/renode/renode-process.log" > /dev/null 2>&1 || true
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 
 if grep -q "RENODE_TEST: PASS" "${LOG}"; then

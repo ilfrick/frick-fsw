@@ -47,4 +47,9 @@
  * test (M11). The config/control block is at 0x20200000. */
 #define FF_ENVM0_BASE 0x20220000u
 
+/* MSS CAN 0 (classic CAN 2.0 A/B). Used by the reference CAN driver; exercised
+ * on the emulated SoC in the Renode functional test (M11). CAN-FD is a fabric
+ * device reached through the FIC, not a feature of the MSS CAN controller. */
+#define FF_CAN0_BASE 0x2010C000u
+
 #endif /* FF_PLATFORM_MPFS_H */
