@@ -28,6 +28,8 @@
 #include "drivers/gpio/mpfs/ff_gpio_mpfs.h"
 #include "drivers/serial/mpfs/ff_serial_mpfs.h"
 #include "drivers/mem/ff_mem_static.h"
+#include "drivers/net/ff_net_loopback.h"
+#include <string.h>
 
 static uint32_t mpfs_gpio_read32(void *ctx, uint32_t off)
 {
@@ -118,6 +120,68 @@ static bool renode_hal_eth_check(void)
     return (((modid >> 16) & 0x0FFFu) == 0x002u) && ((modid & 0xFFFFu) == 0x0118u);
 }
 
+/* HAL network-stack check (milestone M11): a socket round trip through the
+ * pluggable FF_NetStack_t contract, using the reference loopback stack (the same
+ * contract an lwIP/Tuxera adapter implements). It is a **contract/behaviour**
+ * check (in-process), not a binding to an emulated peripheral.
+ * Oracle: bind to a non-zero port; a connect to an unlistened port must fail;
+ * accept must report the server port; the message must round-trip. */
+static bool renode_hal_net_fail(FF_NetStack_t *s)
+{
+    (void)s->init(); /* reset the socket table (no leak on the failure path) */
+    return false;
+}
+
+static bool renode_hal_net_check(void)
+{
+    FF_NetStack_t *s = &FF_NetStackLoopback;
+    const uint8_t port[1] = {0x42u};
+    const uint8_t no_port[1] = {0x43u};
+    const uint8_t msg[4] = {0x11u, 0x22u, 0x33u, 0x44u};
+    uint8_t peer[4];
+    uint8_t buf[8];
+    uint16_t peer_len = sizeof(peer);
+    uint16_t sent = 0u;
+    uint16_t got = 0u;
+    FF_NetSock_t srv;
+    FF_NetSock_t neg;
+    FF_NetSock_t cli;
+    FF_NetSock_t acc;
+
+    if (s->init() != FF_SUCCESS) {
+        return false;
+    }
+    srv = s->open(0, 0, 0);
+    if ((srv < 0) || (s->bind(srv, port, 1u) != FF_SUCCESS) || (s->listen(srv, 1u) != FF_SUCCESS)) {
+        return renode_hal_net_fail(s);
+    }
+    /* Negative: connecting to a port with no listener must fail. */
+    neg = s->open(0, 0, 0);
+    if ((neg < 0) || (s->connect(neg, no_port, 1u) == FF_SUCCESS)) {
+        return renode_hal_net_fail(s);
+    }
+    (void)s->close(neg);
+    cli = s->open(0, 0, 0);
+    if ((cli < 0) || (s->connect(cli, port, 1u) != FF_SUCCESS)) {
+        return renode_hal_net_fail(s);
+    }
+    acc = s->accept(srv, peer, &peer_len);
+    if ((acc < 0) || (peer_len < 1u) || (peer[0] != port[0])) {
+        return renode_hal_net_fail(s); /* bind must be observable */
+    }
+    if ((s->send(cli, msg, sizeof(msg), &sent) != FF_SUCCESS) || (sent != sizeof(msg))) {
+        return renode_hal_net_fail(s);
+    }
+    if ((s->recv(acc, buf, sizeof(buf), &got, 0u) != FF_SUCCESS) || (got != sizeof(msg)) ||
+        (memcmp(buf, msg, sizeof(msg)) != 0)) {
+        return renode_hal_net_fail(s);
+    }
+    (void)s->close(acc);
+    (void)s->close(cli);
+    (void)s->close(srv);
+    return true;
+}
+
 /* HAL memory check (milestone M11): static RAM pool over the emulated DDR +
  * reference DMA translation. */
 static bool renode_hal_mem_check(void)
@@ -152,6 +216,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_serial_ok = true;
     bool hal_mem_ok = true;
     bool hal_eth_ok = true;
+    bool hal_net_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -189,16 +254,19 @@ void FF_AppRenodeTestMain(void *arg)
     hal_serial_ok = renode_hal_serial_check();
     hal_mem_ok = renode_hal_mem_check();
     hal_eth_ok = renode_hal_eth_check();
+    hal_net_ok = renode_hal_net_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_eth=%s\n", hal_eth_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_net=%s\n", hal_net_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
     FF_PalLog("RENODE_TEST: %s\n",
-              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok) ? "PASS"
-                                                                                       : "FAIL");
+              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok && hal_net_ok)
+                  ? "PASS"
+                  : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

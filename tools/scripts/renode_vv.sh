@@ -22,6 +22,7 @@ IMG="antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b1
 ELF="${ROOT}/build/renode/frick_fsw_renode.elf"
 NAME="frick-renode-vv"
 LOG="/tmp/frick-renode.log"
+CONSOLE="/tmp/frick-console.log"
 
 if ! docker image inspect "${IMG}" > /dev/null 2>&1; then
   docker pull "${IMG}" > /dev/null 2>&1 || { echo "[renode] SKIP: image unavailable"; exit 0; }
@@ -43,8 +44,13 @@ for _ in $(seq 1 120); do
 done
 
 docker logs "${NAME}" > "${LOG}" 2>&1 || true
+# Copy the UART log out of the container to a host-writable path (a root-owned
+# build/renode/ would otherwise make this fail silently and yield a false FAIL).
+: > "${CONSOLE}"
+docker cp "${NAME}:/tmp/frick-uart.log" "${CONSOLE}" > /dev/null 2>&1 || true
+cat "${CONSOLE}" >> "${LOG}" 2>/dev/null || true
+# Best-effort artifact copy for documentation/grepping convenience.
 docker cp "${NAME}:/tmp/frick-uart.log" "${ROOT}/build/renode/console.log" > /dev/null 2>&1 || true
-cat "${ROOT}/build/renode/console.log" >> "${LOG}" 2>/dev/null || true
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
 
 if grep -q "RENODE_TEST: PASS" "${LOG}"; then

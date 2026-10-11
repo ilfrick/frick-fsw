@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.21                                   |
+| Revision                          | 0.22                                   |
 | Date                              | 2026-10-10                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -95,7 +95,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-036 | drivers/eth/gem/ff_gem.c/h | test_gem.c, ci:renode | - | Cadence GEM Ethernet driver + Renode GEM identification (M4/M11) |
 | SRS-REQ-037 | config/rtems/rtems_config.c, pal_rtems.c | ci:rtems-cross-build | - | RTEMS application integration (M4) |
 | SRS-REQ-038 | drivers/eth/gem/ff_gem_tsn.c/h | test_gem_tsn.c | - | GEM native TSN backend (M4) |
-| SRS-REQ-039 | drivers/net/ff_net_loopback.c/h | test_netloop.c | - | Reference loopback network stack (M4) |
+| SRS-REQ-039 | drivers/net/ff_net_loopback.c/h | test_netloop.c, ci:renode | - | Reference loopback network stack; `FF_NetStack_t` contract check in Renode (M4/M11) |
 | SRS-REQ-040 | hal/net/lwip/ff_net_lwip.c/h | test_lwip.c | - | lwIP network-stack adapter (M4) |
 | SRS-REQ-041 | docs/quality/misra-c.md, tools/scripts/misra.sh | ci:misra | - | MISRA C:2012 compliance (M9) |
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
@@ -196,3 +196,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
 | 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |
 | 0.21 | 2026-10-11 | frick-fsw | M11: SRS-REQ-036 Renode GEM identification (ci:renode); SRS-REQ-047/048/049 add ci:renode |
+| 0.22 | 2026-10-11 | frick-fsw | M11: SRS-REQ-039 FF_NetStack_t contract check (ci:renode; not peripheral-bound) |

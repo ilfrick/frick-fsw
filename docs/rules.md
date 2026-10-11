@@ -141,7 +141,8 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 - Any change to a recorded V&V script invalidates its qualification and forces
   a re-qualification review before the evidence produced with it can be reused.
 - The gate `make trace` checks that every script referenced as evidence exists
-  and is listed in the qualification register.
+  (path/claim check); the qualification **register is maintained manually** in the
+  same commit (norm N10/N8) - `trace.py` does not read the register.
 
 ## N11 - Test scripts and review results in the repository
 

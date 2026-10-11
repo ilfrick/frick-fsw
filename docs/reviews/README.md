@@ -48,6 +48,10 @@
 | 2026-10-11 | PUS-C ASN.1 (N7/ESA) default backend | R1+R2+R4 | REJECTED -> closed (CRC guard + test) | 2026-10-11-pus-c-asn1-default-r1-r2-r4-review.md |
 | 2026-10-11 | README scope + integration/service docs | R4 | REJECTED -> closed | 2026-10-11-readme-scope-r4-review.md |
 | 2026-10-11 | M11 ETH HAL class (Cadence GEM) in Renode | R1+R2+R4 | APPROVED WITH COMMENTS -> closed | 2026-10-11-m11-eth-r1-r2-r4-review.md |
+| 2026-10-11 | M11 NET contract check (loopback) — FSW | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-11-m11-net-r1-review.md |
+| 2026-10-11 | M11 NET contract check (loopback) — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-m11-net-r2-review.md |
+| 2026-10-11 | M11 NET contract check (loopback) — docs | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-m11-net-r4-review.md |
+| 2026-10-11 | M11 NET delta | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS -> closed | 2026-10-11-m11-net-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

@@ -373,9 +373,9 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/net/ff_net_loopback.c", "src/drivers/net/ff_net_loopback.h"]
-    tests: ["tests/unit/test_netloop.c"]
+    tests: ["tests/unit/test_netloop.c", "ci:renode"]
     lean: []
-    lean_note: "Reference loopback network stack verified by unit tests (test_netloop.c); it exercises the pluggable FF_NetStack_t contract. Third-party stacks (lwIP) plug in through the same vtable."
+    lean_note: "Reference loopback network stack verified by unit tests (test_netloop.c); it exercises the pluggable FF_NetStack_t contract, and is exercised in the Renode run (M11, `hal_net=PASS`) as a contract/behaviour check (in-process; no emulated peripheral bound). Third-party stacks (lwIP) plug in through the same vtable."
 
   - id: SRS-REQ-040
     level: srs

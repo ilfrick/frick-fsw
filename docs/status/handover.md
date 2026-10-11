@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -92,14 +92,16 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** four classes done — **GPIO**
-  (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL** (`ff_serial_mpfs`, SRS-REQ-048),
-  **MEM** (`ff_mem_static`, SRS-REQ-049) and **ETH** (Cadence GEM **identification**
-  via the read-only Module ID, SRS-REQ-036). GPIO/SERIAL/MEM go through their HAL
-  backends; the ETH check is an MMIO identification (the full GEM driver/DMA path
-  is host-tested, `test_gem`). Renode checks: `hal_gpio`/`hal_serial`/`hal_mem`/
-  `hal_eth=PASS` folded into the marker. Remaining M11 classes: NET/TCP-IP, TSN,
-  CAN, SPI, I2C, PCIE, SPACEWIRE, BLOCK, NVM.
+- **M11 in progress (Renode HAL coverage, OBJ-19):** **4/13 peripheral-bound**
+  classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
+  (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049) and
+  **ETH** (Cadence GEM **identification** via the read-only Module ID,
+  SRS-REQ-036). Additionally a **NET `FF_NetStack_t` contract check** through the
+  reference loopback stack (SRS-REQ-039; in-process — **not** peripheral-bound).
+  GPIO/SERIAL/MEM go through their HAL backends; the ETH check is an MMIO
+  identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net=PASS`. Remaining
+  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/CAN/SPI/I2C/PCIE/SPACEWIRE/BLOCK/NVM.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART and the
@@ -169,3 +171,4 @@ occasion; prefer Docker.
 | 0.6 | 2026-10-11 | frick-fsw | M11 GPIO + SERIAL + MEM done (SRS-REQ-047/048/049); counts 87/50/23/14 |
 | 0.7 | 2026-10-11 | frick-fsw | PUS-C ASN.1 default backend (SRS-REQ-050, ADR-0016); M14/M15 added; counts 94/54/26/14 |
 | 0.8 | 2026-10-11 | frick-fsw | M11 ETH HAL class exercised in Renode (`hal_eth=PASS`) |
+| 0.9 | 2026-10-11 | frick-fsw | M11 NET `FF_NetStack_t` contract check exercised in Renode (`hal_net=PASS`) |

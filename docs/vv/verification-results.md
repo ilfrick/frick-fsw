@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.21                                   |
+| Revision                          | 0.22                                   |
 | Date                              | 2026-10-10                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -33,6 +33,7 @@ artifacts (no external state).
 | Static RAM pool + DMA + Renode DDR (M4/M11), 2026-10-11 | PASS (Debug) | PASS (14/14; `test_mem` 20 checks) | PASS (`lake build` 21/21) | PASS (87 reqs / 50 srs / 23 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_gpio`/`hal_serial`/`hal_mem=PASS`) | Bounded, heap-free `FF_MemPool_t` (bump allocator) + reference `FF_Dma_t` (identity translation; cache hooks are a seam = GAP-A5); host unit test; the pool is exercised over the in-image RAM (emulated DDR) in the Renode run (milestone M11). Requirement SRS-REQ-049. |
 | PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050), 2026-10-11 | PASS (Debug) | PASS (14/14) | PASS (`lake build` 21/21) | PASS (94 reqs / 54 srs / 26 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`) | `FF_PusBackendN7` is the **default** PUS backend (ADR-0016): ASN1SCC-generated `asn1-pusc-lib` types + N7/ESA ECSS Annex B.1 CRC; build-time generation (`make pus-asn1`, T19); host unit test `test_pus` asserts the N7 backend is byte-identical to the reference (36 checks); fallback to open backend with a warning when the generated code is absent. Deep per-service codecs = M15. |
 | M11 ETH HAL class in Renode (SRS-REQ-036), 2026-10-11 | PASS (Debug) | PASS (14/14) | PASS (`lake build` 21/21) | PASS (94 reqs / 54 srs / 26 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_eth=PASS`) | The Renode functional test identifies the emulated Cadence GEM via its read-only Module ID register (`hal_eth=PASS`), in addition to GPIO/SERIAL/MEM; the full GEM DMA/link path remains host-tested (`test_gem`) + GAP-A5 (M11). |
+| M11 NET HAL class in Renode (SRS-REQ-039), 2026-10-11 | PASS (Debug) | PASS (14/14) | PASS (`lake build` 21/21) | PASS (94 reqs / 54 srs / 26 sss / 14 gap, 51 theorems, 12 CI claims) | PASS (6 apps) | clang-format clean | **REAL** (`make renode` -> `RENODE_TEST: PASS`, incl. `hal_net=PASS`) | The Renode functional test performs a socket round trip through the pluggable `FF_NetStack_t` contract using the reference loopback stack (`hal_net=PASS`), in addition to GPIO/SERIAL/MEM/ETH (M11). |
 
 ## v0.1.0 baseline notes
 
@@ -348,3 +349,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.19 | 2026-10-11 | frick-fsw | M4/M11: static RAM pool + DMA helper + host unit test (14/14) + Renode DDR check (`hal_mem=PASS`); SRS-REQ-049 |
 | 0.20 | 2026-10-11 | frick-fsw | PUS-C ASN.1 (N7/ESA) default backend (SRS-REQ-050, ADR-0016, build-time generation T19); host 14/14 + Renode PASS |
 | 0.21 | 2026-10-11 | frick-fsw | M11: ETH HAL class exercised in Renode (`hal_eth=PASS`, SRS-REQ-036) |
+| 0.22 | 2026-10-11 | frick-fsw | M11: NET HAL class (pluggable TCP/IP, loopback stack) exercised in Renode (`hal_net=PASS`, SRS-REQ-039) |

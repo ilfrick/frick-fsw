@@ -229,6 +229,11 @@ change. All dates UTC, project language English (norm N2).
   identifies the emulated Cadence GEM via its read-only Module ID register
   (`hal_eth=PASS`), in addition to GPIO/SERIAL/MEM (SRS-REQ-036; the full GEM
   DMA/link path stays host-tested + GAP-A5).
+- **M11: NET `FF_NetStack_t` contract check in the Renode run.** The functional
+  test performs a socket round trip through the pluggable network-stack contract
+  using the reference loopback stack (`hal_net=PASS`); it is a contract/behaviour
+  check (in-process), **not** a binding to an emulated peripheral (so M11 stays
+  4/13 peripheral-bound: GPIO/SERIAL/MEM/ETH). SRS-REQ-039.
 - **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
   of every loop, compare declared objectives + adherence to N1-N19 with the actual
   implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.
