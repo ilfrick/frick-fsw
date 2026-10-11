@@ -375,6 +375,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | NOR/QSPI MTD backend — R2 V&V review | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r2-review.md |
 | NOR/QSPI MTD backend — R4 docs review | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r4-review.md |
 | NOR/QSPI MTD backend — PA review (N20) | PA (independent) | 2026-10-11 | REJECTED (Major F1 process) -> fixed | docs/reviews/2026-10-11-mtd-pa-review.md |
+| MTD — PA delta review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-pa-delta-review.md |
+| MTD (QSPI) — R1 delta review | R1 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r1-delta-review.md |
+| MTD — R4 delta review | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-r4-delta-review.md |
+| MTD — PA final review | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-mtd-pa-final-review.md |
 
 ## History
 

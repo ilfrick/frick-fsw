@@ -93,6 +93,10 @@
 | 2026-10-11 | NOR/QSPI MTD backend — V&V review | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS | 2026-10-11-mtd-r2-review.md |
 | 2026-10-11 | NOR/QSPI MTD backend — docs review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-mtd-r4-review.md |
 | 2026-10-11 | NOR/QSPI MTD backend — PA review (N20) | PA (Senior SW PA engineer) | REJECTED (Major F1 process + QSPI) -> fixed | 2026-10-11-mtd-pa-review.md |
+| 2026-10-11 | MTD — PA delta review (N12/N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Major closed) | 2026-10-11-mtd-pa-delta-review.md |
+| 2026-10-11 | MTD (QSPI) — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS | 2026-10-11-mtd-r1-delta-review.md |
+| 2026-10-11 | MTD — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS | 2026-10-11-mtd-r4-delta-review.md |
+| 2026-10-11 | MTD — PA final review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (N20 satisfied) | 2026-10-11-mtd-pa-final-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in
