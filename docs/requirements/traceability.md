@@ -17,8 +17,9 @@ document is regenerated/reviewed in the same commit (norms N8/N11).
 
 Counts (current): SRS = 56, SSS = 27, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
-is reported in CI but not claimed by any requirement, norm N1). Four of the
-requirements (SRS-REQ-045/046/051/052/053/054, SSS-REQ-022/023/024/025/026/027) are **planned** (M12..M16): they
+is reported in CI but not claimed by any requirement, norm N1). Six of the
+requirements (SRS-REQ-045/046/051/052/053/054 with their SSS parents
+SSS-REQ-022/023/024/025/026/027) are **planned** (M12..M16): they
 are documented-only, with `ci:docs` as evidence until their implementation lands.
 
 ## 1. Top-down matrix (SSS -> SRS)

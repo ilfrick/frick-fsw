@@ -81,6 +81,26 @@ static void test_nvm(void)
     FF_TEST_ASSERT(g_drv.nvm.read(2u, out, 4u, &len) == FF_SUCCESS);
     FF_TEST_ASSERT(len == 4u);
 
+    /* Maximum legal value (31 bytes) round-trips. */
+    {
+        uint8_t big[FF_NVM_MAX_VALUE];
+        uint8_t big_out[FF_NVM_MAX_VALUE];
+        for (uint16_t i = 0u; i < FF_NVM_MAX_VALUE; i++) {
+            big[i] = (uint8_t)i;
+        }
+        memset(big_out, 0, sizeof(big_out));
+        FF_TEST_ASSERT(g_drv.nvm.write(1u, big, FF_NVM_MAX_VALUE) == FF_SUCCESS);
+        FF_TEST_ASSERT(g_drv.nvm.read(1u, big_out, sizeof(big_out), &len) == FF_SUCCESS);
+        FF_TEST_ASSERT(len == FF_NVM_MAX_VALUE);
+        FF_TEST_ASSERT(memcmp(big, big_out, FF_NVM_MAX_VALUE) == 0);
+    }
+
+    /* A corrupt length byte (> max) is clamped to the maximum slot payload. */
+    g_mem.mem[FF_NVM_SLOT_SIZE] = 200u; /* id 1 length byte, out of range */
+    FF_TEST_ASSERT(g_drv.nvm.read(1u, out, sizeof(out), &len) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(g_drv.nvm.read(1u, out, FF_NVM_MAX_VALUE, &len) == FF_SUCCESS);
+    FF_TEST_ASSERT(len == FF_NVM_MAX_VALUE);
+
     /* MMIO self-test. */
     FF_TEST_ASSERT(FF_NvmMpfsSelfTest(&g_drv) == FF_SUCCESS);
     FF_TEST_ASSERT(FF_NvmMpfsSelfTest(NULL) == FF_INVALID_ARGUMENT);

@@ -31,6 +31,8 @@ typedef struct
 #define FF_NVM_MAX_IDS 32u
 #define FF_NVM_SLOT_SIZE 32u /* bytes per id: 1 length byte + up to 31 payload */
 #define FF_NVM_MAX_VALUE (FF_NVM_SLOT_SIZE - 1u)
+/* Scratch offset used by the MMIO self-test, outside the parameter slot table. */
+#define FF_NVM_SCRATCH_OFF (FF_NVM_MAX_IDS * FF_NVM_SLOT_SIZE)
 
 typedef struct
 {

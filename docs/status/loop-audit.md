@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-11                             |
 | Baseline commit                   | e1def89 (audited revision)             |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
@@ -38,7 +38,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | **M15 in-house fundamental PUS-C set (+ CFDP + VFS)** | OBJ-23 (fundamental PUS-C behaviour + CFDP + virtual filestore + S23) | planned | none yet | tracked: M15 (after M14) |
 | **M16 in-house OBCP engine development** | OBJ-24 (ECSS-compliant OBCP engine behind `FF_Obcp_t`, after M12) | planned | none yet | tracked: M16 (after M12) |
 | OBJ-05 pluggable TCP/IP+TSN | Tuxera/lwIP/libbsd/custom | lwIP integrated; Tuxera = user adapter (documented) | none | closed (documented) |
-| **PUS-C ASN.1 (N7/ESA) as default** | integrate N7/ESA PUS-C library as the open/default PUS basis | **only fetched (`third_party/asn1-pusc-lib`); NOT wired into build/runtime; default stays the local CCSDS "open" backend** | **GAP (see §3)** | **reconcile this loop** (wire as default) |
+| **PUS-C ASN.1 (N7/ESA) as default** | integrate N7/ESA PUS-C library as the open/default PUS basis | **reconciled** (build-time generation; `FF_PusBackendN7` default, ADR-0016); see §3 | none | closed (M4/now) |
 
 ## 2. Rules audit (N1-N20)
 
@@ -155,3 +155,4 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.3 | 2026-10-11 | frick-fsw | N19 reconciliation: add the M15 objective row, refresh M14 wording, correct the M11 pending-class count (9) to match development-plan/roadmap |
 | 0.4 | 2026-10-11 | frick-fsw | Add the M16 objective row (in-house OBCP engine development) |
 | 0.5 | 2026-10-11 | frick-fsw | Link the sprint plan (FRICK-PLAN-0002); track the ECSS traceability NC PA-67-01 and the M16 review NCs in the dispositions summary |
+| 0.6 | 2026-10-11 | frick-fsw | M11 5/13 + NVM done (SRS-REQ-055); counts 97/56/27/14; PUS-C ASN.1 row marked reconciled |

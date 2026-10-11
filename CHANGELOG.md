@@ -12,7 +12,7 @@ change. All dates UTC, project language English (norm N2).
 - **M4/M11 - reference eNVM NVM backend (SRS-REQ-055).** `src/drivers/nvm/mpfs/ff_nvm_mpfs.{c,h}`
   implements the HAL memory contract `FF_Nvm_t` (key/value by id) over a bounded
   eNVM slot table (32 ids x 32-byte slots); host unit test `test_nvm` (mock MMIO,
-  14 checks) and a Renode MMIO presence check (`hal_nvm=PASS` on the emulated SoC).
+  36 checks) and a Renode MMIO presence check (`hal_nvm=PASS` on the emulated SoC).
   M11 peripheral-bound HAL coverage 4/13 -> 5/13.
 
 ### Fixed

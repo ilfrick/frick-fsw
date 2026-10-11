@@ -51,8 +51,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 51/56 (91.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 55/56 (98.2%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 23/26 (88.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Design traceability | 56/56 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
+| Review streams closed | 24/28 (85.7%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 

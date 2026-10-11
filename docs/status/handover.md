@@ -104,7 +104,7 @@ occasion; prefer Docker.
   GPIO/SERIAL/MEM/NVM go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
   checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm=PASS`. Remaining
-  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/CAN/SPI/I2C/PCIE/SPACEWIRE/BLOCK/NVM.
+  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/CAN/SPI/I2C/PCIE/SPACEWIRE/BLOCK.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART and the

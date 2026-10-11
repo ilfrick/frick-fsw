@@ -17,11 +17,6 @@ static uint32_t nvm_off(uint16_t id)
     return (uint32_t)id * FF_NVM_SLOT_SIZE;
 }
 
-static FF_Status_t nvm_init(void)
-{
-    return (g_nvm != NULL) ? FF_SUCCESS : FF_INVALID_ARGUMENT;
-}
-
 static FF_Status_t nvm_write(uint16_t id, const uint8_t *buf, uint16_t len)
 {
     uint32_t off;
@@ -81,10 +76,10 @@ FF_Status_t FF_NvmMpfsSelfTest(FF_NvmMpfs_t *n)
     if (n == NULL) {
         return FF_INVALID_ARGUMENT;
     }
-    /* Scratch round trip through the last slot (not part of the value space). */
-    n->bus.write8(n->bus.ctx, nvm_off(FF_NVM_MAX_IDS - 1u), 1u);
-    n->bus.write8(n->bus.ctx, nvm_off(FF_NVM_MAX_IDS - 1u) + 1u, 0xA5u);
-    v = n->bus.read8(n->bus.ctx, nvm_off(FF_NVM_MAX_IDS - 1u) + 1u);
+    /* Scratch round trip, outside the parameter slot table (id space untouched). */
+    n->bus.write8(n->bus.ctx, FF_NVM_SCRATCH_OFF, 1u);
+    n->bus.write8(n->bus.ctx, FF_NVM_SCRATCH_OFF + 1u, 0xA5u);
+    v = n->bus.read8(n->bus.ctx, FF_NVM_SCRATCH_OFF + 1u);
     return (v == 0xA5u) ? FF_SUCCESS : FF_ERROR;
 }
 
