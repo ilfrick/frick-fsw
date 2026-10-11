@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.3                                  |
+| Revision                          | 0.3.6                                  |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -34,7 +34,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T10 | RTEMS toolchain bootstrap (open RTEMS project) | `tools/scripts/setup_rtems.sh`  | open-source RTEMS 6.2 cross toolchain + BSP | upstream-tested + CM       | internal                                | QUALIFIED |
 | T11 | CI workflows (GH Actions / Gitea)       | `.github/workflows`, `.gitea/workflows` | pipeline evidence `ci:*` | reviewed + CM              | internal                                | QUALIFIED |
 | T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
-| T13 | Metrics panel generator                 | `tools/scripts/metrics.py`    | README coverage + V&V panel   | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
+| T13 | Status-panel generator (completion + coverage + semaphores) | `tools/scripts/metrics.py`    | README completion/coverage panel + V&V semaphores | reviewed + CM | internal (R2 on changes); R2 source review FRICK-REVIEW-0070 + PA approval FRICK-REVIEW-0068/0069/0071 | QUALIFIED |
 | T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`      | MISRA findings report         | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
@@ -67,6 +67,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T8               | `ci:static-analysis` |
 | T10              | `ci:rtems-cross-build` |
 | T11              | `ci:ci-pipeline`, `ci:dual-build`, `ci:trace`, `ci:docs`, `ci:host-build`, `ci:simulator-smoke` |
+| T13              | README completion/coverage panel (CI currency gate: `make coverage` + `metrics.py --check`; the non-coverage panel must match, coverage-row drift is warned) |
 | T17              | `ci:renode` (Renode V&V environment; functional run + HAL checks) |
 | T19              | `ci:pus-asn1` / PUS-C ASN.1 generation for `ci:renode` (SRS-REQ-050) |
 
@@ -98,3 +99,6 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | 0.3.1 | 2026-10-11 | frick-fsw | Re-qualification: T17 now also covers the Renode testware `src/apps/app_renode_test.c` (HAL checks), and the console is captured to a container-local path + `docker cp` (robustness) |
 | 0.3.2 | 2026-10-11 | frick-fsw | Evidence-claims mapping adds T17 (`ci:renode`) and T19 (PUS-C ASN.1); header date refreshed (PA-11) |
 | 0.3.3 | 2026-10-11 | frick-fsw | Re-qualification after the N12 delta: T3 `test_netloop` grows to 328 checks (boundary/negative paths, exhaustion, full-ring partial send, cross-socket duplicate bind) |
+| 0.3.4 | 2026-10-11 | frick-fsw | Re-qualification: T13 `metrics.py` now also computes the completion/metrics panel (sprints, SSS/SRS/design/review completion + coverage) rendered in README; definitions under PA review (N20) |
+| 0.3.5 | 2026-10-11 | frick-fsw | T13: single consolidated panel; PA findings F1-F3 addressed (strict verification, Lean coverage restored, review-stream keying); CI currency gate added; PA approval FRICK-REVIEW-0068 |
+| 0.3.6 | 2026-10-11 | frick-fsw | T13: address PA delta D1 + R2 source-review Minors (canon M1/M10, derived coverage %, proxy label, sprint source, gate wording); cite FRICK-REVIEW-0070; PA final approval FRICK-REVIEW-0071 |

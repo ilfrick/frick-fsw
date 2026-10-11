@@ -348,6 +348,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M16 documentation review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (S0) | docs/reviews/2026-10-11-m16-docs-r4-review.md |
 | M16 PA review (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (S0) | docs/reviews/2026-10-11-m16-pa-review.md |
 | ECSS traceability (SDD design matrices) | PA (independent) | 2026-10-11 | NC PA-67-01 (Minor) | docs/reviews/2026-10-11-ecss-traceability-pa-review.md |
+| Completion-metrics panel — PA approval (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (F1-F5) | docs/reviews/2026-10-11-metrics-panel-pa-review.md |
+| Completion-metrics panel — PA delta approval (N12/N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (F1-F5 closed) | docs/reviews/2026-10-11-metrics-panel-pa-delta-review.md |
+| Completion-metrics tool T13 source review (N10) | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS | docs/reviews/2026-10-11-metrics-tool-r2-review.md |
+| Completion-metrics panel — PA final approval (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (owner approval satisfied) | docs/reviews/2026-10-11-metrics-panel-pa-approval.md |
 
 ## History
 

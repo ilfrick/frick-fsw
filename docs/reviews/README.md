@@ -69,6 +69,10 @@
 | 2026-10-11 | M16 documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (Minors to close in S0) | 2026-10-11-m16-docs-r4-review.md |
 | 2026-10-11 | M16 PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Minors to close in S0) | 2026-10-11-m16-pa-review.md |
 | 2026-10-11 | ECSS traceability question (SDD in-source traceability) | PA (Senior SW PA engineer) | NC PA-67-01 (Minor) opened; resolve S0/S1 | 2026-10-11-ecss-traceability-pa-review.md |
+| 2026-10-11 | Completion-metrics panel (README) — PA approval | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (F1-F5 to close) | 2026-10-11-metrics-panel-pa-review.md |
+| 2026-10-11 | Completion-metrics panel — PA delta approval | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (F1-F5 closed; D1 minor + comments) | 2026-10-11-metrics-panel-pa-delta-review.md |
+| 2026-10-11 | Completion-metrics tool T13 — source review (N10) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (R2-01..R2-06) | 2026-10-11-metrics-tool-r2-review.md |
+| 2026-10-11 | Completion-metrics panel — PA final approval | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (owner approval satisfied) | 2026-10-11-metrics-panel-pa-approval.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

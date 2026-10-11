@@ -9,6 +9,16 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Completion-metrics panel (README).** `tools/scripts/metrics.py` (V&V tool
+  T13) now computes and renders, **above the semaphores**, a completion panel:
+  sprint completion (`docs/planning/sprint-plan.md`), SSS/SRS requirements
+  delivered, design traceability (SDD), verification coverage, review closure and
+  code coverage (statement/function), with a note explaining each metric and the
+  ECSS-class-B context. It is refreshed every cycle (norms N8/N11/N19). The metric
+  definitions were reviewed for approval by the Senior SW PA (norms N20/N12):
+  FRICK-REVIEW-0068/0069/0071 (PA, APPROVED WITH COMMENTS) and the T13 source
+  review FRICK-REVIEW-0070 (R2, N10); a CI currency gate (`metrics.py --check`)
+  keeps the panel current.
 - **Milestone M16 — In-house OBCP engine development.** Added a milestone
   (objective OBJ-24; SSS-REQ-027 / SRS-REQ-054) to develop, within the project, an
   ECSS-compliant OBCP engine behind `FF_Obcp_t` (bounded resources, isolation,

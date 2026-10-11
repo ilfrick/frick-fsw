@@ -28,7 +28,6 @@ and the milestone/objective plan.
 - [Architecture](#architecture)
 - [Development and V&V process (V-model)](#development-and-vv-process-v-model)
 - [Quickstart](#quickstart)
-- [Requirements set (current)](#requirements-set-current)
 - [Documentation index](#documentation-index)
 - [Extending the framework](#extending-the-framework)
 - [Repository layout](#repository-layout)
@@ -39,11 +38,33 @@ and the milestone/objective plan.
 
 <!-- METRICS-BEGIN -->
 
-## Status panel - coverage and review/V&V traffic lights
+## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (norm N8/N10); last updated 2026-10-11.
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-11. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the user - **🔴 (RED)** failures.
+
+### Completion
+
+| Metric | Value | Definition |
+| ------ | ----- | ---------- |
+| Sprints completed | 0/26 (0.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| SSS requirements satisfied | 21/27 (77.8%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 49/55 (89.1%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 2/55 (3.6%) | SRS referenced in the SDD (proxy for ECSS design DRD Annex F) - open NC `PA-67-01` |
+| Review streams closed | 21/22 (95.5%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+
+### Coverage
+
+| Metric | Value | Definition |
+| ------ | ----- | ---------- |
+| Requirements in manifest | 96 (srs=55, sss=27, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 96/96 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 82/96 (85.4%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/96 (20.8%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 1917/2920 (65.7%) | gcov |
+| Code function coverage | 257/302 (85.1%) | gcov |
+| Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
 
@@ -68,15 +89,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 Issues deferred by the user: none.
 
-### Coverage
-
-| Metric | Value |
-| ------ | ----- |
-| Requirements in manifest | 96 (srs=55, sss=27, gap=14) |
-| Requirements with implementation | 96/96 |
-| Test coverage (requirements with tests) | 82/96 (85.4%) |
-| Formal verification coverage (requirements with Lean) | 20/96 (20.8%) |
-| Code line coverage | 1917/2920 (65.7%) - functions 257/302 |
+> **Metrics note.** ECSS does not fix universal numeric thresholds; the figures above are the completion/coverage indicators commonly adopted for software of this criticality, computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD does not yet carry the requirements->design matrices (open NC `PA-67-01`). Common practice at criticality B is **100% statement + branch/decision coverage with justified exceptions**; the current statement coverage (65.7%) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
 
 <!-- METRICS-END -->
 
@@ -295,13 +308,6 @@ make rtems-toolchain           # build the open RTEMS 6.2 toolchain image
 make rtems-docker              # cross compile inside the image (no host toolchain)
 make rtems
 ```
-
-## Requirements set (current)
-
-SRS = 55 · SSS = 27 · GAP (to class A) = 14 · Lean theorems = 51. The generated
-status panel above is authoritative; the single source of truth is
-`docs/requirements/traceability.yaml` (mirrored in
-`docs/requirements/traceability.md`). See `docs/requirements/`.
 
 ## Repository layout
 
