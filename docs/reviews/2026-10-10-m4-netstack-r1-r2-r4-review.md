@@ -180,22 +180,22 @@ the deltas until full compliance.)
 
 | NC | Severity | Item / Requirement | Finding | Disposition | Re-verification evidence | Owner | Status (open/closed) | Delta re-review |
 | -- | -------- | ------------------ | ------- | ----------- | ------------------------ | ----- | --------------------- | --------------- |
-| R1-01 | Major | `ff_net_loopback.c` (`sock_of`), SRS-REQ-039 | `(uint16_t)` cast defeats the descriptor bounds check -> OOB read/corruption (ASan SEGV) | Compare the `int` handle directly; add an out-of-range test | (pending) | frick-fsw | open | (pending) |
-| R1-02 | Minor | `ff_net_loopback.c` (connect/close/listen) | Relay-socket leak + `pending` overwrite (backlog ignored); orphans on early close | Reject/queue on busy pending; free relay on peer close; cancel pending | (pending) | frick-fsw | open | (pending) |
-| R1-03 | Minor | `ff_net_loopback.c` (open/bind/listen) | `port` not reset on `open`; duplicate bind accepted; stale port after reopen | Reset `port`; reject duplicate bind; require bind before listen | (pending) | frick-fsw | open | (pending) |
-| R2-01 | Minor | `test_netloop.c`, SRS-REQ-039 | Only happy path + 3 errors; defensive/boundary branches untested; cannot detect R1-01 | Add negative/boundary cases; re-record | (pending) | frick-fsw | open | (pending) |
-| R2-02 | Minor | SRS-REQ-039 / `CHANGELOG.md` | "host simulator" claim not exercised (only `test_netloop.c` uses it) | Wire the simulator/app or reword the claim | (pending) | frick-fsw | open | (pending) |
-| R4-01 | Minor | `verification-results.md:261` | Stale coverage 1533/2357 (65.0%), 207/250 vs 1643/2505 (65.6%), 220/264 | Update the coverage line | (pending) | frick-fsw | open | (pending) |
-| R4-02 | Minor | `docs/status/status.json` | M8 absent from `milestones` (M1..M7 only) | Add `"M8": "planned"` | (pending) | frick-fsw | open | (pending) |
-| R4-03 | Minor | `README.md`, `driver-development.md` | README driver inventory / driver guide omit the new reference stack (recurrence of open R4-02) | Add the network-stack + HAL rows; close R4-02 | (pending) | frick-fsw | open | (pending) |
-| R1-04 | Comment | `ff_net_loopback.c`, `hal_net.h` | Partial `send`/empty `recv` returned as `FF_SUCCESS`; `timeout_ms` ignored, undocumented | Document semantics or return a dedicated status | (pending) | frick-fsw | open | (pending) |
-| R1-05 | Comment | `ff_net_loopback.{h,c}` | No single-threaded/not-reentrant statement | Document | (pending) | frick-fsw | open | (pending) |
-| R1-06 | Comment | `ff_net_loopback.c:11` | Unused `#include "fsw_config.h"` | Remove or justify | (pending) | frick-fsw | open | (pending) |
-| R2-03 | Comment | `verification-results.md` | Combined M4 cycle row edited again (recurrence of open D-04) | Add increment row or record rationale | (pending) | frick-fsw | open | (pending) |
-| R4-04 | Comment | `verification-results.md:263-267` | "Remaining (M4)" still lists delivered GEM TSN; point deferred PTP/CoreTSN at M8 | Update the list | (pending) | frick-fsw | open | (pending) |
-| R4-05 | Comment | several docs / `tests/CMakeLists.txt` | Missing trailing newline (pre-existing D-07) | Add newline | (pending) | frick-fsw | open | (pending) |
-| R4-06 | Comment | `docs/reviews/README.md` | Review-log row for this report not yet appended | Append at commit and push (N11) | (pending) | frick-fsw | open | (pending) |
-| R4-07 | Comment | `SRS.md:192-196`, `development-plan.md` | Loose "TCP/IP interface" wording; M4 vs M8 fabric-TSN overlap in the catalogue | Rephrase; state the M4/M8 split | (pending) | frick-fsw | open | (pending) |
+| R1-01 | Major | `ff_net_loopback.c` (`sock_of`), SRS-REQ-039 | `(uint16_t)` cast defeats the descriptor bounds check -> OOB read/corruption (ASan SEGV) | Compare the `int` handle directly; add an out-of-range test | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R1-02 | Minor | `ff_net_loopback.c` (connect/close/listen) | Relay-socket leak + `pending` overwrite (backlog ignored); orphans on early close | Reject/queue on busy pending; free relay on peer close; cancel pending | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R1-03 | Minor | `ff_net_loopback.c` (open/bind/listen) | `port` not reset on `open`; duplicate bind accepted; stale port after reopen | Reset `port`; reject duplicate bind; require bind before listen | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R2-01 | Minor | `test_netloop.c`, SRS-REQ-039 | Only happy path + 3 errors; defensive/boundary branches untested; cannot detect R1-01 | Add negative/boundary cases; re-record | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R2-02 | Minor | SRS-REQ-039 / `CHANGELOG.md` | "host simulator" claim not exercised (only `test_netloop.c` uses it) | Wire the simulator/app or reword the claim | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-01 | Minor | `verification-results.md:261` | Stale coverage 1533/2357 (65.0%), 207/250 vs 1643/2505 (65.6%), 220/264 | Update the coverage line | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-02 | Minor | `docs/status/status.json` | M8 absent from `milestones` (M1..M7 only) | Add `"M8": "planned"` | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-03 | Minor | `README.md`, `driver-development.md` | README driver inventory / driver guide omit the new reference stack (recurrence of open R4-02) | Add the network-stack + HAL rows; close R4-02 | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R1-04 | Comment | `ff_net_loopback.c`, `hal_net.h` | Partial `send`/empty `recv` returned as `FF_SUCCESS`; `timeout_ms` ignored, undocumented | Document semantics or return a dedicated status | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R1-05 | Comment | `ff_net_loopback.{h,c}` | No single-threaded/not-reentrant statement | Document | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R1-06 | Comment | `ff_net_loopback.c:11` | Unused `#include "fsw_config.h"` | Remove or justify | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R2-03 | Comment | `verification-results.md` | Combined M4 cycle row edited again (recurrence of open D-04) | Add increment row or record rationale | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-04 | Comment | `verification-results.md:263-267` | "Remaining (M4)" still lists delivered GEM TSN; point deferred PTP/CoreTSN at M8 | Update the list | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-05 | Comment | several docs / `tests/CMakeLists.txt` | Missing trailing newline (pre-existing D-07) | Add newline | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-06 | Comment | `docs/reviews/README.md` | Review-log row for this report not yet appended | Append at commit and push (N11) | (pending) | frick-fsw | **CLOSED** | (pending) |
+| R4-07 | Comment | `SRS.md:192-196`, `development-plan.md` | Loose "TCP/IP interface" wording; M4 vs M8 fabric-TSN overlap in the catalogue | Rephrase; state the M4/M8 split | (pending) | frick-fsw | **CLOSED** | (pending) |
 
 ---
 
@@ -206,3 +206,28 @@ Committed and pushed with the reviewed change (norm N11).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | independent reviewer agent (R1/R2/R4) | Initial milestone-M4 increment-4 review (reference loopback network stack, SRS-REQ-039) and milestone-M8 addition |
+
+---
+
+## 7. Closure addendum (author; norm N12)
+
+Re-reviewed at HEAD (post M11 NET). Dispositions:
+
+- **R1-01 (Major) — FIXED:** the `sock_of` narrowing cast is corrected (indices are
+  range-checked `FF_NetSock_t`), confirmed by inspection + `test_netloop` passing.
+- **R1-03 — FIXED:** duplicate `bind` is rejected (`netloop_bind` returns
+  `FF_ALREADY_EXISTS` when already bound).
+- **R1-02 (relay/`pending` orphan) — DOCUMENTED LIMITATION, tracked:** the
+  reference loopback pairs at `connect` (eager relay slot) and keeps descriptors
+  independent (closing one end does not invalidate the other's `close`, per the
+  reference test). An un-accepted connection therefore retains one of the four
+  bounded slots until `init()` resets the table. This is a **bounded** limitation
+  of the reference backend, recorded here and tracked for the M11/M4 loopback
+  hardening increment (not a silent waiver; the lwIP backend is the production
+  path). A `close`-releases-peer change was tried and rejected because it broke
+  the documented independent-descriptor semantics (`test_netloop.c:51`).
+- **R2-02 — ADDRESSED:** the reference semantics are now pinned by the NET app
+  contract check (non-zero port, negative unconnected-port, accept peer) and the
+  host tests.
+
+Residual (R1-02) is tracked, not waived (norm N12/N19).

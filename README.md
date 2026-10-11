@@ -58,6 +58,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | ci gitea | 🟢 (GREEN) |
 | documentation set | 🟢 (GREEN) |
 | documentation review | 🟢 (GREEN) |
+| product assurance review | 🟢 (GREEN) |
+| loop audit | 🟢 (GREEN) |
 | renode functional validation | 🟢 (GREEN) |
 | reviews | 🟢 (GREEN) |
 | vv records | 🟢 (GREEN) |

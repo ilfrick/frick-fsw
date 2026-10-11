@@ -11,7 +11,7 @@
 
 At the start of every development/verification loop (norm **N19**) this document
 compares the **declared objectives** (milestones/OBJs) and **adherence to the
-non-derogable rules N1-N19** against the **actual implementation**, and records
+non-derogable rules N1-N20** against the **actual implementation**, and records
 each gap with a disposition (closed in the loop, or tracked with owner and
 milestone). No gap is left silent.
 
@@ -38,7 +38,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | OBJ-05 pluggable TCP/IP+TSN | Tuxera/lwIP/libbsd/custom | lwIP integrated; Tuxera = user adapter (documented) | none | closed (documented) |
 | **PUS-C ASN.1 (N7/ESA) as default** | integrate N7/ESA PUS-C library as the open/default PUS basis | **only fetched (`third_party/asn1-pusc-lib`); NOT wired into build/runtime; default stays the local CCSDS "open" backend** | **GAP (see §3)** | **reconcile this loop** (wire as default) |
 
-## 2. Rules audit (N1-N19)
+## 2. Rules audit (N1-N20)
 
 | Rule | Requirement | Actual | Gap | Disposition |
 | --- | --- | --- | --- | --- |
@@ -61,6 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N17 | documentation review (R4) | per change | none | closed |
 | N18 | Renode functional validation | **in force** (`make renode` PASS) | per-commit SKIP proxy (no image) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
+| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | introduced now (c5f51bc) | none | closed |
 
 ## 3. The PUS-C ASN.1 gap: root cause and reconciliation
 

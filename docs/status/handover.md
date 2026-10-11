@@ -18,7 +18,7 @@ every significant increment (norm N8/N16).
 Start a fresh session in the repository root and use a kickoff prompt like:
 
 > "Read `AGENTS.md`, `docs/rules.md` and `docs/status/handover.md`; then continue
-> the frick-fsw roadmap from the handover's §5 next steps, respecting norms N1-N18
+> the frick-fsw roadmap from the handover's §5 next steps, respecting norms N1-N20
 > (full cycle + independent review + trace + Renode N18), and keep pushing to
 > both remotes."
 
@@ -40,7 +40,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 
 ## 2. Non-derogable rules
 
-`docs/rules.md` (N1-N18). Key gates before every commit/push:
+`docs/rules.md` (N1-N20). Key gates before every commit/push:
 
 1. `make build` + `make test` green (native).
 2. `bash tools/scripts/trace.py docs/requirements/traceability.yaml` PASS.
@@ -82,7 +82,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit 2fbdeec)
+## 4. Current state (as of commit c5f51bc)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross

@@ -16,7 +16,7 @@
     "M8": "planned",
     "M9": "in progress",
     "M10": "planned",
-    "M11": "planned",
+    "M11": "in progress",
     "M12": "planned",
     "M13": "planned",
     "M14": "planned",
@@ -32,6 +32,8 @@
     "ci_gitea": "green",
     "documentation_set": "green",
     "documentation_review": "green",
+    "product_assurance_review": "green",
+    "loop_audit": "green",
     "renode_functional_validation": "green",
     "reviews": "green",
     "vv_records": "green"

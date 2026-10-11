@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Document id                      | FRICK-REVIEW-XXXX                      |
 | Reviewer session                  | (independent agent, norm N9)           |
-| Reviewer profile                  | R1 (SW dev) / R2 (SW V&V) / R3 (Sys Eng) / R4 (SW documentation) |
+| Reviewer profile                  | R1 (SW dev) / R2 (SW V&V) / R3 (Sys Eng) / R4 (SW documentation) / PA (SW product assurance) |
 | Reference revision                | (commit or ref)                        |
 | Items under review                | (paths / documents / requirement ids)  |
 | Date                              | YYYY-MM-DD                             |
