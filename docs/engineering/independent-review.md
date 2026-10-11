@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-REVIEW-AGENTS-001                |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-10                             |
 | Applicable norms                  | N9, N10, N11, N14, N17                 |
 
@@ -29,6 +29,25 @@ profiles, creation instructions and scope are part of the repository so that
 any contributor, reviewer or CI can instantiate the same reviewer reliably.
 
 ## Profiles
+
+### Reviewer agents (Senior profiles)
+
+The reviewer agents are the five **Senior** persona documents maintained by the
+operator in `~/agents/*.md`, exposed as OpenCode subagents under
+`~/.config/opencode/agent/frick-aeronautics-space-*.md` (generated from those
+profiles). Every review is performed by the matching Senior agent, in an
+independent context:
+
+| Profile | Role | OpenCode agent |
+| ------- | ---- | -------------- |
+| R1 | Senior FSW / real-time / space software developer | `frick-aeronautics-space-fsw-engineer` |
+| R2 | Senior software V&V engineer | `frick-aeronautics-space-sw-vv-engineer` |
+| R3 | Senior avionics / systems engineer | `frick-aeronautics-space-avionics-systems-engineer` |
+| R4 | Senior SW documentation engineer | `frick-aeronautics-space-sw-documentation-engineer` |
+| PA | Senior SW product assurance engineer | `frick-aeronautics-space-sw-pa-engineer` |
+
+The profile blocks below are the repository-side summary of each role; the
+operator persona documents are the authoritative prompts.
 
 ### Profile R1 - Senior real-time / space / aeronautics / defense software developer
 
@@ -241,3 +260,4 @@ committed and pushed in the same cycle (norm N11).
 | 0.1 | 2026-10-10 | frick-fsw | Initial profiles R1/R2 per norm N9 |
 | 0.2 | 2026-10-10 | frick-fsw | Add NC resolution loop (norm N12); add profile R3 (Senior Systems Engineer, norm N14) |
 | 0.3 | 2026-10-10 | frick-fsw | Add profile R4 (Senior SW documentation reviewer, norm N17); independence table extended to R4 |
+| 0.4 | 2026-10-11 | frick-fsw | Map reviewer profiles to the five Senior OpenCode agents (`~/.config/opencode/agent/frick-aeronautics-space-*`, from `~/agents/*.md`); add SW PA profile (PA) |
