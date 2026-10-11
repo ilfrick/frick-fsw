@@ -2,9 +2,8 @@
  * frick-fsw - MSS QSPI NOR flash MTD driver unit tests (milestone M4)
  *
  * Exercises the byte-addressed NOR MTD contract (read/write/erase, sector-aligned
- * erase) on the host with an independent mock byte array - SRS-REQ-056. The same
- * driver is exercised against the emulated SoC MMIO in the Renode functional test
- * (milestone M11).
+ * erase) on the host with an independent mock byte array - SRS-REQ-056. The on-SoC
+ * QSPI check needs the board repl (`MPFS_QSPI` + `Micron_MT25Q`) - M11 follow-up.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -69,6 +68,12 @@ static void test_mtd(void)
     FF_TEST_ASSERT(g_drv.mtd.read(0u, NULL, 4u) == FF_INVALID_ARGUMENT);
     FF_TEST_ASSERT(g_drv.mtd.write(0u, NULL, 4u) == FF_INVALID_ARGUMENT);
     FF_TEST_ASSERT(g_drv.mtd.read(0u, out, 0u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(g_drv.mtd.write(0u, val, 0u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(g_drv.mtd.read(MOCK_MTD_SIZE + 1u, out, 1u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(g_drv.mtd.erase(MOCK_MTD_SIZE, 4096u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(FF_MtdMpfsSetup(&g_drv, &bus, (2u * 1024u * 1024u) + 4096u, 4096u) ==
+                   FF_INVALID_ARGUMENT); /* size > FF_MTD_MAX_SIZE */
+    FF_TEST_ASSERT(FF_MtdMpfsSetup(&g_drv, &bus, MOCK_MTD_SIZE, 4096u) == FF_SUCCESS);
 
     /* Erase is sector aligned; erasing sets 0xFF. */
     FF_TEST_ASSERT(g_drv.mtd.erase(1u, 4096u) == FF_INVALID_ARGUMENT); /* off unaligned */

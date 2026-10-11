@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.25                                   |
+| Revision                          | 0.26                                   |
 | Date                              | 2026-10-11                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -114,7 +114,7 @@ are documented-only, with `ci:docs` as evidence until their implementation lands
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
 | SRS-REQ-054 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - | In-house OBCP engine (planned, M16) |
 | SRS-REQ-055 | drivers/nvm/mpfs/ff_nvm_mpfs.c/h, config/platform/platform_mpfs.h | test_nvm.c, ci:renode | - | Reference eNVM NVM backend (M4/M11) |
-| SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h, config/platform/platform_mpfs.h | test_mtd.c, ci:renode | - | Reference NOR/QSPI MTD backend (M4/M11) |
+| SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending board repl) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -209,3 +209,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.23 | 2026-10-11 | frick-fsw | M16: SSS-REQ-027, SRS-REQ-054 (in-house OBCP engine); counts 55/27/14; complete the SSS summary (024-027) |
 | 0.24 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-055 reference eNVM NVM backend; counts 56/27/14 |
 | 0.25 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-056 reference NOR/QSPI MTD backend; counts 57/27/14 |
+| 0.26 | 2026-10-11 | frick-fsw | SRS-REQ-056 evidence corrected to host-only (on-SoC QSPI check tracked M11) |

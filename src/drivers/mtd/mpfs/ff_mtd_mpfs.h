@@ -4,8 +4,9 @@
  * Implements the HAL memory-technology-device contract (FF_Mtd_t: read/write/
  * erase, byte-addressed) for the Microchip PolarFire SoC MSS QSPI NOR flash, a
  * NOR/flash MTD used for configuration/patch storage. MMIO access is injected
- * (FF_MtdBus_t, byte-wide) so the register logic is testable on the host and
- * exercised on the emulated SoC in the Renode functional test (milestone M11).
+ * (FF_MtdBus_t, byte-wide) so the register logic is testable on the host. The
+ * on-SoC QSPI check needs the board repl (`MPFS_QSPI` + `Micron_MT25Q`) and the
+ * flash command path - M11 follow-up.
  *
  * NOR semantics: erase is sector-granular (off and len must be multiples of the
  * sector size) and sets bytes to 0xFF; a write requires the target to have been
@@ -47,8 +48,7 @@ FF_Status_t FF_MtdMpfsSetup(FF_MtdMpfs_t *m, const FF_MtdBus_t *bus, uint32_t si
                             uint32_t sector_size);
 
 /* MMIO scratch round trip used by the host unit test (not part of the HAL
- * contract). The Renode check is a read-presence check (the XIP window is
- * read-only in the model). */
+ * contract). No on-SoC Renode check yet (see the QSPI follow-up). */
 FF_Status_t FF_MtdMpfsSelfTest(FF_MtdMpfs_t *m);
 
 #endif /* FF_MTD_MPFS_H */

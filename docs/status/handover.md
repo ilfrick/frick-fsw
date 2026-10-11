@@ -60,7 +60,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (14/14) + trace + format
+# Host build + unit tests (18/18) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
 python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 98/57/27/14/51
@@ -123,11 +123,11 @@ occasion; prefer Docker.
 
 > Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). Current: S0
 > (close the open M16 reviews + ECSS NC PA-67-01), then S1 (M4/M11 HAL classes + M10
-> QEMU). NVM done; next classes: NOR MTD, CAN, ...
+> QEMU). NVM + NOR/QSPI MTD done; next: CAN, ...
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
-   - **CAN** (`CAN.MPFS_CAN`), then I2C/SPI/BLOCK/PCIe/SpaceWire; [NVM done; NOR/QSPI MTD driver done, on-SoC QSPI check pending board repl]
+   - **CAN** (`CAN.MPFS_CAN`), then I2C/SPI/BLOCK/PCIe/SpaceWire; [NVM + NOR/QSPI MTD driver done, on-SoC QSPI check pending board repl]
    - **SERIAL (MMUART/RS-422/485)** via `hal_serial.h` (NS16550 scratch reg);
    - **CAN** (`CAN.MPFS_CAN`), **SPI** (`SPI.MPFS_SPI`), **I2C** (loopback made
      explicit in `frick-renode.resc`), **BLOCK (eMMC/SD)**, **PCIe**,

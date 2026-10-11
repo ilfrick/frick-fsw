@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.10                                 |
+| Revision                          | 0.3.11                                 |
 | Date                              | 2026-10-11                             |
 | Applicable norms                  | N6, N10, N11                           |
 

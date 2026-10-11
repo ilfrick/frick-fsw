@@ -62,7 +62,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 98/98 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 84/98 (85.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/98 (20.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 2960/4160 (71.2%) | gcov |
+| Code statement (line) coverage | 2961/4165 (71.1%) | gcov |
 | Code function coverage | 390/395 (98.7%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
@@ -134,7 +134,7 @@ scope (implemented / interface-only / planned / user-provided):
 | PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
 | Transport | CCSDS Space Packets, link (loopback/UART) | `FF_Link_t` | — | radio/SpaceWire back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
-| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA | — | CAN, SPI, I2C, QSPI/NOR, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD | — | CAN, SPI, I2C, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
 | Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
@@ -405,7 +405,7 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
 Current focus: **Sprint 0** (closure of the open M16 reviews + the ECSS
-traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM done; NOR/CAN +
+traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM + NOR/QSPI MTD done; CAN +
 M10 QEMU). Full sequence in the sprint plan above.
 
 ## Contributing

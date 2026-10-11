@@ -274,7 +274,7 @@ PolarFire SoC MSS TRM DS60001702.
 
 ### Remaining (M4)
 
-CAN/SPI/I2C/QSPI/MMC/eMMC/storage/PCIe/SpaceWire MSS drivers (M4 residual),
+CAN/SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire MSS drivers (M4 residual),
 N7/ESA `FF_Pus_Backend_t` per-service mapping (M15), filestore/CFDP/service 23
 (M15). Delivered since the original list: lwIP adapter, GEM TSN, MSS MMUART and
 MSS GPIO (kept here only as history).
@@ -407,4 +407,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.24 | 2026-10-11 | frick-fsw | Record the N12 delta re-reviews (netstack R1/R2) + the N17 N20-governance review; m4-lwip row; test_netloop 328 checks |
 | 0.25 | 2026-10-11 | frick-fsw | R2/R3 test-gap task: new suites `test_r2_gap` (487 checks) + `test_r3_gap` (201 checks); ctest 14 -> 16; trace manifest tests evidence extended; TBL defect fix + `FF_PusInit` idempotence; SDD section 6 requirements->design matrix added |
 | 0.26 | 2026-10-11 | frick-fsw | M4/M11: reference eNVM NVM backend (SRS-REQ-055) - `ff_nvm_mpfs`, `test_nvm` (ctest 17/17), `hal_nvm=PASS` in Renode; M11 5/13 |
-| 0.27 | 2026-10-11 | frick-fsw | M4/M11: reference NOR/QSPI MTD backend (SRS-REQ-056) - `ff_mtd_mpfs`, `test_mtd` (ctest 18/18), `hal_mtd=PASS` in Renode |
+| 0.27 | 2026-10-11 | frick-fsw | M4: reference NOR/QSPI MTD backend (SRS-REQ-056) - `ff_mtd_mpfs`, `test_mtd` (ctest 18/18); on-SoC QSPI check pending board repl (M11) |

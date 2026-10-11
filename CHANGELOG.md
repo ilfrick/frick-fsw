@@ -34,7 +34,6 @@ change. All dates UTC, project language English (norm N2).
   provider/function/HK/mem registries so repeated init is clean (fixes the
   order-dependence of the new PUS tests, FRICK-REVIEW-0077 R1-02).
 
-### Added
 
 - **Test-coverage gap closure (R2 + R3 task).** Two new host suites close the
   functions/branches that were unexecuted and the requirement-level flows that
@@ -396,7 +395,6 @@ development/verification cycle (norm N15) and is covered by
 `docs/reviews/2026-10-10-baseline-vv-review.md` (R2) and
 `docs/reviews/2026-10-10-sss-systems-review.md` (R3).
 
-### Added
 
 - Formal verification (norm N1) now actually builds: `lake build` compiles all
   15 modules and `lake exe frick_verify_checks` passes 3/3 in the Docker V&V

@@ -85,7 +85,7 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run exercises
   HAL backends and, additionally, a **contract check**:
-  - **Peripheral-bound** (4/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
+  - **Peripheral-bound** (5/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
     SRS-REQ-049) and **ETH** (Cadence GEM identification, SRS-REQ-036). The app
     checks each and the marker is `PASS` only when all succeed

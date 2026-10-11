@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.15                                   |
+| Revision                          | 0.16                                   |
 | Date                              | 2026-10-11                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -331,3 +331,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.13 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP (CCSDS 727.0-B) + virtual filestore (VFS) and PUS-C S23 file management |
 | 0.14 | 2026-10-11 | frick-fsw | Update §6 objective-to-milestone status to the actual completion state (M3/M6/M7 done; M10/M11 progress; M14/M15 planned) + completion policy (N19) |
 | 0.15 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development; OBJ-24); note the sprint plan FRICK-PLAN-0002 as the execution view |
+| 0.16 | 2026-10-11 | frick-fsw | M4 residual: eNVM NVM + NOR/QSPI MTD driver done (M11 5/13); note the on-SoC QSPI task |
