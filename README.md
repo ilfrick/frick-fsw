@@ -298,7 +298,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 54 · SSS = 26 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 55 · SSS = 27 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -359,7 +359,9 @@ status panel above is authoritative; the single source of truth is
   [`coding-style.md`](docs/engineering/coding-style.md)
 - **Formal verification**: [`docs/verification/formal-verification.md`](docs/verification/formal-verification.md)
 - **Planning**: [`docs/development-plan.md`](docs/development-plan.md) ·
-  [`docs/roadmap.md`](docs/roadmap.md) · [`docs/tooling.md`](docs/tooling.md)
+  [`docs/roadmap.md`](docs/roadmap.md) ·
+  [`docs/planning/sprint-plan.md`](docs/planning/sprint-plan.md) ·
+  [`docs/tooling.md`](docs/tooling.md)
 - **Status & reference**: [`docs/status/status.json`](docs/status/status.json) ·
   [`docs/status/handover.md`](docs/status/handover.md) (resume point) ·
   [`docs/status/loop-audit.md`](docs/status/loop-audit.md) (norm N19 audit) ·
@@ -375,6 +377,28 @@ status panel above is authoritative; the single source of truth is
   [`docs/engineering/user-integration-manual.md`](docs/engineering/user-integration-manual.md).
 - Planned milestones: [`docs/development-plan.md`](docs/development-plan.md) ·
   [`docs/roadmap.md`](docs/roadmap.md).
+
+## Roadmap & sprint plan
+
+Execution view of the roadmap: **how and in what order** the remaining
+milestones are completed. Kept current per norm N8 and re-baselined at every loop
+start per norm N19 (see [`docs/planning/sprint-plan.md`](docs/planning/sprint-plan.md);
+milestone status in [`docs/roadmap.md`](docs/roadmap.md) and
+[`docs/status/status.json`](docs/status/status.json)).
+
+Priority order (owner directive): **drivers (M4/M11) first → M12 → M16 → M13 →
+M8/M9 → M14 → M15**; class B confirmed with a documented track toward class A
+(norm N5); open-source/free tooling with space/aerospace heritage.
+
+| Milestone | Status |
+| --- | --- |
+| M1, M2, M3, M6, M7 | ✅ done |
+| M4, M5, M9, M10, M11 | 🟡 in progress |
+| M8, M12, M13, M14, M15, M16 | ⬜ planned |
+
+Current focus: **Sprint 0** (closure of the open M16 reviews + the ECSS
+traceability NC `PA-67-01`), then **Sprint 1** (M4/M11 HAL classes: NVM/NOR +
+M10 QEMU). Full sequence in the sprint plan above.
 
 ## Contributing
 

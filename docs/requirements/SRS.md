@@ -275,7 +275,7 @@ review).
   isolation, execution-time budget, abort, reporting; OBCP state/management via
   PUS S18), developed within the project as the ECSS-compliant fallback to the
   integrated third-party engine (SRS-REQ-045); engine development is milestone
-  **M16**. `method: Tst`. (milestone M16)
+  **M16**. `method: Tst | Dem`. (milestone M16)
 
 ## 6. Derived requirements
 

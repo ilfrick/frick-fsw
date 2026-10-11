@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0014                        |
-| Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.2                                    |
+| Date                              | 2026-10-11                             |
 | Norms                             | N3, N4, N8                             |
-| Requirements                      | SSS-REQ-022, SSS-REQ-023, SRS-REQ-045, SRS-REQ-046 |
+| Requirements                      | SSS-REQ-022, SSS-REQ-023, SSS-REQ-027, SRS-REQ-045, SRS-REQ-046, SRS-REQ-054 |
 
 ## 1. Purpose
 
@@ -117,10 +117,12 @@ PUS S18); ECSS/Renode validation (extend the N18 functional test).
 Missing mission services (LC/SC/MM/CS/FM/DS/CF/SBN/ECI, equipment manager) and the
 OBCP engine are **scope/mission features**, not defects of the framework core;
 they are planned (M4/M12/M13) and recorded as requirements SSS-REQ-022/023 and
-SRS-REQ-045/046. Real-silicon residual remains GAP-A5.
+SRS-REQ-045/046; the **in-house OBCP engine** is milestone **M16**
+(SSS-REQ-027 / SRS-REQ-054). Real-silicon residual remains GAP-A5.
 
 ## History
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial cFS/other-FSW component gap analysis; OBCP engine (n7s-obcp) and equipment-manager decisions |
+| 0.2 | 2026-10-11 | frick-fsw | M16: M12 integrates / M16 develops the in-house OBCP engine; requirements SSS-REQ-027 / SRS-REQ-054 |

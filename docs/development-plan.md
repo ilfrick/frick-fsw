@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.14                                   |
+| Revision                          | 0.15                                   |
 | Date                              | 2026-10-11                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -55,8 +55,8 @@ is in `docs/roadmap.md`.
 | OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
 | OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
 | OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
-| OBJ-24 | Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind `FF_Obcp_t` (bounded resource accounting, isolation, execution-time budget, abort, reporting; OBCP state/management via PUS S18), as the fallback/hardened engine to the integrated third-party engine (M12) and to remove a permanent third-party dependency. | **M16** (after M12) |
 | OBJ-23 | Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the **fundamental PUS-C service behaviour** (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the `asn1-pusc-lib` default data model, with a bounded on-board parameter **datapool**, **plus CFDP (CCSDS 727.0-B) and the virtual filestore (VFS) it operates on** (S23 file management built on the VFS). | **M15** (after M14) |
+| OBJ-24 | Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind `FF_Obcp_t` (bounded resource accounting, isolation, execution-time budget, abort, reporting; OBCP state/management via PUS S18), as the fallback/hardened engine to the integrated third-party engine (M12) and to remove a permanent third-party dependency. | **M16** (after M12) |
 
 ## 3. Resource and bus interface catalogue
 
@@ -328,5 +328,6 @@ in `docs/status/status.json`; the live resume point is
 | 0.10 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs, candidate n7s-obcp; OBJ-20) and M13 (reference mission services: equipment manager + fault management; OBJ-21); component gap analysis |
 | 0.11 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP on the 4×U54, after all other milestones; OBJ-22); PUS-C ASN.1 (N7/ESA) as default tracked (N19 audit) |
 | 0.12 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set; OBJ-23) from the PUS-C assessment FRICK-ARCH-0015 |
+| 0.13 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development; OBJ-24); note the sprint plan FRICK-PLAN-0002 as the execution view |
 | 0.13 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP (CCSDS 727.0-B) + virtual filestore (VFS) and PUS-C S23 file management |
 | 0.14 | 2026-10-11 | frick-fsw | Update §6 objective-to-milestone status to the actual completion state (M3/M6/M7 done; M10/M11 progress; M14/M15 planned) + completion policy (N19) |

@@ -81,17 +81,6 @@ Reference implementations behind the M3 contracts:
   reassembly, TCP/IP and TSN link backends) and the on-board file transfer set
   (virtual filestore, PUS service 23, CFDP).
 
-## M16 — In-house OBCP engine development (planned, after M12)
-
-Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind
-the `FF_Obcp_t` contract: bounded resource accounting (stack/heap), isolation,
-execution-time budget, abort and reporting; OBCP state/management via PUS **S18**.
-It is the fallback / hardened engine to the integrated third-party engine (M12),
-removes a permanent third-party dependency, and reuses the M12 `FF_Obcp_t`
-contract and SB/EVS/Time/PUS bindings. Requirement SRS-REQ-054 / SSS-REQ-027;
-objective OBJ-24. **Execution order: after M12, before M13**; M14/M15 remain the
-last milestones.
-
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -199,6 +188,17 @@ theorems. Also: the CFDP entity (CCSDS 727.0-B) and the **virtual filestore (VFS
 it operates on (pluggable storage: RAM/flash/eMMC/SSD), on which PUS-C S23 file
 management is built. Assessment FRICK-ARCH-0015 (est. ~34 PM; hybrid
 recommendation). Requirement SRS-REQ-052/053 / SSS-REQ-025/026; objective OBJ-23.
+
+## M16 — In-house OBCP engine development (planned, after M12)
+
+Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind
+the `FF_Obcp_t` contract: bounded resource accounting (stack/heap), isolation,
+execution-time budget, abort and reporting; OBCP state/management via PUS **S18**.
+It is the fallback / hardened engine to the integrated third-party engine (M12),
+removes a permanent third-party dependency, and reuses the M12 `FF_Obcp_t`
+contract and SB/EVS/Time/PUS bindings. Requirement SRS-REQ-054 / SSS-REQ-027;
+objective OBJ-24. **Execution order: after M12, before M13**; M14/M15 remain the
+last milestones.
 
 ## History
 

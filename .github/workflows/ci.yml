@@ -182,6 +182,7 @@ jobs:
             "docs/quality/safety-and-fdir.md",
             "docs/quality/ecss-compliance-matrix.md",
             "docs/vv/validation-plan.md",
+            "docs/planning/sprint-plan.md",
             "docs/engineering/reviewer-agents/aeronautics-space-fsw-engineer.md",
             "docs/engineering/reviewer-agents/aeronautics-space-sw-vv-engineer.md",
             "docs/engineering/reviewer-agents/aeronautics-space-avionics-systems-engineer.md",

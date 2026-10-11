@@ -344,6 +344,10 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | M4 netstack final confirmation — R2 | R2 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (no V&V barrier) | docs/reviews/2026-10-11-m4-netstack-final-r2.md |
 | N20 governance final confirmation (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (DOC-13..17 closed) | docs/reviews/2026-10-11-n20-governance-final-r4.md |
 | PA final review of all phase products (N20) | PA (independent) | 2026-10-11 | PASS | docs/reviews/2026-10-11-pa-final-review-967f563.md |
+| M16 SSS/system requirements review (N14) | R3 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (S0) | docs/reviews/2026-10-11-m16-sss-r3-review.md |
+| M16 documentation review (N17) | R4 (independent) | 2026-10-11 | APPROVED WITH COMMENTS (S0) | docs/reviews/2026-10-11-m16-docs-r4-review.md |
+| M16 PA review (N20) | PA (independent) | 2026-10-11 | APPROVED WITH COMMENTS (S0) | docs/reviews/2026-10-11-m16-pa-review.md |
+| ECSS traceability (SDD design matrices) | PA (independent) | 2026-10-11 | NC PA-67-01 (Minor) | docs/reviews/2026-10-11-ecss-traceability-pa-review.md |
 
 ## History
 

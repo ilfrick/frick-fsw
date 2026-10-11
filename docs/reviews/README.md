@@ -65,6 +65,10 @@
 | 2026-10-11 | M4 netstack final confirmation — V&V | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (no V&V barrier) | 2026-10-11-m4-netstack-final-r2.md |
 | 2026-10-11 | N20 governance final confirmation (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (DOC-13..17 closed) | 2026-10-11-n20-governance-final-r4.md |
 | 2026-10-11 | PA final review of all phase products (N20) at 967f563 | PA (Senior SW PA engineer) | PASS (all prior Major/Minor closed) | 2026-10-11-pa-final-review-967f563.md |
+| 2026-10-11 | M16 SSS/system requirements review (N14) | R3 (Senior Systems engineer) | APPROVED WITH COMMENTS (Minors to close in S0) | 2026-10-11-m16-sss-r3-review.md |
+| 2026-10-11 | M16 documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (Minors to close in S0) | 2026-10-11-m16-docs-r4-review.md |
+| 2026-10-11 | M16 PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Minors to close in S0) | 2026-10-11-m16-pa-review.md |
+| 2026-10-11 | ECSS traceability question (SDD in-source traceability) | PA (Senior SW PA engineer) | NC PA-67-01 (Minor) opened; resolve S0/S1 | 2026-10-11-ecss-traceability-pa-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

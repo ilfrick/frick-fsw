@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.0                                    |
+| Revision                          | 1.1                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -111,13 +111,17 @@ occasion; prefer Docker.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
   ESA), **M13** (reference mission services: equipment manager + fault
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
-  service set + CFDP + virtual filestore) are **planned**.
+  service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
+  development) are **planned**.
 - Requirements: **96 (55 srs / 27 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs)
   — all closed.
 
 ## 5. Immediate next steps (priority order)
+
+> Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). Current: S0
+> (close the open M16 reviews + ECSS NC PA-67-01), then S1 (NVM/NOR + M10 QEMU).
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
@@ -176,3 +180,4 @@ occasion; prefer Docker.
 | 0.9 | 2026-10-11 | frick-fsw | M11 NET `FF_NetStack_t` contract check exercised in Renode (`hal_net=PASS`) |
 | 1.0 | 2026-10-11 | frick-fsw | Norm N20 (Senior SW PA review of every phase product); counts refreshed 94/54/26/14/51; PA gate added |
 | 1.1 | 2026-10-11 | frick-fsw | N12 loop closed: independent R1/R2/R4 reviews of the N20 set and FRICK-REVIEW-0032 to closure; PA review PASS (FRICK-REVIEW-0063) |
+| 1.2 | 2026-10-11 | frick-fsw | Milestone M16 added; counts 96/55/27/14; sprint plan published; next steps point to Sprint 0/1 |

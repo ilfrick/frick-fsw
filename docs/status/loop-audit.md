@@ -129,6 +129,9 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 
 ## 5. Dispositions summary
 
+The ordered execution view of these dispositions is `docs/planning/sprint-plan.md`
+(FRICK-PLAN-0002).
+
 | Gap | Disposition | Owner | Milestone |
 | --- | --- | --- | --- |
 | PUS-C ASN.1 not wired/default | **reconciled**: `FF_PusBackendN7` default (build-time; ADR-0016); host `test_pus` + Renode | frick-fsw | M4/now |
@@ -140,6 +143,8 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | Formal C refinement | tracked | frick-fsw | GAP-A1 / M8 |
 | Loopback relay/`pending` orphan (FRICK-REVIEW-0032 R1-02; `backlog` ignored, second `connect` overwrites `pending`) | tracked (bounded 4-slot reference backend; `init()` resets) | frick-fsw | M4/M11 |
 | PA-review dispositions (FRICK-REVIEW-0052/0053) | tracked | frick-fsw | now |
+| ECSS traceability - SDD requirements->design matrices (FRICK-REVIEW-0067 PA-67-01) | tracked | frick-fsw | **S0/S1** (`docs/planning/sprint-plan.md`) |
+| M16 review NCs (FRICK-REVIEW-0064/0065/0066) | tracked | frick-fsw | **S0** |
 
 ## History
 
@@ -149,3 +154,4 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | 0.2 | 2026-10-11 | frick-fsw | Re-baselined at e1def89: counts 94/54/26/14/51, registry T1-T19, N9 row + PA, N20 in progress, R1-02 residual tracked (PA-review loop) |
 | 0.3 | 2026-10-11 | frick-fsw | N19 reconciliation: add the M15 objective row, refresh M14 wording, correct the M11 pending-class count (9) to match development-plan/roadmap |
 | 0.4 | 2026-10-11 | frick-fsw | Add the M16 objective row (in-house OBCP engine development) |
+| 0.5 | 2026-10-11 | frick-fsw | Link the sprint plan (FRICK-PLAN-0002); track the ECSS traceability NC PA-67-01 and the M16 review NCs in the dispositions summary |

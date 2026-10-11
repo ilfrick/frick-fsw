@@ -115,13 +115,13 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   backend (RAM/flash/eMMC/SSD); PUS-C **S23** file management shall operate on the
   same VFS. `method: Tst | Dem`.
 
-- **SSS-REQ-027** — *On-board autonomy — in-house engine development*: in
-  addition to integrating an existing OBCP engine (M12), the system shall be able
-  to execute OBCPs on an **in-house, ECSS-compliant OBCP engine** developed within
-  the project, with bounded resource accounting, isolation, execution-time budget,
-  abort and reporting, and OBCP state/management via PUS S18, as the fallback /
-  hardened engine and to remove a permanent third-party dependency.
-  `method: Tst | Dem`. (milestone M16)
+- **SSS-REQ-027** — *On-board autonomy — in-house engine*: the system shall
+  execute On-Board Control Procedures on an OBCP engine developed within the
+  project (in addition to an integrated third-party engine, SSS-REQ-022), within a
+  bounded resource budget (bounded engine memory and one execution context per
+  OBCP), a bounded per-OBCP execution-time budget and a bounded abort latency,
+  with OBCP state exposed for management (PUS S18 seam). `method: Tst | Dem`.
+  (milestone M16)
 
 ## 3. Derived system requirements
 
