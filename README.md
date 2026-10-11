@@ -70,10 +70,10 @@ Issues deferred by the user: none.
 
 | Metric | Value |
 | ------ | ----- |
-| Requirements in manifest | 90 (srs=52, sss=24, gap=14) |
-| Requirements with implementation | 90/90 |
-| Test coverage (requirements with tests) | 76/90 (84.4%) |
-| Formal verification coverage (requirements with Lean) | 20/90 (22.2%) |
+| Requirements in manifest | 92 (srs=53, sss=25, gap=14) |
+| Requirements with implementation | 92/92 |
+| Test coverage (requirements with tests) | 78/92 (84.8%) |
+| Formal verification coverage (requirements with Lean) | 20/92 (21.7%) |
 | Code line coverage | 1854/2812 (65.9%) - functions 251/295 |
 
 <!-- METRICS-END -->
@@ -259,7 +259,7 @@ make rtems
 
 ## Requirements set (current)
 
-SRS = 52 · SSS = 24 · GAP (to class A) = 14 · Lean theorems = 51. The generated
+SRS = 53 · SSS = 25 · GAP (to class A) = 14 · Lean theorems = 51. The generated
 status panel above is authoritative; the single source of truth is
 `docs/requirements/traceability.yaml` (mirrored in
 `docs/requirements/traceability.md`). See `docs/requirements/`.
@@ -295,6 +295,7 @@ status panel above is authoritative; the single source of truth is
   [`security-sdls.md`](docs/architecture/security-sdls.md) ·
   [`network-stack.md`](docs/architecture/network-stack.md) ·
   [`component-gap-analysis.md`](docs/architecture/component-gap-analysis.md) ·
+  [`pus-c-from-scratch-assessment.md`](docs/architecture/pus-c-from-scratch-assessment.md) ·
   [`design/software-design.md`](docs/design/software-design.md) ·
   [`docs/adr/`](docs/adr/) · [`docs/interfaces/ICD.md`](docs/interfaces/ICD.md)
 - **Quality**: [`docs/quality/ecss-criticality-b.md`](docs/quality/ecss-criticality-b.md) ·

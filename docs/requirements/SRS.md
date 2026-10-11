@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.9                                    |
+| Revision                          | 1.10                                   |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -257,6 +257,12 @@ review).
   SoC 4×U54 cluster under **RTEMS SMP** (multi-core tasking, per-core interrupts,
   cache-coherent shared data, shared-memory Software Bus), validated on the
   emulated SoC. `method: Tst | Dem`. (milestone M14)
+- **SRS-REQ-052** — *Fundamental PUS-C service set*: the framework shall
+  implement the fundamental PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/
+  18-PUS-surface/19/20) in MISRA-clean in-house C behind `FF_Pus_Backend_t`, on
+  the default ASN.1/ACN data model, with a bounded on-board parameter datapool;
+  every in-scope subservice shall be tested and its pure logic modelled in Lean.
+  `method: Tst | Anl`. (milestone M15)
 
 ## 6. Derived requirements
 
@@ -306,3 +312,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.7 | 2026-10-10 | frick-fsw  | M4/M11: add SRS-REQ-048 reference MSS MMUART serial driver |
 | 1.8 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-049 reference static RAM pool + DMA helper |
 | 1.9 | 2026-10-11 | frick-fsw  | N19/M14: add SRS-REQ-050 PUS-C ASN.1 (N7/ESA) default backend, SRS-REQ-051 multicore/SMP |
+| 1.10 | 2026-10-11 | frick-fsw  | M15: add SRS-REQ-052 fundamental PUS-C service set (from FRICK-ARCH-0015) |

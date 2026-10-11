@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.11                                   |
+| Revision                          | 0.12                                   |
 | Date                              | 2026-10-10                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N18 (`docs/rules.md`)               |
@@ -55,6 +55,7 @@ is in `docs/roadmap.md`.
 | OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
 | OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
 | OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
+| OBJ-23 | Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the **fundamental PUS-C service behaviour** (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the `asn1-pusc-lib` default data model, with a bounded on-board parameter **datapool**. | **M15** (after M14) |
 
 ## 3. Resource and bus interface catalogue
 
@@ -239,6 +240,16 @@ and DMA, and a **shared-memory Software Bus / queues** path, exercised on the
 emulated SoC and (later) on hardware. Depends on every earlier milestone; do not
 start before they are complete. Requirement SRS-REQ-051; SSS-REQ-024. (OBJ-22.)
 
+### M15 — In-house fundamental PUS-C service set (planned, after M14)
+
+Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the **fundamental
+PUS-C service behaviour** (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the
+`asn1-pusc-lib` default data model, with a bounded on-board parameter **datapool**;
+cover every in-scope subservice with verification and requirement-level Lean
+theorems. Assessment: `docs/architecture/pus-c-from-scratch-assessment.md`
+(FRICK-ARCH-0015, ~34 PM estimate, hybrid recommendation). Requirement
+SRS-REQ-052; SSS-REQ-025. (OBJ-23.)
+
 ### M5 — Documentation and status program (in progress)
 
 Living documentation: README index, documentation index, repository map, PUS
@@ -281,6 +292,7 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned |
+| M15 | OBJ-23 (in-house fundamental PUS-C service set on the asn1-pusc-lib data model, after M14) | planned |
 
 ## History
 
@@ -297,3 +309,4 @@ residual risk to the BSP/driver layer; board bring-up closes it.
 | 0.9 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class); objective OBJ-19 |
 | 0.10 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs, candidate n7s-obcp; OBJ-20) and M13 (reference mission services: equipment manager + fault management; OBJ-21); component gap analysis |
 | 0.11 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP on the 4×U54, after all other milestones; OBJ-22); PUS-C ASN.1 (N7/ESA) as default tracked (N19 audit) |
+| 0.12 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set; OBJ-23) from the PUS-C assessment FRICK-ARCH-0015 |

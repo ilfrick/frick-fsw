@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.10                                   |
+| Revision                          | 0.11                                   |
 | Date                              | 2026-10-10                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
@@ -105,6 +105,10 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
 - **SSS-REQ-024** — *Multicore / SMP*: the system shall execute on the target's
   multi-core RISC-V cluster (RTEMS SMP) with correct concurrency and cache
   coherency. `method: Tst | Dem`.
+- **SSS-REQ-025** — *Fundamental PUS-C service capability set*: the system shall
+  provide the fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/
+  19/20) with the associated packet/state behaviour and a bounded on-board
+  parameter datapool, on the default ASN.1/ACN data model. `method: Tst | Anl`.
 
 ## 3. Derived system requirements
 
@@ -135,3 +139,4 @@ deviations are resolved before every commit (norm N4).
 | 0.8 | 2026-10-10 | frick-fsw | M9: add SSS-REQ-021 code quality and compliance (MISRA + coding style) |
 | 0.9 | 2026-10-10 | frick-fsw | Add SSS-REQ-022 on-board autonomy (OBCP) and SSS-REQ-023 reference mission services |
 | 0.10 | 2026-10-11 | frick-fsw | Add SSS-REQ-024 multicore / SMP |
+| 0.11 | 2026-10-11 | frick-fsw | Add SSS-REQ-025 fundamental PUS-C service capability set (M15) |

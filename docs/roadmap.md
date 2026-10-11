@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.13 |
+| Revision    | 0.14 |
 | Date        | 2026-10-10 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -165,6 +165,15 @@ DMA, and a shared-memory Software Bus/queues path. Depends on every earlier
 milestone; do not start before they are complete. Requirement SRS-REQ-051 /
 SSS-REQ-024; objective OBJ-22.
 
+## M15 — In-house fundamental PUS-C service set (planned, after M14)
+
+Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the fundamental
+PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the
+`asn1-pusc-lib` default data model, with a bounded on-board parameter datapool;
+cover every in-scope subservice with verification and requirement-level Lean
+theorems. Assessment FRICK-ARCH-0015 (est. ~34 PM; hybrid recommendation).
+Requirement SRS-REQ-052 / SSS-REQ-025; objective OBJ-23.
+
 ## M5 — Documentation and status program (in progress)
 
 - README index, documentation index and repository map (norm N8).
@@ -193,3 +202,4 @@ SSS-REQ-024; objective OBJ-22.
 | 0.11 | 2026-10-10 | frick-fsw | Add M11 (Renode HAL coverage: extend the functional test to every HAL resource class) |
 | 0.12 | 2026-10-10 | frick-fsw | Add M12 (OBCP engine: uPython/MicroPython OBCPs) and M13 (reference mission services: equipment manager + fault management); component gap analysis |
 | 0.13 | 2026-10-11 | frick-fsw | Add M14 (multicore/SMP, after all other milestones) |
+| 0.14 | 2026-10-11 | frick-fsw | Add M15 (in-house fundamental PUS-C service set) from FRICK-ARCH-0015 |

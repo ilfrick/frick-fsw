@@ -486,6 +486,15 @@ requirements:
     lean: []
     lean_note: "Multicore / SMP on the 4xU54 cluster under RTEMS SMP (milestone M14). Planned."
 
+  - id: SRS-REQ-052
+    level: srs
+    parent_sss: SSS-REQ-025
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/architecture/pus-c-from-scratch-assessment.md", "src/pus/pus.h"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/19/20) in in-house MISRA-clean C behind FF_Pus_Backend_t on the ASN.1/ACN data model (milestone M15, planned)."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -669,6 +678,14 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "Multicore / SMP on the 4xU54 cluster (milestone M14, after all other milestones): planned; tracked in the plan/roadmap and the N19 loop audit."
+
+  - id: SSS-REQ-025
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/architecture/pus-c-from-scratch-assessment.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Fundamental PUS-C service capability set (milestone M15): planned; scope/effort in FRICK-ARCH-0015."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

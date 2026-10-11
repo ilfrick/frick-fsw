@@ -208,6 +208,12 @@ change. All dates UTC, project language English (norm N2).
   validated (`BasicTypes.h`, `asn1crt.c/h`, module codecs). Remaining: consume the
   generated code in CMake, implement `FF_PusBackendN7` and switch the default
   (SRS-REQ-050). Tracked by the N19 audit (`docs/status/loop-audit.md`).
+- **M15 (new) — In-house fundamental PUS-C service set** (from the PUS-C
+  assessment `docs/architecture/pus-c-from-scratch-assessment.md`, FRICK-ARCH-0015):
+  implement in MISRA-clean in-house C behind `FF_Pus_Backend_t` the fundamental
+  PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/18-surface/19/20) on the
+  `asn1-pusc-lib` default data model (+ bounded datapool); est. ~34 PM; hybrid
+  recommendation. Objective OBJ-23; SSS-REQ-025 / SRS-REQ-052. Placed after M14.
 - **Norm N19 — development-loop gap audit.** New non-derogable rule: at the start
   of every loop, compare declared objectives + adherence to N1-N19 with the actual
   implementation; gaps closed or tracked. First audit `docs/status/loop-audit.md`.

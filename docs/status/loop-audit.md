@@ -123,6 +123,7 @@ These are now explicitly tracked (M10/M14/GAP-A1/A2/A4/M11/M13).
 | --- | --- | --- | --- |
 | PUS-C ASN.1 not wired/default | **close this loop** (blocked: ASN1SCC toolchain) | frick-fsw | M4/now |
 | Multicore/SMP | tracked | frick-fsw | **M14** |
+| In-house fundamental PUS-C service set | tracked (assessment FRICK-ARCH-0015, ~34 PM; hybrid) | frick-fsw | **M15** |
 | QEMU target | tracked | frick-fsw | M10 |
 | Certified MISRA checker | tracked | frick-fsw | GAP-A4 |
 | PUS-C service coverage | tracked | frick-fsw | GAP-A2 / M13 |
