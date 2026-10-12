@@ -70,4 +70,14 @@
 #define FF_SPI0_BASE 0x20108000u
 #define FF_SPI1_BASE 0x20109000u
 
+/* MSS MMC/SD controller (SDHCI-style, eMMC/SD). Used by the reference block
+ * driver; the register file is exercised on the emulated SoC in the Renode
+ * functional test (M11). PLIC interrupt source: MMC main 88 (wakeup 89).
+ * FF_MMC0_BASE and the PLIC line are **reference values** from the SoC memory
+ * map and the Renode `SD.MPFS_SDController` model (GAP-A5): they are declared
+ * for completeness but the polled reference backend does not use the interrupt
+ * line. The emulated board has no SD card attached, so the Renode check is a
+ * register round trip only (the transfer path is host-tested). */
+#define FF_MMC0_BASE 0x20008000u
+
 #endif /* FF_PLATFORM_MPFS_H */

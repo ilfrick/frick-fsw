@@ -648,6 +648,15 @@ requirements:
     lean: []
     lean_note: "Reference MSS SPI (CoreSPI, polled master) backend behind FF_Spi_t (M4/M11): transfer logic host-tested (32-bit register mock modelling the TXDATA/RXDATARCVD/RXDATA path); MMIO register round trip on the emulated SoC (hal_spi). init(clock_hz,mode,cs) selects the 8-bit CLKRATE clock divider for the requested SCL; the divider and hence the on-target SCL is a reference derivation from the MSS SPI (APB) reference clock (per-rate accuracy / on-target timing = GAP-A5). Polled master only (8-bit frames; no DMA/interrupt/enhanced-framing path); status poll is bounded."
 
+  - id: SRS-REQ-070
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/block/mpfs/ff_block_mpfs.c", "src/drivers/block/mpfs/ff_block_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_block.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference MSS MMC/SD (SDHCI-style, polled buffer-mode) block-device backend behind FF_BlockDev_t (M4/M11): read/write logic host-tested (32-bit register mock modelling the BlockSizeBlockCount/Argument1/CommandTransferMode/DataBuffer/interrupt flow, CMD17/18/24/25); MMIO register round trip on the emulated SoC (hal_block). Polled single/multi-block buffer mode only (no DMA/ADMA/CQ/SDIO/PHY tuning; no card init); on-target SD clock/bus-width and card initialisation = GAP-A5. Block count bounded to 16-bit BCCT; LBA bounded to 32-bit Argument1."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

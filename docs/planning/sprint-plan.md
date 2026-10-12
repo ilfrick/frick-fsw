@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0002                        |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3/N4/N8/N15/N19                       |
 | Companion                         | `docs/development-plan.md` (FRICK-PLAN-0001), `docs/roadmap.md` |
@@ -46,7 +46,7 @@ NCs (norm N12) before the loop closes.
 | **S4b** | **M4-restored: PUS-C over IP/TSN** | Segmentation/reassembly (SRS-REQ-059) + TCP/IP `FF_Link_t` backend (SRS-REQ-060) + TSN `FF_Link_t` backend (SRS-REQ-061) + host tests + Renode check + reviews | `pus_ip` / `pus_tsn` link round-trip PASS |
 | **S4c** | **M4-restored: extended fieldbus** | Generic fabric-device contract (SRS-REQ-067) + CAN-FD fabric backend (SRS-REQ-062) + CANopen (CiA 301/302/402) stack (SRS-REQ-063) + RS-485 half-duplex DE/RE (SRS-REQ-064) + host tests + Renode checks | `hal_canfd` / `canopen` / `rs485` PASS |
 | **S4d** | **M4-restored: PUSopen(R) adapter** | Documented adapter over the PUS product contract (SRS-REQ-065); the commercial library is user-supplied | adapter contract test PASS |
-| **S5** | M4/M11 class 6 | **BLOCK** `FF_BlockDev_t` eMMC/SD backend (SRS-REQ-032) + host test + Renode check | `hal_block=PASS` |
+| **S5** | M4/M11 class 6 | **BLOCK** `FF_BlockDev_t` eMMC/SD backend (SRS-REQ-032) + host test + Renode check — **delivered** | `hal_block=PASS` (met); M11 9/13 |
 | **S6** | M4/M11 class 7 | **NET** lwIP-on-GEM peripheral-bound + **TSN** peripheral-bound (SRS-REQ-040/038) under Renode | `hal_net` / `hal_tsn` peripheral-bound PASS |
 | **S7** | M4/M11 classes 8-9 | **PCIe** (SRS-REQ-031/032) + **SpaceWire** (SRS-REQ-032) generic fabric backends + Renode checks | M11 13/13 classes exercised; M4 residual drivers done |
 | **S8** | **M12** OBCP integration | Integrate `n7space/n7s-obcp` behind `FF_Obcp_t` (SRS-REQ-045) with SB/EVS/Time/PUS bindings | M12 done; OBCP round-trip verified |
@@ -107,3 +107,4 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 | 0.5 | 2026-10-12 | frick-fsw | Expand the undefined token `RR-058` to "SRS-REQ-058 review record" (FRICK-REVIEW-0133 PA-07) |
 | 0.6 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: add S4b (PUS-C over IP/TSN), S4c (extended fieldbus: fabric contract/CAN-FD/CANopen/RS-485 DE) and S4d (PUSopen adapter); extend S13-S14 (M8) with GEM TSN 802.1Qav/Qci/Qbb — FRICK-REVIEW-0137 R3-09 |
 | 0.7 | 2026-10-12 | frick-fsw | S4 delivered: reference MSS SPI backend (SRS-REQ-069); `hal_spi=PASS`; M11 8/13; ctest 21/21 (test_spi 126 checks); counts 113/70/29/14/51; next per plan S5 (BLOCK eMMC/SD) |
+| 0.8 | 2026-10-12 | frick-fsw | S5 delivered: reference MSS block-device backend (SRS-REQ-070); `hal_block=PASS`; M11 9/13; ctest 22/22 (test_block 85 checks); counts 114/71/29/14/51; next per plan S6 (NET/TSN peripheral-bound) |

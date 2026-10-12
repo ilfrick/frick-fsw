@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0007                         |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-12                             |
 | Audience                          | humans and agents using or evaluating the framework and the accessory repository elements |
 | Norms                             | N2 (English), N8 (current documentation), N16 (per-document revision history) |
@@ -178,6 +178,7 @@ Reference drivers implement HAL/link contracts and are **separable/optional**
 | MSS CAN (classic) | `FF_CanBackend_t` | `src/drivers/can/mpfs/ff_can_mpfs.c` | SRS-REQ-057; host test + Renode `hal_can=PASS`; CAN-FD is a fabric device |
 | MSS I2C | `FF_I2c_t` | `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` | SRS-REQ-058; host test + Renode `hal_i2c=PASS` |
 | MSS SPI | `FF_Spi_t` | `src/drivers/spi/mpfs/ff_spi_mpfs.c` | SRS-REQ-069; host test + Renode `hal_spi=PASS` |
+| MSS MMC/SD (BLOCK) | `FF_BlockDev_t` | `src/drivers/block/mpfs/ff_block_mpfs.c` | SRS-REQ-070; host test + Renode `hal_block=PASS` |
 
 The board bring-up is `src/bsp/mpfs/` (`board.h`, `board.c`); the run-time
 wire-up of the core, providers, link and applications is
@@ -279,7 +280,7 @@ by the mission; "user-supplied" = deliberately left to the integrator.
 | `FF_Gpio_t` (GPIO/IRQ) | `src/hal/hal_gpio.h` | **Implemented** | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` |
 | `FF_Pcie_t` (PCIe) | `src/hal/hal_pcie.h` | **Interface-only** (planned) | — |
 | SpaceWire (ECSS-E-ST-50-12/51/52/53) | `src/hal/hal_spacewire.h` | **Interface-only** (planned) | — |
-| `FF_MemPool_t`, `FF_Dma_t`, `FF_Mtd_t`, `FF_Nvm_t`, `FF_BlockDev_t` | `src/hal/hal_mem.h` | **Implemented** (RAM pool/DMA/MTD/NVM reference; block device planned) | `src/drivers/mem/ff_mem_static.c`, `src/drivers/mtd/mpfs/ff_mtd_mpfs.c`, `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` |
+| `FF_MemPool_t`, `FF_Dma_t`, `FF_Mtd_t`, `FF_Nvm_t`, `FF_BlockDev_t` | `src/hal/hal_mem.h` | **Implemented** (RAM pool/DMA/MTD/NVM/block-device reference) | `src/drivers/mem/ff_mem_static.c`, `src/drivers/mtd/mpfs/ff_mtd_mpfs.c`, `src/drivers/nvm/mpfs/ff_nvm_mpfs.c`, `src/drivers/block/mpfs/ff_block_mpfs.c` |
 
 The HAL registry (`src/hal/hal.c`, `hal.h`) is bounded and allocation-free; the
 integrator obligations (buffer ownership, DMA/cache coherence, ISR vs task
@@ -462,3 +463,4 @@ does not create new product requirements or certification claims.
 | 0.2 | 2026-10-12 | frick-fsw | Expand for users: add §2.1 "what frick-fsw is not", §3.8 BSP and start-up sequence, §3.9 interface-contract inventory (location + implemented/interface-only/planned/user-supplied), a §5 platform build/target matrix, and the exact lwIP pin (`STABLE-2_2_1_RELEASE`)/BSD-3-Clause and §8.1/§9.1 "how to use" cross-references in §3.7 |
 | 0.3 | 2026-10-12 | frick-fsw | Register the acronym (lead directive): retitle the document as the **Design Description and Justification File (DDJF)** and define "DDJF" = Design Description and Justification File, replacing the previous "no repository acronym defined" naming note; add the **justification dimension** as §3.10 "Design justification" cross-referencing the ADRs (ADR-0001…0014, 0016; ADR-0015 unused); add the §3.1 "PUS-C transport channels" cross-reference; register the acronym in `docs/glossary.md` and name the DDJF in the README documentation index and `AGENTS.md` |
 | 0.4 | 2026-10-12 | frick-fsw | M4/M11: record the reference MSS SPI driver (`FF_Spi_t`, SRS-REQ-069; host test + Renode `hal_spi=PASS`); SPI moves from interface-only to implemented |
+| 0.5 | 2026-10-12 | frick-fsw | M4/M11: record the reference MSS block-device driver (`FF_BlockDev_t`, SRS-REQ-070; host test + Renode `hal_block=PASS`); the block device moves from planned to implemented |

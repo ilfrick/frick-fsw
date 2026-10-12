@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.19                                   |
+| Revision                          | 1.20                                   |
 | Date                              | 2026-10-12                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -333,6 +333,20 @@ review).
   not re-entrant (calls must be serialised by the caller). Validated by a host
   unit test (behavioural MMIO mock) and by an emulated-MMIO register check on
   the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
+- **SRS-REQ-070** — *Reference MSS block-device driver*: the framework shall
+  provide a reference HAL block-device backend for the Microchip PolarFire SoC
+  MSS MMC/SD controller (SDHCI-style) behind `FF_BlockDev_t` (`block_size`,
+  `num_blocks`, `read`, `write`, `flush`) over an injected 32-bit MMIO bus,
+  register-based and allocation-free, using polled single/multi-block transfers
+  (CMD17/18 read, CMD24/25 write) through the data-buffer port; failures are
+  reported as transfer timeout → `FF_TIMEOUT`, controller error status →
+  `FF_ERROR`, invalid arguments → `FF_INVALID_ARGUMENT` and pre-setup use →
+  `FF_NOT_READY`. The backend is a polled buffer-mode device only (no DMA/ADMA,
+  command queuing, SDIO or PHY tuning; on-target SD clock/bus-width and card
+  initialisation are tracked, GAP-A5) and is not re-entrant (calls must be
+  serialised by the caller). Validated by a host unit test (behavioural MMIO
+  mock) and by an emulated-MMIO register check on the Renode PolarFire SoC.
+  `method: Tst | Dem`. (milestone M4/M11)
 
 ### Extended transport and fieldbus (milestone M4-residual / M8)
 
@@ -437,3 +451,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.17 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-058 reference MSS I2C driver (polled CoreI2C master; serial-clock divider reference derivation/GAP-A5) |
 | 1.18 | 2026-10-12 | frick-fsw  | Restore explicit M4 scope: add SRS-REQ-059/060/061 PUS-C segmentation + TCP/IP + TSN link backends; SRS-REQ-062/063/064 CAN-FD/CANopen/RS-485 DE; SRS-REQ-065 PUSopen adapter; SRS-REQ-066 GEM TSN Qav/Qci/Qbb; SRS-REQ-067 generic fabric-device contract; SRS-REQ-068 gPTP/CoreTSN (SSS parents held in the manifest) — FRICK-REVIEW-0137 R3-05/R3-07/R3-08/R3-09 |
 | 1.19 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-069 reference MSS SPI driver (polled CoreSPI master; clock-divider reference derivation/GAP-A5) |
+| 1.20 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-070 reference MSS block-device driver (polled SDHCI-style MMC/SD; buffer-mode, GAP-A5) |

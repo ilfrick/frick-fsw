@@ -135,6 +135,7 @@ if(FF_BUILD_DRIVERS)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/can/mpfs/ff_can_mpfs.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/i2c/mpfs/ff_i2c_mpfs.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/spi/mpfs/ff_spi_mpfs.c)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/block/mpfs/ff_block_mpfs.c)
 endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})

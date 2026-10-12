@@ -9,6 +9,22 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M4/M11 - reference MSS block-device backend (SRS-REQ-070).**
+  `src/drivers/block/mpfs/ff_block_mpfs.{c,h}` implements the HAL block-device
+  contract `FF_BlockDev_t` over the Microchip PolarFire SoC MSS MMC/SD controller
+  (SDHCI-style) per the S5 sprint: 32-bit injected MMIO bus (`FF_BlockBus_t`),
+  polled single/multi-block buffer-mode transfers (CMD17/18 read, CMD24/25 write)
+  through the data-buffer port, block-size/count and argument programming, bounded
+  status poll (`FF_MMC_POLL_MAX`), and timeout/error/invalid-argument/not-ready
+  error codes. Host unit test `test_block` (behavioural 32-bit mock; 85 checks:
+  read/write, argument faults, status timeout/error, block programming) and a
+  Renode MMIO register round-trip check (`hal_block=PASS` on the emulated SoC).
+  M11 peripheral-bound HAL coverage 8/13 -> 9/13.
+  Scope: polled buffer mode only (no DMA/ADMA, command queuing, SDIO or PHY
+  tuning); the emulated board has no SD card (register round-trips only, the
+  transfer path is host-tested); on-target SD clock/bus-width and card
+  initialisation = GAP-A5.
+
 - **M4/M11 - reference MSS SPI backend (SRS-REQ-069).** `src/drivers/spi/mpfs/ff_spi_mpfs.{c,h}`
   implements the HAL SPI contract `FF_Spi_t` over the Microchip PolarFire SoC MSS
   SPI (CoreSPI) per the S4 sprint: 32-bit injected MMIO bus (`FF_SpiBus_t`),

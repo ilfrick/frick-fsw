@@ -32,6 +32,7 @@
 #include "drivers/can/mpfs/ff_can_mpfs.h"
 #include "drivers/i2c/mpfs/ff_i2c_mpfs.h"
 #include "drivers/spi/mpfs/ff_spi_mpfs.h"
+#include "drivers/block/mpfs/ff_block_mpfs.h"
 #include "drivers/net/ff_net_loopback.h"
 #include <string.h>
 
@@ -325,6 +326,36 @@ static bool renode_hal_spi_check(void)
     return FF_SpiMpfsSelfTest(&drv) == FF_SUCCESS;
 }
 
+/* HAL block-device check on the emulated MSS MMC/SD (milestone M11): register
+ * round trips (BlockSizeBlockCount, Argument1) and the static Capabilities1 /
+ * HostControl2 identification bits through the reference MMC/SD driver. The
+ * emulated board has no SD card attached, so no command is issued (a real
+ * command would log "no SD card" and do nothing): the full transfer path is
+ * host-tested, and on-target SD clock/bus-width/card behaviour is GAP-A5. The
+ * bus descriptor is static because FF_BlockMpfs_t keeps a pointer to it. */
+static uint32_t mpfs_mmc_read32(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    return *(volatile uint32_t *)(uintptr_t)(FF_MMC0_BASE + off);
+}
+
+static void mpfs_mmc_write32(void *ctx, uint32_t off, uint32_t val)
+{
+    (void)ctx;
+    *(volatile uint32_t *)(uintptr_t)(FF_MMC0_BASE + off) = val;
+}
+
+static bool renode_hal_block_check(void)
+{
+    static FF_BlockMpfs_t drv;
+    static FF_BlockBus_t bus = {NULL, mpfs_mmc_read32, mpfs_mmc_write32};
+
+    if (FF_BlockMpfsSetup(&drv, &bus, FF_MMC_SELFTEST_BLOCK_SIZE, 1u) != FF_SUCCESS) {
+        return false;
+    }
+    return FF_BlockMpfsSelfTest(&drv) == FF_SUCCESS;
+}
+
 #endif /* FRICK_PLATFORM_MPFS */
 
 void FF_AppRenodeTestMain(void *arg)
@@ -342,6 +373,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_can_ok = true;
     bool hal_i2c_ok = true;
     bool hal_spi_ok = true;
+    bool hal_block_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -384,6 +416,7 @@ void FF_AppRenodeTestMain(void *arg)
     hal_can_ok = renode_hal_can_check();
     hal_i2c_ok = renode_hal_i2c_check();
     hal_spi_ok = renode_hal_spi_check();
+    hal_block_ok = renode_hal_block_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
@@ -393,12 +426,13 @@ void FF_AppRenodeTestMain(void *arg)
     FF_PalLog("[renode-test] hal_can=%s\n", hal_can_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_i2c=%s\n", hal_i2c_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_spi=%s\n", hal_spi_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_block=%s\n", hal_block_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
     FF_PalLog("RENODE_TEST: %s\n",
               (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok &&
-               hal_net_ok && hal_nvm_ok && hal_can_ok && hal_i2c_ok && hal_spi_ok)
+               hal_net_ok && hal_nvm_ok && hal_can_ok && hal_i2c_ok && hal_spi_ok && hal_block_ok)
                   ? "PASS"
                   : "FAIL");
 
