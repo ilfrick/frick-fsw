@@ -12,7 +12,7 @@ CMAKE ?= cmake
 
 .PHONY: all configure build test run check ci-local verify-rtems verify-lean \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
+        coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
 
@@ -45,6 +45,14 @@ trace:
 # MISRA C:2012 scan (open-source cppcheck addon; advisory). See docs/quality/misra-c.md.
 misra:
 	bash tools/scripts/misra.sh
+
+# Containerised, reproducible MISRA scan (advisory, T14): runs the same script as
+# CI in a pinned base image where cppcheck is installed, so build/misra-report.txt
+# can be regenerated from the tree (see docs/vv/tool-qualification.md, T14). The
+# certified checker remains GAP-A4.
+misra-docker:
+	docker run --rm -v "$(CURDIR)":/w -w /w ubuntu:24.04 bash -lc \
+	  'apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq cppcheck >/dev/null && bash /w/tools/scripts/misra.sh'
 
 # Emulated-target verification (Renode PolarFire SoC / QEMU); advisory.
 emulated:

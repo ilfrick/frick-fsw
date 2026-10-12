@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 0.3 |
-| Date        | 2026-10-10 |
+| Revision    | 0.4 |
+| Date        | 2026-10-12 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -11,6 +11,12 @@
 This ICD defines the space-to-ground and ground-to-space packet interface of
 frick-fsw for the reference mission profile. It is the tailoring baseline for
 SRS-REQ-017/SSS-REQ-014.
+
+Board-level peripheral interfaces (Ethernet/MAC, CAN, RS-422/485, SPI, I2C,
+PCIe, GPIO, SpaceWire) and their register/address maps are **not** part of this
+TM/TC ICD: their contracts live in the HAL headers (`src/hal/`) and the
+reference driver headers, and their platform addresses in
+`config/platform/platform_mpfs.h`.
 
 ## 2. Configuration summary (from `config/fsw_config.h`)
 
@@ -134,3 +140,4 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 0.1 | 2026-10-10 | frick-fsw | Initial ground interface baseline |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: CUC P-field/T-field layout, time base reference |
 | 0.3 | 2026-10-10 | frick-fsw | R3 review NC-1: distinguish PUS-C 6-octet on-wire T-field from explicit 7-octet P+T CUC; correct set-time rejection codes |
+| 0.4 | 2026-10-12 | frick-fsw | Scope note: board-level peripheral interfaces and their register maps are not part of the TM/TC ICD (they live in the HAL/driver headers and platform headers) — FRICK-REVIEW-0130 R3-06 |

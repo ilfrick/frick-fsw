@@ -540,6 +540,15 @@ requirements:
     lean: []
     lean_note: "Reference MSS CAN (classic 2.0 A/B) backend behind FF_CanBackend_t (M4/M11): register logic host-tested (bounded 32 TX/RX buffers; accept-all filter in the identifier domain); MMIO register round trip on the emulated SoC (hal_can). RX dispatch is via the driver-specific FF_CanMpfsPoll (the HAL contract has no receive entry point). CAN-FD rejected (fabric device, reached through the FIC). Bit timing is a reference derivation from the MSS CAN clock (per-rate accuracy / on-target timing = GAP-A5)."
 
+  - id: SRS-REQ-058
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/i2c/mpfs/ff_i2c_mpfs.c", "src/drivers/i2c/mpfs/ff_i2c_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_i2c.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference MSS I2C (CoreI2C, polled master) backend behind FF_I2c_t (M4/M11): transaction logic host-tested (byte-register mock modelling the SI-clear-driven phase machine; START/address/data/repeated-START/receive/STOP); MMIO register round trip on the emulated SoC (hal_i2c). init(clock_hz) selects the CTRL CR2:CR1:CR0 serial-clock divider for the requested SCL; the divider and hence the on-target SCL is a reference derivation from the MSS I2C (APB) reference clock (per-rate accuracy / on-target timing = GAP-A5). Polled master only (no slave/SMBus/clock-stretching/interrupt path); SI poll is bounded."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

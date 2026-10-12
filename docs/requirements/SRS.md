@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.16                                   |
-| Date                              | 2026-10-11                             |
+| Revision                          | 1.17                                   |
+| Date                              | 2026-10-12                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |
@@ -301,6 +301,25 @@ review).
   Validated by a host unit test (mock MMIO) and by an emulated-MMIO register
   check on the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
 
+- **SRS-REQ-058** — *Reference MSS I2C driver*: the framework shall provide a
+  reference HAL I2C backend for the Microchip PolarFire SoC MSS I2C (CoreI2C)
+  controllers through one bound instance (`FF_I2c_t`, polled master: `init`,
+  `write`, `read`, `write_read`) over an injected byte-addressed MMIO bus,
+  register-based and allocation-free, where `init(clock_hz)` selects the CoreI2C
+  serial-clock divider for the requested SCL and the SI poll is bounded. The
+  serial-clock divider is a reference derivation from the configured MSS I2C
+  (APB) reference clock (per-rate accuracy and on-target SCL timing are tracked,
+  GAP-A5); the minimum achievable SCL is the slowest divider (PCLK/960,
+  ~104.17 kHz at the 100 MHz reference), so a requested rate below it is not
+  honoured and the caller must request a rate at or above that minimum. Failures
+  are reported as NACK → `FF_ERROR`, SI-poll timeout → `FF_TIMEOUT`, invalid
+  arguments → `FF_INVALID_ARGUMENT` and pre-init use → `FF_NOT_READY`. The
+  backend is a polled master only (7-bit addressing; no slave mode, SMBus, clock
+  stretching, bus recovery, STOP-completion confirmation or interrupt path) and
+  is not re-entrant (calls must be serialised by the caller). Validated by a host
+  unit test (mock MMIO master/slave) and by an emulated-MMIO register check on
+  the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -356,3 +375,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.14 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-056 reference NOR/QSPI MTD backend |
 | 1.15 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-057 reference MSS CAN driver |
 | 1.16 | 2026-10-11 | frick-fsw  | M4/M11: SRS-REQ-057 review NCs (receive via driver-specific poll, bounded TX/RX buffers, bit-timing basis/GAP-A5); align SRS-REQ-055 method to Tst\|Dem and note SRS-REQ-056 host-only |
+| 1.17 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-058 reference MSS I2C driver (polled CoreI2C master; serial-clock divider reference derivation/GAP-A5) |

@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ENG-0003 |
 | ----------- | -------------- |
-| Revision    | 0.2 |
-| Date        | 2026-10-10 |
+| Revision    | 0.3 |
+| Date        | 2026-10-12 |
 | Audience    | humans and agents extending frick-fsw with low-level drivers |
 
 This guide explains how to add a **low-level driver** to frick-fsw (a new link,
@@ -34,6 +34,12 @@ swapped at run time with `FF_LinkSelect(&my_backend)`.
 
 A link is any byte-oriented device that carries a CCSDS transfer frame. The
 contract is `FF_Link_t` (`src/transport/link/link.h`):
+
+> **Scope note:** at this revision only the **loopback** and **UART** link
+> backends are implemented in `src/transport/link/`; TCP/IP, SpaceWire, radio
+> and the other transports named in §1 are the plug-in use cases the vtable
+> targets, **not yet implemented** (the TCP/IP + TSN link backends are the
+> milestone-M4 absorbed plan; see `docs/roadmap.md`).
 
 ```c
 typedef struct {
@@ -203,3 +209,4 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial driver development/integration guide (norm N8) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: PPS backend vtable + software backend delivered; board hook = GAP-A7 |
+| 0.3 | 2026-10-12 | frick-fsw | Clarify that only loopback/UART link backends are implemented; TCP/IP/TSN link backends are the M4-absorbed planned path, not yet in `src/transport/link/` |

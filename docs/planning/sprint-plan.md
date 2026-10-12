@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0002                        |
-| Revision                          | 0.3                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.5                                    |
+| Date                              | 2026-10-12                             |
 | Norms                             | N3/N4/N8/N15/N19                       |
 | Companion                         | `docs/development-plan.md` (FRICK-PLAN-0001), `docs/roadmap.md` |
 
@@ -41,7 +41,7 @@ NCs (norm N12) before the loop closes.
 | **S0** | **Closure & baseline** | Close the open reviews of the M16 change (`FRICK-REVIEW-0064/0065/0066`) and the ECSS traceability NC `PA-67-01` (SDD design matrices); regenerate `traceability.md`; reconcile counts/histories; publish this plan + README section | all open reviews APPROVED (no open Minor); trace 96/55/27/14; docs/semaphores green |
 | **S1** | M4/M11 class 1-2 (memory-backed) + M10 close | `FF_Nvm_t` **eNVM** backend (SRS-REQ-055) + `FF_Mtd_t` **NOR/QSPI** backend (SRS-REQ-056); host tests; `hal_nvm` Renode check; **QEMU** run closes M10 — **delivered** | `hal_nvm=PASS` (met); **M10 done** (met: `make qemu`, T20); on-SoC NOR check pending the QSPI controller command driver |
 | **S2** | M4/M11 class 3 | **CAN** `FF_CanBackend_t` MSS backend (SRS-REQ-057; the contract is SRS-REQ-029) + host test + Renode check — **delivered** | `hal_can=PASS` (met) |
-| **S3** | M4/M11 class 4 | **I2C** `FF_I2c_t` MSS backend (SRS-REQ-031) + host test + Renode check | `hal_i2c=PASS` |
+| **S3** | M4/M11 class 4 | **I2C** `FF_I2c_t` MSS backend (contract SRS-REQ-031; own SRS-REQ-058) + host test + Renode check — **delivered** | `hal_i2c=PASS` (met); SRS-REQ-058 review record closed on the eNVM/MTD/CAN precedent |
 | **S4** | M4/M11 class 5 | **SPI** `FF_Spi_t` MSS backend (SRS-REQ-031) + host test + Renode check | `hal_spi=PASS` |
 | **S5** | M4/M11 class 6 | **BLOCK** `FF_BlockDev_t` eMMC/SD backend (SRS-REQ-032) + host test + Renode check | `hal_block=PASS` |
 | **S6** | M4/M11 class 7 | **NET** lwIP-on-GEM peripheral-bound + **TSN** peripheral-bound (SRS-REQ-040/038) under Renode | `hal_net` / `hal_tsn` peripheral-bound PASS |
@@ -100,3 +100,5 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 | 0.1 | 2026-10-11 | frick-fsw | Initial sprint plan (priorities: drivers → M12 → M16 → M13 → M8/M9 → M14 → M15; class-A track; open/free tooling); Sprint 0 closure backlog (M16 reviews + ECSS PA-67-01) |
 | 0.2 | 2026-10-11 | frick-fsw | S2 (MSS CAN) cites SRS-REQ-057 and marked delivered (`hal_can=PASS`); S1 NVM/MTD done |
 | 0.3 | 2026-10-11 | frick-fsw | S1 delivered: M10 closed (QEMU generic-BSP run, T20); next per plan S3 (I2C) |
+| 0.4 | 2026-10-12 | frick-fsw | S3 delivered: reference MSS I2C backend (SRS-REQ-058); `hal_i2c=PASS`; M11 7/13; ctest 20/20 (test_i2c 144 checks); counts 100/59/27/14/51; next per plan S4 (SPI) |
+| 0.5 | 2026-10-12 | frick-fsw | Expand the undefined token `RR-058` to "SRS-REQ-058 review record" (FRICK-REVIEW-0133 PA-07) |

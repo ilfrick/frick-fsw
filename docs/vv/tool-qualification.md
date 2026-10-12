@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.16                                 |
+| Revision                          | 0.3.18                                 |
 | Date                              | 2026-10-12                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -24,7 +24,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | --- | --------------------------------------- | ------------------------------- | ------------------------------- | -------------------------- | ---------------------------------------- | ------ |
 | T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | reproducibility of all evidence | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T2  | Unit test harness `ff_test.h`           | `tests/ff_test.h`               | unit test results               | reviewed + CM              | internal                                | QUALIFIED |
-| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`, `test_can.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
+| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`, `test_can.c`, `test_i2c.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
 | T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | QUALIFIED |
 | T5  | Lean 4 / lake / formal theorems         | `verification/lean/`            | norm N1 machine-checked proofs  | tool is self-checking; sources reviewed | review of theorem statements (R1/R2) | QUALIFIED |
 | T6  | Traceability gate                       | `tools/scripts/trace.py`        | norm N4 convergence             | reviewed + CM              | independent (R2), qualified once, reviewed at change | QUALIFIED |
@@ -35,10 +35,10 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T11 | CI workflows (GH Actions / Gitea)       | `.github/workflows`, `.gitea/workflows` | pipeline evidence `ci:*` | reviewed + CM              | internal                                | QUALIFIED |
 | T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
 | T13 | Status-panel generator (completion + coverage + semaphores) | `tools/scripts/metrics.py`    | README completion/coverage panel + V&V semaphores | reviewed + CM | internal (R2 on changes); R2 source review FRICK-REVIEW-0070 + PA approval FRICK-REVIEW-0068/0069/0071 | QUALIFIED |
-| T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`      | MISRA findings report         | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
+| T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`; `make misra-docker` (pinned container) | MISRA findings report, reproducible via `make misra-docker` | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
-| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
 | T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + `mpfs64imafdc` BSP (flight/Renode) and `rv64imafdc` BSP (QEMU) built; real cross build OK (plain + Renode + generic image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED (see note) |
 | T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
 | T20 | QEMU emulated-target functional check (M10) | `tools/scripts/qemu_vv.sh`, `cmake/toolchains/rtems-riscv-generic.cmake` (`make qemu-image`/`qemu-image-docker`, `make qemu`) | generic `rv64imafdc` image boots under `qemu-system-riscv64 -M virt -bios`: banner + 6 applications registered | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
@@ -123,3 +123,5 @@ by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
 | 0.3.14 | 2026-10-11 | frick-fsw | Re-qualification: T17 `renode_vv.sh` now also retains the full Renode process log (`build/renode/renode-process.log`) next to the UART console (evidence retention, PA-0109-06) |
 | 0.3.15 | 2026-10-11 | frick-fsw | M10: new qualified tool T20 (QEMU generic-BSP functional check, `qemu_vv.sh`); T18 builds the `rv64imafdc` BSP (QEMU) alongside `mpfs64imafdc`; `ci:emulated-run` mapped to T15/T16/T20 |
 | 0.3.16 | 2026-10-12 | frick-fsw | Review NCs: `ci:emulated-run` mapping clarified (T20 exercised by the nightly QEMU job); T18 reproducibility caveat recorded (clean `make rtems-toolchain` build tracked) |
+| 0.3.17 | 2026-10-12 | frick-fsw | T3 gains `tests/unit/test_i2c.c` (reference MSS I2C driver, SRS-REQ-058); T17 Renode functional check gains `hal_i2c` |
+| 0.3.18 | 2026-10-12 | frick-fsw | T3 `test_i2c` 135 -> 144 checks (1 MHz code-5 mapping, minimum-SCL boundary, bus-hook validation); T14 reproducibility: `make misra-docker` runs `misra.sh` in a pinned image (regenerates `build/misra-report.txt`; 13 advisory findings, 0 in I2C); header/History reconciled (FRICK-REVIEW-0129..0136) |

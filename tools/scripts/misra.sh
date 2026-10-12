@@ -3,7 +3,8 @@
 #
 # Advisory scanner used in CI (norm N10): writes build/misra-report.txt and
 # prints a summary. Not a qualified MISRA checker; see docs/quality/misra-c.md.
-# Exit code: number of reported findings (0 = clean), capped for CI.
+# Exit code: 0 on success (findings are advisory and written to the report),
+# 2 if the cppcheck checker is absent (fail-closed: evidence cannot be produced).
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -15,8 +16,9 @@ OUT="${ROOT}/build/misra-report.txt"
 mkdir -p "${ROOT}/build"
 
 if ! command -v cppcheck > /dev/null 2>&1; then
-  echo "[misra] cppcheck not installed; install it (apt-get install cppcheck) to run the MISRA scan"
-  exit 0
+  echo "[misra] cppcheck not installed; install it (apt-get install cppcheck) to run the MISRA scan" >&2
+  echo "[misra] FAIL: static-analysis evidence cannot be produced without the checker" >&2
+  exit 2
 fi
 
 cppcheck --addon=misra --std=c99 --inline-suppr \

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.12                                   |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.14                                   |
+| Date                              | 2026-10-12                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
 
@@ -44,6 +44,7 @@ milestone M11), then prints a machine-checkable marker:
 [renode-test] hal_net=PASS
 [renode-test] hal_nvm=PASS
 [renode-test] hal_can=PASS
+[renode-test] hal_i2c=PASS
 [renode-test] sb_roundtrip=PASS
 RENODE_TEST: PASS
 ```
@@ -90,21 +91,31 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run exercises
   HAL backends and, additionally, a **contract check**:
-  - **Peripheral-bound** (6/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
+  - **Peripheral-bound** (7/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
     SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036), **NVM**
-    (MSS eNVM data region write/read round trip, SRS-REQ-055) and **CAN**
-    (MSS CAN register round trips, SRS-REQ-057). The app checks
+    (MSS eNVM data region write/read round trip, SRS-REQ-055), **CAN**
+    (MSS CAN register round trips, SRS-REQ-057) and **I2C** (MSS I2C register
+    round trips, SRS-REQ-058). The app checks
     each and the marker is `PASS` only when all succeed (`hal_gpio=PASS`,
     `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`,
-    `hal_can=PASS`). The
+    `hal_can=PASS`, `hal_i2c=PASS`). The
     MEM pool is exercised over the in-image RAM (emulated DDR); the reference
-    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH, NVM and CAN
-    checks are MMIO identification/round-trip checks (full driver/DMA path host-tested).
+    DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH, NVM, CAN and
+    I2C checks are MMIO identification/round-trip checks; the full driver path is
+    host-tested (the reference DMA seam applies to MEM/ETH only, not to I2C).
     *Scope limit (CAN):* the emulated `MPFS_CAN` models only the AMR identifier
     field, not the AMR RTR/IDE mask bits (bits 1-2); the register check therefore
     uses the fully-modelled registers, and the RX acceptance filter is verified in
     the host unit test (identifier domain).
+    *Scope limit (I2C):* the emulated `I2C.MPFS_I2C` does not model the
+    Control-register clock-divider bits (CR2:CR1:CR0) — writing them logs a benign
+    "unhandled write" warning and they cannot be read back — and it advances the
+    transaction on register writes rather than on the SI clear the hardware uses,
+    so the register check asserts the core-enable bit (`ENS1`), the idle status
+    code, and round-trips the two slave-address registers only; the full
+    transaction path (including the serial-clock divider selection and re-derived
+    SCL) is verified in the host unit test.
   - **Contract check** (not peripheral-bound): **NET** — a socket round trip
     through the pluggable `FF_NetStack_t` contract using the reference loopback
     stack (`hal_net=PASS`; in-process).
@@ -136,3 +147,5 @@ stays open (GAP-A4/A6).
 | 0.10 | 2026-10-11 | frick-fsw | V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services); NVM (`hal_nvm`) added to the HAL coverage (5/13) |
 | 0.11 | 2026-10-11 | frick-fsw | M11: CAN (`hal_can`) added to the HAL coverage (6/13; SRS-REQ-057) |
 | 0.12 | 2026-10-11 | frick-fsw | Note the CAN scope limit: the emulated `MPFS_CAN` does not model the AMR RTR/IDE mask bits (R4-0108-11) |
+| 0.13 | 2026-10-12 | frick-fsw | M11: I2C (`hal_i2c`) added to the HAL coverage (7/13; SRS-REQ-058); note the emulated `I2C.MPFS_I2C` scope limit (clock-divider bits not modelled; advances on register writes) |
+| 0.14 | 2026-10-12 | frick-fsw | Correct the I2C clause: the check is an MMIO round trip with the full driver path host-tested (no I2C DMA path; the reference DMA seam is MEM/ETH only) — FRICK-REVIEW-0129 R2-04 |

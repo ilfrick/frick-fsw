@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.7                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 1.9                                    |
+| Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -60,10 +60,10 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (19/19) + trace + format
+# Host build + unit tests (20/20) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 99/58/27/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 100/59/27/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit aee4135 + the M10 QEMU increment; norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit db8261f + the Sprint-3 (M4/M11 MSS I2C) increment; norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -100,46 +100,51 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** **6/13 peripheral-bound**
+- **M11 in progress (Renode HAL coverage, OBJ-19):** **7/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
   **ETH** (Cadence GEM **identification** via the read-only Module ID,
-  SRS-REQ-036), **NVM** (`ff_nvm_mpfs`, SRS-REQ-055; eNVM data write/read check)
-  and **CAN** (`ff_can_mpfs`, SRS-REQ-057; MMIO register round trip). Additionally
+  SRS-REQ-036), **NVM** (`ff_nvm_mpfs`, SRS-REQ-055; eNVM data write/read check),
+  **CAN** (`ff_can_mpfs`, SRS-REQ-057; MMIO register round trip) and **I2C**
+  (`ff_i2c_mpfs`, SRS-REQ-058; MMIO register round trip). Additionally
   a **NET `FF_NetStack_t` contract check** through the reference loopback stack
   (SRS-REQ-039; in-process — **not** peripheral-bound).
-  GPIO/SERIAL/MEM/NVM/CAN go through their HAL backends; the ETH check is an MMIO
+  GPIO/SERIAL/MEM/NVM/CAN/I2C go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
-  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can=PASS`. Remaining
-  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/SPI/I2C/PCIE/SPACEWIRE/BLOCK.
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c=PASS`. Remaining
+  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/SPI/PCIE/SPACEWIRE/BLOCK.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART, the
-  static RAM pool/DMA helper, the eNVM NVM backend, the NOR/QSPI MTD backend and
-  the MSS CAN driver so far.
+  static RAM pool/DMA helper, the eNVM NVM backend, the NOR/QSPI MTD backend, the
+  MSS CAN driver and the MSS I2C driver so far.
 - **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
   ESA), **M13** (reference mission services: equipment manager + fault
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
   service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
   development) are **planned**.
-- Requirements: **99 (58 srs / 27 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **100 (59 srs / 27 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs),
-  0101..0105 (NVM/MTD + board repl) and **0106..0119** (M4/M11 MSS CAN: R1/R2/R4
-  initial + delta + closure reviews and the PA freeze sign-off) — all closed (see
-  `docs/reviews/README.md`).
+  0101..0105 (NVM/MTD + board repl), **0106..0119** (M4/M11 MSS CAN: R1/R2/R4
+  initial + delta + closure reviews and the PA freeze sign-off), **0120..0128**
+  (M10 QEMU closure: R1/R2/R4/PA initial, delta and final closure) and
+  **0129..0136** (Sprint-3 M4/M11 MSS I2C: R1/R2/R3/R4/PA initial + R1/R2 delta +
+  PA delta; PA converted REJECTED -> APPROVED WITH COMMENTS, loop closed) — all
+  closed (see `docs/reviews/README.md`).
 
 ## 5. Immediate next steps (priority order)
 
 > Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). S1 is complete
 > (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
-> done. Next per plan: **S3 — I2C `FF_I2c_t` MSS backend** (`hal_i2c=PASS`).
+> done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058, M11 7/13, ctest
+> 20/20 incl. `test_i2c` 144 checks). Next per plan: **S4 — SPI `FF_Spi_t` MSS
+> backend** (`hal_spi=PASS`).
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
-   - [done: NVM (SRS-REQ-055), NOR/QSPI MTD driver (SRS-REQ-056), MSS CAN (SRS-REQ-057); board repl loaded; on-SoC QSPI check pending the controller command driver]; remaining:
-   - **SPI** (`SPI.MPFS_SPI`), **I2C** (loopback made
-     explicit in `frick-renode.resc`), **BLOCK (eMMC/SD)**, **PCIe**,
+   - [done: NVM (SRS-REQ-055), NOR/QSPI MTD driver (SRS-REQ-056), MSS CAN (SRS-REQ-057), MSS I2C (SRS-REQ-058); board repl loaded; on-SoC QSPI check pending the controller command driver]; remaining:
+   - **SPI** (`SPI.MPFS_SPI`), **BLOCK (eMMC/SD)**, **PCIe**,
      **SpaceWire**, **ETH/NET/TSN** (instantiate the existing GEM/lwIP backends).
    For each: driver behind `hal_*.h`, host unit test with an independent mock,
    a binding in `frick-renode.resc`, a clause in `app_renode_test.c`, SRS req,
@@ -197,3 +202,5 @@ occasion; prefer Docker.
 | 1.5 | 2026-10-11 | frick-fsw | Sprint 1.3: reference MSS CAN backend (SRS-REQ-057); M11 6/13 (`hal_can=PASS`); counts 99/58/27/14 |
 | 1.6 | 2026-10-11 | frick-fsw | CAN review set closed (FRICK-REVIEW-0106..0119: R1/R2/R4 + PA initial/delta/closure + freeze); accept-all mask, clock 80 MHz, test 129 checks |
 | 1.7 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20); toolchain image gains the rv64imafdc BSP + QEMU |
+| 1.8 | 2026-10-12 | frick-fsw | Sprint 3: reference MSS I2C backend (SRS-REQ-058); M11 7/13 peripheral-bound (`hal_i2c=PASS`); counts 100/59/27/14/51; ctest 20/20 (test_i2c 144 checks); next S4 (SPI) |
+| 1.9 | 2026-10-12 | frick-fsw | Sprint-3 review set closed (FRICK-REVIEW-0129..0136: R1/R2/R3/R4/PA initial + deltas; PA REJECTED -> APPROVED WITH COMMENTS); user-facing TCP/IP + TSN sections and the expanded framework description (FRICK-ENG-0007) added; T14 reproducible via `make misra-docker`; next S4 (SPI) |

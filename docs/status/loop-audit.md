@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.11                                   |
+| Revision                          | 0.13                                   |
 | Date                              | 2026-10-12                             |
-| Baseline commit                   | aee4135 + M10 QEMU closure increment (audited revision) |
+| Baseline commit                   | db8261f + Sprint-3 MSS I2C increment (audited revision) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -24,14 +24,14 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending); SPI/I2C/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058); SPI/MMC/eMMC/storage/PCIe/SpaceWire pending** | partial | tracked: M4/M11 (remaining classes) |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS (MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20)** | none | closed |
-| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN done (6/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 7 classes pending** | partial | tracked: M11 |
+| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C done (7/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 6 classes pending** | partial | tracked: M11 |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
 | **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
@@ -46,7 +46,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (99 reqs) | planned reqs documented-only | tracked: M12-M16 |
+| N3 | SRS/SSS for all code | compliant (100 reqs) | planned reqs documented-only | tracked: M12-M16 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
@@ -61,7 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N15 | full cycle each change | compliant (native+trace+format+Renode) | Lean/RTEMS proxies | documented |
 | N16 | revision history | compliant | none | closed |
 | N17 | documentation review (R4) | per change; one N20-change review was initially missed (FRICK-REVIEW-0056 DOC-10) then performed | none | closed |
-| N18 | Renode functional validation | **in force** (`make renode` PASS) | per-commit SKIP proxy (no image) | documented |
+| N18 | Renode functional validation | **in force** (`make renode` PASS, incl. `hal_i2c=PASS` on the Sprint-3 image) | per-commit SKIP proxy (no image) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
 | N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 findings closed, PA PASS (FRICK-REVIEW-0063) | R1-02 bounded residual (tracked) | closed (residual tracked: loopback R1-02) |
 
@@ -164,3 +164,5 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.9 | 2026-10-11 | frick-fsw | M4/M11: MSS CAN done (SRS-REQ-057); M11 6/13; counts 99/58/27/14; re-baselined to the CAN increment |
 | 0.10 | 2026-10-11 | frick-fsw | M10 closed: QEMU generic-BSP emulated-target run (`make qemu`, T20); M11 6/13; counts 99/58/27/14 |
 | 0.11 | 2026-10-12 | frick-fsw | M10 review NCs (FRICK-REVIEW-0120..0123): N10 registry T1-T20; QEMU gap rows closed; QEMU run recorded |
+| 0.12 | 2026-10-12 | frick-fsw | Sprint 3: reference MSS I2C backend (SRS-REQ-058) delivered; M11 7/13 peripheral-bound (`hal_i2c=PASS`); counts 100/59/27/14/51; `make renode` PASS on the Sprint-3 image |
+| 0.13 | 2026-10-12 | frick-fsw | Sprint-3 review set closed (FRICK-REVIEW-0129..0136: R1/R2/R3/R4/PA initial + R1/R2 delta + PA delta; PA REJECTED -> APPROVED WITH COMMENTS); user-facing TCP/IP + TSN sections and the expanded framework description (FRICK-ENG-0007) added; T14 reproducible via `make misra-docker` |

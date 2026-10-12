@@ -9,6 +9,47 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **User-facing TCP/IP and TSN documentation + expanded framework description
+  (FRICK-ENG-0005 0.4, FRICK-ENG-0007 0.2, FRICK-ARCH-0012 0.3).** Added user
+  "How to use" subsections to `docs/engineering/user-integration-manual.md`:
+  §8.1 (TCP/IP — `FF_NetStack_t` contract; `FF_NetStackLoopback`/`FF_NetStackLwip`
+  backends; `FF_USE_LWIP` default OFF; lwIP pinned to `STABLE-2_2_1_RELEASE`
+  BSD-3-Clause; Tuxera/RTEMS `libbsd` user-supplied; PUS-C over IP **not**
+  implemented end-to-end) and §9.1 (TSN — `FF_TsnBackend_t`/`FF_TsnGemSetup`;
+  802.1Q/Qbv implemented; 802.1Qav `FF_NOT_IMPLEMENTED`; 802.1AS time-read seam,
+  **not** gPTP; M8 plan). Expanded the comprehensive framework description
+  `docs/engineering/software-description.md` (§2.1 "what frick-fsw is not", §3.8
+  BSP and start-up sequence, §3.9 interface-contract inventory with
+  implemented/interface-only/planned/user-supplied status, §5 platform build/target
+  matrix). `docs/architecture/network-stack.md` now states the exact lwIP pin and
+  licence and cross-references the manuals (§8.1/§9.1); `AGENTS.md` names the
+  software-description path explicitly. Documentation only, no capability
+  over-claim.
+- **M4/M11 - reference MSS I2C backend (SRS-REQ-058).** `src/drivers/i2c/mpfs/ff_i2c_mpfs.{c,h}`
+  implements the HAL I2C contract `FF_I2c_t` over the Microchip PolarFire SoC MSS
+  I2C (CoreI2C) per the S3 sprint: byte-injected MMIO bus (`FF_I2cBus_t`),
+  canonical-address API (7-bit address passed to `write`/`read`/`write_read`),
+  divider-code selection from a reference 100 MHz APB clock (exposed
+  `ff_i2c_div_table`; 100 kHz/400 kHz/1 MHz selections tested), polled master
+  sequencing driven by the hardware SI-clear discipline (read STATUS -> act ->
+  clear SI; START/STA-ADDR/SEND-DATA/begin-read/RECEIVE/STOP), bounded SI wait
+  (`FF_I2C_POLL_MAX`), and NACK/timeout/invalid-argument/not-ready error codes.
+  Host unit test `test_i2c` (behavioural SI-clear-driven byte mock with a
+  register-based slave; 144 checks: write, read incl. cap=1, write-read, fault,
+  bus-hook validation and divider cases incl. the 1 MHz code-5 mapping) and a
+  Renode MMIO register round-trip check (`hal_i2c=PASS` on
+  the emulated SoC). M11 peripheral-bound HAL coverage 6/13 -> 7/13.
+  Scope: polled master only (no slave/SMBus/clock-stretch/interrupt path);
+  the emulated controller does not model CTRL CR0/CR1/CR2 (asserts ENS1 + IDLE
+  STATUS 0xF8 and round-trips ADDR/SLAVE1_ADDR only) — SCL divider is a reference
+  derivation, on-target APB/SCL timing = GAP-A5.
+- **Engineering documentation set.** `docs/engineering/software-description.md`
+  (FRICK-ENG-0007; the "what this framework is and does" entry document, expanded
+  to 0.2 and kept current per release), plus status updates in
+  `docs/architecture/network-stack.md` (0.3), `docs/engineering/user-integration-manual.md`
+  (0.4) and `docs/engineering/driver-development.md` (0.3) recording the
+  TCP/IP-over-PUS-C and TSN implementation status (implemented / planned /
+  external) with dedicated user-facing sections and no capability over-claim.
 - **M10 - QEMU emulated-target run (SRS-REQ-043, OBJ-18).** A **generic**
   `riscv/rv64imafdc` RTEMS image (platform `qemu-virt-rtems`, `FF_PLATFORM=rtems-generic`,
   no PolarFire SoC board module; `config/platform/platform_qemu.h`) is built
@@ -47,6 +88,24 @@ change. All dates UTC, project language English (norm N2).
 
 ### Fixed
 
+- **MSS I2C review NCs (FRICK-REVIEW-0129..0136; SRS-REQ-058).** `test_i2c` extended
+  from 135 to 144 checks: a real 1 MHz divider-code-5 case (R1-03/R2-01/R3-02/PA-04),
+  the minimum-SCL boundary at 104166/104167 Hz (R1-01/R3-04) and a NULL-bus-hook
+  rejection case (R1-C2). The header now documents the minimum achievable SCL
+  (`FF_I2C_MIN_SCL_HZ`), 7-bit-only addressing, the fire-and-forget STOP, the
+  non-re-entrant binding and the self-test side effects (R1-02/C3/C4/C8), and the
+  register map is labelled a **reference mapping** (R3-01); the host mock is
+  described as behavioural/phase-level, not an independent oracle (R1-C1/R2-03/R3-07);
+  comment typos fixed (R1-C7). Records reconciled: `test_i2c` = 144 checks, the
+  divider rates corrected, the four document headers bumped to their History rows
+  and the loop-audit baseline refreshed (PA-02/PA-03/R4-01/R4-04); `SRS-REQ-058` was
+  added to the `ci-renode` evidence markers (R2-02); a reproducible `make misra-docker`
+  T14 path was added (PA-05/R1-C9); the ICD board-level scope note and the 802.1AS
+  "time-read seam" wording were clarified (R3-06/R4-06); `software-description.md`
+  was registered in the README index and `AGENTS.md` (PA-06); the README "Current
+  focus" was refreshed (R4-03); the undefined token `RR-058` was expanded (PA-07);
+  and the GAP-A5 I2C on-target residual (per-rate SCL accuracy, STOP completion,
+  bus recovery) was recorded.
 - **M10 QEMU review NCs (FRICK-REVIEW-0120..0123; also closes the predecessor
   M10 review FRICK-REVIEW-0035 NCs).** The QEMU image is now a genuinely generic
   RTEMS build (no PolarFire SoC board module / MPFS banner, per `platform_qemu.h`);

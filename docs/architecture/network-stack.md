@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0012                        |
-| Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.3                                    |
+| Date                              | 2026-10-12                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040  |
 
@@ -30,7 +30,7 @@ blocking unless `timeout_ms > 0` (which sets `SO_RCVTIMEO`).
 | Backend | File | Notes |
 | ------- | ---- | ----- |
 | Loopback | `src/drivers/net/ff_net_loopback.{c,h}` | bounded, static, in-process; exercises the contract in CI (SRS-REQ-039) |
-| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}` | adapter over the lwIP socket API (SRS-REQ-040); lwIP is a third-party BSD-3 stack, fetched pinned (`third_party/lwip`, `contrib` included in the lwIP tree) |
+| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}` | adapter over the lwIP socket API (SRS-REQ-040); lwIP is a third-party **BSD-3-Clause** stack, fetched pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`, `contrib` included in the lwIP tree; not committed) |
 
 Tuxera TCP/IP and any other closed stack plug in through the same vtable as
 user-supplied adapters.
@@ -39,7 +39,8 @@ user-supplied adapters.
 
 - Loopback backend: always built with `FF_BUILD_DRIVERS=ON`.
 - lwIP backend: `FF_USE_LWIP=ON` (default OFF); requires the fetched lwIP
-  (`tools/scripts/fetch_third_party.sh`). CMake builds a `frick_lwip` target
+  (`tools/scripts/fetch_third_party.sh`, release tag `STABLE-2_2_1_RELEASE`).
+  CMake builds a `frick_lwip` target
   (lwIP core + the unix port `sys_arch`) and a separate `frick_net_lwip` adapter
   target. lwIP sources are not compiled with the project's `-Werror`.
 
@@ -50,7 +51,31 @@ user-supplied adapters.
   over the lwIP loopback interface (127.0.0.1), plus negative address handling.
 - CI: a job fetches lwIP, builds with `FF_USE_LWIP=ON` and runs the lwIP test.
 
-## 6. Gaps
+## 6. Status — PUS-C over IP and TSN
+
+**PUS-C over IP is not implemented end-to-end in this revision.** The contract
+above is the delivered seam; the TCP/IP and TSN **link** backends (`FF_Link_t`)
+and the PUS-C-over-IP segmentation/reassembly are **planned** (milestone M4,
+absorbed from the former roadmap: `docs/roadmap.md`, `docs/development-plan.md`).
+The ICD has no TCP/UDP/IPv4 or EtherType allocation yet (`docs/interfaces/ICD.md`),
+and the supplied ground station is **serial-only** (V&V tool T7,
+`docs/vv/tool-qualification.md`). On-target netif/PHY and stack qualification is
+**GAP-A5** (`docs/quality/class-a-gaps.md`).
+
+**TSN** is a MAC-level capability: the GEM native backend
+(`src/drivers/eth/gem/ff_gem_tsn.{c,h}`, SRS-REQ-038) implements 802.1Q
+(VLAN/PCP), 802.1Qbv (ENST) and the 802.1AS time-read seam (a hardware clock
+read, not the gPTP protocol); 802.1Qav returns
+`FF_NOT_IMPLEMENTED`; the full gPTP stack and the fabric CoreTSN path are
+milestone **M8** (planned). On-target TSN timing is **GAP-A5**.
+
+The implemented / planned / external / third-party matrix, the "which TCP/IP
+stack is included" pronouncement and the "how to use" steps (what to call, what
+build flags, what is user-supplied) are in
+`docs/engineering/user-integration-manual.md` (§8-§10, incl. §8.1 and §9.1),
+with a summary in `docs/engineering/software-description.md` (§3.7).
+
+## 7. Gaps
 
 On-target hardware netif/PHY and stack timing are GAP-A5; the adapter assumes a
 mission-provided netif on the target (`attach_netif`).
@@ -60,3 +85,5 @@ mission-provided netif on the target (`attach_netif`).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial network-stack abstraction note (loopback + lwIP adapter) |
+| 0.2 | 2026-10-12 | frick-fsw | Add status section: PUS-C over IP and TSN implemented vs planned, with pointers to the ICD, development plan and engineering manuals |
+| 0.3 | 2026-10-12 | frick-fsw | State the exact lwIP pin (release tag `STABLE-2_2_1_RELEASE`) and BSD-3-Clause licence in §3/§4; cross-reference the user manual's "how to use" steps (§8.1/§9.1) |

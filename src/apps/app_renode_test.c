@@ -30,6 +30,7 @@
 #include "drivers/mem/ff_mem_static.h"
 #include "drivers/nvm/mpfs/ff_nvm_mpfs.h"
 #include "drivers/can/mpfs/ff_can_mpfs.h"
+#include "drivers/i2c/mpfs/ff_i2c_mpfs.h"
 #include "drivers/net/ff_net_loopback.h"
 #include <string.h>
 
@@ -262,6 +263,37 @@ static bool renode_hal_can_check(void)
     return FF_CanMpfsSelfTest(&drv) == FF_SUCCESS;
 }
 
+/* HAL I2C check on the emulated MSS I2C (milestone M11): enable the core through
+ * the HAL init path (serial-clock divider + ENS1), confirm the bus reports idle,
+ * and round-trip the two slave-address registers. The emulated MPFS_I2C does not
+ * model the Control-register clock-divider bits (they are not readable back), so
+ * only ENS1 is asserted; no bus transaction is run (no slave is attached and the
+ * model advances on register writes, not on the SI clear the hardware uses). The
+ * full transaction path is host-tested, and on-target SCL/APB timing and real
+ * bus behavior are GAP-A5. */
+static uint8_t mpfs_i2c_read8(void *ctx, uint32_t off)
+{
+    (void)ctx;
+    return *(volatile uint8_t *)(uintptr_t)(FF_I2C0_BASE + off);
+}
+
+static void mpfs_i2c_write8(void *ctx, uint32_t off, uint8_t val)
+{
+    (void)ctx;
+    *(volatile uint8_t *)(uintptr_t)(FF_I2C0_BASE + off) = val;
+}
+
+static bool renode_hal_i2c_check(void)
+{
+    static FF_I2cMpfs_t drv;
+    FF_I2cBus_t bus = {NULL, mpfs_i2c_read8, mpfs_i2c_write8};
+
+    if (FF_I2cMpfsSetup(&drv, &bus) != FF_SUCCESS) {
+        return false;
+    }
+    return FF_I2cMpfsSelfTest(&drv) == FF_SUCCESS;
+}
+
 #endif /* FRICK_PLATFORM_MPFS */
 
 void FF_AppRenodeTestMain(void *arg)
@@ -277,6 +309,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_net_ok = true;
     bool hal_nvm_ok = true;
     bool hal_can_ok = true;
+    bool hal_i2c_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -317,6 +350,7 @@ void FF_AppRenodeTestMain(void *arg)
     hal_net_ok = renode_hal_net_check();
     hal_nvm_ok = renode_hal_nvm_check();
     hal_can_ok = renode_hal_can_check();
+    hal_i2c_ok = renode_hal_i2c_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
@@ -324,13 +358,15 @@ void FF_AppRenodeTestMain(void *arg)
     FF_PalLog("[renode-test] hal_net=%s\n", hal_net_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_nvm=%s\n", hal_nvm_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_can=%s\n", hal_can_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_i2c=%s\n", hal_i2c_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok &&
-                                    hal_eth_ok && hal_net_ok && hal_nvm_ok && hal_can_ok)
-                                       ? "PASS"
-                                       : "FAIL");
+    FF_PalLog("RENODE_TEST: %s\n",
+              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok &&
+               hal_net_ok && hal_nvm_ok && hal_can_ok && hal_i2c_ok)
+                  ? "PASS"
+                  : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

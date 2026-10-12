@@ -126,6 +126,14 @@
 | 2026-10-12 | M10 — R4 delta review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (R4-01..08 closed) | 2026-10-12-m10-r4-delta-review.md |
 | 2026-10-12 | M10 — PA delta review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Majors PA-01/PA-03 closed) | 2026-10-12-m10-pa-delta-review.md |
 | 2026-10-12 | M10 — PA final closure (N12/N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (M10 loop closed) | 2026-10-12-m10-pa-final-closure.md |
+| 2026-10-12 | Sprint-3 MSS I2C — V&V review | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (R2-01..04) | 2026-10-12-m4-m11-i2c-r2-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — systems/requirements review (N14) | R3 (Senior systems engineer) | APPROVED WITH COMMENTS (R3-01..08 closed) | 2026-10-12-m4-m11-i2c-r3-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — FSW code review | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01..03, C1..C9) | 2026-10-12-m4-m11-i2c-r1-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C + user docs — documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (R4-01..06 closed) | 2026-10-12-m4-m11-i2c-r4-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — PA review (N20) | PA (Senior SW PA engineer) | REJECTED (Major PA-01 review-set gate) -> fixed | 2026-10-12-m4-m11-i2c-pa-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01..03, C1..C9 closed) | 2026-10-12-m4-m11-i2c-r1-delta-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — R2 delta review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (R2-01..04 closed) | 2026-10-12-m4-m11-i2c-r2-delta-review.md |
+| 2026-10-12 | Sprint-3 MSS I2C — PA delta review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Major PA-01 closed; loop closed) | 2026-10-12-m4-m11-i2c-pa-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

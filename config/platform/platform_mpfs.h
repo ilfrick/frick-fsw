@@ -52,4 +52,13 @@
  * device reached through the FIC, not a feature of the MSS CAN controller. */
 #define FF_CAN0_BASE 0x2010C000u
 
+/* MSS I2C 0/1 controllers (Microchip CoreI2C, byte registers). Used by the
+ * reference I2C driver; the I2C0 register file is exercised on the emulated SoC
+ * in the Renode functional test (M11). PLIC interrupt sources: I2C0 main 58,
+ * I2C1 main 61. FF_I2C1_BASE and the PLIC lines are **reference values** from
+ * the SoC memory map (GAP-A5): they are declared for completeness but the
+ * polled reference backend neither drives I2C1 nor uses the interrupt lines. */
+#define FF_I2C0_BASE 0x2010A000u
+#define FF_I2C1_BASE 0x2010B000u
+
 #endif /* FF_PLATFORM_MPFS_H */

@@ -33,7 +33,7 @@
 | `verification/lean/` | Lean 4 project: formal requirement theorems (norm N1) |
 | `tools/` | scripts (`trace.py`, `coverage.py`, `metrics.py`, `setup_rtems.sh`, `run_sim.sh`, `renode_vv.sh`, `renode_env_selftest.sh`, `qemu_vv.sh`, `emulated_run.sh`), ground station (`gsw/ff_gsw.py`), docker V&V material (`docker/`, `docker/renode/`, `docker/rtems/`) |
 | `assets/` | project marks (logo) for codename "Eärendil"; see `assets/README.md` |
-| `docs/` | rules, requirements (SSS/SRS/traceability), design (SDD), architecture, ADRs, interfaces (ICD), quality (class B/A + compliance/CM/PA/safety), V&V, engineering (independent review + driver/service/user guides), reviews, roadmap, **development plan**, status (**`handover.md` = resume point**) |
+| `docs/` | rules, requirements (SSS/SRS/traceability), design (SDD), architecture, ADRs, interfaces (ICD), quality (class B/A + compliance/CM/PA/safety), V&V, engineering (software description `docs/engineering/software-description.md` + independent review + driver/service/user guides), reviews, roadmap, **development plan**, status (**`handover.md` = resume point**) |
 | `NOTICE` | copyright and license notice (Copyright (C) 2026 Ilfrick, norm N13) |
 | `.github/workflows/`, `.gitea/workflows/` | CI pipelines |
 | `board/` | device-tree sources (`mpfs-rtpfs160zt.dts`) |

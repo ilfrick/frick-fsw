@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.6                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.7                                    |
+| Date                              | 2026-10-12                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
 | Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
 
@@ -96,6 +96,11 @@ class-A flight gap (build-time tool, re-qualified as T19).
   real-silicon residual remains open.
 - Link-level PUS TM/TC verification over the real UART plus loopback on target.
 - Hardware-in-the-loop closed-loop scenarios (housekeeping, time, HS recovery).
+- MSS I2C (SRS-REQ-058): the reference backend does not confirm STOP completion
+  (STOP is issued fire-and-forget on every terminal/error path) and has no
+  bus-recovery or arbitration-loss handling; the serial-clock divider is a
+  reference derivation from an assumed 100 MHz APB clock. Per-rate SCL accuracy,
+  STOP completion and bus recovery are confirmed on target (R1-02/R3-08).
 
 ## GAP-A6 - Environmental / radiation campaign
 
@@ -199,3 +204,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.4 | 2026-10-10 | frick-fsw | M7: add GAP-A14 (SDLS crypto algorithm qualification and key store) |
 | 0.5 | 2026-10-11 | frick-fsw | GAP-A1b reframed as a sub-item of GAP-A1 (delivered, ADR-0016); tracking clarified (PA-08) |
 | 0.6 | 2026-10-11 | frick-fsw | GAP-A5 owner/milestone recorded (programme/hardware; on-target bring-up M10/M14); PA-0109-08 |
+| 0.7 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS I2C on-target residual (STOP completion, bus recovery, per-rate SCL accuracy) — FRICK-REVIEW-0131 (R1-02) / FRICK-REVIEW-0130 (R3-08) |
