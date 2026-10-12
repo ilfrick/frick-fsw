@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.17                                   |
+| Revision                          | 1.18                                   |
 | Date                              | 2026-10-12                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -320,6 +320,49 @@ review).
   unit test (mock MMIO master/slave) and by an emulated-MMIO register check on
   the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
 
+### Extended transport and fieldbus (milestone M4-residual / M8)
+
+- **SRS-REQ-059** — *PUS-C link segmentation and reassembly*: the framework
+  shall provide bounded, allocation-free segmentation and reassembly of PUS-C /
+  CCSDS frames for stream- or packet-oriented IP and TSN links, with the
+  encapsulation profile selected per the mission ICD (profile = mission input,
+  TBC; owner: M4-residual). `method: Tst`.
+- **SRS-REQ-060** — *IP-based PUS-C link backend (TCP/UDP)*: the framework shall provide a
+  reference `FF_Link_t` backend that carries PUS-C TM/TC over an IP-based link
+  (TCP or UDP as selected by the mission ICD; the reference uses UDP datagrams)
+  using the network-stack contract (`FF_NetStack_t`), selectable with
+  `FF_LinkSelect`. `method: Tst | Dem`.
+- **SRS-REQ-061** — *TSN PUS-C link backend*: the framework shall provide a
+  reference `FF_Link_t` backend that carries PUS-C TM/TC over the TSN-scheduled
+  Ethernet path (`FF_TsnBackend_t` + GEM), selectable with `FF_LinkSelect`.
+  `method: Tst | Dem`.
+- **SRS-REQ-062** — *CAN-FD fabric backend*: the framework shall provide a
+  reference CAN-FD backend behind `FF_CanBackend_t` reached through the generic
+  fabric (FIC/AXI) device contract. `method: Tst | Dem`.
+- **SRS-REQ-063** — *CANopen reference stack*: the framework shall provide a
+  reference CANopen (CiA 301/302/402) stack implementing the `FF_CanOpenStack_t`
+  contract over a CAN backend. `method: Tst | Dem`.
+- **SRS-REQ-064** — *RS-485 half-duplex direction control*: the framework shall
+  implement the serial contract's `set_rs485` direction control by driving a bound
+  DE/RE control line with the requested assert timing. `method: Tst`.
+- **SRS-REQ-065** — *PUSopen(R) documented adapter*: the framework shall provide a
+  documented adapter implementing the PUS product contract over the commercial
+  PUSopen(R) library (the commercial library itself is user-supplied).
+  `method: Tst | Inp`.
+- **SRS-REQ-066** — *GEM TSN shaping and filtering completion*: the framework
+  shall extend the GEM native TSN backend with 802.1Qav (credit-based shaping),
+  802.1Qci (per-stream filtering/policing) and 802.1Qbb (priority flow control);
+  feasibility on the GEM register subset used by the reference backend (which does
+  not currently expose CBS) = TBC (owner: M8). `method: Tst | Inp`.
+- **SRS-REQ-067** — *Generic fabric-device contract*: the framework shall define a
+  generic fabric-device (FIC/AXI) contract for resources reached through the FPGA
+  fabric, on which the fabric CAN-FD/SpaceWire/TSN backends are built.
+  `method: Inp`.
+- **SRS-REQ-068** — *gPTP (802.1AS) and fabric CoreTSN completion*: the framework
+  shall complete the deterministic-Ethernet feature set: a full 802.1AS gPTP stack
+  (BMCA, Sync/Follow_Up, PDelay, servo) and the fabric CoreTSN path (multi-port
+  switch / 802.1CB FRER). `method: Tst | Dem`.
+
 ## 6. Derived requirements
 
 The following are derived from the applicability of ECSS Category B and from
@@ -328,8 +371,10 @@ traceability manifest (`derived: true`), per norm N4.
 
 - **SRS-REQ-017** (derived) — TM/TC frames use CCSDS Space Packets (APPID
   0x010 / 0x020) with mission identifier 0x01. `derived justification: ECSS-E-ST-70-41C tailoring, doc ICD-GND`.
-- **SRS-REQ-018** (derived) — the reference build uses the open backend for
-  PUS; PUSopen(R) is an optional drop-in backend. `derived justification: ADR-0003`.
+- **SRS-REQ-018** (derived) — the reference build uses the N7/ESA ASN.1 backend by
+  default (SRS-REQ-050); the open backend is an alternative; PUSopen(R) is an
+  optional drop-in adapter (planned, SRS-REQ-065). `derived justification:
+  ADR-0003/ADR-0016`.
 - **SRS-REQ-019** (derived) — configuration is concentrated in
   `config/fsw_config.h` plus mission tables. `derived justification: cFS heritage, ADR-0008`.
 - **SRS-REQ-020** (derived) — the project shall maintain an always-current
@@ -376,3 +421,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.15 | 2026-10-11 | frick-fsw  | M4/M11: add SRS-REQ-057 reference MSS CAN driver |
 | 1.16 | 2026-10-11 | frick-fsw  | M4/M11: SRS-REQ-057 review NCs (receive via driver-specific poll, bounded TX/RX buffers, bit-timing basis/GAP-A5); align SRS-REQ-055 method to Tst\|Dem and note SRS-REQ-056 host-only |
 | 1.17 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-058 reference MSS I2C driver (polled CoreI2C master; serial-clock divider reference derivation/GAP-A5) |
+| 1.18 | 2026-10-12 | frick-fsw  | Restore explicit M4 scope: add SRS-REQ-059/060/061 PUS-C segmentation + TCP/IP + TSN link backends; SRS-REQ-062/063/064 CAN-FD/CANopen/RS-485 DE; SRS-REQ-065 PUSopen adapter; SRS-REQ-066 GEM TSN Qav/Qci/Qbb; SRS-REQ-067 generic fabric-device contract; SRS-REQ-068 gPTP/CoreTSN (SSS parents held in the manifest) — FRICK-REVIEW-0137 R3-05/R3-07/R3-08/R3-09 |

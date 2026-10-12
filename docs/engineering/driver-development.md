@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ENG-0003 |
 | ----------- | -------------- |
-| Revision    | 0.3 |
+| Revision    | 0.4 |
 | Date        | 2026-10-12 |
 | Audience    | humans and agents extending frick-fsw with low-level drivers |
 
@@ -27,7 +27,7 @@ implemented as a vtable plus a default backend selected by the platform.
 | Board/BSP | `src/bsp/mpfs/board.h` | board bring-up and platform quirks | `src/bsp/mpfs/board.c` |
 
 The default backend is chosen at build time in `src/transport/link/link.c`
-(`FRICK_PLATFORM_MPFS` → UART, otherwise → loopback). The active link can be
+(`FRICK_PLATFORM_MPFS` or `FRICK_PLATFORM_QEMU` → UART, otherwise → loopback). The active link can be
 swapped at run time with `FF_LinkSelect(&my_backend)`.
 
 ## 2. Adding a link driver (the most common case)
@@ -39,7 +39,7 @@ contract is `FF_Link_t` (`src/transport/link/link.h`):
 > backends are implemented in `src/transport/link/`; TCP/IP, SpaceWire, radio
 > and the other transports named in §1 are the plug-in use cases the vtable
 > targets, **not yet implemented** (the TCP/IP + TSN link backends are the
-> milestone-M4 absorbed plan; see `docs/roadmap.md`).
+> explicit M4-residual plan, SRS-REQ-059/060/061; see `docs/roadmap.md`).
 
 ```c
 typedef struct {
@@ -210,3 +210,4 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 | 0.1 | 2026-10-10 | frick-fsw | Initial driver development/integration guide (norm N8) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: PPS backend vtable + software backend delivered; board hook = GAP-A7 |
 | 0.3 | 2026-10-12 | frick-fsw | Clarify that only loopback/UART link backends are implemented; TCP/IP/TSN link backends are the M4-absorbed planned path, not yet in `src/transport/link/` |
+| 0.4 | 2026-10-12 | frick-fsw | Update §2 scope note: the TCP/IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" plan |

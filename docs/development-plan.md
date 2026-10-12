@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.19                                   |
+| Revision                          | 0.20                                   |
 | Date                              | 2026-10-12                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -57,6 +57,12 @@ is in `docs/roadmap.md`.
 | OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
 | OBJ-23 | Implement, in MISRA-clean in-house C behind `FF_Pus_Backend_t`, the **fundamental PUS-C service behaviour** (S1/3/5/6/8/9/11/12/17/18-PUS-surface/19/20) on the `asn1-pusc-lib` default data model, with a bounded on-board parameter **datapool**, **plus CFDP (CCSDS 727.0-B) and the virtual filestore (VFS) it operates on** (S23 file management built on the VFS). | **M15** (after M14) |
 | OBJ-24 | Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind `FF_Obcp_t` (bounded resource accounting, isolation, execution-time budget, abort, reporting; OBCP state/management via PUS S18), as the fallback/hardened engine to the integrated third-party engine (M12) and to remove a permanent third-party dependency. | **M16** (after M12) |
+| OBJ-25 | **Restore and deliver PUS-C over IP and TSN** (the original M4 scope): bounded segmentation/reassembly and reference `FF_Link_t` backends for TCP/IP and TSN, so PUS-C TM/TC can ride the network and TSN-scheduled Ethernet paths in addition to UART. | M4-residual (after S4) |
+| OBJ-26 | Deliver a reference **CAN-FD backend** via the generic fabric (FIC/AXI) contract. | M4-residual |
+| OBJ-27 | Deliver a reference **CANopen (CiA 301/302/402)** stack over `FF_CanOpenStack_t`. | M4-residual |
+| OBJ-28 | Implement **RS-485 half-duplex direction control** (DE/RE) with the requested assert timing. | M4-residual |
+| OBJ-29 | Complete the **GEM native TSN** shaping/filtering: 802.1Qav (CBS), 802.1Qci (PSFP), 802.1Qbb (PFC). | M8 |
+| OBJ-30 | Provide a documented **PUSopen(R) adapter** over the PUS product contract (the commercial library is user-supplied). | M4-residual |
 
 ## 3. Resource and bus interface catalogue
 
@@ -148,10 +154,17 @@ Deliverables (reference implementations behind the M3 contracts):
   pluggable `FF_NetStack_t` adapters (libbsd, lwIP) and the `FF_TsnBackend_t`
   seam (OBJ-11/OBJ-05).
 - Generic **fabric-device contract** backend path (FIC/AXI) for fabric-attached
-  resources (CAN-FD, SpaceWire/RMAP, TSN), no FPGA IP (OBJ-07).
-- IP + TSN over PUS-C (segmentation/reassembly, TCP/IP and TSN link backends)
-  and the on-board file transfer set (virtual filestore, PUS service 23, CFDP),
-  absorbed here per the agreed plan.
+  resources (CAN-FD, SpaceWire/RMAP, TSN), no FPGA IP (OBJ-07; SRS-REQ-067).
+- **PUS-C over IP and TSN** (restored original M4 scope; OBJ-25, SSS-REQ-028): bounded
+  segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t` backends for
+  TCP/IP (SRS-REQ-060) and TSN (SRS-REQ-061), selectable with `FF_LinkSelect`.
+- **Extended fieldbus** (OBJ-26/OBJ-27/OBJ-28, SSS-REQ-029): the generic fabric
+  contract (SRS-REQ-067), CAN-FD (SRS-REQ-062), a CANopen (CiA 301/302/402) stack
+  (SRS-REQ-063) and RS-485 half-duplex direction control (SRS-REQ-064); plus a
+  documented **PUSopen(R) adapter** (OBJ-30, SRS-REQ-065); the commercial library
+  is user-supplied.
+- The on-board **file transfer set** (virtual filestore, PUS service 23, CFDP)
+  is planned in **M15** (OBJ-23).
 
 ### M6 — Mathematics library integration (libm) (in progress)
 
@@ -173,8 +186,10 @@ keystore, IV-uniqueness analysis and ground key management are GAP-A14.
 
 Full 802.1AS gPTP stack (BMCA, Sync/Follow_Up, PDelay, servo disciplining the
 GEM TSU) and the fabric CoreTSN path (multi-port switch / 802.1CB FRER) via the
-FIC generic fabric-device contract. Requirements, Lean models where feasible,
-tests, docs; on-target timing = GAP-A5. (OBJ-16.)
+FIC generic fabric-device contract, plus the GEM native TSN shaping/filtering
+completion (802.1Qav CBS, 802.1Qci PSFP, 802.1Qbb PFC; SRS-REQ-066, OBJ-29).
+Requirements, Lean models where feasible, tests, docs; on-target timing = GAP-A5.
+(OBJ-16; SRS-REQ-068.)
 
 ### M9 — Code quality: MISRA C:2012 and coding style (in progress)
 
@@ -292,11 +307,11 @@ connection retains one of four slots until `init()` resets the table
 | M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
 | M2 | time base | done | PPS, CUC, time sources |
 | M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), filestore/CFDP/IP/TSN | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C done; SPI/MMC/eMMC/storage/PCIe/SpaceWire pending (CFDP/VFS → M15) |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C done; SPI/MMC/eMMC/storage/PCIe/SpaceWire pending; **PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) restored as explicit M4-residual items**; CFDP/VFS → M15 |
 | M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
 | M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
-| M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) | planned | — |
+| M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | planned | — |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
 | M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (7/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM)/TSN/SPI/PCIE/SPACEWIRE/BLOCK |
@@ -335,3 +350,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.17 | 2026-10-11 | frick-fsw | M4/M11: reference MSS CAN driver done (SRS-REQ-057); M11 6/13 (CAN peripheral-bound, `hal_can=PASS`) |
 | 0.18 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20) closes the M10 exit criterion |
 | 0.19 | 2026-10-12 | frick-fsw | M4/M11: reference MSS I2C driver done (SRS-REQ-058); M11 7/13 (I2C peripheral-bound, `hal_i2c=PASS`) |
+| 0.20 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN (OBJ-25, SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (OBJ-26/27/28, SRS-REQ-062/063/064), PUSopen adapter (OBJ-30, SRS-REQ-065); M8 gains GEM TSN Qav/Qci/Qbb (OBJ-29, SRS-REQ-066); file transfer set confirmed in M15 |

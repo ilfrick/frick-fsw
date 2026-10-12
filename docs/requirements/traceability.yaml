@@ -187,7 +187,7 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-015
     derived: true
-    justification: "ADR-0003: abstraction layer with open default and optional PUSopen adapter."
+    justification: "ADR-0003/ADR-0016: PUS product abstraction; the N7/ESA ASN.1 backend is the default (SRS-REQ-050), the open backend is an alternative, and the PUSopen(R) adapter is optional/planned (SRS-REQ-065)."
     implementation: ["src/pus/pus.h", "src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
     tests: ["tests/unit/test_pus.c"]
 
@@ -549,6 +549,96 @@ requirements:
     lean: []
     lean_note: "Reference MSS I2C (CoreI2C, polled master) backend behind FF_I2c_t (M4/M11): transaction logic host-tested (byte-register mock modelling the SI-clear-driven phase machine; START/address/data/repeated-START/receive/STOP); MMIO register round trip on the emulated SoC (hal_i2c). init(clock_hz) selects the CTRL CR2:CR1:CR0 serial-clock divider for the requested SCL; the divider and hence the on-target SCL is a reference derivation from the MSS I2C (APB) reference clock (per-rate accuracy / on-target timing = GAP-A5). Polled master only (no slave/SMBus/clock-stretching/interrupt path); SI poll is bounded."
 
+  - id: SRS-REQ-059
+    level: srs
+    parent_sss: SSS-REQ-028
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "PUS-C link segmentation/reassembly for IP/TSN links (M4-residual, restored scope). Planned; the encapsulation profile is a mission input (TBC)."
+
+  - id: SRS-REQ-060
+    level: srs
+    parent_sss: SSS-REQ-028
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference TCP/IP FF_Link_t backend carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). Planned."
+
+  - id: SRS-REQ-061
+    level: srs
+    parent_sss: SSS-REQ-028
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_TsnBackend_t + GEM (M4-residual, restored scope). Planned."
+
+  - id: SRS-REQ-062
+    level: srs
+    parent_sss: SSS-REQ-029
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference CAN-FD backend via the generic fabric (FIC/AXI) contract (M4-residual). Planned; the MSS CAN controller is classic-only (FD is a fabric device)."
+
+  - id: SRS-REQ-063
+    level: srs
+    parent_sss: SSS-REQ-029
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Reference CANopen (CiA 301/302/402) stack over FF_CanOpenStack_t (M4-residual). Planned; the contract exists (SRS-REQ-029)."
+
+  - id: SRS-REQ-064
+    level: srs
+    parent_sss: SSS-REQ-029
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "RS-485 half-duplex DE/RE direction control (M4-residual). Planned; the contract hook exists (SRS-REQ-030) and the MSS backend records the request, but the control line is not driven yet."
+
+  - id: SRS-REQ-065
+    level: srs
+    parent_sss: SSS-REQ-029
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Documented PUSopen(R) adapter over the PUS product contract (M4-residual). Planned; the commercial library is user-supplied (ADR-0014)."
+
+  - id: SRS-REQ-066
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "GEM TSN shaping/filtering completion: 802.1Qav (CBS), 802.1Qci (PSFP), 802.1Qbb (PFC) (M8). Planned; feasibility on the GEM register subset = TBC (owner: M8)."
+
+  - id: SRS-REQ-067
+    level: srs
+    parent_sss: SSS-REQ-017
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Generic fabric-device (FIC/AXI) contract for resources reached through the FPGA fabric (M4-residual). Planned; the fabric CAN-FD/SpaceWire/TSN backends build on it."
+
+  - id: SRS-REQ-068
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB FRER completion (M8). Planned; on-target timing/PTP accuracy = GAP-A5."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -756,6 +846,22 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "In-house / ECSS-compliant OBCP engine development (milestone M16, planned): bounded resource accounting, isolation, time budget, abort, reporting, PUS S18 state management."
+
+  - id: SSS-REQ-028
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "PUS-C transport over IP and TSN (M4-residual, restored scope): PUS-C TM/TC over an IP-based link and TSN-scheduled Ethernet in addition to UART; the active link is selectable by the integrator (and switchable at run time via FF_LinkSelect). Planned."
+
+  - id: SSS-REQ-029
+    level: sss
+    derived: false
+    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Extended fieldbus and PUS-library coverage (M4-residual, restored scope): CAN-FD (fabric), CANopen (CiA 301/302/402), RS-485 half-duplex direction control, PUSopen(R) adapter. Planned."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

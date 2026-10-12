@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-12                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
 | Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
@@ -101,6 +101,10 @@ class-A flight gap (build-time tool, re-qualified as T19).
   bus-recovery or arbitration-loss handling; the serial-clock divider is a
   reference derivation from an assumed 100 MHz APB clock. Per-rate SCL accuracy,
   STOP completion and bus recovery are confirmed on target (R1-02/R3-08).
+- RS-485 half-duplex direction control (SRS-REQ-064): the MSS serial backend
+  records the DE/RE request but the transceiver control line is board-specific
+  and not driven yet; the DE assert timing and bus turnaround are confirmed on
+  target.
 
 ## GAP-A6 - Environmental / radiation campaign
 
@@ -205,3 +209,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.5 | 2026-10-11 | frick-fsw | GAP-A1b reframed as a sub-item of GAP-A1 (delivered, ADR-0016); tracking clarified (PA-08) |
 | 0.6 | 2026-10-11 | frick-fsw | GAP-A5 owner/milestone recorded (programme/hardware; on-target bring-up M10/M14); PA-0109-08 |
 | 0.7 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS I2C on-target residual (STOP completion, bus recovery, per-rate SCL accuracy) — FRICK-REVIEW-0131 (R1-02) / FRICK-REVIEW-0130 (R3-08) |
+| 0.8 | 2026-10-12 | frick-fsw | GAP-A5 gains the RS-485 DE/RE on-target residual (control line board-specific, not driven; assert timing/turnaround on target) — restored M4 scope SRS-REQ-064 |

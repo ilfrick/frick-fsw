@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.13                                   |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.14                                   |
+| Date                              | 2026-10-12                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
 | RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |
@@ -123,15 +123,28 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   with OBCP state exposed for management (PUS S18 seam). `method: Tst | Dem`.
   (milestone M16)
 
+- **SSS-REQ-028** — *PUS-C transport over IP and TSN*: the system shall carry
+  PUS-C TM/TC over IP-based links (TCP or UDP per the mission ICD) and over
+  TSN-scheduled Ethernet, in addition to the reference UART link, with the active
+  link selectable by the integrator and the PUS-C layer kept transport-agnostic.
+  `method: Tst | Dem`. (milestone M4-residual)
+
+- **SSS-REQ-029** — *Extended fieldbus and PUS-library coverage*: the system shall
+  provide, as optional reference components, CAN-FD (via the generic fabric
+  contract), a CANopen (CiA 301/302/402) stack, RS-485 half-duplex direction
+  control, and a documented adapter for the commercial PUSopen(R) PUS library.
+  `method: Tst | Dem`. (milestone M4-residual)
+
 ## 3. Derived system requirements
 
 - **SSS-REQ-014** (derived) — the reference communication link is a UART
   byte stream (`loopback` on host, `uart` on target); the transport codec and
   the link layer are decoupled to allow SpaceWire/radio back-ends later.
   `derived justification: ADR-0003/ADR-0009, ICD-GND`.
-- **SSS-REQ-015** (derived) — the framework shall expose both an open PUS
-  backend (default) and a documented adapter for the commercial PUSopen(R)
-  library. `derived justification: norm N1 shows auditable defaults; ADR-0003`.
+- **SSS-REQ-015** (derived) — the framework shall expose the open PUS backend
+  and the N7/ESA ASN.1 default backend (the PUSopen(R) adapter is covered by
+  SSS-REQ-029). `derived justification: norm N1 shows auditable defaults;
+  ADR-0003/ADR-0016`.
 
 ## 4. Traceability
 
@@ -155,3 +168,4 @@ deviations are resolved before every commit (norm N4).
 | 0.11 | 2026-10-11 | frick-fsw | Add SSS-REQ-025 fundamental PUS-C service capability set (M15) |
 | 0.12 | 2026-10-11 | frick-fsw | M15: add SSS-REQ-026 CFDP + virtual filestore |
 | 0.13 | 2026-10-11 | frick-fsw | M16: add SSS-REQ-027 in-house OBCP engine development |
+| 0.14 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028 PUS-C over IP/TSN; SSS-REQ-029 extended fieldbus + PUSopen adapter; reconcile SSS-REQ-015 (open + N7/ESA default backends; PUSopen adapter planned, library user-supplied) — FRICK-REVIEW-0137 R3-01/R3-02 |

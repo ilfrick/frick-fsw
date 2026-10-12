@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.9                                    |
+| Revision                          | 1.10                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -123,7 +123,7 @@ occasion; prefer Docker.
   management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
   service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
   development) are **planned**.
-- Requirements: **100 (59 srs / 27 sss / 14 gap)**; Lean 51 theorems.
+- Requirements: **112 (69 srs / 29 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs),
   0101..0105 (NVM/MTD + board repl), **0106..0119** (M4/M11 MSS CAN: R1/R2/R4
@@ -139,7 +139,9 @@ occasion; prefer Docker.
 > (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
 > done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058, M11 7/13, ctest
 > 20/20 incl. `test_i2c` 144 checks). Next per plan: **S4 — SPI `FF_Spi_t` MSS
-> backend** (`hal_spi=PASS`).
+> backend** (`hal_spi=PASS`), then the **restored M4 scope**: S4b (PUS-C over
+> IP/TSN, SRS-REQ-059/060/061), S4c (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064)
+> and S4d (PUSopen(R) adapter, SRS-REQ-065).
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
@@ -204,3 +206,4 @@ occasion; prefer Docker.
 | 1.7 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20); toolchain image gains the rv64imafdc BSP + QEMU |
 | 1.8 | 2026-10-12 | frick-fsw | Sprint 3: reference MSS I2C backend (SRS-REQ-058); M11 7/13 peripheral-bound (`hal_i2c=PASS`); counts 100/59/27/14/51; ctest 20/20 (test_i2c 144 checks); next S4 (SPI) |
 | 1.9 | 2026-10-12 | frick-fsw | Sprint-3 review set closed (FRICK-REVIEW-0129..0136: R1/R2/R3/R4/PA initial + deltas; PA REJECTED -> APPROVED WITH COMMENTS); user-facing TCP/IP + TSN sections and the expanded framework description (FRICK-ENG-0007) added; T14 reproducible via `make misra-docker`; next S4 (SPI) |
+| 1.10 | 2026-10-12 | frick-fsw | Restored explicit M4 scope (N19 audit): PUS-C over IP/TSN (SRS-REQ-059/060/061), fabric contract (SRS-REQ-067), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064), PUSopen adapter (SRS-REQ-065); M8 gPTP/CoreTSN (SRS-REQ-068) + GEM TSN Qav/Qci/Qbb (SRS-REQ-066); counts 112/69/29/14/51; DDJF acronym registered (FRICK-ENG-0007 0.3); sprint S4b/S4c/S4d — FRICK-REVIEW-0137 |

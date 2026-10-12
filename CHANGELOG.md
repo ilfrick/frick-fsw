@@ -9,6 +9,37 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **Restored explicit M4 scope (N19 audit).** Scopes that existed only as prose
+  "absorbed" notes are now explicit, traceable deliverables: **PUS-C over IP and
+  TSN** — bounded segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t`
+  backends for TCP/IP (SRS-REQ-060) and TSN (SRS-REQ-061); **extended fieldbus** —
+  the generic fabric-device contract (SRS-REQ-067), CAN-FD via the fabric contract
+  (SRS-REQ-062), CANopen (CiA 301/302/402) (SRS-REQ-063) and RS-485 half-duplex
+  DE/RE (SRS-REQ-064); and a documented **PUSopen(R) adapter** (SRS-REQ-065,
+  library user-supplied). M8 gains the GEM TSN shaping/filtering completion
+  (802.1Qav/Qci/Qbb, SRS-REQ-066) and the explicit gPTP + fabric CoreTSN
+  requirement (SRS-REQ-068). New SSS-REQ-028/029; new objectives OBJ-25..OBJ-30;
+  new sprint items S4b/S4c/S4d; counts 69 srs / 29 sss. The on-board file transfer
+  set remains planned in M15.
+
+- **DDJF acronym registration + PUS-C transport-channel documentation
+  (FRICK-ENG-0007 0.3, FRICK-ENG-0005 0.5, FRICK-GLOS-001 0.2).** Registered the
+  project acronym **DDJF = Design Description and Justification File**: retitled
+  `docs/engineering/software-description.md` (FRICK-ENG-0007) as the
+  **Design Description and Justification File (DDJF)**, replaced the former
+  "no repository acronym defined" naming note with the explicit definition, and
+  added the **justification dimension** as §3.10 (the rationale for each major
+  design element, cross-referenced to the ADRs ADR-0001…0014/0016; ADR-0015
+  unused). Added the acronym to `docs/glossary.md` and named the DDJF in the
+  README documentation index and `AGENTS.md` (same path). Added a user-facing
+  **§7.1 "PUS-C transport channels"** to `docs/engineering/user-integration-manual.md`:
+  PUS-C is transport-agnostic and carried by `FF_Link_t`; only loopback
+  (`FF_LinkLoopbackBackend`) and UART (`FF_LinkUartBackend`) reference backends
+  ship (default loopback on the host, UART on RTEMS), `FF_LinkSelect()` plugs
+  another backend, and TCP/IP/TSN/CAN/SpaceWire PUS-C link backends are **not
+  implemented** (planned) — the HAL contracts for those devices are *device*
+  contracts, not PUS-C link channels. Documentation only, no capability
+  over-claim.
 - **User-facing TCP/IP and TSN documentation + expanded framework description
   (FRICK-ENG-0005 0.4, FRICK-ENG-0007 0.2, FRICK-ARCH-0012 0.3).** Added user
   "How to use" subsections to `docs/engineering/user-integration-manual.md`:

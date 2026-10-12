@@ -1,20 +1,20 @@
-# Software Description — frick-fsw Framework and Repository
+# Design Description and Justification File (DDJF) — frick-fsw Framework and Repository
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0007                         |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.3                                    |
 | Date                              | 2026-10-12                             |
 | Audience                          | humans and agents using or evaluating the framework and the accessory repository elements |
 | Norms                             | N2 (English), N8 (current documentation), N16 (per-document revision history) |
 | Requirements                      | none introduced by this document; it describes the implemented baseline traced in `docs/requirements/SRS.md` and `docs/requirements/traceability.yaml` |
 
-## 1. Purpose, scope and naming note
+## 1. Purpose, scope and name
 
-This document is the **comprehensive user-facing description of the frick-fsw
-framework and of the accessory repository elements**. It is the first place a
-new user or evaluator reads to understand:
+This document is the **comprehensive description of the frick-fsw framework and
+of the accessory repository elements**. It is the first place a new user or
+evaluator reads to understand:
 
 - what the framework is (and is not), and which layers are implemented in this
   repository versus interface-only, planned, or user-provided;
@@ -25,14 +25,21 @@ new user or evaluator reads to understand:
   (`AGENTS.md`, `README.md`) and to the detailed engineering guides;
 - the rule that **this document is updated at every release** (§6).
 
-**Naming note.** The project lead and users referred to this document as the
-"**DDJF**" (a comprehensive user-facing description of the framework and of the
-accessory repository elements, kept current at every release). **No repository
-file defines an acronym "DDJF"** (verified 2026-10-12: no occurrence of "DDJF"
-in the repository), so this document is registered under the descriptive title
-above, with document id **FRICK-ENG-0007**. If a project acronym is wanted, it
-must be defined and registered by the lead (e.g. in `docs/glossary.md`) in a
-later revision; this revision does not invent one.
+**Name.** This document **is** the **Design Description and Justification File
+(DDJF)**. The acronym **DDJF** is defined here as **Design Description and
+Justification File**; it names the comprehensive description of the framework
+and of the accessory repository elements, kept current at every release (§6).
+The DDJF carries the two dimensions its name requires, together in one document:
+
+- **Description** — what the framework is, its layers, seams and the accessory
+  repository elements (§2–§5); and
+- **Justification** — *why* the design is the way it is: the rationale for each
+  major design element, cross-referenced to the architecture decision records
+  (ADRs) that carry the decision (§3.10).
+
+The document id **FRICK-ENG-0007** is unchanged. The acronym is registered in
+`docs/glossary.md`; the README documentation index and `AGENTS.md` name the
+document as the DDJF (same path, `docs/engineering/software-description.md`).
 
 Scope boundaries (norm N8): this is **documentation only**. It introduces no
 new normative requirement, modifies no code, build file, test, script or
@@ -125,6 +132,19 @@ default; ADR-0016); the open CCSDS backend is the fallback; PUSopen is an
 optional commercial adapter (user-supplied). See `docs/architecture/pus-layer.md`
 (FRICK-ARCH-0003) and `docs/adr/ADR-0003`, `docs/adr/ADR-0016`.
 
+**PUS-C transport channels.** PUS-C is **transport-agnostic**: ECSS-E-ST-70-41C
+defines the packet/service semantics, not the physical link. In frick-fsw the
+TM/TC frames are carried by the framework's own link abstraction `FF_Link_t`
+(`src/transport/link/link.h`), a vtable of `init` / `send` / `recv` over opaque
+CCSDS frames. Only **two reference link backends ship** —
+`FF_LinkLoopbackBackend` (loopback; simulator/tests) and `FF_LinkUartBackend`
+(UART) — with the default being **loopback on the host** and **UART on the RTEMS
+platforms**; a user installs another backend at run time with `FF_LinkSelect()`
+(`src/transport/link/link.c`). There is **no** TCP/IP, TSN, CAN or SpaceWire
+PUS-C link backend implemented (planned); the HAL contracts for those devices are
+*device* contracts, not PUS-C link channels. User-facing details:
+`docs/engineering/user-integration-manual.md` §7.1.
+
 ### 3.2 HAL contracts (interface deliverables, milestone M3)
 
 The framework depends only on the **HAL contracts** in `src/hal/` — bounded,
@@ -214,9 +234,9 @@ WCET/stack cautions: `docs/architecture/numerics.md` and `docs/adr/ADR-0012`.
   gPTP stack and the fabric CoreTSN path are planned at **M8**.
 
 User-facing details, tables, "how to use" steps and evidence are in
-`docs/engineering/user-integration-manual.md` (§8 TCP/IP over PUS-C incl. §8.1,
-§9 TSN incl. §9.1, §10 which stack is included) and
-`docs/architecture/network-stack.md` (FRICK-ARCH-0012).
+`docs/engineering/user-integration-manual.md` (§7.1 PUS-C transport channels,
+§8 TCP/IP over PUS-C incl. §8.1, §9 TSN incl. §9.1, §10 which stack is included)
+and `docs/architecture/network-stack.md` (FRICK-ARCH-0012).
 
 ### 3.8 Board support and start-up sequence
 
@@ -268,6 +288,33 @@ implemented / interface-only / planned / user-provided matrix is the README
 "Project scope" table; the per-driver host/Renode evidence is in `README.md`
 ("Low-level drivers") and `docs/vv/tool-qualification.md`.
 
+### 3.10 Design justification (why the framework is built this way)
+
+The **justification** dimension of the DDJF records *why* each major design
+element was chosen. Each decision is owned by the architecture decision record
+(ADR) that carries it in `docs/adr/` (ADR-0001…0014 and ADR-0016; **ADR-0015 is
+unused** — no decision was taken under that number); the ADR is authoritative for
+the decision and this section summarises the rationale for readers.
+
+| Design element | Rationale (why) | Decision record |
+| -------------- | --------------- | --------------- |
+| **cFS-inspired layered architecture** (PAL, SB, EVS, ES, TBL, TIME) | NASA cFS is a proven blueprint for portability, verifiability and reuse across missions; adopting its component seams gives a familiar, well-understood structure without copying cFS code (cFS is Apache-2.0 inspiration only). | ADR-0001 |
+| **Open-source RTEMS 6.2 on the RTPFS160ZT** | Determinism plus a proven space track record; the upstream open-source RTEMS release and `rtems-source-builder` toolchain keep the whole stack auditable and free (no vendor pre-built commercial baseline), which the class-B evidence path and norm N13 (open source) require. | ADR-0002 |
+| **Pluggable backends behind contracts** (HAL/device contracts, `FF_Pus_Backend_t`, `FF_Link_t`) | Decoupling the middleware from any specific stack/device keeps the protocol logic (CCSDS/PUS) independent of the physical link and lets a mission supply or swap a backend without modifying the core; it also keeps the auditable path buildable and Lean-verifiable. | ADR-0009 (link/transport), ADR-0003 (PUS backend), ADR-0008 (single config point + tables), ADR-0014 (reference drivers / third-party) |
+| **Lean 4 formal verification** | Norm N1 requires every generated code artifact to be checked with Lean; the mirrored theorems discharge requirement-level properties (codec, bus, PUS dispatch, counters, bounds) and are linked from the traceability manifest, giving machine-checked evidence in CI. | ADR-0005 (norm N1) |
+| **ECSS criticality B with documented class-A gaps** | Class B is the target for a small/medium OBC framework; the residual gaps to class A are not waived silently but documented as `GAP-A*` entries (e.g. GAP-A1 formal-verification depth, GAP-A4 on-target runtime evidence, GAP-A5 on-target hardware/PHY), so the claim is bounded and auditable. | norm N5; `docs/quality/ecss-criticality-b.md`, `docs/quality/class-a-gaps.md` |
+| **PUS-C ASN.1 (N7/ESA) default backend** | The N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model is the default PUS-C data model because it is a standard, licence-clean, ASN1SCC-generated basis; it is generated at build time (not vendored) so the generated artifacts are reproducible and the repository stays licence-clean. This supersedes the earlier "open backend as default" choice. | ADR-0016 (supersedes the ADR-0003/ADR-0014 default-backend choice) |
+| **lwIP optional / third-party** | lwIP is an embedded-heritage BSD-3-Clause stack kept behind the `FF_NetStack_t` contract and built only with `FF_USE_LWIP=ON` (default OFF); it is pinned and fetched on demand, so the framework core links no stack and the licence/determinism analysis stays contained. | ADR-0014 |
+| **TSN is an Ethernet-MAC-level capability** | TSN (IEEE 802.1Q/Qbv/Qav, 802.1AS) shapes and schedules the Ethernet link; on the PolarFire SoC the GEM provides it natively, so frick-fsw models it as a MAC-level capability (`FF_TsnBackend_t`) rather than as a PUS-C transport; the multi-port fabric CoreTSN path is a separate device (planned M8). | ADR-0014 (GEM native TSN) |
+
+Further decisions with their own records (for completeness): CCSDS SDLS security
+with a **pluggable cryptographic backend** (ADR-0013); the **mathematics facade**
+over the platform `libm` (ADR-0012); **AGPL-3.0-only** licensing (ADR-0011);
+**Docker-deployed CI/CD** for both forges (ADR-0007); the **backwards ECSS
+documentation and traceability gate** (ADR-0006); and the **independent review
+agents** (ADR-0010). Where a rationale stated here and an ADR differ, the ADR is
+authoritative.
+
 ## 4. Accessory repository elements
 
 What surrounds the framework sources, and why:
@@ -306,7 +353,7 @@ a change to a registered script invalidates its qualification until re-review
 | `docs/adr/` | architecture decision records ADR-0001..0016 (ADR-0015 is unused) |
 | `docs/quality/` | ECSS criticality B baseline, class-A gaps (GAP-A1..A14), compliance matrix, configuration management (SCMP), product assurance, safety and FDIR, MISRA process, licensing |
 | `docs/vv/` | verification plan, verification results, validation plan, tool qualification, emulated-target, renode-environment |
-| `docs/engineering/` | guides: independent review (reviewer-agent profiles R1/R2/R3/R4/PA), driver development, PUS service development, user & integration manual, coding style, this software description |
+| `docs/engineering/` | guides: independent review (reviewer-agent profiles R1/R2/R3/R4/PA), driver development, PUS service development, user & integration manual, coding style, this Design Description and Justification File (DDJF) |
 | `docs/planning/` | sprint plan (FRICK-PLAN-0002) |
 | `docs/status/` | `handover.md` (resume point), `loop-audit.md` (norm N19), `status.json` (semaphores) |
 | `docs/reviews/` | independent review reports and log (norms N9/N11/N12/N17/N20) |
@@ -392,8 +439,9 @@ does not create new product requirements or certification claims.
   entry point and scope matrix), `docs/rules.md` (norms N1-N20),
   `docs/tooling.md` (approach and tools).
 - `docs/engineering/user-integration-manual.md` (FRICK-ENG-0005) — how to
-  integrate applications, drivers and third-party stacks, incl. §8 TCP/IP over
-  PUS-C (and §8.1 "how to use"), §9 TSN (and §9.1 "how to use"), §10 which
+  integrate applications, drivers and third-party stacks, incl. §7.1 PUS-C
+  transport channels (loopback/UART, `FF_LinkSelect`), §8 TCP/IP over PUS-C
+  (and §8.1 "how to use"), §9 TSN (and §9.1 "how to use"), §10 which
   TCP/IP stack is included.
 - `docs/architecture/network-stack.md` (FRICK-ARCH-0012) — the net-stack
   contract and backends with the PUS-C-over-IP status note.
@@ -411,3 +459,4 @@ does not create new product requirements or certification claims.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-12 | frick-fsw | Initial comprehensive user-facing software description of the framework and accessory repository elements; named "DDJF" by the user, registered under the descriptive title (no repository acronym defined); release-currency rule added (lead directive, documentation sprint) |
 | 0.2 | 2026-10-12 | frick-fsw | Expand for users: add §2.1 "what frick-fsw is not", §3.8 BSP and start-up sequence, §3.9 interface-contract inventory (location + implemented/interface-only/planned/user-supplied), a §5 platform build/target matrix, and the exact lwIP pin (`STABLE-2_2_1_RELEASE`)/BSD-3-Clause and §8.1/§9.1 "how to use" cross-references in §3.7 |
+| 0.3 | 2026-10-12 | frick-fsw | Register the acronym (lead directive): retitle the document as the **Design Description and Justification File (DDJF)** and define "DDJF" = Design Description and Justification File, replacing the previous "no repository acronym defined" naming note; add the **justification dimension** as §3.10 "Design justification" cross-referencing the ADRs (ADR-0001…0014, 0016; ADR-0015 unused); add the §3.1 "PUS-C transport channels" cross-reference; register the acronym in `docs/glossary.md` and name the DDJF in the README documentation index and `AGENTS.md` |

@@ -2,8 +2,8 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.17 |
-| Date        | 2026-10-11 |
+| Revision    | 0.18 |
+| Date        | 2026-10-12 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
 v0.1.0 baseline. Every milestone is delivered through the same non-derogable
@@ -76,10 +76,16 @@ Reference implementations behind the M3 contracts:
   middleware link/network layer, with pluggable `FF_NetStack_t` adapters
   (Tuxera, lwIP, RTEMS libbsd) and the `FF_TsnBackend_t` seam.
 - Generic fabric-device (FIC/AXI) backend path for fabric-attached resources
-  (CAN-FD, SpaceWire/RMAP, TSN), no FPGA IP.
-- Absorbed from the former roadmap: IP + TSN over PUS-C (segmentation and
-  reassembly, TCP/IP and TSN link backends) and the on-board file transfer set
-  (virtual filestore, PUS service 23, CFDP).
+  (CAN-FD, SpaceWire/RMAP, TSN), no FPGA IP (SRS-REQ-067).
+- **PUS-C over IP and TSN** (restored original M4 scope; OBJ-25, SSS-REQ-028): bounded
+  segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t` backends for
+  TCP/IP (SRS-REQ-060) and TSN (SRS-REQ-061), selectable with `FF_LinkSelect`.
+- **Extended fieldbus** (OBJ-26/OBJ-27/OBJ-28, SSS-REQ-029): the generic fabric
+  contract (SRS-REQ-067), CAN-FD (SRS-REQ-062), a CANopen (CiA 301/302/402) stack
+  (SRS-REQ-063) and RS-485 half-duplex direction control (SRS-REQ-064); plus a
+  documented **PUSopen(R) adapter** (OBJ-30, SRS-REQ-065).
+- The on-board **file transfer set** (virtual filestore, PUS service 23, CFDP)
+  is planned in **M15** (OBJ-23).
 
 ## M5 — Documentation and status program (in progress)
 
@@ -119,6 +125,10 @@ Complete the deterministic-Ethernet feature set on the PolarFire SoC:
 - **Fabric CoreTSN path**: a generic fabric-device backend (via the FIC) for a
   multi-port TSN switch / Frame Replication and Elimination (802.1CB) when the
   mission routes TSN through fabric IP instead of the GEM endpoint.
+- **GEM native TSN shaping/filtering completion**: 802.1Qav (credit-based
+  shaping), 802.1Qci (per-stream filtering/policing) and 802.1Qbb (priority flow
+  control) on the GEM TSN block (SRS-REQ-066, OBJ-29); the full gPTP stack and
+  fabric CoreTSN are captured by SRS-REQ-068.
 - Requirements, Lean models (PTP state machine where feasible), unit tests,
   documentation, and independent review. On-target timing/PTP accuracy remains
   GAP-A5.
@@ -221,3 +231,4 @@ last milestones.
 | 0.15 | 2026-10-11 | frick-fsw | M15 scope extended with CFDP + virtual filestore (VFS) and PUS-C S23 |
 | 0.16 | 2026-10-11 | frick-fsw | Reconcile heading statuses with the actual state (N19): M3/M6/M7 done, M10/M11 in progress; M5 section moved into milestone order |
 | 0.17 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development, after M12); M12 reframed as engine integration (user directive) |
+| 0.18 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN + extended fieldbus (CAN-FD/CANopen/RS-485 DE) + PUSopen adapter made explicit deliverables (were only prose "absorbed"); M8 gains GEM TSN 802.1Qav/Qci/Qbb |

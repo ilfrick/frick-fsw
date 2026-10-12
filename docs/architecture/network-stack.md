@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0012                        |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3, N4, N8                             |
-| Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040  |
+| Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040, SRS-REQ-059, SRS-REQ-060, SRS-REQ-061 |
 
 ## 1. Purpose
 
@@ -55,8 +55,9 @@ user-supplied adapters.
 
 **PUS-C over IP is not implemented end-to-end in this revision.** The contract
 above is the delivered seam; the TCP/IP and TSN **link** backends (`FF_Link_t`)
-and the PUS-C-over-IP segmentation/reassembly are **planned** (milestone M4,
-absorbed from the former roadmap: `docs/roadmap.md`, `docs/development-plan.md`).
+and the PUS-C-over-IP segmentation/reassembly are **planned** (explicit
+M4-residual scope, SRS-REQ-059/060/061: `docs/roadmap.md`,
+`docs/development-plan.md`, `docs/planning/sprint-plan.md`).
 The ICD has no TCP/UDP/IPv4 or EtherType allocation yet (`docs/interfaces/ICD.md`),
 and the supplied ground station is **serial-only** (V&V tool T7,
 `docs/vv/tool-qualification.md`). On-target netif/PHY and stack qualification is
@@ -87,3 +88,4 @@ mission-provided netif on the target (`attach_netif`).
 | 0.1 | 2026-10-10 | frick-fsw | Initial network-stack abstraction note (loopback + lwIP adapter) |
 | 0.2 | 2026-10-12 | frick-fsw | Add status section: PUS-C over IP and TSN implemented vs planned, with pointers to the ICD, development plan and engineering manuals |
 | 0.3 | 2026-10-12 | frick-fsw | State the exact lwIP pin (release tag `STABLE-2_2_1_RELEASE`) and BSD-3-Clause licence in §3/§4; cross-reference the user manual's "how to use" steps (§8.1/§9.1) |
+| 0.4 | 2026-10-12 | frick-fsw | Update §6: the PUS-C-over-IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" note |

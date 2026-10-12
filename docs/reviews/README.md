@@ -134,6 +134,11 @@
 | 2026-10-12 | Sprint-3 MSS I2C — R1 delta review (N12) | R1 (Senior FSW engineer) | APPROVED WITH COMMENTS (R1-01..03, C1..C9 closed) | 2026-10-12-m4-m11-i2c-r1-delta-review.md |
 | 2026-10-12 | Sprint-3 MSS I2C — R2 delta review (N12) | R2 (Senior SW V&V engineer) | APPROVED WITH COMMENTS (R2-01..04 closed) | 2026-10-12-m4-m11-i2c-r2-delta-review.md |
 | 2026-10-12 | Sprint-3 MSS I2C — PA delta review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (Major PA-01 closed; loop closed) | 2026-10-12-m4-m11-i2c-pa-delta-review.md |
+| 2026-10-12 | M4-restored scope — systems/requirements review (N14) | R3 (Senior systems engineer) | APPROVED WITH COMMENTS (R3-01..12) | 2026-10-12-m4-restored-scope-r3-review.md |
+| 2026-10-12 | M4-restored scope + DDJF — documentation review (N17) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (R4-01..03 closed) | 2026-10-12-m4-restored-scope-r4-review.md |
+| 2026-10-12 | M4-restored scope — R3 delta review (N12) | R3 (Senior systems engineer) | APPROVED WITH COMMENTS (R3-01..12 closed) | 2026-10-12-m4-restored-scope-r3-delta-review.md |
+| 2026-10-12 | M4-restored scope — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (PA-01 records closure) | 2026-10-12-m4-restored-scope-pa-review.md |
+| 2026-10-12 | M4-restored scope — R3+R4 delta closure (N12/N17) | R3+R4 (systems + documentation) | APPROVED WITH COMMENTS (R3-D01..09, R4-01..08 closed) | 2026-10-12-m4-restored-scope-r3-r4-closure-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

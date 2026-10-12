@@ -2,8 +2,8 @@
 
 | Document id | FRICK-GLOS-001 |
 | ----------- | -------------- |
-| Revision    | 0.1 |
-| Date        | 2026-10-10 |
+| Revision    | 0.2 |
+| Date        | 2026-10-12 |
 
 | Term | Definition |
 | ---- | ---------- |
@@ -12,6 +12,7 @@
 | BSP | Board Support Package (RTEMS). |
 | CCSDS | Consultative Committee for Space Data Systems. |
 | CUC | CCSDS Unsegmented Time Code - binary time encoding. |
+| DDJF | Design Description and Justification File: the comprehensive description of the frick-fsw framework and of the accessory repository elements, kept current at every release (`docs/engineering/software-description.md`, FRICK-ENG-0007). |
 | ECSS | European Cooperation for Space Standardization. |
 | EVS | Event Services (cFS/ES mapping in frick-fsw). |
 | ES | Executive Services (application registry/lifecycle in frick-fsw). |
@@ -39,3 +40,4 @@
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial glossary (norm N8) |
+| 0.2 | 2026-10-12 | frick-fsw | Add DDJF = Design Description and Justification File (lead directive; FRICK-ENG-0007) |

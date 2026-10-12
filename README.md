@@ -48,20 +48,20 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 3/26 (11.5%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 22/27 (81.5%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 54/59 (91.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 59/59 (100%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
+| Sprints completed | 3/29 (10.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 54/69 (78.3%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 59/69 (85.5%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
 | Review streams closed | 30/34 (88.2%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 100 (srs=59, sss=27, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 100/100 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 86/100 (86.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/100 (20.0%) | manifest Lean link non-empty (norm N1) |
+| Requirements in manifest | 112 (srs=69, sss=29, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 112/112 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 98/112 (87.5%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/112 (17.9%) | manifest Lean link non-empty (norm N1) |
 | Code statement (line) coverage | 3512/4964 (70.7%) | gcov |
 | Code function coverage | 446/451 (98.9%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
@@ -116,7 +116,8 @@ Issues deferred by the user: none.
 - **Mathematics**: portable **libm** facade (`src/math/`) for deterministic,
   licensed use; no `<math.h>` in the deterministic core.
 - **Networking**: pluggable TCP/IP (`FF_NetStack_t`; lwIP reference, Tuxera/custom
-  by the user) and native **TSN** on the GEM (802.1Q/Qbv/802.1AS), plus a loopback
+  by the user) and native **TSN** on the GEM (802.1Q/Qbv + an 802.1AS time-read
+  seam), plus a loopback
   backend (`src/drivers/net/`, `src/hal/net/`).
 - **Renode + open-source RTEMS 6.2 V&V** (norm N18): functional validation on an
   emulated PolarFire SoC (`make renode-env`, `make renode`).
@@ -177,7 +178,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | Link UART | `src/transport/link/link_uart.c` | serial link (host `/dev/ttyUSB0` or RTEMS console) |
 | Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
-| TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv/802.1AS) |
+| TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv + an 802.1AS time-read seam) |
 | Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
 | Serial (MSS MMUART) | `src/drivers/serial/mpfs/ff_serial_mpfs.c` | MSS MMUART (NS16550, 4-byte registers) backend behind `FF_Serial_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
 | GPIO (MSS) | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO backend behind `FF_Gpio_t`; host test (mock MMIO) + Renode MMIO check (M4/M11) |
@@ -368,7 +369,7 @@ make rtems
   [`tool-qualification.md`](docs/vv/tool-qualification.md)
 - **Reviews**: [`docs/engineering/independent-review.md`](docs/engineering/independent-review.md) ·
   [`docs/reviews/`](docs/reviews/)
-- **Engineering guides**: [`software-description.md`](docs/engineering/software-description.md) ·
+- **Engineering guides**: [`Design Description and Justification File (DDJF)`](docs/engineering/software-description.md) ·
   [`driver-development.md`](docs/engineering/driver-development.md) ·
   [`service-development.md`](docs/engineering/service-development.md) ·
   [`user-integration-manual.md`](docs/engineering/user-integration-manual.md) ·
