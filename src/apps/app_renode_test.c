@@ -34,6 +34,7 @@
 #include "drivers/spi/mpfs/ff_spi_mpfs.h"
 #include "drivers/block/mpfs/ff_block_mpfs.h"
 #include "drivers/net/ff_net_loopback.h"
+#include "drivers/eth/gem/ff_gem_tsn.h"
 #include <string.h>
 
 static uint32_t mpfs_gpio_read32(void *ctx, uint32_t off)
@@ -123,6 +124,45 @@ static bool renode_hal_eth_check(void)
     uint32_t modid = mpfs_gem_read32(NULL, FF_GEM_MODID_OFF);
     /* Cadence GEM MODID: [15:0] module revision, [27:16] module identification. */
     return (((modid >> 16) & 0x0FFFu) == 0x002u) && ((modid & 0xFFFFu) == 0x0118u);
+}
+
+static void mpfs_gem_write32(void *ctx, uint32_t off, uint32_t val)
+{
+    (void)ctx;
+    *(volatile uint32_t *)(uintptr_t)(FF_GEM0_BASE + off) = val;
+}
+
+/* HAL TSN check on the emulated Cadence GEM (milestone M11/S6): bind the GEM
+ * native TSN backend to the emulated MAC, initialise it, set a VLAN/PCP and read
+ * the 802.1AS TSU time (the GEM model implements the Timer1588 registers). This
+ * exercises the FF_TsnBackend_t seam peripheral-bound. 802.1Qav CBS returns
+ * FF_NOT_IMPLEMENTED (documented) and the full gPTP/CoreTSN stack is milestone M8
+ * (GAP-A5 for on-target PTP accuracy). */
+static bool renode_hal_tsn_check(void)
+{
+    static FF_TsnGem_t tsn;
+    FF_GemBus_t bus;
+    uint64_t t_ns = 0u;
+
+    bus.ctx = NULL;
+    bus.read32 = mpfs_gem_read32;
+    bus.write32 = mpfs_gem_write32;
+    /* The injected accessors already add FF_GEM0_BASE, so the backend base is 0
+     * (the same convention as test_gem_tsn.c and the hal_eth check). Passing
+     * FF_GEM0_BASE here would double-add it and hit an unmapped address. */
+    if (FF_TsnGemSetup(&tsn, &bus, 0u, 1000u) != FF_SUCCESS) {
+        return false;
+    }
+    if (tsn.tsn.init(&tsn) != FF_SUCCESS) {
+        return false;
+    }
+    if (tsn.tsn.set_vlan(&tsn, 1u, 3u) != FF_SUCCESS) {
+        return false;
+    }
+    if (tsn.tsn.get_time_ns(&tsn, &t_ns) != FF_SUCCESS) {
+        return false;
+    }
+    return true;
 }
 
 /* HAL network-stack check (milestone M11): a socket round trip through the
@@ -374,6 +414,7 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_i2c_ok = true;
     bool hal_spi_ok = true;
     bool hal_block_ok = true;
+    bool hal_tsn_ok = true;
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -417,6 +458,7 @@ void FF_AppRenodeTestMain(void *arg)
     hal_i2c_ok = renode_hal_i2c_check();
     hal_spi_ok = renode_hal_spi_check();
     hal_block_ok = renode_hal_block_check();
+    hal_tsn_ok = renode_hal_tsn_check();
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
@@ -427,14 +469,15 @@ void FF_AppRenodeTestMain(void *arg)
     FF_PalLog("[renode-test] hal_i2c=%s\n", hal_i2c_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_spi=%s\n", hal_spi_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_block=%s\n", hal_block_ok ? "PASS" : "FAIL");
+    FF_PalLog("[renode-test] hal_tsn=%s\n", hal_tsn_ok ? "PASS" : "FAIL");
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n",
-              (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok &&
-               hal_net_ok && hal_nvm_ok && hal_can_ok && hal_i2c_ok && hal_spi_ok && hal_block_ok)
-                  ? "PASS"
-                  : "FAIL");
+    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok &&
+                                    hal_eth_ok && hal_net_ok && hal_nvm_ok && hal_can_ok &&
+                                    hal_i2c_ok && hal_spi_ok && hal_block_ok && hal_tsn_ok)
+                                       ? "PASS"
+                                       : "FAIL");
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

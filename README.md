@@ -48,7 +48,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 5/29 (17.2%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| Sprints completed | 6/30 (20.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 56/71 (78.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
@@ -415,11 +415,11 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M4, M5, M9, M11 | 🟡 in progress |
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
-Current focus: **Sprint 5** complete (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN + MSS I2C
-+ MSS SPI + MSS block device done; **M10 closed** via the QEMU generic-BSP run; M11 peripheral-bound
-HAL coverage 9/13, with `hal_block=PASS` on the Renode emulated PolarFire SoC image). Next per plan:
-**Sprint 6** (NET lwIP-on-GEM + TSN peripheral-bound), then the restored M4 scope (S4b/S4c/S4d).
-Full sequence in the sprint plan above.
+Current focus: **Sprint 6a** complete (M11 peripheral-bound HAL coverage **10/13**: GPIO/SERIAL/MEM/
+ETH/NVM/CAN/I2C/SPI/BLOCK + **TSN** on the emulated Cadence GEM, `hal_tsn=PASS`). **NC-S6-01** open:
+the NET lwIP-on-GEM peripheral-bound check is deferred to **Sprint 6b** (NC-S6-01). Next per plan:
+**Sprint 6b** (NET lwIP-on-GEM, NC-S6-01) and **Sprint 7** (PCIe + SpaceWire, closes M11 13/13), then
+the restored M4 scope (S4b/S4c/S4d). Full sequence in the sprint plan above.
 
 ## Contributing
 

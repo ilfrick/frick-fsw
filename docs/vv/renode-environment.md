@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.16                                   |
+| Revision                          | 0.17                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -92,17 +92,19 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run exercises
   HAL backends and, additionally, a **contract check**:
-  - **Peripheral-bound** (9/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
+  - **Peripheral-bound** (10/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
     SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036), **NVM**
     (MSS eNVM data region write/read round trip, SRS-REQ-055), **CAN**
     (MSS CAN register round trips, SRS-REQ-057), **I2C** (MSS I2C register
     round trips, SRS-REQ-058), **SPI** (MSS SPI register round trips,
-    SRS-REQ-069) and **BLOCK** (MSS MMC/SD register round trips, SRS-REQ-070).
-    The app checks
+    SRS-REQ-069), **BLOCK** (MSS MMC/SD register round trips, SRS-REQ-070) and
+    **TSN** (GEM native TSN backend: init + VLAN/PCP + 802.1AS TSU time on the
+    emulated Cadence GEM, SRS-REQ-038). The app checks
     each and the marker is `PASS` only when all succeed (`hal_gpio=PASS`,
     `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`,
-    `hal_can=PASS`, `hal_i2c=PASS`, `hal_spi=PASS`, `hal_block=PASS`). The
+    `hal_can=PASS`, `hal_i2c=PASS`, `hal_spi=PASS`, `hal_block=PASS`,
+    `hal_tsn=PASS`). The
     MEM pool is exercised over the in-image RAM (emulated DDR); the reference
     DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH, NVM, CAN and
     I2C checks are MMIO identification/round-trip checks; the full driver path is
@@ -124,6 +126,11 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
     round-trips the control/clock/frame-size/status registers only, and the full
     transfer path (TX/RX, chip-select control, clock-divider selection) is
     verified in the host unit test.
+    *Scope limit (TSN):* the emulated Cadence GEM implements the TSU (Timer1588)
+    registers read by `get_time_ns`, and the check exercises the `FF_TsnBackend_t`
+    seam peripheral-bound; the 802.1Q screener register used by `set_vlan` is not
+    fully modelled, so the VLAN/PCP write is a model no-op whose effect is
+    verified on target (GAP-A5).
     *Scope limit (BLOCK):* the emulated `SD.MPFS_SDController` has no SD card
     attached, so a real command would log "no SD card" and do nothing; the
     register check round-trips the block-size/block-count, argument and
@@ -164,3 +171,4 @@ stays open (GAP-A4/A6).
 | 0.14 | 2026-10-12 | frick-fsw | Correct the I2C clause: the check is an MMIO round trip with the full driver path host-tested (no I2C DMA path; the reference DMA seam is MEM/ETH only) — FRICK-REVIEW-0129 R2-04 |
 | 0.15 | 2026-10-12 | frick-fsw | M11: SPI (`hal_spi`) added to the HAL coverage (8/13; SRS-REQ-069); note the emulated `SPI.MPFS_SPI` scope limit (no registered slave → register round-trips only; the transfer path is host-tested) |
 | 0.16 | 2026-10-12 | frick-fsw | M11: BLOCK (`hal_block`) added to the HAL coverage (9/13; SRS-REQ-070); note the emulated `SD.MPFS_SDController` scope limit (no SD card attached → register round-trips only; the transfer path is host-tested) |
+| 0.17 | 2026-10-12 | frick-fsw | M11/S6a: TSN (`hal_tsn`) added to the HAL coverage (10/13; SRS-REQ-038) — the GEM native TSN backend is exercised peripheral-bound on the emulated Cadence GEM (init + VLAN/PCP + 802.1AS TSU time); the NET lwIP-on-GEM peripheral-bound check is deferred (NC-S6-01, sprint S6b) |

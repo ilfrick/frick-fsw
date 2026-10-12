@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.20                                 |
+| Revision                          | 0.3.21                                 |
 | Date                              | 2026-10-12                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -38,7 +38,7 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 | T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`; `make misra-docker` (pinned container) | MISRA findings report, reproducible via `make misra-docker` | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
-| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
 | T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + `mpfs64imafdc` BSP (flight/Renode) and `rv64imafdc` BSP (QEMU) built; real cross build OK (plain + Renode + generic image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED (see note) |
 | T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
 | T20 | QEMU emulated-target functional check (M10) | `tools/scripts/qemu_vv.sh`, `cmake/toolchains/rtems-riscv-generic.cmake` (`make qemu-image`/`qemu-image-docker`, `make qemu`) | generic `rv64imafdc` image boots under `qemu-system-riscv64 -M virt -bios`: banner + 6 applications registered | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
@@ -127,3 +127,4 @@ by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
 | 0.3.18 | 2026-10-12 | frick-fsw | T3 `test_i2c` 135 -> 144 checks (1 MHz code-5 mapping, minimum-SCL boundary, bus-hook validation); T14 reproducibility: `make misra-docker` runs `misra.sh` in a pinned image (regenerates `build/misra-report.txt`; 13 advisory findings, 0 in I2C); header/History reconciled (FRICK-REVIEW-0129..0136) |
 | 0.3.19 | 2026-10-12 | frick-fsw | T3 gains `tests/unit/test_spi.c` (reference MSS SPI driver, SRS-REQ-069); T17 Renode functional check gains `hal_spi` |
 | 0.3.20 | 2026-10-12 | frick-fsw | T3 gains `tests/unit/test_block.c` (reference MSS block-device driver, SRS-REQ-070); T17 Renode functional check gains `hal_block` |
+| 0.3.21 | 2026-10-12 | frick-fsw | T17 Renode functional check gains `hal_tsn` (GEM native TSN peripheral-bound, SRS-REQ-038, M11/S6a) |

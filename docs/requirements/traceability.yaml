@@ -364,9 +364,9 @@ requirements:
     parent_sss: SSS-REQ-020
     derived: false
     implementation: ["src/drivers/eth/gem/ff_gem_tsn.c", "src/drivers/eth/gem/ff_gem_tsn.h"]
-    tests: ["tests/unit/test_gem_tsn.c"]
+    tests: ["tests/unit/test_gem_tsn.c", "ci:renode"]
     lean: []
-    lean_note: "TSN register/table logic verified by host unit tests with a mock MMIO bus (test_gem_tsn.c); on-target timing/PTP accuracy requires the board (GAP-A5)."
+    lean_note: "TSN register/table logic verified by host unit tests with a mock MMIO bus (test_gem_tsn.c); the FF_TsnBackend_t seam is exercised peripheral-bound on the emulated Cadence GEM (hal_tsn: init + VLAN/PCP + 802.1AS TSU time) at M11/S6a; the emulated GEM implements the TSU/Timer1588 registers read by get_time_ns, while the 802.1Q screener register used by set_vlan is not fully modelled (the VLAN/PCP write is a model no-op; its effect is verified on target, GAP-A5); 802.1Qav CBS returns FF_NOT_IMPLEMENTED (documented) and full gPTP/CoreTSN are M8; on-target timing/PTP accuracy requires the board (GAP-A5)."
 
   - id: SRS-REQ-039
     level: srs
@@ -384,7 +384,7 @@ requirements:
     implementation: ["src/hal/net/lwip/ff_net_lwip.c", "src/hal/net/lwip/ff_net_lwip.h", "src/hal/net/lwip/lwipopts.h"]
     tests: ["tests/unit/test_lwip.c"]
     lean: []
-    lean_note: "Adapter over the third-party lwIP socket API (fetched, pinned, BSD-3); verified by a host data-path test (test_lwip.c) using the lwIP loopback interface (127.0.0.1). On-target stack behaviour and hardware netif are mission/GAP-A5."
+    lean_note: "Adapter over the third-party lwIP socket API (fetched, pinned, BSD-3); verified by a host data-path test (test_lwip.c) using the lwIP loopback interface (127.0.0.1). The peripheral-bound lwIP-on-GEM check is deferred (NC-S6-01, planned sprint S6b) because it needs the lwIP RTEMS port built into the emulated image and a Renode network path; on-target stack behaviour and hardware netif are mission/GAP-A5."
 
   # ---------------------------------------------------- Code quality (M9)
   - id: SRS-REQ-041

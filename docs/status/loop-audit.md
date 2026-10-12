@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.16                                   |
+| Revision                          | 0.17                                   |
 | Date                              | 2026-10-12                             |
-| Baseline commit                   | 737c805 + Sprint-5 block-device increment (audited revision; pre-commit) |
+| Baseline commit                   | 56ada82 + Sprint-6a TSN increment (audited revision; pre-commit) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -31,7 +31,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS (MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20)** | none | closed |
-| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK done (9/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 4 classes pending** | partial | tracked: M11 |
+| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN done (10/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 3 classes pending (NET lwIP-on-GEM = NC-S6-01, PCIE, SPACEWIRE)** | partial | tracked: M11 (NET lwIP-on-GEM → S6b) |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
 | **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
@@ -61,7 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N15 | full cycle each change | compliant (native+trace+format+Renode) | Lean/RTEMS proxies | documented |
 | N16 | revision history | compliant | none | closed |
 | N17 | documentation review (R4) | per change; one N20-change review was initially missed (FRICK-REVIEW-0056 DOC-10) then performed | none | closed |
-| N18 | Renode functional validation | **in force** (`make renode` PASS, incl. `hal_i2c=PASS` on the Sprint-3 image) | per-commit SKIP proxy (no image) | documented |
+| N18 | Renode functional validation | **in force** (`make renode` PASS incl. the HAL checks `hal_eth`/`hal_net`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS` on the current image) | per-commit SKIP proxy (no image) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
 | N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 findings closed, PA PASS (FRICK-REVIEW-0063) | R1-02 bounded residual (tracked) | closed (residual tracked: loopback R1-02) |
 
@@ -169,3 +169,4 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.14 | 2026-10-12 | frick-fsw | N19 audit: restored the M4 scopes left as prose "absorbed" notes as explicit deliverables (PUS-C over IP/TSN, CAN-FD/CANopen/RS-485 DE, PUSopen adapter; fabric contract; M8 TSN Qav/Qci/Qbb + gPTP/CoreTSN); counts 112/69/29/14/51 — FRICK-REVIEW-0137 |
 | 0.15 | 2026-10-12 | frick-fsw | Sprint 4: reference MSS SPI backend (SRS-REQ-069) delivered; M11 8/13 peripheral-bound (`hal_spi=PASS`); counts 113/70/29/14/51 |
 | 0.16 | 2026-10-12 | frick-fsw | Sprint 5: reference MSS block-device backend (SRS-REQ-070) delivered; M11 9/13 peripheral-bound (`hal_block=PASS`); counts 114/71/29/14/51 |
+| 0.17 | 2026-10-12 | frick-fsw | Sprint 6a: GEM native TSN backend exercised peripheral-bound (`hal_tsn=PASS`, M11 10/13; SRS-REQ-038); NC-S6-01 opened (NET lwIP-on-GEM peripheral-bound deferred to sprint S6b) |

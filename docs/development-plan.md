@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.22                                   |
+| Revision                          | 0.23                                   |
 | Date                              | 2026-10-12                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -314,7 +314,7 @@ connection retains one of four slots until `init()` resets the table
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | planned | — |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (9/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM)/TSN/PCIE/SPACEWIRE |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (10/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM, NC-S6-01)/PCIE/SPACEWIRE |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
@@ -353,3 +353,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.20 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN (OBJ-25, SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (OBJ-26/27/28, SRS-REQ-062/063/064), PUSopen adapter (OBJ-30, SRS-REQ-065); M8 gains GEM TSN Qav/Qci/Qbb (OBJ-29, SRS-REQ-066); file transfer set confirmed in M15 |
 | 0.21 | 2026-10-12 | frick-fsw | M4/M11: reference MSS SPI driver done (SRS-REQ-069); M11 8/13 (SPI peripheral-bound, `hal_spi=PASS`) — closes the FRICK-REVIEW-0142 SCOPE-01 doc-currency NC |
 | 0.22 | 2026-10-12 | frick-fsw | M4/M11: reference MSS block-device driver done (SRS-REQ-070); M11 9/13 (BLOCK peripheral-bound, `hal_block=PASS`) — closes the FRICK-REVIEW-0146 SCOPE-01 doc-currency NC |
+| 0.23 | 2026-10-12 | frick-fsw | M4/M11: GEM native TSN backend exercised peripheral-bound (SRS-REQ-038); M11 10/13 (`hal_tsn=PASS`); NET lwIP-on-GEM peripheral-bound deferred (NC-S6-01, sprint S6b) |

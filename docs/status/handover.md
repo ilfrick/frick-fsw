@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.12                                   |
+| Revision                          | 1.13                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit `737c805` + the Sprint-5 (M4/M11 MSS block-device) increment; norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit `56ada82` + the Sprint-6a (M4/M11 GEM TSN peripheral-bound) increment; norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -100,7 +100,7 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** **9/13 peripheral-bound**
+- **M11 in progress (Renode HAL coverage, OBJ-19):** **10/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
   **ETH** (Cadence GEM **identification** via the read-only Module ID,
@@ -108,13 +108,15 @@ occasion; prefer Docker.
   **CAN** (`ff_can_mpfs`, SRS-REQ-057; MMIO register round trip), **I2C**
   (`ff_i2c_mpfs`, SRS-REQ-058; MMIO register round trip), **SPI**
   (`ff_spi_mpfs`, SRS-REQ-069; MMIO register round trip) and **BLOCK**
-  (`ff_block_mpfs`, SRS-REQ-070; MMIO register round trip). Additionally
+  (`ff_block_mpfs`, SRS-REQ-070; MMIO register round trip) and **TSN** (GEM
+  native TSN backend on the emulated Cadence GEM, SRS-REQ-038; init + VLAN/PCP +
+  802.1AS TSU time). Additionally
   a **NET `FF_NetStack_t` contract check** through the reference loopback stack
   (SRS-REQ-039; in-process — **not** peripheral-bound).
   GPIO/SERIAL/MEM/NVM/CAN/I2C/SPI/BLOCK go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
-  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block=PASS`. Remaining
-  M11 peripheral classes: NET(lwIP-on-GEM)/TSN/PCIE/SPACEWIRE.
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`. Remaining
+  M11 peripheral classes: NET(lwIP-on-GEM, **NC-S6-01**, sprint S6b)/PCIE/SPACEWIRE.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART, the
@@ -140,12 +142,13 @@ occasion; prefer Docker.
 > Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). S1 is complete
 > (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
 > done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058), **S4 (MSS SPI)
-> delivered** (`hal_spi=PASS`, SRS-REQ-069) and **S5 (MSS block device) delivered**
-> (`hal_block=PASS`, SRS-REQ-070, M11 9/13, ctest 22/22 incl. `test_block`
-> 85 checks). Next per plan: **S6 — NET lwIP-on-GEM + TSN peripheral-bound**,
-> then the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061),
-> S4c (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R)
-> adapter, SRS-REQ-065).
+> delivered** (`hal_spi=PASS`, SRS-REQ-069), **S5 (MSS block device) delivered**
+> (`hal_block=PASS`, SRS-REQ-070) and **S6a (GEM TSN peripheral-bound) delivered**
+> (`hal_tsn=PASS`, M11 10/13, ctest 22/22). Next per plan: **S6b — NET lwIP-on-GEM
+> peripheral-bound** (**NC-S6-01**, deferred) and **S7 — PCIe + SpaceWire**, then
+> the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061), S4c
+> (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
+> SRS-REQ-065).
 
 1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
    review). Suggested order by ease of emulated validation:
@@ -212,3 +215,4 @@ occasion; prefer Docker.
 | 1.10 | 2026-10-12 | frick-fsw | Restored explicit M4 scope (N19 audit): PUS-C over IP/TSN (SRS-REQ-059/060/061), fabric contract (SRS-REQ-067), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064), PUSopen adapter (SRS-REQ-065); M8 gPTP/CoreTSN (SRS-REQ-068) + GEM TSN Qav/Qci/Qbb (SRS-REQ-066); counts 112/69/29/14/51; DDJF acronym registered (FRICK-ENG-0007 0.3); sprint S4b/S4c/S4d — FRICK-REVIEW-0137 |
 | 1.11 | 2026-10-12 | frick-fsw | Sprint 4: reference MSS SPI backend (SRS-REQ-069); M11 8/13 peripheral-bound (`hal_spi=PASS`); counts 113/70/29/14/51; ctest 21/21 (test_spi 126 checks); next S5 (BLOCK eMMC/SD) |
 | 1.12 | 2026-10-12 | frick-fsw | Sprint 5: reference MSS block-device backend (SRS-REQ-070); M11 9/13 peripheral-bound (`hal_block=PASS`); counts 114/71/29/14/51; ctest 22/22 (test_block 85 checks); next S6 (NET/TSN peripheral-bound) |
+| 1.13 | 2026-10-12 | frick-fsw | Sprint 6a: GEM native TSN backend exercised peripheral-bound (`hal_tsn=PASS`, M11 10/13; SRS-REQ-038); NC-S6-01 opened (NET lwIP-on-GEM peripheral-bound deferred to sprint S6b); next S6b/S7 |

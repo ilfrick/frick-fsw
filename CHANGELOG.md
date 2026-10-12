@@ -9,6 +9,23 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M11/S6a - GEM native TSN peripheral-bound (SRS-REQ-038).** The GEM native
+  TSN backend (`FF_TsnGem_t`, 802.1Q VLAN/PCP + 802.1Qbv + 802.1AS TSU time) is
+  now bound to the emulated Cadence GEM in the Renode functional test and
+  exercised peripheral-bound (`hal_tsn=PASS`): `init`, `set_vlan` and
+  `get_time_ns` are driven against the emulated MAC TSU; the emulated GEM
+  implements the TSU/Timer1588 registers read by `get_time_ns`, while the 802.1Q
+  screener register used by `set_vlan` is not fully modelled (the VLAN/PCP write
+  is a model no-op; its effect is verified on target, GAP-A5). 802.1Qav returns
+  `FF_NOT_IMPLEMENTED` (documented) and the full gPTP/CoreTSN stack is M8. M11
+  peripheral-bound HAL coverage 9/13 -> 10/13.
+- **NC-S6-01 (open).** The **NET lwIP-on-GEM peripheral-bound** check (SRS-REQ-040)
+  is deferred: it needs the lwIP RTEMS port built into the emulated image plus a
+  Renode network path. The lwIP adapter remains host-tested
+  (`tests/unit/test_lwip.c`). Resolution planned in **sprint S6b** (see
+  `docs/planning/sprint-plan.md`); scope deviation recorded per the scope-
+  conformance rule.
+
 - **M4/M11 - reference MSS block-device backend (SRS-REQ-070).**
   `src/drivers/block/mpfs/ff_block_mpfs.{c,h}` implements the HAL block-device
   contract `FF_BlockDev_t` over the Microchip PolarFire SoC MSS MMC/SD controller
