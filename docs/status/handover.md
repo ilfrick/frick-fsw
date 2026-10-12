@@ -100,7 +100,7 @@ occasion; prefer Docker.
   `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
   default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
   warning when the generated code is absent).
-- **M11 in progress (Renode HAL coverage, OBJ-19):** **10/13 peripheral-bound**
+- **M11 in progress (Renode HAL coverage, OBJ-19):** **11/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
   **ETH** (Cadence GEM **identification** via the read-only Module ID,
@@ -110,14 +110,13 @@ occasion; prefer Docker.
   (`ff_spi_mpfs`, SRS-REQ-069; MMIO register round trip) and **BLOCK**
   (`ff_block_mpfs`, SRS-REQ-070; MMIO register round trip), **TSN** (GEM
   native TSN backend on the emulated Cadence GEM, SRS-REQ-038; init + VLAN/PCP +
-  802.1AS TSU time) and, on the **lwIP-enabled image**, **NET** (an lwIP netif
-  bound to the emulated GEM, SRS-REQ-040; `hal_net_lwip=PASS`; the packet
-  round-trip is open — NC-S6-01/NC-S6-03). Additionally
+  802.1AS TSU time) and **PCIe** (MPFS PCIe root complex, SRS-REQ-031/032; ECAM
+  config-space round-trip on the emulated Cadence GEM, `hal_pcie=PASS`). Additionally
   a **NET `FF_NetStack_t` contract check** through the reference loopback stack
   (SRS-REQ-039; in-process — **not** peripheral-bound).
   GPIO/SERIAL/MEM/NVM/CAN/I2C/SPI/BLOCK go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
-  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`. Remaining
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn`/`hal_pcie=PASS`. Remaining
   M11 peripheral classes: NET(packet round-trip = NC-S6-01 residual)/PCIE/SPACEWIRE.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.

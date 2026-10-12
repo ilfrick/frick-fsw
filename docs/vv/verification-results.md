@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 0.40                                   |
+| Revision                          | 0.41                                   |
 | Date                              | 2026-10-12                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records committed every cycle)|
@@ -444,4 +444,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 0.37 | 2026-10-12 | frick-fsw | M4/M11: reference MSS block-device backend (SRS-REQ-070, Sprint 5) - `ff_block_mpfs.{c,h}`, `test_block` (ctest 22/22, 85 checks), `hal_block=PASS` in Renode (M11 9/13); buffer-mode/GAP-A5 noted |
 | 0.38 | 2026-10-12 | frick-fsw | M11/S6a: GEM native TSN backend exercised peripheral-bound (`hal_tsn=PASS`, M11 10/13; SRS-REQ-038); NC-S6-01 opened (NET lwIP-on-GEM peripheral-bound deferred to sprint S6b) |
 | 0.39 | 2026-10-12 | frick-fsw | M11/S6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040) - host 23/23 with `FF_USE_LWIP=ON`, RTEMS build produces the lwIP archive (forced-extraction link resolves the stack; the image does not reference the adapter yet); NC-S6-02 opened (RTEMS object sizing, S6b-2) |
-| 0.40 | 2026-10-12 | frick-fsw | M11/S6b-2: RTEMS object sizing wired + lwIP netif bound to the emulated GEM (`hal_net_lwip=PASS` on the lwIP image); NC-S6-02/NC-151-02/NC-151-05 closed; **NC-S6-03** opened (latent GEM 64-bit descriptor DMA addressing); NC-S6-01 narrowed (packet round-trip residual) |
+| 0.40 | 2026-10-12 | frick-fsw | M11/S7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded. |

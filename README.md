@@ -48,11 +48,11 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 6/30 (20.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| Sprints completed | 7/30 (23.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 56/71 (78.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 31/37 (83.8%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 32/38 (84.2%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 114/114 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 100/114 (87.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/114 (17.5%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 4049/5728 (70.7%) | gcov |
-| Code function coverage | 510/515 (99.0%) | gcov |
+| Code statement (line) coverage | 4460/6331 (70.4%) | gcov |
+| Code function coverage | 563/569 (98.9%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

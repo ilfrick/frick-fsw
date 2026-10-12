@@ -1,9 +1,12 @@
 /*
  * frick-fsw - HAL contract: PCIe endpoint/root complex
  *
- * Generic PCIe contract (enumeration, BAR access, DMA, MSI) so the middleware
+ * Generic PCIe contract (configuration space access, MSI) so the middleware
  * can use a PCIe-attached device (e.g. an NVMe SSD, SRS-REQ-031/032) without
  * depending on the host controller specifics.
+ *
+ * This increment provides configuration-space read/write (ECAM) and MSI
+ * enable/disable; DMA and full enumeration are tracked as residuals (GAP-A5).
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -19,12 +22,11 @@ struct FF_Pcie
 {
     const char *name;
     FF_Status_t (*init)(uint8_t root_complex);
-    FF_Status_t (*enumerate)(void);
-    FF_Status_t (*map_bar)(uint8_t bus, uint8_t dev, uint8_t fn, uint8_t bar, void **out_base,
-                           uint32_t *out_size);
-    FF_Status_t (*dma_write)(uint64_t dst, const void *src, uint32_t len);
-    FF_Status_t (*dma_read)(void *dst, uint64_t src, uint32_t len);
-    FF_Status_t (*enable_msi)(uint8_t bus, uint8_t dev, uint8_t fn, uint8_t vector);
+    FF_Status_t (*read_config)(uint8_t bus, uint8_t dev, uint8_t fn, uint8_t offset,
+                               uint32_t *out_val);
+    FF_Status_t (*write_config)(uint8_t bus, uint8_t dev, uint8_t fn, uint8_t offset, uint32_t val);
+    FF_Status_t (*msi_enable)(uint8_t bus, uint8_t dev, uint8_t fn, uint8_t vector);
+    FF_Status_t (*msi_disable)(uint8_t bus, uint8_t dev, uint8_t fn);
 };
 
 #endif /* FF_HAL_PCIE_H */

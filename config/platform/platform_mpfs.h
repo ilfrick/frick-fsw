@@ -80,4 +80,16 @@
  * register round trip only (the transfer path is host-tested). */
 #define FF_MMC0_BASE 0x20008000u
 
+/* MPFS PCIe root complexes (Renode `PCI.MPFS_PCIe` model).
+ * pcie0 @ 0x53004000 (PLIC 149), pcie1 @ 0x53005000 (PLIC 150).
+ * Each presents a 4 KB ECAM configuration-space window. No physical endpoint
+ * is attached in the emulated board (fabric path), so the Renode check is a
+ * register round trip only (SRS-REQ-031/032). The PLIC lines are reference
+ * values from the SoC memory map (GAP-A5); the reference backend does not
+ * use interrupts in this increment. */
+#define FF_PCIE0_BASE 0x53004000u
+#define FF_PCIE1_BASE 0x53005000u
+#define FF_PCIE0_PLIC 149u
+#define FF_PCIE1_PLIC 150u
+
 #endif /* FF_PLATFORM_MPFS_H */
