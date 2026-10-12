@@ -88,7 +88,13 @@ static void test_gem_init(void)
     FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_SA1B) == 0x22110002u);
     FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_SA1T) == 0x4433u);
     FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_RBQP) == (uint32_t)(uintptr_t)&gem.rx_desc[0]);
+    FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_RBQP_HI) ==
+                   (uint32_t)((uint64_t)(uintptr_t)&gem.rx_desc[0] >> 32));
     FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_TBQP) == (uint32_t)(uintptr_t)&gem.tx_desc[0]);
+    FF_TEST_ASSERT(mock_read32(&g_mock, FF_GEM_TBQP_HI) ==
+                   (uint32_t)((uint64_t)(uintptr_t)&gem.tx_desc[0] >> 32));
+    /* ADDR64 bit is set in DMACFG to enable 64-bit queue addressing. */
+    FF_TEST_ASSERT((mock_read32(&g_mock, FF_GEM_DMACFG) & (1u << FF_GEM_DMACFG_ADDR64)) != 0u);
 }
 
 static void test_gem_transmit(void)

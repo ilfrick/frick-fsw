@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.16                                   |
+| Revision                          | 1.18                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit `471afb5` + the Sprint-6b-2 (lwIP netif on GEM + RTEMS sizing) increment; norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit `64961ac` + the NET follow-up (GEM 64-bit + netif glue test, NC-S6-03/NC-154-01); norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -115,28 +115,39 @@ occasion; prefer Docker.
   a **NET `FF_NetStack_t` contract check** through the reference loopback stack
   (SRS-REQ-039; in-process — **not** peripheral-bound).
   GPIO/SERIAL/MEM/NVM/CAN/I2C/SPI/BLOCK go through their HAL backends; the ETH check is an MMIO
-  identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
-  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn`/`hal_pcie=PASS`. Remaining
-  M11 peripheral classes: NET(packet round-trip = NC-S6-01 residual)/PCIE/SPACEWIRE.
+  identification (full GEM driver/DMA path host-tested in `test_gem` + the new `test_lwip_netif` mock-MAC loopback for the TX/RX data path). Renode
+  checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn`/`hal_pcie=PASS`; on the **lwIP-enabled image** also `hal_net_lwip=PASS` (lwIP netif bound to the emulated GEM; full GEM DMA round-trip = GAP-A5).
+  M11 peripheral classes: NET(packet round-trip = NC-S6-01 residual, mock-MAC host test) and SpaceWire (contract-level, NC-S7-01).
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART, the
   static RAM pool/DMA helper, the eNVM NVM backend, the NOR/QSPI MTD backend, the
-  MSS CAN driver and the MSS I2C driver so far.
-- **M12** (OBCP engine, uPython/MicroPython; candidate `n7space/n7s-obcp`, MIT,
-  ESA), **M13** (reference mission services: equipment manager + fault
-  management), **M14** (multicore/SMP), **M15** (in-house fundamental PUS-C
-  service set + CFDP + virtual filestore), **M16** (in-house OBCP engine
-  development) are **planned**.
+  MSS CAN driver and the MSS I2C driver so far. **Restored M4 scope** (S4b/S4c/S4d):
+  PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE
+  (SRS-REQ-062/063/064), PUSopen(R) adapter (SRS-REQ-065), fabric contract
+  (SRS-REQ-067); M8 gPTP/CoreTSN (SRS-REQ-068) + GEM TSN Qav/Qci/Qbb
+  (SRS-REQ-066).
+- **M8** gPTP (802.1AS) + fabric CoreTSN (SRS-REQ-068) is **next** (S8;
+  `hal_gptp=PASS` target). **M12** (OBCP engine, uPython/MicroPython; candidate
+  `n7space/n7s-obcp`, MIT, ESA), **M13** (reference mission services: equipment
+  manager + fault management), **M14** (multicore/SMP), **M15** (in-house
+  fundamental PUS-C service set + CFDP + virtual filestore), **M16** (in-house
+  OBCP engine development) are **planned** (S13-S14, S11-S12, S16-S17, S18-S25,
+  S9-S10 respectively per the sprint plan).
 - Requirements: **114 (71 srs / 29 sss / 14 gap)**; Lean 51 theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs),
   0101..0105 (NVM/MTD + board repl), **0106..0119** (M4/M11 MSS CAN: R1/R2/R4
   initial + delta + closure reviews and the PA freeze sign-off), **0120..0128**
-  (M10 QEMU closure: R1/R2/R4/PA initial, delta and final closure) and
+  (M10 QEMU closure: R1/R2/R4/PA initial, delta and final closure),
   **0129..0136** (Sprint-3 M4/M11 MSS I2C: R1/R2/R3/R4/PA initial + R1/R2 delta +
-  PA delta; PA converted REJECTED -> APPROVED WITH COMMENTS, loop closed) — all
-  closed (see `docs/reviews/README.md`).
+  PA delta; PA converted REJECTED -> APPROVED WITH COMMENTS, loop closed) and
+  **FRICK-REVIEW-0148..0161** (S6a GEM TSN, S6b-1 lwIP RTEMS port, S6b-2 lwIP
+  netif on GEM, S7 PCIe + SpaceWire: all review/closure sets completed and closed),
+  **FRICK-REVIEW-0162** (NET follow-up: NC-S6-03 co-implemented + NC-154-01
+  closed — APPROVED WITH COMMENTS; all 8 Minor findings corrected) and
+  **FRICK-REVIEW-0163** (NET follow-up delta re-review — APPROVED; all
+  corrections verified) — all closed (see `docs/reviews/README.md`).
 
 ## 5. Immediate next steps (priority order)
 
@@ -144,25 +155,34 @@ occasion; prefer Docker.
 > (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
 > done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058), **S4 (MSS SPI)
 > delivered** (`hal_spi=PASS`, SRS-REQ-069), **S5 (MSS block device) delivered**
-> (`hal_block=PASS`, SRS-REQ-070) and **S6a (GEM TSN peripheral-bound) delivered**
-> (`hal_tsn=PASS`, M11 10/13, ctest 22/22) and **S6b-2 (lwIP netif on the GEM;
-> `hal_net_lwip=PASS`)** delivered. Next per plan: the NET packet round-trip
-> (NC-S6-01 residual) and **S7 — PCIe + SpaceWire**, then
-> the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061), S4c
+> (`hal_block=PASS`, SRS-REQ-070), **S6a (GEM TSN peripheral-bound) delivered**
+> (`hal_tsn=PASS`, M11 10/13, ctest 22/22), **S6b-2 (lwIP netif on the GEM;
+> `hal_net_lwip=PASS`)** delivered; **S7 (PCIe + SpaceWire) delivered**
+> (`hal_pcie=PASS`, `hal_spacewire=CONTRACT`, M11 11/13) and the **NET follow-up
+> sprint** done (NC-S6-03 co-implemented: GEM 64-bit `gem_phys`/`gem_wr_qbqp`/
+> `TBQP_HI`/`RBQP_HI`/`DMACFG.ADDR64`; NC-154-01 closed: `test_lwip_netif` 26/26
+> host mock-MAC loopback; on-Renode GEM DMA still GAP-A5). Next per plan: **S8
+> — M8 gPTP (802.1AS) + fabric CoreTSN** (`hal_gptp=PASS` target), then the
+> **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061), S4c
 > (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
 > SRS-REQ-065).
 
-1. **M11 next HAL class** (M4-residual driver + Renode check + requirement +
-   review). Suggested order by ease of emulated validation:
+1. **M8 gPTP (802.1AS) + fabric CoreTSN** (SRS-REQ-068) — **next** (S8;
+   `hal_gptp=PASS` target). M11 is at 11/13 peripheral-bound (PCIe + SpaceWire
+   delivered in S7; NET follow-up co-implemented NC-S6-03 + closed NC-154-01); the
+   remaining 2 classes (GEM DMA round-trip = GAP-A5; SpaceWire = NC-S7-01
+   contract-level) are tracked, not new work.
    - [done: NVM (SRS-REQ-055), NOR/QSPI MTD driver (SRS-REQ-056), MSS CAN (SRS-REQ-057), MSS I2C (SRS-REQ-058), MSS SPI (SRS-REQ-069), MSS block device (SRS-REQ-070); board repl loaded; on-SoC QSPI check pending the controller command driver]; remaining:
-   - **PCIe**, **SpaceWire**, **ETH/NET/TSN** (instantiate the existing GEM/lwIP backends).
+   - [done: **PCIe** (), **SpaceWire** (contract-level, NC-S7-01), **TSN** (), **NET** (, S6a/S6b + NET follow-up NC-S6-03 co-implemented + NC-154-01 closed; on-Renode GEM DMA round-trip = GAP-A5)]; remaining:
    For each: driver behind `hal_*.h`, host unit test with an independent mock,
    a binding in `frick-renode.resc`, a clause in `app_renode_test.c`, SRS req,
    trace, docs, review, commit.
-2. **M4 residual** MSS drivers as above.
-3. **M8** gPTP (802.1AS) + fabric CoreTSN.
-4. **M12** OBCP engine; **M13** mission services.
-5. Keep N18 blocking (nightly real run) and close GAP-A4 (certified MISRA checker)
+2. **M4 residual** restored M4 scope (S4b/S4c/S4d): PUS-C over IP/TSN
+   (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064),
+   PUSopen adapter (SRS-REQ-065), fabric contract (SRS-REQ-067).
+3. **M12** OBCP engine; **M13** mission services; **M14** multicore/SMP;
+   **M15** in-house PUS-C + CFDP + VFS; **M16** in-house OBCP engine.
+4. Keep N18 blocking (nightly real run) and close GAP-A4 (certified MISRA checker)
    when available.
 
 ## 6. Key facts / gotchas
@@ -221,3 +241,5 @@ occasion; prefer Docker.
 | 1.14 | 2026-10-12 | frick-fsw | Sprint 6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040) — host 23/23 with `FF_USE_LWIP=ON`, RTEMS build produces the lwIP archive (forced-extraction link resolves the stack; the image does not reference the adapter yet); NC-S6-02 opened (RTEMS runtime object sizing → S6b-2); NC-S7-01 (SpaceWire no model → S7 contract-level) |
 | 1.15 | 2026-10-12 | frick-fsw | Sprint 6b-2: RTEMS object sizing wired (NC-S6-02 closed) + lwIP netif bound to the emulated GEM (`hal_net_lwip=PASS` on the lwIP image); NC-151-02/05 closed; **NC-S6-03** opened (latent GEM 64-bit descriptor DMA); NC-S6-01 narrowed (packet round-trip residual) |
 | 1.16 | 2026-10-12 | frick-fsw | Sprint-6b-2 review close-out (FRICK-REVIEW-0153/0154/0155): netif MTU fixed (1500), glue-test gap tracked (NC-154-01), traceability History bumped (NC-154-02), stale doc sites + nightly label corrected |
+| 1.17 | 2026-10-12 | frick-fsw | Sprint 7 delivered + pushed (`64961ac`): PCIe (`hal_pcie=PASS`) + SpaceWire contract-level (`hal_spacewire=CONTRACT`, M11 11/13); NET follow-up sprint: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing: `gem_phys` returns `uint64_t`, `gem_wr_qbqp`, `TBQP_HI`/`RBQP_HI`, `DMACFG.ADDR64`; per-descriptor truncation explicit; full 3-word descriptor format deferred to M14); NC-154-01 closed (`test_lwip_netif` 26/26 host, mock-MAC loopback); `test_gem` extended for 64-bit register writes; trace/lean/format/redline all green; combined R1+R2+R3+R4+PA review APPROVED WITH COMMENTS (FRICK-REVIEW-0162, 8 Minor findings, all corrected); delta re-review APPROVED (FRICK-REVIEW-0163, all corrections verified); commit + push to both remotes completed |
+| 1.18 | 2026-10-12 | frick-fsw | Handover updated to record FRICK-REVIEW-0162 (NET follow-up confirmation, APPROVED WITH COMMENTS) and FRICK-REVIEW-0163 (delta re-review, APPROVED) in the recent-reviews list; all findings closed; next sprint S8 = M8 gPTP + CoreTSN |

@@ -23,7 +23,12 @@
 #define FF_GEM_TSR 0x0014u    /* transmit status                    */
 #define FF_GEM_RBQP 0x0018u   /* receive buffer queue base address  */
 #define FF_GEM_TBQP 0x001Cu   /* transmit buffer queue base address */
-#define FF_GEM_RSR 0x0020u    /* receive status                     */
+/* High 32 bits of the queue base address (present when DMACFG.ADDR64=1).
+ * Co-implemented for NC-S6-03; the full 64-bit descriptor format (3-word
+ * descriptors with per-descriptor addr_hi) is deferred to M14. */
+#define FF_GEM_RBQP_HI 0x00C8u /* receive buffer queue base addr hi  */
+#define FF_GEM_TBQP_HI 0x00CCu /* transmit buffer queue base addr hi */
+#define FF_GEM_RSR 0x0020u     /* receive status                     */
 #define FF_GEM_ISR 0x0024u
 #define FF_GEM_IER 0x0028u
 #define FF_GEM_IDR 0x002Cu

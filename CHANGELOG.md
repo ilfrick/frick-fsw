@@ -574,6 +574,18 @@ change. All dates UTC, project language English (norm N2).
   documentation and status program.
 - `docs/architecture/time-and-timecode.md`: how MET/UTC/CUC and the PPS tone
   discipline work (PPS delivered in M2).
+- **NET follow-up: GEM 64-bit descriptor addressing (NC-S6-03, NC-154-01).**
+  `gem_phys` now returns `uint64_t` (was `uint32_t`) so it can express MPFS DDR
+  addresses ≥ `0x1000000000`; `gem_wr_qbqp` writes the 64-bit descriptor-ring base via
+  `TBQP_HI`/`RBQP_HI` (0x00C8/0x00CC) and `DMACFG.ADDR64` (bit 30) is asserted; the
+  per-descriptor address truncation is now explicit `(uint32_t)gem_phys(...)` with
+  the full 3-word 64-bit descriptor format deferred to M14. On-Renode GEM DMA
+  round-trip remains blocked by the register-only `Network.CadenceGEM` model (no
+  descriptor engine; TSTART unhandled = GAP-A5); the TX/RX data path is evidence-
+  backed by the new host `test_lwip_netif` (3 tests, 19 checks; mock-MAC loopback,
+  attach/double-attach/isup/getmac/arg-faults; 26/26 with `FF_USE_LWIP=ON`, ASan/UBSan
+  clean) + the extended `test_gem` (asserts 64-bit register writes). Closes NC-S6-03
+  (co-implementation) and NC-154-01 (host netif glue test).
 
 ### Changed
 

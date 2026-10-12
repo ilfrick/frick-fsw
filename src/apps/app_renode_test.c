@@ -182,11 +182,11 @@ static bool renode_hal_tsn_check(void)
  * Oracle: stack init succeeds, attach succeeds, the netif reports up/link-up,
  * and its hardware address equals the GEM MAC. The GEM MAC (mode + station
  * address) is configured over MMIO on the emulated Cadence GEM. The receiver /
- * transmitter are NOT enabled: enabling them starts the emulated descriptor DMA,
- * whose on-target addresses are 32-bit (the GEM driver DMA translation is
- * GAP-A5) and which would walk unmapped memory in the emulator. A full packet
- * round trip is therefore NOT performed (no peer/link; on-target PHY/link and
- * GEM DMA are GAP-A5; the lwIP-on-GEM data path is host-tested). */
+ * transmitter are NOT enabled: the Renode `Network.CadenceGEM` model is a
+ * register-only model (no DMA descriptor engine — TSTART is rejected as an
+ * unhandled bit), so a full packet round trip is **not** possible in Renode.
+ * The on-target GEM DMA PADDR translation is also GAP-A5. The TX/RX data-path
+ * is host-tested with a mock MAC in `test_lwip_netif` (NC-154-01). */
 static bool renode_hal_net_lwip_check(void)
 {
     static FF_Gem_t gem;

@@ -155,6 +155,8 @@
 | 2026-10-12 | Sprint-6b-2 lwIP netif on GEM — confirmation (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (R4-01/R4-03, NC-154-01/02 closed; loop closed) | 2026-10-12-m4-m11-lwip-netif-s6b2-final-review.md |
 | 2026-10-12 | Sprint-7 PCIe + SpaceWire — FSW code/V&V/systems/docs review | R1+R2+R3+R4+PA | REJECTED (Major R1-01 false pass) -> fixed | 2026-10-12-m4-m11-s7-r1-review.md |
 | 2026-10-12 | Sprint-7 PCIe + SpaceWire — delta closure (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (all findings closed) | 2026-10-12-m4-m11-s7-delta-review.md |
+| 2026-10-12 | NET follow-up: GEM 64-bit + netif glue test — confirmation review (NC-S6-03 co-implemented, NC-154-01 closed) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (8 Minor/Comment findings, all corrected) | 2026-10-12-net-followup-r1-r2-r3-r4-pa-review.md |
+| 2026-10-12 | NET follow-up — delta re-review (N12/N20) | PA | APPROVED (all 10 corrections verified; R4-04-M8 resolved) | 2026-10-12-net-followup-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

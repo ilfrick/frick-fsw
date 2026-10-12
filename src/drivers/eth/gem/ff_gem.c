@@ -27,12 +27,24 @@ static void gem_wr(FF_Gem_t *g, uint32_t off, uint32_t val)
     g->cfg.bus.write32(g->cfg.bus.ctx, g->cfg.base + off, val);
 }
 
-static uint32_t gem_phys(FF_Gem_t *g, const void *p)
+/* Returns the full 64-bit physical address. Co-implemented for NC-S6-03:
+ * the return type is uint64_t (was uint32_t) so a DDR address >= 4 GiB is no
+ * longer silently truncated. The descriptor addr field remains 32-bit for now
+ * (full 3-word 64-bit descriptor format is deferred to M14). */
+static uint64_t gem_phys(FF_Gem_t *g, const void *p)
 {
     if (g->cfg.dma != NULL) {
-        return (uint32_t)g->cfg.dma->virt_to_phys(p);
+        return g->cfg.dma->virt_to_phys(p);
     }
-    return (uint32_t)(uintptr_t)p; /* host/test: identity */
+    return (uint64_t)(uintptr_t)p; /* host/test: identity */
+}
+
+/* Write a 64-bit queue base address: low word to TBQP/RBQP and high word to
+ * TBQP_HI/RBQP_HI (the latter is a no-op on models without 64-bit DMA). */
+static void gem_wr_qbqp(FF_Gem_t *g, uint32_t off, uint32_t off_hi, uint64_t addr)
+{
+    gem_wr(g, off, (uint32_t)(addr & 0xFFFFFFFFu));
+    gem_wr(g, off_hi, (uint32_t)((addr >> 32) & 0xFFFFFFFFu));
 }
 
 static void gem_flush(FF_Gem_t *g, const void *p, uint32_t n)
@@ -74,8 +86,11 @@ static FF_Status_t gem_init(void *self)
     }
     gem_wr(g, FF_GEM_NCFGR, ncfgr);
 
-    /* DMA receive buffer size (bits 16..23). */
-    gem_wr(g, FF_GEM_DMACFG, ((uint32_t)FF_GEM_RXBS << FF_GEM_DMACFG_RXBS));
+    /* DMA receive buffer size (bits 16..23); enable 64-bit addressing
+     * (ADDR64, bit 30) so TBQP_HI/RBQP_HI are honoured on hardware with DDR
+     * >= 4 GiB. The full 64-bit descriptor format is deferred to M14. */
+    gem_wr(g, FF_GEM_DMACFG,
+           (1u << FF_GEM_DMACFG_ADDR64) | ((uint32_t)FF_GEM_RXBS << FF_GEM_DMACFG_RXBS));
 
     /* MAC address (specific address 1, little-endian per GEM). */
     gem_wr(g, FF_GEM_SA1B,
@@ -84,23 +99,25 @@ static FF_Status_t gem_init(void *self)
     gem_wr(g, FF_GEM_SA1T, (uint32_t)g->cfg.mac[4] | ((uint32_t)g->cfg.mac[5] << 8));
 
     /* Descriptor rings: TX owned by SW (USED=1), RX armed with buffer
-     * addresses (last descriptor carries the WRAP bit). */
+     * addresses (last descriptor carries the WRAP bit). The per-descriptor
+     * addr field is 32-bit (M14 widens it); the ring base is written 64-bit
+     * (NC-S6-03 co-implementation). */
     for (i = 0u; i < FF_GEM_TX_DESC; i++) {
-        g->tx_desc[i].addr = gem_phys(g, g->tx_buf[i]);
+        g->tx_desc[i].addr = (uint32_t)gem_phys(g, g->tx_buf[i]);
         g->tx_desc[i].ctrl = (1u << FF_GEM_TX_USED);
         if (i == (FF_GEM_TX_DESC - 1u)) {
             g->tx_desc[i].ctrl |= (1u << FF_GEM_TX_WRAP);
         }
     }
     for (i = 0u; i < FF_GEM_RX_DESC; i++) {
-        g->rx_desc[i].addr = gem_phys(g, g->rx_buf[i]);
+        g->rx_desc[i].addr = (uint32_t)gem_phys(g, g->rx_buf[i]);
         if (i == (FF_GEM_RX_DESC - 1u)) {
             g->rx_desc[i].addr |= (1u << FF_GEM_RX_WRAP);
         }
         g->rx_desc[i].ctrl = 0u;
     }
-    gem_wr(g, FF_GEM_TBQP, gem_phys(g, &g->tx_desc[0]));
-    gem_wr(g, FF_GEM_RBQP, gem_phys(g, &g->rx_desc[0]));
+    gem_wr_qbqp(g, FF_GEM_TBQP, FF_GEM_TBQP_HI, gem_phys(g, &g->tx_desc[0]));
+    gem_wr_qbqp(g, FF_GEM_RBQP, FF_GEM_RBQP_HI, gem_phys(g, &g->rx_desc[0]));
 
     /* Enable receiver, transmitter and management port; poll mode (no IRQ). */
     gem_wr(g, FF_GEM_NCR, (1u << FF_GEM_NCR_RE) | (1u << FF_GEM_NCR_TE) | (1u << FF_GEM_NCR_MPE));
@@ -158,7 +175,7 @@ static FF_Status_t gem_transmit(void *self, const uint8_t *frame, uint16_t len)
         g->tx_buf[idx][i] = frame[i];
     }
     gem_flush(g, g->tx_buf[idx], len);
-    g->tx_desc[idx].addr = gem_phys(g, g->tx_buf[idx]);
+    g->tx_desc[idx].addr = (uint32_t)gem_phys(g, g->tx_buf[idx]);
     /* USED=0 hands the descriptor to the DMA; LAST marks the frame end and
      * WRAP is set on the last descriptor of the ring. */
     g->tx_desc[idx].ctrl = (uint32_t)(len & FF_GEM_TX_FRMLEN_MASK) | (1u << FF_GEM_TX_LAST);
@@ -235,7 +252,7 @@ uint16_t FF_GemPollRx(FF_Gem_t *gem)
             gem->rx_cb(gem->rx_buf[gem->rx_head], len, gem->rx_ctx);
         }
         /* Re-arm the descriptor (clear USED, restore WRAP on the last one). */
-        d->addr = gem_phys(gem, gem->rx_buf[gem->rx_head]);
+        d->addr = (uint32_t)gem_phys(gem, gem->rx_buf[gem->rx_head]);
         if (gem->rx_head == (FF_GEM_RX_DESC - 1u)) {
             d->addr |= (1u << FF_GEM_RX_WRAP);
         }

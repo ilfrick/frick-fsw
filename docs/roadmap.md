@@ -2,7 +2,7 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.18 |
+| Revision    | 0.19 |
 | Date        | 2026-10-12 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
@@ -114,7 +114,7 @@ database and key management/rotation, with a pluggable cryptographic backend
 (`src/security/ff_sdls.{c,h}`). Requirements SSS-REQ-019 / SRS-REQ-034/-035;
 ADR-0013; `docs/architecture/security-sdls.md`; GAP-A14 (algorithm/HSM/ground).
 
-## M8 — Deterministic Ethernet completion: gPTP (802.1AS) and fabric CoreTSN (planned)
+## M8 — Deterministic Ethernet completion: gPTP (802.1AS) and fabric CoreTSN (in progress)
 
 Complete the deterministic-Ethernet feature set on the PolarFire SoC:
 
@@ -232,3 +232,4 @@ last milestones.
 | 0.16 | 2026-10-11 | frick-fsw | Reconcile heading statuses with the actual state (N19): M3/M6/M7 done, M10/M11 in progress; M5 section moved into milestone order |
 | 0.17 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development, after M12); M12 reframed as engine integration (user directive) |
 | 0.18 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN + extended fieldbus (CAN-FD/CANopen/RS-485 DE) + PUSopen adapter made explicit deliverables (were only prose "absorbed"); M8 gains GEM TSN 802.1Qav/Qci/Qbb |
+| 0.19 | 2026-10-12 | frick-fsw | NET follow-up: M8 status updated from "planned" to "in progress" (S8 = M8 gPTP + CoreTSN now the active sprint per sprint-plan); NC-S6-03 co-implemented, NC-154-01 closed |

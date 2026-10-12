@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.22                                   |
+| Revision                          | 0.21                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -148,8 +148,12 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
     check (`hal_net_lwip`) is delivered on the **lwIP-enabled image** (S6b-2): an
     lwIP `netif` is bound to the emulated GEM and the check asserts netif-up +
     GEM identification; the full TX/RX packet round-trip and the emulated GEM DMA
-    are deferred (NC-S6-01 residual / NC-S6-03: the GEM driver's descriptor
-    translation is 32-bit and cannot express the MPFS DDR address). The model has
+    are deferred (NC-S6-01 residual: the full TX/RX packet round-trip on Renode;
+    NC-S6-03 co-implemented — GEM 64-bit gem_phys/gem_wr_qbqp/TBQP_HI/
+    RBQP_HI/DMACFG.ADDR64 in the driver; the on-Renode GEM DMA round-trip
+    remains GAP-A5: the register-only Network.CadenceGEM model has no descriptor
+    engine and TSTART is an unhandled bit). The TX/RX data path is host-tested
+    with a mock FF_EthMac_t in test_lwip_netif (26/26). The model has
     **no SpaceWire peripheral** (**NC-S7-01**: fabric device, "no FPGA IP"), so
     SpaceWire is exercised at **contract level** (emulator limitation, GAP-A5).
 
@@ -188,3 +192,4 @@ stays open (GAP-A4/A6).
 | 0.18 | 2026-10-12 | frick-fsw | Emulator-scope note: NET lwIP-on-GEM (NC-S6-01: lwIP has no RTEMS port) and SpaceWire (NC-S7-01: no emulated peripheral) are contract-level, not peripheral-bound (GAP-A5) |
 | 0.19 | 2026-10-12 | frick-fsw | M11/S6b-2: `hal_net_lwip` delivered on the lwIP-enabled image (lwIP netif bound to the emulated GEM, MAC config asserted); packet round-trip + emulated GEM DMA deferred (NC-S6-01/NC-S6-03); SpaceWire remains contract-level (NC-S7-01) |
 | 0.20 | 2026-10-12 | frick-fsw | M11/S7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded (SpaceWire no emulated peripheral) |
+| 0.21 | 2026-10-12 | frick-fsw | NET follow-up: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing in the driver; on-Renode GEM DMA round-trip remains GAP-A5: register-only CadenceGEM model, no descriptor engine); NC-154-01 closed (host `test_lwip_netif` 26/26, mock-MAC loopback); NC-S6-01 wording clarified (mock-MAC host test = TX/RX data-path evidence) |

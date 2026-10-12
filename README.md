@@ -48,11 +48,11 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 7/30 (23.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| Sprints completed | 8/30 (26.7%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 56/71 (78.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 32/38 (84.2%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 33/39 (84.6%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
@@ -412,14 +412,10 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | Milestone | Status |
 | --- | --- |
 | M1, M2, M3, M6, M7, M10 | ✅ done |
-| M4, M5, M9, M11 | 🟡 in progress |
-| M8, M12, M13, M14, M15, M16 | ⬜ planned |
+| M4, M5, M8, M9, M11 | 🟡 in progress |
+| M12, M13, M14, M15, M16 | ⬜ planned |
 
-Current focus: **Sprint 6b-2** complete: RTEMS object sizing wired (NC-S6-02 closed) + **lwIP netif
-bound to the emulated GEM** (`hal_net_lwip=PASS` on the lwIP-enabled image); NC-151-02/05 closed.
-**NC-S6-01** narrowed (packet round-trip residual); **NC-S6-03** open (latent GEM 64-bit descriptor
-DMA); **NC-S7-01** open (SpaceWire → contract-level). Next per plan: **S7** (PCIe peripheral-bound +
-SpaceWire contract-level), then the restored M4 scope (S4b/S4c/S4d). Full sequence in the sprint plan.
+Current focus: **Sprint 7** complete (PCIe peripheral-bound `hal_pcie=PASS` + SpaceWire contract-level `hal_spacewire=CONTRACT`), then **NET follow-up** complete: NC-S6-03 co-implemented (`gem_phys` returns `uint64_t`, `gem_wr_qbqp`, `TBQP_HI`/`RBQP_HI`, `DMACFG.ADDR64` asserted; full 3-word descriptor format deferred to M14), NC-154-01 closed (`test_lwip_netif`, 3 tests/19 checks, 26/26 host with `FF_USE_LWIP=ON`); NC-S6-01 documented (Renode GEM register-only = GAP-A5; mock-MAC loopback host test provides TX/RX data-path evidence). Next per plan: **S8 = M8 gPTP (802.1AS) + fabric CoreTSN** (hal_gptp=PASS target; SRS-REQ-038/066/068). Full sequence in the sprint plan.
 
 ## Contributing
 
