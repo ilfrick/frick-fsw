@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.13                                   |
+| Revision                          | 1.14                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit `56ada82` + the Sprint-6a (M4/M11 GEM TSN peripheral-bound) increment; norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit `3822f72` + the Sprint-6b-1 (lwIP RTEMS sys_arch port) increment; norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -216,3 +216,4 @@ occasion; prefer Docker.
 | 1.11 | 2026-10-12 | frick-fsw | Sprint 4: reference MSS SPI backend (SRS-REQ-069); M11 8/13 peripheral-bound (`hal_spi=PASS`); counts 113/70/29/14/51; ctest 21/21 (test_spi 126 checks); next S5 (BLOCK eMMC/SD) |
 | 1.12 | 2026-10-12 | frick-fsw | Sprint 5: reference MSS block-device backend (SRS-REQ-070); M11 9/13 peripheral-bound (`hal_block=PASS`); counts 114/71/29/14/51; ctest 22/22 (test_block 85 checks); next S6 (NET/TSN peripheral-bound) |
 | 1.13 | 2026-10-12 | frick-fsw | Sprint 6a: GEM native TSN backend exercised peripheral-bound (`hal_tsn=PASS`, M11 10/13; SRS-REQ-038); NC-S6-01 opened (NET lwIP-on-GEM peripheral-bound deferred to sprint S6b); next S6b/S7 |
+| 1.14 | 2026-10-12 | frick-fsw | Sprint 6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040) — host 23/23 with `FF_USE_LWIP=ON`, RTEMS build produces the lwIP archive (forced-extraction link resolves the stack; the image does not reference the adapter yet); NC-S6-02 opened (RTEMS runtime object sizing → S6b-2); NC-S7-01 (SpaceWire no model → S7 contract-level) |

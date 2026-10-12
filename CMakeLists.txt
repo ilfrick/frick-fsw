@@ -153,6 +153,8 @@ endif()
 # ----------------------------------------------------------------------
 # lwIP network-stack adapter (milestone M4). Third-party BSD-3 stack, fetched
 # pinned (tools/scripts/fetch_third_party.sh); built only with FF_USE_LWIP=ON.
+# The host build uses the upstream lwIP unix port; the RTEMS target uses the
+# in-repo RTEMS sys_arch port (SRS-REQ-040, NC-S6-01).
 # ----------------------------------------------------------------------
 if(FF_USE_LWIP)
   set(FF_LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lwip)
@@ -163,22 +165,44 @@ if(FF_USE_LWIP)
   set(LWIP_CONTRIB_DIR ${FF_LWIP_DIR}/contrib)
   set(LWIP_EXCLUDE_SLIPIF TRUE)
   include(${LWIP_CONTRIB_DIR}/ports/CMakeCommon.cmake)
-  include(${LWIP_CONTRIB_DIR}/ports/unix/Filelists.cmake)
   include(${FF_LWIP_DIR}/src/Filelists.cmake)
-  add_library(frick_lwip STATIC ${lwipnoapps_SRCS} ${lwipcontribportunix_SRCS})
-  target_include_directories(frick_lwip PUBLIC
-    ${FF_SRC_DIR}/hal/net/lwip
-    ${FF_LWIP_DIR}/src/include
-    ${LWIP_CONTRIB_DIR}/ports/unix/port/include)
-  # Third-party lwIP is not -Werror clean: do not apply LWIP_COMPILER_FLAGS.
-  find_package(Threads REQUIRED)
-  target_link_libraries(frick_lwip PUBLIC Threads::Threads)
 
   # Our adapter, compiled with the project's strict warnings, against lwIP.
   add_library(frick_net_lwip STATIC ${FF_SRC_DIR}/hal/net/lwip/ff_net_lwip.c)
-  target_include_directories(frick_net_lwip PRIVATE
-    ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_SRC_DIR}/hal/net/lwip)
+  target_include_directories(frick_net_lwip PRIVATE ${FF_SRC_DIR} ${FF_SRC_DIR}/core)
   target_compile_options(frick_net_lwip PRIVATE -Wall -Wextra)
+
+  if(FF_PLATFORM MATCHES "^rtems")
+    # RTEMS target: build the lwIP core with the in-repo RTEMS sys_arch port
+    # (the pinned lwIP ships unix/win32/freertos ports only). arch/cc.h,
+    # arch/sys_arch.h and lwipopts.h live in the port include dir, which is the
+    # only lwipopts.h on the path so the stack and the adapter share one lwIP
+    # configuration.
+    add_library(frick_lwip STATIC
+      ${lwipnoapps_SRCS}
+      ${FF_SRC_DIR}/hal/net/lwip/rtems/sys_arch.c)
+    target_include_directories(frick_lwip PUBLIC
+      ${FF_SRC_DIR}/hal/net/lwip/rtems
+      ${FF_LWIP_DIR}/src/include)
+    target_include_directories(frick_net_lwip PRIVATE ${FF_SRC_DIR}/hal/net/lwip/rtems)
+    # The port is our code: apply the project warning set to it. Third-party
+    # lwIP core keeps no -Werror.
+    set_source_files_properties(${FF_SRC_DIR}/hal/net/lwip/rtems/sys_arch.c
+      PROPERTIES COMPILE_OPTIONS "-Wall;-Wextra")
+  else()
+    # Host: upstream lwIP unix port (POSIX/pthreads), unchanged.
+    include(${LWIP_CONTRIB_DIR}/ports/unix/Filelists.cmake)
+    add_library(frick_lwip STATIC ${lwipnoapps_SRCS} ${lwipcontribportunix_SRCS})
+    target_include_directories(frick_lwip PUBLIC
+      ${FF_SRC_DIR}/hal/net/lwip
+      ${FF_LWIP_DIR}/src/include
+      ${LWIP_CONTRIB_DIR}/ports/unix/port/include)
+    target_include_directories(frick_net_lwip PRIVATE ${FF_SRC_DIR}/hal/net/lwip)
+    # Third-party lwIP is not -Werror clean: do not apply LWIP_COMPILER_FLAGS.
+    find_package(Threads REQUIRED)
+    target_link_libraries(frick_lwip PUBLIC Threads::Threads)
+  endif()
+
   target_link_libraries(frick_net_lwip PUBLIC frick_lwip)
   target_link_libraries(frick_fsw_core PUBLIC frick_net_lwip)
 endif()

@@ -415,11 +415,14 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M4, M5, M9, M11 | 🟡 in progress |
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
-Current focus: **Sprint 6a** complete (M11 peripheral-bound HAL coverage **10/13**: GPIO/SERIAL/MEM/
-ETH/NVM/CAN/I2C/SPI/BLOCK + **TSN** on the emulated Cadence GEM, `hal_tsn=PASS`). **NC-S6-01** open:
-the NET lwIP-on-GEM peripheral-bound check is deferred to **Sprint 6b** (NC-S6-01). Next per plan:
-**Sprint 6b** (NET lwIP-on-GEM, NC-S6-01) and **Sprint 7** (PCIe + SpaceWire, closes M11 13/13), then
-the restored M4 scope (S4b/S4c/S4d). Full sequence in the sprint plan above.
+Current focus: **Sprint 6b-1** complete: in-repo **lwIP RTEMS `sys_arch` port** (SRS-REQ-040) so
+`FF_USE_LWIP=ON` builds for the target (host 23/23; the RTEMS build produces the lwIP archive and a
+forced-extraction link resolves the stack entry points; the image does not reference the adapter yet —
+S6b-2). **NC-S6-01** (NET
+lwIP-on-GEM peripheral-bound) narrowed to **S6b-2**; **NC-S6-02** (RTEMS object sizing) and
+**NC-S7-01** (SpaceWire: no emulated peripheral → contract-level) open. Next per plan: **S6b-2**
+(wire the RTEMS object sizing + bind lwIP to the GEM netif) and **S7** (PCIe peripheral-bound +
+SpaceWire contract-level). Full sequence in the sprint plan above.
 
 ## Contributing
 

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0012                        |
-| Revision                          | 0.4                                    |
+| Revision                          | 0.5                                    |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040, SRS-REQ-059, SRS-REQ-060, SRS-REQ-061 |
@@ -40,9 +40,16 @@ user-supplied adapters.
 - Loopback backend: always built with `FF_BUILD_DRIVERS=ON`.
 - lwIP backend: `FF_USE_LWIP=ON` (default OFF); requires the fetched lwIP
   (`tools/scripts/fetch_third_party.sh`, release tag `STABLE-2_2_1_RELEASE`).
-  CMake builds a `frick_lwip` target
-  (lwIP core + the unix port `sys_arch`) and a separate `frick_net_lwip` adapter
-  target. lwIP sources are not compiled with the project's `-Werror`.
+  CMake builds a `frick_lwip` target (lwIP core + the port `sys_arch`) and a
+  separate `frick_net_lwip` adapter target. On the **host** the lwIP `unix` port
+  is used; for the **RTEMS target** the in-repo port
+  `src/hal/net/lwip/rtems/` (`sys_arch` over the RTEMS classic API) is selected
+  by `FF_PLATFORM=rtems` — the pinned lwIP ships no RTEMS port, so this port is
+  required to build the stack for the target (S6b-1; on-target run = S6b-2,
+  NC-S6-02, which must also wire the RTEMS runtime object sizing, e.g.
+  `CONFIGURE_MAXIMUM_MESSAGE_QUEUES`). Until S6b-2 the adapter is **archived but
+  not linked** into the default image, so `FF_USE_LWIP=OFF` output is unchanged.
+  lwIP sources are not compiled with the project's `-Werror`.
 
 ## 5. Verification
 
@@ -89,3 +96,4 @@ mission-provided netif on the target (`attach_netif`).
 | 0.2 | 2026-10-12 | frick-fsw | Add status section: PUS-C over IP and TSN implemented vs planned, with pointers to the ICD, development plan and engineering manuals |
 | 0.3 | 2026-10-12 | frick-fsw | State the exact lwIP pin (release tag `STABLE-2_2_1_RELEASE`) and BSD-3-Clause licence in §3/§4; cross-reference the user manual's "how to use" steps (§8.1/§9.1) |
 | 0.4 | 2026-10-12 | frick-fsw | Update §6: the PUS-C-over-IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" note |
+| 0.5 | 2026-10-12 | frick-fsw | §4: document the lwIP port selection — unix port on the host, the in-repo RTEMS `sys_arch` port (`src/hal/net/lwip/rtems/`) on the target (S6b-1); the pinned lwIP ships no RTEMS port |

@@ -30,3 +30,17 @@ cmake -S "${ROOT}" -B "${ROOT}/build/rtems" \
   -DFF_PLATFORM=rtems
 cmake --build "${ROOT}/build/rtems" -j"$(nproc)"
 echo "[rtems-cross] cross build: PASS"
+
+# Also cross-build with the lwIP adapter enabled (SRS-REQ-040) when the pinned
+# lwIP tree is present, so the in-repo RTEMS sys_arch port (S6b-1) is
+# cross-compiled whenever this script runs with the toolchain
+# (FRICK-REVIEW-0150 R2-02; FRICK-REVIEW-0151 NC-151-02).
+if [[ -f "${ROOT}/third_party/lwip/src/Filelists.cmake" ]]; then
+  cmake -S "${ROOT}" -B "${ROOT}/build/rtems-lwip" \
+    -DCMAKE_TOOLCHAIN_FILE="${ROOT}/cmake/toolchains/rtems-riscv-mpfs.cmake" \
+    -DFF_PLATFORM=rtems -DFF_USE_LWIP=ON
+  cmake --build "${ROOT}/build/rtems-lwip" -j"$(nproc)"
+  echo "[rtems-cross] cross build with FF_USE_LWIP=ON: PASS"
+else
+  echo "[rtems-cross] lwIP tree absent: FF_USE_LWIP=ON cross build skipped (documented)"
+fi

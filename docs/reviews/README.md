@@ -146,6 +146,10 @@
 | 2026-10-12 | Sprint-5 MSS BLOCK — FSW code + V&V review | R1+R2 (FSW + V&V) | REJECTED (Major R1-01 TBS truncation; SCOPE-01) -> fixed | 2026-10-12-m4-m11-block-r1-r2-review.md |
 | 2026-10-12 | Sprint-5 MSS BLOCK — delta + systems/docs + PA closure | R1+R2 (delta) + R3+R4+PA | APPROVED WITH COMMENTS (R1-01/02/03, SCOPE-01 closed) | 2026-10-12-m4-m11-block-delta-r3-r4-pa-review.md |
 | 2026-10-12 | Sprint-6a GEM TSN — code/V&V/systems/docs/PA review | R1+R2+R3+R4+PA | REJECTED (Major R1-01 false pass: GEM base double-add) -> fixed | 2026-10-12-m4-m11-tsn-s6a-review.md |
+| 2026-10-12 | Sprint-6a GEM TSN — delta closure (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (Major R1-01 fixed; loop closed) | 2026-10-12-m4-m11-tsn-s6a-delta-review.md |
+| 2026-10-12 | Sprint-6b-1 lwIP RTEMS port — code/V&V/systems/docs/PA review | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (R2-01 evidence wording corrected) | 2026-10-12-m4-m11-lwip-rtems-s6b1-review.md |
+| 2026-10-12 | Sprint-6b-1 lwIP RTEMS — delta closure (N12) | R1+R2+R3+R4+PA | REJECTED (Major NC-151-01 residual wording) -> fixed | 2026-10-12-m4-m11-lwip-rtems-s6b1-delta-review.md |
+| 2026-10-12 | Sprint-6b-1 lwIP RTEMS — confirmation (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (Major NC-151-01 closed; loop closed) | 2026-10-12-m4-m11-lwip-rtems-s6b1-final-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

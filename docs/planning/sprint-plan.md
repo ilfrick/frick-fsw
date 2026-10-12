@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0002                        |
-| Revision                          | 0.9                                    |
+| Revision                          | 0.11                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3/N4/N8/N15/N19                       |
 | Companion                         | `docs/development-plan.md` (FRICK-PLAN-0001), `docs/roadmap.md` |
@@ -48,8 +48,8 @@ NCs (norm N12) before the loop closes.
 | **S4d** | **M4-restored: PUSopen(R) adapter** | Documented adapter over the PUS product contract (SRS-REQ-065); the commercial library is user-supplied | adapter contract test PASS |
 | **S5** | M4/M11 class 6 | **BLOCK** `FF_BlockDev_t` eMMC/SD backend (SRS-REQ-032) + host test + Renode check — **delivered** | `hal_block=PASS` (met); M11 9/13 |
 | **S6a** | M4/M11 class 7 (part 1) | **TSN** peripheral-bound: bind the GEM native TSN backend to the emulated Cadence GEM and exercise the `FF_TsnBackend_t` seam (SRS-REQ-038) — **delivered** | `hal_tsn=PASS` (met); M11 10/13 |
-| **S6b** | M4/M11 class 7 (part 2) | **NET** lwIP-on-GEM peripheral-bound (SRS-REQ-040): build the lwIP RTEMS port into the emulated image and bind the adapter to the GEM netif — **planned (NC-S6-01)** | `hal_net` peripheral-bound PASS |
-| **S7** | M4/M11 classes 8-9 | **PCIe** (SRS-REQ-031/032) + **SpaceWire** (SRS-REQ-032) generic fabric backends + Renode checks | M11 13/13 classes exercised; M4 residual drivers done |
+| **S6b** | M4/M11 class 7 (part 2) | **NET** lwIP-on-GEM peripheral-bound (SRS-REQ-040): **S6b-1** in-repo lwIP RTEMS `sys_arch` port (sem/mutex/mbox/thread/time) so `FF_USE_LWIP=ON` builds for RTEMS — **delivered**; **S6b-2** wire the RTEMS object sizing (NC-S6-02) + bind the adapter to the GEM netif + a Renode network path and assert `hal_net` peripheral-bound | `hal_net` peripheral-bound PASS |
+| **S7** | M4/M11 classes 8-9 | **PCIe** peripheral-bound (SRS-REQ-031/032; emulated `PCI.MPFS_PCIe @ 0x53004000`) + **SpaceWire** contract-level check (SRS-REQ-032; **no emulated peripheral** → NC-S7-01) | PCIe `hal_pcie=PASS`; SpaceWire contract check PASS |
 | **S8** | **M12** OBCP integration | Integrate `n7space/n7s-obcp` behind `FF_Obcp_t` (SRS-REQ-045) with SB/EVS/Time/PUS bindings | M12 done; OBCP round-trip verified |
 | **S9-S10** | **M16** in-house OBCP engine | Develop the ECSS-compliant engine behind `FF_Obcp_t` (SRS-REQ-054) with resource/safety bounds + PUS S18 | M16 done; fallback engine verified |
 | **S11-S12** | **M13** mission services | Equipment manager + fault management (SRS-REQ-046) layered on PUS | M13 done |
@@ -69,7 +69,11 @@ loop-audit at every loop start, and the review/PA gates on every increment.
 | M16-R3-* | `FRICK-REVIEW-0064` | Minor ×7 | SSS-REQ-027 not singular/bounded, method mismatch, M12/M16 split propagation, gap linkage, `traceability.md` not regenerated, execution-order/PUS-S18 dependency | Correct in S0 and re-review (N12) |
 | M16-R4-* | `FRICK-REVIEW-0065` | Minor ×7 | stale counts, `traceability.md` mirror, header/History mismatches, roadmap M16 order | Correct in S0 and re-review (N12) |
 | M16-PA-* | `FRICK-REVIEW-0066` | Minor ×7 | currency/history obligations for `development-plan`/`handover`/`component-gap-analysis`; loop-audit baseline; semaphores | Correct in S0 and re-review (N12) |
-| NC-S6-01 | `FRICK-REVIEW-0148` (scope conformance) | Minor | **NET lwIP-on-GEM peripheral-bound** check (SRS-REQ-040) not delivered in S6: it needs the lwIP RTEMS port built into the emulated image plus a Renode network path | Owner: frick-fsw authoring agent; resolve in **sprint S6b** (N12); the lwIP adapter stays host-tested meanwhile |
+| NC-S6-01 | `FRICK-REVIEW-0148` (scope conformance) | Minor | **NET lwIP-on-GEM peripheral-bound** check (SRS-REQ-040) not delivered in S6 | **Root cause**: the pinned lwIP (`STABLE-2_2_1_RELEASE`) ships `contrib/ports/{unix,win32,freertos}` only — **no RTEMS port** — so `FF_USE_LWIP=ON` cannot build for the RTEMS target; a Renode network path is also needed for a real round-trip. **Owner**: frick-fsw authoring agent; resolve in **S6b** (S6b-1 sys_arch port, S6b-2 netif binding). The adapter stays host-tested (`test_lwip.c`) meanwhile. |
+| NC-S7-01 | Sprint-6 recon (scope conformance) | Minor | **SpaceWire peripheral-bound** check (SRS-REQ-032/OBJ-19) not deliverable | **Root cause**: the Renode PolarFire SoC model has **no SpaceWire peripheral** (fabric device, "no FPGA IP"), so OBJ-19's "every class peripheral-bound" cannot be met for SpaceWire. **Owner**: frick-fsw authoring agent; resolve in **S7** by providing a **contract-level** `hal_spacewire` check (like the NET loopback contract check) and recording the emulator limitation (GAP-A5). |
+| NC-S6-02 | Sprint 6b-1 implementation report | Minor | The **RTEMS runtime object sizing** is not wired for lwIP: `config/rtems/rtems_config.c` sets `CONFIGURE_MAXIMUM_SEMAPHORES 16` / `CONFIGURE_MAXIMUM_TASKS 16` and has **no `CONFIGURE_MAXIMUM_MESSAGE_QUEUES`** (defaults to 0), so a runtime `tcpip_init` would fail (build/link is fine, `FF_USE_LWIP` OFF by default) | **Owner**: frick-fsw authoring agent; add `CONFIGURE_MAXIMUM_MESSAGE_QUEUES` (+ semaphore/task headroom) and run the stack on the emulated image in **S6b-2** |
+| NC-151-05 | `FRICK-REVIEW-0151` | Minor | `sys_thread_new` returns an invalid handle silently on task-create failure while `tcpip_init` ignores it → a dead stack with no diagnostic | **Owner**: frick-fsw authoring agent; add a port-level diagnostic in **S6b-2** |
+| NC-151-02 | `FRICK-REVIEW-0151` | Minor | The `FF_USE_LWIP=ON` RTEMS cross-build is not reached by any CI job (the nightly build does not pass `-DFF_USE_LWIP=ON`; per-commit runs SKIP without the toolchain) and no link check is added | **Owner**: frick-fsw authoring agent; add the lwIP-enabled cross-build (and a stack-symbol link check) to the scheduled workflow in **S6b-2** |
 
 The status of every NC remains in its review report's follow-up table (norms
 N11/N12); this table is the sprint view only.
@@ -111,3 +115,5 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 | 0.7 | 2026-10-12 | frick-fsw | S4 delivered: reference MSS SPI backend (SRS-REQ-069); `hal_spi=PASS`; M11 8/13; ctest 21/21 (test_spi 126 checks); counts 113/70/29/14/51; next per plan S5 (BLOCK eMMC/SD) |
 | 0.8 | 2026-10-12 | frick-fsw | S5 delivered: reference MSS block-device backend (SRS-REQ-070); `hal_block=PASS`; M11 9/13; ctest 22/22 (test_block 85 checks); counts 114/71/29/14/51; next per plan S6 (NET/TSN peripheral-bound) |
 | 0.9 | 2026-10-12 | frick-fsw | S6 split: **S6a** (TSN peripheral-bound, `hal_tsn=PASS`, M11 10/13) **delivered**; **S6b** (NET lwIP-on-GEM peripheral-bound) deferred with **NC-S6-01** (needs the lwIP RTEMS port in the emulated image + a Renode network path), planned for sprint S6b |
+| 0.10 | 2026-10-12 | frick-fsw | Re-plan after recon: NC-S6-01 root-caused (pinned lwIP has no RTEMS port → S6b-1 sys_arch port + S6b-2 netif binding); **NC-S7-01** opened (SpaceWire has no emulated peripheral → contract-level check in S7, GAP-A5); S7 scope adjusted |
+| 0.11 | 2026-10-12 | frick-fsw | S6b-1 **delivered**: in-repo lwIP RTEMS `sys_arch` port (host 23/23 + RTEMS build produces the lwIP archive, forced-extraction link resolves the stack); **NC-S6-02** opened (RTEMS runtime object sizing not wired: no `CONFIGURE_MAXIMUM_MESSAGE_QUEUES`), to close in S6b-2 |

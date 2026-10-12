@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.33                                   |
+| Revision                          | 0.34                                   |
 | Date                              | 2026-10-12                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -102,7 +102,7 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SRS-REQ-037 | config/rtems/rtems_config.c, pal_rtems.c | ci:rtems-cross-build | - | RTEMS application integration (M4) |
 | SRS-REQ-038 | drivers/eth/gem/ff_gem_tsn.c/h | test_gem_tsn.c, ci:renode | - | GEM native TSN backend (M4/M11; peripheral-bound `hal_tsn` check) |
 | SRS-REQ-039 | drivers/net/ff_net_loopback.c/h | test_netloop.c, ci:renode | - | Reference loopback network stack; `FF_NetStack_t` contract check in Renode (M4/M11) |
-| SRS-REQ-040 | hal/net/lwip/ff_net_lwip.c/h | test_lwip.c | - | lwIP network-stack adapter (M4) |
+| SRS-REQ-040 | hal/net/lwip/ff_net_lwip.c/h, hal/net/lwip/rtems/ (RTEMS sys_arch port) | test_lwip.c | - | lwIP network-stack adapter (M4; in-repo RTEMS port so FF_USE_LWIP builds for the target, S6b-1) |
 | SRS-REQ-041 | docs/quality/misra-c.md, tools/scripts/misra.sh | ci:misra | - | MISRA C:2012 compliance (M9) |
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
 | SRS-REQ-043 | tools/scripts/emulated_run.sh, tools/scripts/qemu_vv.sh, cmake/toolchains/rtems-riscv-generic.cmake, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10, done: Renode + QEMU generic-BSP) |
@@ -237,3 +237,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.31 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-069 reference MSS SPI driver (+Renode MMIO check); counts 70/29/14 |
 | 0.32 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-070 reference MSS block-device driver (+Renode MMIO check); counts 71/29/14 |
 | 0.33 | 2026-10-12 | frick-fsw | M11/S6a: SRS-REQ-038 GEM TSN mirror row gains `ci:renode` (peripheral-bound `hal_tsn` check); counts unchanged 71/29/14 |
+| 0.34 | 2026-10-12 | frick-fsw | M11/S6b-1: SRS-REQ-040 mirror row records the in-repo lwIP RTEMS `sys_arch` port (FF_USE_LWIP builds for the target); counts unchanged 71/29/14 |

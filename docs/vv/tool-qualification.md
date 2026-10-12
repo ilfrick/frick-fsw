@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.21                                 |
+| Revision                          | 0.3.22                                 |
 | Date                              | 2026-10-12                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -128,3 +128,4 @@ by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
 | 0.3.19 | 2026-10-12 | frick-fsw | T3 gains `tests/unit/test_spi.c` (reference MSS SPI driver, SRS-REQ-069); T17 Renode functional check gains `hal_spi` |
 | 0.3.20 | 2026-10-12 | frick-fsw | T3 gains `tests/unit/test_block.c` (reference MSS block-device driver, SRS-REQ-070); T17 Renode functional check gains `hal_block` |
 | 0.3.21 | 2026-10-12 | frick-fsw | T17 Renode functional check gains `hal_tsn` (GEM native TSN peripheral-bound, SRS-REQ-038, M11/S6a) |
+| 0.3.22 | 2026-10-12 | frick-fsw | T10 `ci:rtems-cross-build` re-qualified: the script now also cross-builds with `FF_USE_LWIP=ON` (in-repo RTEMS `sys_arch` port, S6b-1) when the pinned lwIP tree is present (FRICK-REVIEW-0150 R2-02 / 0151 NC-151-02) |

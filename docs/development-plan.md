@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.23                                   |
+| Revision                          | 0.24                                   |
 | Date                              | 2026-10-12                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -52,6 +52,12 @@ is in `docs/roadmap.md`.
 | OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
 | OBJ-18 | Emulated-target verification: run the RTEMS binary on Renode (PolarFire SoC) and QEMU to verify boot/PAL/drivers without hardware (partial GAP-A5 mitigation). | M10 |
 | OBJ-19 | Extend the Renode functional test to **every HAL resource class** (ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM/RAM-DMA, BLOCK eMMC/SD/SSD, NVM), so each interface is bound to its emulated peripheral and exercised on the emulated PolarFire SoC. | M11 |
+
+> **OBJ-19 emulator limits (recorded 2026-10-12):** two classes cannot be
+> peripheral-bound in the Renode PolarFire SoC model — **NET lwIP-on-GEM**
+> (NC-S6-01: the pinned lwIP has no RTEMS port; the in-repo port + a Renode
+> network path are S6b-1/S6b-2) and **SpaceWire** (NC-S7-01: no emulated
+> peripheral, "no FPGA IP"); they are exercised at **contract level** (GAP-A5).
 | OBJ-20 | Integrate an **OBCP engine** executing On-Board Control Procedures written in **uPython/MicroPython** (first candidate: `n7space/n7s-obcp`, MIT, ESA-funded; fallback: an ECSS-compliant engine), behind an `FF_Obcp_t` contract with SB/EVS/Time/PUS bindings and ECSS resource/safety bounds. | M12 |
 | OBJ-21 | Provide **reference mission services**: an **equipment manager** (device command/monitoring/reconfiguration, redundancy) and **fault management** (limit checking, stored command sequences, memory/file management), layered on the PUS as optional reference applications. | M13 |
 | OBJ-22 | **Multicore / SMP**: enable and validate RTEMS **SMP** on the 4×U54 cluster (multi-core tasking/priority, per-core interrupts, cache coherency, shared-memory Software Bus/queues) on the PolarFire SoC. | **M14** (after all other milestones) |
@@ -314,7 +320,7 @@ connection retains one of four slots until `init()` resets the table
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | planned | — |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (10/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM, NC-S6-01)/PCIE/SPACEWIRE |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (10/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM, NC-S6-01/NC-S6-02)/PCIE; SpaceWire is **contract-level only** (NC-S7-01: no emulated peripheral) |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
@@ -354,3 +360,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.21 | 2026-10-12 | frick-fsw | M4/M11: reference MSS SPI driver done (SRS-REQ-069); M11 8/13 (SPI peripheral-bound, `hal_spi=PASS`) — closes the FRICK-REVIEW-0142 SCOPE-01 doc-currency NC |
 | 0.22 | 2026-10-12 | frick-fsw | M4/M11: reference MSS block-device driver done (SRS-REQ-070); M11 9/13 (BLOCK peripheral-bound, `hal_block=PASS`) — closes the FRICK-REVIEW-0146 SCOPE-01 doc-currency NC |
 | 0.23 | 2026-10-12 | frick-fsw | M4/M11: GEM native TSN backend exercised peripheral-bound (SRS-REQ-038); M11 10/13 (`hal_tsn=PASS`); NET lwIP-on-GEM peripheral-bound deferred (NC-S6-01, sprint S6b) |
+| 0.24 | 2026-10-12 | frick-fsw | M4/M11/S6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040); M11 row notes the NET (NC-S6-01/NC-S6-02) and SpaceWire (NC-S7-01) contract-level limits |

@@ -9,6 +9,25 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M4/M11 - in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040, S6b-1).** The
+  pinned lwIP ships only unix/win32/freertos ports, so `FF_USE_LWIP=ON` could not
+  build for the RTEMS target. `src/hal/net/lwip/rtems/` now provides the lwIP 2.x
+  sys API over the RTEMS classic API (semaphores, priority-inheriting mutexes,
+  mailboxes as `rtems_message_queue`, threads as `rtems_task`, time from the RTEMS
+  clock) plus `arch/cc.h`/`arch/sys_arch.h`/`lwipopts.h`. `CMakeLists.txt` selects
+  the RTEMS port only for `FF_PLATFORM=rtems`; the host build keeps the lwIP unix
+  port (`FF_USE_LWIP` still OFF by default). Verified: host **23/23** with
+  `FF_USE_LWIP=ON`; the RTEMS build produces the lwIP archive (85 objects incl.
+  `sys_arch.c`) and a forced-extraction link resolves `tcpip_init`/`lwip_socket`/
+  all `sys_*`; the default image does not reference the adapter yet (S6b-2), so it
+  is byte-identical (no regression, default **22/22**).
+- **NC-S6-02 (open).** The RTEMS runtime object sizing is not yet wired
+  (`config/rtems/rtems_config.c` has no `CONFIGURE_MAXIMUM_MESSAGE_QUEUES`), so a
+  runtime `tcpip_init` would fail; to be fixed in **S6b-2**.
+- **NC-S7-01 (open).** The Renode PolarFire SoC model has **no SpaceWire
+  peripheral**, so OBJ-19's "every class peripheral-bound" cannot be met for
+  SpaceWire; to be resolved in **S7** with a contract-level check (GAP-A5).
+
 - **M11/S6a - GEM native TSN peripheral-bound (SRS-REQ-038).** The GEM native
   TSN backend (`FF_TsnGem_t`, 802.1Q VLAN/PCP + 802.1Qbv + 802.1AS TSU time) is
   now bound to the emulated Cadence GEM in the Renode functional test and

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.17                                   |
+| Revision                          | 0.18                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -138,7 +138,11 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
     CMD24/25 write, data-buffer flow) is verified in the host unit test.
   - **Contract check** (not peripheral-bound): **NET** — a socket round trip
     through the pluggable `FF_NetStack_t` contract using the reference loopback
-    stack (`hal_net=PASS`; in-process).
+    stack (`hal_net=PASS`; in-process). The **lwIP-on-GEM** peripheral-bound
+    check is deferred (**NC-S6-01**: the pinned lwIP has no RTEMS port), and the
+    model has **no SpaceWire peripheral** (**NC-S7-01**: fabric device, "no FPGA
+    IP"), so those two classes are exercised at **contract level** rather than
+    peripheral-bound (emulator limitation, GAP-A5).
 
   Further peripheral HAL classes are added per M11.
 - **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
@@ -172,3 +176,4 @@ stays open (GAP-A4/A6).
 | 0.15 | 2026-10-12 | frick-fsw | M11: SPI (`hal_spi`) added to the HAL coverage (8/13; SRS-REQ-069); note the emulated `SPI.MPFS_SPI` scope limit (no registered slave → register round-trips only; the transfer path is host-tested) |
 | 0.16 | 2026-10-12 | frick-fsw | M11: BLOCK (`hal_block`) added to the HAL coverage (9/13; SRS-REQ-070); note the emulated `SD.MPFS_SDController` scope limit (no SD card attached → register round-trips only; the transfer path is host-tested) |
 | 0.17 | 2026-10-12 | frick-fsw | M11/S6a: TSN (`hal_tsn`) added to the HAL coverage (10/13; SRS-REQ-038) — the GEM native TSN backend is exercised peripheral-bound on the emulated Cadence GEM (init + VLAN/PCP + 802.1AS TSU time); the NET lwIP-on-GEM peripheral-bound check is deferred (NC-S6-01, sprint S6b) |
+| 0.18 | 2026-10-12 | frick-fsw | Emulator-scope note: NET lwIP-on-GEM (NC-S6-01: lwIP has no RTEMS port) and SpaceWire (NC-S7-01: no emulated peripheral) are contract-level, not peripheral-bound (GAP-A5) |
