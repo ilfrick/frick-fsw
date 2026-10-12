@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "hal/net/lwip/ff_net_lwip.h"
+#include "hal/net/lwip/ff_lwip_netif.h"
 
 #include "lwip/init.h"
 #include "lwip/tcpip.h"
@@ -39,8 +40,10 @@ static FF_Status_t ff_lwip_init(void)
 
 static FF_Status_t ff_lwip_attach_netif(void *netif)
 {
-    (void)netif;
-    return FF_SUCCESS;
+    /* `netif` is the framework network interface (FF_NetIf_t); the netif glue
+     * registers the lwIP `struct netif` and binds it to the framework MAC
+     * (SRS-REQ-040, S6b-2). */
+    return FF_LwipNetifAttach((FF_NetIf_t *)netif);
 }
 
 static FF_NetSock_t ff_lwip_open(int domain, int type, int proto)

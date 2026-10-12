@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.18                                   |
+| Revision                          | 0.19                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
@@ -104,7 +104,7 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
     each and the marker is `PASS` only when all succeed (`hal_gpio=PASS`,
     `hal_serial=PASS`, `hal_mem=PASS`, `hal_eth=PASS`, `hal_nvm=PASS`,
     `hal_can=PASS`, `hal_i2c=PASS`, `hal_spi=PASS`, `hal_block=PASS`,
-    `hal_tsn=PASS`). The
+    `hal_tsn=PASS`; on the **lwIP-enabled image** also `hal_net_lwip=PASS`). The
     MEM pool is exercised over the in-image RAM (emulated DDR); the reference
     DMA cache hooks are a seam (real cache ops = GAP-A5). The ETH, NVM, CAN and
     I2C checks are MMIO identification/round-trip checks; the full driver path is
@@ -139,10 +139,13 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   - **Contract check** (not peripheral-bound): **NET** — a socket round trip
     through the pluggable `FF_NetStack_t` contract using the reference loopback
     stack (`hal_net=PASS`; in-process). The **lwIP-on-GEM** peripheral-bound
-    check is deferred (**NC-S6-01**: the pinned lwIP has no RTEMS port), and the
-    model has **no SpaceWire peripheral** (**NC-S7-01**: fabric device, "no FPGA
-    IP"), so those two classes are exercised at **contract level** rather than
-    peripheral-bound (emulator limitation, GAP-A5).
+    check (`hal_net_lwip`) is delivered on the **lwIP-enabled image** (S6b-2): an
+    lwIP `netif` is bound to the emulated GEM and the check asserts netif-up +
+    GEM identification; the full TX/RX packet round-trip and the emulated GEM DMA
+    are deferred (NC-S6-01 residual / NC-S6-03: the GEM driver's descriptor
+    translation is 32-bit and cannot express the MPFS DDR address). The model has
+    **no SpaceWire peripheral** (**NC-S7-01**: fabric device, "no FPGA IP"), so
+    SpaceWire is exercised at **contract level** (emulator limitation, GAP-A5).
 
   Further peripheral HAL classes are added per M11.
 - **Gate**: `renode_vv.sh` **SKIPs** (exit 0) when the RTEMS image is absent
@@ -177,3 +180,4 @@ stays open (GAP-A4/A6).
 | 0.16 | 2026-10-12 | frick-fsw | M11: BLOCK (`hal_block`) added to the HAL coverage (9/13; SRS-REQ-070); note the emulated `SD.MPFS_SDController` scope limit (no SD card attached → register round-trips only; the transfer path is host-tested) |
 | 0.17 | 2026-10-12 | frick-fsw | M11/S6a: TSN (`hal_tsn`) added to the HAL coverage (10/13; SRS-REQ-038) — the GEM native TSN backend is exercised peripheral-bound on the emulated Cadence GEM (init + VLAN/PCP + 802.1AS TSU time); the NET lwIP-on-GEM peripheral-bound check is deferred (NC-S6-01, sprint S6b) |
 | 0.18 | 2026-10-12 | frick-fsw | Emulator-scope note: NET lwIP-on-GEM (NC-S6-01: lwIP has no RTEMS port) and SpaceWire (NC-S7-01: no emulated peripheral) are contract-level, not peripheral-bound (GAP-A5) |
+| 0.19 | 2026-10-12 | frick-fsw | M11/S6b-2: `hal_net_lwip` delivered on the lwIP-enabled image (lwIP netif bound to the emulated GEM, MAC config asserted); packet round-trip + emulated GEM DMA deferred (NC-S6-01/NC-S6-03); SpaceWire remains contract-level (NC-S7-01) |

@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.14                                   |
+| Revision                          | 1.16                                   |
 | Date                              | 2026-10-12                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -84,7 +84,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit `3822f72` + the Sprint-6b-1 (lwIP RTEMS sys_arch port) increment; norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit `471afb5` + the Sprint-6b-2 (lwIP netif on GEM + RTEMS sizing) increment; norm N20 reviews in `docs/reviews/`)
 
 - **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -108,15 +108,17 @@ occasion; prefer Docker.
   **CAN** (`ff_can_mpfs`, SRS-REQ-057; MMIO register round trip), **I2C**
   (`ff_i2c_mpfs`, SRS-REQ-058; MMIO register round trip), **SPI**
   (`ff_spi_mpfs`, SRS-REQ-069; MMIO register round trip) and **BLOCK**
-  (`ff_block_mpfs`, SRS-REQ-070; MMIO register round trip) and **TSN** (GEM
+  (`ff_block_mpfs`, SRS-REQ-070; MMIO register round trip), **TSN** (GEM
   native TSN backend on the emulated Cadence GEM, SRS-REQ-038; init + VLAN/PCP +
-  802.1AS TSU time). Additionally
+  802.1AS TSU time) and, on the **lwIP-enabled image**, **NET** (an lwIP netif
+  bound to the emulated GEM, SRS-REQ-040; `hal_net_lwip=PASS`; the packet
+  round-trip is open — NC-S6-01/NC-S6-03). Additionally
   a **NET `FF_NetStack_t` contract check** through the reference loopback stack
   (SRS-REQ-039; in-process — **not** peripheral-bound).
   GPIO/SERIAL/MEM/NVM/CAN/I2C/SPI/BLOCK go through their HAL backends; the ETH check is an MMIO
   identification (full GEM driver/DMA path host-tested, `test_gem`). Renode
   checks: `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS`. Remaining
-  M11 peripheral classes: NET(lwIP-on-GEM, **NC-S6-01**, sprint S6b)/PCIE/SPACEWIRE.
+  M11 peripheral classes: NET(packet round-trip = NC-S6-01 residual)/PCIE/SPACEWIRE.
 - **Project codename "Eärendil"**: third-party-name (Tolkien) non-affiliation
   disclaimer in `NOTICE`, `README.md`, `docs/quality/licensing.md §6`.
 - **M4-residual MSS drivers**: GEM Ethernet (+TSN), MSS GPIO, MSS MMUART, the
@@ -144,8 +146,9 @@ occasion; prefer Docker.
 > done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058), **S4 (MSS SPI)
 > delivered** (`hal_spi=PASS`, SRS-REQ-069), **S5 (MSS block device) delivered**
 > (`hal_block=PASS`, SRS-REQ-070) and **S6a (GEM TSN peripheral-bound) delivered**
-> (`hal_tsn=PASS`, M11 10/13, ctest 22/22). Next per plan: **S6b — NET lwIP-on-GEM
-> peripheral-bound** (**NC-S6-01**, deferred) and **S7 — PCIe + SpaceWire**, then
+> (`hal_tsn=PASS`, M11 10/13, ctest 22/22) and **S6b-2 (lwIP netif on the GEM;
+> `hal_net_lwip=PASS`)** delivered. Next per plan: the NET packet round-trip
+> (NC-S6-01 residual) and **S7 — PCIe + SpaceWire**, then
 > the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061), S4c
 > (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
 > SRS-REQ-065).
@@ -217,3 +220,5 @@ occasion; prefer Docker.
 | 1.12 | 2026-10-12 | frick-fsw | Sprint 5: reference MSS block-device backend (SRS-REQ-070); M11 9/13 peripheral-bound (`hal_block=PASS`); counts 114/71/29/14/51; ctest 22/22 (test_block 85 checks); next S6 (NET/TSN peripheral-bound) |
 | 1.13 | 2026-10-12 | frick-fsw | Sprint 6a: GEM native TSN backend exercised peripheral-bound (`hal_tsn=PASS`, M11 10/13; SRS-REQ-038); NC-S6-01 opened (NET lwIP-on-GEM peripheral-bound deferred to sprint S6b); next S6b/S7 |
 | 1.14 | 2026-10-12 | frick-fsw | Sprint 6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040) — host 23/23 with `FF_USE_LWIP=ON`, RTEMS build produces the lwIP archive (forced-extraction link resolves the stack; the image does not reference the adapter yet); NC-S6-02 opened (RTEMS runtime object sizing → S6b-2); NC-S7-01 (SpaceWire no model → S7 contract-level) |
+| 1.15 | 2026-10-12 | frick-fsw | Sprint 6b-2: RTEMS object sizing wired (NC-S6-02 closed) + lwIP netif bound to the emulated GEM (`hal_net_lwip=PASS` on the lwIP image); NC-151-02/05 closed; **NC-S6-03** opened (latent GEM 64-bit descriptor DMA); NC-S6-01 narrowed (packet round-trip residual) |
+| 1.16 | 2026-10-12 | frick-fsw | Sprint-6b-2 review close-out (FRICK-REVIEW-0153/0154/0155): netif MTU fixed (1500), glue-test gap tracked (NC-154-01), traceability History bumped (NC-154-02), stale doc sites + nightly label corrected |

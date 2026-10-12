@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0012                        |
-| Revision                          | 0.5                                    |
+| Revision                          | 0.6                                    |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040, SRS-REQ-059, SRS-REQ-060, SRS-REQ-061 |
@@ -30,7 +30,7 @@ blocking unless `timeout_ms > 0` (which sets `SO_RCVTIMEO`).
 | Backend | File | Notes |
 | ------- | ---- | ----- |
 | Loopback | `src/drivers/net/ff_net_loopback.{c,h}` | bounded, static, in-process; exercises the contract in CI (SRS-REQ-039) |
-| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}` | adapter over the lwIP socket API (SRS-REQ-040); lwIP is a third-party **BSD-3-Clause** stack, fetched pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`, `contrib` included in the lwIP tree; not committed) |
+| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}`, `ff_lwip_netif.{c,h}` | adapter over the lwIP socket API + netif glue (netif bound to `FF_EthMac_t`) (SRS-REQ-040); lwIP is a third-party **BSD-3-Clause** stack, fetched pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`, `contrib` included in the lwIP tree; not committed) |
 
 Tuxera TCP/IP and any other closed stack plug in through the same vtable as
 user-supplied adapters.
@@ -45,11 +45,17 @@ user-supplied adapters.
   is used; for the **RTEMS target** the in-repo port
   `src/hal/net/lwip/rtems/` (`sys_arch` over the RTEMS classic API) is selected
   by `FF_PLATFORM=rtems` — the pinned lwIP ships no RTEMS port, so this port is
-  required to build the stack for the target (S6b-1; on-target run = S6b-2,
-  NC-S6-02, which must also wire the RTEMS runtime object sizing, e.g.
-  `CONFIGURE_MAXIMUM_MESSAGE_QUEUES`). Until S6b-2 the adapter is **archived but
-  not linked** into the default image, so `FF_USE_LWIP=OFF` output is unchanged.
+  required to build the stack for the target (S6b-1; the runtime object sizing is
+  wired in `config/rtems/rtems_config.c`, S6b-2). The adapter is linked only into
+  the **lwIP-enabled** image, so `FF_USE_LWIP=OFF` output is unchanged.
   lwIP sources are not compiled with the project's `-Werror`.
+- lwIP netif glue (S6b-2): `src/hal/net/lwip/ff_lwip_netif.{c,h}` registers an
+  lwIP `struct netif` whose `linkoutput` transmits via the framework Ethernet MAC
+  (`FF_EthMac_t`) and whose RX callback feeds `tcpip_input`; on the lwIP-enabled
+  emulated image the check binds the netif to the emulated GEM and asserts
+  netif-up (`hal_net_lwip`). The full TX/RX packet round-trip and the emulated GEM
+  DMA are open (NC-S6-01/NC-S6-03: the GEM descriptor translation is 32-bit and
+  cannot express the MPFS DDR address).
 
 ## 5. Verification
 
@@ -97,3 +103,4 @@ mission-provided netif on the target (`attach_netif`).
 | 0.3 | 2026-10-12 | frick-fsw | State the exact lwIP pin (release tag `STABLE-2_2_1_RELEASE`) and BSD-3-Clause licence in §3/§4; cross-reference the user manual's "how to use" steps (§8.1/§9.1) |
 | 0.4 | 2026-10-12 | frick-fsw | Update §6: the PUS-C-over-IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" note |
 | 0.5 | 2026-10-12 | frick-fsw | §4: document the lwIP port selection — unix port on the host, the in-repo RTEMS `sys_arch` port (`src/hal/net/lwip/rtems/`) on the target (S6b-1); the pinned lwIP ships no RTEMS port |
+| 0.6 | 2026-10-12 | frick-fsw | §4: document the lwIP netif glue (`ff_lwip_netif.{c,h}`, netif bound to `FF_EthMac_t`; `hal_net_lwip` on the emulated GEM, S6b-2) and the open packet-round-trip/GEM-DMA residuals (NC-S6-01/NC-S6-03) |

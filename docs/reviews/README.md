@@ -150,6 +150,9 @@
 | 2026-10-12 | Sprint-6b-1 lwIP RTEMS port — code/V&V/systems/docs/PA review | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (R2-01 evidence wording corrected) | 2026-10-12-m4-m11-lwip-rtems-s6b1-review.md |
 | 2026-10-12 | Sprint-6b-1 lwIP RTEMS — delta closure (N12) | R1+R2+R3+R4+PA | REJECTED (Major NC-151-01 residual wording) -> fixed | 2026-10-12-m4-m11-lwip-rtems-s6b1-delta-review.md |
 | 2026-10-12 | Sprint-6b-1 lwIP RTEMS — confirmation (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (Major NC-151-01 closed; loop closed) | 2026-10-12-m4-m11-lwip-rtems-s6b1-final-review.md |
+| 2026-10-12 | Sprint-6b-2 lwIP netif on GEM — code/V&V/systems/docs/PA review | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (falsification: real pass) | 2026-10-12-m4-m11-lwip-netif-s6b2-review.md |
+| 2026-10-12 | Sprint-6b-2 lwIP netif on GEM — delta closure (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (R4-01/R4-03 open at 0154; NC-154-01/02 tracked) | 2026-10-12-m4-m11-lwip-netif-s6b2-delta-review.md |
+| 2026-10-12 | Sprint-6b-2 lwIP netif on GEM — confirmation (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (R4-01/R4-03, NC-154-01/02 closed; loop closed) | 2026-10-12-m4-m11-lwip-netif-s6b2-final-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

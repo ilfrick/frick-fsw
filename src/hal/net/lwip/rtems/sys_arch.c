@@ -68,6 +68,39 @@ typedef struct
 
 static frick_lwip_thread_slot_t frick_lwip_thread_slots[FRICK_LWIP_THREAD_SLOTS];
 
+/* ------------------------------------------------------------------ */
+/* Thread-creation diagnostics (NC-151-05)                            */
+/* ------------------------------------------------------------------ */
+/* sys_thread_new() must not fail silently: a task-create failure is a
+ * configuration error (insufficient CONFIGURE_MAXIMUM_TASKS / workspace) that
+ * would otherwise leave a dead stack with no diagnostic (tcpip_init() ignores
+ * the returned handle). The port records every failure - a bounded counter and
+ * the last RTEMS status code - readable through the accessors below. A message
+ * is emitted only when lwIP debug is enabled (the RTEMS arch/cc.h maps
+ * LWIP_PLATFORM_DIAG to the console), so no printf is compiled into the
+ * default flight image. */
+static volatile unsigned int frick_lwip_thread_failures;
+static volatile int frick_lwip_thread_last_status;
+
+unsigned int frick_lwip_port_thread_failures(void)
+{
+    return frick_lwip_thread_failures;
+}
+
+int frick_lwip_port_last_thread_status(void)
+{
+    return frick_lwip_thread_last_status;
+}
+
+static void frick_lwip_thread_failed(int status)
+{
+    frick_lwip_thread_failures++;
+    frick_lwip_thread_last_status = status;
+#if LWIP_DEBUG
+    LWIP_PLATFORM_DIAG(("lwIP: sys_thread_new failed (RTEMS status 0x%x)\n", (unsigned int)status));
+#endif
+}
+
 /* --------------------------------------------------------------- */
 /* Internal helpers                                               */
 /* --------------------------------------------------------------- */
@@ -467,7 +500,9 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     slot = frick_lwip_slot_acquire();
     if (slot == NULL) {
         /* lwIP expects sys_thread_new() not to fail; exhausting the bounded
-         * start pool is a configuration error. Return an invalid handle. */
+         * start pool is a configuration error. Record it (NC-151-05) and return
+         * an invalid handle. */
+        frick_lwip_thread_failed((int)RTEMS_TOO_MANY);
         return result;
     }
     slot->fn = thread;
@@ -478,11 +513,13 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     sc = rtems_task_create(frick_lwip_task_name(name), frick_lwip_task_prio(prio), stack, modes,
                            RTEMS_LOCAL, &id);
     if (sc != RTEMS_SUCCESSFUL) {
+        frick_lwip_thread_failed((int)sc);
         slot->in_use = 0;
         return result;
     }
     sc = rtems_task_start(id, frick_lwip_thread_entry, (rtems_task_argument)slot);
     if (sc != RTEMS_SUCCESSFUL) {
+        frick_lwip_thread_failed((int)sc);
         (void)rtems_task_delete(id);
         slot->in_use = 0;
         return result;

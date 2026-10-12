@@ -90,4 +90,10 @@ typedef struct
         }                                                                                          \
     } while (0)
 
+/* Thread-creation diagnostics (NC-151-05). sys_thread_new() records task-create
+ * failures instead of failing silently; these accessors expose the count and the
+ * last RTEMS status code (see sys_arch.c). */
+unsigned int frick_lwip_port_thread_failures(void);
+int frick_lwip_port_last_thread_status(void);
+
 #endif /* FF_LWIP_RTEMS_ARCH_SYS_ARCH_H */

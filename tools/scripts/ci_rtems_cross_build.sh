@@ -32,15 +32,26 @@ cmake --build "${ROOT}/build/rtems" -j"$(nproc)"
 echo "[rtems-cross] cross build: PASS"
 
 # Also cross-build with the lwIP adapter enabled (SRS-REQ-040) when the pinned
-# lwIP tree is present, so the in-repo RTEMS sys_arch port (S6b-1) is
-# cross-compiled whenever this script runs with the toolchain
-# (FRICK-REVIEW-0150 R2-02; FRICK-REVIEW-0151 NC-151-02).
+# lwIP tree is present, so the in-repo RTEMS sys_arch port (S6b-1) and the
+# framework-to-lwIP netif glue (S6b-2) are cross-compiled and linked whenever
+# this script runs with the toolchain. The image is built with the Renode test
+# application so the adapter/glue are actually referenced and the lwIP stack is
+# pulled from its archive; the link check below fails if a stack entry point is
+# missing (FRICK-REVIEW-0150 R2-02; FRICK-REVIEW-0151 NC-151-02).
 if [[ -f "${ROOT}/third_party/lwip/src/Filelists.cmake" ]]; then
   cmake -S "${ROOT}" -B "${ROOT}/build/rtems-lwip" \
     -DCMAKE_TOOLCHAIN_FILE="${ROOT}/cmake/toolchains/rtems-riscv-mpfs.cmake" \
-    -DFF_PLATFORM=rtems -DFF_USE_LWIP=ON
+    -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON -DFF_USE_LWIP=ON
   cmake --build "${ROOT}/build/rtems-lwip" -j"$(nproc)"
-  echo "[rtems-cross] cross build with FF_USE_LWIP=ON: PASS"
+  NM="${RTEMS_HOME}/6/bin/riscv-rtems6-nm"
+  if [[ -x "${NM}" ]]; then
+    # Capture the symbol table first: `nm | grep -q` would send SIGPIPE to nm
+    # and fail the script under `set -o pipefail`.
+    "${NM}" "${ROOT}/build/rtems-lwip/frick_fsw" > "${ROOT}/build/rtems-lwip/frick_fsw.syms"
+    grep -qw tcpip_init "${ROOT}/build/rtems-lwip/frick_fsw.syms"
+    grep -qw FF_LwipNetifAttach "${ROOT}/build/rtems-lwip/frick_fsw.syms"
+  fi
+  echo "[rtems-cross] cross build with FF_USE_LWIP=ON (+ stack link check): PASS"
 else
   echo "[rtems-cross] lwIP tree absent: FF_USE_LWIP=ON cross build skipped (documented)"
 fi

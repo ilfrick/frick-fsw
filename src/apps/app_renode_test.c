@@ -35,6 +35,11 @@
 #include "drivers/block/mpfs/ff_block_mpfs.h"
 #include "drivers/net/ff_net_loopback.h"
 #include "drivers/eth/gem/ff_gem_tsn.h"
+#if defined(FF_USE_LWIP)
+#include "hal/net/lwip/ff_net_lwip.h"
+#include "hal/net/lwip/ff_lwip_netif.h"
+#include "drivers/eth/gem/ff_gem_regs.h"
+#endif
 #include <string.h>
 
 static uint32_t mpfs_gpio_read32(void *ctx, uint32_t off)
@@ -164,6 +169,96 @@ static bool renode_hal_tsn_check(void)
     }
     return true;
 }
+
+#if defined(FF_USE_LWIP)
+/* HAL network-stack check, peripheral-bound (milestone M11/S6b-2): bring up the
+ * lwIP stack (FF_NetStackLwip.init() -> tcpip_init) and bind an lwIP netif to
+ * the emulated Cadence GEM MAC through the framework FF_NetIf_t / FF_EthMac_t
+ * contract (SRS-REQ-040), then confirm the netif is up. The GEM MAC is
+ * configured through the driver (MMIO to the emulated registers) and the lwIP
+ * netif hardware address must match the configured GEM MAC.
+ * Oracle: stack init succeeds, attach succeeds, the netif reports up/link-up,
+ * and its hardware address equals the GEM MAC. The GEM MAC (mode + station
+ * address) is configured over MMIO on the emulated Cadence GEM. The receiver /
+ * transmitter are NOT enabled: enabling them starts the emulated descriptor DMA,
+ * whose on-target addresses are 32-bit (the GEM driver DMA translation is
+ * GAP-A5) and which would walk unmapped memory in the emulator. A full packet
+ * round trip is therefore NOT performed (no peer/link; on-target PHY/link and
+ * GEM DMA are GAP-A5; the lwIP-on-GEM data path is host-tested). */
+static bool renode_hal_net_lwip_check(void)
+{
+    static FF_Gem_t gem;
+    static FF_NetIf_t nif;
+    FF_GemConfig_t cfg;
+    const uint8_t want[6] = {0x02u, 0x00u, 0x00u, 0x12u, 0x34u, 0x56u};
+    uint8_t hw[6];
+    uint32_t ncfgr;
+    uint32_t modid;
+
+    cfg.bus.ctx = NULL;
+    cfg.bus.read32 = mpfs_gem_read32;
+    cfg.bus.write32 = mpfs_gem_write32;
+    cfg.dma = NULL;
+    cfg.base = 0u; /* the accessors already add FF_GEM0_BASE */
+    memcpy(cfg.mac, want, sizeof(want));
+    cfg.speed_mbps = 1000u;
+    cfg.full_duplex = 1u;
+
+    if (FF_GemSetup(&gem, &cfg) != FF_SUCCESS) {
+        return false;
+    }
+
+    /* Configure the emulated GEM MAC registers directly over MMIO (network
+     * config + station address). The driver's DMA path is deliberately NOT armed
+     * (no RE/TE) because the descriptor translation is 32-bit and cannot express
+     * the MPFS DDR address in the emulator (NC-S6-03); no frame is transmitted. */
+    ncfgr = (1u << FF_GEM_NCFGR_FD) | (1u << FF_GEM_NCFGR_GBE) | (1u << FF_GEM_NCFGR_BIG) |
+            (1u << FF_GEM_NCFGR_DRFCS) | (1u << FF_GEM_NCFGR_DBW);
+    mpfs_gem_write32(NULL, FF_GEM_NCFGR, ncfgr);
+    mpfs_gem_write32(NULL, FF_GEM_SA1B,
+                     (uint32_t)want[0] | ((uint32_t)want[1] << 8) | ((uint32_t)want[2] << 16) |
+                         ((uint32_t)want[3] << 24));
+    mpfs_gem_write32(NULL, FF_GEM_SA1T, (uint32_t)want[4] | ((uint32_t)want[5] << 8));
+
+    nif.name = "gem0";
+    nif.mac = &gem.mac;
+    nif.stack = &FF_NetStackLwip;
+    nif.ipv4[0] = 192u;
+    nif.ipv4[1] = 168u;
+    nif.ipv4[2] = 0u;
+    nif.ipv4[3] = 10u;
+    nif.netmask[0] = 255u;
+    nif.netmask[1] = 255u;
+    nif.netmask[2] = 255u;
+    nif.netmask[3] = 0u;
+    nif.gateway[0] = 192u;
+    nif.gateway[1] = 168u;
+    nif.gateway[2] = 0u;
+    nif.gateway[3] = 1u;
+    nif.init = NULL;
+    nif.max_frame = NULL;
+
+    if (FF_NetStackLwip.init() != FF_SUCCESS) {
+        return false;
+    }
+    if (FF_NetStackLwip.attach_netif(&nif) != FF_SUCCESS) {
+        return false;
+    }
+    if (!FF_LwipNetifIsUp()) {
+        return false;
+    }
+    if ((FF_LwipNetifGetMac(hw) != FF_SUCCESS) || (memcmp(hw, want, sizeof(want)) != 0)) {
+        return false;
+    }
+    /* Peripheral presence: the netif MAC is the GEM driver on the emulated
+     * Cadence GEM (read-only Module ID/revision). */
+    modid = mpfs_gem_read32(NULL, FF_GEM_MODID_OFF);
+    if ((((modid >> 16) & 0x0FFFu) != 0x002u) || ((modid & 0xFFFFu) != 0x0118u)) {
+        return false;
+    }
+    return true;
+}
+#endif /* FF_USE_LWIP */
 
 /* HAL network-stack check (milestone M11): a socket round trip through the
  * pluggable FF_NetStack_t contract, using the reference loopback stack (the same
@@ -415,6 +510,9 @@ void FF_AppRenodeTestMain(void *arg)
     bool hal_spi_ok = true;
     bool hal_block_ok = true;
     bool hal_tsn_ok = true;
+#if defined(FF_USE_LWIP)
+    bool hal_net_lwip_ok = true;
+#endif
 
     (void)arg;
     FF_PalLog("[renode-test] frick-fsw Renode functional test application\n");
@@ -459,6 +557,9 @@ void FF_AppRenodeTestMain(void *arg)
     hal_spi_ok = renode_hal_spi_check();
     hal_block_ok = renode_hal_block_check();
     hal_tsn_ok = renode_hal_tsn_check();
+#if defined(FF_USE_LWIP)
+    hal_net_lwip_ok = renode_hal_net_lwip_check();
+#endif
     FF_PalLog("[renode-test] hal_gpio=%s\n", hal_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_serial=%s\n", hal_serial_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_mem=%s\n", hal_mem_ok ? "PASS" : "FAIL");
@@ -470,14 +571,21 @@ void FF_AppRenodeTestMain(void *arg)
     FF_PalLog("[renode-test] hal_spi=%s\n", hal_spi_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_block=%s\n", hal_block_ok ? "PASS" : "FAIL");
     FF_PalLog("[renode-test] hal_tsn=%s\n", hal_tsn_ok ? "PASS" : "FAIL");
+#if defined(FF_USE_LWIP)
+    FF_PalLog("[renode-test] hal_net_lwip=%s\n", hal_net_lwip_ok ? "PASS" : "FAIL");
+#endif
 #endif
 
     FF_PalLog("[renode-test] sb_roundtrip=%s\n", rx_ok ? "PASS" : "FAIL");
-    FF_PalLog("RENODE_TEST: %s\n", (pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok &&
-                                    hal_eth_ok && hal_net_ok && hal_nvm_ok && hal_can_ok &&
-                                    hal_i2c_ok && hal_spi_ok && hal_block_ok && hal_tsn_ok)
-                                       ? "PASS"
-                                       : "FAIL");
+    {
+        bool all_ok = pub_ok && rx_ok && hal_ok && hal_serial_ok && hal_mem_ok && hal_eth_ok &&
+                      hal_net_ok && hal_nvm_ok && hal_can_ok && hal_i2c_ok && hal_spi_ok &&
+                      hal_block_ok && hal_tsn_ok;
+#if defined(FF_USE_LWIP)
+        all_ok = all_ok && hal_net_lwip_ok;
+#endif
+        FF_PalLog("RENODE_TEST: %s\n", all_ok ? "PASS" : "FAIL");
+    }
 
     for (;;) {
         FF_PalTaskDelayMs(5000u);

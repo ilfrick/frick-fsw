@@ -54,6 +54,35 @@ jobs:
           grep -q "RENODE_TEST: PASS" build/renode/console.log
           echo "Renode functional validation: PASS"
 
+      # lwIP network-stack adapter on the RTEMS target (SRS-REQ-040, NC-151-02):
+      # fetch the pinned lwIP, cross-build the image with FF_USE_LWIP=ON and
+      # FF_ENABLE_RENODE_TEST=ON, check that the lwIP stack symbols are linked
+      # in, then run the peripheral-bound lwIP-on-GEM check in Renode.
+      - name: Fetch third-party (pinned lwIP)
+        run: bash tools/scripts/fetch_third_party.sh
+
+      - name: Cross build with the lwIP adapter (FF_USE_LWIP=ON)
+        run: |
+          cmake -S . -B build/renode-lwip \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
+            -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON -DFF_USE_LWIP=ON
+          cmake --build build/renode-lwip -j$(nproc)
+          # Link check: the lwIP stack and the netif glue must be resolved into
+          # the image (the adapter is referenced by the Renode check app).
+          NM="${RTEMS_HOME}/6/bin/riscv-rtems6-nm"
+          "${NM}" build/renode-lwip/frick_fsw > /tmp/frick_fsw_lwip.syms
+          grep -qw tcpip_init /tmp/frick_fsw_lwip.syms
+          grep -qw FF_LwipNetifAttach /tmp/frick_fsw_lwip.syms
+          echo "RTEMS cross build with FF_USE_LWIP=ON: PASS"
+
+      - name: Renode lwIP-on-GEM validation (NC-S6-01 residual)
+        run: |
+          cp build/renode-lwip/frick_fsw build/renode/frick_fsw_renode.elf
+          make renode
+          grep -q "RENODE_TEST: PASS" build/renode/console.log
+          grep -q "hal_net_lwip=PASS" build/renode/console.log
+          echo "Renode lwIP-on-GEM validation: PASS (hal_net_lwip=PASS)"
+
       # QEMU leg of the emulated-target evidence (SRS-REQ-043, tool T20); the
       # `ci-emulated-run` claim itself is declared in ci.yml (trace.py scans
       # ci.yml/.gitea ci.yml only, so no `# evidence:` marker is used here).

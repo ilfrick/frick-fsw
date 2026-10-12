@@ -9,6 +9,25 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M11/S6b-2 - lwIP netif bound to the GEM + RTEMS object sizing (SRS-REQ-040).**
+  `config/rtems/rtems_config.c` now sets `CONFIGURE_MAXIMUM_TASKS 24` /
+  `CONFIGURE_MAXIMUM_SEMAPHORES 32` / `CONFIGURE_MAXIMUM_MESSAGE_QUEUES 24`
+  (bounded, justified) so lwIP can start on the target (closes NC-S6-02). New
+  `src/hal/net/lwip/ff_lwip_netif.{c,h}` binds an lwIP `netif` to the framework
+  Ethernet MAC: on the **lwIP-enabled** Renode image the check configures the
+  emulated GEM and asserts netif-up + MAC identification (`hal_net_lwip=PASS`;
+  M11 progress on NC-S6-01). The `sys_thread_new` failure diagnostic
+  (NC-151-05) and the CI lwIP leg + `nm` link check (NC-151-02) are closed.
+- **NC-S6-03 (open).** The GEM driver's descriptor address translation
+  (`gem_phys`) returns `uint32_t`, so it cannot express an MPFS DDR address
+  ≥ `0x1000000000`; arming the emulated GEM DMA makes the descriptor walk
+  fault/loop, so the S6b-2 netif check configures the MAC without RE/TE. Latent
+  GEM defect; owner = GEM driver author; fix in a driver sprint (related GAP-A5).
+- **NC-S6-01 (narrowed, open).** NET lwIP-on-GEM is now netif-bound on the
+  emulated GEM; the full TX/RX packet round-trip remains open (follow-up NET
+  sprint). **NC-154-01 (open)**: the netif glue has no host test (NET follow-up).
+  **NC-154-02 (closed)**: the `traceability.md` History row was added.
+
 - **M4/M11 - in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040, S6b-1).** The
   pinned lwIP ships only unix/win32/freertos ports, so `FF_USE_LWIP=ON` could not
   build for the RTEMS target. `src/hal/net/lwip/rtems/` now provides the lwIP 2.x

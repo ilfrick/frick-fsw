@@ -381,10 +381,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-020
     derived: false
-    implementation: ["src/hal/net/lwip/ff_net_lwip.c", "src/hal/net/lwip/ff_net_lwip.h", "src/hal/net/lwip/lwipopts.h", "src/hal/net/lwip/rtems/sys_arch.c", "src/hal/net/lwip/rtems/arch/cc.h", "src/hal/net/lwip/rtems/arch/sys_arch.h", "src/hal/net/lwip/rtems/lwipopts.h"]
+    implementation: ["src/hal/net/lwip/ff_net_lwip.c", "src/hal/net/lwip/ff_net_lwip.h", "src/hal/net/lwip/lwipopts.h", "src/hal/net/lwip/ff_lwip_netif.c", "src/hal/net/lwip/ff_lwip_netif.h", "src/hal/net/lwip/rtems/sys_arch.c", "src/hal/net/lwip/rtems/arch/cc.h", "src/hal/net/lwip/rtems/arch/sys_arch.h", "src/hal/net/lwip/rtems/lwipopts.h"]
     tests: ["tests/unit/test_lwip.c"]
     lean: []
-    lean_note: "Adapter over the third-party lwIP socket API (fetched, pinned, BSD-3); verified by a host data-path test (test_lwip.c) using the lwIP loopback interface (127.0.0.1). An in-repo RTEMS sys_arch port (src/hal/net/lwip/rtems/: semaphores/mutexes/mailboxes/threads/time over the RTEMS classic API) enables FF_USE_LWIP=ON for the RTEMS target (S6b-1; host build unchanged via the lwIP unix port). The RTEMS build produces the lwIP archive and a forced-extraction link resolves the stack entry points; the image does not reference the adapter yet (S6b-2), so the default image is unchanged. The peripheral-bound lwIP-on-GEM check (S6b-2) is deferred (NC-S6-01); the RTEMS runtime object sizing still needs CONFIGURE_MAXIMUM_MESSAGE_QUEUES (NC-S6-02). On-target stack behaviour and hardware netif are mission/GAP-A5."
+    lean_note: "Adapter over the third-party lwIP socket API (fetched, pinned, BSD-3); host-verified by test_lwip.c over the lwIP loopback (127.0.0.1). An in-repo RTEMS sys_arch port (src/hal/net/lwip/rtems/) enables FF_USE_LWIP=ON for the RTEMS target (S6b-1; host build unchanged via the lwIP unix port). The netif glue (ff_lwip_netif.c/h) binds an lwIP netif to the framework Ethernet MAC; on the lwIP-enabled Renode image the netif is bound to the emulated GEM and the check asserts netif-up + GEM identification (hal_net_lwip, S6b-2; M11 progress). Open: the full TX/RX packet round-trip and the emulated GEM DMA (NC-S6-01/NC-S6-03). On-target stack behaviour and hardware netif are mission/GAP-A5."
 
   # ---------------------------------------------------- Code quality (M9)
   - id: SRS-REQ-041

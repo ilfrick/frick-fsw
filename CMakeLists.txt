@@ -47,6 +47,11 @@ if(FF_USE_PUSOPEN)
   add_compile_definitions(FRICK_USE_PUSOPEN=1)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/pusopen)
 endif()
+if(FF_USE_LWIP)
+  # Propagate the option to the C sources (the Renode test application guards
+  # its peripheral-bound lwIP/GEM check with `#if defined(FF_USE_LWIP)`).
+  add_compile_definitions(FF_USE_LWIP=1)
+endif()
 if(FF_ENABLE_COVERAGE)
   add_compile_options(--coverage)
   add_link_options(--coverage)
@@ -167,8 +172,11 @@ if(FF_USE_LWIP)
   include(${LWIP_CONTRIB_DIR}/ports/CMakeCommon.cmake)
   include(${FF_LWIP_DIR}/src/Filelists.cmake)
 
-  # Our adapter, compiled with the project's strict warnings, against lwIP.
-  add_library(frick_net_lwip STATIC ${FF_SRC_DIR}/hal/net/lwip/ff_net_lwip.c)
+  # Our adapter + the framework-to-lwIP netif glue, compiled with the project's
+  # strict warnings, against lwIP.
+  add_library(frick_net_lwip STATIC
+    ${FF_SRC_DIR}/hal/net/lwip/ff_net_lwip.c
+    ${FF_SRC_DIR}/hal/net/lwip/ff_lwip_netif.c)
   target_include_directories(frick_net_lwip PRIVATE ${FF_SRC_DIR} ${FF_SRC_DIR}/core)
   target_compile_options(frick_net_lwip PRIVATE -Wall -Wextra)
 
