@@ -48,22 +48,22 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 3/29 (10.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| Sprints completed | 4/29 (13.8%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 54/69 (78.3%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 59/69 (85.5%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 30/34 (88.2%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| SRS requirements delivered | 55/70 (78.6%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 60/70 (85.7%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
+| Review streams closed | 31/36 (86.1%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 112 (srs=69, sss=29, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 112/112 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 98/112 (87.5%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/112 (17.9%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 3512/4964 (70.7%) | gcov |
-| Code function coverage | 446/451 (98.9%) | gcov |
+| Requirements in manifest | 113 (srs=70, sss=29, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 113/113 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 99/113 (87.6%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/113 (17.7%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 3747/5336 (70.2%) | gcov |
+| Code function coverage | 476/481 (99.0%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -135,7 +135,7 @@ scope (implemented / interface-only / planned / user-provided):
 | PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
 | Transport | CCSDS Space Packets, link (loopback/UART) | `FF_Link_t` | — | radio/SpaceWire back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
-| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN; MSS I2C | — | SPI, MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN; MSS I2C; MSS SPI | — | MMC/eMMC/SD, PCIe, SpaceWire, storage (**M4/M11**) | — |
 | Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
@@ -187,6 +187,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | NOR flash (MSS QSPI) | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | byte-addressed NOR MTD backend behind `FF_Mtd_t` (sector-aligned erase); host test (mock MMIO); Renode check pending the QSPI controller command driver (M4) |
 | CAN (MSS) | `src/drivers/can/mpfs/ff_can_mpfs.c` | classic CAN 2.0 A/B backend behind `FF_CanBackend_t` (round-robin TX, accept-all RX + poll); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
 | I2C (MSS) | `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` | polled CoreI2C master backend behind `FF_I2c_t` (7-bit addressing, SI-clear sequencing, serial-clock divider); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
+| SPI (MSS) | `src/drivers/spi/mpfs/ff_spi_mpfs.c` | polled CoreSPI master backend behind `FF_Spi_t` (8-bit frames, CS control, CLKRATE divider); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
@@ -194,7 +195,7 @@ test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
 PolarFire SoC board platform (`beaglev-fire`, which includes the SoC; milestone
 M11; SRS-REQ-047).
 
-Other device drivers (SpaceWire, SPI, PCIe, storage,
+Other device drivers (SpaceWire, PCIe, storage,
 PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
 deliverables (M4: MPFS BSP + 1 Gb/s Ethernet + stacks). See the detailed
 **driver development and integration guide** for humans and agents:
@@ -413,10 +414,10 @@ M8/M9 → M14 → M15**; class B confirmed with a documented track toward class 
 | M4, M5, M9, M11 | 🟡 in progress |
 | M8, M12, M13, M14, M15, M16 | ⬜ planned |
 
-Current focus: **Sprint 3** complete (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN + MSS I2C
-done; **M10 closed** via the QEMU generic-BSP run; M11 peripheral-bound HAL coverage 7/13, with
-`hal_i2c=PASS` on the Renode emulated PolarFire SoC image). Next per plan: **Sprint 4** (SPI
-backend). Full sequence in the sprint plan above.
+Current focus: **Sprint 4** complete (M4/M11 HAL classes: NVM + NOR/QSPI MTD + MSS CAN + MSS I2C
++ MSS SPI done; **M10 closed** via the QEMU generic-BSP run; M11 peripheral-bound HAL coverage 8/13,
+with `hal_spi=PASS` on the Renode emulated PolarFire SoC image). Next per plan: **Sprint 5** (BLOCK
+eMMC/SD backend), then the restored M4 scope (S4b/S4c/S4d). Full sequence in the sprint plan above.
 
 ## Contributing
 

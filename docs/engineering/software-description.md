@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0007                         |
-| Revision                          | 0.3                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-12                             |
 | Audience                          | humans and agents using or evaluating the framework and the accessory repository elements |
 | Norms                             | N2 (English), N8 (current documentation), N16 (per-document revision history) |
@@ -177,6 +177,7 @@ Reference drivers implement HAL/link contracts and are **separable/optional**
 | MSS QSPI NOR MTD | `FF_Mtd_t` | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | SRS-REQ-056; host test; on-SoC QSPI check pending the controller command driver (M11 follow-up) |
 | MSS CAN (classic) | `FF_CanBackend_t` | `src/drivers/can/mpfs/ff_can_mpfs.c` | SRS-REQ-057; host test + Renode `hal_can=PASS`; CAN-FD is a fabric device |
 | MSS I2C | `FF_I2c_t` | `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` | SRS-REQ-058; host test + Renode `hal_i2c=PASS` |
+| MSS SPI | `FF_Spi_t` | `src/drivers/spi/mpfs/ff_spi_mpfs.c` | SRS-REQ-069; host test + Renode `hal_spi=PASS` |
 
 The board bring-up is `src/bsp/mpfs/` (`board.h`, `board.c`); the run-time
 wire-up of the core, providers, link and applications is
@@ -274,7 +275,7 @@ by the mission; "user-supplied" = deliberately left to the integrator.
 | `FF_TsnBackend_t` (deterministic Ethernet) | `src/hal/hal_tsn.h` | **Implemented** (contract; GEM backend: 802.1Q/Qbv + 802.1AS time-read seam; 802.1Qav `FF_NOT_IMPLEMENTED`; gPTP/CoreTSN = M8) | `FF_TsnGem_t` (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`) |
 | `FF_CanBackend_t` (CAN/CANopen) | `src/hal/hal_can.h` | **Implemented** (classic CAN reference; CAN-FD = fabric device) | `src/drivers/can/mpfs/ff_can_mpfs.c` |
 | `FF_Serial_t` (serial/RS-422/RS-485) | `src/hal/hal_serial.h` | **Implemented** | `src/drivers/serial/mpfs/ff_serial_mpfs.c` |
-| `FF_Spi_t`, `FF_I2c_t` (SPI/I2C) | `src/hal/hal_spi.h` | **I2C implemented; SPI interface-only** (planned M4/M11) | I2C `src/drivers/i2c/mpfs/ff_i2c_mpfs.c`; SPI planned |
+| `FF_Spi_t`, `FF_I2c_t` (SPI/I2C) | `src/hal/hal_spi.h` | **Implemented** (SPI + I2C reference backends) | SPI `src/drivers/spi/mpfs/ff_spi_mpfs.c`; I2C `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` |
 | `FF_Gpio_t` (GPIO/IRQ) | `src/hal/hal_gpio.h` | **Implemented** | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` |
 | `FF_Pcie_t` (PCIe) | `src/hal/hal_pcie.h` | **Interface-only** (planned) | — |
 | SpaceWire (ECSS-E-ST-50-12/51/52/53) | `src/hal/hal_spacewire.h` | **Interface-only** (planned) | — |
@@ -460,3 +461,4 @@ does not create new product requirements or certification claims.
 | 0.1 | 2026-10-12 | frick-fsw | Initial comprehensive user-facing software description of the framework and accessory repository elements; named "DDJF" by the user, registered under the descriptive title (no repository acronym defined); release-currency rule added (lead directive, documentation sprint) |
 | 0.2 | 2026-10-12 | frick-fsw | Expand for users: add §2.1 "what frick-fsw is not", §3.8 BSP and start-up sequence, §3.9 interface-contract inventory (location + implemented/interface-only/planned/user-supplied), a §5 platform build/target matrix, and the exact lwIP pin (`STABLE-2_2_1_RELEASE`)/BSD-3-Clause and §8.1/§9.1 "how to use" cross-references in §3.7 |
 | 0.3 | 2026-10-12 | frick-fsw | Register the acronym (lead directive): retitle the document as the **Design Description and Justification File (DDJF)** and define "DDJF" = Design Description and Justification File, replacing the previous "no repository acronym defined" naming note; add the **justification dimension** as §3.10 "Design justification" cross-referencing the ADRs (ADR-0001…0014, 0016; ADR-0015 unused); add the §3.1 "PUS-C transport channels" cross-reference; register the acronym in `docs/glossary.md` and name the DDJF in the README documentation index and `AGENTS.md` |
+| 0.4 | 2026-10-12 | frick-fsw | M4/M11: record the reference MSS SPI driver (`FF_Spi_t`, SRS-REQ-069; host test + Renode `hal_spi=PASS`); SPI moves from interface-only to implemented |

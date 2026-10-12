@@ -61,4 +61,13 @@
 #define FF_I2C0_BASE 0x2010A000u
 #define FF_I2C1_BASE 0x2010B000u
 
+/* MSS SPI 0/1 controllers (Microchip CoreSPI, double-word registers). Used by
+ * the reference SPI driver; the SPI0 register file is exercised on the emulated
+ * SoC in the Renode functional test (M11). PLIC interrupt sources: SPI0 54,
+ * SPI1 55. FF_SPI1_BASE and the PLIC lines are **reference values** from the SoC
+ * memory map (GAP-A5): they are declared for completeness but the polled
+ * reference backend neither drives SPI1 nor uses the interrupt lines. */
+#define FF_SPI0_BASE 0x20108000u
+#define FF_SPI1_BASE 0x20109000u
+
 #endif /* FF_PLATFORM_MPFS_H */

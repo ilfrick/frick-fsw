@@ -639,6 +639,15 @@ requirements:
     lean: []
     lean_note: "gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB FRER completion (M8). Planned; on-target timing/PTP accuracy = GAP-A5."
 
+  - id: SRS-REQ-069
+    level: srs
+    parent_sss: SSS-REQ-020
+    derived: false
+    implementation: ["src/drivers/spi/mpfs/ff_spi_mpfs.c", "src/drivers/spi/mpfs/ff_spi_mpfs.h", "config/platform/platform_mpfs.h"]
+    tests: ["tests/unit/test_spi.c", "ci:renode"]
+    lean: []
+    lean_note: "Reference MSS SPI (CoreSPI, polled master) backend behind FF_Spi_t (M4/M11): transfer logic host-tested (32-bit register mock modelling the TXDATA/RXDATARCVD/RXDATA path); MMIO register round trip on the emulated SoC (hal_spi). init(clock_hz,mode,cs) selects the 8-bit CLKRATE clock divider for the requested SCL; the divider and hence the on-target SCL is a reference derivation from the MSS SPI (APB) reference clock (per-rate accuracy / on-target timing = GAP-A5). Polled master only (8-bit frames; no DMA/interrupt/enhanced-framing path); status poll is bounded."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss

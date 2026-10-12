@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.20                                   |
+| Revision                          | 0.21                                   |
 | Date                              | 2026-10-12                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
@@ -307,14 +307,14 @@ connection retains one of four slots until `init()` resets the table
 | M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
 | M2 | time base | done | PPS, CUC, time sources |
 | M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C done; SPI/MMC/eMMC/storage/PCIe/SpaceWire pending; **PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) restored as explicit M4-residual items**; CFDP/VFS → M15 |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C, MSS SPI done; MMC/eMMC/storage/PCIe/SpaceWire pending; **PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) restored as explicit M4-residual items**; CFDP/VFS → M15 |
 | M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
 | M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
 | M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | planned | — |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (7/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM)/TSN/SPI/PCIE/SPACEWIRE/BLOCK |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (8/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI (`hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi=PASS`). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process, **not** peripheral-bound). Pending: NET(lwIP-on-GEM)/TSN/PCIE/SPACEWIRE/BLOCK |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
@@ -351,3 +351,4 @@ in `docs/status/status.json`; the live resume point is
 | 0.18 | 2026-10-11 | frick-fsw | M10 done: QEMU generic-BSP (riscv/rv64imafdc) emulated-target run (`make qemu`, T20) closes the M10 exit criterion |
 | 0.19 | 2026-10-12 | frick-fsw | M4/M11: reference MSS I2C driver done (SRS-REQ-058); M11 7/13 (I2C peripheral-bound, `hal_i2c=PASS`) |
 | 0.20 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN (OBJ-25, SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (OBJ-26/27/28, SRS-REQ-062/063/064), PUSopen adapter (OBJ-30, SRS-REQ-065); M8 gains GEM TSN Qav/Qci/Qbb (OBJ-29, SRS-REQ-066); file transfer set confirmed in M15 |
+| 0.21 | 2026-10-12 | frick-fsw | M4/M11: reference MSS SPI driver done (SRS-REQ-069); M11 8/13 (SPI peripheral-bound, `hal_spi=PASS`) — closes the FRICK-REVIEW-0142 SCOPE-01 doc-currency NC |

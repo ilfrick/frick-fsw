@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.14                                   |
+| Revision                          | 0.15                                   |
 | Date                              | 2026-10-12                             |
-| Baseline commit                   | ce0bff3 (Sprint-3) + restored-M4-scope increment (audited revision) |
+| Baseline commit                   | 5ca2045 + Sprint-4 SPI increment (audited revision; pre-commit) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -24,14 +24,14 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058); SPI/MMC/eMMC/storage/PCIe/SpaceWire pending; restored scope now explicit: PUS-C over IP/TSN, CAN-FD/CANopen/RS-485 DE, PUSopen adapter (SRS-REQ-059..065)** | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058), MSS SPI done (SRS-REQ-069); MMC/eMMC/storage/PCIe/SpaceWire pending; restored scope now explicit: PUS-C over IP/TSN, CAN-FD/CANopen/RS-485 DE, PUSopen adapter (SRS-REQ-059..065)** | partial | tracked: M4/M11 (remaining classes) |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
 | M8 gPTP + fabric CoreTSN | 802.1AS + multi-port/FRER | planned | none yet | tracked: M8 |
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS (MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20)** | none | closed |
-| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C done (7/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 6 classes pending** | partial | tracked: M11 |
+| M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI done (8/13); NET `FF_NetStack_t` contract check (loopback, not peripheral-bound) done; 5 classes pending** | partial | tracked: M11 |
 | M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | planned | none yet | tracked: M12 |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
 | **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
@@ -46,7 +46,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (112 reqs) | planned reqs documented-only | tracked: M4-residual/M8/M12-M16 |
+| N3 | SRS/SSS for all code | compliant (113 reqs) | planned reqs documented-only | tracked: M4-residual/M8/M12-M16 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
@@ -167,3 +167,4 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.12 | 2026-10-12 | frick-fsw | Sprint 3: reference MSS I2C backend (SRS-REQ-058) delivered; M11 7/13 peripheral-bound (`hal_i2c=PASS`); counts 100/59/27/14/51; `make renode` PASS on the Sprint-3 image |
 | 0.13 | 2026-10-12 | frick-fsw | Sprint-3 review set closed (FRICK-REVIEW-0129..0136: R1/R2/R3/R4/PA initial + R1/R2 delta + PA delta; PA REJECTED -> APPROVED WITH COMMENTS); user-facing TCP/IP + TSN sections and the expanded framework description (FRICK-ENG-0007) added; T14 reproducible via `make misra-docker` |
 | 0.14 | 2026-10-12 | frick-fsw | N19 audit: restored the M4 scopes left as prose "absorbed" notes as explicit deliverables (PUS-C over IP/TSN, CAN-FD/CANopen/RS-485 DE, PUSopen adapter; fabric contract; M8 TSN Qav/Qci/Qbb + gPTP/CoreTSN); counts 112/69/29/14/51 — FRICK-REVIEW-0137 |
+| 0.15 | 2026-10-12 | frick-fsw | Sprint 4: reference MSS SPI backend (SRS-REQ-069) delivered; M11 8/13 peripheral-bound (`hal_spi=PASS`); counts 113/70/29/14/51 |

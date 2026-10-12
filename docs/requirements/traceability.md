@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.30                                   |
+| Revision                          | 0.31                                   |
 | Date                              | 2026-10-12                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 69, SSS = 29, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 70, SSS = 29, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). The planned
 requirements are documented-only with `ci:docs` as evidence until their
@@ -47,7 +47,7 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SSS-REQ-017 (hardware abstraction) | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032, SRS-REQ-067 |
 | SSS-REQ-018 (numerical support) | SRS-REQ-033 |
 | SSS-REQ-019 (data-link security) | SRS-REQ-034, SRS-REQ-035 |
-| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056, SRS-REQ-057, SRS-REQ-058, SRS-REQ-066, SRS-REQ-068 |
+| SSS-REQ-020 (reference drivers) | SRS-REQ-036, SRS-REQ-038, SRS-REQ-039, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056, SRS-REQ-057, SRS-REQ-058, SRS-REQ-066, SRS-REQ-068, SRS-REQ-069 |
 | SSS-REQ-021 (code quality) | SRS-REQ-041, SRS-REQ-042 |
 | SSS-REQ-022 (on-board autonomy / OBCP) | SRS-REQ-045 |
 | SSS-REQ-023 (reference mission services) | SRS-REQ-046 |
@@ -131,6 +131,7 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SRS-REQ-066 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | GEM TSN 802.1Qav/Qci/Qbb completion (M8; planned; register-subset feasibility TBC) |
 | SRS-REQ-067 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | Generic fabric-device (FIC/AXI) contract (M4-residual; planned) |
 | SRS-REQ-068 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB (M8; planned) |
+| SRS-REQ-069 | drivers/spi/mpfs/ff_spi_mpfs.c/h, config/platform/platform_mpfs.h | test_spi.c, ci:renode | - | Reference MSS SPI backend (M4/M11; polled CoreSPI master, clock divider reference-derived) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -232,3 +233,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.28 | 2026-10-12 | frick-fsw | M10: SRS-REQ-043 mirror row adds `qemu_vv.sh` + the generic toolchain file (done) |
 | 0.29 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-058 reference MSS I2C driver (+Renode MMIO check); counts 59/27/14 |
 | 0.30 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028/029, SRS-REQ-059..068 (PUS-C over IP/TSN, CAN-FD, CANopen, RS-485 DE, PUSopen adapter, GEM TSN Qav/Qci/Qbb, fabric contract, gPTP/CoreTSN); counts 69/29/14 — FRICK-REVIEW-0137 |
+| 0.31 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-069 reference MSS SPI driver (+Renode MMIO check); counts 70/29/14 |

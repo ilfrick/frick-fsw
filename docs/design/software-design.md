@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SDD-001                          |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-12                             |
 | Audience                          | software engineers, reviewers, integrators |
 | References                        | ECSS-E-ST-40C (software design), `docs/requirements/SRS.md`, `docs/architecture/*`, `docs/interfaces/ICD.md` |
@@ -110,7 +110,7 @@ requirement->code->test trace is the manifest `docs/requirements/traceability.ya
 | HAL registry + contracts | `src/hal/hal.c`, `hal_*.h` | SRS-REQ-025, SRS-REQ-026, SRS-REQ-027, SRS-REQ-028, SRS-REQ-029, SRS-REQ-030, SRS-REQ-031, SRS-REQ-032 |
 | Mathematics facade | `src/math/ff_math.c` | SRS-REQ-033 |
 | Security (SDLS) | `src/security/ff_sdls.c` | SRS-REQ-034, SRS-REQ-035 |
-| Reference drivers | `src/drivers/{eth/gem,gpio/mpfs,serial/mpfs,mem,nvm/mpfs,mtd/mpfs,can/mpfs,i2c/mpfs,net}` | SRS-REQ-036, SRS-REQ-038, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056, SRS-REQ-057, SRS-REQ-058 |
+| Reference drivers | `src/drivers/{eth/gem,gpio/mpfs,serial/mpfs,mem,nvm/mpfs,mtd/mpfs,can/mpfs,i2c/mpfs,spi/mpfs,net}` | SRS-REQ-036, SRS-REQ-038, SRS-REQ-040, SRS-REQ-047, SRS-REQ-048, SRS-REQ-049, SRS-REQ-055, SRS-REQ-056, SRS-REQ-057, SRS-REQ-058, SRS-REQ-069 |
 | Board / RTEMS integration | `src/bsp/mpfs/`, `config/rtems/rtems_config.c` | SRS-REQ-037 |
 | Quality & process | `.clang-format`, `tools/scripts/misra.sh`, `docs/quality/` | SRS-REQ-041, SRS-REQ-042 |
 | Emulated-target V&V | `tools/scripts/emulated_run.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | SRS-REQ-043, SRS-REQ-044 |
@@ -151,3 +151,4 @@ SpaceWire, TSN) as generic fabric-device backends.
 | 0.4 | 2026-10-11 | frick-fsw | Allocate SRS-REQ-056 (reference NOR/QSPI MTD backend) in the design matrix |
 | 0.5 | 2026-10-11 | frick-fsw | Allocate SRS-REQ-057 (reference MSS CAN driver) in the design matrix |
 | 0.6 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-058 (reference MSS I2C driver) in the design matrix |
+| 0.7 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-069 (reference MSS SPI driver) in the design matrix (M4/M11) |

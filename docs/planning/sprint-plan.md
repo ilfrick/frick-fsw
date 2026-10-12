@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0002                        |
-| Revision                          | 0.6                                    |
+| Revision                          | 0.7                                    |
 | Date                              | 2026-10-12                             |
 | Norms                             | N3/N4/N8/N15/N19                       |
 | Companion                         | `docs/development-plan.md` (FRICK-PLAN-0001), `docs/roadmap.md` |
@@ -42,7 +42,7 @@ NCs (norm N12) before the loop closes.
 | **S1** | M4/M11 class 1-2 (memory-backed) + M10 close | `FF_Nvm_t` **eNVM** backend (SRS-REQ-055) + `FF_Mtd_t` **NOR/QSPI** backend (SRS-REQ-056); host tests; `hal_nvm` Renode check; **QEMU** run closes M10 — **delivered** | `hal_nvm=PASS` (met); **M10 done** (met: `make qemu`, T20); on-SoC NOR check pending the QSPI controller command driver |
 | **S2** | M4/M11 class 3 | **CAN** `FF_CanBackend_t` MSS backend (SRS-REQ-057; the contract is SRS-REQ-029) + host test + Renode check — **delivered** | `hal_can=PASS` (met) |
 | **S3** | M4/M11 class 4 | **I2C** `FF_I2c_t` MSS backend (contract SRS-REQ-031; own SRS-REQ-058) + host test + Renode check — **delivered** | `hal_i2c=PASS` (met); SRS-REQ-058 review record closed on the eNVM/MTD/CAN precedent |
-| **S4** | M4/M11 class 5 | **SPI** `FF_Spi_t` MSS backend (SRS-REQ-031) + host test + Renode check | `hal_spi=PASS` |
+| **S4** | M4/M11 class 5 | **SPI** `FF_Spi_t` MSS backend (contract SRS-REQ-031; own SRS-REQ-069) + host test + Renode check — **delivered** | `hal_spi=PASS` (met); M11 8/13 |
 | **S4b** | **M4-restored: PUS-C over IP/TSN** | Segmentation/reassembly (SRS-REQ-059) + TCP/IP `FF_Link_t` backend (SRS-REQ-060) + TSN `FF_Link_t` backend (SRS-REQ-061) + host tests + Renode check + reviews | `pus_ip` / `pus_tsn` link round-trip PASS |
 | **S4c** | **M4-restored: extended fieldbus** | Generic fabric-device contract (SRS-REQ-067) + CAN-FD fabric backend (SRS-REQ-062) + CANopen (CiA 301/302/402) stack (SRS-REQ-063) + RS-485 half-duplex DE/RE (SRS-REQ-064) + host tests + Renode checks | `hal_canfd` / `canopen` / `rs485` PASS |
 | **S4d** | **M4-restored: PUSopen(R) adapter** | Documented adapter over the PUS product contract (SRS-REQ-065); the commercial library is user-supplied | adapter contract test PASS |
@@ -106,3 +106,4 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 | 0.4 | 2026-10-12 | frick-fsw | S3 delivered: reference MSS I2C backend (SRS-REQ-058); `hal_i2c=PASS`; M11 7/13; ctest 20/20 (test_i2c 144 checks); counts 100/59/27/14/51; next per plan S4 (SPI) |
 | 0.5 | 2026-10-12 | frick-fsw | Expand the undefined token `RR-058` to "SRS-REQ-058 review record" (FRICK-REVIEW-0133 PA-07) |
 | 0.6 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: add S4b (PUS-C over IP/TSN), S4c (extended fieldbus: fabric contract/CAN-FD/CANopen/RS-485 DE) and S4d (PUSopen adapter); extend S13-S14 (M8) with GEM TSN 802.1Qav/Qci/Qbb — FRICK-REVIEW-0137 R3-09 |
+| 0.7 | 2026-10-12 | frick-fsw | S4 delivered: reference MSS SPI backend (SRS-REQ-069); `hal_spi=PASS`; M11 8/13; ctest 21/21 (test_spi 126 checks); counts 113/70/29/14/51; next per plan S5 (BLOCK eMMC/SD) |

@@ -9,6 +9,21 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **M4/M11 - reference MSS SPI backend (SRS-REQ-069).** `src/drivers/spi/mpfs/ff_spi_mpfs.{c,h}`
+  implements the HAL SPI contract `FF_Spi_t` over the Microchip PolarFire SoC MSS
+  SPI (CoreSPI) per the S4 sprint: 32-bit injected MMIO bus (`FF_SpiBus_t`),
+  polled master (`init(clock_hz, mode, cs)`, `transfer`, `cs_assert`,
+  `cs_release`), 8-bit CLKRATE clock-divider selection from a reference 100 MHz APB
+  clock, bounded status poll (`FF_SPI_POLL_MAX`), and
+  timeout/invalid-argument/not-ready error codes. Host unit test `test_spi`
+  (behavioural 32-bit mock; 126 checks: transfer, CS control, fault and
+  clock-divider cases) and a Renode MMIO register round-trip check (`hal_spi=PASS`
+  on the emulated SoC). M11 peripheral-bound HAL coverage 7/13 -> 8/13.
+  Scope: polled master only (8-bit frames; no DMA/interrupt/enhanced-framing);
+  the emulated `SPI.MPFS_SPI` has no registered slave (register round-trips only,
+  the transfer path is host-tested); the CLKRATE divider is a reference
+  derivation, on-target APB/SCL timing = GAP-A5.
+
 - **Restored explicit M4 scope (N19 audit).** Scopes that existed only as prose
   "absorbed" notes are now explicit, traceable deliverables: **PUS-C over IP and
   TSN** — bounded segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t`

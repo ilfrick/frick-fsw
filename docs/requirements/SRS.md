@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.18                                   |
+| Revision                          | 1.19                                   |
 | Date                              | 2026-10-12                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -317,7 +317,21 @@ review).
   backend is a polled master only (7-bit addressing; no slave mode, SMBus, clock
   stretching, bus recovery, STOP-completion confirmation or interrupt path) and
   is not re-entrant (calls must be serialised by the caller). Validated by a host
-  unit test (mock MMIO master/slave) and by an emulated-MMIO register check on
+  unit test (behavioural MMIO mock) and by an emulated-MMIO register check on
+  the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
+- **SRS-REQ-069** — *Reference MSS SPI driver*: the framework shall provide a
+  reference HAL SPI backend for the Microchip PolarFire SoC MSS SPI (CoreSPI)
+  controllers behind `FF_Spi_t` (polled master: `init`, `transfer`, `cs_assert`,
+  `cs_release`) over an injected 32-bit MMIO bus, register-based and
+  allocation-free, where `init(clock_hz, mode, cs)` selects the CoreSPI clock
+  divider for the requested SCL and the status poll is bounded; failures are
+  reported as status-poll timeout → `FF_TIMEOUT`, invalid arguments →
+  `FF_INVALID_ARGUMENT` and pre-init use → `FF_NOT_READY`. The clock divider is a
+  reference derivation from the configured MSS SPI (APB) reference clock (per-rate
+  accuracy and on-target SCL timing are tracked, GAP-A5); the backend is a polled
+  master only (8-bit frames; no DMA, interrupt or enhanced-framing path) and is
+  not re-entrant (calls must be serialised by the caller). Validated by a host
+  unit test (behavioural MMIO mock) and by an emulated-MMIO register check on
   the Renode PolarFire SoC. `method: Tst | Dem`. (milestone M4/M11)
 
 ### Extended transport and fieldbus (milestone M4-residual / M8)
@@ -422,3 +436,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.16 | 2026-10-11 | frick-fsw  | M4/M11: SRS-REQ-057 review NCs (receive via driver-specific poll, bounded TX/RX buffers, bit-timing basis/GAP-A5); align SRS-REQ-055 method to Tst\|Dem and note SRS-REQ-056 host-only |
 | 1.17 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-058 reference MSS I2C driver (polled CoreI2C master; serial-clock divider reference derivation/GAP-A5) |
 | 1.18 | 2026-10-12 | frick-fsw  | Restore explicit M4 scope: add SRS-REQ-059/060/061 PUS-C segmentation + TCP/IP + TSN link backends; SRS-REQ-062/063/064 CAN-FD/CANopen/RS-485 DE; SRS-REQ-065 PUSopen adapter; SRS-REQ-066 GEM TSN Qav/Qci/Qbb; SRS-REQ-067 generic fabric-device contract; SRS-REQ-068 gPTP/CoreTSN (SSS parents held in the manifest) — FRICK-REVIEW-0137 R3-05/R3-07/R3-08/R3-09 |
+| 1.19 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-069 reference MSS SPI driver (polled CoreSPI master; clock-divider reference derivation/GAP-A5) |

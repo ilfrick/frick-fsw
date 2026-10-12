@@ -139,6 +139,10 @@
 | 2026-10-12 | M4-restored scope — R3 delta review (N12) | R3 (Senior systems engineer) | APPROVED WITH COMMENTS (R3-01..12 closed) | 2026-10-12-m4-restored-scope-r3-delta-review.md |
 | 2026-10-12 | M4-restored scope — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (PA-01 records closure) | 2026-10-12-m4-restored-scope-pa-review.md |
 | 2026-10-12 | M4-restored scope — R3+R4 delta closure (N12/N17) | R3+R4 (systems + documentation) | APPROVED WITH COMMENTS (R3-D01..09, R4-01..08 closed) | 2026-10-12-m4-restored-scope-r3-r4-closure-review.md |
+| 2026-10-12 | Sprint-4 MSS SPI — FSW code + V&V review | R1+R2 (FSW + V&V) | REJECTED (Major R1-01 RX-shift; SCOPE-01) -> fixed | 2026-10-12-m4-m11-spi-r1-r2-review.md |
+| 2026-10-12 | Sprint-4 MSS SPI — R1+R2 delta + systems/docs review | R1+R2 (delta) + R3+R4 | APPROVED WITH COMMENTS (R1-01/R1-02/R2-01/R2-02/SCOPE-01 closed) | 2026-10-12-m4-m11-spi-delta-r3-r4-review.md |
+| 2026-10-12 | Sprint-4 MSS SPI — PA review (N20) | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (PA-01..04) | 2026-10-12-m4-m11-spi-pa-review.md |
+| 2026-10-12 | Sprint-4 MSS SPI — R4+PA delta closure (N12/N17/N20) | R4+PA (docs + PA) | APPROVED WITH COMMENTS (PA-01..07, D-01 closed; loop closed) | 2026-10-12-m4-m11-spi-r4-pa-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in

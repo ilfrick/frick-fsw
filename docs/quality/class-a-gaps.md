@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-12                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
 | Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
@@ -105,6 +105,12 @@ class-A flight gap (build-time tool, re-qualified as T19).
   records the DE/RE request but the transceiver control line is board-specific
   and not driven yet; the DE assert timing and bus turnaround are confirmed on
   target.
+- MSS SPI (SRS-REQ-069): the CLKRATE clock divider and the 100 MHz APB reference
+  are a reference derivation; per-rate SCL accuracy and real-bus behaviour are
+  confirmed on target. The STATUS bit 11 name is unconfirmed in the datasheet
+  subset and the driver does not depend on it; the `CMD` (0x2C) RXFIFORST
+  timeout-recovery bit is not cross-checked by the emulated register check
+  (the host test discriminates it).
 
 ## GAP-A6 - Environmental / radiation campaign
 
@@ -210,3 +216,4 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.6 | 2026-10-11 | frick-fsw | GAP-A5 owner/milestone recorded (programme/hardware; on-target bring-up M10/M14); PA-0109-08 |
 | 0.7 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS I2C on-target residual (STOP completion, bus recovery, per-rate SCL accuracy) — FRICK-REVIEW-0131 (R1-02) / FRICK-REVIEW-0130 (R3-08) |
 | 0.8 | 2026-10-12 | frick-fsw | GAP-A5 gains the RS-485 DE/RE on-target residual (control line board-specific, not driven; assert timing/turnaround on target) — restored M4 scope SRS-REQ-064 |
+| 0.9 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS SPI on-target residual (per-rate SCL accuracy; the CLKRATE divider and the 100 MHz APB reference are a reference derivation) — SRS-REQ-069 |
