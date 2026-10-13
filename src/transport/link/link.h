@@ -2,9 +2,10 @@
  * frick-fsw - Link layer (TM/TC physical + data link)
  *
  * A link moves opaque CCSDS frames between the flight software and the
- * outside world (UART, SpaceWire, radio). The transport codec is link
- * agnostic; this header only defines the byte-stream contract plus two
- * reference backends: an in-memory loopback (simulator/tests) and a UART.
+ * outside world (UART, SpaceWire, IP, TSN, radio). The transport codec is
+ * link agnostic; this header defines the frame-oriented byte-stream contract
+ * plus reference backends: an in-memory loopback (simulator/tests), UART,
+ * IP (UDP/TCP, SRS-REQ-060), and TSN over GEM (SRS-REQ-061).
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -35,5 +36,7 @@ FF_Status_t FF_LinkLoopbackPop(uint8_t *data, uint16_t cap, uint16_t *len);
 
 extern const FF_Link_t FF_LinkLoopbackBackend;
 extern const FF_Link_t FF_LinkUartBackend;
+extern const FF_Link_t FF_LinkIpBackend;
+extern const FF_Link_t FF_LinkTsnBackend;
 
 #endif /* FF_LINK_H */

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.36                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.37                                   |
+| Date                              | 2026-10-13                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -121,9 +121,9 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending the QSPI controller command driver) |
 | SRS-REQ-057 | drivers/can/mpfs/ff_can_mpfs.c/h, config/platform/platform_mpfs.h | test_can.c, ci:renode | - | Reference MSS CAN backend (M4/M11; classic 2.0 A/B, CAN-FD rejected) |
 | SRS-REQ-058 | drivers/i2c/mpfs/ff_i2c_mpfs.c/h, config/platform/platform_mpfs.h | test_i2c.c, ci:renode | - | Reference MSS I2C backend (M4/M11; polled CoreI2C master, serial-clock divider reference-derived) |
-| SRS-REQ-059 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | PUS-C link segmentation/reassembly (M4-residual, restored scope; planned) |
-| SRS-REQ-060 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | IP-based PUS-C `FF_Link_t` backend (TCP/UDP) (M4-residual; planned) |
-| SRS-REQ-061 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | TSN PUS-C `FF_Link_t` backend (M4-residual; planned) |
+| SRS-REQ-059 | src/transport/link/link_seg.{c,h}, tests/unit/test_link_ip.c, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | Seg/reassembly: 2-byte BE length-prefix for TCP, allocation-free, fixed-point buffers (SRS-REQ-015); implemented in S4b |
+| SRS-REQ-060 | src/transport/link/link_ip.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | IP link backend: UDP datagrams + TCP with seg framing over `FF_NetStack_t` (loopback models both UDP and TCP); implemented in S4b |
+| SRS-REQ-061 | src/transport/link/link_tsn.{c,h}, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | TSN link backend: GEM MAC RX callback + ring buffer, Ethertype 0x88F5, over `FF_EthMac_t + FF_TsnBackend_t`; implemented in S4b |
 | SRS-REQ-062 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CAN-FD fabric backend (M4-residual; planned) |
 | SRS-REQ-063 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CANopen (CiA 301/302/402) reference stack (M4-residual; planned) |
 | SRS-REQ-064 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | RS-485 half-duplex DE/RE control (M4-residual; planned) |
@@ -234,9 +234,11 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.28 | 2026-10-12 | frick-fsw | M10: SRS-REQ-043 mirror row adds `qemu_vv.sh` + the generic toolchain file (done) |
 | 0.29 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-058 reference MSS I2C driver (+Renode MMIO check); counts 59/27/14 |
 | 0.30 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028/029, SRS-REQ-059..068 (PUS-C over IP/TSN, CAN-FD, CANopen, RS-485 DE, PUSopen adapter, GEM TSN Qav/Qci/Qbb, fabric contract, gPTP/CoreTSN); counts 69/29/14 — FRICK-REVIEW-0137 |
+| 0.31 | 2026-10-13 | frick-fsw | **S4b delivered**: SRS-REQ-059/060/061 implemented (seg/reassembly, IP link backend, TSN link backend); traceability table rows updated from plan/ci:docs to source+test files with ci:build+ci:test evidence; 114/71/29/14/51; trace PASS |
 | 0.31 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-069 reference MSS SPI driver (+Renode MMIO check); counts 70/29/14 |
 | 0.32 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-070 reference MSS block-device driver (+Renode MMIO check); counts 71/29/14 |
 | 0.33 | 2026-10-12 | frick-fsw | M11/S6a: SRS-REQ-038 GEM TSN mirror row gains `ci:renode` (peripheral-bound `hal_tsn` check); counts unchanged 71/29/14 |
 | 0.34 | 2026-10-12 | frick-fsw | M11/S6b-1: SRS-REQ-040 mirror row records the in-repo lwIP RTEMS `sys_arch` port (FF_USE_LWIP builds for the target); counts unchanged 71/29/14 |
 | 0.35 | 2026-10-12 | frick-fsw | M11/S6b-2: SRS-REQ-040 mirror row also records the netif glue (`ff_lwip_netif.c/h`); counts unchanged 71/29/14 |
 | 0.36 | 2026-10-12 | frick-fsw | NET follow-up: SRS-REQ-040 mirror row records `test_lwip_netif.c` (NC-154-01 closed); counts unchanged 71/29/14 |
+| 0.37 | 2026-10-13 | frick-fsw | S4b delta re-review (N12/N20 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings (NF-1/NF-2/NF-3) raised and closed; delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean on authored files; max-size regression test added; test counts updated (test_link_ip 19 funcs, test_link_tsn 14 funcs) |

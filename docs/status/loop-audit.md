@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 0.22                                   |
+| Revision                          | 0.23                                   |
 | Date                              | 2026-10-13                             |
 | Baseline commit                   | 471afb5 + Sprint-6b-2 + S7 (PCIe/SpaceWire) + NET follow-up (audited revision; pre-commit) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
@@ -24,7 +24,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058), MSS SPI done (SRS-REQ-069), MSS block-device done (SRS-REQ-070); eMMC/storage/PCIe/SpaceWire pending; restored scope now explicit: PUS-C over IP/TSN, CAN-FD/CANopen/RS-485 DE, PUSopen adapter (SRS-REQ-059..065)** | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058), MSS SPI done (SRS-REQ-069), MSS block-device done (SRS-REQ-070); **S4b delivered** (SRS-REQ-059/060/061: seg/reassembly, IP link backend, TSN link backend — host-verified, 27/27 ctest); eMMC/storage/PCIe/SpaceWire pending; restored scope remaining: CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064), PUSopen adapter (SRS-REQ-065) | partial | tracked: M4/M11 (remaining classes) |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
@@ -46,7 +46,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | --- | --- | --- | --- | --- |
 | N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | compliant (114 reqs) | planned reqs documented-only | tracked: M4-residual/M8/M12-M16 |
+| N3 | SRS/SSS for all code | compliant (114 reqs) | planned reqs documented-only; S4b now implemented (was planned) | tracked: M4c/M4d/M12-M16 |
 | N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
 | N5 | class-B deliverable; class-A gaps documented | class B + GAP-A1..A14 | A1..A14 open | tracked: class-a-gaps |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
@@ -61,7 +61,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N15 | full cycle each change | compliant (native+trace+format+Renode) | Lean/RTEMS proxies | documented |
 | N16 | revision history | compliant | none | closed |
 | N17 | documentation review (R4) | per change; one N20-change review was initially missed (FRICK-REVIEW-0056 DOC-10) then performed | none | closed |
-| N18 | Renode functional validation | **in force** (`make renode` PASS incl. the HAL checks `hal_eth`/`hal_net`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS` on the current image) | per-commit SKIP proxy (no image) | documented |
+| N18 | Renode functional validation | **in force** (`make renode` PASS incl. the HAL checks `hal_eth`/`hal_net`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn=PASS` on the current image) | per-commit SKIP proxy (no RTEMS image change for host-only S4b backends; on-target IP/TSN link-level = GAP-A5) | documented |
 | N19 | this audit each loop | **introduced now** | none | closed (this doc) |
 | N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | in force; FRICK-REVIEW-0052/0053 findings closed, PA PASS (FRICK-REVIEW-0063) | R1-02 bounded residual (tracked) | closed (residual tracked: loopback R1-02) |
 
@@ -175,3 +175,5 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 | 0.20 | 2026-10-12 | frick-fsw | Sprint 7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded (SpaceWire no emulated peripheral) |
 | 0.21 | 2026-10-12 | frick-fsw | NET follow-up: NC-S6-03 co-implemented (GEM 64-bit `gem_phys`/`gem_wr_qbqp`/`TBQP_HI`/`RBQP_HI`/`DMACFG.ADDR64`; per-descriptor 32-bit truncation explicit; full 3-word descriptor format deferred to M14); NC-154-01 closed (`test_lwip_netif` 26/26 host); `test_gem` extended for 64-bit register writes; Renode register-only GEM confirmed (NC-S6-01: mock-MAC loopback host test) |
 | 0.22 | 2026-10-13 | frick-fsw | **S8/M8 delivered:** gPTP stack (`src/drivers/eth/gptp/ff_gptp.{c,h}`, BMCA/Sync/Follow_Up/PDelay/PI servo, 58 host checks) + 802.1Qci via GEM screener type 1 (`set_stream_filter`, 22 test_gem_tsn checks); 802.1Qav CBS + 802.1Qbb PFC = `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); fabric CoreTSN deferred to M14; integration-manual R1/R4 reviews (FRICK-REVIEW-0159/0160) corrected; traceability + SRS updated for SRS-REQ-066/068 |
+| 0.23 | 2026-10-13 | frick-fsw | **S4b delivered:** PUS-C over IP/TSN (SRS-REQ-059/060/061) — seg/reassembly layer (`link_seg.{c,h}`, 2-byte BE length-prefix, allocation-free), IP backend (`link_ip.{c,h}`, UDP + TCP) over `FF_NetStack_t`, TSN backend (`link_tsn.{c,h}`, EtherType 0x88F5) over `FF_EthMac_t + FF_TsnBackend_t`; ctest 27/27 + trace + Lean + smoke + GSW PASS; Renode SKIP (host-only code). M4 row: restored scope PUS-C over IP/TSN row updated from "pending" to "delivered (S4b)"; on-target IP/TSN link-level = GAP-A5 (Renode GEM DMA register-only) |
+| 0.24 | 2026-10-13 | frick-fsw | **S4b delta re-review (N12 closure):** all findings from FRICK-REVIEW-0165 (R1+R2 REJECTED) and FRICK-REVIEW-0166 (PA REJECTED) resolved — 2 Major (R1-01 seg-layer reassembly desync, R1-02 TSN ISR mutex), 10 Minor (R1-03–12), 6 V&V gaps (R2-01–06), 4 PA Minor (PA-MN-01–04), 3 Comments; 3 new findings raised and closed (NF-1 unused variable, NF-2 Major buffer overflow in `rx_partial`, NF-3 doc omission). Delta re-reviews: R1+R2 (FRICK-REVIEW-0165-D1) APPROVED; PA (FRICK-REVIEW-0166-D1) APPROVED. All gates green: build + ctest 27/27 + trace + Lean + smoke + GSW + `-Wall -Wextra -Werror` + clang-format clean |

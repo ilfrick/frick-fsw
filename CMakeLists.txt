@@ -87,6 +87,9 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/transport/link/link.c
   ${FF_SRC_DIR}/transport/link/link_loopback.c
   ${FF_SRC_DIR}/transport/link/link_uart.c
+  ${FF_SRC_DIR}/transport/link/link_seg.c
+  ${FF_SRC_DIR}/transport/link/link_ip.c
+  ${FF_SRC_DIR}/transport/link/link_tsn.c
   ${FF_SRC_DIR}/pus/pus.c
   ${FF_SRC_DIR}/pus/pus_services.c
   ${FF_SRC_DIR}/pus/adapters/pus_adapter_open.c

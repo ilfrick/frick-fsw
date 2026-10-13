@@ -553,28 +553,28 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-028
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/transport/link/link_seg.h", "src/transport/link/link_seg.c"]
+    tests: ["tests/unit/test_link_ip.c"]
     lean: []
-    lean_note: "PUS-C link segmentation/reassembly for IP/TSN links (M4-residual, restored scope). Planned; the encapsulation profile is a mission input (TBC)."
+    lean_note: "PUS-C link segmentation/reassembly for stream-oriented IP/TCP and TSN links (M4-residual, restored scope). Implemented as a bounded, allocation-free length-prefix framing layer (2-byte BE) in link_seg.c. Verfied by unit tests (test_link_ip.c) with a mock byte stream. UDP and TSN use datagram/frame boundaries directly (no seg layer needed)."
 
   - id: SRS-REQ-060
     level: srs
     parent_sss: SSS-REQ-028
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/transport/link/link_ip.h", "src/transport/link/link_ip.c"]
+    tests: ["tests/unit/test_link_ip.c"]
     lean: []
-    lean_note: "Reference TCP/IP FF_Link_t backend carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). Planned."
+    lean_note: "Reference TCP/IP FF_Link_t backend (UDP default, TCP with seg) carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). Implemented and host-verified with a mock network stack and the reference loopback stack."
 
   - id: SRS-REQ-061
     level: srs
     parent_sss: SSS-REQ-028
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/transport/link/link_tsn.h", "src/transport/link/link_tsn.c"]
+    tests: ["tests/unit/test_link_tsn.c"]
     lean: []
-    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_TsnBackend_t + GEM (M4-residual, restored scope). Planned."
+    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_EthMac_t + FF_TsnBackend_t + GEM (M4-residual, restored scope). Implemented and host-verified with mock MAC + mock TSN. Ethernet framing uses EtherType 0x88F5 (reference)." 
 
   - id: SRS-REQ-062
     level: srs
@@ -762,8 +762,8 @@ requirements:
     level: sss
     derived: true
     justification: "ADR-0003/ADR-0009; transport and link decoupled; ICD-GND defines the tailoring."
-    implementation: ["src/transport/link/link.h", "src/transport/link/link_loopback.c", "src/transport/link/link_uart.c"]
-    tests: ["tests/unit/test_pus.c"]
+    implementation: ["src/transport/link/link.h", "src/transport/link/link.c", "src/transport/link/link_loopback.c", "src/transport/link/link_uart.c", "src/transport/link/link_ip.c", "src/transport/link/link_tsn.c", "src/transport/link/link_seg.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_link_ip.c", "tests/unit/test_link_tsn.c"]
 
   - id: SSS-REQ-015
     level: sss
@@ -868,10 +868,10 @@ requirements:
   - id: SSS-REQ-028
     level: sss
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/transport/link/link_ip.h", "src/transport/link/link_ip.c", "src/transport/link/link_tsn.h", "src/transport/link/link_tsn.c", "src/transport/link/link_seg.h", "src/transport/link/link_seg.c", "src/transport/link/link.h", "docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["tests/unit/test_link_ip.c", "tests/unit/test_link_tsn.c"]
     lean: []
-    lean_note: "PUS-C transport over IP and TSN (M4-residual, restored scope): PUS-C TM/TC over an IP-based link and TSN-scheduled Ethernet in addition to UART; the active link is selectable by the integrator (and switchable at run time via FF_LinkSelect). Planned."
+    lean_note: "PUS-C transport over IP and TSN (M4-residual, restored scope): PUS-C TM/TC over an IP-based link (UDP/TCP via FF_NetStack_t) and TSN-scheduled Ethernet (GEM MAC via FF_EthMac_t + FF_TsnBackend_t) in addition to UART; the active link is selectable by the integrator (and switchable at run time via FF_LinkSelect). Segmentation/reassembly (2-byte BE length prefix) provides stream framing for TCP. Implemented and host-verified."
 
   - id: SSS-REQ-029
     level: sss

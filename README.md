@@ -40,7 +40,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-12. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-13. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the user - **🔴 (RED)** failures.
 
@@ -48,11 +48,11 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 8/30 (26.7%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 20/29 (69.0%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 56/71 (78.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Sprints completed | 9/30 (30.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| SSS requirements satisfied | 22/29 (75.9%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 61/71 (85.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 33/39 (84.6%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 34/42 (81.0%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 114/114 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 100/114 (87.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/114 (17.5%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 4460/6331 (70.4%) | gcov |
-| Code function coverage | 563/569 (98.9%) | gcov |
+| Code statement (line) coverage | 5379/7601 (70.8%) | gcov |
+| Code function coverage | 664/684 (97.1%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

@@ -9,6 +9,42 @@ change. All dates UTC, project language English (norm N2).
 
 ### Added
 
+- **S4b — PUS-C over IP/TSN (restored M4 scope; SRS-REQ-059/060/061).**
+  Implemented bounded, allocation-free segmentation/reassembly for stream-oriented
+  transports (`src/transport/link/link_seg.{c,h}`, SRS-REQ-059) with a 2-byte BE
+  length-prefix framing; a reference TCP/IP `FF_Link_t` backend over
+  `FF_NetStack_t` (`src/transport/link/link_ip.{c,h}`, SRS-REQ-060, UDP default
+  with datagram framing, TCP with the seg layer) and a reference TSN-scheduled
+  `FF_Link_t` backend over `FF_EthMac_t` + `FF_TsnBackend_t`
+  (`src/transport/link/link_tsn.{c,h}`, SRS-REQ-061, Ethernet framing with
+  EtherType 0x88F5, callback-driven RX ring). Reference defaults: UDP port 8080,
+  peer 127.0.0.1; no VLAN tag, broadcast MAC. All backends selectable via
+  `FF_LinkSelect`. Host unit tests: `test_link_ip` (10 seg + 9 IP = 19 test
+  functions) and `test_link_tsn` (14 test functions), using a mock byte
+  stream, mock net stack, and mock MAC + mock TSN backend. Build 27/27 green;
+  trace PASS; Lean PASS; smoke + GSW PASS; `-Wall -Wextra -Werror` clean on
+  authored files (N9/M9 quality gate). Updated `link.h` to declare the new backends; updated `traceability.yaml`
+  and `SSS-REQ-028` from planned to implemented.
+  Scope: no Renode image change (backends are host-testable only; on-target
+  link-level behaviour = GAP-A5).
+
+  **S4b delta re-review (NF-1/NF-2/NF-3 closure):** restructured
+  `FF_LinkSegRecvFrame` Phase 4 — `rx_partial` now preserved on partial-read
+  timeout (R1-01 fix, code comment corrected to match); `rx_partial` buffer
+  resized from `FF_LINK_SEG_MAX_FRAME` (1024) to `FF_LINK_SEG_PREFIX_LEN +
+  FF_LINK_SEG_MAX_FRAME` (1026) to eliminate a 1-byte OOB write on max-size
+  frame reassembly (NF-2, Major); removed unused variable in `link_seg.c`
+  (NF-1, enabling `-Wall -Wextra -Werror`); added
+  `test_seg_max_size_fragmented_partial` max-size regression test; TSN RX
+  callback now uses a non-blocking try-lock `FF_PalMutexLock(g_lock, 0u)` with
+  return-value check (R1-02 fix); idempotency guard added to `tsn_link_init`
+  (R1-12 fix); backend name corrected to `"ip_link"` (R1-09 fix); dead
+  variables/define removed from `link_ip.c` (R1-05/R1-06 fix); all test
+  assertions made non-tautological (R2-03 fix); fragmented-stream, error-
+  propagation, partial-write, short/oversized RX, and over-max-prefix tests
+  added (R2-01–R2-06 fix). R1+R2 delta re-review (FRICK-REVIEW-0165):
+  **APPROVED**. PA delta re-review (FRICK-REVIEW-0166): **APPROVED**.
+
 - **M11/S6b-2 - lwIP netif bound to the GEM + RTEMS object sizing (SRS-REQ-040).**
   `config/rtems/rtems_config.c` now sets `CONFIGURE_MAXIMUM_TASKS 24` /
   `CONFIGURE_MAXIMUM_SEMAPHORES 32` / `CONFIGURE_MAXIMUM_MESSAGE_QUEUES 24`

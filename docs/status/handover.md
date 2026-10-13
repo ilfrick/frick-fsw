@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.19                                   |
+| Revision                          | 1.20                                   |
 | Date                              | 2026-10-13                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -60,7 +60,7 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (25/25) + trace + format
+# Host build + unit tests (27/27) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
 python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 114/71/29/14/51
@@ -86,7 +86,7 @@ occasion; prefer Docker.
 
 ## 4. Current state (as of commit `64961ac` + NET follow-up + S8/M8 gPTP + Qci (SRS-REQ-068/066); norm N20 reviews in `docs/reviews/`)
 
-**M1..M7, M8, M10 delivered; M9, M11(11/13), M12-M16 planned** (see `docs/roadmap.md` / `docs/development-plan.md`).- **M1..M7, M8, M10 delivered; M9, M11(11/13), M12-M16 planned** (see `docs/roadmap.md` / `docs/development-plan.md`).
+- **M1..M7, M8, M10 delivered; M9, M11(11/13), M12-M16 planned; S4b delivered** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
@@ -126,9 +126,8 @@ occasion; prefer Docker.
   PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE
   (SRS-REQ-062/063/064), PUSopen(R) adapter (SRS-REQ-065), fabric contract
   (SRS-REQ-067); M8 gPTP/CoreTSN (SRS-REQ-068) + GEM TSN Qav/Qci/Qbb
-  (SRS-REQ-066).
-- **M8** gPTP (802.1AS) + fabric CoreTSN (SRS-REQ-068) is **next** (S8;
-  `hal_gptp=PASS` target). **M12** (OBCP engine, uPython/MicroPython; candidate
+  (SRS-REQ-066). **S4b delivered** (see below).
+- **S4b delivered (PUS-C over IP/TSN, SRS-REQ-059/060/061):** segmentation/\n  reassembly layer `link_seg.c/h` (2-byte BE length-prefix, allocation-free);\n  IP `FF_Link_t` backend `link_ip.c/h` (UDP default + TCP with seg) over\n  `FF_NetStack_t`; TSN `FF_Link_t` backend `link_tsn.c/h` (EtherType 0x88F5,\n  callback-driven RX ring) over `FF_EthMac_t + FF_TsnBackend_t`. ctest 27/27\n  green (test_link_ip 19 test functions, test_link_tsn 14 test functions); Lean PASS;\n  smoke + GSW PASS; Renode SKIP (host-only code). `-Wall -Wextra -Werror` clean\n  on authored files (N9/M9 quality gate). Reference loopback models both UDP\n  and TCP (connect best-effort). `link.h` updated to declare new backends.\n  Scope: on-target link-level = GAP-A5 (no Renode image change).\n  Delta re-review: R1+R2 (FRICK-REVIEW-0165-D1) + PA (FRICK-REVIEW-0166-D1) both\n  APPROVED; all findings from initial REJECTED reviews resolved (2 Major,\n  10 Minor, 6 V&V gaps, 4 PA Minor, 3 Comments + NF-1/NF-2/NF-3 closed).\n- **M8** (S8 complete) gPTP (802.1AS) + fabric CoreTSN (SRS-REQ-068) — **next** after\n  S4b: documentation re-review (FRICK-REVIEW-0164) for the integration manual\n  R4 closure. **M12** (OBCP engine, uPython/MicroPython; candidate
   `n7space/n7s-obcp`, MIT, ESA), **M13** (reference mission services: equipment
   manager + fault management), **M14** (multicore/SMP), **M15** (in-house
   fundamental PUS-C service set + CFDP + virtual filestore), **M16** (in-house
@@ -152,8 +151,14 @@ occasion; prefer Docker.
   rev 0.6 — REJECTED) and **FRICK-REVIEW-0160** (R4 documentation review of the
   same manual — REJECTED): both reviewers found 1 Blocker + 7 Major + 9 Minor
   findings (34 NCs). S8 resolves all Blocker/Major/Minor issues; the R4 review
-  loop will close after the next S8 documentation re-review. NCs logged in
-  `docs/nc/2026-10-13-integration-manual-fix-nc.md`.
+  loop will close after the next documentation re-review (FRICK-REVIEW-0164 covering
+  rev 0.7 + rev 0.8 / S4b changes). NCs logged in
+  `docs/nc/2026-10-13-integration-manual-fix-nc.md`. **FRICK-REVIEW-0165** (S4b
+  R1+R2, initial — REJECTED, 2 Major + 10 Minor + 6 V&V gaps) and
+  **FRICK-REVIEW-0166** (S4b PA, initial — REJECTED, same 2 Major + 10 Minor +
+  6 V&V gaps + 4 PA Minor) both closed: delta re-reviews **FRICK-REVIEW-0165-D1**
+  (APPROVED) and **FRICK-REVIEW-0166-D1** (APPROVED) resolve all findings including
+  3 new findings (NF-1/NF-2/NF-3) raised and closed in the delta.
 
 ## 5. Immediate next steps (priority order)
 
@@ -170,9 +175,11 @@ occasion; prefer Docker.
 > host mock-MAC loopback; on-Renode GEM DMA still GAP-A5). **S8 (M8) delivered**:
 > gPTP stack (`test_gptp` 58 checks host) + 802.1Qci via GEM screener type 1 (`test_gem_tsn`
 > 22 checks); 802.1Qav CBS + 802.1Qbb PFC documented `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02).
-> Next per plan: the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061),
-> S4c (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
-> SRS-REQ-065).
+> **S4b delivered** (SRS-REQ-059/060/061, ctest 27/27 + Lean + smoke + GSW PASS;
+> `-Wall -Wextra -Werror` clean; R1+R2 delta (FRICK-REVIEW-0165-D1) APPROVED,
+> PA delta (FRICK-REVIEW-0166-D1) APPROVED, all findings closed);
+> Renode SKIP). Next per plan: **S4c** (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064)
+> and **S4d** (PUSopen(R) adapter, SRS-REQ-065).
 
 1. **S8/M8 gPTP + Qci completed** (SRS-REQ-068/066). gPTP stack: BMCA,
    Sync/Follow_Up, PDelay, PI servo (`test_gptp` 58/58 host) — integrates with GEM TSU
@@ -248,3 +255,5 @@ occasion; prefer Docker.
 | 1.17 | 2026-10-12 | frick-fsw | Sprint 7 delivered + pushed (`64961ac`): PCIe (`hal_pcie=PASS`) + SpaceWire contract-level (`hal_spacewire=CONTRACT`, M11 11/13); NET follow-up sprint: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing: `gem_phys` returns `uint64_t`, `gem_wr_qbqp`, `TBQP_HI`/`RBQP_HI`, `DMACFG.ADDR64`; per-descriptor truncation explicit; full 3-word descriptor format deferred to M14); NC-154-01 closed (`test_lwip_netif` 26/26 host, mock-MAC loopback); `test_gem` extended for 64-bit register writes; trace/lean/format/redline all green; combined R1+R2+R3+R4+PA review APPROVED WITH COMMENTS (FRICK-REVIEW-0162, 8 Minor findings, all corrected); delta re-review APPROVED (FRICK-REVIEW-0163, all corrections verified); commit + push to both remotes completed |
 | 1.18 | 2026-10-12 | frick-fsw | Handover updated to record FRICK-REVIEW-0162 (NET follow-up confirmation, APPROVED WITH COMMENTS) and FRICK-REVIEW-0163 (delta re-review, APPROVED) in the recent-reviews list; all findings closed; next sprint S8 = M8 gPTP + CoreTSN |
 | 1.19 | 2026-10-13 | frick-fsw | **S8/M8 delivered:** gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo) in `src/drivers/eth/gptp/` (58 checks host); 802.1Qci via GEM screener type 1 in `ff_gem_tsn.c` (test_gem_tsn 22 checks); 802.1Qav CBS + 802.1Qbb PFC documented `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); integration-manual R1/R4 reviews (FRICK-REVIEW-0159/0160) corrected; traceability + SRS updated for SRS-REQ-066/068 |
+| 1.20 | 2026-10-13 | frick-fsw | **S4b delivered:** PUS-C over IP/TSN (SRS-REQ-059/060/061) — seg/reassembly layer (`link_seg.c/h`, 2-byte BE length-prefix, allocation-free), IP backend (`link_ip.c/h`, UDP default + TCP with seg) over `FF_NetStack_t`, TSN backend (`link_tsn.c/h`, EtherType 0x88F5, callback-driven RX ring) over `FF_EthMac_t + FF_TsnBackend_t`; `link.h` declares new backends; ctest 27/27 + trace + Lean + smoke + GSW all PASS; Renode SKIP (host-only code). Traceability + SSS-REQ-028 updated from planned to implemented. |
+| 1.21 | 2026-10-13 | frick-fsw | **S4b delta re-review (N12 closure):** initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews REJECTED (2 Major + 10 Minor + 6 V&V gaps + 4 PA Minor); all findings fixed; 3 new findings raised and closed (NF-1 unused variable, NF-2 Major buffer overflow in `rx_partial` copy-back, NF-3 doc omission); R1+R2 delta (FRICK-REVIEW-0165-D1) APPROVED; PA delta (FRICK-REVIEW-0166-D1) APPROVED; `-Wall -Wextra -Werror` clean; max-size fragmented regression test added; status.json/status/handover/loop-audit/verification-results/CHANGELOG/reviews all updated |

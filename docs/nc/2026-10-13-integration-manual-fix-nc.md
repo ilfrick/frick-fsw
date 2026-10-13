@@ -82,8 +82,8 @@ status labels were stale and are now updated:
 ## NC disposition
 
 All findings corrected in `docs/engineering/user-integration-manual.md` rev **0.7**
-(2026-10-13). A new R4 documentation re-review (FRICK-REVIEW-0164) is scheduled to
-verify convergence before this NC is closed (norm N12).
+(2026-10-13). A new R4 documentation re-review (FRICK-REVIEW-0164) verified
+convergence before this NC can be closed (norm N12).
 
 | Finding | Status |
 | --- | --- |
@@ -92,13 +92,21 @@ verify convergence before this NC is closed (norm N12).
 | FSW-REV-07..09 / FSW-COMMENT-008/010/011 / DOC-R4-06..09 / DOC-COMMENT-015/017 (Minor) | FIXED |
 | FSW-COMMENT-009 / DOC-R4-005/006 (Comment) | FIXED |
 | M8 stale status labels | FIXED |
+| S4b doc delta (§7.1 link backends, §8 status table, §8.2 usage, §10 note) | FIXED (rev 0.8) |
 
-**Re-open condition:** the R4 re-review (FRICK-REVIEW-0164) must return APPROVED
-or APPROVED WITH COMMENTS for this NC to be formally closed.
+**Re-open condition:** the R4 re-review (FRICK-REVIEW-0164) has returned APPROVED
+WITH COMMENTS; this NC is closed (norm N12).
 
 ## References
 
 - `docs/reviews/2026-10-13-integration-manual-fsw-review.md` (FRICK-REVIEW-0159, R1)
 - `docs/reviews/2026-10-13-integration-manual-doc-review.md` (FRICK-REVIEW-0160, R4)
-- `docs/engineering/user-integration-manual.md` (FRICK-ENG-0005) rev 0.7
-- `docs/requirements/SRS.md` (SRS-REQ-066, SRS-REQ-068)
+- `docs/reviews/2026-10-13-integration-manual-delta-r1-review.md` (R1 delta, APPROVED)
+- `docs/reviews/2026-10-13-integration-manual-delta-r4-review.md` (R4 delta rev 0.7, APPROVED)
+- `docs/reviews/2026-10-13-s4b-integration-manual-r4-review.md` (FRICK-REVIEW-0164, R4, APPROVED WITH COMMENTS)
+- `docs/engineering/user-integration-manual.md` (FRICK-ENG-0005) rev 0.8
+- `docs/requirements/traceability.yaml` (SRS-REQ-059/060/061 updated to implemented)
+- `docs/requirements/SRS.md` (SRS-REQ-066/068/059/060/061)
+- `src/transport/link/link_ip.h` / `link_ip.c` (SRS-REQ-060)
+- `src/transport/link/link_tsn.h` / `link_tsn.c` (SRS-REQ-061)
+- `src/transport/link/link_seg.h` / `link_seg.c` (SRS-REQ-059)

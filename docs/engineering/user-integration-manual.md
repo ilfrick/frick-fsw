@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.7                                    |
+| Revision                          | 0.8                                    |
 | Date                              | 2026-10-13                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
@@ -115,8 +115,8 @@ PUS service**, follow `docs/engineering/service-development.md`.
 ## 7. Link and PUS dispatch
 
 - The **link layer** (`src/transport/link/link.h`) moves CCSDS frames over a
-  transport (loopback, UART). A new link is a driver: see
-  `docs/engineering/driver-development.md`.
+  transport (loopback, UART, IP, TSN). See §7.1 and §8 for the available
+  backends.
 - Received frames are fed to `FF_PusIngest(raw, len)`; telemetry is emitted
   through `FF_PusSendTm(...)` and the TM sink. Program against
   `FF_Pus_Backend_t` to swap the PUS product. The **default** backend is the
@@ -139,32 +139,23 @@ ride any byte-stream transport. In frick-fsw the TM/TC frames are carried by the
 framework's **own link abstraction** `FF_Link_t` (`src/transport/link/link.h`),
 a vtable of `init` / `send` / `recv` operating on **opaque CCSDS frames**.
 
-**Channels implemented today.** Only **two reference link backends ship**
+**Channels implemented today.** Four reference link backends ship
 (`src/transport/link/`):
 
 - **Loopback** — `FF_LinkLoopbackBackend` (in-process; host simulator and unit
   tests);
-- **UART** — `FF_LinkUartBackend` (byte-stream serial).
+- **UART** — `FF_LinkUartBackend` (byte-stream serial);
+- **IP** — `FF_LinkIpBackend` (UDP default, TCP with seg framing; SRS-REQ-060);
+- **TSN** — `FF_LinkTsnBackend` (GEM MAC, EtherType 0x88F5; SRS-REQ-061).
 
 The link-management API (`FF_LinkInit`, `FF_LinkSelect`, `FF_LinkGet`,
 `FF_LinkSend`, `FF_LinkRecv`) lives in `src/transport/link/link.c`; the backends
-are in `src/transport/link/link_loopback.c` and `src/transport/link/link_uart.c`
-(`CMakeLists.txt` lines 87–89 list all three as separate sources).
+are in `src/transport/link/link_loopback.c`, `link_uart.c`, `link_ip.c` and
+`link_tsn.c` (`CMakeLists.txt` lists them as separate sources).
 
-**Selecting or plugging a backend.** Install a backend at run time with
-`FF_LinkSelect(const FF_Link_t *link)` (`src/transport/link/link.h`); it rejects
-a NULL pointer with `FF_INVALID_ARGUMENT`, stores the pointer and calls the
-backend's `init`. A new transport is a link backend implementing the `FF_Link_t`
-vtable — **no core change is required** (see
-`docs/engineering/driver-development.md`). `FF_LinkInit()` installs the platform
-default and `FF_LinkGet()` returns the active backend.
-
-**Not implemented (planned).** There is **no TCP/IP, TSN, CAN or SpaceWire
-PUS-C link backend** today. The HAL contracts for those devices
-(`FF_NetStack_t`, `FF_TsnBackend_t`, `FF_CanBackend_t`, `hal_spacewire.h`) are
-**device contracts**, not PUS-C link channels. A PUS-C link over IP/TSN is
-**planned** (see §8 for the TCP/IP-over-PUS-C status and §9 for TSN); the ground
-tool is serial-only (§8 table).
+**Selection.** Install a backend at run-time with `FF_LinkSelect()`, which calls
+the backend's `init`. The default is the platform default (loopback on host /
+UART on RTEMS); select another backend at start-up with `FF_LinkSelect()`.
 
 > **Backend note (PUS-C).** The default PUS-C backend is the N7/ESA ASN.1
 > stack (`FF_PusBackendN7`, `FF_USE_PUS_ASN1=ON` by default, built by
@@ -176,11 +167,12 @@ tool is serial-only (§8 table).
 
 ## 8. TCP/IP over PUS-C — status
 
-The framework does **not yet transport PUS-C over TCP/IP (or raw IP/Ethernet)
-end-to-end**. What is shipped today is the pluggable seam and its reference
-backends; the IP/TSN link transport is **planned** (explicit M4-residual scope,
-SRS-REQ-059/060/061), and the ICD has no TCP/UDP/IPv4 or EtherType allocation
-yet.
+The framework ships **reference link backends** that carry PUS-C TM/TC CCSDS
+frames over UDP/TCP (`FF_LinkIpBackend`, SRS-REQ-060) and TSN-scheduled Ethernet
+(`FF_LinkTsnBackend`, SRS-REQ-061), in addition to loopback and UART. Segmentation/
+reassembly (2-byte BE length-prefix, SRS-REQ-059) provides stream framing for TCP.
+The ICD has no EtherType or port allocation yet (mission input); on-target
+netif/PHY/stack qualification is GAP-A5.
 
 **Framework or separate?** The framework owns only the *contracts*, never a
 stack:
@@ -195,9 +187,11 @@ bundled here (third-party, opt-in, default off) and **Tuxera TCP/IP** and
 **RTEMS `libbsd`** are **user-supplied**. The framework core links no stack.
 
 **What is implemented today:** the two contracts above, a loopback reference
-stack, and the opt-in lwIP adapter. **What is not:** any `FF_Link_t` TCP/IP/TSN
-link backend (so PUS-C cannot ride IP end-to-end), PUS-C-over-IP
-segmentation/reassembly, and any EtherType/port allocation in the ICD.
+stack, the opt-in lwIP adapter, and the reference **IP link backend**
+(`FF_LinkIpBackend`, SRS-REQ-060) and **TSN link backend** (`FF_LinkTsnBackend`,
+SRS-REQ-061) that carry PUS-C CCSDS frames over a socket / GEM MAC. What remains
+outside the framework: any EtherType/port allocation in the ICD and the
+on-target netif/PHY/stack qualification (GAP-A5).
 
 | Capability | Status | Evidence / source |
 | ---------- | ------ | ----------------- |
@@ -205,8 +199,9 @@ segmentation/reassembly, and any EtherType/port allocation in the ICD.
 | Ethernet MAC / net-if contracts (`FF_EthMac_t`, `FF_NetIf_t`; `attach_netif`) | **Implemented** | `src/hal/hal_eth.h` (SRS-REQ-026) |
 | Loopback network-stack reference backend (`FF_NetStackLoopback`) | **Implemented** | `src/drivers/net/ff_net_loopback.{c,h}` (SRS-REQ-039); `tests/unit/test_netloop.c` (328 checks) |
 | lwIP adapter (`FF_NetStackLwip`, opt-in) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` + `ff_lwip_netif.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default OFF); pinned lwIP (`STABLE-2_2_1_RELEASE`, BSD-3-Clause) fetched by `tools/scripts/fetch_third_party.sh` |
-| TCP/IP **link** backend (`FF_Link_t`) carrying CCSDS frames over a socket | **Planned (M4-residual, SRS-REQ-060), not implemented** | `src/transport/link/link.{c,h}` ships only loopback + UART backends |
-| PUS-C over IP segmentation / reassembly | **Planned (M4-residual, SRS-REQ-059), not implemented** | `docs/roadmap.md`, `docs/development-plan.md`, `docs/planning/sprint-plan.md` (S4b) |
+| Segmentation/reassembly layer (`FF_LinkSeg_t`, 2-byte BE length-prefix for TCP) | **Implemented** | `src/transport/link/link_seg.{c,h}` (SRS-REQ-059); used by `FF_LinkIpBackend` in TCP mode |
+| IP **link** backend (`FF_Link_t`, UDP + TCP over `FF_NetStack_t`) | **Implemented** | `src/transport/link/link_ip.{c,h}` (SRS-REQ-060); `tests/unit/test_link_ip.c` (19 test functions: 10 seg + 9 IP) |
+| TSN **link** backend (`FF_Link_t`, GEM MAC, EtherType 0x88F5) | **Implemented** | `src/transport/link/link_tsn.{c,h}` (SRS-REQ-061); `tests/unit/test_link_tsn.c` (14 test functions) |
 | EtherType / port allocation for PUS-C over IP | **Absent from ICD** | `docs/interfaces/ICD.md` (no TCP/UDP/IPv4/TSN content) |
 | Ground station over IP | **Not implemented** (serial-only) | `tools/gsw/ff_gsw.py` (V&V tool T7, `docs/vv/tool-qualification.md`) |
 | Tuxera TCP/IP, RTEMS libbsd adapters | **External / user-supplied** | plug into `FF_NetStack_t`; not part of this repository |
@@ -237,11 +232,37 @@ segmentation/reassembly, and any EtherType/port allocation in the ICD.
 4. **Supply your own stack** (Tuxera TCP/IP, RTEMS `libbsd`, or another) by
    implementing `FF_NetStack_t` in an adapter — **no core change is required**
    (see §12).
-5. **Do not expect PUS-C over IP yet.** There is no `FF_Link_t` TCP/IP backend,
-   so PUS-C TM/TC still travel over the framework's own link abstraction
-   (`FF_Link_t`: loopback and UART only, §7). PUS-C is transport-agnostic by
-   design; the IP path is the explicit M4-residual plan (SRS-REQ-059/060/061),
-   not a delivered feature.
+5. **Use a link backend for PUS-C over IP/TSN.** `FF_LinkIpBackend` (SRS-REQ-060)
+   carries CCSDS frames over UDP (default) or TCP (with `link_seg` framing,
+   SRS-REQ-059) on top of any `FF_NetStack_t` backend (loopback for host tests,
+   lwIP on target). `FF_LinkTsnBackend` (SRS-REQ-061) carries CCSDS frames over
+   a GEM MAC using EtherType `0x88F5`, receiving frames via the MAC RX callback
+   into a local ring buffer. Both are selectable with `FF_LinkSelect()` on
+   `FF_LinkIpBackend` or `FF_LinkTsnBackend`. On-target link-level qualification
+   remains **GAP-A5** (Renode GEM DMA is register-only); host unit tests
+   (`test_link_ip`, `test_link_tsn`) provide round-trip evidence.
+
+### 8.2 Using the IP and TSN link backends
+
+**IP link backend (`FF_LinkIpBackend`).** UDP by default (datagram = one CCSDS
+frame); TCP mode adds 2-byte BE length-prefix framing via `link_seg`:
+
+```c
+FF_LinkIpConfig_t cfg = FF_LinkIpDefaultConfig(&my_net_stack);
+cfg.port = 8080u;
+cfg.mode = FF_LINK_IPMODE_UDP;  /* or FF_LINK_IPMODE_TCP */
+(void)FF_LinkIpInit(&cfg);
+(void)FF_LinkSelect(&FF_LinkIpBackend);
+```
+
+**TSN link backend (`FF_LinkTsnBackend`).** Ethernet frames with EtherType
+`0x88F5`; dest MAC defaults to broadcast, no VLAN tag by default:
+
+```c
+FF_LinkTsnConfig_t cfg = FF_LinkTsnDefaultConfig(&my_mac, &my_tsn);
+(void)FF_LinkTsnInit(&cfg);
+(void)FF_LinkSelect(&FF_LinkTsnBackend);
+```
 
 Gap context: on-target netif/PHY and stack qualification is **GAP-A5**; formal-verification
 depth is **GAP-A1**; on-target code assurance / runtime evidence is **GAP-A4**
@@ -324,6 +345,11 @@ is required (details in `docs/architecture/network-stack.md`). The lwIP adapter
 is exercised in CI, but a compiling adapter is **not** a qualified network
 stack: on-target qualification remains **GAP-A5**.
 
+Note: the `FF_LinkIpBackend` and `FF_LinkTsnBackend` (§8.2) are **reference
+`FF_Link_t` implementations**, not a TCP/IP stack — they frame CCSDS frames over
+a `FF_NetStack_t` socket (IP) or a GEM MAC (TSN) and require a separate stack or
+MAC driver underneath.
+
 ## 11. Integrating a driver / hardware
 
 All hardware access goes through the **PAL** (OS primitives) and the **HAL**
@@ -389,3 +415,5 @@ without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
 | 0.5 | 2026-10-12 | frick-fsw | Add §7.1 "PUS-C transport channels": PUS-C is transport-agnostic, carried by `FF_Link_t`; only loopback and UART reference backends ship (default loopback on host / UART on RTEMS), `FF_LinkSelect()` plugs another backend, and IP/TSN/CAN/SpaceWire link backends are not implemented (planned) |
 | 0.6 | 2026-10-12 | frick-fsw | Update §8/§10: the IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061, sprint S4b), not an "absorbed" plan |
 | 0.7 | 2026-10-13 | frick-fsw | M8 implementation: gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo), 802.1Qci via GEM screener type 1; update §9 status table and §9.1 for gPTP usage; fix §1 init sequence (add BoardInit/MissionTablesInit/LinkInit/EvsSetListener/AppTmOutputInit/AppHkRegister), §4 tables (`FF_TblValidateFn`), §7.1 link backends (`link_loopback.c`/`link_uart.c`, `FF_LinkSelect` NULL guard), §8 `GAP-A1` correction, lwIP file list (`ff_lwip_netif.{c,h}` in §8.1/§10), §13 separate `coverage`+`metrics`; R4+FSW review NCs recorded for unresolved items |
+| 0.8 | 2026-10-13 | frick-fsw | **S4b delivered** (SRS-REQ-059/060/061): segmentation/reassembly layer `link_seg.{c,h}` (2-byte BE length-prefix, allocation-free); IP `FF_Link_t` backend `link_ip.{c,h}` (UDP + TCP); TSN `FF_Link_t` backend `link_tsn.{c,h}` (EtherType 0x88F5, callback-driven RX ring); updated §7 (link transport list), §7.1 (four backends), §8 (status + table rows), new §8.2 (IP/TSN usage), §10 (note link backends are reference, not a TCP/IP stack); Renode SKIP (host-only); R4 documentation re-review (FRICK-REVIEW-0164) |
+| 0.9 | 2026-10-13 | frick-fsw | **S4b delta re-review (N12 closure)**: all findings from FRICK-REVIEW-0165 (R1+R2, REJECTED) and FRICK-REVIEW-0166 (PA, REJECTED) resolved; test counts corrected (test_link_ip 19 funcs, test_link_tsn 14 funcs); `-Wall -Wextra -Werror` clean; R1+R2 delta (FRICK-REVIEW-0165-D1) and PA delta (FRICK-REVIEW-0166-D1) both APPROVED; commit/push unblocked |

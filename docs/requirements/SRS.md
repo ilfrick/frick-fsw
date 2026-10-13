@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                          | 1.20                                   |
-| Date                              | 2026-10-12                             |
+| Revision                         | 1.23                                  |
+| Date                              | 2026-10-13                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |
@@ -352,18 +352,19 @@ review).
 
 - **SRS-REQ-059** — *PUS-C link segmentation and reassembly*: the framework
   shall provide bounded, allocation-free segmentation and reassembly of PUS-C /
-  CCSDS frames for stream- or packet-oriented IP and TSN links, with the
-  encapsulation profile selected per the mission ICD (profile = mission input,
-  TBC; owner: M4-residual). `method: Tst`.
+  CCSDS frames for stream-oriented links (TCP), with a 2-byte big-endian length-
+  prefix framing profile in the reference backend; UDP and TSN use datagram/frame
+  boundaries directly (no seg layer needed). `method: Tst`. (S4b: implemented)
 - **SRS-REQ-060** — *IP-based PUS-C link backend (TCP/UDP)*: the framework shall provide a
   reference `FF_Link_t` backend that carries PUS-C TM/TC over an IP-based link
-  (TCP or UDP as selected by the mission ICD; the reference uses UDP datagrams)
-  using the network-stack contract (`FF_NetStack_t`), selectable with
-  `FF_LinkSelect`. `method: Tst | Dem`.
+  (TCP or UDP as selected by the mission ICD; the reference uses UDP datagrams,
+  with TCP using the seg layer from SRS-REQ-059) using the network-stack contract
+  (`FF_NetStack_t`), selectable with `FF_LinkSelect`. `method: Tst | Dem`. (S4b: implemented)
 - **SRS-REQ-061** — *TSN PUS-C link backend*: the framework shall provide a
   reference `FF_Link_t` backend that carries PUS-C TM/TC over the TSN-scheduled
-  Ethernet path (`FF_TsnBackend_t` + GEM), selectable with `FF_LinkSelect`.
-  `method: Tst | Dem`.
+  Ethernet path (`FF_TsnBackend_t` + GEM), selectable with `FF_LinkSelect`. The
+  reference uses EtherType 0x88F5; on-target qualification is GAP-A5.
+  `method: Tst | Dem`. (S4b: implemented)
 - **SRS-REQ-062** — *CAN-FD fabric backend*: the framework shall provide a
   reference CAN-FD backend behind `FF_CanBackend_t` reached through the generic
   fabric (FIC/AXI) device contract. `method: Tst | Dem`.
@@ -457,3 +458,5 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.19 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-069 reference MSS SPI driver (polled CoreSPI master; clock-divider reference derivation/GAP-A5) |
 | 1.20 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-070 reference MSS block-device driver (polled SDHCI-style MMC/SD; buffer-mode, GAP-A5) |
 | 1.21 | 2026-10-13 | frick-fsw  | M8: update SRS-REQ-066 (Qci implemented; Qav/Qbb = FF_NOT_IMPLEMENTED, tracked NC-S8-01/NC-S8-02) and SRS-REQ-068 (gPTP stack implemented; fabric CoreTSN deferred to M14) |
+| 1.22 | 2026-10-13 | frick-fsw  | S4b: implement SRS-REQ-059 (seg/reassembly, 2-byte BE length-prefix for TCP; UDP/TSN use datagram/frame boundaries), SRS-REQ-060 (IP link backend: UDP + TCP over FF_NetStack_t) and SRS-REQ-061 (TSN link backend: Ethernet frames via GEM MAC, EtherType 0x88F5); add `(S4b: implemented)` notes; host unit tests test_link_ip (19) + test_link_tsn (14) |
+| 1.23 | 2026-10-13 | frick-fsw  | S4b delta re-review (N12 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings raised and closed (NF-1 unused variable, NF-2 buffer overflow in rx_partial, NF-3 doc omission); delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean; max-size regression test added; test counts updated |

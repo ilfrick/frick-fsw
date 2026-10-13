@@ -161,6 +161,11 @@
 | 2026-10-13 | User & Integration Manual (FRICK-ENG-0005) documentation review — accuracy/consistency of paths, APIs, status tables, GAP labels, code snippets, attribution | R4 (Senior SW documentation engineer) | **REJECTED** (1 Blocker, 4 Major, 6 Minor; 13 NCs open → S0) | 2026-10-13-integration-manual-doc-review.md |
 | 2026-10-13 | Integration Manual delta re-review (N12) — all FSW+doc findings corrected in rev 0.7 | R1 (Senior FSW engineer) | APPROVED (all 7 findings + comments corrected; 22 checks, rev 0.7 verified) | 2026-10-13-integration-manual-delta-r1-review.md |
 | 2026-10-13 | Integration Manual delta re-review (N12/N17) — R4 documentation convergence on rev 0.7 | R4 (Senior SW documentation engineer) | APPROVED (all 13 NCs corrected; status table + GAP labels + file paths + code snippets verified) | 2026-10-13-integration-manual-delta-r4-review.md |
+| 2026-10-13 | S4b integration manual documentation review — R4 (SRS-REQ-059/060/061) | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (3 Minor: DOC-R4-020/021/022; NC-INT-MAN-01 closed) | 2026-10-13-s4b-integration-manual-r4-review.md |
+| 2026-10-13 | S4b code/V&V review (R1+R2, SRS-REQ-059/060/061) | R1+R2 (Senior FSW + Senior SW V&V, independent) | REJECTED (2 Major: R1-01 seg-layer TCP reassembly desync, R1-02 TSN ISR-unsafe blocking mutex; 10 Minor R1-03–12; 6 V&V gaps R2-01–06; 3 Comments) | 2026-10-13-s4b-r1-r2-review.md |
+| 2026-10-13 | S4b product assurance review (N20) | PA (Senior SW PA engineer) | REJECTED (2 Major R1-01/R1-02 open + 10 Minor + 6 V&V-gaps + 4 PA Minor: PA-MN-01/02/03/04) | 2026-10-13-s4b-pa-review.md |
+| 2026-10-13 | S4b R1+R2 delta re-review (N12) — NF-1/NF-2/NF-3 closure | R1+R2 (Senior FSW + Senior SW V&V, independent) | APPROVED (all findings fixed + 3 new findings NF-1/NF-2/NF-3 closed) | 2026-10-13-s4b-r1-r2-delta-review.md |
+| 2026-10-13 | S4b PA delta re-review (N12/N20) — all findings closure | PA (Senior SW PA engineer) | APPROVED (2 Major + 10 Minor + 6 V&V-gaps + 4 PA Minor + 3 Comments all fixed) | 2026-10-13-s4b-pa-delta-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in
