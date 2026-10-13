@@ -52,7 +52,7 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | SSS requirements satisfied | 22/29 (75.9%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 61/71 (85.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 34/42 (81.0%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Review streams closed | 33/43 (76.7%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
 
 ### Coverage
 
@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the use
 | Requirements with implementation | 114/114 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 100/114 (87.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 20/114 (17.5%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 5379/7601 (70.8%) | gcov |
-| Code function coverage | 664/684 (97.1%) | gcov |
+| Code statement (line) coverage | 5552/7779 (71.4%) | gcov |
+| Code function coverage | 678/698 (97.1%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
