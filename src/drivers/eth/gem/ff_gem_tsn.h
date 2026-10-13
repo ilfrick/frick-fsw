@@ -34,7 +34,8 @@ typedef struct
     FF_TsnBackend_t tsn; /* public HAL interface (must be first) */
     FF_GemBus_t bus;
     uint32_t base;
-    uint32_t speed_mbps; /* link speed for ENST time scaling (10/100/1000) */
+    uint32_t speed_mbps;     /* link speed for ENST time scaling (10/100/1000) */
+    uint8_t qci_entry_count; /* number of 802.1Qci stream filters programmed */
 } FF_TsnGem_t;
 
 FF_Status_t FF_TsnGemSetup(FF_TsnGem_t *tsn, const FF_GemBus_t *bus, uint32_t base,

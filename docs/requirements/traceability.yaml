@@ -616,10 +616,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-020
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/drivers/eth/gem/ff_gem_tsn.c", "src/drivers/eth/gem/ff_gem_tsn.h", "src/drivers/eth/gem/ff_gem_regs.h", "src/hal/hal_tsn.h"]
+    tests: ["tests/unit/test_gem_tsn.c"]
     lean: []
-    lean_note: "GEM TSN shaping/filtering completion: 802.1Qav (CBS), 802.1Qci (PSFP), 802.1Qbb (PFC) (M8). Planned; feasibility on the GEM register subset = TBC (owner: M8)."
+    lean_note: "802.1Qci per-stream filtering implemented via GEM screener-type-1 registers (entry per traffic-class queue; EtherType + VLAN match). 802.1Qav CBS returns FF_NOT_IMPLEMENTED (GEM register subset limitation; software fallback tracked in NC-S8-01). 802.1Qbb PFC returns FF_NOT_IMPLEMENTED (managed by the fabric CoreTSN switch; NC-S8-02). Host-verified with a mock MMIO bus (test_gem_tsn.c)."
 
   - id: SRS-REQ-067
     level: srs
@@ -634,10 +634,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-020
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/drivers/eth/gptp/ff_gptp.c", "src/drivers/eth/gptp/ff_gptp.h", "src/hal/hal_tsn.h"]
+    tests: ["tests/unit/test_gptp.c"]
     lean: []
-    lean_note: "gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB FRER completion (M8). Planned; on-target timing/PTP accuracy = GAP-A5."
+    lean_note: "802.1AS gPTP stack: BMCA (clock-class/priority/identity comparison), Sync/Follow_Up time-offset with PI servo, PDelay link-delay measurement, and port state machine (master/slave/uncertain/disabled). Integrates with the GEM 1588 TSU via get_time_ns and sends/receives PTP frames through FF_EthMac_t. Host-verified with mock MAC + mock TSU (test_gptp.c). Fabric CoreTSN / 802.1CB FRER path requires the fabric-device contract (SRS-REQ-067); tracked in NC-S8-02. On-target gPTP timing accuracy = GAP-A5."
 
   - id: SRS-REQ-069
     level: srs

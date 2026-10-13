@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.6                                    |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.7                                    |
+| Date                              | 2026-10-13                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
 This manual explains how to use frick-fsw as a **middleware**: you write your
@@ -23,17 +23,21 @@ Every application is a **task** registered with Executive Services (ES) and
 communicating over the Software Bus (SB). An application:
 
 1. has an entry point `void AppMain(void *arg)` (`FF_PalTaskFunc_t`
-   compatible, see `src/apps/app.h`);
-2. is described by an `FF_AppConfig_t` (name, entry, stack, priority, queue
-   depth; `src/core/es/es.h`);
+   compatible, declared in `src/core/pal/pal.h`; see `src/apps/app.h` for the
+   six reference entry-point pattern);
+2. is described by an `FF_AppConfig_t` (name, entry, **`stack_bytes`**,
+   priority, queue depth; `src/core/es/es.h`);
 3. is registered at start-up with `FF_EsRegisterApp(&cfg, &id)`, optionally
    gets a pipe with `FF_SbCreatePipe(id, depth)`, subscribes with
    `FF_SbSubscribe(msg_id, id)`, and is started by `FF_EsStartAll()`.
 
 The reference wiring is in `src/main/fsw_main.c`: it initialises the core
-(`FF_PalInit`, `FF_SbInit`, `FF_EvsInit`, `FF_EsInit`, `FF_TblInit`,
-`FF_TimeInit`, `FF_PusInit`), registers the providers, then registers and
-starts the applications.
+(`FF_PalInit` → `FF_SbInit` → `FF_EvsInit` → `FF_EsInit` → `FF_TblInit` →
+`FF_TimeInit` → `FF_BoardInit` → `FF_MissionTablesInit`), initialises PUS
+(`FF_PusInit` + `FF_PusSetBackend(&FF_PusBackendN7)`), starts the link
+(`FF_LinkInit`), installs the event listener (`FF_EvsSetListener`), registers
+the TM sink and HK providers (`FF_AppTmOutputInit`, `FF_AppHkRegister`), then
+registers and starts the applications with `FF_EsStartAll()`.
 
 ### Minimal application
 
@@ -55,7 +59,8 @@ static void MyAppMain(void *arg)
 }
 
 static const FF_AppConfig_t my_cfg = {
-    "MY_APP", MyAppMain, 4096u, 50u, 8u};
+    .name = "MY_APP", .entry = MyAppMain, .stack_bytes = 4096u,
+    .priority = 50u, .queue_depth = 8u};
 /* register: FF_EsRegisterApp(&my_cfg, &id); FF_SbCreatePipe(id, 8u); */
 ```
 
@@ -71,15 +76,19 @@ static const FF_AppConfig_t my_cfg = {
 ## 3. Events (EVS) — `src/core/evs/evs.h`
 
 - `FF_EvsSend(event_id, type, app, fmt, ...)` — emit an event (formatted
-  message); `FF_EvsEvent`/`FF_EvsGetLog`/`FF_EvsGetTotalCount` for the log.
+  message); `FF_EvsEvent_t`/`FF_EvsGetLog`/`FF_EvsGetTotalCount` for the log.
 - Register a listener with `FF_EvsSetListener()` to forward events on the bus;
-  the reference `TM_OUTPUT` application maps them to PUS service 5 telemetry.
+  the listener converts events to PUS service 5 telemetry (the reference
+  `ff_event_listener` in `src/main/fsw_main.c`), and the `TM_OUTPUT` application
+  installs the TM sink that emits the encoded packets over the link.
 
 ## 4. Tables (TBL) — `src/core/tbl/tbl.h`
 
-`FF_TblRegister`, `FF_TblLoad`, `FF_TblValidate`, `FF_TblActivate`,
+`FF_TblRegister`, `FF_TblLoad`, `FF_TblActivate`,
 `FF_TblRevert`, `FF_TblGet`/`FF_TblDump`. Tables are validated before atomic
-activation; register a `FF_TblValidateFn_t` for domain checks.
+activation via the `validate` callback registered in `FF_Tbl_Def_t`, which is
+invoked internally by `FF_TblLoad` (the callback type is `FF_TblValidateFn`,
+declared in `src/core/tbl/tbl.h`).
 
 ## 5. PUS providers — `src/pus/pus.h`
 
@@ -131,19 +140,22 @@ framework's **own link abstraction** `FF_Link_t` (`src/transport/link/link.h`),
 a vtable of `init` / `send` / `recv` operating on **opaque CCSDS frames**.
 
 **Channels implemented today.** Only **two reference link backends ship**
-(`src/transport/link/link.c`):
+(`src/transport/link/`):
 
 - **Loopback** — `FF_LinkLoopbackBackend` (in-process; host simulator and unit
   tests);
 - **UART** — `FF_LinkUartBackend` (byte-stream serial).
 
-The **default** is **loopback on the host** and **UART on the RTEMS platforms**
-(MPFS and generic QEMU).
+The link-management API (`FF_LinkInit`, `FF_LinkSelect`, `FF_LinkGet`,
+`FF_LinkSend`, `FF_LinkRecv`) lives in `src/transport/link/link.c`; the backends
+are in `src/transport/link/link_loopback.c` and `src/transport/link/link_uart.c`
+(`CMakeLists.txt` lines 87–89 list all three as separate sources).
 
 **Selecting or plugging a backend.** Install a backend at run time with
-`FF_LinkSelect(const FF_Link_t *link)` (`src/transport/link/link.h`); it stores
-the pointer and calls the backend's `init`. A new transport is a link backend
-implementing the `FF_Link_t` vtable — **no core change is required** (see
+`FF_LinkSelect(const FF_Link_t *link)` (`src/transport/link/link.h`); it rejects
+a NULL pointer with `FF_INVALID_ARGUMENT`, stores the pointer and calls the
+backend's `init`. A new transport is a link backend implementing the `FF_Link_t`
+vtable — **no core change is required** (see
 `docs/engineering/driver-development.md`). `FF_LinkInit()` installs the platform
 default and `FF_LinkGet()` returns the active backend.
 
@@ -153,6 +165,14 @@ PUS-C link backend** today. The HAL contracts for those devices
 **device contracts**, not PUS-C link channels. A PUS-C link over IP/TSN is
 **planned** (see §8 for the TCP/IP-over-PUS-C status and §9 for TSN); the ground
 tool is serial-only (§8 table).
+
+> **Backend note (PUS-C).** The default PUS-C backend is the N7/ESA ASN.1
+> stack (`FF_PusBackendN7`, `FF_USE_PUS_ASN1=ON` by default, built by
+> `make pus-asn1`). If the generated ASN.1 code is absent (first-time checkout
+> without running `make pus-asn1`), CMake emits a warning and falls back to the
+> open CCSDS backend (`FF_PusBackendOpen`); select it explicitly with
+> `FF_PusSetBackend(&FF_PusBackendOpen)` or `FF_USE_PUS_ASN1=OFF` (see
+> `docs/interfaces/ICD.md` §PUS-C backend and `CMakeLists.txt` §PUS-C).
 
 ## 8. TCP/IP over PUS-C — status
 
@@ -184,7 +204,7 @@ segmentation/reassembly, and any EtherType/port allocation in the ICD.
 | `FF_NetStack_t` contract (socket-like vtable; address = 6 octets, IPv4 big-endian + port) | **Implemented** | `src/hal/hal_net.h` (SRS-REQ-027) |
 | Ethernet MAC / net-if contracts (`FF_EthMac_t`, `FF_NetIf_t`; `attach_netif`) | **Implemented** | `src/hal/hal_eth.h` (SRS-REQ-026) |
 | Loopback network-stack reference backend (`FF_NetStackLoopback`) | **Implemented** | `src/drivers/net/ff_net_loopback.{c,h}` (SRS-REQ-039); `tests/unit/test_netloop.c` (328 checks) |
-| lwIP adapter (`FF_NetStackLwip`, opt-in) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default OFF); pinned lwIP (`STABLE-2_2_1_RELEASE`, BSD-3-Clause) fetched by `tools/scripts/fetch_third_party.sh` |
+| lwIP adapter (`FF_NetStackLwip`, opt-in) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` + `ff_lwip_netif.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default OFF); pinned lwIP (`STABLE-2_2_1_RELEASE`, BSD-3-Clause) fetched by `tools/scripts/fetch_third_party.sh` |
 | TCP/IP **link** backend (`FF_Link_t`) carrying CCSDS frames over a socket | **Planned (M4-residual, SRS-REQ-060), not implemented** | `src/transport/link/link.{c,h}` ships only loopback + UART backends |
 | PUS-C over IP segmentation / reassembly | **Planned (M4-residual, SRS-REQ-059), not implemented** | `docs/roadmap.md`, `docs/development-plan.md`, `docs/planning/sprint-plan.md` (S4b) |
 | EtherType / port allocation for PUS-C over IP | **Absent from ICD** | `docs/interfaces/ICD.md` (no TCP/UDP/IPv4/TSN content) |
@@ -195,14 +215,18 @@ segmentation/reassembly, and any EtherType/port allocation in the ICD.
 
 1. **Code against the contract, not a stack.** Use `FF_NetStack_t`
    (`src/hal/hal_net.h`): `init`, `attach_netif`, `open`, `connect`, `bind`,
-   `listen`, `accept`, `send`, `recv`, `close`. Addresses are 6 octets
-   (IPv4[4] big-endian, then port[2] big-endian); `send` may be partial
+   `listen`, `accept`, `send`, `recv`, `close`. Addresses are an opaque byte
+   array (`const uint8_t *addr, uint16_t addr_len`); the 6-octet convention
+   (IPv4[4] big-endian, then port[2] big-endian) is an adapter agreement used
+   by the lwIP adapter (see `docs/architecture/network-stack.md`); the loopback
+   reference backend uses a 1-byte port in `addr[0]`. `send` may be partial
    (check `*sent`).
 2. **Pick a reference backend** (both are built from `src/`):
    - **Loopback** — `FF_NetStackLoopback` (`src/drivers/net/ff_net_loopback.{c,h}`),
      built with `FF_BUILD_DRIVERS=ON` (default). In-process and static; it
      exercises the contract and is **not** a TCP/IP stack.
-   - **lwIP** — `FF_NetStackLwip` (`src/hal/net/lwip/ff_net_lwip.{c,h}`). Build
+   - **lwIP** — `FF_NetStackLwip` (`src/hal/net/lwip/ff_net_lwip.{c,h}` +
+     `ff_lwip_netif.{c,h}`). Build
      with `-DFF_USE_LWIP=ON` (default **OFF**) and fetch the pinned stack first:
      `tools/scripts/fetch_third_party.sh` (lwIP release tag
      `STABLE-2_2_1_RELEASE`, **BSD-3-Clause**, fetched to `third_party/lwip`,
@@ -219,24 +243,26 @@ segmentation/reassembly, and any EtherType/port allocation in the ICD.
    design; the IP path is the explicit M4-residual plan (SRS-REQ-059/060/061),
    not a delivered feature.
 
-Gap context: on-target netif/PHY and stack qualification is **GAP-A5**; formal
-verification depth is **GAP-A1**; on-target code assurance / runtime evidence
-is **GAP-A4** (`docs/quality/class-a-gaps.md`).
+Gap context: on-target netif/PHY and stack qualification is **GAP-A5**; formal-verification
+depth is **GAP-A1**; on-target code assurance / runtime evidence is **GAP-A4**
+(`docs/quality/class-a-gaps.md`).
 
 ## 9. TSN (deterministic Ethernet) — status
 
 TSN in frick-fsw is an **Ethernet-MAC-level capability** (IEEE 802.1), not a
 PUS-C transport: it classifies, schedules and synchronises the link that a
-TCP/IP or other network stack would later use. The complete gPTP / fabric
-CoreTSN programme is milestone **M8** (planned).
+TCP/IP or other network stack would later use. Milestone **M8** delivers the
+full 802.1AS gPTP stack and the GEM TSN shaping/filtering completion.
 
 | Capability | Status | Evidence / source |
 | ---------- | ------ | ----------------- |
-| `FF_TsnBackend_t` contract (802.1Q VLAN/PCP, 802.1Qbv, 802.1Qav, 802.1AS time-read seam) | **Implemented** | `src/hal/hal_tsn.h` (SRS-REQ-028) |
-| GEM native TSN reference backend: 802.1Q (VLAN/PCP) classification, 802.1Qbv (ENST), 802.1AS time-read seam | **Implemented** | `src/drivers/eth/gem/ff_gem_tsn.{c,h}` (SRS-REQ-038); `tests/unit/test_gem_tsn.c` (16 checks) |
-| 802.1Qav credit-based shaping (CBS) | **Not implemented** (returns `FF_NOT_IMPLEMENTED`) | `src/drivers/eth/gem/ff_gem_tsn.c` |
-| Full 802.1AS **gPTP** stack (BMCA, Sync/Follow_Up, PDelay, servo) | **Planned (M8)** | `docs/roadmap.md`, `docs/development-plan.md` (OBJ-16) |
-| Fabric **CoreTSN** path (multi-port switch / 802.1CB FRER) | **Planned (M8)** | `docs/development-plan.md` (OBJ-16) |
+| `FF_TsnBackend_t` contract (802.1Q VLAN/PCP, 802.1Qbv, 802.1Qav idle slope, 802.1Qci stream filter, 802.1Qbb PFC, 802.1AS time-read seam) | **Implemented** | `src/hal/hal_tsn.h` (SRS-REQ-028) |
+| GEM native TSN reference backend: 802.1Q (VLAN/PCP) classification, 802.1Qbv (ENST), 802.1AS time-read seam | **Implemented** | `src/drivers/eth/gem/ff_gem_tsn.{c,h}` (SRS-REQ-038); `tests/unit/test_gem_tsn.c` (22 checks) |
+| 802.1Qci per-stream filtering (PSFP) via GEM screener type 1 | **Implemented** | `src/drivers/eth/gem/ff_gem_tsn.c` (SRS-REQ-066); `tests/unit/test_gem_tsn.c` |
+| 802.1Qav credit-based shaping (CBS) | **Not implemented** (returns `FF_NOT_IMPLEMENTED`) | `src/drivers/eth/gem/ff_gem_tsn.c` (SRS-REQ-066; GEM register subset limitation; software fallback tracked NC-S8-01) |
+| 802.1Qbb priority flow control (PFC) | **Not implemented** (returns `FF_NOT_IMPLEMENTED`) | `src/drivers/eth/gem/ff_gem_tsn.c` (SRS-REQ-066; managed by the fabric CoreTSN switch; NC-S8-02) |
+| Full 802.1AS **gPTP** stack (BMCA, Sync/Follow_Up, PDelay, servo) | **Implemented (M8)** | `src/drivers/eth/gptp/ff_gptp.{c,h}` (SRS-REQ-068); `tests/unit/test_gptp.c` (58 checks); integrates with `FF_EthMac_t` + `FF_TsnBackend_t::get_time_ns` |
+| Fabric **CoreTSN** path (multi-port switch / 802.1CB FRER) | **Planned (M14, fabric)** | Requires the fabric-device contract (SRS-REQ-067); NC-S8-02 |
 | TSN traffic classification in the ground ICD | **Absent** | `docs/interfaces/ICD.md` (no TSN content) |
 
 ### 9.1 How to use it (what to call, what flags)
@@ -244,21 +270,32 @@ CoreTSN programme is milestone **M8** (planned).
 1. **Code against the contract.** Use `FF_TsnBackend_t` (`src/hal/hal_tsn.h`,
    SRS-REQ-028): `set_vlan(vid, pcp)` (802.1Q VLAN/PCP), `configure_tas(schedule,
    len)` (802.1Qbv time-aware gate list), `configure_cbs(traffic_class,
-   idle_slope_bps)` (802.1Qav), and `get_time_ns(&ns)` (802.1AS time).
+   idle_slope_bps)` (802.1Qav), `set_stream_filter(traffic_class, dest_mac, vid,
+   ethertype, enable)` (802.1Qci per-stream), `enable_pfc(pfc_bitmap)`
+   (802.1Qbb), and `get_time_ns(&ns)` (802.1AS time).
 2. **Use the GEM native reference backend.** Instantiate `FF_TsnGem_t` and call
    `FF_TsnGemSetup(&tsn, &bus, base, speed_mbps)`
    (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`, SRS-REQ-038). Qbv gate entries are
    `FF_TsnGate_t` (`queue`, `start_sec`/`start_nsec`, `on_nsec`/`off_nsec`).
 3. **Know what each call does today.** `set_vlan` (802.1Q) and `configure_tas`
-   (802.1Qbv ENST) are implemented; `configure_cbs` (802.1Qav) **returns
+   (802.1Qbv ENST) and `set_stream_filter` (802.1Qci) are implemented;
+   `configure_cbs` (802.1Qav) and `enable_pfc` (802.1Qbb) **return
    `FF_NOT_IMPLEMENTED`** (not exposed in the GEM register subset used);
    `get_time_ns` is an **802.1AS time-read seam** — a hardware GEM-TSU clock
    read, **not** the gPTP protocol.
-4. **TSN is not PUS-C.** It shapes/schedules the Ethernet link; a network stack
+4. **Use the gPTP stack.** Instantiate `FF_GptpPort_t` with
+   `FF_GptpInit(&port, mac, tsn_backend)`, call `FF_GptpSetEnabled(&port, 1)`,
+   then `FF_GptpTick(&port, now_ns)` each cycle. Incoming PTP frames are
+   dispatched automatically via the MAC receive callback; send PDelay_Req with
+   `FF_GptpSendPDelayReq(&port, t1_ns)`. Read the synchronized clock with
+   `FF_GptpGetGrandmasterTime(&port, &ns)` (norm N18: on-Renode the stack is
+   host-testable; on-target gPTP timing accuracy = GAP-A5).
+5. **TSN is not PUS-C.** It shapes/schedules the Ethernet link; a network stack
    (for example lwIP, §8) would use that link later. It does not carry PUS-C.
-5. **The full gPTP stack and the fabric CoreTSN path are M8.** Until then there
-   is no BMCA, Sync/Follow_Up, PDelay or servo, and no multi-port switch /
-   802.1CB FRER backend.
+6. **The gPTP stack is M8.** BMCA, Sync/Follow_Up, PDelay and servo are now
+   implemented (host unit tests with mock MAC + TSU). The fabric CoreTSN /
+   802.1CB FRER backend requires the fabric-device contract (SRS-REQ-067) and
+   is planned for M14.
 
 Gap context: on-target TSN behaviour (timing, scheduling, PTP servo on the real
 GEM/PHY) is **GAP-A5**.
@@ -274,10 +311,10 @@ repository includes:
   `src/drivers/net/ff_net_loopback.{c,h}`, SRS-REQ-039) — built with
   `FF_BUILD_DRIVERS` (default ON); it exercises the contract but is **not** a
   TCP/IP stack;
-- the **lwIP adapter** (`FF_NetStackLwip`, `src/hal/net/lwip/ff_net_lwip.{c,h}`,
-  SRS-REQ-040) — built only with `FF_USE_LWIP=ON` (default **OFF**). lwIP itself
-  is a **third-party BSD-3-Clause** stack, fetched pinned to the release tag
-  **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`) by
+- the **lwIP adapter** (`FF_NetStackLwip`, `src/hal/net/lwip/ff_net_lwip.{c,h}` +
+  `ff_lwip_netif.{c,h}`, SRS-REQ-040) — built only with `FF_USE_LWIP=ON`
+  (default **OFF**). lwIP itself is a **third-party BSD-3-Clause** stack, fetched
+  pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`) by
   `tools/scripts/fetch_third_party.sh`, and is **not committed** to the
   repository.
 
@@ -314,7 +351,8 @@ the current implemented/planned status of the TCP/IP and TSN paths is in §8 and
 make configure build test    # host simulator + unit tests (ctest)
 make verify-lean             # Lean formal verification (norm N1)
 make trace                   # traceability convergence (norm N4)
-make coverage metrics        # coverage + README status panel
+make coverage                # coverage -> build/coverage/coverage.json
+make metrics                 # regenerate the README status panel
 make ci-local                # the whole cycle in the pinned Docker image
 ```
 
@@ -350,3 +388,4 @@ without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
 | 0.4 | 2026-10-12 | frick-fsw | Add user "How to use" subsections §8.1 (TCP/IP: contract, `FF_NetStackLoopback`/`FF_NetStackLwip`, `FF_USE_LWIP`, fetch pin/licence, user-supplied stacks) and §9.1 (TSN: `FF_TsnBackend_t`/`FF_TsnGemSetup`, Qav `FF_NOT_IMPLEMENTED`, 802.1AS time-read seam, M8); state framework-owns-contracts vs stack-separate; add the lwIP pin `STABLE-2_2_1_RELEASE`/BSD-3-Clause and the `FF_EthMac_t`/`FF_NetIf_t` row |
 | 0.5 | 2026-10-12 | frick-fsw | Add §7.1 "PUS-C transport channels": PUS-C is transport-agnostic, carried by `FF_Link_t`; only loopback and UART reference backends ship (default loopback on host / UART on RTEMS), `FF_LinkSelect()` plugs another backend, and IP/TSN/CAN/SpaceWire link backends are not implemented (planned) |
 | 0.6 | 2026-10-12 | frick-fsw | Update §8/§10: the IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061, sprint S4b), not an "absorbed" plan |
+| 0.7 | 2026-10-13 | frick-fsw | M8 implementation: gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo), 802.1Qci via GEM screener type 1; update §9 status table and §9.1 for gPTP usage; fix §1 init sequence (add BoardInit/MissionTablesInit/LinkInit/EvsSetListener/AppTmOutputInit/AppHkRegister), §4 tables (`FF_TblValidateFn`), §7.1 link backends (`link_loopback.c`/`link_uart.c`, `FF_LinkSelect` NULL guard), §8 `GAP-A1` correction, lwIP file list (`ff_lwip_netif.{c,h}` in §8.1/§10), §13 separate `coverage`+`metrics`; R4+FSW review NCs recorded for unresolved items |

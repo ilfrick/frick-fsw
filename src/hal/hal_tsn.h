@@ -29,6 +29,15 @@ struct FF_TsnBackend
     /* 802.1Qav: credit-based shaper idle slope (bits/s) per traffic class. */
     FF_Status_t (*configure_cbs)(void *self, uint8_t traffic_class, uint32_t idle_slope_bps);
 
+    /* 802.1Qci: per-stream filtering/policing — gate a stream (identified by
+     * destination MAC + VLAN + EtherType) into the given traffic-class queue,
+     * or disable by setting enable=0. traffic_class maps to an output queue. */
+    FF_Status_t (*set_stream_filter)(void *self, uint8_t traffic_class, const uint8_t dest_mac[6],
+                                     uint16_t vid, uint16_t ethertype, uint8_t enable);
+
+    /* 802.1Qbb: priority flow control — enable/disable PFC per priority bit map. */
+    FF_Status_t (*enable_pfc)(void *self, uint8_t pfc_bitmap);
+
     /* 802.1AS: read the synchronised TSN grandmaster time (ns). */
     FF_Status_t (*get_time_ns)(void *self, uint64_t *out_ns);
 };

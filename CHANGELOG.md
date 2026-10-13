@@ -28,6 +28,23 @@ change. All dates UTC, project language English (norm N2).
   sprint). **NC-154-01 (open)**: the netif glue has no host test (NET follow-up).
   **NC-154-02 (closed)**: the `traceability.md` History row was added.
 
+- **M8 — gPTP (802.1AS) + GEM TSN 802.1Qci completion (SRS-REQ-068/SRS-REQ-066).**
+  Implemented a full 802.1AS gPTP stack (`src/drivers/eth/gptp/ff_gptp.{c,h}`):
+  BMCA (clock-class/priority/identity comparison), Sync/Follow_Up time-offset with
+  a PI servo, PDelay link-delay measurement, and a port state machine
+  (master/slave/uncertain/disabled). The stack integrates with the GEM TSU time-read
+  seam via `FF_TsnBackend_t::get_time_ns` and sends/receives PTP frames through
+  `FF_EthMac_t`. Host unit tests `test_gptp.c` (6 functions, 58 checks) use a mock
+  MAC + mock TSU. The GEM TSN backend now implements 802.1Qci per-stream filtering
+  via screener type 1 entries (`set_stream_filter`, `enable=1` programs
+  EtherType+VID match for a traffic-class queue; `enable=0` clears it); 802.1Qav CBS
+  and 802.1Qbb PFC return `FF_NOT_IMPLEMENTED` (GEM register-subset limitations,
+  tracked NC-S8-01/NC-S8-02). `test_gem_tsn.c` extended to 22 checks. Renode
+  check: GEM TSU `get_time_ns` register-accessible (`hal_tsn=PASS`); full gPTP
+  frame exchange is host-tested (mock MAC) — the register-only `Network.CadenceGEM`
+  model (no DMA descriptor engine, TSTART unhandled) is GAP-A5. On-target gPTP
+  timing accuracy = GAP-A5.
+
 - **M4/M11 - in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040, S6b-1).** The
   pinned lwIP ships only unix/win32/freertos ports, so `FF_USE_LWIP=ON` could not
   build for the RTEMS target. `src/hal/net/lwip/rtems/` now provides the lwIP 2.x

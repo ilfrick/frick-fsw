@@ -59,6 +59,26 @@
 #define FF_GEM_SCRT2_VLANPR_SHIFT 4u
 #define FF_GEM_SCRT2_VLANEN_SHIFT 8u
 
+/* TSN: 802.1Q screener type 1 (per-stream filter / 802.1Qci). One entry
+ * per traffic-class queue; the queue is the entry index. Each entry encodes
+ * EtherType match, optional VLAN-ID match, and an enable bit.
+ * Layout (32-bit):
+ *   [31]      EN     (enable)
+ *   [30:16]   ETYPE  (15-bit EtherType; top bit of 16-bit ethertype is lost)
+ *   [15:4]    VID    (12-bit VLAN ID)
+ *   [3]       VIDEN  (VLAN-ID match enable)
+ *   [2:0]     reserved
+ */
+#define FF_GEM_SCRT1_BASE 0x0530u
+#define FF_GEM_SCRT1_ENTRY_COUNT 4u
+#define FF_GEM_SCRT1_ENTRY(queue) (FF_GEM_SCRT1_BASE + ((uint32_t)(queue) * 4u))
+#define FF_GEM_SCRT1_EN_SHIFT 31u
+#define FF_GEM_SCRT1_ETYPE_SHIFT 16u
+#define FF_GEM_SCRT1_ETYPE_MASK 0x7FFFu
+#define FF_GEM_SCRT1_VID_SHIFT 4u
+#define FF_GEM_SCRT1_VID_MASK 0xFFFu
+#define FF_GEM_SCRT1_VIDEN_SHIFT 3u
+
 /* NCR bit positions (macb layout; GEM has no software reset). */
 #define FF_GEM_NCR_LLB 1u /* loopback local       */
 #define FF_GEM_NCR_RE 2u  /* receive enable       */

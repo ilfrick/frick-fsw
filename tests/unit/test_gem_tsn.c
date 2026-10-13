@@ -90,6 +90,26 @@ static void test_tsn_vlan_and_time(void)
     /* 802.1Qav CBS is not exposed in the GEM register subset. */
     FF_TEST_ASSERT(t.tsn.configure_cbs(&t, 1u, 1000000u) == FF_NOT_IMPLEMENTED);
 
+    /* 802.1Qci: per-stream filter via screener type 1 entry 0.
+     * Maps dest MAC (00:01:02...) — not used by the GEM screener — to queue 2. */
+    {
+        const uint8_t dest_mac[6] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};
+        FF_TEST_ASSERT(t.tsn.set_stream_filter(&t, 2u, dest_mac, 100u, 0x0800u, 1u) == FF_SUCCESS);
+        FF_TEST_ASSERT(t.tsn.set_stream_filter(&t, 0u, NULL, 100u, 0x0800u, 0u) ==
+                       FF_INVALID_ARGUMENT);
+        /* Out-of-range queue. */
+        FF_TEST_ASSERT(t.tsn.set_stream_filter(&t, 8u, dest_mac, 100u, 0x0800u, 1u) ==
+                       FF_INVALID_ARGUMENT);
+        /* VID out of range. */
+        FF_TEST_ASSERT(t.tsn.set_stream_filter(&t, 2u, dest_mac, 5000u, 0x0800u, 1u) ==
+                       FF_INVALID_ARGUMENT);
+        /* Disable the stream filter. */
+        FF_TEST_ASSERT(t.tsn.set_stream_filter(&t, 2u, dest_mac, 100u, 0x0800u, 0u) == FF_SUCCESS);
+    }
+
+    /* 802.1Qbb: PFC not exposed in the GEM register subset. */
+    FF_TEST_ASSERT(t.tsn.enable_pfc(&t, 0x01u) == FF_NOT_IMPLEMENTED);
+
     FF_TEST_ASSERT(t.tsn.get_time_ns(&t, NULL) == FF_INVALID_ARGUMENT);
 }
 

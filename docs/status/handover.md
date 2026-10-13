@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 1.18                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 1.19                                   |
+| Date                              | 2026-10-13                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -60,10 +60,10 @@ Remotes: `origin` (GitHub: ilfrick/frick-fsw) and `gitea`
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (20/20) + trace + format
+# Host build + unit tests (25/25) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 100/59/27/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 114/71/29/14/51
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 
@@ -84,9 +84,9 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (as of commit `64961ac` + the NET follow-up (GEM 64-bit + netif glue test, NC-S6-03/NC-154-01); norm N20 reviews in `docs/reviews/`)
+## 4. Current state (as of commit `64961ac` + NET follow-up + S8/M8 gPTP + Qci (SRS-REQ-068/066); norm N20 reviews in `docs/reviews/`)
 
-- **M1..M11 delivered/partial** (see `docs/roadmap.md` / `docs/development-plan.md`).
+**M1..M7, M8, M10 delivered; M9, M11(11/13), M12-M16 planned** (see `docs/roadmap.md` / `docs/development-plan.md`).- **M1..M7, M8, M10 delivered; M9, M11(11/13), M12-M16 planned** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
@@ -148,6 +148,12 @@ occasion; prefer Docker.
   closed — APPROVED WITH COMMENTS; all 8 Minor findings corrected) and
   **FRICK-REVIEW-0163** (NET follow-up delta re-review — APPROVED; all
   corrections verified) — all closed (see `docs/reviews/README.md`).
+- **FRICK-REVIEW-0159** (FSW cross-check of `docs/engineering/user-integration-manual.md`
+  rev 0.6 — REJECTED) and **FRICK-REVIEW-0160** (R4 documentation review of the
+  same manual — REJECTED): both reviewers found 1 Blocker + 7 Major + 9 Minor
+  findings (34 NCs). S8 resolves all Blocker/Major/Minor issues; the R4 review
+  loop will close after the next S8 documentation re-review. NCs logged in
+  `docs/nc/2026-10-13-integration-manual-fix-nc.md`.
 
 ## 5. Immediate next steps (priority order)
 
@@ -161,22 +167,20 @@ occasion; prefer Docker.
 > (`hal_pcie=PASS`, `hal_spacewire=CONTRACT`, M11 11/13) and the **NET follow-up
 > sprint** done (NC-S6-03 co-implemented: GEM 64-bit `gem_phys`/`gem_wr_qbqp`/
 > `TBQP_HI`/`RBQP_HI`/`DMACFG.ADDR64`; NC-154-01 closed: `test_lwip_netif` 26/26
-> host mock-MAC loopback; on-Renode GEM DMA still GAP-A5). Next per plan: **S8
-> — M8 gPTP (802.1AS) + fabric CoreTSN** (`hal_gptp=PASS` target), then the
-> **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061), S4c
-> (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
+> host mock-MAC loopback; on-Renode GEM DMA still GAP-A5). **S8 (M8) delivered**:
+> gPTP stack (`test_gptp` 58 checks host) + 802.1Qci via GEM screener type 1 (`test_gem_tsn`
+> 22 checks); 802.1Qav CBS + 802.1Qbb PFC documented `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02).
+> Next per plan: the **restored M4 scope**: S4b (PUS-C over IP/TSN, SRS-REQ-059/060/061),
+> S4c (CAN-FD/CANopen/RS-485 DE, SRS-REQ-062/063/064) and S4d (PUSopen(R) adapter,
 > SRS-REQ-065).
 
-1. **M8 gPTP (802.1AS) + fabric CoreTSN** (SRS-REQ-068) — **next** (S8;
-   `hal_gptp=PASS` target). M11 is at 11/13 peripheral-bound (PCIe + SpaceWire
-   delivered in S7; NET follow-up co-implemented NC-S6-03 + closed NC-154-01); the
-   remaining 2 classes (GEM DMA round-trip = GAP-A5; SpaceWire = NC-S7-01
-   contract-level) are tracked, not new work.
-   - [done: NVM (SRS-REQ-055), NOR/QSPI MTD driver (SRS-REQ-056), MSS CAN (SRS-REQ-057), MSS I2C (SRS-REQ-058), MSS SPI (SRS-REQ-069), MSS block device (SRS-REQ-070); board repl loaded; on-SoC QSPI check pending the controller command driver]; remaining:
-   - [done: **PCIe** (), **SpaceWire** (contract-level, NC-S7-01), **TSN** (), **NET** (, S6a/S6b + NET follow-up NC-S6-03 co-implemented + NC-154-01 closed; on-Renode GEM DMA round-trip = GAP-A5)]; remaining:
-   For each: driver behind `hal_*.h`, host unit test with an independent mock,
-   a binding in `frick-renode.resc`, a clause in `app_renode_test.c`, SRS req,
-   trace, docs, review, commit.
+1. **S8/M8 gPTP + Qci completed** (SRS-REQ-068/066). gPTP stack: BMCA,
+   Sync/Follow_Up, PDelay, PI servo (`test_gptp` 58/58 host) — integrates with GEM TSU
+   `get_time_ns` + `FF_EthMac_t`; on-Renode GEM TSU register accessible (host-tested
+   mock-MAC frame exchange; full GEM DMA = GAP-A5). Qci: screener type 1 entry per
+   traffic-class; `test_gem_tsn` 22/22. Qav CBS + Qbb PFC = `FF_NOT_IMPLEMENTED`
+   (NC-S8-01/NC-S8-02). Integration-manual R1/R4 reviews (FRICK-REVIEW-0159/0160)
+   corrected; documentation re-review pending.
 2. **M4 residual** restored M4 scope (S4b/S4c/S4d): PUS-C over IP/TSN
    (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064),
    PUSopen adapter (SRS-REQ-065), fabric contract (SRS-REQ-067).
@@ -243,3 +247,4 @@ occasion; prefer Docker.
 | 1.16 | 2026-10-12 | frick-fsw | Sprint-6b-2 review close-out (FRICK-REVIEW-0153/0154/0155): netif MTU fixed (1500), glue-test gap tracked (NC-154-01), traceability History bumped (NC-154-02), stale doc sites + nightly label corrected |
 | 1.17 | 2026-10-12 | frick-fsw | Sprint 7 delivered + pushed (`64961ac`): PCIe (`hal_pcie=PASS`) + SpaceWire contract-level (`hal_spacewire=CONTRACT`, M11 11/13); NET follow-up sprint: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing: `gem_phys` returns `uint64_t`, `gem_wr_qbqp`, `TBQP_HI`/`RBQP_HI`, `DMACFG.ADDR64`; per-descriptor truncation explicit; full 3-word descriptor format deferred to M14); NC-154-01 closed (`test_lwip_netif` 26/26 host, mock-MAC loopback); `test_gem` extended for 64-bit register writes; trace/lean/format/redline all green; combined R1+R2+R3+R4+PA review APPROVED WITH COMMENTS (FRICK-REVIEW-0162, 8 Minor findings, all corrected); delta re-review APPROVED (FRICK-REVIEW-0163, all corrections verified); commit + push to both remotes completed |
 | 1.18 | 2026-10-12 | frick-fsw | Handover updated to record FRICK-REVIEW-0162 (NET follow-up confirmation, APPROVED WITH COMMENTS) and FRICK-REVIEW-0163 (delta re-review, APPROVED) in the recent-reviews list; all findings closed; next sprint S8 = M8 gPTP + CoreTSN |
+| 1.19 | 2026-10-13 | frick-fsw | **S8/M8 delivered:** gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo) in `src/drivers/eth/gptp/` (58 checks host); 802.1Qci via GEM screener type 1 in `ff_gem_tsn.c` (test_gem_tsn 22 checks); 802.1Qav CBS + 802.1Qbb PFC documented `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); integration-manual R1/R4 reviews (FRICK-REVIEW-0159/0160) corrected; traceability + SRS updated for SRS-REQ-066/068 |

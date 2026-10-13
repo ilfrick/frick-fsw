@@ -100,12 +100,80 @@ static FF_Status_t tsn_configure_tas(void *self, const uint8_t *schedule, uint16
 }
 
 /* 802.1Qav credit-based shaper: not exposed in the GEM register subset used
- * here (reference limitation; see docs/architecture/hardware-abstraction.md). */
+ * here (reference limitation; see docs/architecture/hardware-abstraction.md).
+ * The GEM MAC does not implement hardware CBS; software shaping must be done
+ * upstream in the fabric (CoreTSN). Returns FF_NOT_IMPLEMENTED so callers can
+ * fall back to a soft shaper (NC-S8-01 tracks the software fallback plan). */
 static FF_Status_t tsn_configure_cbs(void *self, uint8_t traffic_class, uint32_t idle_slope_bps)
 {
     (void)self;
     (void)traffic_class;
     (void)idle_slope_bps;
+    return FF_NOT_IMPLEMENTED;
+}
+
+/* 802.1Qci: per-stream filtering via GEM screener type-1 entries.
+ * Each screener entry maps a stream (identified by EtherType + VLAN id) to
+ * a traffic-class queue (the entry index = queue number). The GEM does not
+ * screen on the full destination MAC, so dest_mac is accepted but not
+ * programmed into hardware (it identifies the stream at the API level). */
+static FF_Status_t tsn_set_stream_filter(void *self, uint8_t traffic_class,
+                                         const uint8_t dest_mac[6], uint16_t vid,
+                                         uint16_t ethertype, uint8_t enable)
+{
+    FF_TsnGem_t *t = (FF_TsnGem_t *)self;
+    uint32_t scr;
+    uint32_t entry_off;
+
+    /* dest_mac identifies the stream (API contract); the GEM screener
+     * matches on EtherType + VLAN only, so it is not programmable here. */
+    if ((t == NULL) || (dest_mac == NULL)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    if (traffic_class >= FF_TSN_MAX_QUEUES) {
+        return FF_INVALID_ARGUMENT;
+    }
+    if (traffic_class >= FF_GEM_SCRT1_ENTRY_COUNT) {
+        return FF_NOT_IMPLEMENTED; /* more queues than screener entries */
+    }
+    if (vid > 4094u) {
+        return FF_INVALID_ARGUMENT;
+    }
+
+    entry_off = FF_GEM_SCRT1_ENTRY(traffic_class);
+
+    if (enable != 0u) {
+        scr = (1u << FF_GEM_SCRT1_EN_SHIFT) |
+              ((uint32_t)(ethertype & FF_GEM_SCRT1_ETYPE_MASK) << FF_GEM_SCRT1_ETYPE_SHIFT) |
+              ((uint32_t)vid << FF_GEM_SCRT1_VID_SHIFT) |
+              ((vid != 0u) ? (1u << FF_GEM_SCRT1_VIDEN_SHIFT) : 0u);
+        tsn_wr(t, entry_off, scr);
+        if (t->qci_entry_count < FF_GEM_SCRT1_ENTRY_COUNT) {
+            t->qci_entry_count++;
+        }
+    }
+    else {
+        /* Disable: clear the entry for this traffic class. */
+        scr = tsn_rd(t, entry_off);
+        if ((scr & (1u << FF_GEM_SCRT1_EN_SHIFT)) == 0u) {
+            return FF_NOT_FOUND;
+        }
+        tsn_wr(t, entry_off, 0u);
+        if (t->qci_entry_count > 0u) {
+            t->qci_entry_count--;
+        }
+    }
+    return FF_SUCCESS;
+}
+
+/* 802.1Qbb: priority flow control — not exposed in the GEM register subset.
+ * PFC is managed by the TSN fabric (CoreTSN) switch; the GEM MAC forwards
+ * the PAUSE frame to the link partner via the egress TSN path. Returning
+ * FF_NOT_IMPLEMENTED lets the fabric-layer Qbb driver handle it. */
+static FF_Status_t tsn_enable_pfc(void *self, uint8_t pfc_bitmap)
+{
+    (void)self;
+    (void)pfc_bitmap;
     return FF_NOT_IMPLEMENTED;
 }
 
@@ -139,6 +207,9 @@ FF_Status_t FF_TsnGemSetup(FF_TsnGem_t *tsn, const FF_GemBus_t *bus, uint32_t ba
     tsn->tsn.set_vlan = tsn_set_vlan;
     tsn->tsn.configure_tas = tsn_configure_tas;
     tsn->tsn.configure_cbs = tsn_configure_cbs;
+    tsn->tsn.set_stream_filter = tsn_set_stream_filter;
+    tsn->tsn.enable_pfc = tsn_enable_pfc;
     tsn->tsn.get_time_ns = tsn_get_time_ns;
+    tsn->qci_entry_count = 0u;
     return FF_SUCCESS;
 }

@@ -378,18 +378,22 @@ review).
   PUSopen(R) library (the commercial library itself is user-supplied).
   `method: Tst | Inp`.
 - **SRS-REQ-066** — *GEM TSN shaping and filtering completion*: the framework
-  shall extend the GEM native TSN backend with 802.1Qav (credit-based shaping),
-  802.1Qci (per-stream filtering/policing) and 802.1Qbb (priority flow control);
-  feasibility on the GEM register subset used by the reference backend (which does
-  not currently expose CBS) = TBC (owner: M8). `method: Tst | Inp`.
+  shall extend the GEM native TSN backend with 802.1Qci (per-stream filtering/policing
+  via screener type 1) and document the GEM register-subset limitations for 802.1Qav
+  (CBS returns `FF_NOT_IMPLEMENTED`; software fallback tracked NC-S8-01) and 802.1Qbb
+  (PFC returns `FF_NOT_IMPLEMENTED`; managed by the fabric CoreTSN switch; NC-S8-02).
+  `method: Tst | Inp`. (milestone M8)
 - **SRS-REQ-067** — *Generic fabric-device contract*: the framework shall define a
   generic fabric-device (FIC/AXI) contract for resources reached through the FPGA
   fabric, on which the fabric CAN-FD/SpaceWire/TSN backends are built.
   `method: Inp`.
 - **SRS-REQ-068** — *gPTP (802.1AS) and fabric CoreTSN completion*: the framework
-  shall complete the deterministic-Ethernet feature set: a full 802.1AS gPTP stack
-  (BMCA, Sync/Follow_Up, PDelay, servo) and the fabric CoreTSN path (multi-port
-  switch / 802.1CB FRER). `method: Tst | Dem`.
+  shall implement a full 802.1AS gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo)
+  integrating the GEM TSU time-read seam and the `FF_EthMac_t` frame path; the fabric
+  CoreTSN path (multi-port switch / 802.1CB FRER) is deferred to M14 and requires the
+  fabric-device contract (SRS-REQ-067). On-target gPTP timing accuracy = GAP-A5;
+  host-verified with mock MAC + mock TSU. `method: Tst | Dem`. (milestone M8 for
+  gPTP; M14 for fabric CoreTSN)
 
 ## 6. Derived requirements
 
@@ -452,3 +456,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.18 | 2026-10-12 | frick-fsw  | Restore explicit M4 scope: add SRS-REQ-059/060/061 PUS-C segmentation + TCP/IP + TSN link backends; SRS-REQ-062/063/064 CAN-FD/CANopen/RS-485 DE; SRS-REQ-065 PUSopen adapter; SRS-REQ-066 GEM TSN Qav/Qci/Qbb; SRS-REQ-067 generic fabric-device contract; SRS-REQ-068 gPTP/CoreTSN (SSS parents held in the manifest) — FRICK-REVIEW-0137 R3-05/R3-07/R3-08/R3-09 |
 | 1.19 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-069 reference MSS SPI driver (polled CoreSPI master; clock-divider reference derivation/GAP-A5) |
 | 1.20 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-070 reference MSS block-device driver (polled SDHCI-style MMC/SD; buffer-mode, GAP-A5) |
+| 1.21 | 2026-10-13 | frick-fsw  | M8: update SRS-REQ-066 (Qci implemented; Qav/Qbb = FF_NOT_IMPLEMENTED, tracked NC-S8-01/NC-S8-02) and SRS-REQ-068 (gPTP stack implemented; fabric CoreTSN deferred to M14) |

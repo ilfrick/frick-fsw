@@ -157,6 +157,10 @@
 | 2026-10-12 | Sprint-7 PCIe + SpaceWire — delta closure (N12) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (all findings closed) | 2026-10-12-m4-m11-s7-delta-review.md |
 | 2026-10-12 | NET follow-up: GEM 64-bit + netif glue test — confirmation review (NC-S6-03 co-implemented, NC-154-01 closed) | R1+R2+R3+R4+PA | APPROVED WITH COMMENTS (8 Minor/Comment findings, all corrected) | 2026-10-12-net-followup-r1-r2-r3-r4-pa-review.md |
 | 2026-10-12 | NET follow-up — delta re-review (N12/N20) | PA | APPROVED (all 10 corrections verified; R4-04-M8 resolved) | 2026-10-12-net-followup-delta-review.md |
+| 2026-10-13 | User & Integration Manual (FRICK-ENG-0005) cross-check — every claim verified against source | R1 (Senior FSW engineer) | **REJECTED** (1 Blocker, 3 Major, 3 Minor; 7 NCs open → S0) | 2026-10-13-integration-manual-fsw-review.md |
+| 2026-10-13 | User & Integration Manual (FRICK-ENG-0005) documentation review — accuracy/consistency of paths, APIs, status tables, GAP labels, code snippets, attribution | R4 (Senior SW documentation engineer) | **REJECTED** (1 Blocker, 4 Major, 6 Minor; 13 NCs open → S0) | 2026-10-13-integration-manual-doc-review.md |
+| 2026-10-13 | Integration Manual delta re-review (N12) — all FSW+doc findings corrected in rev 0.7 | R1 (Senior FSW engineer) | APPROVED (all 7 findings + comments corrected; 22 checks, rev 0.7 verified) | 2026-10-13-integration-manual-delta-r1-review.md |
+| 2026-10-13 | Integration Manual delta re-review (N12/N17) — R4 documentation convergence on rev 0.7 | R4 (Senior SW documentation engineer) | APPROVED (all 13 NCs corrected; status table + GAP labels + file paths + code snippets verified) | 2026-10-13-integration-manual-delta-r4-review.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. All reports are committed and pushed in
