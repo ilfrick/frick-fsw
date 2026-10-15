@@ -47,7 +47,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | GCC (host) | Native simulator and unit tests (C99, `-Wall -Wextra`) | CI image |
 | RTEMS Source Builder (RSB) | Open-source RTEMS 6.2 toolchain (`riscv/mpfs64imafdc`) | `tools/scripts/setup_rtems.sh`, `tools/docker/rtems/` |
 | clang-format / clang-tidy | Formatting and static analysis | `.clang-format`, `.clang-tidy` |
-| Doxygen | API documentation generation | `Doxyfile`, `make docs` |
+| Doxygen | API documentation generation (`make docs` fails if it produces no HTML) | `Doxyfile`, `make docs` |
 | Git | Version control | dual remotes (GitHub + Gitea) |
 | Docker / Docker Compose | Common controlled V&V environment and Gitea CI runner; mutable image inputs do not establish reproducibility (NC-EXT-35) | `tools/docker/` |
 | Platform `libm` | Portable mathematics facade for applications (M6; `FF_USE_LIBM`) | `src/math/` |
@@ -102,7 +102,7 @@ execution details; this list is **not** the scope of `make ci-local`:
 4. `verify-lean` (`lake build`)
 5. `trace` (traceability convergence, norms N3/N4/N10/N11)
 6. `rtems-cross-build` (RTEMS 6.2 / riscv-mpfs64imafdc cross compilation)
-7. `docs` (Doxygen + required-document list + document-id uniqueness + doc-set consistency)
+7. `docs` (Doxygen + required-document list + document-id uniqueness + doc-set consistency + `index.html` output-existence assertion)
 
 The local `make ci-local` target runs only configure/build (Debug), unit tests,
 Lean verification, and traceability. It does not run format/lint, simulator

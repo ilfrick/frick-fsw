@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.72                                 |
+| Revision                          | 0.3.73                                 |
 | Date                              | 2026-10-15                             |
 | Applicable norms                  | N6, N10, N11                           |
 
@@ -182,3 +182,4 @@ pending a clean image build and repeat of `make qemu`/`make renode` under NC-EXT
 | 0.3.70 | 2026-10-14 | frick-fsw | Register the full SB/EVS sweep runner as a CTest so `make ci-local` exercises it; retain T22 as pending independent requalification/hosted evidence, not mission compliance |
 | 0.3.71 | 2026-10-14 | frick-fsw | Record local CTest run identities and scoped R2/R4/PA review dispositions; hosted/immutable evidence and formal mission-compliance credit remain open |
 | 0.3.72 | 2026-10-15 | frick-fsw | Record the `make docs` target fix (`mkdir -p build/doxygen` before `doxygen Doxyfile`) so fresh-checkout host/CI generation works; scoped R4 0283 / PA 0284 delta reviews record the change and its tracked comments; no N10 qualification or release credit |
+| 0.3.73 | 2026-10-15 | frick-fsw | Record the `make docs` output-existence guard (`test -s build/doxygen/html/index.html`) in the `docs` target plus the `docs`-job assertion and `doxygen --version` echo (PA FRICK-REVIEW-0284 Comment 5); Doxygen version/build identities for the T1-based jobs remain open, so no N10 qualification or release credit |

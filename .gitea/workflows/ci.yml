@@ -278,7 +278,13 @@ jobs:
       - name: Licence check (norm N13)
         run: python3 tools/scripts/license_check.py
       - name: Doxygen
-        run: make docs
+        run: |
+          doxygen --version
+          make docs
+          # The `docs` target asserts this too; assert here as well so the CI
+          # gate fails on a silent generation regression instead of only on the
+          # step exit status (PA FRICK-REVIEW-0284 Comment 5).
+          test -s build/doxygen/html/index.html
 
   # evidence: ci-rtems-cross-build (SSS-REQ-001, SRS-REQ-016, SRS-REQ-037)
   rtems-cross-build:

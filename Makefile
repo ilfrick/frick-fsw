@@ -156,6 +156,7 @@ docs:
 	rm -rf build/doxygen
 	mkdir -p build/doxygen
 	doxygen Doxyfile
+	test -s build/doxygen/html/index.html || { echo "error: 'make docs' produced no build/doxygen/html/index.html (silent doxygen failure)"; exit 1; }
 
 coverage-configure:
 	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON

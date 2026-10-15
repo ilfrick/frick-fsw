@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.25                                   |
-| Date                              | 2026-10-14                             |
+| Revision                          | 2.26                                   |
+| Date                              | 2026-10-15                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -87,7 +87,24 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `57974d2` plus uncommitted S8-FU working tree, updated 2026-10-14)
+## 4. Current state (baseline `620fff8`; worktree clean apart from this delta, updated 2026-10-15)
+
+- **Update (2026-10-15).** The aggregate licence/revamp change was committed as
+  `a4c436c` (MPL-2.0 licence, reengineering and non-silicon stress
+  characterization) and pushed to both remotes under the user's explicit
+  delegation, followed by `03773f7` (CI `docs`-job Doxygen output directory) and
+  `620fff8` (metrics-panel regeneration). Hosted GitHub Actions run #83 on
+  `620fff8` is green across all jobs; runs #81/#82 and their single-job failures
+  are retained in the CI history. The Gitea forge task API lists a run for
+  `620fff8`, but no Gitea run log or evidence is retained, so NC-EXT-36 remains
+  open. No open gate
+  was closed: hosted-CI qualification evidence/T21, NC-EXT-43, NC-EXT-75/76,
+  NC-EXT-78..81 and every release/qualification gate remain open. The current
+  uncommitted delta is the `make docs` output-existence guard (PA
+  FRICK-REVIEW-0284 Comment 5), reviewed by scoped R4 FRICK-REVIEW-0285 and PA
+  FRICK-REVIEW-0286 (APPROVED WITH COMMENTS) and closed in the bounded R4 delta
+  re-review FRICK-REVIEW-0287. The narrative below is retained as
+  the 2026-10-14 snapshot.
 
 - **M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -242,11 +259,11 @@ occasion; prefer Docker.
 > pending profile authority, loss-counter/reporting implementation, full-cycle,
 > and independent evidence. T21 remains NOT FULLY QUALIFIED; no overall
 > N17/PA approval or NC closure is implied.
-> These do not close NCs or qualify T13; NC-EXT-34..77 remain open. The owner
+> These do not close NCs or qualify T13; NC-EXT-34..81 remain open. The owner
 > authorized MPL-2.0 for original project-authored code and materials; NC-EXT-43 remains open only
 > for external/generated and combined-distribution compatibility. No additional
 > license authorization is pending from the owner.
-> NC-S4b-01..09, NC-EXT-01..77
+> NC-S4b-01..09, NC-EXT-01..81
 > and GAP-R3-1 remain open pending independent review or authority disposition.
 > Sprint precedence is unresolved: the corrective sequence is proposed, but it
 > conflicts with “drivers first”; do not start a competing sprint until the plan
@@ -314,7 +331,7 @@ occasion; prefer Docker.
       remains unrun. R2 source-identity delta FRICK-REVIEW-0274 confirms the
       final script hash and byte-identical retained CSV.
  2. Then continue from the open NC register in the same plan. Keep
-        NC-S4b-01..09, NC-EXT-01..77 and GAP-R3-1 open until independent delta reviews or
+        NC-S4b-01..09, NC-EXT-01..81 and GAP-R3-1 open until independent delta reviews or
    authorized requirements/profile dispositions are recorded. Initial
    FRICK-REVIEW-0167/0168/0169 remain APPROVED WITH COMMENTS; no D1 reports exist.
   3. The external assessment's PDL wrap finding has a widened decoder fix and
@@ -542,3 +559,4 @@ occasion; prefer Docker.
 | 2.23 | 2026-10-14 | frick-fsw | Record isolated configured-limit SB/EVS saturation stress results, initial test-harness resource collision and resolution; preserve commit/push blockers and open event-envelope authority/loss-reporting gates |
 | 2.24 | 2026-10-14 | frick-fsw | Record fresh clean structural-stress evidence and scoped R4/PA reviews; retain N14, NC-EXT-75/76, full-sprint and broader release gates as open |
 | 2.25 | 2026-10-14 | frick-fsw | Record 9,984-profile SB/EVS host structural characterization, retained CSV/evidence identities, bounded R3/R2/R4/PA reports and final CI-local cycle; retain mission authority inputs, NC-EXT-75/76, T22 N10 acceptance and release gates as open |
+| 2.26 | 2026-10-15 | frick-fsw | Record the committed/pushed state (`a4c436c`, `03773f7`, `620fff8`), green GitHub Actions run #83, and the `make docs` output-existence guard delta with scoped R4 FRICK-REVIEW-0285 / PA FRICK-REVIEW-0286 reviews (both APPROVED WITH COMMENTS; R4 NC-01/NC-02 verified closed by bounded delta re-review FRICK-REVIEW-0287); retain hosted-evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |

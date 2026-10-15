@@ -43,6 +43,38 @@ change. All dates UTC, project language English (norm N2).
   evidence, T21 tool qualification, NC-EXT-43, or any release/qualification
   gate.
 
+### `make docs` output-existence guard (2026-10-15)
+
+- Hardened the `docs` target against a silent generation regression,
+  dispositioning Comment 5 of the scoped PA delta review `FRICK-REVIEW-0284` (as
+  the separate, scoped follow-up change that review requested). After
+  `doxygen Doxyfile` the target asserts
+  `test -s build/doxygen/html/index.html`, so a Doxygen run that exits 0 without
+  emitting HTML fails `make docs` with an explicit message. The primary guard is
+  in the `docs` target, so host, GitHub and Gitea invocations are all covered;
+  the two workflow `docs` jobs additionally run `doxygen --version` and assert
+  the same artifact, so the CI job also fails closed at the job level (defence in
+  depth: the same existence check, downstream of the target's own).
+- Sync obligation: `build/doxygen/html/index.html` now appears in three assertion
+  sites and derives from `Doxyfile` (`OUTPUT_DIRECTORY` and
+  `GENERATE_HTML = YES`), so a change to those settings must update all three
+  together. The duplication fails closed (a mismatch aborts the `docs` job), so a
+  missed update is loud rather than silent.
+- Evidence (`frick-vv:local`, Doxygen 1.9.8): pristine tree (no `build/`)
+  `make docs` exit 0 with `build/doxygen/html/index.html` (57,394 B); a tree with
+  `GENERATE_HTML = NO` reproduced the silent failure mode (Doxygen exit 0,
+  `warning: No output formats selected!`, no HTML) and the guard then failed
+  `make docs` with exit 2 and the explicit message; removing `index.html` from a
+  successful tree also fired the guard. `test -s` is POSIX (`/bin/sh`) and the
+  preceding `rm -rf build/doxygen` prevents a stale artifact from satisfying it.
+- The guard is existence-only (it checks neither HTML content nor the Doxygen
+  warning set). It does not close hosted-CI evidence for this delta, T21,
+  NC-EXT-43, or any release/qualification gate.
+- Reviewed by scoped R4 `FRICK-REVIEW-0285` and PA `FRICK-REVIEW-0286` (both
+  APPROVED WITH COMMENTS); the R4 currency actions NC-01/NC-02 were corrected
+  in-delta and verified closed by the bounded R4 delta re-review
+  `FRICK-REVIEW-0287`.
+
 ### SB/EVS requirements trace and audit correction (2026-10-14)
 
 - Clarified SRS-REQ-072 that dispatch-rate and `Lmax` performance guarantees
