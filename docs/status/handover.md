@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.27                                   |
+| Revision                          | 2.28                                   |
 | Date                              | 2026-10-15                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -87,7 +87,7 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `77cd548`; worktree clean apart from this evidence-record update, updated 2026-10-15)
+## 4. Current state (baseline `03366f1`; worktree clean apart from this evidence-record update, updated 2026-10-15)
 
 - **Update (2026-10-15).** The aggregate licence/revamp change was committed as
   `a4c436c` (MPL-2.0 licence, reengineering and non-silicon stress
@@ -103,12 +103,20 @@ occasion; prefer Docker.
   `make docs` output-existence guard (PA FRICK-REVIEW-0284 Comment 5) is
   committed as `77cd548`; hosted GitHub Actions
   run #84 on that commit succeeded across all 8 jobs, including
-  `documentation set`, and its `Doxygen` step carries the new assertion. The
+  `documentation set`, and its `Doxygen` step carries the new assertion
+  (`https://github.com/ilfrick/frick-fsw/actions/runs/38695319390`). The
   delta was reviewed by scoped R4 FRICK-REVIEW-0285 and PA FRICK-REVIEW-0286
   (APPROVED WITH COMMENTS) and the R4 currency actions NC-01/NC-02 were closed
-  in the bounded R4 delta re-review FRICK-REVIEW-0287. The only uncommitted
-  change is this evidence-record update. The narrative below is retained as
-  the 2026-10-14 snapshot.
+  in the bounded R4 delta re-review FRICK-REVIEW-0287. The record-only follow-up
+  `03366f1` (the guard-delta evidence record) was also verified green — hosted
+  GitHub Actions run #85, all 8 jobs
+  (`https://github.com/ilfrick/frick-fsw/actions/runs/38695861328`). Per the
+  record-only convention now stated in the loop audit (N15),
+  record-only/evidence-only commits are verified by their own hosted run but are
+  not recursively re-recorded, so this record terminates by convention rather
+  than by omission and the run for this very record update is not separately
+  logged. The only uncommitted change is this evidence-record update. The
+  narrative below is retained as the 2026-10-14 snapshot.
 
 - **M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered** (see `docs/roadmap.md` / `docs/development-plan.md`).
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -565,3 +573,4 @@ occasion; prefer Docker.
 | 2.25 | 2026-10-14 | frick-fsw | Record 9,984-profile SB/EVS host structural characterization, retained CSV/evidence identities, bounded R3/R2/R4/PA reports and final CI-local cycle; retain mission authority inputs, NC-EXT-75/76, T22 N10 acceptance and release gates as open |
 | 2.26 | 2026-10-15 | frick-fsw | Record the committed/pushed state (`a4c436c`, `03773f7`, `620fff8`), green GitHub Actions run #83, and the `make docs` output-existence guard delta with scoped R4 FRICK-REVIEW-0285 / PA FRICK-REVIEW-0286 reviews (both APPROVED WITH COMMENTS; R4 NC-01/NC-02 verified closed by bounded delta re-review FRICK-REVIEW-0287); retain hosted-evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
 | 2.27 | 2026-10-15 | frick-fsw | Record the committed guard delta (`77cd548`) and its green hosted GitHub Actions run #84 (all 8 jobs); Gitea run log unevidenced (NC-EXT-36); retain hosted-CI qualification evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
+| 2.28 | 2026-10-15 | frick-fsw | Record hosted run #85 for the record-only commit `03366f1` (all 8 jobs) and the loop-audit N15 record-only convention that terminates the record → run → record regress; Gitea run log unevidenced (NC-EXT-36); retain hosted-CI qualification evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
