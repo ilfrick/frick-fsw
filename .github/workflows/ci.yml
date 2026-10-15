@@ -30,6 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
+
       - name: Configure Debug
         run: cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
@@ -65,7 +68,7 @@ jobs:
 
       - name: lwIP network-stack adapter (fetch + build + test)
         run: |
-          bash tools/scripts/fetch_third_party.sh
+          bash tools/scripts/fetch_third_party.sh lwip-only
           cmake -S . -B build/lwip -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_LWIP=ON
           cmake --build build/lwip
           ctest --test-dir build/lwip -R lwip --output-on-failure
@@ -92,6 +95,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
       - name: Format check
         run: |
           if command -v clang-format > /dev/null; then
@@ -115,6 +120,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
       - name: Build
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug

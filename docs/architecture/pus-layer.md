@@ -31,13 +31,14 @@ header is authoritative if this illustrative signature and the implementation
 ever diverge. The encoder receives the PUS header and payload first, then the
 output buffer/capacity and returned output length.
 
-- **Default backend** (`FF_PusBackendN7`): the N7 Space / ESA `asn1-pusc-lib`
+- **Optional backend** (`FF_PusBackendN7`): the N7 Space / ESA `asn1-pusc-lib`
   ASN.1/ACN PUS-C model, ASN1SCC-compiled at build time
   (`src/pus/adapters/pus_adapter_n7.c`, `tools/scripts/gen_pus_asn1.sh`),
-  enabled by `FF_USE_PUS_ASN1` (default ON; see `ADR-0016`).
+  enabled by `FF_USE_PUS_ASN1` (default OFF; see `ADR-0018`; generation details
+  and no-vendoring decision are in `ADR-0016`).
 - Open reference backend (`FF_PusBackendOpen`): local CCSDS codec
   (`src/pus/adapters/pus_adapter_open.c`, `src/transport/ccsds/ccsds.c`) — the
-  fallback when the generated code is absent (or `-DFF_USE_PUS_ASN1=OFF`).
+  default backend.
 - Optional PUSopen backend (`FF_PusBackendPusopen`) behind `FRICK_USE_PUSOPEN`
   (commercial library, never distributed).
 

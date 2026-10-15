@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.31                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.40                                   |
+| Date                              | 2026-10-15                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
 
@@ -66,8 +66,8 @@ is in `docs/roadmap.md`.
 | OBJ-24 | Develop, within the project, an **in-house, ECSS-compliant OBCP engine** behind `FF_Obcp_t` (bounded resource accounting, isolation, execution-time budget, abort, reporting; OBCP state/management via PUS S18), as the fallback/hardened engine to the integrated third-party engine (M12) and to remove a permanent third-party dependency. | **M16** (after M12) |
 | OBJ-25 | **Restore and deliver PUS-C over IP and TSN** (the original M4 scope): bounded segmentation/reassembly and reference `FF_Link_t` backends for TCP/IP and TSN, so PUS-C TM/TC can ride the network and TSN-scheduled Ethernet paths in addition to UART. | M4-residual (after S4) |
 | OBJ-26 | Deliver a reference **CAN-FD backend** via the generic fabric (FIC/AXI) contract. | M4-residual |
-| OBJ-27 | Deliver a reference **CANopen (CiA 301/302/402)** stack over `FF_CanOpenStack_t`. | M4-residual |
-| OBJ-28 | Implement **RS-485 half-duplex direction control** (DE/RE) with the requested assert timing. | M4-residual |
+| OBJ-27 | Deliver an allocation-free reference **CANopen subset** over `FF_CanOpenStack_t`, with scope and non-conformance limits in SRS-REQ-063. | M4-residual |
+| OBJ-28 | Implement **RS-485 half-duplex direction control** (DE/RE): a bounded TX-empty poll followed by the `de_assert_us` hold supplied on the release call, then release to receive; the assert-call value is not cached. Timeout is caller-visible while release remains unconditional. Board polarity/electrical timing and timeout policy require system/operations and board authority approval and representative target evidence (NC-S4c-03/GAP-A5). | M4-residual |
 | OBJ-29 | Complete the **GEM native TSN** shaping/filtering: 802.1Qav (CBS), 802.1Qci (PSFP), 802.1Qbb (PFC). | M8 |
 | OBJ-30 | Provide a documented **PUSopen(R) adapter** over the PUS product contract (the commercial library is user-supplied). | M4-residual |
 | OBJ-31 | Replace the reference scheduler stub with a bounded, table-driven Software Bus message dispatcher that uses the native RTEMS task scheduler/clock services, exposes liveness and overrun evidence, and has an authority-approved fault/recovery policy. | M17 (execution sprint S8-SCH, after S8-VV-FU and S8-PUS-FU, before M12) |
@@ -88,7 +88,7 @@ backend** (OBJ-07), without writing FPGA IP.
 | Ethernet | TSN: 802.1Q (VLAN/PCP), 802.1Qbv, 802.1Qav, 802.1Qci/Qbb, 802.1AS, 1588, 802.1CB | GEM x2 (native TSN block) | MSS (fabric CoreTSN only for multi-port switch/FRER) | `FF_TsnBackend_t` | GEM TSN driver |
 | Ethernet | pluggable stack (Tuxera / open) | — | — | `FF_NetStack_t` (`socket`/`netif` vtable) | libbsd + lwIP adapters |
 | CAN | classic CAN 2.0 A/B (ISO 11898-1) | CAN x2 | MSS | `FF_CanBackend_t` | CAN controller driver |
-| CAN | CANopen (CiA 301/302/402) | (over CAN) | — | `FF_CanOpenStack_t` | CANopen stack adapter |
+| CAN | CANopen documented subset (not full CiA 301/302/402 conformance) | (over CAN) | — | `FF_CanOpenStack_t` | CANopen subset adapter |
 | CAN | CAN-FD | — | fabric via FIC | `FF_CanBackend_t` (FD mode) | generic fabric CAN-FD backend |
 | Serial | RS-422 | MMUART x5 + transceiver | MSS | `FF_Serial_t` | MMUART driver |
 | Serial | RS-485 (half-duplex, EIA/TIA-485, DE) | MMUART + GPIO DE | MSS | `FF_Serial_t` (DE control) | MMUART + GPIO driver |
@@ -167,7 +167,7 @@ Deliverables (reference implementations behind the M3 contracts):
   segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t` backends for
   TCP/IP (SRS-REQ-060) and TSN (SRS-REQ-061), selectable with `FF_LinkSelect`.
 - **Extended fieldbus** (OBJ-26/OBJ-27/OBJ-28, SSS-REQ-029): the generic fabric
-  contract (SRS-REQ-067), CAN-FD (SRS-REQ-062), a CANopen (CiA 301/302/402) stack
+  contract (SRS-REQ-067), CAN-FD (SRS-REQ-062), a documented CANopen subset
   (SRS-REQ-063) and RS-485 half-duplex direction control (SRS-REQ-064); plus a
   documented **PUSopen(R) adapter** (OBJ-30, SRS-REQ-065); the commercial library
   is user-supplied.
@@ -321,7 +321,7 @@ connection retains one of four slots until `init()` resets the table
 | M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
 | M2 | time base | done | PPS, CUC, time sources |
 | M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C, MSS SPI, MSS block-device (MMC/SD) done; **PUS-C over IP/TSN (SRS-REQ-059/060/061) done** (seg/reassembly + IP/TSN link backends, host-verified, S4b); PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, NC-S7-01) done (S7); on-SoC eMMC/SD storage checks pending; **CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) remain explicit M4-residual items**; CFDP/VFS → M15 |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C, MSS SPI, MSS block-device (MMC/SD) done; **PUS-C over IP/TSN (SRS-REQ-059/060/061) done** (S4b); PCIe peripheral-bound and SpaceWire contract-level checks done (S7); S4c fabric/CAN-FD, CANopen subset, and RS-485 DE/RE are implemented and host-tested; NC-S4c-02 is closed only for enumerated source-level corrections; bounded reviews 0288..0307 are recorded; CAN-FD target behavior is NC-S4c-01/GAP-A5 because Renode has no emulated peripheral; S4d PUSopen adapter seam is tested against a controlled stub, not the vendor SDK; final hosted/authority gates remain open; on-SoC eMMC/SD checks pending; CFDP/VFS → M15 |
 | M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
 | M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
@@ -377,3 +377,12 @@ in `docs/status/status.json`; the live resume point is
 | 0.29 | 2026-10-13 | frick-fsw | Add OBJ-31/M17: RTEMS-backed, cFS-SCH-inspired application message dispatcher; record industrial option trade, scheduler-failure recovery limits and S8-SCH execution slot |
 | 0.30 | 2026-10-13 | frick-fsw | Sequence S8-PUS-FU before S8-SCH and M12 to address independently reported, autonomously correctable PUS deviations before adding the scheduler increment |
 | 0.31 | 2026-10-13 | frick-fsw | Add S8-VV-FU for existing ES/HS application-test gap and bounded decoder fuzz/oracle work before the PUS and scheduler corrective sprints |
+| 0.32 | 2026-10-15 | frick-fsw | Reconcile M4 S4c/S4d implementation status and target/vendor residuals; incorporate ADR-0018 PUS-open and lwIP-on defaults |
+| 0.33 | 2026-10-15 | frick-fsw | Correct CANopen subset objective wording and align RS-485, CAN-FD timing, dependency provenance and review-driven limitations with the implementation |
+| 0.34 | 2026-10-15 | frick-fsw | Clarify OBJ-28 release-call post-drain hold semantics, unconditional timeout release, and remaining system/board authority evidence |
+| 0.35 | 2026-10-15 | frick-fsw | Reconcile M4 status with bounded reviews 0288..0300 while keeping target, vendor, hosted, authority and final R4 gates open |
+| 0.36 | 2026-10-15 | frick-fsw | Record bounded R4 status/evidence review 0301 and maintain the remaining broader gates |
+| 0.37 | 2026-10-15 | frick-fsw | Record bounded R4/PA latest-cycle evidence reviews 0302/0303 and preserve the remaining target/vendor/hosted/authority gates |
+| 0.38 | 2026-10-15 | frick-fsw | Extend the M4 review pointer through final bounded report 0303; keep all integration and authority limits explicit |
+| 0.39 | 2026-10-15 | frick-fsw | Record R4/PA latest-cycle chronology reviews 0304/0305 and retain bounded M4 claims |
+| 0.40 | 2026-10-15 | frick-fsw | Record R4/PA timing text follow-ups 0306/0307 and retain remaining M4 authority/target/vendor gates |

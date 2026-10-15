@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.17                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.19                                   |
+| Date                              | 2026-10-15                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
 | RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |
@@ -133,7 +133,9 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
 - **SSS-REQ-025** — *Fundamental PUS-C service capability set*: the system shall
   provide the fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/
   19/20) with the associated packet/state behaviour and a bounded on-board
-  parameter datapool, on the default ASN.1/ACN data model. `method: Tst | Anl`.
+  parameter datapool through the configured `FF_Pus_Backend_t`; the default
+  backend is the open CCSDS codec and the N7/ESA ASN.1/ACN backend is optional
+  when explicitly selected and generated sources are available. `method: Tst | Anl`.
 - **SSS-REQ-026** — *On-board file delivery and storage*: the system shall provide
   a **CFDP** entity (CCSDS 727.0-B) delivering files to/from the ground over the
   mission link, on a bounded **virtual filestore (VFS)** with a pluggable storage
@@ -155,10 +157,11 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   `method: Tst | Dem`. (milestone M4-residual)
 
 - **SSS-REQ-029** — *Extended fieldbus and PUS-library coverage*: the system shall
-  provide, as optional reference components, CAN-FD (via the generic fabric
-  contract), a CANopen (CiA 301/302/402) stack, RS-485 half-duplex direction
-  control, and a documented adapter for the commercial PUSopen(R) PUS library.
-  `method: Tst | Dem`. (milestone M4-residual)
+  provide optional reference components for CAN-FD via the generic fabric
+  contract, a documented subset of CANopen, RS-485 half-duplex direction control,
+  and an adapter for the commercial PUSopen(R) library. The component SRS
+  requirements define their implementation scope and limitations. `method: Tst | Dem`.
+  (milestone M4-residual)
 
 - **SSS-REQ-030** — *Table-driven application scheduling*: the framework shall
   provide a bounded, table-driven service that dispatches configured Software
@@ -174,10 +177,9 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   byte stream (`loopback` on host, `uart` on target); the transport codec and
   the link layer are decoupled to allow SpaceWire/radio back-ends later.
   `derived justification: ADR-0003/ADR-0009, ICD-GND`.
-- **SSS-REQ-015** (derived) — the framework shall expose the open PUS backend
-  and the N7/ESA ASN.1 default backend (the PUSopen(R) adapter is covered by
-  SSS-REQ-029). `derived justification: norm N1 shows auditable defaults;
-  ADR-0003/ADR-0016`.
+- **SSS-REQ-015** (derived) — the framework shall expose the open PUS backend as
+  the default and the optional N7/ESA ASN.1 backend; the PUSopen(R) adapter is
+  covered by SSS-REQ-029. `derived justification: ADR-0018 supersedes ADR-0016`.
 
 ## 4. Traceability
 
@@ -205,3 +207,5 @@ deviations are resolved before every commit (norm N4).
 | 0.15 | 2026-10-13 | frick-fsw | Add SSS-REQ-030 for RTEMS-backed, table-driven application dispatch (M17); rates and overrun policy remain mission inputs |
 | 0.16 | 2026-10-14 | frick-fsw | Refine SSS-REQ-006 with an explicit event-arrival envelope, minimum dispatch service, maximum ground-forwarding latency and overload observability; parameters remain authority-owned TBDs (NC-EXT-76) |
 | 0.17 | 2026-10-14 | frick-fsw | Clarify that loss accounting is independent of the arrival/link performance envelope and explicitly retain post-acceptance detection/counter/reporting semantics as authority-owned TBDs after the R3 delta review |
+| 0.18 | 2026-10-15 | frick-fsw | S4c/S4d scope: CANopen specified as a documented subset; open PUS backend made default, optional N7 backend retained per ADR-0018 |
+| 0.19 | 2026-10-15 | frick-fsw | Align SSS PUS default data-model selection to ADR-0018; open CCSDS default and optional explicit N7/ESA ASN.1 backend |

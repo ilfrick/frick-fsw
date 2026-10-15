@@ -1,6 +1,6 @@
 # ADR-0016 - PUS-C ASN.1 default: build-time generation vs vendoring
 
-| Status | Accepted (supersedes ADR-0003/ADR-0014 default-backend choice; ADR-0015 skipped) |
+| Status | Superseded for default selection by ADR-0018; generation/no-vendoring rationale retained (ADR-0003/ADR-0014; ADR-0015 skipped) |
 | ------ | -------- |
 | Date   | 2026-10-11 |
 

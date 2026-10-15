@@ -7,11 +7,11 @@
  * transfer framing, ASM/CLTU) lives behind the FF_Pus_Backend_t vtable.
  *
  * Three backends are defined:
- *   - FF_PusBackendN7    : PUS-C ASN.1 (N7 Space / ESA asn1-pusc-lib,
- *                          ASN1SCC-compiled) DEFAULT backend when FF_USE_PUS_ASN1
- *                          is enabled (SRS-REQ-050, ADR-0016).
- *   - FF_PusBackendOpen  : open reference backend on the local CCSDS codec
- *                          (always available; the fallback).
+ *   - FF_PusBackendN7    : optional PUS-C ASN.1 (N7 Space / ESA asn1-pusc-lib,
+ *                          ASN1SCC-compiled) backend when FF_USE_PUS_ASN1 is
+ *                          enabled (SRS-REQ-050, ADR-0018).
+ *   - FF_PusBackendOpen  : default open reference backend on the local CCSDS
+ *                          codec (always available).
  *   - FF_PusBackendPusopen : adapter for the commercial PUSopen(R) C library.
  *
  * Services implemented by the reference core: 1, 3, 5, 6, 8, 9, 11 (stub),

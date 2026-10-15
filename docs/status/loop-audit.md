@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 3.6                                    |
+| Revision                          | 4.9                                    |
 | Date                              | 2026-10-15                             |
-| Baseline commit                   | `03366f101e05b34d97e823fedc65f8d14d11f366` (HEAD, pushed to both remotes); the guard delta and its hosted evidence are committed and the audit covers the current uncommitted evidence-record update |
+| Baseline commit                   | `6ce6bd7cacd9e04968d40809009a23fd5410261f` (HEAD, pushed to both remotes); current S4c/S4d/defaults work is uncommitted and not yet covered by a frozen evidence baseline |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -25,7 +25,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M1 baseline | cFS-style core (ES/SB/EVS/TBL/Time/PUS/Link), host sim | delivered | none | closed |
 | M2 time base | PPS, CUC, time sources | delivered | none | closed |
 | M3 HAL interfaces + ECSS docs | HAL contracts + SDD/CM/PA/… | delivered | none | closed |
-| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | **GEM/TSN, GPIO, MMUART, MEM pool, NVM+eNVM done, MSS CAN done (SRS-REQ-057), NOR/QSPI MTD driver host-verified (on-SoC check pending), MSS I2C done (SRS-REQ-058), MSS SPI done (SRS-REQ-069), MSS block-device done (SRS-REQ-070); **S4b delivered** (SRS-REQ-059/060/061: seg/reassembly, IP link backend, TSN link backend — host-verified, 27/27 ctest); PCIe peripheral-bound + SpaceWire contract-level checks delivered (S7); on-SoC eMMC/SD storage checks pending; restored scope remaining: CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064), PUSopen adapter (SRS-REQ-065) | partial | tracked: M4/M11 (remaining classes) |
+| M4 MPFS low-level layers + 1 Gb/s Ethernet | drivers behind HAL (MMUART/CAN/SPI/I2C/QSPI/MMC/GPIO/…) + GEM | GEM/TSN, GPIO, MMUART, MEM, NVM/MTD, MSS CAN/I2C/SPI/BLOCK, S4b, PCIe, SpaceWire contract, and S4c/S4d code+host tests implemented. Reviews 0288..0307 and bounded deltas have been conducted; NC-S4c-02 is closed only for enumerated source-level defects. CAN-FD target path has no Renode model; PUSopen test is an API double, not vendor SDK validation. On-SoC storage/target evidence remains open | partial | M4 residuals + NC-S4c-01/GAP-A5 |
 | M5 documentation/status program | living docs | in progress | partial | tracked: M5 |
 | M6 libm | facade | delivered | none | closed |
 | M7 SDLS + key mgmt | SDLS | delivered | none | closed |
@@ -40,92 +40,69 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | **M16 in-house OBCP engine development** | OBJ-24 (ECSS-compliant OBCP engine behind `FF_Obcp_t`, after M12) | planned | none yet | tracked: M16 (after M12) |
 | **M17 RTEMS-backed application scheduler** | OBJ-31; bounded SB schedule dispatcher, RTEMS retains task preemption | current `app_scheduler.c` has shared-timestamp starvation defect | NC-EXT-19 | tracked: S8-SCH after S8-PUS-FU; not implemented |
 | OBJ-05 pluggable TCP/IP+TSN | Tuxera/lwIP/libbsd/custom | lwIP integrated; Tuxera = user adapter (documented) | none | closed (documented) |
-| **PUS-C ASN.1 (N7/ESA) as default** | integrate N7/ESA PUS-C library as the open/default PUS basis | **reconciled** (build-time generation; `FF_PusBackendN7` default, ADR-0016); see §3 | none | closed (M4/now) |
+| **PUS backend defaults** | PUS backend selection and optional N7/ESA backend | Open CCSDS backend is default; `FF_USE_PUS_ASN1=OFF`; optional N7/ESA backend remains behind explicit opt-in. lwIP is default-on and fetched before CMake configuration (ADR-0018) | direct CMake users must fetch lwIP first; hosted CI and broader T23 qualification remain open | implementation received bounded independent reviews; full phase/hosted gates remain open |
 | **Bounded SB publish / EVS overflow notification** | User-approved correction following FRICK-REVIEW-0264: SB lock contention is atomic `FF_TIMEOUT`; matched pipe queue-lock contention is non-waiting, drops that copy, continues bounded fan-out, requests a busy-specific deferred EVS error, and returns `FF_TIMEOUT`; full queue remains distinct | PAL queue try-put and deterministic multiple-pipe contention case implemented; SRS-REQ-001 updated only for this approved behavior | SRS-REQ-011 event-envelope values/policy and SRS-REQ-072 end-to-end loss counter/reporting/profile remain external inputs/unimplemented | complete applicable verification and review; keep NC-EXT-75/76 open and preserve SSS/SRS authority TBDs |
 | **SB/EVS configured structural characterization** | User directs framework-only characterization without invented mission values | 9,984 host fan-out/depth/burst profiles and dispatch bounds 1–64; retained CSV and source identities; full runner now registered in CTest; latest `make ci-local` 30/30, including sweep in 18.70 s; Lean/trace, docs, smoke/Renode and GSW pass | Not a mission profile, WCET, target timing, link/ground receipt, or requirements-compliance result. R3 found SRS-REQ-072 Lmax scope and SSS-REQ-006 machine trace stale; corrected in this bounded pass. Local CI exercise is evidenced; hosted CI and formal T22 qualification remain pending | Keep mission inputs/TBDs and NC-EXT-75/76 open; no mission-compliance or formal tool-qualification claim; preserve the existing external authority gates |
-| **Working-tree scope boundary** | Separate current SB/EVS work from the entire candidate tree before any commit | **Superseded snapshot (2026-10-14).** The aggregate candidate tree was subsequently committed as `a4c436c` (373 files) under the user's explicit authorization and pushed, followed by `03773f7` and `620fff8`; the worktree is now clean at `620fff8` and this audit's delta (the `make docs` output-existence guard) is the only uncommitted change | No authoritative per-file sprint manifest was ever produced for the aggregate tree; the scope risk was accepted by the user when authorizing the commit and is recorded in the commit message and the open gates | Historical finding retained for traceability; the unmanifested aggregate-scope risk stays open as a finding and is not permission to discard changes |
+| **Working-tree scope boundary** | Separate the current S4c/S4d candidate from earlier committed scope | HEAD is `6ce6bd7`; the current candidate is uncommitted and includes source, tests, requirements, planning, CI, and evidence updates (see `git status` and the current evidence note) | Candidate has no commit hash or hosted CI results; bounded independent reviews are recorded, but final R4 and broader release gates remain open | Keep changes uncommitted until applicable gates/reviews pass; no commit/push authorization implied |
 
 ## 2. Rules audit (N1-N22)
 
 | Rule | Requirement | Actual | Gap | Disposition |
 | --- | --- | --- | --- | --- |
-| N1 | every generated artifact checked with Lean | pure-logic modules mirrored + 51 theorems; rest `lean_note` | full C refinement absent | GAP-A1 (tracked) |
+| N1 | every generated artifact checked with Lean | Lean 4.10.0 `lake build` passes; trace detects 62 linked theorems, including the new bounded S4c contracts; rest are explicitly `lean_note` or lack a theorem | full C refinement remains absent; Lean models do not prove C, MMIO or target behavior | GAP-A1 remains open |
 | N2 | English only | compliant | none | closed |
-| N3 | SRS/SSS for all code | `trace.py` pending final current loop (baseline 117 reqs: 73 SRS, 30 SSS, 14 GAP) | SRS-REQ-072 remains allocated but its end-to-end loss counter/reporting and profile are unimplemented; SSS-REQ-006 event-envelope values and operational profile remain authority-owned TBDs | NC-EXT-75/76; no baseline/NC closure claimed |
-| N4 | bidirectional traceability converged | `trace.py` PASS | none | closed |
+| N3 | SRS/SSS for all code | SRS/SSS allocations cover the S4c/S4d changes; trace links include requirements 062..068 | Authority and target gaps remain explicitly open; trace convergence is not proof of completeness | local allocation/model links recorded; R3 review 0290 and corrective delta 0295 completed, mission/board authority gaps remain open |
+| N4 | bidirectional traceability converged | `trace.py` PASS: 117 requirements (73 SRS/30 SSS/14 GAP), 62 Lean links | None for current manifest validation; this does not imply requirement compliance | current local trace gate PASS |
 | N5 | ECSS Category B target; class-A gaps documented | Category B is project target; no controlled mission assignment evidenced; GAP-A1..A14 | authority input and A1..A14 gaps open | tracked: class-a-gaps; NC-EXT-11 |
 | N6 | full SW V&V; CI/CD via Docker | CI + V&V image + Renode | RTEMS per-commit proxy; nightly real | documented |
-| N7 | designated-agent commit/push after all gates/norms and full sprint scope; dual remotes | Both remotes are at `620fff8`; the aggregate licence/revamp change (`a4c436c`), the CI `docs`-job fix (`03773f7`) and the metrics-panel regeneration (`620fff8`) were committed and pushed under the user's explicit delegation | The aggregate tree was committed without a frozen per-file sprint manifest (see the working-tree scope-boundary row), so full sprint scope, the required scoped reviews and T22 CI qualification remain incomplete | commit/push performed for the recorded deltas under explicit delegation; the unmanifested aggregate scope remains an open finding, and no release/flight authorization is implied |
-| N8 | complete/current docs | SB/EVS user characterization, requirements clarifications, evidence and review index are present | R3 final delta findings were reconciled in this pass; broad current tree has not received one comprehensive R4 review | bounded SB docs updated; overall N8/N17 remains open |
-| N9 | independent reviews | SB/EVS scoped R2/R3/R4/PA reports 0270..0274 exist; latest final-source R2 is 0274 | Four attempted broad follow-up reviews (R1/R2/R4/PA) were stopped at user direction before completion; they changed no repository files and provide no new review conclusion. A bounded R3 delta returned two findings; the author corrected them in this pass. No further review is automatically launched | current bounded reviews recorded; broad aggregate review remains open and must not be silently claimed |
-| N10 | tools qualified | T22 runner source review/inspection and CM evidence recorded; full matrix is a CTest case and `make ci-local` passed 30/30, including 9,984 profiles plus dispatch caps 1–64; scoped R2/R4/PA reviews 0275–0279 are recorded | Hosted CI and immutable build inputs have not been evidenced; T22 remains limited to configured local characterization; NC-EXT-79 remains open (no register entry/mapping for the `ci:docs` evidence claim / `docs` target) | Local CI-exercise and scoped review gates are closed; no formal mission-compliance tool qualification or tool-owner-signature criterion is asserted |
-| N11 | scripts/reviews/results committed | Reports/evidence and correction dispositions are recorded and pushed to both remotes: `03773f7` (CI `docs` job / Doxygen output directory) and `620fff8` (metrics-panel regeneration), following the broad change `a4c436c` | The current delta (the `make docs` output-existence guard and its records) is uncommitted at audit time | open this cycle (delta uncommitted); prior cycle is committed |
-| N12 | NC close-out loop | open | NC-S4b-01..09, NC-EXT-01..81 and GAP-R3-1 remain open; NC-EXT-43 tracks external/generated component boundaries and combined-distribution compatibility; NC-EXT-44 tracks T21 exact-header/tool qualification; NC-EXT-45 tracks DDJF tool-range accuracy; NC-EXT-47 tracks N22 test-evidence mapping; NC-EXT-48..81 record bounded review follow-ups (78/79/80 from PA FRICK-REVIEW-0284; 81 from PA FRICK-REVIEW-0286) | open |
+| N7 | designated-agent commit/push after all gates/norms and full sprint scope; dual remotes | HEAD `6ce6bd7` is the prior baseline; current S4c/S4d/default candidate remains uncommitted and has not been pushed; bounded changed-scope R4 reviews are recorded through 0306 | Overall N17/document-set closure, remaining NC/authority dispositions and hosted GitHub/Gitea results remain outstanding | No commit/push until applicable gates and reviews are complete; no release/flight authorization implied |
+| N8 | complete/current docs | SRS/SSS, trace matrices, plan/roadmap, ADR, user-facing descriptions and V&V evidence updated for the current scope; corrections received bounded R4 review | Candidate remains mutable; specific review findings and broader legacy documentation gaps remain | Record and disposition findings; no general document-set approval inferred |
+| N9 | independent reviews | Initial FSW/V&V/R3/R4/PA reviews 0288..0292 and bounded deltas 0293..0307 are recorded | Provenance, hosted CI, target/vendor, integration, authority and overall phase/release gates remain open | Correct source-level findings as bounded; keep residual NCs open; no overall phase closure inferred |
+| N10 | tools qualified | T23 fetch helper checks pinned HEAD plus tracked/untracked/ignored checkout state; R2/PA reports 0298..0300 reviewed the bounded wrong-HEAD and dirty-state behavior | T23 is not qualified; hosted workflow execution and complete provenance remain absent; mutable images/dependency inputs remain | Do not claim T23 qualification from local builds; retain the independent qualification/hosted gates |
+| N11 | scripts/reviews/results committed | Final local-cycle records, dependency-state probes, final Renode/QEMU logs, and reviews 0288..0307 are present in the working tree | Candidate/evidence remain uncommitted; raw logs for some earlier failed attempts are unavailable; worktree is mutable | Preserve all current records; no commit until applicable gates pass |
+| N12 | NC close-out loop | open | NC-S4c-01/03/04/05 and other applicable NCs remain open; NC-EXT-01..81 and GAP-R3-1 remain open; NC-EXT-82 is closed only for enumerated reused-checkout integrity behavior by FRICK-REVIEW-0298..0300 (tracked probe added in 0299/0300). NC-EXT-43 tracks external/generated boundaries; NC-EXT-44 T21; NC-EXT-45 DDJF range; NC-EXT-47 N22 evidence mapping; NC-EXT-48..81 bounded review follow-ups | open; scoped NC closures are not aggregate phase closure |
 | N13 | owner-authorized MPL-2.0 for original project-authored content | Owner decision recorded; scope excludes externally controlled material | NC-EXT-43 remains open for third-party/generated component boundaries and combined-distribution compatibility | open |
-| N14 | SSS reviewed by R3 | bounded framework-characterization review 0270; R3 final delta comment now recorded in this loop audit | Mission SSS/SRS baseline still lacks approved Bmax/Rmax/Dmin/Lmax, link profile, ground boundary and loss counter/report semantics | **OPEN** for mission baseline; characterisation-only R3 disposition does not close NC-EXT-75/76 |
-| N15 | full cycle each change | Latest `make ci-local`: 30/30, including full SB/EVS CTest sweep, Lean build and trace PASS; containerized `make docs`, smoke, Renode and GSW self-check also PASS in the current cycle. Hosted CI: GitHub Actions run #83 on commit `620fff8cdf17e5f972afef189f56973ca2505db8` (2026-10-15, `https://github.com/ilfrick/frick-fsw/actions/runs/38688558619`) succeeded, all 8 jobs including the pipeline summary; runs #81 (`a4c436c`, documentation-set failure, `https://github.com/ilfrick/frick-fsw/actions/runs/38685091035`) and #82 (`03773f7`, metrics-panel failure, `https://github.com/ilfrick/frick-fsw/actions/runs/38688045965`) are retained in the CI history. The Gitea forge's public task API lists a run for `620fff8` (all success), but no Gitea run log or retained evidence is available, so NC-EXT-36 remains open; GitHub Actions run #84 on `77cd548a73e3ad0da67acb89690c0aadc0371b93` (the guard delta) also succeeded, all 8 jobs including `documentation set` and the pipeline summary (`https://github.com/ilfrick/frick-fsw/actions/runs/38695319390`), as did run #85 on the record-only commit `03366f101e05b34d97e823fedc65f8d14d11f366` (all 8 jobs, `https://github.com/ilfrick/frick-fsw/actions/runs/38695861328`). Record-only/evidence-only commits are verified by their own hosted run but are not recursively re-recorded (the next run would itself be record-only), so this record terminates by convention rather than by omission | RTEMS cross-build and format were not rerun after the CMake-only registration change; complete sprint scope and independent delta gates remain open | applicable local and hosted CI checks recorded; no claim of overall release gate completion |
+| N14 | SSS reviewed by R3 | R3 review FRICK-REVIEW-0290 and corrective delta 0295 recorded; S4c requirement/interface wording reviewed | Mission SSS/SRS baseline still lacks approved Bmax/Rmax/Dmin/Lmax, link profile, ground boundary and loss counter/report semantics | **OPEN** for mission baseline; bounded review does not close NC-EXT-75/76 or establish system authority approval |
+| N15 | full cycle each change | Latest `make ci-local` PASS (36/36, Lean, trace); Debug/Release/ASan CTest each 36/36; format, docs, smoke, GSW, fresh RTEMS MPFS/generic cross-build, Renode and QEMU pass after fetch-script change | Hosted CI not run for this uncommitted candidate; local checks do not close remaining NCs or establish qualification | Local verification cycle recorded; hosted and authority gates remain prerequisites to any commit/push |
 | N16 | revision history | compliant | none | closed |
-| N17 | documentation review (R4) | FRICK-REVIEW-0272 is bounded to the SB characterization documentation | Current R3-driven SRS/trace corrections are not covered by a new R4 review; broad tree also lacks comprehensive review. Further review is not automatically triggered by cosmetic/status-only changes | overall N17 remains open; no new R4 loop launched |
-| N18 | Renode functional validation | **in force**; final `make renode` PASS (`RENODE_TEST: PASS`) | SB queue-lock partial-fan-out specifics remain host unit oracles; Renode aggregate marker is not evidence for this individual case (NC-EXT-47 §7.6 remains open) | Renode gate passed; requirement-level evidence is host `test_sb` |
-| N19 | this audit each loop | Current audit inventories the committed guard delta with its hosted runs (#84 and, for the record-only follow-up, #85) against the baseline `03366f1`; the only uncommitted change is this evidence-record update | The worktree is clean at `03366f1`; the guard delta and its evidence record are committed. Reviews that append files expand scope; further reviews are frozen until a new explicit scope snapshot is authorized | audit current for this decision pass; scope/gate closure remains open |
+| N17 | documentation review (R4) | S4c/S4d/default docs received initial review FRICK-REVIEW-0291, bounded corrective review 0296 and status/evidence deltas 0301/0302/0304/0306 | Bounded corrections are acceptable; broad N17/document-set approval and remaining NC dispositions are not established | Preserve bounded verdict; do not claim overall N17 or phase closure |
+| N18 | Renode functional validation | Current MPFS RTEMS image was cross-built in `frick-rtems-toolchain:local`; `make renode` PASS (`RENODE_TEST: PASS`) | CAN-FD fabric peripheral has no emulator model, so no CAN-FD path is exercised (NC-S4c-01/GAP-A5) | Current Renode cycle passes for exercised scope; explicitly exclude CAN-FD peripheral validation |
+| N19 | this audit each loop | Audit updated against HEAD `6ce6bd7` plus current candidate; review reports/deltas, final 171-check cycle, dependency probes, evidence artifacts and residual authority/target gaps reconciled | Worktree remains uncommitted; hosted CI, T23 qualification and several NCs remain open | Audit reflects the current candidate; refresh after new material changes or gate results |
 | N21 | correct functional bugs and implement missing features committed for current/previous sprints; log other findings without stopping unrelated development | SB-lock busy returns `FF_TIMEOUT` before mutation; queue-lock busy drops one copy, continues remaining fan-out, increments drop accounting, requests deferred busy event, and returns `FF_TIMEOUT`; full queue follows distinct overflow path | EVS notification can still be lost under EVS-lock contention or saturation; SRS-REQ-072 loss reporting/profile and approved values remain open under NC-EXT-75/76; no full SRS-REQ-011 compliance claimed | implementation and deterministic unit test added; full cycle/reviews pending, NCs remain open |
 | N22 | requirement-based/integration tests use nominal and applicable out-of-bound cases with expected-result comparison | SB/EVS CTest boundary oracle plus full 9,984-profile runner now exercised by `make ci-local`, with explicit expected accounting and dispatch oracles | This remains configured host structural characterization, not requirement-based mission test evidence; NC-EXT-47 broader test-evidence mapping remains open | bounded host evidence recorded; no mission coverage claim |
-| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | PA FRICK-REVIEW-0273 covers the sweep evidence package only | New broad PA review was stopped at user direction; no approval of aggregate tree; NC-EXT-75/76 mission obligations remain open | bounded PA result recorded; overall N20 open |
+| N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | PA reviews FRICK-REVIEW-0292/0297/0300/0303/0305/0307 were conducted; local evidence and tracked-state records were corrected/verified in bounded scope | PA-S4-01..05 and target/vendor/authority findings remain open; review verdict is not phase/release approval | Retain open findings and overall N20 status; no risk/release acceptance inferred |
 
-## 3. The PUS-C ASN.1 gap: root cause and reconciliation
+## 3. PUS and lwIP default configuration reconciliation
 
-**Gap:** the project decision records repeatedly state intent to *integrate the
-N7 Space / ESA `asn1-pusc-lib` (ASN.1/ACN PUS-C) as the open/default PUS basis*,
-but only `tools/scripts/fetch_third_party.sh` (fetch, pinned) was ever added. The
-library is **not referenced** by `src/`, `config/` or `CMakeLists.txt`, and the
-default PUS backend is the project's own CCSDS `FF_PusBackendOpen`.
+The earlier configuration made the N7/ESA ASN.1 backend the default when its
+generated files were present and made lwIP opt-in. The current owner direction
+reverses those defaults: the open CCSDS PUS codec is default and lwIP is enabled
+by default. ADR-0018 records this decision and supersedes ADR-0016 only on PUS
+default selection; ADR-0016's optional-backend generation/no-vendoring rationale
+remains applicable.
 
-**Root cause (why a gap like this arises):**
-1. The decision was recorded in prose (plan/ADR) and in a **fetch** script, but
-   never converted into a **testable requirement + milestone deliverable + gate**:
-   no SRS-REQ pointed at the integration, and the traceability gate only checks
-   that listed implementation paths *exist* — it cannot detect an *absent*
-   integration that was never required.
-2. `asn1-pusc-lib` is **not a C runtime library**: it is an **ASN.1/ACN model**
-   (312 `.asn1` + 311 `.acn`) plus small C wrappers that themselves depend on
-   **ASN1SCC-generated** headers (`asn1crt.h`, `BasicTypes.h`). "Wiring it" is
-   therefore a **toolchain integration** (ASN1SCC code generation) whose
-   enabler was not made explicit; without a requirement/gate, the fetch was
-   mistaken for the integration.
-3. No **loop audit** existed to compare declared intent with implementation
-   (which is exactly what norm **N19** now mandates).
+**Current implementation state (this loop):** `CMakeLists.txt` sets
+`FF_USE_PUS_ASN1=OFF` and `FF_USE_LWIP=ON`; `fsw_main.c` selects the open backend
+in the default configuration. `make configure` and `make ci-local` fetch pinned
+lwIP before configure, and both forge workflows do so in each job that performs
+a default CMake configure. Direct CMake users must fetch first. The optional N7
+backend still requires generated sources and explicit `FF_USE_PUS_ASN1=ON`.
+Fresh default host configure/build/test passed with lwIP enabled and PUS ASN.1
+disabled (36/36 CTest as of this uncommitted run); this is local evidence only.
 
-**Reconciliation (this loop):** wire PUS-C ASN.1 (N7/ESA) into build and runtime
-and make it the **default** PUS basis:
-- Fetch/build **ASN1SCC** (ESA, GPL-with-runtime-exception; generated code and
-  runtime are not GPL-restricted) and generate C from `asn1-pusc-lib`
-  (`tools/scripts/gen_pus_asn1.sh`, tool T19).
-- Add `FF_PusBackendN7` on the generated codecs + wrappers
-  (packet error control/CRC, ISO checksum, packet length, UInt16 coder).
-- Make it the **default** backend (`FF_PusBackendDefault`), keeping the previous
-  open backend and PUSopen as alternatives.
-- Requirement SRS-REQ-050; verify (host + Renode). Blocked on the ASN1SCC
-  toolchain in the V&V image (see §4).
-
-**Status update (validated this loop):** the ASN1SCC toolchain **builds**
-(`tools/docker/asn1scc/Dockerfile`, pinned esa/asn1scc `3124590a…`; T19) and
-**generation is proven** — `asn1scc -c -ACN -typePrefix Pusc_` over
-`asn1-pusc-lib` produces `BasicTypes.h`, `asn1crt.c/h` and the module codecs.
-Remaining: commit/consume the generated code in CMake, implement `FF_PusBackendN7`
-and switch the default; then verify (host + Renode) and close SRS-REQ-050.
-
-**Reconciled (build-time, ADR-0016):** `FF_PusBackendN7` is the default
-(`FF_USE_PUS_ASN1=ON`, build-time generation via `make pus-asn1`; T19), verified on
-host (14/14) and on the emulated SoC (`make renode` PASS). SRS-REQ-050 implemented
-for the field/error-control layer; the deep per-service ASN.1 type codecs and the
-fundamental service behaviour are **M15**. Falls back to the open backend with a
-warning when the generated code is absent.
+**Residuals:** fetched-source provenance/reproducibility remains tracked by
+NC-EXT-35/40; external/generated licensing boundaries remain NC-EXT-43. Default
+lwIP enablement does not establish target timing, network interoperability,
+security, or mission suitability. Bounded independent reviews are recorded;
+hosted CI, T23 qualification and final document/release gates remain open. No
+release/qualification conclusion is drawn.
 
 ## 4. Other gaps of the same class (declared-but-not-delivered)
 
 Found by this audit (not previously tracked as such):
 
-1. **PUS-C ASN.1 default** — §3 (being reconciled this loop).
+1. **PUS-C ASN.1 default** — reconciled by ADR-0018 and verified in the current
+   default build: open CCSDS is selected; N7/ESA ASN.1 is opt-in.
 2. **Multicore/SMP** — never planned despite the 4×U54 target; now **M14/OBJ-22**
    (user directive; after all other milestones).
 3. **QEMU** emulated target (M10) — **closed**: generic `riscv/rv64imafdc` RTEMS
@@ -142,7 +119,7 @@ The ordered execution view of these dispositions is `docs/planning/sprint-plan.m
 
 | Gap | Disposition | Owner | Milestone |
 | --- | --- | --- | --- |
-| PUS-C ASN.1 not wired/default | **reconciled**: `FF_PusBackendN7` default (build-time; ADR-0016); host `test_pus` + Renode | frick-fsw | M4/now |
+| Default PUS backend / lwIP integration | **reconciled by ADR-0018**: open PUS default; optional N7; lwIP ON with fetch-before-configure order; local default build/test PASS, remaining hosted/target review open | frick-fsw | S4c/S4d current cycle |
 | Multicore/SMP | tracked | frick-fsw | **M14** |
 | In-house fundamental PUS-C service set (+ CFDP + virtual filestore) | tracked (assessment FRICK-ARCH-0015, ~34 PM; hybrid) | frick-fsw | **M15** |
 | QEMU target | **closed** (`make qemu`, T20; generic `rv64imafdc` BSP on QEMU `virt`) | frick-fsw | M10 |
@@ -405,3 +382,16 @@ NC-EXT-75 remains open and NC-EXT-47 is not closed.
 | 3.4 | 2026-10-15 | frick-fsw | Apply the scoped R4 FRICK-REVIEW-0285 and PA FRICK-REVIEW-0286 findings (complete the loop-audit currency and hosted-CI evidence anchor, extend N12 to NC-EXT-81, correct handover currency/NC ranges, split the guard into its own `CHANGELOG.md` section with the sync obligation) and record the bounded R4 delta re-review FRICK-REVIEW-0287 closing NC-01/NC-02; hosted-CI qualification evidence, T21, NC-EXT-36/43 and release gates remain open |
 | 3.5 | 2026-10-15 | frick-fsw | Record the committed guard delta (`77cd548`) and its green hosted GitHub Actions run #84 (all 8 jobs, `documentation set` included) in the baseline/N15/N19 rows; the Gitea run log remains unevidenced (NC-EXT-36), and hosted-CI qualification evidence, T21, NC-EXT-43 and release gates remain open |
 | 3.6 | 2026-10-15 | frick-fsw | Record hosted run #85 for the record-only commit `03366f1` (all 8 jobs) and adopt the record-only convention in N15 — record-only/evidence-only commits are verified by their own hosted run but not recursively re-recorded, terminating the record → run → record regress; the Gitea run log remains unevidenced (NC-EXT-36) and hosted-CI qualification evidence, T21, NC-EXT-43 and release gates remain open |
+| 3.7 | 2026-10-15 | frick-fsw | N19 re-audit at baseline 6ce6bd7 plus uncommitted scope: reconcile M4 S4c/S4d and NC-S4c-01, record ADR-0018 open-PUS/lwIP-on defaults and current-cycle gate status; local default host suite 36/36, remaining gates pending |
+| 3.8 | 2026-10-15 | frick-fsw | Record final local verification cycle (36/36 Debug/Release/ASan, Lean, trace, format, docs, smoke, GSW, RTEMS cross-build, Renode and QEMU), exact artifact/image hashes and failed attempts; correct N1/N3/N4/N7/N8/N9/N10/N11/N15/N17/N18/N19/N20 dispositions; independent reviews and hosted CI remain pending |
+| 3.9 | 2026-10-15 | frick-fsw | Reconcile audit with completed reviews 0288..0297, final 171-check/full local cycle and retained emulator logs; preserve open provenance, dependency, hosted, target/vendor and authority NCs |
+| 4.0 | 2026-10-15 | frick-fsw | Record FRICK-REVIEW-0298 and scoped closure of NC-S4c-02/NC-EXT-82; update N9/N10/N11/N15/N19 without claiming tool qualification, phase closure or release approval |
+| 4.1 | 2026-10-15 | frick-fsw | Record R2 tracked-state follow-up 0299, preserve the 0298 point-in-time boundary, and retain PA/R4/hosted/T23 qualification gates |
+| 4.2 | 2026-10-15 | frick-fsw | Record PA FRICK-REVIEW-0300 and update the remaining R4 scope and N9/N10/N11/N20 dispositions; preserve all nonlocal and authority gates |
+| 4.3 | 2026-10-15 | frick-fsw | Correct stale review-status wording after R4 review 0301; bounded reviews are complete while final R4/hosted/qualification/authority gates remain open; cite NC-EXT-82 deltas 0298..0300 |
+| 4.4 | 2026-10-15 | frick-fsw | Record R4 FRICK-REVIEW-0301 and update N9/N17 review scope; preserve overall N17, hosted, qualification, target/vendor and authority gates |
+| 4.5 | 2026-10-15 | frick-fsw | Record R4/PA final evidence reviews 0302/0303 and update N9/N11/N17/N20 pointers; preserve all broader open gates |
+| 4.6 | 2026-10-15 | frick-fsw | Extend M4 review pointer through 0303 after final R4/PA evidence deltas; keep NC closures and residual gates bounded |
+| 4.7 | 2026-10-15 | frick-fsw | Record evidence chronology follow-ups 0304/0305 and update N9/N11/N17/N20 pointers without extending any technical or release claim |
+| 4.8 | 2026-10-15 | frick-fsw | Record R4/PA timing chronology reviews 0306/0307 and update review pointers; retain all broader open gates |
+| 4.9 | 2026-10-15 | frick-fsw | Clarify N7: bounded current documentation reviews are complete through 0306, while overall N17, NC/authority, hosted and full-scope gates remain open |

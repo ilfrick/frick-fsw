@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.28                                   |
+| Revision                          | 2.40                                   |
 | Date                              | 2026-10-15                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -87,38 +87,38 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `03366f1`; worktree clean apart from this evidence-record update, updated 2026-10-15)
+## 4. Current state (baseline `6ce6bd7`; S4c/S4d and defaults work in progress, updated 2026-10-15)
 
-- **Update (2026-10-15).** The aggregate licence/revamp change was committed as
-  `a4c436c` (MPL-2.0 licence, reengineering and non-silicon stress
-  characterization) and pushed to both remotes under the user's explicit
-  delegation, followed by `03773f7` (CI `docs`-job Doxygen output directory) and
-  `620fff8` (metrics-panel regeneration). Hosted GitHub Actions run #83 on
-  `620fff8` is green across all jobs; runs #81/#82 and their single-job failures
-  are retained in the CI history. The Gitea forge task API lists a run for
-  `620fff8`, but no Gitea run log or evidence is retained, so NC-EXT-36 remains
-  open. No open gate
-  was closed: hosted-CI qualification evidence/T21, NC-EXT-43, NC-EXT-75/76,
-  NC-EXT-78..81 and every release/qualification gate remain open. The
-  `make docs` output-existence guard (PA FRICK-REVIEW-0284 Comment 5) is
-  committed as `77cd548`; hosted GitHub Actions
-  run #84 on that commit succeeded across all 8 jobs, including
-  `documentation set`, and its `Doxygen` step carries the new assertion
-  (`https://github.com/ilfrick/frick-fsw/actions/runs/38695319390`). The
-  delta was reviewed by scoped R4 FRICK-REVIEW-0285 and PA FRICK-REVIEW-0286
-  (APPROVED WITH COMMENTS) and the R4 currency actions NC-01/NC-02 were closed
-  in the bounded R4 delta re-review FRICK-REVIEW-0287. The record-only follow-up
-  `03366f1` (the guard-delta evidence record) was also verified green — hosted
-  GitHub Actions run #85, all 8 jobs
-  (`https://github.com/ilfrick/frick-fsw/actions/runs/38695861328`). Per the
-  record-only convention now stated in the loop audit (N15),
-  record-only/evidence-only commits are verified by their own hosted run but are
-  not recursively re-recorded, so this record terminates by convention rather
-  than by omission and the run for this very record update is not separately
-  logged. The only uncommitted change is this evidence-record update. The
-  narrative below is retained as the 2026-10-14 snapshot.
+- **Current working tree:** HEAD `6ce6bd7` is present on `origin` and `gitea`.
+  Current S4c/S4d implementation, PUS-open/lwIP-on configuration, CI dependency
+  ordering, and documentation reconciliation are uncommitted; no commit or push
+  has been made for this increment.
+- **S4c/S4d:** fabric contract, CAN-FD fabric backend, documented CANopen subset,
+  RS-485 DE/RE control, and PUSopen adapter/test-double seam are implemented.
+  Focused host tests passed (fabric 119, CAN-FD 328, CANopen 171, serial 67,
+  PUSopen adapter 33 checks). Fresh default configuration showed
+  `FF_USE_LWIP=ON`, `FF_USE_PUS_ASN1=OFF`; build and CTest passed 36/36. Full
+  final local verification cycle including Debug/Release/ASan 36/36, Lean, trace,
+  formatting, docs, smoke, GSW, RTEMS cross-build, Renode and QEMU has passed.
+  Independent reviews FRICK-REVIEW-0288..0307 and bounded deltas have been
+  performed. NC-S4c-02 is closed only for enumerated host-level source defects;
+  NC-EXT-82 is closed only for tested reused-checkout integrity behavior. T23
+  qualification, provenance, hosted CI, target/vendor, integration and authority
+  findings remain open. Hosted CI has not run for this uncommitted candidate.
+- **Known limit:** no CAN-FD fabric peripheral is available in the Renode model;
+  CAN-FD evidence is host/contract-level only under NC-S4c-01/GAP-A5. PUSopen
+  tests use a controlled API test double and do not establish vendor SDK
+  compatibility. No certification, qualification, release, airworthiness, or
+  flight-readiness claim is made.
+- **Current defaults (ADR-0018):** open CCSDS PUS backend by default; N7/ESA
+  ASN.1 backend is optional (`FF_USE_PUS_ASN1=ON`). lwIP is enabled by default;
+  fetch pinned lwIP before direct CMake configure (`make configure` does this).
+- Previous hosted GitHub run #85 for `03366f1` and the prior Gitea evidence gap
+  remain historical; NC-EXT-36 and other prior open gates remain open. See the
+  loop audit and CI history. The remaining bullets below are retained as an
+  earlier 2026-10-14 baseline snapshot unless updated by the current status.
 
-- **M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered** (see `docs/roadmap.md` / `docs/development-plan.md`).
+- **Historical snapshot (2026-10-14):** M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered. Current M4 S4c/S4d implementation status is given above and in the roadmap.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
   build OK; **Renode functional run of the RTEMS image PASS**
   (`RENODE_TEST: PASS`). Boot: U54_1 at entry `0x1000000000`, console `mmuart1`.
@@ -128,10 +128,9 @@ occasion; prefer Docker.
   `build/rtems-generic/qemu-console.log`) — banner + 6 applications registered on
   `qemu-system-riscv64 -M virt`. The toolchain image (`tools/docker/rtems`, T18)
   now also builds the `rv64imafdc` BSP and carries QEMU.
-- **PUS-C ASN.1 default (SRS-REQ-050, ADR-0016):** `FF_PusBackendN7` (N7/ESA
-  `asn1-pusc-lib`, ASN1SCC **build-time** generation, `make pus-asn1`, T19) is the
-  default PUS backend (`FF_USE_PUS_ASN1` ON; fallback to open backend with a
-  warning when the generated code is absent).
+- **Historical snapshot superseded:** prior text described N7/ESA ASN.1 as the
+  PUS default. ADR-0018 now makes the open backend default and retains N7/ESA as
+  an opt-in backend (`FF_USE_PUS_ASN1=ON`).
 - **M11 in progress (Renode HAL coverage, OBJ-19):** **11/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
@@ -218,6 +217,21 @@ occasion; prefer Docker.
 
 ## 5. Immediate next steps (priority order)
 
+1. Obtain the remaining scoped R4 review of the latest status/review-index and
+   final evidence edits; preserve its bounded verdict and do not infer overall
+   N17 closure.
+2. Obtain system/operations and board/electrical authority inputs for NC-S4c-03,
+   NC-S4c-04 integration evidence, and NC-S4c-01/05 target fabric mapping; keep
+   vendor PUSopen compatibility unclaimed.
+3. After all applicable review and local gates pass, run hosted GitHub and Gitea
+   workflows and retain exact commit/run identities. No hosted CI result exists
+   for this uncommitted candidate; T23 is not qualified.
+4. Only after full sprint scope and required gates/reviews are satisfied, create
+   a new commit (no amend/force-push) and push to both remotes. This is not
+   authorization for release, flight, or operational action.
+
+### Historical 2026-10-14 status narrative (superseded for current actions by §4/§5)
+
 > Execution view: `docs/planning/sprint-plan.md` (FRICK-PLAN-0002). S1 is complete
 > (NVM + NOR/QSPI MTD + MSS CAN done, **M10 closed via the QEMU run**); S2 (MSS CAN)
 > done; **S3 (MSS I2C) delivered** (`hal_i2c=PASS`, SRS-REQ-058), **S4 (MSS SPI)
@@ -281,7 +295,7 @@ occasion; prefer Docker.
 > conflicts with “drivers first”; do not start a competing sprint until the plan
 > and human owner resolve ordering/approval.
 
-**Current resumption point (SB/EVS configured structural stress, uncommitted working tree):**
+**Historical resumption point (SB/EVS configured structural stress; superseded by the current §4/§5 state):**
 
  1. Continue using `docs/planning/sprint-plan.md` rev 1.10. Under N21,
      correct functional bugs and implement missing features committed for the
@@ -574,3 +588,15 @@ occasion; prefer Docker.
 | 2.26 | 2026-10-15 | frick-fsw | Record the committed/pushed state (`a4c436c`, `03773f7`, `620fff8`), green GitHub Actions run #83, and the `make docs` output-existence guard delta with scoped R4 FRICK-REVIEW-0285 / PA FRICK-REVIEW-0286 reviews (both APPROVED WITH COMMENTS; R4 NC-01/NC-02 verified closed by bounded delta re-review FRICK-REVIEW-0287); retain hosted-evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
 | 2.27 | 2026-10-15 | frick-fsw | Record the committed guard delta (`77cd548`) and its green hosted GitHub Actions run #84 (all 8 jobs); Gitea run log unevidenced (NC-EXT-36); retain hosted-CI qualification evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
 | 2.28 | 2026-10-15 | frick-fsw | Record hosted run #85 for the record-only commit `03366f1` (all 8 jobs) and the loop-audit N15 record-only convention that terminates the record → run → record regress; Gitea run log unevidenced (NC-EXT-36); retain hosted-CI qualification evidence (T21), NC-EXT-43/75/76/78..81 and release gates open |
+| 2.29 | 2026-10-15 | frick-fsw | Resume point moved to HEAD 6ce6bd7 plus uncommitted S4c/S4d/default work; record focused and fresh-default host results, NC-S4c-01 limitation, ADR-0018 defaults and outstanding full-cycle/independent/hosted gates |
+| 2.30 | 2026-10-15 | frick-fsw | Record completed local Debug/Release/ASan, Lean/trace, docs/format/smoke/GSW, RTEMS/Renode/QEMU cycle and update next steps to independent reviews and hosted CI; no commit/push or release approval claimed |
+| 2.31 | 2026-10-15 | frick-fsw | Record 169-check CANopen test oracle completion, final count and clarified RS-485 release-call hold semantics; review and hosted gates remain pending |
+| 2.32 | 2026-10-15 | frick-fsw | Complete exact response-frame assertions for absent-index CANopen download and update the final test count to 171; reviews and hosted CI remain open |
+| 2.33 | 2026-10-15 | frick-fsw | Record final 171-check full verification cycle and completed bounded independent review set; retain open authority, dependency evidence, provenance, hosted-CI, target and vendor gates |
+| 2.34 | 2026-10-15 | frick-fsw | Record scoped closures for NC-S4c-02 and NC-EXT-82, final T23 behavior review, and update next actions to remaining PA/R4, authority and hosted gates |
+| 2.35 | 2026-10-15 | frick-fsw | Record R2 tracked-state follow-up 0299, index 0298 as point-in-time, and retain PA/R4/hosted/authority gates |
+| 2.36 | 2026-10-15 | frick-fsw | Record PA tracked-state review 0300 and remaining R4 scope; retain T23 qualification, hosted, target/vendor, authority and provenance gates |
+| 2.37 | 2026-10-15 | frick-fsw | Record bounded R4 status/evidence review 0301 and preserve remaining overall documentation, hosted, target/vendor and authority gates |
+| 2.38 | 2026-10-15 | frick-fsw | Record final bounded R4/PA evidence reviews 0302/0303; keep phase/release and hosted/provenance/target/authority gates open |
+| 2.39 | 2026-10-15 | frick-fsw | Record latest R4/PA timing chronology follow-ups 0304/0305 and keep all broader gates open |
+| 2.40 | 2026-10-15 | frick-fsw | Record R4/PA timing text follow-ups 0306/0307 and retain open phase/release, hosted, provenance and authority gates |

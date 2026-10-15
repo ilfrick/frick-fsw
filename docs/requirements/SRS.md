@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                         | 1.31                                  |
-| Date                              | 2026-10-13                             |
+| Revision                         | 1.35                                  |
+| Date                              | 2026-10-15                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |
@@ -151,8 +151,9 @@ review).
   802.1AS), decoupled from the MAC and the stack. `method: Inp`.
 - **SRS-REQ-029** — *CAN/CANopen/CAN-FD contract*: the framework shall define a
   CAN backend contract covering classic CAN (ISO 11898-1, CAN 2.0 A/B) and
-  CAN-FD, plus a CANopen (CiA 301/302/402) stack contract layered on it.
-  `method: Inp`.
+  CAN-FD, plus a CANopen application-stack interface layered on it. The
+  reference implementation scope is only the documented subset in SRS-REQ-063;
+  full CiA 301/302/402 conformance is not claimed. `method: Inp`.
 - **SRS-REQ-030** — *Serial RS-422/RS-485 contract*: the framework shall define a
   serial contract with half-duplex RS-485 transceiver direction control.
   `method: Inp`.
@@ -267,11 +268,11 @@ review).
   reference `FF_Dma_t` (address translation + cache-maintenance seam), validated
   by a host unit test and exercised over the emulated DDR in the Renode
   functional test. `method: Tst | Dem`. (milestone M4/M11)
-- **SRS-REQ-050** — *PUS-C ASN.1 (N7/ESA) default backend*: the framework shall
-  use the N7 Space / ESA `asn1-pusc-lib` (ASN.1/ACN PUS-C model, compiled with the
-  ESA ASN1SCC compiler) as the **default** PUS-C basis behind `FF_Pus_Backend_t`,
-  with the local open backend and the PUSopen(R) adapter retained as alternatives.
-  `method: Tst | Dem`. (norm N19 reconciliation)
+- **SRS-REQ-050** — *Optional PUS-C ASN.1 backend*: the framework shall retain an
+  optional N7 Space / ESA `asn1-pusc-lib` (ASN.1/ACN PUS-C model, compiled with
+  ESA ASN1SCC) backend behind `FF_Pus_Backend_t`. The open CCSDS codec is the
+  default; the N7 backend is opt-in with `FF_USE_PUS_ASN1=ON` when generated
+  sources are available. `method: Tst | Dem`. (ADR-0018 supersedes ADR-0016.)
 - **SRS-REQ-051** — *Multicore / SMP*: the framework shall run on the PolarFire
   SoC 4×U54 cluster under **RTEMS SMP** (multi-core tasking, per-core interrupts,
   cache-coherent shared data, shared-memory Software Bus), validated on the
@@ -279,7 +280,7 @@ review).
 - **SRS-REQ-052** — *Fundamental PUS-C service set*: the framework shall
   implement the fundamental PUS-C service behaviour (S1/3/5/6/8/9/11/12/17/
   18-PUS-surface/19/20) in MISRA-clean in-house C behind `FF_Pus_Backend_t`, on
-  the default ASN.1/ACN data model, with a bounded on-board parameter datapool;
+  the configured PUS data model, with a bounded on-board parameter datapool;
   every in-scope subservice shall be tested and its pure logic modelled in Lean.
   `method: Tst | Anl`. (milestone M15)
 - **SRS-REQ-053** — *CFDP and virtual filestore*: the framework shall implement a
@@ -437,16 +438,35 @@ review).
   PUS-C TM/TC round-trip `test_pus_tsn_roundtrip` in `tests/unit/test_link_tsn.c`.)
 - **SRS-REQ-062** — *CAN-FD fabric backend*: the framework shall provide a
   reference CAN-FD backend behind `FF_CanBackend_t` reached through the generic
-  fabric (FIC/AXI) device contract. `method: Tst | Dem`.
-- **SRS-REQ-063** — *CANopen reference stack*: the framework shall provide a
-  reference CANopen (CiA 301/302/402) stack implementing the `FF_CanOpenStack_t`
-  contract over a CAN backend. `method: Tst | Dem`.
+  fabric (FIC/AXI) device contract. Its reference bit-timing helper shall accept
+  only exact bit-rate divisors with integer time segments and an exact 80% sample
+  point, and reject unrepresentable configurations. Verify its bounded
+  register/window contract with host tests; there is no emulated CAN-FD fabric
+  peripheral. `method: Tst | Inp`.
+- **SRS-REQ-063** — *CANopen reference subset*: the framework shall provide an
+  allocation-free, single-instance `FF_CanOpenStack_t` reference over a CAN
+  backend implementing NMT operational/stopped/pre-operational commands,
+  rejecting unsupported node/communication reset commands, heartbeat production,
+  EMCY transmit, expedited SDO server transfers for configured 1/2/4-byte object
+  dictionary entries, and bounded PDO transmit. Remote SDO client, segmented or
+  block SDO, dynamic PDO mapping, CiA 302 services, and CiA 402 drive/motion
+  behavior are not claimed. Receive callbacks and public stack/OD operations must
+  be serialized by one owner context; concurrent API use is unsupported. `method: Tst | Dem`.
 - **SRS-REQ-064** — *RS-485 half-duplex direction control*: the framework shall
   implement the serial contract's `set_rs485` direction control by driving a bound
-  DE/RE control line with the requested assert timing. `method: Tst`.
+  DE/RE control line. On release, the reference backend shall poll transmitter
+  empty with a bounded budget, apply the configured post-drain hold, and release
+  the line even if the poll expires; expiration shall increment its timeout
+  diagnostic and return `FF_TIMEOUT` to report uncertain transmission. This
+  status does not imply frame completion. The `de_assert_us` argument on the
+  release call supplies the post-poll hold; an assert-call argument is recorded
+  but not cached for the later release. This is not a pre-transmit setup delay.
+  `method: Tst`.
 - **SRS-REQ-065** — *PUSopen(R) documented adapter*: the framework shall provide a
   documented adapter implementing the PUS product contract over the commercial
-  PUSopen(R) library (the commercial library itself is user-supplied).
+  PUSopen(R) library (the commercial library itself is user-supplied). Verify the
+  seam against an in-repository API test double; this does not establish
+  vendor-SDK compatibility.
   `method: Tst | Inp`.
 - **SRS-REQ-066** — *GEM TSN shaping and filtering completion*: the framework
   shall extend the GEM native TSN backend with 802.1Qci (per-stream filtering/policing
@@ -474,10 +494,10 @@ traceability manifest (`derived: true`), per norm N4.
 
 - **SRS-REQ-017** (derived) — TM/TC frames use CCSDS Space Packets (APPID
   0x010 / 0x020) with mission identifier 0x01. `derived justification: ECSS-E-ST-70-41C tailoring, doc ICD-GND`.
-- **SRS-REQ-018** (derived) — the reference build uses the N7/ESA ASN.1 backend by
-  default (SRS-REQ-050); the open backend is an alternative; PUSopen(R) is an
-  optional drop-in adapter (planned, SRS-REQ-065). `derived justification:
-  ADR-0003/ADR-0016`.
+- **SRS-REQ-018** (derived) — the reference build uses the open CCSDS backend by
+  default; the N7/ESA ASN.1 backend and PUSopen(R) adapter are opt-in
+  (SRS-REQ-050/065).
+  `derived justification: ADR-0003/ADR-0018`.
 - **SRS-REQ-019** (derived) — configuration is concentrated in
   `config/fsw_config.h` plus mission tables. `derived justification: cFS heritage, ADR-0008`.
 - **SRS-REQ-020** (derived) — the project shall maintain an always-current
@@ -538,3 +558,7 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.29 | 2026-10-14 | frick-fsw  | Codify user-approved partial fan-out and `FF_TIMEOUT` on subscriber queue-mutex contention; keep queue-full distinct and retain SRS-REQ-072 implementation/profile as open |
 | 1.30 | 2026-10-14 | frick-fsw  | Clarify exactly-once loss accounting is independent of envelope performance guarantees; enumerate unresolved detection/counter/reporting semantics and keep mission parameters TBD |
 | 1.31 | 2026-10-14 | frick-fsw  | Clarify SRS-REQ-072 `Lmax`/dispatch guarantees apply within approved performance envelopes while exactly-once loss accounting remains independent, after scoped R3 delta finding; mission values remain TBD |
+| 1.32 | 2026-10-15 | frick-fsw  | S4c/S4d implementation scope and tests; CANopen subset now explicitly rejects reset commands; open PUS backend default and optional N7 backend per ADR-0018 |
+| 1.33 | 2026-10-15 | frick-fsw  | Correct CAN-FD exact sample-point requirement; define serialized CANopen ownership; specify RS-485 post-drain hold and timeout result; align default PUS backend wording |
+| 1.34 | 2026-10-15 | frick-fsw  | Clarify SRS-REQ-029 as an interface contract and explicitly limit CANopen conformance claims to SRS-REQ-063 subset |
+| 1.35 | 2026-10-15 | frick-fsw  | Specify that the `de_assert_us` value on the RS-485 release call controls the post-drain hold; assert-call value is not cached |

@@ -41,15 +41,15 @@ traceability manifest (level `gap`, `justification` records the disposition).
   (norm N19). **Tooling:** Frama-C/CBMC are build-time analysis tools (not
   distributed); Lean 4 core (no Mathlib).
 
-## GAP-A1b - ASN1SCC generation in the build (PUS-C ASN.1 default; sub-item of GAP-A1)
+## GAP-A1b - ASN1SCC generation in the build (optional PUS-C ASN.1 backend; sub-item of GAP-A1)
 
-The PUS-C ASN.1 default (SRS-REQ-050) requires the **ASN1SCC** compiler at build
+The optional PUS-C ASN.1 backend (SRS-REQ-050) requires the **ASN1SCC** compiler at build
 time; ASN1SCC is not distributed as a tool in the V&V image. Handled by
 `tools/docker/asn1scc/Dockerfile` (pinned) + `tools/scripts/gen_pus_asn1.sh`
 (tool T19); generation is validated and the code is git-ignored.
-**Delivered (ADR-0016):** the generated code is consumed by CMake and
-`FF_PusBackendN7` is the default (`FF_USE_PUS_ASN1=ON`); the former residual is
-closed. Tracked as a sub-item of GAP-A1 (no separate manifest entry); not a
+**Implemented as an optional backend (ADR-0018):** generated code is consumed by
+CMake when `FF_USE_PUS_ASN1=ON`; the open CCSDS backend is the default.
+Generation tooling remains available. Tracked as a sub-item of GAP-A1 (no separate manifest entry); not a
 class-A flight gap (build-time tool, re-qualified as T19).
 
 ## GAP-A2 - Full PUS-C service coverage
@@ -102,9 +102,10 @@ class-A flight gap (build-time tool, re-qualified as T19).
   reference derivation from an assumed 100 MHz APB clock. Per-rate SCL accuracy,
   STOP completion and bus recovery are confirmed on target (R1-02/R3-08).
 - RS-485 half-duplex direction control (SRS-REQ-064): the MSS serial backend
-  records the DE/RE request but the transceiver control line is board-specific
-  and not driven yet; the DE assert timing and bus turnaround are confirmed on
-  target.
+  can drive a bound DE/RE callback and reports bounded drain timeout as
+  `FF_TIMEOUT`, while still releasing the line after the configured hold. Board
+  binding, electrical polarity, timeout policy approval, and physical turnaround
+  timing remain to be verified on representative hardware.
 - MSS SPI (SRS-REQ-069): the CLKRATE clock divider and the 100 MHz APB reference
   are a reference derivation; per-rate SCL accuracy and real-bus behaviour are
   confirmed on target. The STATUS bit 11 name is unconfirmed in the datasheet

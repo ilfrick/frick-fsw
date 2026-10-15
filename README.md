@@ -106,10 +106,12 @@ Issues explicitly deferred in the status registry: none. Open/pending gates are 
 ## Highlights
 
 - **PUS-C** (ECSS-E-ST-70-41C) on CCSDS Space Packets (CCSDS 133.0-B-2) with
-  CRC-16/CCITT-FALSE trailer; pluggable backend: the N7 Space / ESA ASN.1/ACN
-  PUS-C library (`asn1-pusc-lib`, ASN1SCC-compiled) is the **default**
-  (`make pus-asn1`, `FF_USE_PUS_ASN1`), the open CCSDS codec is the fallback, and
-  a documented commercial PUSopen adapter is optional (`FRICK_USE_PUSOPEN`).
+  CRC-16/CCITT-FALSE trailer; the open CCSDS codec is the default, with optional
+  N7/ESA ASN.1 (`FF_USE_PUS_ASN1=ON`, `make pus-asn1`) and commercial PUSopen
+  (`FRICK_USE_PUSOPEN`) adapters.
+- **TCP/IP**: lwIP adapter is enabled by default (`FF_USE_LWIP=ON`) and uses the
+  pinned fetched source; run `tools/scripts/fetch_third_party.sh` before direct
+  CMake configure. `make configure` fetches dependencies first.
 - **cFS-style core**: PAL, Software Bus, Event Services, Executive Services,
   Table Services, Time Services; six reference applications.
 - **Same sources** for the native simulator and the RTEMS 6 target
@@ -144,10 +146,10 @@ scope (implemented / interface-only / planned / user-provided):
 | ---------------- | --------------------------- | -------------- | ------- | ------------- |
 | PAL (tasks/mutex/queue/time/console) | POSIX (host + RTEMS) + RTEMS bootstrap | — | — | — |
 | Core services | SB, EVS, ES, TBL, Time (+ PPS) | — | — | — |
-| PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
+| PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend open CCSDS codec**; optional N7/ESA ASN.1 | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen commercial SDK |
 | Transport | CCSDS Space Packets; link backends loopback/UART/IP/TSN (+ seg/reassembly) | `FF_Link_t` | — | radio back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
-| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN; MSS I2C; MSS SPI; MSS MMC/SD (BLOCK); PCIe; SpaceWire (contract-level) | — | — | — |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO/MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN/I2C/SPI/MMC-SD; PCIe; SpaceWire (contract-level); fabric; CAN-FD; CANopen subset; RS-485 DE/RE | — | — | — |
 | Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
@@ -331,8 +333,8 @@ make run                       # boot the native simulator (6 apps)
 make verify-lean               # lake build (formal verification, norm N1)
 make trace                     # traceability convergence gate (norm N4)
 
-# PUS-C ASN.1 default backend (N7/ESA); regenerate the generated C (build-time):
-make pus-asn1                  # ASN1SCC generation; default ON (FF_USE_PUS_ASN1)
+# Optional N7/ESA PUS-C ASN.1 backend; generate the C before enabling it:
+make pus-asn1                  # ASN1SCC generation; configure with FF_USE_PUS_ASN1=ON
 
 # Renode V&V environment (norm N18):
 make renode-env                # self-test: Renode runs + PolarFire SoC board platform loads

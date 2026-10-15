@@ -2,8 +2,8 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.22 |
-| Date        | 2026-10-13 |
+| Revision    | 0.23 |
+| Date        | 2026-10-15 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
 v0.1.0 baseline. Every milestone is delivered through the same non-derogable
@@ -75,15 +75,19 @@ Reference implementations behind the M3 contracts:
 - A complete **1 Gb/s Ethernet driver** on the GEM, integrated with the
   middleware link/network layer, with pluggable `FF_NetStack_t` adapters
   (Tuxera, lwIP, RTEMS libbsd) and the `FF_TsnBackend_t` seam.
-- Generic fabric-device (FIC/AXI) backend path for fabric-attached resources
-  (CAN-FD, SpaceWire/RMAP, TSN), no FPGA IP (SRS-REQ-067).
+- Generic fabric-device (FIC/AXI) contract and MPFS window backend are
+  implemented and host-tested (SRS-REQ-067). No FPGA IP is included.
 - **PUS-C over IP and TSN** (restored original M4 scope; OBJ-25, SSS-REQ-028): bounded
   segmentation/reassembly (SRS-REQ-059) and reference `FF_Link_t` backends for
   TCP/IP (SRS-REQ-060) and TSN (SRS-REQ-061), selectable with `FF_LinkSelect`.
-- **Extended fieldbus** (OBJ-26/OBJ-27/OBJ-28, SSS-REQ-029): the generic fabric
-  contract (SRS-REQ-067), CAN-FD (SRS-REQ-062), a CANopen (CiA 301/302/402) stack
-  (SRS-REQ-063) and RS-485 half-duplex direction control (SRS-REQ-064); plus a
-  documented **PUSopen(R) adapter** (OBJ-30, SRS-REQ-065).
+- **Extended fieldbus** (OBJ-26/OBJ-27/OBJ-28, SSS-REQ-029): generic fabric
+  contract (SRS-REQ-067), CAN-FD fabric backend (SRS-REQ-062), a documented
+  CANopen subset (SRS-REQ-063), and RS-485 DE/RE control (SRS-REQ-064) are
+  implemented with host tests. CAN-FD is host/contract-level because Renode has
+  no emulated fabric CAN-FD peripheral; target behavior remains NC-S4c-01/GAP-A5.
+  The PUSopen(R) adapter seam (OBJ-30, SRS-REQ-065) is implemented and tested
+  against an in-repository API test double; vendor SDK compatibility is not
+  established. Independent review remains pending for S4c/S4d.
 - The on-board **file transfer set** (virtual filestore, PUS service 23, CFDP)
   is planned in **M15** (OBJ-23).
 
@@ -250,3 +254,4 @@ before M12.
 | 0.20 | 2026-10-13 | frick-fsw | Add M17/OBJ-31 scheduler plan and link S8-SCH to controlled requirements and trade analysis |
 | 0.21 | 2026-10-13 | frick-fsw | Sequence S8-SCH after the new S8-PUS-FU corrective sprint; retain PUS S11 as M15 scope, not M17 scheduler scope |
 | 0.22 | 2026-10-13 | frick-fsw | Place M17 after S8-VV-FU and S8-PUS-FU; retain the distinction between the scheduler app and PUS S11 |
+| 0.23 | 2026-10-15 | frick-fsw | Reconcile M4 S4c/S4d statuses to implementation and host evidence; record CAN-FD emulator/target gap and PUSopen stub-test scope |

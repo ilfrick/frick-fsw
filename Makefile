@@ -15,13 +15,16 @@
 BUILD_DIR ?= build/native
 CMAKE ?= cmake
 
-.PHONY: all configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
+.PHONY: all fetch-third-party configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
         trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
         coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
 
-configure:
+fetch-third-party:
+	bash tools/scripts/fetch_third_party.sh lwip-only
+
+configure: fetch-third-party
 	$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug
 
 build: configure
@@ -85,7 +88,7 @@ check: build test verify-lean trace smoke gsw-selfcheck
 	@echo "frick-fsw: local check bundle PASS; other N15 gates are separate"
 
 # Configure/build/test/Lean/trace subset inside controlled Docker image (norm N6/N8, T1).
-ci-local: docker-image
+ci-local: fetch-third-party docker-image
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-vv:local \
 	  bash -lc 'cmake -S . -B /workspace/build/ci -G Ninja -DCMAKE_BUILD_TYPE=Debug \
 	    && cmake --build /workspace/build/ci \
@@ -98,7 +101,7 @@ docker-image:
 
 # RTEMS 6.2 cross build (open-source RTEMS; requires the toolchain in /opt/rtems,
 # installed by tools/scripts/setup_rtems.sh).
-rtems:
+rtems: fetch-third-party
 	$(CMAKE) -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
 	  -DFF_PLATFORM=rtems
 	$(CMAKE) --build build/rtems -j$(shell nproc)
@@ -109,7 +112,7 @@ rtems-toolchain:
 	docker build -t frick-rtems-toolchain:local tools/docker/rtems
 
 # Cross build inside the toolchain image (no host toolchain needed).
-rtems-docker:
+rtems-docker: fetch-third-party
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
 	  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems && cmake --build build/rtems -j$$(nproc)'
 
@@ -122,7 +125,7 @@ pus-asn1:
 
 # Build the RTEMS image for Renode functional validation (norm N18). Requires the
 # RTEMS toolchain in /opt/rtems 6; output build/renode/frick_fsw_renode.elf.
-renode-image:
+renode-image: fetch-third-party
 	$(CMAKE) -S . -B build/renode -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
 	  -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON
 	$(CMAKE) --build build/renode -j$(shell nproc)
@@ -131,13 +134,13 @@ renode-image:
 # Build the generic-BSP RTEMS image for QEMU `virt` emulated-target verification
 # (milestone M10 / SRS-REQ-043). Requires the RTEMS toolchain with BSP
 # rv64imafdc in /opt/rtems 6; output build/rtems-generic/frick_fsw.
-qemu-image:
+qemu-image: fetch-third-party
 	$(CMAKE) -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake \
 	  -DFF_PLATFORM=rtems-generic
 	$(CMAKE) --build build/rtems-generic -j$(shell nproc)
 
 # Same, containerised (no host toolchain; the image has cmake + qemu + the BSP).
-qemu-image-docker:
+qemu-image-docker: fetch-third-party
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
 	  bash -lc 'cmake -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake -DFF_PLATFORM=rtems-generic && cmake --build build/rtems-generic -j$$(nproc)'
 

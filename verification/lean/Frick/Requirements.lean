@@ -17,6 +17,7 @@ import Frick.Pus
 import Frick.Time
 import Frick.Hal
 import Frick.Sdls
+import Frick.S4c
 
 namespace Frick.Requirements
 

@@ -22,7 +22,18 @@ struct FF_Serial
     FF_Status_t (*write)(const uint8_t *buf, uint16_t len, uint32_t timeout_ms);
     FF_Status_t (*read)(uint8_t *buf, uint16_t cap, uint16_t *got, uint32_t timeout_ms);
     FF_Status_t (*flush)(void);
-    /* RS-485 half-duplex direction control (ignored for RS-422/full duplex). */
+    /* RS-485 half-duplex direction control (SRS-REQ-064; ignored for
+     * RS-422/full duplex, which needs no turnaround).
+     *
+     * `enable` != 0 asserts the transceiver for transmit (DE); `enable` == 0
+     * releases it back to receive (RE) after a bounded transmitter-empty poll
+     * and a `de_assert_us` hold supplied on that release call. The argument on
+     * an assert call is not cached for later use. If that poll expires, the line is still released
+     * after the hold and the call returns FF_TIMEOUT; this reports uncertain TX
+     * and does not imply successful transmission. A backend that has a
+     * board-specific DE/RE line bound drives it; otherwise the request is
+     * recorded for the board integrator (the line is not driven).
+     * Values other than 0/1 are rejected with FF_INVALID_ARGUMENT. */
     FF_Status_t (*set_rs485)(uint8_t enable, uint32_t de_assert_us);
 };
 

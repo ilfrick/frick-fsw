@@ -157,13 +157,11 @@ are in `src/transport/link/link_loopback.c`, `link_uart.c`, `link_ip.c` and
 the backend's `init`. The default is the platform default (loopback on host /
 UART on RTEMS); select another backend at start-up with `FF_LinkSelect()`.
 
-> **Backend note (PUS-C).** The default PUS-C backend is the N7/ESA ASN.1
-> stack (`FF_PusBackendN7`, `FF_USE_PUS_ASN1=ON` by default, built by
-> `make pus-asn1`). If the generated ASN.1 code is absent (first-time checkout
-> without running `make pus-asn1`), CMake emits a warning and falls back to the
-> open CCSDS backend (`FF_PusBackendOpen`); select it explicitly with
-> `FF_PusSetBackend(&FF_PusBackendOpen)` or `FF_USE_PUS_ASN1=OFF` (see
-> `docs/interfaces/ICD.md` §PUS-C backend and `CMakeLists.txt` §PUS-C).
+> **Backend note (PUS-C).** The open CCSDS backend (`FF_PusBackendOpen`) is the
+> default. The N7/ESA ASN.1 backend (`FF_PusBackendN7`) is optional; generate its
+> sources with `make pus-asn1` and configure with `FF_USE_PUS_ASN1=ON`. The PUS
+> backend can also be selected at run time with `FF_PusSetBackend()` where the
+> selected backend is compiled into the image (see `ADR-0018`).
 
 ## 8. TCP/IP over PUS-C — status
 
@@ -182,12 +180,13 @@ stack:
 - `FF_EthMac_t` / `FF_NetIf_t` — the Ethernet MAC and net-interface contracts
   that bind a MAC to a stack (`src/hal/hal_eth.h`, SRS-REQ-026).
 
-Every TCP/IP **stack** is separate and optional: **lwIP** is the only stack
-bundled here (third-party, opt-in, default off) and **Tuxera TCP/IP** and
+Every TCP/IP **stack** is separate behind the network contract: **lwIP** is the
+only stack bundled here (third-party, enabled by default; explicitly disable with
+`FF_USE_LWIP=OFF`) and **Tuxera TCP/IP** and
 **RTEMS `libbsd`** are **user-supplied**. The framework core links no stack.
 
 **What is implemented today:** the two contracts above, a loopback reference
-stack, the opt-in lwIP adapter, and the reference **IP link backend**
+stack, the default-on lwIP adapter, and the reference **IP link backend**
 (`FF_LinkIpBackend`, SRS-REQ-060) and **TSN link backend** (`FF_LinkTsnBackend`,
 SRS-REQ-061) that carry PUS-C CCSDS frames over a socket / GEM MAC. What remains
 outside the framework: any EtherType/port allocation in the ICD and the
@@ -198,7 +197,7 @@ on-target netif/PHY/stack qualification (GAP-A5).
 | `FF_NetStack_t` contract (socket-like vtable; address = 6 octets, IPv4 big-endian + port) | **Implemented** | `src/hal/hal_net.h` (SRS-REQ-027) |
 | Ethernet MAC / net-if contracts (`FF_EthMac_t`, `FF_NetIf_t`; `attach_netif`) | **Implemented** | `src/hal/hal_eth.h` (SRS-REQ-026) |
 | Loopback network-stack reference backend (`FF_NetStackLoopback`) | **Implemented** | `src/drivers/net/ff_net_loopback.{c,h}` (SRS-REQ-039); `tests/unit/test_netloop.c` (328 checks) |
-| lwIP adapter (`FF_NetStackLwip`, opt-in) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` + `ff_lwip_netif.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default OFF); pinned lwIP (`STABLE-2_2_1_RELEASE`, BSD-3-Clause) fetched by `tools/scripts/fetch_third_party.sh` |
+| lwIP adapter (`FF_NetStackLwip`) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` + `ff_lwip_netif.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default ON); lwIP tag `STABLE-2_2_1_RELEASE` at commit `77dcd25a72509eb83f72b033d219b1d40cd8eb95`, checked by fetch script before configure |
 | Segmentation/reassembly layer (`FF_LinkSeg_t`, 2-byte BE length-prefix for TCP) | **Implemented** | `src/transport/link/link_seg.{c,h}` (SRS-REQ-059); used by `FF_LinkIpBackend` in TCP mode |
 | IP **link** backend (`FF_Link_t`, UDP + TCP over `FF_NetStack_t`) | **Implemented** | `src/transport/link/link_ip.{c,h}` (SRS-REQ-060); `tests/unit/test_link_ip.c` (20 test functions: 10 seg + 9 IP + 1 PUS-C `test_pus_ip_roundtrip` TM/TC round-trip demo) |
 | TSN **link** backend (`FF_Link_t`, GEM MAC, EtherType 0x88F5) | **Implemented** | `src/transport/link/link_tsn.{c,h}` (SRS-REQ-061); `tests/unit/test_link_tsn.c` (15 test functions, incl. the `test_pus_tsn_roundtrip` TM/TC round-trip demo) |
@@ -222,9 +221,11 @@ on-target netif/PHY/stack qualification (GAP-A5).
      exercises the contract and is **not** a TCP/IP stack.
    - **lwIP** — `FF_NetStackLwip` (`src/hal/net/lwip/ff_net_lwip.{c,h}` +
      `ff_lwip_netif.{c,h}`). Build
-     with `-DFF_USE_LWIP=ON` (default **OFF**) and fetch the pinned stack first:
-     `tools/scripts/fetch_third_party.sh` (lwIP release tag
-     `STABLE-2_2_1_RELEASE`, **BSD-3-Clause**, fetched to `third_party/lwip`,
+     with `-DFF_USE_LWIP=ON` (default **ON**) and fetch the pinned stack first:
+      `tools/scripts/fetch_third_party.sh` (lwIP release tag
+      `STABLE-2_2_1_RELEASE`, commit `77dcd25a72509eb83f72b033d219b1d40cd8eb95`,
+      **BSD-3-Clause**, fetched to `third_party/lwip`; existing revision and
+      clean working-tree state are verified,
      **not committed**).
 3. **Bind a MAC** with `FF_EthMac_t` / `FF_NetIf_t` (`src/hal/hal_eth.h`) via the
    stack's `attach_netif`; the reference GEM MAC driver is in
@@ -334,12 +335,15 @@ repository includes:
   TCP/IP stack;
 - the **lwIP adapter** (`FF_NetStackLwip`, `src/hal/net/lwip/ff_net_lwip.{c,h}` +
   `ff_lwip_netif.{c,h}`, SRS-REQ-040) — built only with `FF_USE_LWIP=ON`
-  (default **OFF**). lwIP itself is a **third-party BSD-3-Clause** stack, fetched
-  pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`) by
-  `tools/scripts/fetch_third_party.sh`, and is **not committed** to the
-  repository.
+  (default **ON**). lwIP itself is a **third-party BSD-3-Clause** stack, fetched
+  at tag **`STABLE-2_2_1_RELEASE`** / commit
+  `77dcd25a72509eb83f72b033d219b1d40cd8eb95` (`third_party/lwip`) by
+  `tools/scripts/fetch_third_party.sh`, which checks revision and cleanliness;
+  the stack is **not committed** to the repository.
 
-A mission that needs TCP/IP therefore either enables lwIP explicitly or supplies
+A direct CMake configure with lwIP enabled therefore requires fetching that
+dependency first; the Make and CI workflows do so before configuration. A mission
+may also supply
 its own adapter for Tuxera TCP/IP, RTEMS libbsd or another stack; no core change
 is required (details in `docs/architecture/network-stack.md`). The lwIP adapter
 is exercised in CI, but a compiling adapter is **not** a qualified network

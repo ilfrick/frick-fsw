@@ -69,7 +69,7 @@ make docs                # Doxygen generation (separate)
 make gsw-selfcheck        # GSW, metrics, and N13 license-policy Python checks
 
 # or without docker:
-make configure           # cmake -S . -B build/native
+make configure           # fetch pinned dependencies, then cmake -S . -B build/native
 make build               # native simulator + core library
 make test                # ctest unit tests
 make run                 # boot the native simulator (6 apps)
@@ -81,9 +81,8 @@ make renode-env          # Renode V&V environment self-test (norm N18; needs doc
 make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
 make qemu-image          # generic riscv/rv64imafdc RTEMS image for QEMU (milestone M10)
 make qemu                # QEMU `virt` emulated-target check (M10; SKIP proxy if the image is absent)
-make pus-asn1            # generate the PUS-C ASN.1 (N7/ESA) default backend C (build-time; ASN1SCC)
-                         # (default FF_USE_PUS_ASN1=ON; if the generated code is absent the
-                         #  build warns and falls back to the open backend; -DFF_USE_PUS_ASN1=OFF forces open)
+make pus-asn1            # generate the optional N7/ESA PUS-C ASN.1 backend (build-time; ASN1SCC)
+                         # (FF_USE_PUS_ASN1 defaults OFF; open PUS backend is default)
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds

@@ -30,7 +30,7 @@ blocking unless `timeout_ms > 0` (which sets `SO_RCVTIMEO`).
 | Backend | File | Notes |
 | ------- | ---- | ----- |
 | Loopback | `src/drivers/net/ff_net_loopback.{c,h}` | bounded, static, in-process; exercises the contract in CI (SRS-REQ-039) |
-| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}`, `ff_lwip_netif.{c,h}` | adapter over the lwIP socket API + netif glue (netif bound to `FF_EthMac_t`) (SRS-REQ-040); lwIP is a third-party **BSD-3-Clause** stack, fetched pinned to the release tag **`STABLE-2_2_1_RELEASE`** (`third_party/lwip`, `contrib` included in the lwIP tree; not committed) |
+| lwIP | `src/hal/net/lwip/ff_net_lwip.{c,h}`, `ff_lwip_netif.{c,h}` | adapter over the lwIP socket API + netif glue (netif bound to `FF_EthMac_t`) (SRS-REQ-040); lwIP is a third-party **BSD-3-Clause** stack, pinned to tag `STABLE-2_2_1_RELEASE` and commit `77dcd25a72509eb83f72b033d219b1d40cd8eb95` (`third_party/lwip`, `contrib` included; not committed); fetch validates revision and clean worktree |
 
 Tuxera TCP/IP and any other closed stack plug in through the same vtable as
 user-supplied adapters.
@@ -38,8 +38,10 @@ user-supplied adapters.
 ## 4. Build
 
 - Loopback backend: always built with `FF_BUILD_DRIVERS=ON`.
-- lwIP backend: `FF_USE_LWIP=ON` (default OFF); requires the fetched lwIP
-  (`tools/scripts/fetch_third_party.sh`, release tag `STABLE-2_2_1_RELEASE`).
+- lwIP backend: `FF_USE_LWIP=ON` (default ON); requires the fetched lwIP
+  (`tools/scripts/fetch_third_party.sh`, release tag `STABLE-2_2_1_RELEASE`,
+  exact commit `77dcd25a72509eb83f72b033d219b1d40cd8eb95`). Existing checkout
+  revision and cleanliness are validated before configure.
   CMake builds a `frick_lwip` target (lwIP core + the port `sys_arch`) and a
   separate `frick_net_lwip` adapter target. On the **host** the lwIP `unix` port
   is used; for the **RTEMS target** the in-repo port

@@ -33,6 +33,9 @@ jobs:
           git fetch -q --depth=1 origin "${GITHUB_REF}"
           git checkout -q FETCH_HEAD
 
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
+
       - name: Configure Debug
         run: cmake -S . -B build/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
@@ -68,7 +71,7 @@ jobs:
 
       - name: lwIP network-stack adapter (fetch + build + test)
         run: |
-          bash tools/scripts/fetch_third_party.sh
+          bash tools/scripts/fetch_third_party.sh lwip-only
           cmake -S . -B build/lwip -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_LWIP=ON
           cmake --build build/lwip
           ctest --test-dir build/lwip -R lwip --output-on-failure
@@ -103,6 +106,8 @@ jobs:
           git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
           git fetch -q --depth=1 origin "${GITHUB_REF}"
           git checkout -q FETCH_HEAD
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
       - name: Format check
         run: |
           if command -v clang-format > /dev/null; then
@@ -134,6 +139,8 @@ jobs:
           git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
           git fetch -q --depth=1 origin "${GITHUB_REF}"
           git checkout -q FETCH_HEAD
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
       - name: Build
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug

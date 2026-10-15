@@ -4,19 +4,79 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.11                                   |
+| Revision                          | 2.29                                   |
 | Date                              | 2026-10-15                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
 
 This log is the running verification record. Every development/verification
 cycle appends a row with the evidence produced and identifies the configuration
-and artifact state; the current configured SB/EVS structural stress row describes
-an uncommitted working tree.
-Emulator console captures (Renode `build/renode/console.log`, QEMU
-`build/rtems-generic/qemu-console.log`) are regenerable build outputs (not
-tracked), reproduced by `make renode` / `make qemu` from the committed sources,
-toolchain and scripts.
+and artifact state. The SB/EVS structural-stress entry is historical; the current
+uncommitted candidate is the S4c/S4d/defaults increment described below.
+Emulator console captures under `build/` are regenerable build outputs. The
+final-cycle Renode UART/process and QEMU console logs were copied into
+`docs/vv/evidence/2026-10-15-{renode-console,renode-process,qemu-console}.log`.
+They came from the uncommitted candidate worktree with the observed local
+toolchain images; they must not be attributed to the committed baseline. The
+exact mutable candidate and tool inputs are not fully captured by the recorded
+hashes.
+
+## S4c/S4d, defaults and N18 verification cycle (2026-10-15)
+
+**Configuration and artifacts.** Fresh default CMake cache: `FF_USE_LWIP=ON`,
+`FF_USE_PUS_ASN1=OFF`, Debug. Candidate sources remain an uncommitted mutable
+worktree; Docker inputs are not a complete immutable build manifest. Observed
+image IDs: `frick-vv:local` =
+`sha256:5cbc72aa4125cfdbd8c0baa4ac2a1cb9d1447ff3147ac0b94e2ed0d918b83e91`;
+`frick-rtems-toolchain:local` =
+`sha256:90f81d0806112a0ddd95f60c9e9cc857de4acf8e71e3dbc9434f6612dcc2f9a0`.
+SHA-256: host `build/ci/frick_fsw` =
+`140cf791c22ff1aff9cfeb8157b210ecfc5ba22a5d6c5bdd8460ef1b7cb20a90`; Renode
+MPFS `build/renode/frick_fsw_renode.elf` =
+`54636b0f78edf355473904e448a00dcb7cd9bb3c05971a7460da7032ac10ef98`; QEMU
+`build/rtems-generic/frick_fsw` =
+`2ada5ba3132b43f3ba8d89457a1909d452d79dc1c8913e1e878c8cc0cbce0f1a`.
+
+**Passes.** Final `make ci-local` passed (Debug build, CTest 36/36, Lean build,
+trace 117 requirements/62 theorem links). The final Debug default cache and
+Release and AddressSanitizer builds each passed CTest 36/36 (Debug sweep 17.71 s;
+Release sweep 18.82 s; ASan sweep 102.14 s). Focused final tests:
+fabric 119, CAN-FD 328, CANopen 171, serial 67, PUSopen 33; each direct test
+reported zero failures. TS-1 test IDs were scanned: 95 case IDs, 95 unique.
+Repository C/H clang-format dry-run and
+`git diff --check` passed. `make docs`, `make smoke`, `make gsw-selfcheck` (5 GSW,
+9 metrics, 14 license tests), `make renode-env`, `make renode` (`RENODE_TEST:
+PASS`), and `make qemu` passed. Fresh RTEMS MPFS and generic RTEMS images were
+cross-built with lwIP ON/PUS ASN.1 OFF in dedicated container-configured trees;
+Renode executed the fresh MPFS image.
+
+**Failed attempts retained.** Initial direct `make renode-image` could not find
+the host RTEMS compiler; initial host/container builds found mismatched CMake
+caches and a root-owned Ninja lock. A host docs attempt could not remove
+root-owned Doxygen output. Fresh dedicated RTEMS builds completed inside the
+toolchain container; Doxygen output was removed/regenerated in the V&V container
+and ownership restored. Host CTest/rebuild attempts could not write into the
+container-owned `build/ci`; final tests ran inside `make ci-local`. Exact fail-closed
+ASN.1/lwIP probe outputs are in `docs/vv/evidence/2026-10-15-s4c-config-probes.md`;
+other failed attempts are summarized here, not retained as raw logs. No failed
+attempt is counted as a pass.
+
+**Limits and disposition.** Host tests verify contract/backend behavior only;
+Renode has no fabric CAN-FD peripheral (`NC-S4c-01`/GAP-A5). The PUSopen test
+uses an API double, not vendor SDK compatibility evidence. CANopen is the
+specified subset, not full CiA 301/302/402 conformance. Target/electrical
+behavior, qualification, hosted CI, candidate provenance, and authority actions
+remain open. NC-EXT-82 is closed only for enumerated reused-checkout integrity
+behavior; T23 qualification and broader dependency provenance remain open.
+Independent reviews have been performed; reports 0288..0292 and bounded deltas
+0293..0307 record their findings, which are not all closed. Reports 0302..0304
+preserve point-in-time timing observations from preceding runs; the latest
+retained Debug/Release/ASan sweep values are 17.71/18.82/102.14 s. This record is not certification,
+release, or flight-readiness evidence.
+
+Raw final-cycle emulator outputs are retained under `docs/vv/evidence/`; their
+SHA-256 values are recorded with the associated evidence note. Raw logs for
+some earlier failed attempts were not retained and remain an evidence limitation.
 
 ## Cycle log
 
@@ -646,3 +706,21 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.9 | 2026-10-15 | frick-fsw | Add the `make docs` output-existence guard (`test -s build/doxygen/html/index.html`) raised as PA FRICK-REVIEW-0284 Comment 5, plus the workflow `docs`-job assertion and `doxygen --version` echo, with pristine/negative validation evidence; scoped R4 FRICK-REVIEW-0285 / PA FRICK-REVIEW-0286 APPROVED WITH COMMENTS and R4 NC-01/NC-02 closed by FRICK-REVIEW-0287; release, qualification, hosted and NC gates remain open |
 | 2.10 | 2026-10-15 | frick-fsw | Record the committed guard delta (`77cd548`) and its green hosted GitHub Actions run #84 (all 8 jobs) as hosted evidence; Gitea run log unevidenced (NC-EXT-36); release, qualification and NC gates remain open |
 | 2.11 | 2026-10-15 | frick-fsw | Record hosted run #85 for the record-only commit `03366f1` (all 8 jobs) and the loop-audit N15 record-only convention (record-only/evidence-only commits are verified by their own hosted run but not recursively re-recorded, terminating the record → run → record regress); Gitea run log unevidenced (NC-EXT-36); release, qualification and NC gates remain open |
+| 2.12 | 2026-10-15 | frick-fsw | Record S4c/S4d host/default/Lean/trace, Release/ASan, RTEMS, Renode and QEMU results, exact artifact/image hashes, failed attempts, and target/vendor evidence limits; reviews and hosted CI remain pending |
+| 2.13 | 2026-10-15 | frick-fsw | Update evidence after R1/R2/PA corrective tests: final 166-check CANopen oracle, exact test IDs, fresh Release/ASan/RTEMS/Renode/QEMU runs, updated hashes, captured negative configuration probes, and current documentation limitations |
+| 2.14 | 2026-10-15 | frick-fsw | Update evidence for fresh-response assertions on all missing-index/subindex CANopen upload/download cases and 169-check focused test; clarify RS-485 hold parameter semantics |
+| 2.15 | 2026-10-15 | frick-fsw | Correct final Debug/Release/ASan durations and describe the current build/ci default cache instead of stale build/s4-default; align TS-4 with implemented CANopen subset |
+| 2.16 | 2026-10-15 | frick-fsw | Correct TS-1 documented case range and final default-cache identity; report the outdated build/s4-default cache as stale, not current evidence |
+| 2.17 | 2026-10-15 | frick-fsw | Record exact absent-index SDO download response fields and 171-check count; source/test changed since the preceding complete local cycle, so rerun all applicable gates |
+| 2.18 | 2026-10-15 | frick-fsw | Record final post-correction full local cycle, current sweep times and RTEMS artifact hashes; clarify OBJ-28 release-call hold and update independent-review disposition status |
+| 2.19 | 2026-10-15 | frick-fsw | Distinguish completed independent reviews from their still-open NC/authority dispositions and qualify the evidence limits accordingly |
+| 2.20 | 2026-10-15 | frick-fsw | Retain final Renode UART/process and QEMU console logs as evidence artifacts and identify remaining missing failed-attempt logs |
+| 2.21 | 2026-10-15 | frick-fsw | Refresh final run timing/log hashes after the dependency-fetch integrity change and document fresh wrong-revision/ignored-state checks |
+| 2.22 | 2026-10-15 | frick-fsw | Correct current-work description, review pointers and NC-EXT-82 disposition; reconcile duplicate history numbering and retain uncommitted-candidate provenance limitation |
+| 2.23 | 2026-10-15 | frick-fsw | Record the latest post-documentation full-cycle timings and emulator-log hashes; extend bounded review pointers through FRICK-REVIEW-0301 |
+| 2.24 | 2026-10-15 | frick-fsw | Record R4/PA evidence deltas 0302/0303 and update the review pointer without changing test results or provenance claims |
+| 2.25 | 2026-10-15 | frick-fsw | Record latest post-review-record full cycle timings and refreshed emulator-log hashes; distinguish earlier run snapshots |
+| 2.26 | 2026-10-15 | frick-fsw | Record R4/PA follow-ups 0304/0305 and clarify 0303's point-in-time sweep observation |
+| 2.27 | 2026-10-15 | frick-fsw | Record latest full local test-cycle sweep timings (17.71/18.82/102.14 s) from retained Debug/Release/ASan logs |
+| 2.28 | 2026-10-15 | frick-fsw | Correct the review-limit paragraph to distinguish historical review timing snapshots from the current 17.71/18.82/102.14 s cycle |
+| 2.29 | 2026-10-15 | frick-fsw | Record timing chronology review reports 0306/0307 and extend the bounded review pointer; no test or provenance claim expanded |

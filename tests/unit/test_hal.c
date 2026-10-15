@@ -20,6 +20,7 @@
 #include "hal/hal_pcie.h"
 #include "hal/hal_gpio.h"
 #include "hal/hal_spacewire.h"
+#include "hal/hal_fabric.h"
 #include "hal/hal_mem.h"
 
 static void test_registry_basic(void)
@@ -46,6 +47,8 @@ static void test_registry_basic(void)
     FF_TEST_ASSERT(FF_HalGet(FF_HAL_ETH, "ethX") == NULL);
     FF_TEST_ASSERT(FF_HalGet((FF_HalClass_t)99, "eth0") == NULL);
     FF_TEST_ASSERT(FF_HalGet(FF_HAL_CAN, "eth0") == NULL); /* per-class namespace */
+    FF_TEST_ASSERT(FF_HalRegister(FF_HAL_FABRIC, "fabric0", &backend_b) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_HalGet(FF_HAL_FABRIC, "fabric0") == &backend_b);
 }
 
 static void test_registry_capacity(void)
@@ -81,6 +84,8 @@ static void test_contract_presence(void)
     FF_Pcie_t pcie;
     FF_Gpio_t gpio;
     FF_SpaceWire_t spw;
+    FF_Fabric_t fabric;
+    FF_FabricWindow_t fabric_window;
     FF_Rmap_t rmap;
     FF_MemPool_t pool;
     FF_Dma_t dma;
@@ -100,6 +105,8 @@ static void test_contract_presence(void)
     (void)pcie;
     (void)gpio;
     (void)spw;
+    (void)fabric;
+    (void)fabric_window;
     (void)rmap;
     (void)pool;
     (void)dma;

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS1                     |
-| Revision                         | 0.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.3                                    |
+| Date                             | 2026-10-15                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-1 |
@@ -37,7 +37,7 @@ acknowledged stages), `SRS-REQ-007` (TM message-type counter), `SRS-REQ-008`
 `SRS-REQ-012` (service 17 test), `SRS-REQ-017` (CCSDS APIDs / mission id),
 `SRS-REQ-018` (pluggable PUS backends), `SRS-REQ-024` (CUC framing),
 `SRS-REQ-021` (time source), `SRS-REQ-022` (tone discipline), `SRS-REQ-023`
-(scheduled leap), `SRS-REQ-050` (PUS-C ASN.1 default backend), `SRS-REQ-052`
+(scheduled leap), `SRS-REQ-050` (optional PUS-C ASN.1 backend), `SRS-REQ-052`
 (fundamental PUS-C service set; implemented subset only), `SRS-REQ-044`
 (Renode functional-validation environment, cited only by the PIL gap case
 `N22-TS1-92`).
@@ -87,9 +87,9 @@ links) belong to TS-2.
 
 ## 2. Test cases
 
-Case IDs `N22-TS1-1` … `N22-TS1-94`; groups: `1–16` CCSDS packet, `17–36` PUS
+Case IDs `N22-TS1-1` … `N22-TS1-95`; groups: `1–16` CCSDS packet, `17–36` PUS
 core (S1, counter, dispatch, backends), `37–61` PUS services (3/5/6/8/9/17/20,
-S11 stub), `62–83` time base and CUC, `84–94` combined scenarios and
+S11 stub), `62–83` time base and CUC, `84–95` combined scenarios and
 environment-bound gaps.
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
@@ -126,7 +126,8 @@ environment-bound gaps.
 | N22-TS1-30 | SRS-REQ-003 | `pus.c` `FF_PusSendTm` above the maximum payload (max+1) | OOB | len = 1025 (> FF_PUS_MAX_TM_FRAME) | **gap** — no clause defines the over-max behaviour of the emitter. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_BAD_SIZE`, sink not called. No oracle is asserted here | SIL | individual | gap |
 | N22-TS1-31 | SRS-REQ-005 | `pus.c` `FF_PusSendTm` before a backend is selected | OOB | `FF_PusInit()` then `FF_PusSendTm(...)` with no `FF_PusSetBackend` | **gap** — no clause defines the pre-backend emitter state. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_NOT_READY`. No oracle is asserted here | SIL | individual | gap |
 | N22-TS1-32 | SRS-REQ-018 | `pus.c` invalid backend / invalid emitter arguments | OOB | `FF_PusSetBackend(NULL)`; backend with NULL `encode_tm`; `FF_PusSendTm(..., data=NULL, len=1)` | **gap** — SRS-REQ-018 requires pluggability but defines no rejection contract for a malformed backend or NULL payload. Open TBD (NC-EXT-47 §7.2/§7.3). Uncontrolled observation only: `FF_INVALID_ARGUMENT`. No oracle is asserted here | SIL | individual | gap |
-| N22-TS1-33 | SRS-REQ-018, SRS-REQ-050 | `pus.c` backend selection and default-backend identity (open vs N7 ASN.1) | nominal | `FF_PusSetBackend(&FF_PusBackendOpen)` then `FF_PusSetBackend(&FF_PusBackendN7)`; encode the same TM header with both | both `FF_SUCCESS`; with `FF_USE_PUS_ASN1=1` the N7 output is byte-identical to the open backend (same ECSS Annex B.1 CRC) and either can be made active (SRS-REQ-018/050, FRICK-ICD-001 §4) | SIL | individual | covered |
+| N22-TS1-33 | SRS-REQ-018, SRS-REQ-050 | `pus.c` backend selection and optional N7 backend | nominal | default build uses `FF_PusBackendOpen`; when optional generated N7 sources are available, set N7 and encode a matched test header | open is the configured default (ADR-0018); N7 is only built/tested when `FF_USE_PUS_ASN1=ON` and generated sources exist; parity assertion is conditional and does not imply PUS compliance | SIL | individual | covered (configured build) |
+| N22-TS1-95 | SRS-REQ-065 | PUSopen adapter seam against controlled API double | nominal + OOB | `test_pusopen` exercises init, TM encode mapping/output bounds/error, TC decode type/APID/payload checks, null/short/malformed inputs and SDK return failures | expected `FF_Status_t`, APID, header fields, payload pointer/length and emitted bytes match assertions; test uses `tests/stubs/pusopen.h` and does not establish vendor SDK compatibility | SIL | individual | covered (API test double only) |
 | N22-TS1-34 | SRS-REQ-052 | `pus.c` / `pus_services.c` bounded registry saturation | OOB | register FF_PUS_MAX_SERVICES+1 (33rd) service; 17th HK report; 17th data provider; 17th parameter setter; 17th function; 9th memory region | **gap** — no clause states the saturation contract (return code and state) for the PUS registries. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_NO_RESOURCE`, prior registrations unchanged. No oracle is asserted here | SIL | individual | gap |
 | N22-TS1-35 | SRS-REQ-006 | `pus.c` `FF_PusSendVerification` with an invalid stage value | OOB | stage = (FF_Pus_Stage_t)0 and (FF_Pus_Stage_t)3 | **gap** — no clause defines the invalid-stage contract. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_INVALID_ARGUMENT`, no TM emitted. No oracle is asserted here | SIL | individual | gap |
 | N22-TS1-36 | SRS-REQ-005 | `pus_services.c` undersized service payload → verification error code | OOB | TC 3,1 len 1; TC 6,5 len 5; TC 8,1 len 0; TC 20,1 len 0; all ack = ACCEPTANCE\|COMPLETION | **gap** — SRS-REQ-005 requires "the appropriate error code" for a malformed telecommand, but no clause maps an undersized PUS payload to a code; the baseline reports a single execution-failure code although `FF_PUS_FAIL_ILLEGAL_LENGTH` (2) exists. Open NC-EXT-04 (NC-EXT-47 §7.3). Uncontrolled observation only: (1,8) code 20. No oracle is asserted here | SIL | individual | gap |
@@ -286,3 +287,5 @@ have nominal and (where a contract exists) out-of-bound cases.
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-14 | frick-fsw | Initial TS-1 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: nominal + out-of-bound case table with explicit oracles for the CCSDS Space Packet codec, the PUS-C core and implemented services (1/3/5/6/8/9/17/20), and the time/CUC base; gaps mapped to NC-EXT-47 sub-items with the open NC/TBD named |
+| 0.2 | 2026-10-15 | frick-fsw | Align SRS-REQ-050 with open-default/optional-N7 decision and add the controlled PUSopen adapter seam test case; vendor compatibility remains unverified |
+| 0.3 | 2026-10-15 | frick-fsw | Resolve test-case ID collision by assigning PUSopen case N22-TS1-95 and update the documented case range; uniqueness scan passes |

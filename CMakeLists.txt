@@ -20,9 +20,9 @@ option(FF_BUILD_HAL    "Build the HAL core registry (milestone M3)" ON)
 option(FF_USE_LIBM     "Link the platform math library (libm, milestone M6)" ON)
 option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" ON)
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
-option(FF_USE_LWIP    "Build the lwIP network-stack adapter (milestone M4, needs third_party/lwip)" OFF)
+option(FF_USE_LWIP    "Build the lwIP network-stack adapter (default backend; needs third_party/lwip)" ON)
 option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
-option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C ASN.1 default backend (needs generated code; see make pus-asn1)" ON)
+option(FF_USE_PUS_ASN1 "Enable the optional N7/ESA asn1-pusc-lib PUS-C backend (needs generated code; see make pus-asn1)" OFF)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems | rtems-generic")
 
@@ -60,13 +60,12 @@ if(FF_USE_PUS_ASN1)
   set(FF_PUS_ASN1_LIB ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asn1-pusc-lib)
   set(FF_PUS_ASN1_GEN ${CMAKE_CURRENT_SOURCE_DIR}/third_party/asn1-pusc-lib-generated/common)
   if((NOT EXISTS "${FF_PUS_ASN1_GEN}/BasicTypes.h") OR (NOT EXISTS "${FF_PUS_ASN1_LIB}/wrappers/c/Crc.c"))
-    message(WARNING
-      "FF_USE_PUS_ASN1=ON (default) but the generated PUS-C ASN.1 code / N7 wrappers are missing; "
-      "falling back to the open CCSDS backend. Run 'make pus-asn1' to enable the PUS-C ASN.1 default.")
-    set(FF_USE_PUS_ASN1 FALSE)
+    message(FATAL_ERROR
+      "FF_USE_PUS_ASN1=ON but generated PUS-C ASN.1 sources are missing. "
+      "Run 'make pus-asn1' and reconfigure, or set FF_USE_PUS_ASN1=OFF to select the open CCSDS backend.")
   else()
     add_compile_definitions(FF_USE_PUS_ASN1=1)
-    message(STATUS "PUS-C ASN.1 (N7/ESA) default backend ENABLED")
+    message(STATUS "Optional PUS-C ASN.1 (N7/ESA) backend ENABLED")
   endif()
 endif()
 
@@ -147,6 +146,9 @@ if(FF_BUILD_DRIVERS)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/block/mpfs/ff_block_mpfs.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/pcie/mpfs/ff_pcie_mpfs.c)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/spacewire/mpfs/ff_spacewire_mpfs.c)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/fabric/mpfs/ff_fabric_mpfs.c)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/can/fabric/ff_canfd_fabric.c)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/drivers/can/canopen/ff_canopen.c)
 endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
@@ -224,11 +226,11 @@ if(FF_USE_LWIP)
   target_link_libraries(frick_fsw_core PUBLIC frick_net_lwip)
 endif()
 
-# PUS-C ASN.1 (N7 Space / ESA) default backend (SRS-REQ-050). Build-time code
+# Optional PUS-C ASN.1 (N7 Space / ESA) backend (SRS-REQ-050). Build-time code
 # generation: the C is produced by `make pus-asn1` (tools/scripts/gen_pus_asn1.sh)
 # from the pinned asn1-pusc-lib model with the ESA ASN1SCC compiler; nothing
-# generated or third-party is committed. Disable with -DFF_USE_PUS_ASN1=OFF to
-# fall back to the open CCSDS backend.
+# generated or third-party is committed. Enable with -DFF_USE_PUS_ASN1=ON;
+# otherwise the open CCSDS backend is selected by default.
 if(FF_USE_PUS_ASN1)
   add_library(frick_pus_asn1 STATIC
     ${FF_PUS_ASN1_GEN}/BasicTypes.c

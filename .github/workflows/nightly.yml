@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch pinned third-party dependencies before default configure
+        run: bash tools/scripts/fetch_third_party.sh lwip-only
+
       - name: Bootstrap RTEMS 6.2 toolchain (RSB)
         run: |
           sudo mkdir -p /opt/rtems && sudo chown -R runner /opt/rtems
@@ -58,9 +61,6 @@ jobs:
       # fetch the pinned lwIP, cross-build the image with FF_USE_LWIP=ON and
       # FF_ENABLE_RENODE_TEST=ON, check that the lwIP stack symbols are linked
       # in, then run the peripheral-bound lwIP-on-GEM check in Renode.
-      - name: Fetch third-party (pinned lwIP)
-        run: bash tools/scripts/fetch_third_party.sh
-
       - name: Cross build with the lwIP adapter (FF_USE_LWIP=ON)
         run: |
           cmake -S . -B build/renode-lwip \

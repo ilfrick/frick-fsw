@@ -233,7 +233,7 @@ WCET/stack cautions: `docs/architecture/numerics.md` and `docs/adr/ADR-0012`.
   reference stack (`FF_NetStackLoopback`); **lwIP** is a third-party
   (BSD-3-Clause) adapter pinned to the release tag `STABLE-2_2_1_RELEASE`,
   fetched on demand (`tools/scripts/fetch_third_party.sh`) and built only with
-  `FF_USE_LWIP=ON` (default **OFF**); Tuxera TCP/IP and RTEMS `libbsd` are
+  `FF_USE_LWIP=ON` (default **ON**); Tuxera TCP/IP and RTEMS `libbsd` are
   **user-supplied**.
 - **PUS-C over IP/TSN is implemented** (host-verified): the segmentation/
   reassembly layer `src/transport/link/link_seg.{c,h}` (SRS-REQ-059), the IP
@@ -283,14 +283,14 @@ by the mission; "user-supplied" = deliberately left to the integrator.
 | Contract | Header / location | Status in this repo | Reference backend |
 | -------- | ----------------- | ------------------- | ----------------- |
 | PAL (tasks/mutex/queue/time/console) | `src/core/pal/pal.h` | **Implemented** | POSIX (host + RTEMS) + RTEMS bootstrap |
-| `FF_Pus_Backend_t` (PUS product) | `src/pus/pus.h` | **Implemented** (default N7/ESA ASN.1; open CCSDS fallback) | `FF_PusBackendN7`, `FF_PusBackendOpen`; PUSopen optional (user-supplied) |
+| `FF_Pus_Backend_t` (PUS product) | `src/pus/pus.h` | **Implemented** (default open CCSDS; optional N7/ESA ASN.1) | `FF_PusBackendOpen`, optional `FF_PusBackendN7`; PUSopen optional (user-supplied) |
 | `FF_Link_t` (byte-stream CCSDS frame transport) | `src/transport/link/link.h` | **Implemented** (loopback, UART, IP, TSN) | `FF_LinkLoopbackBackend`, `FF_LinkUartBackend`, `FF_LinkIpBackend` (UDP/TCP, SRS-REQ-060), `FF_LinkTsnBackend` (EtherType 0x88F5, SRS-REQ-061) + `link_seg` (SRS-REQ-059); CAN/SpaceWire remain device contracts, not link channels |
 | `FF_PpsBackend_t` (1 Hz tone) | `src/core/time/pps.h` | **Implemented** (software); hardware capture = GAP-A7 | `FF_PpsSwBackend` |
 | `FF_CryptoBackend_t` (SDLS crypto) | `src/security/ff_sdls.h` | **Interface + reference test backend**; certified crypto/HSM = GAP-A14 | `FF_CryptoTestBackend`; mission crypto/HSM user-supplied |
 | `FF_EthMac_t`, `FF_NetIf_t` (Ethernet MAC / net-if) | `src/hal/hal_eth.h` | **Implemented** (contract; GEM MAC reference) | `src/drivers/eth/gem/ff_gem.{c,h}` |
-| `FF_NetStack_t` (pluggable TCP/IP stack) | `src/hal/hal_net.h` | **Implemented** (contract; loopback + opt-in lwIP adapter) | `FF_NetStackLoopback`; `FF_NetStackLwip` (`FF_USE_LWIP`) |
+| `FF_NetStack_t` (pluggable TCP/IP stack) | `src/hal/hal_net.h` | **Implemented** (contract; loopback + default-on lwIP adapter) | `FF_NetStackLoopback`; `FF_NetStackLwip` (`FF_USE_LWIP=ON` by default) |
 | `FF_TsnBackend_t` (deterministic Ethernet) | `src/hal/hal_tsn.h` | **Implemented** (contract; GEM backend: 802.1Q/Qbv/Qci + 802.1AS time-read seam; 802.1Qav/Qbb `FF_NOT_IMPLEMENTED`, NC-S8-01/02; gPTP implemented at M8, fabric CoreTSN deferred to M14) | `FF_TsnGem_t` (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`) |
-| `FF_CanBackend_t` (CAN/CANopen) | `src/hal/hal_can.h` | **Implemented** (classic CAN reference; CAN-FD = fabric device) | `src/drivers/can/mpfs/ff_can_mpfs.c` |
+| `FF_CanBackend_t` (CAN/CANopen) | `src/hal/hal_can.h` | **Implemented** (classic CAN, fabric-window CAN-FD, documented CANopen subset; reset NMT commands unsupported) | `src/drivers/can/mpfs/ff_can_mpfs.c`, `src/drivers/can/fabric/ff_canfd_fabric.c`, `src/drivers/can/canopen/ff_canopen.c` |
 | `FF_Serial_t` (serial/RS-422/RS-485) | `src/hal/hal_serial.h` | **Implemented** | `src/drivers/serial/mpfs/ff_serial_mpfs.c` |
 | `FF_Spi_t`, `FF_I2c_t` (SPI/I2C) | `src/hal/hal_spi.h` | **Implemented** (SPI + I2C reference backends) | SPI `src/drivers/spi/mpfs/ff_spi_mpfs.c`; I2C `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` |
 | `FF_Gpio_t` (GPIO/IRQ) | `src/hal/hal_gpio.h` | **Implemented** | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` |
@@ -321,8 +321,8 @@ the decision and this section summarises the rationale for readers.
 | **Pluggable backends behind contracts** (HAL/device contracts, `FF_Pus_Backend_t`, `FF_Link_t`) | Decoupling the middleware from any specific stack/device keeps the protocol logic (CCSDS/PUS) independent of the physical link and lets a mission supply or swap a backend without modifying the core; it also keeps the auditable path buildable and Lean-verifiable. | ADR-0009 (link/transport), ADR-0003 (PUS backend), ADR-0008 (single config point + tables), ADR-0014 (reference drivers / third-party) |
 | **Lean 4 formal verification** | Norm N1 requires every generated code artifact to be checked with Lean; the mirrored theorems discharge requirement-level properties (codec, bus, PUS dispatch, counters, bounds) and are linked from the traceability manifest, giving machine-checked evidence in CI. | ADR-0005 (norm N1) |
 | **ECSS criticality B with documented class-A gaps** | Class B is the target for a small/medium OBC framework; the residual gaps to class A are not waived silently but documented as `GAP-A*` entries (e.g. GAP-A1 formal-verification depth, GAP-A4 on-target runtime evidence, GAP-A5 on-target hardware/PHY), so the claim is bounded and auditable. | norm N5; `docs/quality/ecss-criticality-b.md`, `docs/quality/class-a-gaps.md` |
-| **PUS-C ASN.1 (N7/ESA) default backend** | The N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model is the default PUS-C data model because it is a standard, licence-clean, ASN1SCC-generated basis; it is generated at build time (not vendored) so the generated artifacts are reproducible and the repository stays licence-clean. This supersedes the earlier "open backend as default" choice. | ADR-0016 (supersedes the ADR-0003/ADR-0014 default-backend choice) |
-| **lwIP optional / third-party** | lwIP is an embedded-heritage BSD-3-Clause stack kept behind the `FF_NetStack_t` contract and built only with `FF_USE_LWIP=ON` (default OFF); it is pinned and fetched on demand, so the framework core links no stack and the licence/determinism analysis stays contained. | ADR-0014 |
+| **Optional PUS-C ASN.1 (N7/ESA) backend** | The N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model is an opt-in PUS backend compiled from generated sources (`FF_USE_PUS_ASN1=ON`); the open CCSDS codec is the default. | ADR-0018 (supersedes ADR-0016 default selection) |
+| **lwIP default / third-party** | lwIP is an embedded-heritage BSD-3-Clause stack behind the `FF_NetStack_t` contract and built by default (`FF_USE_LWIP=ON`) from the pinned fetched source; it can be disabled explicitly. | ADR-0018 |
 | **TSN is an Ethernet-MAC-level capability** | TSN (IEEE 802.1Q/Qbv/Qav, 802.1AS) shapes and schedules the Ethernet link; on the PolarFire SoC the GEM provides it natively, so frick-fsw models it as a MAC-level capability (`FF_TsnBackend_t`) rather than as a PUS-C transport; the multi-port fabric CoreTSN path is a separate device (planned M8). | ADR-0014 (GEM native TSN) |
 
 Further decisions with their own records (for completeness): CCSDS SDLS security
@@ -395,7 +395,7 @@ of the `make` shortcuts (wired in `Makefile`):
 | `make ci-local` | configure/build, unit tests, Lean and trace in the controlled Docker image; does not run format, smoke or Doxygen |
 | `make renode-env`, `make renode-image`, `make renode` | Renode V&V environment self-test / RTEMS image / functional run (norm N18, `RENODE_TEST: PASS`) |
 | `make qemu-image`, `make qemu` | QEMU `virt` generic-BSP emulated-target check (M10) |
-| `make pus-asn1` | ASN1SCC generation for the N7/ESA PUS-C ASN.1 default backend |
+| `make pus-asn1` | ASN1SCC generation for the optional N7/ESA PUS-C ASN.1 backend (configure with `FF_USE_PUS_ASN1=ON`) |
 | `make rtems-toolchain`, `make rtems-docker`, `make rtems` | build open RTEMS 6.2 toolchain image / cross compile in image / cross compile with host toolchain; mutable image inputs limit reproducibility (NC-EXT-40) |
 
 Platform / target matrix (same C sources, different platform headers under

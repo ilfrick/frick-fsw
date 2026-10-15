@@ -7,6 +7,31 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### S4c/S4d delivery and default configuration reconciliation (2026-10-15)
+
+- Implemented and host-tested the generic fabric-window contract, fabric CAN-FD
+  backend, documented allocation-free CANopen subset, RS-485 DE/RE control, and
+  PUSopen adapter seam. CAN-FD tests use host MMIO mocks only because the
+  available Renode platform has no fabric CAN-FD peripheral (`NC-S4c-01`); the
+  PUSopen adapter tests use an in-repository API double and do not establish
+  vendor SDK compatibility. CANopen reset commands are explicitly unsupported;
+  complete CiA 301/302/402 conformance is not claimed.
+- Selected the open CCSDS PUS backend by default, retained the N7/ESA ASN.1
+  backend as opt-in, and enabled lwIP by default (`ADR-0018`). Added pinned-lwIP
+  fetch-before-configure ordering for default CMake builds and forge workflows.
+- Hardened reused dependency checkout validation to fail closed on a wrong
+  pinned HEAD and tracked, untracked, or ignored working-tree content. Captured
+  wrong-revision/tracked/ignored/untracked/clean-retry probes; R2/PA reviewed
+  the bounded behavior (FRICK-REVIEW-0298..0300). T23 is not thereby qualified.
+- Final local verification cycle: default Debug, Release and ASan CTest 36/36;
+  focused current tests: fabric 119 checks, CAN-FD 328, CANopen 171, serial 67,
+  PUSopen adapter 33; Lean and traceability passed. Renode/QEMU and cross-build
+  checks passed with bounded evidence records. Independent reviews and scoped
+  corrective deltas are recorded; NC-S4c-02 and NC-EXT-82 close only within
+  their stated source/behavior scopes. Target/authority, vendor SDK, T23
+  qualification, candidate provenance, hosted CI and broader release gates
+  remain open; no release/qualification claim is made.
+
 ### CI documentation-job fix: create the Doxygen output directory (2026-10-15)
 
 - Fixed `make docs` failing on a fresh checkout in the GitHub and Gitea CI

@@ -1,19 +1,19 @@
-# Test Specification TS-4 — I/O group B (CAN, I2C, SPI, MTD NOR/QSPI, Block/SD, PCIe, SpaceWire, NVM/eNVM)
+# Test Specification TS-4 — I/O group B (CAN, CAN-FD/CANopen, serial, I2C, SPI, MTD NOR/QSPI, Block/SD, PCIe, SpaceWire, NVM/eNVM, fabric)
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS4                     |
-| Revision                         | 0.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.7                                    |
+| Date                             | 2026-10-15                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-4 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
-| Scope                            | I/O group B: MSS CAN (classic), MSS I2C (CoreI2C), MSS SPI (CoreSPI), MSS QSPI NOR MTD, MSS MMC/SD block device, MPFS PCIe config space, SpaceWire/RMAP contract backend, MSS eNVM (NVM) |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 (uncommitted changes possible) |
-| Modules under test               | `src/drivers/can/mpfs/ff_can_mpfs.c`, `src/drivers/i2c/mpfs/ff_i2c_mpfs.c`, `src/drivers/spi/mpfs/ff_spi_mpfs.c`, `src/drivers/mtd/mpfs/ff_mtd_mpfs.c`, `src/drivers/block/mpfs/ff_block_mpfs.c`, `src/drivers/pcie/mpfs/ff_pcie_mpfs.c`, `src/drivers/spacewire/mpfs/ff_spacewire_mpfs.c`, `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` |
-| Interfaces cited                 | `src/hal/hal_can.h`, `src/hal/hal_spi.h`, `src/hal/hal_pcie.h`, `src/hal/hal_spacewire.h`, `src/hal/hal_mem.h`, `config/platform/platform_mpfs.h` |
+| Scope                            | I/O group B: MSS CAN (classic), fabric CAN-FD, CANopen subset, MSS RS-485 DE/RE, generic fabric window contract, MSS I2C/SPI/MTD/Block/PCIe/SpaceWire/NVM |
+| Baseline                         | HEAD `6ce6bd7` plus uncommitted S4c implementation as read 2026-10-15; final evidence baseline pending |
+| Modules under test               | `src/drivers/can/{mpfs,canopen,fabric}`, `src/drivers/fabric/mpfs/ff_fabric_mpfs.c`, `src/drivers/serial/mpfs/ff_serial_mpfs.c`, and the previously listed group-B modules |
+| Interfaces cited                 | `src/hal/hal_can.h`, `src/hal/hal_serial.h`, `src/hal/hal_fabric.h`, plus existing I/O group-B HAL contracts |
 
 > **Authority statement.** This work package defines verification *cases and
 > oracles* for the current baseline. It does not assign criticality, accept
@@ -35,8 +35,9 @@ contracts), `SRS-REQ-032` (SpaceWire/RMAP and memory/storage contracts),
 environment), `SRS-REQ-055` (reference NVM/eNVM backend), `SRS-REQ-056`
 (reference NOR/QSPI MTD backend), `SRS-REQ-057` (reference MSS CAN driver),
 `SRS-REQ-058` (reference MSS I2C driver), `SRS-REQ-069` (reference MSS SPI
-driver), `SRS-REQ-070` (reference MSS block-device driver), the planned
-contracts `SRS-REQ-062`/`SRS-REQ-063`/`SRS-REQ-064` (CAN-FD / CANopen / RS-485)
+driver), `SRS-REQ-070` (reference MSS block-device driver), the implemented but
+bounded contracts `SRS-REQ-062`/`SRS-REQ-063`/`SRS-REQ-064` (CAN-FD / CANopen
+subset / RS-485)
 and `SRS-REQ-067` (generic fabric device), `SRS-REQ-025` (HAL registry, used
 only for the backend-registration combined cases), and `SSS-REQ-010` (static,
 allocation-free storage).
@@ -88,7 +89,7 @@ is a fixture and the oracle is grounded only in a requirement of this package.
 
 | Contract / clause | Content used as oracle ground |
 | --- | --- |
-| `hal_can.h` (SRS-REQ-029) | `FF_CanBackend_t` vtable `init/configure/transmit/set_rx_callback`, `supports_fd`; `configure(bitrate, fd, data_bitrate)`; `transmit(id, ext, data, len)`; `FF_CanOpenStack_t` (planned, no backend) |
+| `hal_can.h` (SRS-REQ-029), `ff_canopen.h` (SRS-REQ-063) | `FF_CanBackend_t` vtable `init/configure/transmit/set_rx_callback`, `supports_fd`; `configure(bitrate, fd, data_bitrate)`; `transmit(id, ext, data, len)`; `FF_CanOpenStack_t` and the implemented single-instance CANopen subset (not full CiA 301/302/402 conformance) |
 | `ff_can_mpfs.h` (SRS-REQ-057) | `FF_CAN_MPFS_CLK_HZ` 80 MHz; `FF_CAN_SJW` 1, `FF_CAN_TSEG1` 13, `FF_CAN_TSEG2` 2; `FF_CAN_MAX_DLC` 8; 32 TX + 32 RX buffers; `FF_CAN_ID_SHIFT` 3, `FF_CAN_ID_MASK` `0x1FFFFFFF`, `FF_CAN_STD_ID_MAX` `0x7FF`, `FF_CAN_EXT_ID_MAX` `0x1FFFFFFF`; `FF_CAN_ACCEPT_ALL`; Command RUN bit; TX `TxReq`/`DLC`/`IDE`; RX `MsgAv` (w1c)/`RxBufferEbl`; `FF_CanMpfsPoll`; FD → `FF_NOT_IMPLEMENTED` |
 | `hal_spi.h` (SRS-REQ-031) | `FF_Spi_t` vtable `init/transfer/cs_assert/cs_release`; `FF_I2c_t` vtable `init/write/read/write_read` |
 | `ff_i2c_mpfs.h` (SRS-REQ-058) | `FF_I2C_MPFS_CLK_HZ` 100 MHz; 7-entry divider table (codes, divisors 60..960), `FF_I2C_MIN_SCL_HZ` 104166; `FF_I2C_POLL_MAX` 100000; NACK states `0x20/0x30/0x48`; `FF_I2C_ADDR7_MAX` 0x7F; `FF_I2C_ST_IDLE` 0xF8 |
@@ -182,8 +183,8 @@ SpaceWire, NVM, then cross-cutting fabric/environment rows.
 | N22-TS4-72 | SRS-REQ-055 | `ff_nvm_mpfs` wear, endurance and retention | OOB | write/erase one id beyond the eNVM endurance; test data retention after power cycling | **gap** — the reference backend exercises only the logical slot table; eNVM write/endurance/retention on silicon is GAP-A5 and no clause defines a wear model. Open TBD (NC-EXT-47 §7.5). Uncontrolled observation only: none available without the target board. No oracle is asserted here | HIL | individual | gap |
 | N22-TS4-73 | SRS-REQ-055, SRS-REQ-070 | NVM + Block: persist a block-device image digest across a power cycle | nominal | write a block image, compute a digest, store the digest in an eNVM slot; reset the block mock, re-read the image, compare against the stored digest | the digest read from eNVM equals the recomputed digest of the block image; the slot table and the block store are independent storage ranges (SRS-REQ-055 + SRS-REQ-070) | SIL | combined | covered |
 | N22-TS4-74 | SRS-REQ-025, SRS-REQ-057, SRS-REQ-058, SRS-REQ-069, SRS-REQ-056, SRS-REQ-070, SRS-REQ-031, SRS-REQ-032, SRS-REQ-055 | HAL registry binds the eight group-B I/O backends under distinct names | nominal | register CAN, I2C, SPI, MTD, Block, PCIe, SpaceWire and NVM backends (different classes) and retrieve each by name/class | every registration = `FF_SUCCESS`; per-class count == 1; each retrieval returns the exact registered backend pointer (SRS-REQ-025 registry) | SIL | combined | covered |
-| N22-TS4-75 | SRS-REQ-062, SRS-REQ-063, SRS-REQ-064 | CAN-FD, CANopen and RS-485 direction control backends | OOB | exercise a CAN-FD backend (fabric/FIC), a CANopen stack (`FF_CanOpenStack_t`) and the RS-485 DE/RE direction control | **gap** — these are planned (SRS-REQ-062/063/064 are `ci:docs`-only, "Planned"); SRS-REQ-029 defines the CAN/CANopen contract and SRS-REQ-030 the RS-485 hook, but no backend exists; the MSS CAN is classic-only and the control line is not driven. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `configure(fd != 0)` → `FF_NOT_IMPLEMENTED`. No oracle is asserted here | SIL | individual | gap |
-| N22-TS4-76 | SRS-REQ-067 | Generic fabric-device (FIC/AXI) contract path | OOB | reach the fabric-attached CAN-FD/SpaceWire/TSN backends through the generic fabric-device contract | **gap** — SRS-REQ-067 is planned (not delivered); no fabric-device API exists, so the fabric-backed group-B paths cannot be exercised. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: no fabric-device API exists. No oracle is asserted here | SIL | individual | gap |
+| N22-TS4-75 | SRS-REQ-062, SRS-REQ-063, SRS-REQ-064 | CAN-FD register-window/backend, CANopen documented subset, RS-485 DE/RE control | nominal + OOB | `test_canfd` DLC/exact sample-point/config/TX/RX cases; `test_canopen` setup/NMT/heartbeat/SDO/PDO/abort/rollback/index-and-subindex error cases; `test_serial` DE assert/release, bounded drain, timeout result, release-call hold and invalid-argument cases | explicit host expectations in `tests/unit/test_canfd.c` (328 checks), `test_canopen.c` (171), and `test_serial.c` (67); PASS on host. These checks do not establish real CAN-FD IP or electrical DE/RE behavior. CAN-FD emulator/target path remains NC-S4c-01/GAP-A5; full CiA 301/302/402 conformance is not claimed | SIL | combined | covered (host subset) |
+| N22-TS4-76 | SRS-REQ-067 | Generic fabric-device (FIC/AXI) contract path | nominal + OOB | `test_fabric` valid/invalid device windows, alignment/range, read/write and self-test restoration; `test_canfd` accesses through the fabric backend | explicit host mock-MMIO expected values and bounds; PASS (`test_fabric.c` 119 checks, `test_canfd.c` 328 checks). No FPGA peripheral is included or emulated; target integration is NC-S4c-01/GAP-A5 | SIL | combined | covered (host contract) |
 | N22-TS4-77 | SRS-REQ-057, SRS-REQ-058, SRS-REQ-070, SRS-REQ-055 | Combined pairs that couple group B to modules owned by other work packages | OOB | CAN + command ingest (PUS/TC), I2C + sample-app sensors, Block + file/data services, NVM + table persistence | **gap** — the peer modules are owned by TS-2/TS-5 (link/PUS, TBL, reference apps) and are not in this work package; the umbrella lists "CAN/I2C with end-to-end command paths on target; Block with table storage" as not-yet-exercised. Open TBD (NC-EXT-47 §7.1). No oracle is asserted here | SIL | combined | gap |
 | N22-TS4-78 | SRS-REQ-043, SRS-REQ-044 | Renode per-check observables vs the aggregate `RENODE_TEST: PASS` marker | OOB | rely on the aggregate `RENODE_TEST: PASS` line alone as the group-B I/O requirement oracle | **gap** — the aggregate marker is not a per-requirement oracle; the per-check lines (`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_pcie`/`hal_spacewire`) are the observables (FRICK-VV-TSPEC-001 §7.6). Uncontrolled observation only: the aggregate `RENODE_TEST: PASS` line itself. No oracle is asserted for the aggregate line | PIL | individual | gap |
 | N22-TS4-79 | SRS-REQ-056, SRS-REQ-057, SRS-REQ-058, SRS-REQ-069, SRS-REQ-070, SRS-REQ-031, SRS-REQ-032, SRS-REQ-055 | On-target (HIL) evidence for all group-B I/O | OOB | run every group-B peripheral on the RTPFS160ZT silicon with real devices attached | **gap** — GAP-A5 / NC-EXT-31: real-silicon MMIO, electrical timing, device/card/flash behaviour and the PCIe/SpaceWire link require the board (NC-EXT-47 §7.5). Uncontrolled observation only: none possible without the target board. No oracle is asserted here | HIL | individual | gap |
@@ -212,10 +213,8 @@ the specific open NC where one exists. Gap rows assert **no** oracle.
   (GAP-A5; NC-EXT-47 §7.3/§7.5).
 - `N22-TS4-64` — SpaceWire hardware timing / link-layer errors / timeouts
   (TBD; NC-EXT-47 §7.3).
-- `N22-TS4-75` — CAN-FD / CANopen / RS-485 direction control backends (planned
-  SRS-REQ-062/063/064; NC-EXT-47 §7.3).
-- `N22-TS4-76` — generic fabric-device (FIC/AXI) contract (planned
-  SRS-REQ-067; NC-EXT-47 §7.3).
+- `N22-TS4-75/76` — target/emulator peripheral fidelity remains open under
+  NC-S4c-01/GAP-A5; host contract tests do not assert a target oracle.
 
 **NC-EXT-47 §7.1 — combined-I/O scenarios.**
 
@@ -289,3 +288,9 @@ oracle.
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-14 | frick-fsw | Initial TS-4 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: nominal + out-of-bound case table with explicit oracles for I/O group B (MSS CAN, MSS I2C, MSS SPI, MSS QSPI NOR MTD, MSS MMC/SD block, MPFS PCIe, SpaceWire/RMAP, MSS eNVM); gaps mapped to NC-EXT-47 sub-items with the open NC/TBD named; PCIe/SpaceWire requirement-id reconciliation against the umbrella §4 recorded |
+| 0.2 | 2026-10-15 | frick-fsw | Add implemented S4c host-oracle cases for CAN-FD/CANopen/RS-485/fabric; explicitly retain the missing CAN-FD emulator/target path as NC-S4c-01/GAP-A5, not an NC-EXT phantom or Renode PASS |
+| 0.3 | 2026-10-15 | frick-fsw | Reconcile test case ID uniqueness and verify exact post-review counts/oracles for CAN-FD timing and CANopen abort/rollback cases; mark S4c contracts implemented with bounded scope |
+| 0.4 | 2026-10-15 | frick-fsw | Clarify release-call hold parameter semantics for RS-485 and ensure the PUSopen test-case ID is unique across TS-1 |
+| 0.5 | 2026-10-15 | frick-fsw | Correct TS-4 interface-ground wording to reflect implemented bounded CANopen subset; update current final test counts |
+| 0.6 | 2026-10-15 | frick-fsw | Add exact CAN-ID/length/index/subindex checks to absent-index SDO download oracle; update CANopen count to 171 |
+| 0.7 | 2026-10-15 | frick-fsw | Correct TS-4 fabric row's CAN-FD check count to 328 and reconcile final full local cycle and test evidence |

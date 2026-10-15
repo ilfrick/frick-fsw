@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.45                                   |
-| Date                              | 2026-10-14                             |
+| Revision                          | 0.46                                   |
+| Date                              | 2026-10-15                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -15,14 +15,16 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 73, SSS = 30, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 73, SSS = 30, GAP = 14, Lean theorems = 62, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). The planned
-requirements are documented-only with `ci:docs` as evidence until their
-implementation lands: M12..M16 (SRS-REQ-045/046/051/053/054 with SSS parents
-SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
-(SRS-REQ-059..068 with SSS parents SSS-REQ-017/020/028/029)
-(SRS-REQ-052 is delivered by the fundamental PUS-C service set, M15). Event
+requirements remain documented-only with `ci:docs`: M12..M16 (SRS-REQ-045/046/
+051/053/054 with SSS parents SSS-REQ-022/023/024/026/027). S4b requirements
+059/060/061, fieldbus/PUSopen requirements 062..065, GEM TSN 066, fabric 067,
+and gPTP 068 have implementation and host-test links to their delivered or
+partial scope; target/emulator and vendor-SDK limits remain explicit. Residual
+fabric CoreTSN work is deferred under SRS-REQ-068. SRS-REQ-052 is assigned to
+the M15 fundamental PUS-C service set. Event
 profile parameters in SSS-REQ-006/SRS-REQ-072 remain authority-owned TBDs;
 passing trace convergence does not establish event-rate, latency or loss-report
 compliance (NC-EXT-75/76).
@@ -115,7 +117,7 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-049 | drivers/mem/ff_mem_static.c/h | test_mem.c | - | Static RAM pool + DMA helper + Renode DDR check (M4/M11) |
-| SRS-REQ-050 | src/pus/adapters/pus_adapter_n7.c, tools/scripts/gen_pus_asn1.sh, tools/docker/asn1scc/Dockerfile | test_pus.c, ci:renode | - | PUS-C ASN.1 (N7/ESA) default backend (implemented; ADR-0016) |
+| SRS-REQ-050 | src/pus/adapters/pus_adapter_n7.c, src/pus/adapters/pus_adapter_open.c, tools/scripts/gen_pus_asn1.sh, tools/docker/asn1scc/Dockerfile | test_pus.c | req_srs050_open_backend_is_default, req_srs050_n7_is_opt_in | Open CCSDS backend default; optional N7/ESA ASN.1 backend (ADR-0018) |
 | SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 | SRS-REQ-052 | docs/architecture/pus-c-from-scratch-assessment.md, src/pus/pus.h | ci:docs | - | Fundamental PUS-C service set (planned, M15) |
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
@@ -127,13 +129,13 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-059 | src/transport/link/link_seg.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | Seg/reassembly: 2-byte BE length-prefix for TCP, allocation-free, fixed-point buffers (SRS-REQ-015); implemented in S4b |
 | SRS-REQ-060 | src/transport/link/link_ip.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | IP backend: UDP datagrams + TCP segmentation over `FF_NetStack_t`; PUS-C round-trip uses a mock `FF_NetStack_t`, while `FF_NetStackLoopback` is a separate socket-pair reference implementation; `test_pus_ip_roundtrip` is host demonstration only |
 | SRS-REQ-061 | src/transport/link/link_tsn.{c,h}, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | TSN link backend: GEM MAC RX callback + ring buffer, Ethertype 0x88F5, over `FF_EthMac_t + FF_TsnBackend_t`; implemented in S4b; PUS-C TM/TC round-trip `test_pus_tsn_roundtrip` (Dem) |
-| SRS-REQ-062 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CAN-FD fabric backend (M4-residual; planned) |
-| SRS-REQ-063 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CANopen (CiA 301/302/402) reference stack (M4-residual; planned) |
-| SRS-REQ-064 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | RS-485 half-duplex DE/RE control (M4-residual; planned) |
-| SRS-REQ-065 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | PUSopen(R) documented adapter (M4-residual; planned; library user-supplied) |
-| SRS-REQ-066 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | GEM TSN 802.1Qav/Qci/Qbb completion (M8; planned; register-subset feasibility TBC) |
-| SRS-REQ-067 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | Generic fabric-device (FIC/AXI) contract (M4-residual; planned) |
-| SRS-REQ-068 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB (M8; planned) |
+| SRS-REQ-062 | src/drivers/can/fabric/ff_canfd_fabric.c, src/drivers/fabric/mpfs/ff_fabric_mpfs.c, src/hal/hal_fabric.h | tests/unit/test_canfd.c, tests/unit/test_fabric.c | req_srs062_dlc_max_payload | CAN-FD fabric-window backend host-verified; target peripheral absent from emulator (NC-S4c-01/GAP-A5) |
+| SRS-REQ-063 | src/drivers/can/canopen/ff_canopen.c/h, src/hal/hal_can.h | tests/unit/test_canopen.c | req_srs063_operational_command, req_srs063_stopped_command, req_srs063_preop_command, req_srs063_unknown_command_rejected, req_srs063_heartbeat_disabled, req_srs063_heartbeat_due_at_period | Bounded allocation-free CANopen subset; reset NMT commands rejected; API/callback calls require a serialized owner context; not full CiA 301/302/402 conformance |
+| SRS-REQ-064 | src/drivers/serial/mpfs/ff_serial_mpfs.c/h, src/hal/hal_serial.h | tests/unit/test_serial.c | req_srs064_drain_poll_count_bounded | RS-485 DE/RE bounded drain, post-drain hold, and visible `FF_TIMEOUT`; board/electrical policy and behavior GAP-A5 |
+| SRS-REQ-065 | src/pus/adapters/pus_adapter_pusopen.c, docs/architecture/pus-layer.md | tests/unit/test_pusopen.c, tests/stubs/pusopen.h | - | Adapter seam uses controlled API test double; vendor SDK compatibility not established |
+| SRS-REQ-066 | src/drivers/eth/gem/ff_gem_tsn.c, tests/unit/test_gem_tsn.c | test_gem_tsn.c | - | GEM TSN 802.1Qci implemented; Qav/Qbb return `FF_NOT_IMPLEMENTED`, residuals NC-S8-01/02 |
+| SRS-REQ-067 | src/hal/hal_fabric.h, src/drivers/fabric/mpfs/ff_fabric_mpfs.c | tests/unit/test_fabric.c, tests/unit/test_hal.c | req_srs067_fabric_range_rejects_overrun | Generic fabric-window contract host-verified; no FPGA peripheral included/emulated |
+| SRS-REQ-068 | src/drivers/eth/gptp/ff_gptp.c/h, src/hal/hal_tsn.h | tests/unit/test_gptp.c | - | gPTP stack implemented/host-tested; fabric CoreTSN/802.1CB remains deferred to M14 |
 | SRS-REQ-069 | drivers/spi/mpfs/ff_spi_mpfs.c/h, config/platform/platform_mpfs.h | test_spi.c, ci:renode | - | Reference MSS SPI backend (M4/M11; polled CoreSPI master, clock divider reference-derived) |
 | SRS-REQ-070 | drivers/block/mpfs/ff_block_mpfs.c/h, config/platform/platform_mpfs.h | test_block.c, ci:renode | - | Reference MSS block-device backend (M4/M11; polled SDHCI-style MMC/SD, buffer mode) |
 | SRS-REQ-071 | app_scheduler.c, tbl.c | test_r2_gap.c | - | Planned M17 application schedule dispatch; behavior not yet delivered |
@@ -176,7 +178,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-026 | docs/development-plan.md, docs/roadmap.md | ci:docs | - |
 | SSS-REQ-027 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - |
 | SSS-REQ-028 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - |
-| SSS-REQ-029 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - |
+| SSS-REQ-029 | src/drivers/can/fabric/ff_canfd_fabric.c, src/drivers/can/canopen/ff_canopen.c, src/drivers/serial/mpfs/ff_serial_mpfs.c, src/pus/adapters/pus_adapter_pusopen.c, docs/planning/sprint-plan.md | tests/unit/test_canfd.c, tests/unit/test_canopen.c, tests/unit/test_serial.c, tests/unit/test_pusopen.c | - |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -255,3 +257,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.43 | 2026-10-14 | frick-fsw | Update SRS-REQ-001 implementation/test summary for non-waiting PAL queue lock, partial fan-out and distinct full-queue status; trace gate remains 117/73/30/14/51 |
 | 0.44 | 2026-10-14 | frick-fsw | Trace the exploratory SB/EVS structural characterization and distinguish it from requirement compliance; clarify mission loss-accounting semantics remain TBD |
 | 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |
+| 0.46 | 2026-10-15 | frick-fsw | Update trace matrix for S4c/S4d source/test/Lean evidence and ADR-0018 PUS/lwIP defaults; retain explicit target-peripheral and vendor-SDK limits |

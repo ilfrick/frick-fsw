@@ -82,8 +82,10 @@ A conforming backend must respect, and document, the following (these are the
 7. **Error model** — every fallible operation returns `FF_Status_t`; faults are
    reportable (EVS).
 8. **Half-duplex / RS-485 direction** — the serial contract exposes
-   `set_rs485(en, de_assert_us)`; the backend must release the driver enable
-   within the bound after the last byte.
+  `set_rs485(en, de_assert_us)`; on the release call, `de_assert_us` supplies the
+  post-drain hold before releasing driver enable. An assert-call value is not
+  cached for a later release. A drain timeout returns `FF_TIMEOUT` even though
+  the line is released; target electrical timing remains board-specific.
 9. **Packet vs stream framing** — CAN/SpaceWire are frame/packet oriented while
    UART is a byte stream; the contract states which, and boundary framing is the
    backend's responsibility.

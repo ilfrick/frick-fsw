@@ -94,16 +94,73 @@ static FF_Status_t serial_flush(void)
     return FF_SUCCESS;
 }
 
-/* RS-485 half-duplex direction control: the transceiver DE/RE pin is board
- * specific (a GPIO); the driver records the request for the integrator (the
- * actual DE/RE toggle is wired when a control line is bound). */
+/* RS-485 half-duplex direction control (SRS-REQ-064).
+ *
+ * Assert (enable != 0): drive the transceiver to transmit immediately. The
+ * de_assert_us argument on a later release call selects that release's hold;
+ * the argument supplied while asserting is recorded but is not cached for use
+ * by a later call.
+ * Release (enable == 0): poll the transmitter-empty bit a small bounded number
+ * of times (FF_SERIAL_DRAIN_SPIN_LIMIT), apply the requested `de_assert_us`
+ * hold, then drive the transceiver back to receive. The hold - not the poll - is
+ * the authoritative turnaround: it must cover the last frame still leaving the
+ * shift register plus the transceiver skew, and the integrator tunes it from the
+ * configured baud rate (frame bits / baud, plus margin). Releasing the bus is
+ * deliberately unconditional (fail-safe): a line left asserted in transmit
+ * blocks every other transceiver on the half-duplex bus, so a poll that
+ * exhausts its budget counts a `drain_timeouts` diagnostic, returns FF_TIMEOUT
+ * to report uncertain TX, and still releases the line. This does not prove that
+ * the frame completed. When no control line is bound the request is recorded for
+ * the board integrator and nothing is driven. */
 static FF_Status_t serial_set_rs485(uint8_t enable, uint32_t de_assert_us)
 {
+    uint16_t polls = 0u;
+    uint32_t spin = 0u;
+
     if (g_ser == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
+    if (enable > 1u) {
         return FF_INVALID_ARGUMENT;
     }
     g_ser->rs485 = enable;
     g_ser->de_assert_us = de_assert_us;
+    if (g_ser->dere == NULL) {
+        return FF_SUCCESS; /* record-only: no direction line bound */
+    }
+    if (enable != 0u) {
+        g_ser->dere->write(g_ser->dere->ctx, 1u);
+        g_ser->de_line = 1u;
+        return FF_SUCCESS;
+    }
+    /* Best-effort drain before the turnaround hold. */
+    while (((g_ser->bus.read8(g_ser->bus.ctx, FF_UART_REG_LSR) & FF_UART_LSR_TX_EMPTY) == 0u) &&
+           (spin < (uint32_t)FF_SERIAL_DRAIN_SPIN_LIMIT)) {
+        spin++;
+    }
+    polls = (uint16_t)spin;
+    if (spin >= (uint32_t)FF_SERIAL_DRAIN_SPIN_LIMIT) {
+        g_ser->drain_timeouts++;
+    }
+    g_ser->drain_polls = polls;
+    if (de_assert_us != 0u) {
+        g_ser->dere->delay_us(g_ser->dere->ctx, de_assert_us);
+    }
+    g_ser->dere->write(g_ser->dere->ctx, 0u);
+    g_ser->de_line = 0u;
+    return (spin >= (uint32_t)FF_SERIAL_DRAIN_SPIN_LIMIT) ? FF_TIMEOUT : FF_SUCCESS;
+}
+
+FF_Status_t FF_SerialMpfsBindDeRe(FF_SerialMpfs_t *s, const FF_SerialDeRe_t *dere)
+{
+    if ((s == NULL) || (dere == NULL) || (dere->write == NULL) || (dere->delay_us == NULL)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    dere->write(dere->ctx, 0u); /* start in receive */
+    s->dere = dere;
+    s->de_line = 0u;
+    s->drain_polls = 0u;
+    s->drain_timeouts = 0u;
     return FF_SUCCESS;
 }
 
@@ -124,7 +181,11 @@ FF_Status_t FF_SerialMpfsSetup(FF_SerialMpfs_t *s, const FF_SerialBus_t *bus)
         return FF_INVALID_ARGUMENT;
     }
     s->bus = *bus;
+    s->dere = NULL;
     s->rs485 = 0u;
+    s->de_line = 0u;
+    s->drain_polls = 0u;
+    s->drain_timeouts = 0u;
     s->de_assert_us = 0u;
     s->serial.name = "mpfs-mmuart";
     s->serial.init = serial_init;

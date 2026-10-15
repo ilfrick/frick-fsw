@@ -97,7 +97,7 @@ software runs on the host simulator and on the MPFS target (see
 | Time Services (TIME) | UTC correlation, CUC encoding | `src/core/time/` |
 | CCSDS transport | Space Packet encode/decode, CRC-16/CCITT-FALSE | `src/transport/ccsds/` |
 | Link layer | byte-stream transport (loopback / UART) | `src/transport/link/` |
-| PUS layer | TC dispatch, S1 verification, TM emission, N7/ESA ASN.1 backend vtable (default) | `src/pus/` |
+| PUS layer | TC dispatch, S1 verification, TM emission, open CCSDS backend default; optional N7/ESA ASN.1 backend | `src/pus/` |
 | Applications | scheduler, command ingest, TM output, HK, HS, sample telemetry | `src/apps/` |
 | Hardware abstraction (HAL) | bus/device/memory contracts + bounded registry (M3) | `src/hal/` |
 | Board support | RTPFS160ZT init, boot core selection | `src/bsp/mpfs/` |
@@ -106,7 +106,7 @@ software runs on the host simulator and on the MPFS target (see
 
 1. PAL init -> SB init -> EVS init -> ES init -> TBL init -> TIME init ->
    board init -> mission tables init (fsw_main.c).
-2. PUS init with the N7/ESA ASN.1 backend (default); link init (loopback/UART).
+2. PUS init with the open CCSDS backend (default); link init (loopback/UART).
 3. EVS listener forwards every event to PUS service 5 telemetry.
 4. Six applications are registered with ES and started as tasks.
 

@@ -189,7 +189,7 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-015
     derived: true
-    justification: "ADR-0003/ADR-0016: PUS product abstraction; the N7/ESA ASN.1 backend is the default (SRS-REQ-050), the open backend is an alternative, and the PUSopen(R) adapter is optional/planned (SRS-REQ-065)."
+    justification: "ADR-0003/ADR-0018: PUS product abstraction; the open CCSDS backend is the default, the N7/ESA ASN.1 backend is optional (SRS-REQ-050), and the PUSopen(R) adapter is optional (SRS-REQ-065)."
     implementation: ["src/pus/pus.h", "src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
     tests: ["tests/unit/test_pus.c"]
 
@@ -474,10 +474,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-015
     derived: false
-    implementation: ["src/pus/adapters/pus_adapter_n7.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
-    tests: ["tests/unit/test_pus.c", "ci:renode"]
-    lean: []
-    lean_note: "PUS-C ASN.1 (N7/ESA asn1-pusc-lib, ASN1SCC-compiled at build time) is the DEFAULT PUS backend (FF_PusBackendN7): the PUS-C field vocabulary/widths come from the generated ASN.1 types and the packet error control uses the N7/ESA ECSS Annex B.1 CRC; verified on host (14/14) and on the emulated SoC (make renode PASS). Deep per-service ASN.1 type codecs = M15."
+    implementation: ["src/pus/adapters/pus_adapter_n7.c", "src/pus/adapters/pus_adapter_open.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
+    tests: ["tests/unit/test_pus.c"]
+    lean: ["req_srs050_open_backend_is_default", "req_srs050_n7_is_opt_in"]
+    lean_note: "The local open CCSDS codec is the default PUS backend. The optional N7/ESA ASN.1 backend remains available when explicitly enabled with FF_USE_PUS_ASN1=ON and generated sources are present; its detailed type-codec mapping remains M15."
 
   - id: SRS-REQ-051
     level: srs
@@ -582,37 +582,37 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-029
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
-    lean: []
-    lean_note: "Reference CAN-FD backend via the generic fabric (FIC/AXI) contract (M4-residual). Planned; the MSS CAN controller is classic-only (FD is a fabric device)."
+    implementation: ["src/drivers/can/fabric/ff_canfd_fabric.c", "src/drivers/fabric/mpfs/ff_fabric_mpfs.c", "src/hal/hal_fabric.h"]
+    tests: ["tests/unit/test_canfd.c", "tests/unit/test_fabric.c"]
+    lean: ["req_srs062_dlc_max_payload"]
+    lean_note: "Reference CAN-FD backend via generic fabric-window contract, verified with host register-window mocks. The MSS CAN controller is classic-only and no fabric CAN-FD peripheral is emulated; target peripheral behavior remains GAP-A5 and NC-S4c-01."
 
   - id: SRS-REQ-063
     level: srs
     parent_sss: SSS-REQ-029
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
-    lean: []
-    lean_note: "Reference CANopen (CiA 301/302/402) stack over FF_CanOpenStack_t (M4-residual). Planned; the contract exists (SRS-REQ-029)."
+    implementation: ["src/drivers/can/canopen/ff_canopen.c", "src/drivers/can/canopen/ff_canopen.h", "src/hal/hal_can.h"]
+    tests: ["tests/unit/test_canopen.c"]
+    lean: ["req_srs063_operational_command", "req_srs063_stopped_command", "req_srs063_preop_command", "req_srs063_unknown_command_rejected", "req_srs063_heartbeat_disabled", "req_srs063_heartbeat_due_at_period"]
+    lean_note: "Single-instance allocation-free CANopen subset over FF_CanOpenStack_t: NMT state subset, heartbeat, EMCY transmit, expedited SDO server for configured 1/2/4-byte OD entries, and PDO transmit. RX callbacks and public stack/OD operations require one serialized owner context; concurrent use is unsupported. Does not claim full CiA 301/302/402 conformance; see requirement exclusions and GAP-A5."
 
   - id: SRS-REQ-064
     level: srs
     parent_sss: SSS-REQ-029
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
-    lean: []
-    lean_note: "RS-485 half-duplex DE/RE direction control (M4-residual). Planned; the contract hook exists (SRS-REQ-030) and the MSS backend records the request, but the control line is not driven yet."
+    implementation: ["src/drivers/serial/mpfs/ff_serial_mpfs.c", "src/drivers/serial/mpfs/ff_serial_mpfs.h", "src/hal/hal_serial.h"]
+    tests: ["tests/unit/test_serial.c"]
+    lean: ["req_srs064_drain_poll_count_bounded"]
+    lean_note: "MSS serial RS-485 direction control drives the bound DE/RE callback; TX-empty polling is bounded, then the configured de_assert_us post-drain hold is applied. A poll timeout still releases the line and returns FF_TIMEOUT to indicate uncertain TX. Hardware turnaround timing and board-level control-line behavior remain GAP-A5."
 
   - id: SRS-REQ-065
     level: srs
     parent_sss: SSS-REQ-029
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/pus/adapters/pus_adapter_pusopen.c", "docs/architecture/pus-layer.md"]
+    tests: ["tests/unit/test_pusopen.c", "tests/stubs/pusopen.h"]
     lean: []
-    lean_note: "Documented PUSopen(R) adapter over the PUS product contract (M4-residual). Planned; the commercial library is user-supplied (ADR-0014)."
+    lean_note: "The adapter is an API translation seam over user-supplied vendor code; its tested behavior is interface translation/bounds, not a separate pure algorithm suitable for formalization. The test double is not vendor SDK compatibility or PUSopen qualification (ADR-0018)."
 
   - id: SRS-REQ-066
     level: srs
@@ -627,10 +627,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-017
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
-    lean: []
-    lean_note: "Generic fabric-device (FIC/AXI) contract for resources reached through the FPGA fabric (M4-residual). Planned; the fabric CAN-FD/SpaceWire/TSN backends build on it."
+    implementation: ["src/hal/hal_fabric.h", "src/drivers/fabric/mpfs/ff_fabric_mpfs.c"]
+    tests: ["tests/unit/test_fabric.c", "tests/unit/test_hal.c"]
+    lean: ["req_srs067_fabric_range_rejects_overrun"]
+    lean_note: "Generic fabric-window contract with bounded range/alignment checks, MMIO callbacks, and optional read-modify-write self-test; verified using host mocks. No FPGA peripheral is included or emulated."
 
   - id: SRS-REQ-068
     level: srs
@@ -788,7 +788,7 @@ requirements:
   - id: SSS-REQ-015
     level: sss
     derived: true
-    justification: "Applicable PUS-C backends are pluggable behind FF_Pus_Backend_t: the auditable N7/ESA ASN.1 backend is the default (SRS-REQ-050, ADR-0016), the open CCSDS backend is always available as the fallback, and the PUSopen adapter is optional (commercial, never distributed)."
+    justification: "Applicable PUS-C backends are pluggable behind FF_Pus_Backend_t: the open CCSDS backend is the default (ADR-0018), the N7/ESA ASN.1 backend is optional (SRS-REQ-050), and the PUSopen adapter is optional (commercial, never distributed)."
     implementation: ["src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
     tests: ["tests/unit/test_pus.c"]
 
@@ -896,10 +896,10 @@ requirements:
   - id: SSS-REQ-029
     level: sss
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/drivers/can/fabric/ff_canfd_fabric.c", "src/drivers/can/canopen/ff_canopen.c", "src/drivers/serial/mpfs/ff_serial_mpfs.c", "src/pus/adapters/pus_adapter_pusopen.c", "docs/planning/sprint-plan.md"]
+    tests: ["tests/unit/test_canfd.c", "tests/unit/test_canopen.c", "tests/unit/test_serial.c", "tests/unit/test_pusopen.c"]
     lean: []
-    lean_note: "Extended fieldbus and PUS-library coverage (M4-residual, restored scope): CAN-FD (fabric), CANopen (CiA 301/302/402), RS-485 half-duplex direction control, PUSopen(R) adapter. Planned."
+    lean_note: "Extended fieldbus and PUS-library scope (M4-residual, restored): CAN-FD and generic fabric contract are host-tested with no emulated fabric peripheral; CANopen is the allocation-free documented subset (not full CiA 301/302/402); RS-485 has a bound-callback implementation with timeout reporting but awaits board/electrical verification; PUSopen is a vendor-supplied adapter seam tested with an API double, not vendor compatibility evidence."
 
   - id: SSS-REQ-030
     level: sss

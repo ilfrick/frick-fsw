@@ -76,7 +76,7 @@ static void test_ping_roundtrip(void)
     FF_TEST_ASSERT(stream_has(17u, 2u));
 
 #if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
-    /* SRS-REQ-050: the default N7/ESA ASN.1 backend must not corrupt the
+    /* SRS-REQ-050: the optional N7/ESA ASN.1 backend must not corrupt the
      * reference framing — its TM output is byte-identical to the open backend
      * (same ECSS Annex B.1 CRC). */
     {

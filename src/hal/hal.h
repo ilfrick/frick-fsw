@@ -4,7 +4,8 @@
  * Milestone M3. The HAL is the seam between the framework and every bus,
  * device and memory resource. Contracts are declared per resource
  * (hal_eth.h, hal_net.h, hal_tsn.h, hal_can.h, hal_serial.h, hal_spi.h
- * [SPI + I2C], hal_pcie.h, hal_gpio.h, hal_spacewire.h, hal_mem.h); this header
+ * [SPI + I2C], hal_pcie.h, hal_gpio.h, hal_spacewire.h, hal_fabric.h,
+ * hal_mem.h); this header
  * holds the bounded, allocation-free registry that lets a user register their
  * own backend under a stable name, per resource class, without modifying the
  * framework. See docs/architecture/hardware-abstraction.md.
@@ -30,6 +31,7 @@ typedef enum {
     FF_HAL_PCIE,      /* PCIe endpoint/root (hal_pcie.h)               */
     FF_HAL_GPIO,      /* GPIO + interrupt (hal_gpio.h)                 */
     FF_HAL_SPACEWIRE, /* SpaceWire + RMAP (hal_spacewire.h)            */
+    FF_HAL_FABRIC,    /* Fabric-attached device via FIC/AXI (hal_fabric.h) */
     FF_HAL_MEM,       /* RAM pool + DMA (hal_mem.h)                    */
     FF_HAL_BLOCK,     /* Block device: eMMC/SD/SSD (hal_mem.h)         */
     FF_HAL_NVM,       /* Non-volatile memory: eNVM/sNVM (hal_mem.h)    */

@@ -79,7 +79,7 @@ int ff_fsw_main(void)
     /* PUS layer with the default open backend. */
     if ((FF_PusInit() != FF_SUCCESS) ||
 #if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
-        (FF_PusSetBackend(&FF_PusBackendN7) != FF_SUCCESS) /* PUS-C ASN.1 default (SRS-REQ-050) */
+        (FF_PusSetBackend(&FF_PusBackendN7) != FF_SUCCESS) /* optional N7 backend */
 #else
         (FF_PusSetBackend(&FF_PusBackendOpen) != FF_SUCCESS)
 #endif

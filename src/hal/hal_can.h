@@ -2,7 +2,7 @@
  * frick-fsw - HAL contract: CAN / CANopen / CAN-FD backend
  *
  * Classic CAN (ISO 11898-1 / CAN 2.0 A/B) and CAN-FD share one backend
- * contract; CANopen (CiA 301/302/402) is a protocol stack layered on it
+ * contract; the project supplies a documented CANopen subset layered on it
  * (SRS-REQ-029). On the MPFS, classic CAN is an MSS resource while CAN-FD is a
  * fabric device reached through the FIC (see docs/development-plan.md).
  *
@@ -29,7 +29,8 @@ struct FF_CanBackend
     void (*set_rx_callback)(FF_CanRxCb_t cb, void *ctx);
 };
 
-/* CANopen application layer (CiA 301/302/402) over a CAN backend. */
+/* CANopen application-layer subset defined by SRS-REQ-063 over a CAN backend;
+ * this interface does not assert full CiA 301/302/402 conformance. */
 typedef struct FF_CanOpenStack FF_CanOpenStack_t;
 struct FF_CanOpenStack
 {
