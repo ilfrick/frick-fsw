@@ -154,6 +154,7 @@ format:
 
 docs:
 	rm -rf build/doxygen
+	mkdir -p build/doxygen
 	doxygen Doxyfile
 
 coverage-configure:

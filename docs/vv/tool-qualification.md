@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.71                                 |
-| Date                              | 2026-10-14                             |
+| Revision                          | 0.3.72                                 |
+| Date                              | 2026-10-15                             |
 | Applicable norms                  | N6, N10, N11                           |
 
 Norm N10 requires every test script / V&V tool to be **qualified** per
@@ -181,3 +181,4 @@ pending a clean image build and repeat of `make qemu`/`make renode` under NC-EXT
 | 0.3.69 | 2026-10-14 | frick-fsw | Correct T22 N10 gate statement: source review/inspection and independent R2 delta are complete, but local procedure's CI-execution criterion is not met because only the CTest boundary case—not the matrix runner—is currently wired into CI |
 | 0.3.70 | 2026-10-14 | frick-fsw | Register the full SB/EVS sweep runner as a CTest so `make ci-local` exercises it; retain T22 as pending independent requalification/hosted evidence, not mission compliance |
 | 0.3.71 | 2026-10-14 | frick-fsw | Record local CTest run identities and scoped R2/R4/PA review dispositions; hosted/immutable evidence and formal mission-compliance credit remain open |
+| 0.3.72 | 2026-10-15 | frick-fsw | Record the `make docs` target fix (`mkdir -p build/doxygen` before `doxygen Doxyfile`) so fresh-checkout host/CI generation works; scoped R4 0283 / PA 0284 delta reviews record the change and its tracked comments; no N10 qualification or release credit |

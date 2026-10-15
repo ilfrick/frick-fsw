@@ -7,6 +7,36 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### CI documentation-job fix: create the Doxygen output directory (2026-10-15)
+
+- Fixed `make docs` failing on a fresh checkout in the GitHub and Gitea CI
+  `docs` jobs. Doxygen 1.9.8 creates `OUTPUT_DIRECTORY` with a single-level
+  `mkdir(2)`, so `mkdir("build/doxygen")` failed with `ENOENT` when the parent
+  `build/` did not exist, producing `error: tag OUTPUT_DIRECTORY: Output
+  directory 'build/doxygen' does not exist and cannot be created`. The `docs`
+  target now runs `mkdir -p build/doxygen` before `doxygen Doxyfile`, so
+  `make docs` works from a fresh clone as stated in `AGENTS.md` section 3. The
+  condition was not visible locally because earlier builds had already created
+  `build/`.
+- Provenance (regression origin): commit `7cb90a6` (2026-10-10, "ci(docs):
+  create doxygen output dir before generating docs") fixed the same Doxygen
+  1.9.8 error by adding `mkdir -p build/doxygen && doxygen Doxyfile` inline in
+  both workflow steps; `a4c436c` replaced those inline steps with `make docs`
+  while the `docs` target did not create the directory, so the CI `docs` job
+  regressed. This change restores directory creation in the target.
+- Evidence (pristine tree with no `build/`, Doxygen 1.9.8 in `frick-vv:local`,
+  matching the GitHub `docs` job): reproduction of the original failure
+  (`Output directory 'build/doxygen' ... cannot be created`, Doxygen exit 1 /
+  `make` exit 2) and
+  post-fix `make docs` exit 0 with `build/doxygen/html/index.html` present;
+  documentation-set N8/N16 id-uniqueness check (248 unique document ids);
+  reviewer-persona drift check; N13 license check; `make gsw-selfcheck`
+  (5 GSW + 9 metrics + 14 license Python checks). Pre-existing Doxygen warnings
+  are unchanged and non-fatal.
+- This corrects a functional build defect (N21). It does not close hosted-CI
+  evidence, T21 tool qualification, NC-EXT-43, or any release/qualification
+  gate.
+
 ### SB/EVS requirements trace and audit correction (2026-10-14)
 
 - Clarified SRS-REQ-072 that dispatch-rate and `Lmax` performance guarantees

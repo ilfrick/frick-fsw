@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 3.1                                    |
-| Date                              | 2026-10-14                             |
-| Baseline commit                   | `57974d297ab8a1e295258d1f3054bbbe2dd0f323` (HEAD); audit covers current uncommitted working tree |
+| Revision                          | 3.2                                    |
+| Date                              | 2026-10-15                             |
+| Baseline commit                   | `a4c436cceb6e06f468bbd2be23e3f196c73e0f82` (HEAD); audit covers current uncommitted working tree |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -400,3 +400,4 @@ NC-EXT-75 remains open and NC-EXT-47 is not closed.
 | 2.9 | 2026-10-14 | frick-fsw | Re-audit exact dirty-tree scope (234 tracked + 120 untracked), correct R3 SRS/trace findings, clarify N10's actual CI-exercise gap for T22, and explicitly freeze further review expansion pending a new scope snapshot |
 | 3.0 | 2026-10-14 | frick-fsw | Register the full T22 sweep runner in CTest and record 30/30 local CI pass; Doxygen container recovery is recorded; worktree scope and independent/hosted gates remain open |
 | 3.1 | 2026-10-14 | frick-fsw | Reconcile T22 audit status with local full-matrix CTest and scoped R2/R4/PA reviews; preserve hosted/immutable evidence and aggregate worktree-scope gates |
+| 3.2 | 2026-10-15 | frick-fsw | New loop: fix the CI `docs` job failure (`make docs` on a fresh checkout; Doxygen 1.9.8 creates `OUTPUT_DIRECTORY` with a single-level `mkdir`, so `build/doxygen` cannot be created when `build/` is absent) by running `mkdir -p build/doxygen` in the `docs` target; verify on a pristine tree and record; hosted CI, T21, NC-EXT-43 and release gates remain open |
