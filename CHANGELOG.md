@@ -33,6 +33,12 @@ change. All dates UTC, project language English (norm N2).
   reviewer-persona drift check; N13 license check; `make gsw-selfcheck`
   (5 GSW + 9 metrics + 14 license Python checks). Pre-existing Doxygen warnings
   are unchanged and non-fatal.
+- CI metrics-currency gate (norm N8): the two new review reports added one
+  review stream, so the README status panel was regenerated
+  (`tools/scripts/metrics.py --readme`); review streams 32/78 -> 32/79 and
+  `tools/scripts/metrics.py --check` now reports `metrics panel: current`.
+  This was surfaced by hosted CI run #82 (`build` job, step *Metrics panel
+  currency*), which the earlier local sweep did not exercise.
 - This corrects a functional build defect (N21). It does not close hosted-CI
   evidence, T21 tool qualification, NC-EXT-43, or any release/qualification
   gate.
