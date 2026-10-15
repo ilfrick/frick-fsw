@@ -53,10 +53,10 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
 | Sprints completed | 9/33 (27.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 22/30 (73.3%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 62/73 (84.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| SSS requirements satisfied | 24/30 (80.0%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 67/73 (91.8%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 32/80 (40.0%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 33/98 (33.7%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -65,9 +65,9 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements in manifest | 117 (srs=73, sss=30, gap=14) | `traceability.yaml` |
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/117 (17.1%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 5651/7933 (71.2%) | gcov |
-| Code function coverage | 683/702 (97.3%) | gcov |
+| Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 7135/10373 (68.8%) | gcov |
+| Code function coverage | 826/846 (97.6%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

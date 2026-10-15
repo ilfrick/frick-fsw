@@ -15,7 +15,10 @@
 #include <string.h>
 
 /* Reference: broadcast destination MAC. */
-#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+#define FF_LINK_TSN_REF_MAC                                                                        \
+    {                                                                                              \
+        0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu                                                   \
+    }
 
 typedef struct
 {
