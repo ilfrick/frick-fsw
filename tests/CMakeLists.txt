@@ -1,10 +1,12 @@
 # frick-fsw - unit test registration (CMake)
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 
 add_executable(test_ccsds unit/test_ccsds.c)
 add_executable(test_sb    unit/test_sb.c)
+add_executable(test_sb_stress unit/test_sb_stress.c)
+add_executable(test_sb_sweep unit/test_sb_sweep.c)
 add_executable(test_tbl   unit/test_tbl.c)
 add_executable(test_pus   unit/test_pus.c)
 add_executable(test_time  unit/test_time.c)
@@ -14,7 +16,7 @@ if(NOT FF_BUILD_HAL)
 endif()
 add_executable(test_r3_gap unit/test_r3_gap.c)
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_tbl test_pus test_time test_r2_gap test_r3_gap)
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_pus test_time test_r2_gap test_r3_gap)
 if(FF_BUILD_HAL)
   add_executable(test_hal unit/test_hal.c)
   list(APPEND FF_TEST_TARGETS test_hal)
@@ -73,8 +75,27 @@ foreach(t ${FF_TEST_TARGETS})
   target_link_libraries(${t} PRIVATE frick_fsw_core)
 endforeach()
 
+# Strict warning gate for the test scripts (norm N9/M9 quality gate). The tests
+# are our own code: compile them with -Wall -Wextra -Werror so the
+# "-Wall -Wextra -Werror clean" evidence claim (docs/vv/verification-results.md)
+# is produced by the default build and by CI, not asserted out-of-band.
+foreach(t ${FF_TEST_TARGETS})
+  target_compile_options(${t} PRIVATE -Wall -Wextra -Werror)
+endforeach()
+
 add_test(NAME ccsds COMMAND test_ccsds)
 add_test(NAME sb    COMMAND test_sb)
+add_test(NAME sb_stress COMMAND test_sb_stress)
+add_test(NAME sb_sweep_boundary COMMAND test_sb_sweep 32 32)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_test(
+  NAME sb_evs_structural_sweep
+  COMMAND ${Python3_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/tools/scripts/sb_evs_structural_sweep.py
+          $<TARGET_FILE:test_sb_sweep>
+          --output ${CMAKE_BINARY_DIR}/sb-evs-structural-sweep.csv
+)
+set_tests_properties(sb_evs_structural_sweep PROPERTIES TIMEOUT 180 LABELS "tool-qualification;sb-evs")
 add_test(NAME tbl   COMMAND test_tbl)
 add_test(NAME pus   COMMAND test_pus)
 add_test(NAME time  COMMAND test_time)

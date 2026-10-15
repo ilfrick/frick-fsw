@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-A-001                       |
-| Revision                          | 0.10                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.12                                   |
+| Date                              | 2026-10-13                             |
 | Norm                              | N5 (gaps to reach class A documented)  |
 | Tracking                          | GAP-A1..A14 in `docs/requirements/traceability.yaml` (GAP-A1b is a sub-item of GAP-A1, not separately tracked) |
 
@@ -115,6 +115,15 @@ class-A flight gap (build-time tool, re-qualified as T19).
   DMA/ADMA, command queuing, SDIO or PHY tuning); the emulated board has no SD
   card and the on-target SD clock/bus-width programming and card initialisation
   are confirmed on target.
+- IP/TSN link-level PUS-C verification (SRS-REQ-059/060/061): the
+  segmentation/reassembly framing (2-byte BE length prefix for TCP), the IP link
+  backend (UDP default + TCP over `FF_NetStack_t`) and the TSN link backend
+  (EtherType 0x88F5 over `FF_EthMac_t` + `FF_TsnBackend_t` + GEM) are
+  host-verified with mock network-stack and mock-MMIO-GEM unit tests; the
+  on-target Ethernet link-level round-trip, TSN time-synchronisation (802.1AS
+  PTP) accuracy, VLAN/PCP tagging and real PHY/link behaviour remain unverified;
+  the Renode GEM model is register-only and does not establish DMA or packet-path
+  operation (GAP-A5). NC-S4b-01 remains open pending independent delta review.
 
 ## GAP-A6 - Environmental / radiation campaign
 
@@ -222,3 +231,5 @@ norm N9/N12 before the class-A baseline can be claimed.
 | 0.8 | 2026-10-12 | frick-fsw | GAP-A5 gains the RS-485 DE/RE on-target residual (control line board-specific, not driven; assert timing/turnaround on target) — restored M4 scope SRS-REQ-064 |
 | 0.9 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS SPI on-target residual (per-rate SCL accuracy; the CLKRATE divider and the 100 MHz APB reference are a reference derivation) — SRS-REQ-069 |
 | 0.10 | 2026-10-12 | frick-fsw | GAP-A5 gains the MSS block-device on-target residual (SD clock/bus-width and card init; polled buffer mode only) — SRS-REQ-070 |
+| 0.11 | 2026-10-13 | frick-fsw | GAP-A5 gains the IP/TSN link-level on-target residual for PUS-C over IP/TSN (SRS-REQ-059/060/061): segment/reassembly framing, IP backend (UDP+TCP over FF_NetStack_t) and TSN backend (EtherType 0x88F5 over FF_EthMac_t+FF_TsnBackend_t + GEM) host-verified with mock network stack/MAC. The original history entry incorrectly said the on-target path was confirmed and NC-S4b-01 closed; neither claim had target evidence or independent delta closure. Corrected by rev 0.12. |
+| 0.12 | 2026-10-13 | frick-fsw | Correct prior unsupported on-target claims for IP/TSN: these remain unverified due to the register-only Renode GEM model; NC-S4b-01 remains open pending independent review. Host mock-stack/MAC evidence is explicitly bounded to the host. |

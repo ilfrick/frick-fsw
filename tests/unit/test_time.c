@@ -9,7 +9,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "fsw_config.h"
@@ -47,7 +47,9 @@ static void test_init_and_basic_cuc(void)
      * is wall-clock sensitive and is exercised only through byte round-trip. */
     FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
     FF_TEST_ASSERT(coarse == 0u);
-    FF_TEST_ASSERT(fine < 65536u);
+    /* The fine fraction is a uint16_t: a `< 65536` range assert is tautological
+     * (and -Wtype-limits rejects it); its lossless recovery is covered by the
+     * CUC byte round-trip in test_cuc_encode_decode below. */
 }
 
 static void test_utc_and_leap_correlation(void)
@@ -100,7 +102,8 @@ static void test_cuc_bytes(void)
      * any second wall-clock read. */
     FF_TEST_ASSERT(FF_TimeCucDecode(buf, len, &c1, &f1) == FF_SUCCESS);
     FF_TEST_ASSERT(c1 == 5u);
-    FF_TEST_ASSERT(f1 < 65536u);
+    /* f1 is a uint16_t fine fraction (range implied by the type, so no
+     * `< 65536` assert; -Wtype-limits rejects that comparison). */
 
     /* Decode is deterministic on a given buffer. */
     FF_TEST_ASSERT(FF_TimeCucDecode(buf, len, &c1b, &f1b) == FF_SUCCESS);

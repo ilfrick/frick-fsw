@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SDD-001                          |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.9                                    |
 | Date                              | 2026-10-12                             |
 | Audience                          | software engineers, reviewers, integrators |
 | References                        | ECSS-E-ST-40C (software design), `docs/requirements/SRS.md`, `docs/architecture/*`, `docs/interfaces/ICD.md` |
@@ -44,7 +44,8 @@ confined to the BSP/driver layer and to the documented class-A gaps.
 | Board support | `src/bsp/mpfs/` | RTPFS160ZT bring-up behind the HAL | `FF_BoardInit` |
 
 Data flow (nominal): link -> `FF_PusIngest` -> handler -> service action ->
-`FF_SbPublish`/`FF_EvsSend` -> `FF_PusSendTm` -> link. Time: PPS backend ->
+`FF_SbPublish`/`FF_EvsSend` (SB overflow uses `FF_EvsSendDeferred`) ->
+`FF_PusSendTm` -> link. Time: PPS backend ->
 `FF_TimeToneSignal` -> CUC/UTC -> PUS S9/TM header.
 
 ## 3. Detailed design (per module)
@@ -153,3 +154,4 @@ SpaceWire, TSN) as generic fabric-device backends.
 | 0.6 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-058 (reference MSS I2C driver) in the design matrix |
 | 0.7 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-069 (reference MSS SPI driver) in the design matrix (M4/M11) |
 | 0.8 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-070 (reference MSS block-device driver) in the design matrix (M4/M11) |
+| 0.9 | 2026-10-14 | frick-fsw | Clarify that SB overflow uses explicit deferred EVS send while ordinary EVS sends remain synchronous |

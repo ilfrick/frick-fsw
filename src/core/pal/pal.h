@@ -15,7 +15,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #ifndef FF_PAL_H
 #define FF_PAL_H
@@ -46,6 +46,8 @@ FF_TaskId_t FF_PalTaskSelf(void);
 /* ---- Mutexes ----------------------------------------------------- */
 FF_Status_t FF_PalMutexCreate(FF_MutexId_t *id, const char *name);
 FF_Status_t FF_PalMutexLock(FF_MutexId_t id, uint32_t timeout_ms);
+/* Attempts to acquire once without waiting; busy mutexes return FF_TIMEOUT. */
+FF_Status_t FF_PalMutexTryLock(FF_MutexId_t id);
 FF_Status_t FF_PalMutexUnlock(FF_MutexId_t id);
 FF_Status_t FF_PalMutexDelete(FF_MutexId_t id);
 
@@ -53,9 +55,15 @@ FF_Status_t FF_PalMutexDelete(FF_MutexId_t id);
 FF_Status_t FF_PalQueueCreate(FF_QueueId_t *id, const char *name, uint16_t depth,
                               uint16_t item_size);
 FF_Status_t FF_PalQueuePut(FF_QueueId_t id, const void *item, uint32_t timeout_ms);
+/* Acquires the queue mutex once; FF_TIMEOUT means busy, FF_BUFFER_FULL means full. */
+FF_Status_t FF_PalQueueTryPut(FF_QueueId_t id, const void *item);
 FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms);
 FF_Status_t FF_PalQueueDelete(FF_QueueId_t id);
 uint16_t FF_PalQueueCount(FF_QueueId_t id);
+#ifdef FF_TEST_HOOKS
+FF_Status_t FF_PalQueueTestLock(FF_QueueId_t id);
+FF_Status_t FF_PalQueueTestUnlock(FF_QueueId_t id);
+#endif
 
 /* ---- Time -------------------------------------------------------- */
 uint64_t FF_PalGetMonotonicNs(void);

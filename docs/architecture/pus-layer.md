@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ARCH-0003 |
 | ----------- | --------------- |
-| Revision    | 0.1.1 |
-| Date        | 2026-10-10 |
+| Revision    | 0.1.2 |
+| Date        | 2026-10-13 |
 
 ## 1. Purpose
 
@@ -14,13 +14,22 @@ the implemented services.
 ## 2. Backend abstraction (ADR-0003)
 
 ```c
-typedef struct FF_Pus_Backend {
-    FF_Status_t (*decode_tc)(const uint8_t*, uint16_t, uint16_t*, FF_Pus_TcHdr_t*,
-                             const uint8_t**, uint16_t*);
-    FF_Status_t (*encode_tm)(uint8_t*, uint16_t, uint16_t*, FF_Pus_TmHdr_t*,
-                             const uint8_t*, uint16_t);
+typedef struct {
+    const char *name;
+    FF_Status_t (*init)(void);
+    FF_Status_t (*encode_tm)(const FF_Pus_TmHdr_t *hdr, const uint8_t *data,
+                             uint16_t data_len, uint8_t *out, size_t out_cap,
+                             uint16_t *out_len);
+    FF_Status_t (*decode_tc)(const uint8_t *raw, uint16_t len, uint16_t *apid,
+                             FF_Pus_TcHdr_t *hdr, const uint8_t **data,
+                             uint16_t *data_len);
 } FF_Pus_Backend_t;
 ```
+
+This declaration mirrors the compiled public API in `src/pus/pus.h`; that
+header is authoritative if this illustrative signature and the implementation
+ever diverge. The encoder receives the PUS header and payload first, then the
+output buffer/capacity and returned output length.
 
 - **Default backend** (`FF_PusBackendN7`): the N7 Space / ESA `asn1-pusc-lib`
   ASN.1/ACN PUS-C model, ASN1SCC-compiled at build time
@@ -101,3 +110,4 @@ SSS-REQ-003/004/005/006/007/014/015 and the SRS-REQ-00x links in
 | ----- | ---------- | --------- | ------ |
 | 0.1   | 2026-10-10 | frick-fsw | Initial PUS layer architecture |
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid TC/TM sequence diagram (norm N8) |
+| 0.1.2 | 2026-10-13 | frick-fsw | Align documented backend vtable with `src/pus/pus.h`; NC-EXT-27 correction pending independent review |

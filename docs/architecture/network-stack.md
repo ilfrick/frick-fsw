@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0012                        |
-| Revision                          | 0.6                                    |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.9                                    |
+| Date                              | 2026-10-13                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SRS-REQ-027, SRS-REQ-039, SRS-REQ-040, SRS-REQ-059, SRS-REQ-060, SRS-REQ-061 |
 
@@ -54,8 +54,9 @@ user-supplied adapters.
   (`FF_EthMac_t`) and whose RX callback feeds `tcpip_input`; on the lwIP-enabled
   emulated image the check binds the netif to the emulated GEM and asserts
   netif-up (`hal_net_lwip`). The full TX/RX packet round-trip and the emulated GEM
-  DMA are open (NC-S6-01/NC-S6-03: the GEM descriptor translation is 32-bit and
-  cannot express the MPFS DDR address).
+  DMA remain open (NC-S6-01/GAP-A5: the Renode GEM model is register-only and does
+  not exercise the DMA packet path). NC-S6-03's 64-bit GEM base-address handling
+  was co-implemented; it is not the current root cause of the remaining gap.
 
 ## 5. Verification
 
@@ -66,22 +67,33 @@ user-supplied adapters.
 
 ## 6. Status — PUS-C over IP and TSN
 
-**PUS-C over IP is not implemented end-to-end in this revision.** The contract
-above is the delivered seam; the TCP/IP and TSN **link** backends (`FF_Link_t`)
-and the PUS-C-over-IP segmentation/reassembly are **planned** (explicit
-M4-residual scope, SRS-REQ-059/060/061: `docs/roadmap.md`,
-`docs/development-plan.md`, `docs/planning/sprint-plan.md`).
-The ICD has no TCP/UDP/IPv4 or EtherType allocation yet (`docs/interfaces/ICD.md`),
-and the supplied ground station is **serial-only** (V&V tool T7,
-`docs/vv/tool-qualification.md`). On-target netif/PHY and stack qualification is
-**GAP-A5** (`docs/quality/class-a-gaps.md`).
+**PUS-C over IP/TSN is implemented (host-verified).** The framework ships the
+PUS-C-over-IP segmentation/reassembly layer `src/transport/link/link_seg.{c,h}`
+(2-byte BE length-prefix, allocation-free; SRS-REQ-059), the IP **link** backend
+`src/transport/link/link_ip.{c,h}` (UDP default + TCP with `link_seg` framing
+over any `FF_NetStack_t`; SRS-REQ-060, `FF_LinkIpBackend`) and the TSN **link**
+backend `src/transport/link/link_tsn.{c,h}` (Ethernet frames over the GEM MAC,
+EtherType 0x88F5; SRS-REQ-061, `FF_LinkTsnBackend`). Evidence:
+`tests/unit/test_link_ip.c` (20 test functions incl. the `test_pus_ip_roundtrip`
+PUS-C TM/TC round-trip demonstration) and `tests/unit/test_link_tsn.c` (15 test
+functions incl. `test_pus_tsn_roundtrip`); the `FF_NetStack_t` contract above
+remains the delivered stack seam.
+
+The TM/TC ICD has no TCP/UDP/IPv4 or EtherType allocation yet (mission input;
+`docs/interfaces/ICD.md`), and the supplied ground station is **serial-only**
+(V&V tool T7, `docs/vv/tool-qualification.md`). On-target netif/PHY and link/stack
+qualification is **GAP-A5** (`docs/quality/class-a-gaps.md`).
 
 **TSN** is a MAC-level capability: the GEM native backend
 (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`, SRS-REQ-038) implements 802.1Q
-(VLAN/PCP), 802.1Qbv (ENST) and the 802.1AS time-read seam (a hardware clock
-read, not the gPTP protocol); 802.1Qav returns
-`FF_NOT_IMPLEMENTED`; the full gPTP stack and the fabric CoreTSN path are
-milestone **M8** (planned). On-target TSN timing is **GAP-A5**.
+(VLAN/PCP), 802.1Qbv (ENST), the 802.1AS time-read seam (a hardware clock
+read) and 802.1Qci screener-type-1 filtering (SRS-REQ-066); 802.1Qav (CBS) and
+802.1Qbb (PFC) return `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02). The full gPTP
+protocol stack (802.1AS: BMCA, Sync/Follow_Up, PDelay, PI servo disciplining the
+GEM TSU) is **implemented** (`src/drivers/eth/gptp/`, SRS-REQ-068, milestone M8);
+the fabric CoreTSN path (multi-port switch / 802.1CB FRER) is **deferred to M14**
+(SRS-REQ-068, requiring the SRS-REQ-067 fabric contract). On-target TSN timing is
+**GAP-A5**.
 
 The implemented / planned / external / third-party matrix, the "which TCP/IP
 stack is included" pronouncement and the "how to use" steps (what to call, what
@@ -104,3 +116,6 @@ mission-provided netif on the target (`attach_netif`).
 | 0.4 | 2026-10-12 | frick-fsw | Update §6: the PUS-C-over-IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" note |
 | 0.5 | 2026-10-12 | frick-fsw | §4: document the lwIP port selection — unix port on the host, the in-repo RTEMS `sys_arch` port (`src/hal/net/lwip/rtems/`) on the target (S6b-1); the pinned lwIP ships no RTEMS port |
 | 0.6 | 2026-10-12 | frick-fsw | §4: document the lwIP netif glue (`ff_lwip_netif.{c,h}`, netif bound to `FF_EthMac_t`; `hal_net_lwip` on the emulated GEM, S6b-2) and the open packet-round-trip/GEM-DMA residuals (NC-S6-01/NC-S6-03) |
+| 0.7 | 2026-10-13 | frick-fsw | §6: correct the status to the delivered S4b scope (FRICK-REVIEW-0168 DOC-R4-025) — the PUS-C-over-IP segmentation/reassembly (`link_seg.{c,h}`, SRS-REQ-059) and the IP/TSN `FF_Link_t` backends (`link_ip.{c,h}` SRS-REQ-060, `link_tsn.{c,h}` SRS-REQ-061) are implemented (host `test_link_ip`/`test_link_tsn`, incl. the `pus_*` round-trip demonstrations); the ICD TCP/UDP/IPv4/EtherType allocation remains absent (mission input) and the on-target residual stays GAP-A5 |
+| 0.8 | 2026-10-13 | frick-fsw | §6: reconcile the TSN/gPTP milestone statement with the authoritative SRS (NC-S4b-07) — the full 802.1AS gPTP stack is implemented (`src/drivers/eth/gptp/`, SRS-REQ-068, M8) and the fabric CoreTSN path is deferred to M14 (not "M8 planned"); 802.1Qci is recorded as implemented and 802.1Qav/802.1Qbb as `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02) |
+| 0.9 | 2026-10-13 | frick-fsw | §6 milestone change is NC-S4b-07; document the corrected NC-S6-03/GAP-A5 root cause for the remaining GEM DMA path; preserve the unresolved on-target residual and pending independent NC closure accurately. |

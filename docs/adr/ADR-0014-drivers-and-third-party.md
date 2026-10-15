@@ -24,9 +24,11 @@ the middleware to them.
 - **PUS-C**: integrate the **ESA/N7 Space `asn1-pusc-lib`** (GPL-3.0) as an
   alternative `FF_Pus_Backend_t` backend, vendored on demand (pinned commit);
   PUSopen stays a user-supplied commercial adapter.
-- **Licence compatibility**: BSD-3 and GPL-3.0 are both compatible with the
-  project AGPL-3.0 (GPL-3.0/AGPL-3.0 combination allowed; an aggregate with
-  BSD-3 is permitted with attribution). Third-party sources are **not committed**
+- **Historical licence compatibility note (superseded):** this ADR's prior
+  AGPL-3.0 compatibility analysis is not a disposition for the current MPL-2.0
+  transition. Preserve BSD/GPL upstream notices, and track exact incorporation,
+  generated-code and distribution-profile review under NC-EXT-43. Do not infer
+  compatibility or release permission from this historical text. Third-party sources are **not committed**
   (size/CM); they are fetched at a **pinned version** and recorded in
   `third_party/README.md` and `docs/quality/licensing.md`.
 - **WP-FV-100** (formal completeness): increase Lean coverage to 100% of

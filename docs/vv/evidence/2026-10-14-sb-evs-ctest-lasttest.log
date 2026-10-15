@@ -1,0 +1,489 @@
+Start testing: Oct 14 20:12 UTC
+----------------------------------------------------------
+1/30 Testing: ccsds
+1/30 Test: ccsds
+Command: "/workspace/build/ci/tests/test_ccsds"
+Directory: /workspace/build/ci/tests
+"ccsds" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_ccsds.c checks=15 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"ccsds" end time: Oct 14 20:12 UTC
+"ccsds" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/30 Testing: sb
+2/30 Test: sb
+Command: "/workspace/build/ci/tests/test_sb"
+Directory: /workspace/build/ci/tests
+"sb" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_sb.c checks=341 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"sb" end time: Oct 14 20:12 UTC
+"sb" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/30 Testing: sb_stress
+3/30 Test: sb_stress
+Command: "/workspace/build/ci/tests/test_sb_stress"
+Directory: /workspace/build/ci/tests
+"sb_stress" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_sb_stress.c checks=454 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"sb_stress" end time: Oct 14 20:12 UTC
+"sb_stress" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/30 Testing: sb_sweep_boundary
+4/30 Test: sb_sweep_boundary
+Command: "/workspace/build/ci/tests/test_sb_sweep" "32" "32"
+Directory: /workspace/build/ci/tests
+"sb_sweep_boundary" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+SB_EVS_PROFILE fanout=32 depth=32 overflow_publishes=3 overflow_events=96 notify_capacity=64 notify_dropped=32 dispatch_sweep=0 dispatch_calls=64 checks=312 failures=0
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"sb_sweep_boundary" end time: Oct 14 20:12 UTC
+"sb_sweep_boundary" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/30 Testing: sb_evs_structural_sweep
+5/30 Test: sb_evs_structural_sweep
+Command: "/usr/bin/python3" "/workspace/tools/scripts/sb_evs_structural_sweep.py" "/workspace/build/ci/tests/test_sb_sweep" "--output" "/workspace/build/ci/sb-evs-structural-sweep.csv"
+Directory: /workspace/build/ci/tests
+"sb_evs_structural_sweep" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+SB/EVS structural sweep PASS: 9984 fanout/depth/burst profiles (fanout 1..32, depth 1..32, from zero overflow through first EVS saturation), dispatch caps 1..64; CSV=/workspace/build/ci/sb-evs-structural-sweep.csv
+Scope: configured host structural behavior only; no mission arrival-rate, WCET, target timing, link availability, or ground-receipt guarantee.
+<end of output>
+Test time =  18.70 sec
+----------------------------------------------------------
+Test Passed.
+"sb_evs_structural_sweep" end time: Oct 14 20:12 UTC
+"sb_evs_structural_sweep" time elapsed: 00:00:18
+----------------------------------------------------------
+
+6/30 Testing: tbl
+6/30 Test: tbl
+Command: "/workspace/build/ci/tests/test_tbl"
+Directory: /workspace/build/ci/tests
+"tbl" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_tbl.c checks=9 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"tbl" end time: Oct 14 20:12 UTC
+"tbl" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/30 Testing: pus
+7/30 Test: pus
+Command: "/workspace/build/ci/tests/test_pus"
+Directory: /workspace/build/ci/tests
+"pus" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_pus.c checks=36 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"pus" end time: Oct 14 20:12 UTC
+"pus" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/30 Testing: time
+8/30 Test: time
+Command: "/workspace/build/ci/tests/test_time"
+Directory: /workspace/build/ci/tests
+"time" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_time.c checks=99 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"time" end time: Oct 14 20:12 UTC
+"time" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/30 Testing: r2_gap
+9/30 Test: r2_gap
+Command: "/workspace/build/ci/tests/test_r2_gap"
+Directory: /workspace/build/ci/tests
+"r2_gap" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_r2_gap.c checks=581 failures=0
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"r2_gap" end time: Oct 14 20:12 UTC
+"r2_gap" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/30 Testing: r3_gap
+10/30 Test: r3_gap
+Command: "/workspace/build/ci/tests/test_r3_gap"
+Directory: /workspace/build/ci/tests
+"r3_gap" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_r3_gap.c checks=201 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"r3_gap" end time: Oct 14 20:12 UTC
+"r3_gap" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/30 Testing: hal
+11/30 Test: hal
+Command: "/workspace/build/ci/tests/test_hal"
+Directory: /workspace/build/ci/tests
+"hal" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_hal.c checks=31 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"hal" end time: Oct 14 20:12 UTC
+"hal" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/30 Testing: math
+12/30 Test: math
+Command: "/workspace/build/ci/tests/test_math"
+Directory: /workspace/build/ci/tests
+"math" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_math.c checks=20 failures=0
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"math" end time: Oct 14 20:12 UTC
+"math" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/30 Testing: sdls
+13/30 Test: sdls
+Command: "/workspace/build/ci/tests/test_sdls"
+Directory: /workspace/build/ci/tests
+"sdls" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_sdls.c checks=81 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"sdls" end time: Oct 14 20:12 UTC
+"sdls" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/30 Testing: gem
+14/30 Test: gem
+Command: "/workspace/build/ci/tests/test_gem"
+Directory: /workspace/build/ci/tests
+"gem" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_gem.c checks=26 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gem" end time: Oct 14 20:12 UTC
+"gem" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/30 Testing: gem_tsn
+15/30 Test: gem_tsn
+Command: "/workspace/build/ci/tests/test_gem_tsn"
+Directory: /workspace/build/ci/tests
+"gem_tsn" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_gem_tsn.c checks=22 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gem_tsn" end time: Oct 14 20:12 UTC
+"gem_tsn" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/30 Testing: gptp
+16/30 Test: gptp
+Command: "/workspace/build/ci/tests/test_gptp"
+Directory: /workspace/build/ci/tests
+"gptp" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_gptp.c checks=58 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gptp" end time: Oct 14 20:12 UTC
+"gptp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/30 Testing: netloop
+17/30 Test: netloop
+Command: "/workspace/build/ci/tests/test_netloop"
+Directory: /workspace/build/ci/tests
+"netloop" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_netloop.c checks=328 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"netloop" end time: Oct 14 20:12 UTC
+"netloop" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/30 Testing: gpio
+18/30 Test: gpio
+Command: "/workspace/build/ci/tests/test_gpio"
+Directory: /workspace/build/ci/tests
+"gpio" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_gpio.c checks=30 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gpio" end time: Oct 14 20:12 UTC
+"gpio" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/30 Testing: serial
+19/30 Test: serial
+Command: "/workspace/build/ci/tests/test_serial"
+Directory: /workspace/build/ci/tests
+"serial" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_serial.c checks=30 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"serial" end time: Oct 14 20:12 UTC
+"serial" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/30 Testing: mem
+20/30 Test: mem
+Command: "/workspace/build/ci/tests/test_mem"
+Directory: /workspace/build/ci/tests
+"mem" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_mem.c checks=23 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"mem" end time: Oct 14 20:12 UTC
+"mem" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/30 Testing: nvm
+21/30 Test: nvm
+Command: "/workspace/build/ci/tests/test_nvm"
+Directory: /workspace/build/ci/tests
+"nvm" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_nvm.c checks=36 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"nvm" end time: Oct 14 20:12 UTC
+"nvm" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/30 Testing: mtd
+22/30 Test: mtd
+Command: "/workspace/build/ci/tests/test_mtd"
+Directory: /workspace/build/ci/tests
+"mtd" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_mtd.c checks=4128 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"mtd" end time: Oct 14 20:12 UTC
+"mtd" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/30 Testing: can
+23/30 Test: can
+Command: "/workspace/build/ci/tests/test_can"
+Directory: /workspace/build/ci/tests
+"can" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_can.c checks=129 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"can" end time: Oct 14 20:12 UTC
+"can" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/30 Testing: i2c
+24/30 Test: i2c
+Command: "/workspace/build/ci/tests/test_i2c"
+Directory: /workspace/build/ci/tests
+"i2c" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_i2c.c checks=144 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"i2c" end time: Oct 14 20:12 UTC
+"i2c" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/30 Testing: spi
+25/30 Test: spi
+Command: "/workspace/build/ci/tests/test_spi"
+Directory: /workspace/build/ci/tests
+"spi" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_spi.c checks=126 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"spi" end time: Oct 14 20:12 UTC
+"spi" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/30 Testing: block
+26/30 Test: block
+Command: "/workspace/build/ci/tests/test_block"
+Directory: /workspace/build/ci/tests
+"block" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_block.c checks=85 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"block" end time: Oct 14 20:12 UTC
+"block" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/30 Testing: pcie
+27/30 Test: pcie
+Command: "/workspace/build/ci/tests/test_pcie"
+Directory: /workspace/build/ci/tests
+"pcie" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_pcie.c checks=56 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"pcie" end time: Oct 14 20:12 UTC
+"pcie" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/30 Testing: spacewire
+28/30 Test: spacewire
+Command: "/workspace/build/ci/tests/test_spacewire"
+Directory: /workspace/build/ci/tests
+"spacewire" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_spacewire.c checks=91 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"spacewire" end time: Oct 14 20:12 UTC
+"spacewire" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/30 Testing: link_ip
+29/30 Test: link_ip
+Command: "/workspace/build/ci/tests/test_link_ip"
+Directory: /workspace/build/ci/tests
+"link_ip" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_link_ip.c checks=79 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"link_ip" end time: Oct 14 20:12 UTC
+"link_ip" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/30 Testing: link_tsn
+30/30 Test: link_tsn
+Command: "/workspace/build/ci/tests/test_link_tsn"
+Directory: /workspace/build/ci/tests
+"link_tsn" start time: Oct 14 20:12 UTC
+Output:
+----------------------------------------------------------
+/workspace/tests/unit/test_link_tsn.c checks=135 failures=0
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"link_tsn" end time: Oct 14 20:12 UTC
+"link_tsn" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 14 20:12 UTC
+
+sb-evs =  18.70 sec*proc
+
+tool-qualification =  18.70 sec*proc
+

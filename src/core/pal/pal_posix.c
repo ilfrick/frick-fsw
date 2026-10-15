@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #define _GNU_SOURCE
 #include "pal.h"
@@ -255,6 +255,19 @@ FF_Status_t FF_PalMutexLock(FF_MutexId_t id, uint32_t timeout_ms)
     return (rc == 0) ? FF_SUCCESS : FF_TIMEOUT;
 }
 
+FF_Status_t FF_PalMutexTryLock(FF_MutexId_t id)
+{
+    int rc;
+    if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used) {
+        return FF_NOT_FOUND;
+    }
+    rc = pthread_mutex_trylock(&g_mutexes[id].mtx);
+    if (rc == 0) {
+        return FF_SUCCESS;
+    }
+    return (rc == EBUSY) ? FF_TIMEOUT : FF_ERROR;
+}
+
 FF_Status_t FF_PalMutexUnlock(FF_MutexId_t id)
 {
     if (id >= FF_PAL_MAX_MUTEXES || !g_mutexes[id].used) {
@@ -342,6 +355,56 @@ FF_Status_t FF_PalQueuePut(FF_QueueId_t id, const void *item, uint32_t timeout_m
     pthread_mutex_unlock(&q->mtx);
     return FF_SUCCESS;
 }
+
+FF_Status_t FF_PalQueueTryPut(FF_QueueId_t id, const void *item)
+{
+    ff_queue_slot_t *q;
+    int rc;
+
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used) {
+        return FF_NOT_FOUND;
+    }
+    if (item == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
+    q = &g_queues[id];
+    rc = pthread_mutex_trylock(&q->mtx);
+    if (rc == EBUSY) {
+        return FF_TIMEOUT;
+    }
+    if (rc != 0) {
+        return FF_ERROR;
+    }
+    if (q->count >= q->depth) {
+        q->dropped++;
+        pthread_mutex_unlock(&q->mtx);
+        return FF_BUFFER_FULL;
+    }
+    memcpy(q->storage[q->head], item, q->item_size);
+    q->head = (uint16_t)((q->head + 1u) % q->depth);
+    q->count++;
+    pthread_cond_signal(&q->not_empty);
+    pthread_mutex_unlock(&q->mtx);
+    return FF_SUCCESS;
+}
+
+#ifdef FF_TEST_HOOKS
+FF_Status_t FF_PalQueueTestLock(FF_QueueId_t id)
+{
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used) {
+        return FF_NOT_FOUND;
+    }
+    return (pthread_mutex_lock(&g_queues[id].mtx) == 0) ? FF_SUCCESS : FF_ERROR;
+}
+
+FF_Status_t FF_PalQueueTestUnlock(FF_QueueId_t id)
+{
+    if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used) {
+        return FF_NOT_FOUND;
+    }
+    return (pthread_mutex_unlock(&g_queues[id].mtx) == 0) ? FF_SUCCESS : FF_ERROR;
+}
+#endif
 
 FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms)
 {

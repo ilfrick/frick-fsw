@@ -33,11 +33,16 @@ The SVG files are the source of truth; the PNG files are generated from them
 
 ## License
 
-The brand assets are part of frick-fsw and are released under
-**AGPL-3.0-only** (norm N13), like the rest of the repository.
+The original project-authored SVG source artwork is within the owner's
+**MPL-2.0** authorization for project code and materials. The PNG files are
+generated outputs, outside that authorization; their provenance and applicable
+terms must be dispositioned under NC-EXT-43 before distribution.
 
 ## History
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial marks for codename "Eärendil" (norm N8) |
+| 0.2 | 2026-10-13 | frick-fsw | Update asset license statement to MPL-2.0 candidate; NC-EXT-43 remains open |
+| 0.3 | 2026-10-14 | frick-fsw | Restore prior AGPL scope for artwork after owner limited MPL authorization to original software code |
+| 0.4 | 2026-10-14 | frick-fsw | Correct scope to owner-authorized original project materials; leave generated PNG outputs outside authorization |

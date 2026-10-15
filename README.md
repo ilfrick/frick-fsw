@@ -2,7 +2,7 @@
 
 ![frick-fsw — codename "Eärendil"](assets/logo-wordmark.png)
 
-**Codename "Eärendil" · v0.1.0 · AGPL-3.0-only**
+**Codename "Eärendil" · v0.1.0 historical release (AGPL-3.0-only) · owner-authorized MPL-2.0 for original project content**
 
 cFS-inspired flight software framework: PUS-C TM/TC over CCSDS Space Packets
 for a small/medium spacecraft OBC built on the **Microchip RT PolarFire SoC
@@ -17,8 +17,12 @@ applications for demonstration and V&V. See
 and the milestone/objective plan.
 
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
-> N1-N20): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
-> Licence: **AGPL-3.0-only** (`LICENSE`, `docs/quality/licensing.md`).
+> N1-N22): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
+> The repository owner authorizes **MPL-2.0 for original project-authored
+> content created for frick-fsw** (`LICENSE`, `docs/quality/licensing.md`).
+> Third-party/generated component and combined-distribution boundaries remain
+> open under NC-EXT-43. The earlier v0.1.0 release used AGPL-3.0-only; prior
+> recipients' rights are not changed here.
 
 ## Project index (table of contents)
 
@@ -40,58 +44,64 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-13. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-14. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
-Legend: **🟢 (GREEN)** all pass - **🟡 (YELLOW)** issues deferred by the user - **🔴 (RED)** failures.
+Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
 ### Completion
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Sprints completed | 9/30 (30.0%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 22/29 (75.9%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 61/71 (85.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 61/71 (85.9%) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |
-| Review streams closed | 33/43 (76.7%) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |
+| Sprints completed | 9/33 (27.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
+| SSS requirements satisfied | 22/30 (73.3%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 62/73 (84.9%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
+| Review streams (affirmative latest verdict) | 32/78 (41.0%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 114 (srs=71, sss=29, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 114/114 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 100/114 (87.7%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 20/114 (17.5%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 5552/7779 (71.4%) | gcov |
-| Code function coverage | 678/698 (97.1%) | gcov |
+| Requirements in manifest | 117 (srs=73, sss=30, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 20/117 (17.1%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 5651/7933 (71.2%) | gcov |
+| Code function coverage | 683/702 (97.3%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
 
 | Gate | State |
 | ---- | ----- |
-| build and unit tests | 🟢 (GREEN) |
-| static analysis | 🟢 (GREEN) |
-| simulator smoke | 🟢 (GREEN) |
-| lean verification | 🟢 (GREEN) |
-| traceability | 🟢 (GREEN) |
-| ci github | 🟢 (GREEN) |
-| ci gitea | 🟢 (GREEN) |
-| documentation set | 🟢 (GREEN) |
-| documentation review | 🟢 (GREEN) |
-| product assurance review | 🟢 (GREEN) |
-| loop audit | 🟢 (GREEN) |
-| renode functional validation | 🟢 (GREEN) |
-| reviews | 🟢 (GREEN) |
-| vv records | 🟢 (GREEN) |
+| build and unit tests | 🟡 (YELLOW) |
+| static analysis | 🟡 (YELLOW) |
+| simulator smoke | 🟡 (YELLOW) |
+| lean verification | 🟡 (YELLOW) |
+| traceability | 🟡 (YELLOW) |
+| ci github | 🟡 (YELLOW) |
+| ci gitea | 🟡 (YELLOW) |
+| documentation set | 🟡 (YELLOW) |
+| documentation review | 🟡 (YELLOW) |
+| product assurance review | 🟡 (YELLOW) |
+| loop audit | 🟡 (YELLOW) |
+| renode functional validation | 🟡 (YELLOW) |
+| reviews | 🟡 (YELLOW) |
+| vv records | 🟡 (YELLOW) |
 
-**Overall: 🟢 (GREEN)**
+**Overall: 🟡 (YELLOW)**
 
-Issues deferred by the user: none.
+Issues explicitly deferred in the status registry: none. Open/pending gates are listed above; product-scope deferrals are documented separately.
 
-> **Metrics note.** ECSS does not fix universal numeric thresholds; the figures above are the completion/coverage indicators commonly adopted for software of this criticality, computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD carries the requirements->design matrices (SDD section 6). Common practice at criticality B is **100% statement + branch/decision coverage with justified exceptions**; the measured statement coverage (see the Coverage table above) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
+> **Metrics note.** These are project-selected completion/coverage indicators; they are not ECSS thresholds and do not imply an approved mission criticality assignment. Values are computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD carries the requirements->design matrices (SDD section 6). Project guidance targets **100% statement + branch/decision coverage with justified exceptions**; this target is not a mission-approved criticality assignment. The measured statement coverage (see the Coverage table above) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
 
 <!-- METRICS-END -->
+
+> **Status interpretation.** The yellow semaphores above describe open or
+> unverified development/CI gates for this repository revision. They do **not** assert
+> ECSS compliance, software qualification, independent human V&V, or flight
+> readiness; the project remains a middleware prototype and the applicable
+> mission tailoring and assurance evidence require authorized program approval.
 
 ## Highlights
 
@@ -107,8 +117,10 @@ Issues deferred by the user: none.
 - **Formal verification with Lean 4** (norm N1): CRC, Software Bus, PUS
   counters, CCSDS length bounds — requirement theorems linked from the
   traceability manifest.
-- **Reproducible V&V**: Docker image, GitHub Actions + Gitea Actions via
-  `act_runner` (norm N6), traceability gate `tools/scripts/trace.py`.
+- **Common V&V environment**: controlled Docker image, GitHub Actions + Gitea
+  Actions via `act_runner` (norm N6), and traceability gate
+  `tools/scripts/trace.py`. The image's mutable base/package inputs do not
+  establish reproducibility (NC-EXT-35).
 - **Backwards ECSS engineering data**: SSS, SRS, traceability matrices,
   architecture, ADRs, ICD, quality (class B baseline + class A gaps).
 - **Security**: CCSDS **SDLS** (355.0-B) with security-association and
@@ -133,9 +145,9 @@ scope (implemented / interface-only / planned / user-provided):
 | PAL (tasks/mutex/queue/time/console) | POSIX (host + RTEMS) + RTEMS bootstrap | — | — | — |
 | Core services | SB, EVS, ES, TBL, Time (+ PPS) | — | — | — |
 | PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1** | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen adapter |
-| Transport | CCSDS Space Packets, link (loopback/UART) | `FF_Link_t` | — | radio/SpaceWire back-ends |
+| Transport | CCSDS Space Packets; link backends loopback/UART/IP/TSN (+ seg/reassembly) | `FF_Link_t` | — | radio back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
-| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN; MSS I2C; MSS SPI; MSS MMC/SD (BLOCK) | — | PCIe, SpaceWire, storage (**M4/M11**) | — |
+| Drivers | GEM Ethernet + native TSN; MSS GPIO; MSS MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN; MSS I2C; MSS SPI; MSS MMC/SD (BLOCK); PCIe; SpaceWire (contract-level) | — | — | — |
 | Networking | lwIP adapter; loopback stack | `FF_NetStack_t` | — | Tuxera/custom stack |
 | Security | CCSDS SDLS + key mgmt/rotation | `FF_CryptoBackend_t` | — | mission crypto/HSM |
 | Mathematics | libm facade | — | — | — |
@@ -161,9 +173,11 @@ CCSDS backend (`src/pus/pus.c`, `src/pus/pus_services.c`):
 | 17 | Test | 1 connection test (ping/pong) |
 | 20 | Parameter management | 1 set, 3 report (provider-registered) |
 
-Planned extensions (`docs/roadmap.md`): HAL interfaces + integration manuals
-(M3, delivered as interfaces); MPFS BSP layers, 1 Gb/s Ethernet driver, PUS
-service 23 file management + CFDP, and TCP/IP + TSN transport over PUS-C (M4).
+Planned extensions (`docs/roadmap.md`, `docs/development-plan.md`): MPFS BSP
+layers; the remaining M4 scope — CAN-FD/CANopen/RS-485 DE backends
+(SRS-REQ-062/063/064), the generic fabric-device contract (SRS-REQ-067) and the
+PUSopen adapter (SRS-REQ-065); PUS-C service 23 file management + CFDP (M15);
+and the autonomy/multicore milestones (M12-M14, M16).
 
 ## Low-level drivers
 
@@ -176,6 +190,8 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | PAL (RTEMS) | `src/core/pal/pal_rtems.c` | RTEMS bootstrap (POSIX keys, clock, panic) |
 | Link loopback | `src/transport/link/link_loopback.c` | in-memory loopback (simulator/tests) |
 | Link UART | `src/transport/link/link_uart.c` | serial link (host `/dev/ttyUSB0` or RTEMS console) |
+| Link IP (PUS-C) | `src/transport/link/link_ip.c` | IP `FF_Link_t` backend, UDP default + TCP with the seg framing layer, over any `FF_NetStack_t` (S4b; SRS-REQ-060); host test `test_link_ip` |
+| Link TSN (PUS-C) | `src/transport/link/link_tsn.c` | TSN-scheduled Ethernet `FF_Link_t` backend (EtherType 0x88F5, callback-driven RX ring) over `FF_EthMac_t + FF_TsnBackend_t` (S4b; SRS-REQ-061); host test `test_link_tsn` |
 | Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
 | TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv + an 802.1AS time-read seam) |
@@ -189,6 +205,9 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | I2C (MSS) | `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` | polled CoreI2C master backend behind `FF_I2c_t` (7-bit addressing, SI-clear sequencing, serial-clock divider); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
 | SPI (MSS) | `src/drivers/spi/mpfs/ff_spi_mpfs.c` | polled CoreSPI master backend behind `FF_Spi_t` (8-bit frames, CS control, CLKRATE divider); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
 | BLOCK (MSS MMC/SD) | `src/drivers/block/mpfs/ff_block_mpfs.c` | polled SDHCI-style buffer-mode backend behind `FF_BlockDev_t` (CMD17/18 read, CMD24/25 write); host test (mock MMIO) + Renode MMIO register check (M4/M11) |
+| PCIe (MSS) | `src/drivers/pcie/mpfs/ff_pcie_mpfs.c` | ECAM configuration-space backend behind `FF_Pcie_t`; host test (mock MMIO) + Renode MMIO check (`hal_pcie=PASS`; full enumeration/BAR/DMA = GAP-A5; M4/M11) |
+| SpaceWire (MSS) | `src/drivers/spacewire/mpfs/ff_spacewire_mpfs.c` | `FF_SpaceWire_t`/`FF_Rmap_t` contract-level reference backend; host test (no emulated peripheral: `hal_spacewire=CONTRACT`, NC-S7-01; M4/M11) |
+| PPS (1 Hz tone) | `src/core/time/pps.c` | software `FF_PpsSwBackend` behind `FF_PpsBackend_t`; hardware capture on target = **GAP-A7** |
 
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
@@ -196,12 +215,15 @@ test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
 PolarFire SoC board platform (`beaglev-fire`, which includes the SoC; milestone
 M11; SRS-REQ-047).
 
-Other device drivers (SpaceWire, PCIe, storage,
-PPS) are interface deliverables (M3: HAL contracts) and reference-implementation
-deliverables (M4: MPFS BSP + 1 Gb/s Ethernet + stacks). See the detailed
+The table above is the delivered reference set. Items still open are tracked, not
+deferred silently: the SpaceWire contract-level limit and its absent emulated
+peripheral (NC-S7-01), the NET packet round-trip and the full GEM DMA path (GAP-A5;
+NC-S6-01), the on-SoC eMMC/SD storage checks, and the on-target PPS
+capture (**GAP-A7**). See the detailed
 **driver development and integration guide** for humans and agents:
-`docs/engineering/driver-development.md` and the
-[`docs/development-plan.md`](docs/development-plan.md).
+`docs/engineering/driver-development.md`, and the
+[`docs/development-plan.md`](docs/development-plan.md) ·
+[`docs/quality/class-a-gaps.md`](docs/quality/class-a-gaps.md).
 
 ## Architecture
 
@@ -224,7 +246,7 @@ flowchart TB
     C4["Table Services"]:::impl
     C5["Time Services"]:::impl
     T1["CCSDS Space Packet codec + CRC-16"]:::impl
-    T2["Link layer: loopback / UART"]:::impl
+    T2["Link layer: loopback / UART / IP / TSN"]:::impl
     PL1["PAL - OS abstraction (POSIX / RTEMS)"]:::impl
     H1["HAL registry + contracts (M3): Eth/Net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory"]:::iface
     B1["BSP + drivers (M4): MPFS peripherals, 1 Gb/s GEM Ethernet"]:::m4
@@ -295,8 +317,13 @@ The full plan, including the per-change cycle, is in
 ## Quickstart
 
 ```bash
-# Full local pipeline inside the reproducible V&V container (norm N6):
+# Containerized configure/build/test/Lean/trace cycle (norm N6; this target does
+# not run format, smoke, GSW, RTEMS cross-build, or Doxygen; mutable inputs limit
+# reproducibility, NC-EXT-35):
 make ci-local
+make smoke                    # separate native simulator smoke test
+make docs                     # separate Doxygen generation
+make format                   # format sources (mutates files; run before review)
 
 # Or natively:
 make configure build test      # build + unit tests (ctest)
@@ -315,7 +342,8 @@ make renode-image renode       # build the RTEMS image + emulated functional val
 make qemu-image qemu           # build the generic image + run it on qemu-system-riscv64 -M virt
 make qemu-image-docker         # same build inside the RTEMS toolchain image (no host toolchain)
 
-# RTEMS 6.2 cross build (open-source RTEMS; toolchain: tools/scripts/setup_rtems.sh):
+# RTEMS 6.2 cross build (open-source RTEMS; Docker inputs are mutable, so
+# bit-for-bit reproducibility is not established, NC-EXT-40):
 make rtems-toolchain           # build the open RTEMS 6.2 toolchain image
 make rtems-docker              # cross compile inside the image (no host toolchain)
 make rtems
@@ -337,7 +365,7 @@ make rtems
 
 ## Documentation index
 
-- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N20) ·
+- **Rules & norms**: [`docs/rules.md`](docs/rules.md) (N1-N22) ·
   [`AGENTS.md`](AGENTS.md)
 - **Requirements**: [`docs/requirements/SSS.md`](docs/requirements/SSS.md) ·
   [`SRS.md`](docs/requirements/SRS.md) ·
@@ -364,6 +392,8 @@ make rtems
   [`misra-c.md`](docs/quality/misra-c.md) ·
   [`licensing.md`](docs/quality/licensing.md)
 - **V&V**: [`docs/vv/verification-plan.md`](docs/vv/verification-plan.md) ·
+  [`comprehensive-test-spec.md`](docs/vv/comprehensive-test-spec.md) ·
+  [`system-verification-architecture.md`](docs/vv/system-verification-architecture.md) ·
   [`validation-plan.md`](docs/vv/validation-plan.md) ·
   [`verification-results.md`](docs/vv/verification-results.md) ·
   [`emulated-target.md`](docs/vv/emulated-target.md) ·
@@ -405,22 +435,29 @@ start per norm N19 (see [`docs/planning/sprint-plan.md`](docs/planning/sprint-pl
 milestone status in [`docs/roadmap.md`](docs/roadmap.md) and
 [`docs/status/status.json`](docs/status/status.json)).
 
-Priority order (owner directive): **drivers (M4/M11) first → M12 → M16 → M13 →
-M8/M9 → M14 → M15**; class B confirmed with a documented track toward class A
-(norm N5); open-source/free tooling with space/aerospace heritage.
+The remaining “drivers first” directive conflicts with the proposed corrective
+sequence in the sprint plan; **the human owner has not approved precedence**
+(NC-EXT-30). Do not treat either order as authorized until reconciled. ECSS
+Category B is the project target, not an assigned or accepted mission
+classification; authoritative classification and tailoring remain program
+inputs (norm N5). Tooling is open-source/free where practicable.
 
 | Milestone | Status |
 | --- | --- |
 | M1, M2, M3, M6, M7, M10 | ✅ done |
 | M4, M5, M8, M9, M11 | 🟡 in progress |
-| M12, M13, M14, M15, M16 | ⬜ planned |
+| M12, M13, M14, M15, M16, M17 | ⬜ planned |
 
-Current focus: **Sprint 7** complete (PCIe peripheral-bound `hal_pcie=PASS` + SpaceWire contract-level `hal_spacewire=CONTRACT`), then **NET follow-up** complete: NC-S6-03 co-implemented (`gem_phys` returns `uint64_t`, `gem_wr_qbqp`, `TBQP_HI`/`RBQP_HI`, `DMACFG.ADDR64` asserted; full 3-word descriptor format deferred to M14), NC-154-01 closed (`test_lwip_netif`, 3 tests/19 checks, 26/26 host with `FF_USE_LWIP=ON`); NC-S6-01 documented (Renode GEM register-only = GAP-A5; mock-MAC loopback host test provides TX/RX data-path evidence). Next per plan: **S8 = M8 gPTP (802.1AS) + fabric CoreTSN** (hal_gptp=PASS target; SRS-REQ-038/066/068). Full sequence in the sprint plan.
+Current focus: **S8-FU** — continue functional development under N21: correct functional issues and implement missing features committed for the current or previous sprints, and record non-functional findings as open NCs for later review/disposition without stopping unrelated work. N22 requires requirement-based and integration tests to compare nominal and applicable out-of-bound cases against expected results; NC-EXT-47 tracks later assessment of existing test-oracle/coverage evidence. The SB/EVS requirement delta defines arrival, dispatch and ground-receipt boundaries, but `Bmax`/`Rmax`/`Dmin`/`Lmax`, link profile and loss-counter semantics remain authority TBDs: NC-EXT-75/76 stay open and FRICK-REVIEW-0266 is not N14/baseline approval. NC-EXT-77 records a corrected trace-count comment. Owner authorization for original project-authored code and materials is recorded; NC-EXT-43 remains for external/generated boundaries and combined-distribution compatibility. NC-S4b-01..09, NC-EXT-01..77 and GAP-R3-1 remain open. Applicable commit/release and safety/security gates remain separate. T21 remains NOT FULLY QUALIFIED; T1/T13/T18 are not fully requalified, and hosted CI/immutable evidence remain open. See `docs/planning/sprint-plan.md` and `docs/vv/verification-results.md`.
 
 ## Contributing
 
 See `CONTRIBUTING.md` (rules N7/N11/N15/N16 apply: full cycle, dual push,
-history, reviews). Security: `SECURITY.md`. License: AGPL-3.0-only.
+history, reviews). Only `aeronautics-space-fsw-engineer` may commit/push after
+all gates and the complete sprint scope pass, unless the user explicitly
+delegates. Security: `SECURITY.md`. License: owner-authorized MPL-2.0
+for original project content; combined-distribution compatibility remains open
+under NC-EXT-43.
 
 ## Copyright and license
 
@@ -429,12 +466,12 @@ Copyright (C) 2026 **Ilfrick**
 - GitHub: <https://github.com/ilfrick/frick-fsw>
 - Gitea: <https://www.housefz.com/git/ilfrick/frick-fsw>
 
-frick-fsw is free software, released under the **GNU Affero General Public
-License, version 3** (`AGPL-3.0-only`, `LICENSE`). Every authored source,
-configuration and build file carries the copyright header and
-`SPDX-License-Identifier: AGPL-3.0-only`; engineering documentation is covered
-by `LICENSE`/`NOTICE`; third-party components retain their own licences
-(analysis in `docs/quality/licensing.md`, `NOTICE`).
+The repository owner authorizes **MPL-2.0 for original project-authored content
+created for frick-fsw**, reflected in `LICENSE` and SPDX headers. This scope
+excludes third-party, generated, mission-supplied, commercial, and other
+externally controlled material, which retains its own terms. Compatibility for
+combined distributions remains open under NC-EXT-43; this checkout is not
+release-approved while its applicable assurance gates remain open.
 
 ## Mirrors
 

@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "drivers/eth/gptp/ff_gptp.h"
@@ -109,14 +109,6 @@ static void mock_mac_setup(GptpMockMac_t *m)
     m->mac_addr[3] = 0x00;
     m->mac_addr[4] = 0x00;
     m->mac_addr[5] = 0x01;
-}
-
-/* Helper: inject a received PTP frame into the gPTP port via the MAC rx callback. */
-static void mock_inject_frame(GptpMockMac_t *m, const uint8_t *frame, uint16_t len)
-{
-    if ((m->rx_cb != NULL) && (len <= MOCK_MAX_FRAME)) {
-        m->rx_cb(frame, len, m->rx_ctx);
-    }
 }
 
 /* Helper: build a PTP frame. Writes the time payload for Follow_Up and

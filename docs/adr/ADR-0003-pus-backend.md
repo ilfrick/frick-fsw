@@ -20,7 +20,8 @@ default so that Lean verification covers the buildable product.
   distributed.
 
 ## Consequences
-Default path is fully open source (AGPL-3.0, norm N13) and Lean-checkable; the
+Default path is project-authored open source targeted for MPL-2.0 (norm N13, transition
+authority/compatibility still open under NC-EXT-43) and Lean-checkable; the
 PUSopen adapter is a documented drop-in for customers who own the licence.
 
 ## Traceability

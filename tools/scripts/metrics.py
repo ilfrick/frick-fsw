@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: MPL-2.0
+
 """frick-fsw - single status panel: completion, coverage and V&V traffic lights.
 
 Computes, from the traceability manifest, docs/status/status.json, the sprint
@@ -21,10 +25,12 @@ evidence list is non-empty and not exactly `ci:docs`; **delivered** when both
 hold. An SSS requirement is **satisfied** when all its child SRS are delivered
 (else when it is itself delivered). **Design traceability** counts the SRS
 requirements referenced in the SDD. **Review streams** group the review log by
-milestone/PA token (latest verdict wins).
+milestone/PA token (latest verdict wins); scoped, partial, or expressly
+non-closing results do not count as a closed stream.
 
-Qualified as V&V tool (norm N10, register T13); any behaviour change goes
-through the full cycle (norm N15).
+T13 is controlled as a V&V tool (norm N10); its current qualification status
+is recorded in `docs/vv/tool-qualification.md`. A scoped PASS does not establish
+stream closure. Any behaviour change goes through the full cycle (norm N15).
 """
 import argparse
 import json
@@ -142,18 +148,19 @@ def _review_keys(line):
 def review_streams(path):
     """Group the review log into scope streams; return (closed, total)."""
     recs = []
-    for order, line in enumerate(open(path, encoding="utf-8")):
-        if not line.startswith("| 20"):
-            continue
-        cols = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cols) < 4:
-            continue
-        scope, concl = cols[1], cols[3].upper()
-        if re.search(r"\bPA\b", scope) or scope.strip().upper().startswith("PA"):
-            key = "PA"
-        else:
-            key = _review_keys(scope)
-        recs.append((order, key, concl))
+    with open(path, encoding="utf-8") as review_log:
+        for order, line in enumerate(review_log):
+            if not line.startswith("| 20"):
+                continue
+            cols = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cols) < 4:
+                continue
+            scope, concl = cols[1], cols[3].upper()
+            if re.search(r"\bPA\b", scope) or scope.strip().upper().startswith("PA"):
+                key = "PA"
+            else:
+                key = _review_keys(scope)
+            recs.append((order, key, concl))
     keys = [r[1] for r in recs]
     _TOKEN = re.compile(r"^(M\d+|N\d+|PA)$")
 
@@ -167,9 +174,36 @@ def review_streams(path):
     streams = {}
     for _, k, c in recs:
         streams[canon(k)] = c  # latest row wins
-    closed = sum(1 for c in streams.values()
-                 if "APPROVED" in c or "CLOSED" in c or "PASS" in c)
+    closed = sum(1 for c in streams.values() if _review_verdict_closes(c))
     return closed, len(streams)
+
+
+def _review_verdict_closes(conclusion):
+    """True only for an affirmative conclusion that closes the reviewed stream."""
+    text = re.sub(r"\*+", "", conclusion).strip().upper()
+    non_closing = (
+        "NOT APPROVED", "NOT-APPROVED", "NOT APPROVE", "NOT CLOSED",
+        "NO CLOSURE", "NO NC CLOSURE", "NO OVERALL", "NO PHASE",
+        "NOT OVERALL", "NARROW", "SCOPED", "PARTIAL", "SCOPE ONLY",
+        "ONLY", "NOT FULLY", "NOT YET", "BYPASS REQUIRED", "PENDING",
+        "OPEN", "UNRESOLVED", "AWAITING", "IN PROGRESS", "TRACKED",
+        "TO CLOSE", "TO BE CLOSED", "NO PASS", "DISAPPROVED",
+        "UNAPPROVED", "FAILED", "DENIED", "DECLINED", "SCOPE-LIMITED",
+        "REJECTED",
+    )
+    # Only recognize affirmative verdicts at the beginning of the cell. This
+    # avoids substring false positives such as DISAPPROVED, UNAPPROVED, or
+    # explanatory prose containing "pass". A rejected review counts as closed
+    # only when its disposition explicitly says it was closed.
+    if re.match(r"^REJECTED\b", text):
+        explicitly_closed = bool(re.search(r"(?:->|→)\s*CLOSED\b", text))
+        has_open_action = any(
+            token in text for token in non_closing if token != "REJECTED"
+        )
+        return explicitly_closed and not has_open_action
+    if any(token in text for token in (*non_closing, "REJECTED")):
+        return False
+    return bool(re.match(r"^(?:APPROVED|PASS|CLOSED)\b", text))
 
 
 def compute(items, status, coverage):
@@ -232,9 +266,9 @@ def render(items, status, coverage):
              f"(norms N8/N11/N19). Single source of truth: "
              f"`docs/requirements/traceability.yaml` (mirrored in `traceability.md`).")
     L.append("")
-    L.append("Legend: **" + STATE_ICON[GREEN] + "** all pass - **"
-             + STATE_ICON[YELLOW] + "** issues deferred by the user - **"
-             + STATE_ICON[RED] + "** failures.")
+    L.append("Legend: **" + STATE_ICON[GREEN] + "** recorded gates pass - **"
+             + STATE_ICON[YELLOW] + "** at least one gate is open/pending or an issue is deferred - **"
+             + STATE_ICON[RED] + "** a recorded gate failed.")
     L.append("")
     L.append("### Completion")
     L.append("")
@@ -247,9 +281,9 @@ def render(items, status, coverage):
     L.append(f"| SRS requirements delivered | {c['srs_delivered']}/{c['srs_total']} "
              f"({pct(c['srs_delivered'], c['srs_total'])}) | implemented (non-doc) + verified (non-`ci:docs`) |")
     L.append(f"| Design traceability | {c['design_ok']}/{c['srs_total']} "
-             f"({pct(c['design_ok'], c['srs_total'])}) | SRS referenced in the SDD requirements->design matrix (ECSS design DRD Annex F, SDD section 6) |")
-    L.append(f"| Review streams closed | {c['rev_closed']}/{c['rev_total']} "
-             f"({pct(c['rev_closed'], c['rev_total'])}) | review-log streams by milestone/PA, latest verdict APPROVED/CLOSED/PASS |")
+             f"({pct(c['design_ok'], c['srs_total'])}) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |")
+    L.append(f"| Review streams (affirmative latest verdict) | {c['rev_closed']}/{c['rev_total']} "
+             f"({pct(c['rev_closed'], c['rev_total'])}) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |")
     L.append("")
     L.append("### Coverage")
     L.append("")
@@ -282,23 +316,24 @@ def render(items, status, coverage):
     L.append(f"**Overall: {STATE_ICON[st]}**")
     if status["deferred"]:
         L.append("")
-        L.append("Issues deferred by the user:")
+        L.append("Issues explicitly deferred in the status registry:")
         for d in status["deferred"]:
             L.append(f"- {d.get('id', '')} - {d.get('title', '')}")
     else:
         L.append("")
-        L.append("Issues deferred by the user: none.")
+        L.append("Issues explicitly deferred in the status registry: none. Open/pending gates are listed above; product-scope deferrals are documented separately.")
     L.append("")
-    L.append("> **Metrics note.** ECSS does not fix universal numeric thresholds; the "
-             "figures above are the completion/coverage indicators commonly adopted for "
-             "software of this criticality, computed by `tools/scripts/metrics.py` "
+    L.append("> **Metrics note.** These are project-selected completion/coverage indicators; "
+             "they are not ECSS thresholds and do not imply an approved mission criticality "
+             "assignment. Values are computed by `tools/scripts/metrics.py` "
              "(T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as "
              "a **matrix** (Annex R applies it at criticality B; in-source requirement "
-             "tagging is a permitted means, not a requirement). *Design traceability* "
+              "tagging is a permitted means, not a requirement). *Design traceability* "
              "follows the SDD DRD (Annex F <6>); the SDD carries the "
-             "requirements->design matrices (SDD section 6). Common practice at "
-             "criticality B is **100% statement + branch/decision coverage with justified "
-             "exceptions**; the measured statement coverage (see the Coverage table "
+              "requirements->design matrices (SDD section 6). Project guidance targets "
+              "**100% statement + branch/decision coverage with justified exceptions**; "
+              "this target is not a mission-approved criticality assignment. The measured "
+              "statement coverage (see the Coverage table "
              "above) and the absent "
              "branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* "
              "and *sprint* figures are process indicators, and the completion "

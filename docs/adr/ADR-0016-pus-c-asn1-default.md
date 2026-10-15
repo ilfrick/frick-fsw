@@ -14,7 +14,8 @@ The PUS-C layer must use the N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model
 reconciliation). `asn1-pusc-lib` is an ASN.1 model plus small C wrappers that
 depend on ASN1SCC-generated headers; the generated code and the ASN1SCC runtime
 are license-clean (ASN1SCC is GPL-with-runtime-exception), the wrappers are
-GPL-3.0 (combinable with this AGPL-3.0 project). Two ways to make the artifacts
+GPL-3.0 (the earlier AGPL project analysis does not disposition the current
+MPL-2.0 transition; see open NC-EXT-43). Two ways to make the artifacts
 available to the build were considered: **vendor** them into the repository
 (commit generated + wrappers) or **generate at build time**.
 

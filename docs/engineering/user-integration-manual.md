@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.8                                    |
+| Revision                          | 0.11                                   |
 | Date                              | 2026-10-13                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
@@ -12,7 +12,7 @@ This manual explains how to use frick-fsw as a **middleware**: you write your
 own mission applications on top of it, integrate your own hardware drivers, and
 optionally plug third-party stacks. Read first `AGENTS.md`, `README.md`,
 `docs/development-plan.md` (product boundary and milestones) and
-`docs/rules.md` (norms N1-N20).
+`docs/rules.md` (norms N1-N21).
 
 > **frick-fsw is a framework, not an application.** The six `src/apps/*` are
 > reference applications (demonstration and V&V), not mission software.
@@ -200,8 +200,8 @@ on-target netif/PHY/stack qualification (GAP-A5).
 | Loopback network-stack reference backend (`FF_NetStackLoopback`) | **Implemented** | `src/drivers/net/ff_net_loopback.{c,h}` (SRS-REQ-039); `tests/unit/test_netloop.c` (328 checks) |
 | lwIP adapter (`FF_NetStackLwip`, opt-in) | **Implemented** (adapter over a third-party stack) | `src/hal/net/lwip/ff_net_lwip.{c,h}` + `ff_lwip_netif.{c,h}` (SRS-REQ-040); `FF_USE_LWIP=ON` (default OFF); pinned lwIP (`STABLE-2_2_1_RELEASE`, BSD-3-Clause) fetched by `tools/scripts/fetch_third_party.sh` |
 | Segmentation/reassembly layer (`FF_LinkSeg_t`, 2-byte BE length-prefix for TCP) | **Implemented** | `src/transport/link/link_seg.{c,h}` (SRS-REQ-059); used by `FF_LinkIpBackend` in TCP mode |
-| IP **link** backend (`FF_Link_t`, UDP + TCP over `FF_NetStack_t`) | **Implemented** | `src/transport/link/link_ip.{c,h}` (SRS-REQ-060); `tests/unit/test_link_ip.c` (19 test functions: 10 seg + 9 IP) |
-| TSN **link** backend (`FF_Link_t`, GEM MAC, EtherType 0x88F5) | **Implemented** | `src/transport/link/link_tsn.{c,h}` (SRS-REQ-061); `tests/unit/test_link_tsn.c` (14 test functions) |
+| IP **link** backend (`FF_Link_t`, UDP + TCP over `FF_NetStack_t`) | **Implemented** | `src/transport/link/link_ip.{c,h}` (SRS-REQ-060); `tests/unit/test_link_ip.c` (20 test functions: 10 seg + 9 IP + 1 PUS-C `test_pus_ip_roundtrip` TM/TC round-trip demo) |
+| TSN **link** backend (`FF_Link_t`, GEM MAC, EtherType 0x88F5) | **Implemented** | `src/transport/link/link_tsn.{c,h}` (SRS-REQ-061); `tests/unit/test_link_tsn.c` (15 test functions, incl. the `test_pus_tsn_roundtrip` TM/TC round-trip demo) |
 | EtherType / port allocation for PUS-C over IP | **Absent from ICD** | `docs/interfaces/ICD.md` (no TCP/UDP/IPv4/TSN content) |
 | Ground station over IP | **Not implemented** (serial-only) | `tools/gsw/ff_gsw.py` (V&V tool T7, `docs/vv/tool-qualification.md`) |
 | Tuxera TCP/IP, RTEMS libbsd adapters | **External / user-supplied** | plug into `FF_NetStack_t`; not part of this repository |
@@ -379,7 +379,9 @@ make verify-lean             # Lean formal verification (norm N1)
 make trace                   # traceability convergence (norm N4)
 make coverage                # coverage -> build/coverage/coverage.json
 make metrics                 # regenerate the README status panel
-make ci-local                # the whole cycle in the pinned Docker image
+make ci-local                # configure/build/test/Lean/trace in controlled Docker image
+make smoke                   # native simulator smoke test (separate)
+make docs                    # Doxygen generation (separate)
 ```
 
 Register a new test in `tests/CMakeLists.txt`; add requirement links in
@@ -417,3 +419,5 @@ without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
 | 0.7 | 2026-10-13 | frick-fsw | M8 implementation: gPTP stack (BMCA, Sync/Follow_Up, PDelay, PI servo), 802.1Qci via GEM screener type 1; update §9 status table and §9.1 for gPTP usage; fix §1 init sequence (add BoardInit/MissionTablesInit/LinkInit/EvsSetListener/AppTmOutputInit/AppHkRegister), §4 tables (`FF_TblValidateFn`), §7.1 link backends (`link_loopback.c`/`link_uart.c`, `FF_LinkSelect` NULL guard), §8 `GAP-A1` correction, lwIP file list (`ff_lwip_netif.{c,h}` in §8.1/§10), §13 separate `coverage`+`metrics`; R4+FSW review NCs recorded for unresolved items |
 | 0.8 | 2026-10-13 | frick-fsw | **S4b delivered** (SRS-REQ-059/060/061): segmentation/reassembly layer `link_seg.{c,h}` (2-byte BE length-prefix, allocation-free); IP `FF_Link_t` backend `link_ip.{c,h}` (UDP + TCP); TSN `FF_Link_t` backend `link_tsn.{c,h}` (EtherType 0x88F5, callback-driven RX ring); updated §7 (link transport list), §7.1 (four backends), §8 (status + table rows), new §8.2 (IP/TSN usage), §10 (note link backends are reference, not a TCP/IP stack); Renode SKIP (host-only); R4 documentation re-review (FRICK-REVIEW-0164) |
 | 0.9 | 2026-10-13 | frick-fsw | **S4b delta re-review (N12 closure)**: all findings from FRICK-REVIEW-0165 (R1+R2, REJECTED) and FRICK-REVIEW-0166 (PA, REJECTED) resolved; test counts corrected (test_link_ip 19 funcs, test_link_tsn 14 funcs); `-Wall -Wextra -Werror` clean; R1+R2 delta (FRICK-REVIEW-0165-D1) and PA delta (FRICK-REVIEW-0166-D1) both APPROVED; commit/push unblocked |
+| 0.10 | 2026-10-13 | frick-fsw | §8 status counts updated for the S4b follow-up (FRICK-REVIEW-0168 DOC-R4-030): `test_link_ip` 20 test functions (10 seg + 9 IP + 1 `test_pus_ip_roundtrip`) and `test_link_tsn` 15 test functions (incl. `test_pus_tsn_roundtrip`); header Revision aligned with the History |
+| 0.11 | 2026-10-13 | frick-fsw | Bound `make ci-local` to configure/build/test/Lean/trace, list separate smoke/docs commands, and state the mutable image-input limitation (NC-EXT-35). |

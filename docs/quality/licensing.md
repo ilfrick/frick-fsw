@@ -4,58 +4,73 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 0.6                                    |
-| Date                              | 2026-10-10                             |
-| License                           | AGPL-3.0-only (GNU Affero GPL v3)      |
+| Revision                          | 1.6                                    |
+| Date                              | 2026-10-14                             |
+| License                           | MPL-2.0 (Mozilla Public License 2.0)   |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
 | Norm                              | N13 (open source; license documented, reviewed and updated) |
 
-## 1. Decision
+## 1. Requested project license and transition status
 
-The whole frick-fsw project is released under the **GNU Affero General Public
-License version 3** (`AGPL-3.0-only`), **Copyright (C) 2026 Ilfrick**. The
-canonical license text is the file `LICENSE` at the repository root (verbatim
-text from the Free Software Foundation); the copyright holder and project links
-are also recorded in `NOTICE`.
+The repository owner directed and authorized the **Mozilla Public License,
+version 2.0** (`MPL-2.0`) for original project-authored code and materials
+created for frick-fsw; the canonical text is in root `LICENSE`. This record
+captures the owner decision and does not make an independent legal or
+provenance determination. **NC-EXT-43 remains OPEN** for third-party, generated,
+mission-supplied, commercial, and other externally controlled components and
+for combined/distribution-profile compatibility. Their terms are not changed by
+the project owner's authorization. The CFF `date-released` value refers to the
+historical v0.1.0 release and does not purport to describe a release under MPL.
 
-Every authored source, configuration and build file carries the header
-(engineering documentation is covered by `LICENSE`/`NOTICE`):
+SPDX headers on original project-authored source, configuration, build, test,
+tool and authored asset source files in scope use
+`SPDX-License-Identifier: MPL-2.0`. Documentation and formats that do not
+support comments are covered by `LICENSE`/`NOTICE`. Generated outputs and
+external components are outside the authorization and must retain or establish
+their own terms; their distribution compatibility remains open. Historical
+review reports retain point-in-time AGPL observations; prior recipients' grants
+are not changed.
 
-```text
-Copyright (C) 2026 Ilfrick
-https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-SPDX-License-Identifier: AGPL-3.0-only
-```
+The text copied to `LICENSE` was retrieved from the Mozilla Foundation's
+official MPL 2.0 page on 2026-10-13:
+<https://www.mozilla.org/en-US/MPL/2.0/>. Retrieved plain-text source:
+<https://www.mozilla.org/media/MPL/2.0/index.815ca599c9df.txt> (SHA-256
+`fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85`). The
+repository copy strips trailing whitespace only; its SHA-256 is
+`1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5`.
 
-## 2. Why AGPL-3.0 (maximum permitted)
+## 2. Reused, generated, and external components — disposition pending
 
-Norm N13 requires "AGPL-3.0 **or the maximum permitted by the licenses of any
-reused code parts**". The analysed reused/derived material and the resulting
-license compatibility:
+The previous AGPL compatibility analysis is not evidence that each dependency
+or generated artifact may be distributed with MPL-2.0 files. The repository
+records these boundaries, but exact versions, licensing terms, linkage,
+generation provenance, and distribution profile require a controlled review.
 
-| Component | Nature | License | Compatibility with AGPL-3.0 project |
-| --------- | ------ | ------- | ----------------------------------- |
-| frick-fsw authored code | original (this repo) | n/a | licensed AGPL-3.0-only by this document |
-| NASA cFS (Draco) | architectural inspiration only; **no code copied** | Apache-2.0 | AGPL-3.0 is stricter; a project may aggregate Apache-2.0 components while remaining AGPL-3.0 (attribution preserved) |
-| RTEMS 6.2 + RSB | external toolchain / OS | BSD-2-Clause (kernel), GPL-2.0 parts in RSB tooling | LGPL/BSD parts are combinable; RSB is a build tool, not distributed with the flight binary |
-| PUSopen(R) | commercial library, **optional adapter only** (`FRICK_USE_PUSOPEN`), never distributed | commercial | not part of this repository's distribution; documented in `docs/interfaces/ICD.md` and `src/pus/adapters/pus_adapter_pusopen.c` |
-| Lean 4 / Mathlib-theorems | development toolchain | Apache-2.0 | build-time tool, not distributed in binaries |
-| Platform `libm` (glibc host / newlib RTEMS) | C standard math library, part of the toolchain already used; facade in `src/math/` (M6) | LGPL-2.1-or-later (glibc) / BSD-style (newlib) | dynamically linked toolchain library; no new component distributed by frick-fsw; combinable with AGPL-3.0 |
-| SDLS cryptographic backend | user/mission-supplied algorithm (CCSDS 352.0-B) via `FF_CryptoBackend_t`; **not distributed** (M7) | mission/HW, typically proprietary | integration point only; the non-secure reference backend `src/security/ff_crypto_test.c` is AGPL and test-only |
-| lwIP (M4) | reference TCP/IP stack behind `FF_NetStack_t`; fetched pinned, **not committed** | BSD-3-Clause | compatible with AGPL-3.0 (aggregate, attribution) |
-| N7 Space / ESA `asn1-pusc-lib` (M4) | PUS-C ASN.1/ACN types behind `FF_Pus_Backend_t`; fetched pinned, **not committed** | GPL-3.0 | compatible with AGPL-3.0 (GPL-3.0 combination allowed) |
+| Component | Repository-described boundary | Recorded license | MPL transition disposition |
+| --------- | ----------------------------- | --------------- | --------------------------- |
+| NASA cFS (Draco) | Architectural inspiration; project claims no code copied | Apache-2.0 | Verify provenance claim; no cFS code is intentionally relicensed |
+| RTEMS / RSB | External OS/toolchain and build tooling | BSD/GPL components reported | Not relicensed; verify distributed artifacts and notices |
+| PUSopen | Optional mission-provided commercial library; adapter in repository | Commercial | Vendor library excluded from this project grant; verify boundary |
+| Lean / Mathlib | Development tools/theorems | Apache-2.0 reported | Not included in flight binary by project description; verify generated material scope |
+| Platform `libm` | Toolchain-provided host/RTEMS library | LGPL/BSD-style reported | Not relicensed; distribution/link mode not independently verified |
+| lwIP | Pinned fetched stack, not committed per repository record | BSD-3-Clause reported | Preserve upstream terms; verify exact tag, notices, and integration/distribution |
+| N7 Space / ESA `asn1-pusc-lib` | Fetched GPL-3.0 code; generated output described separately | GPL-3.0 reported | Compatibility and generated-code/runtime-exception applicability require legal review; do not infer from the prior AGPL analysis |
+| ASN1SCC generator/runtime | External generator and generated-code conditions described in ADR-0016 | GPL/runtime exception reported | Verify exact version and applicable generated-code license before distributing output |
+| SDLS mission backend | Mission-supplied interface; project reference backend is local | Mission/HW-specific | Mission code is outside the project license unless separately contributed and authorized |
 
-Conclusion: no reused part restricts frick-fsw below AGPL-3.0. Any new third-
-party component added to this repository in the future must be AGPL-3.0
-compatible or explicitly analysed here before being committed (norm N13).
+No compatibility or legal conclusion is made here for combined or distributed
+artifacts. NC-EXT-43 remains open until exact inputs and deployment/distribution
+profiles have an authorized disposition.
 
 ## 3. PUSopen commercial adapter boundary
 
 `src/pus/adapters/pus_adapter_pusopen.c` is an interface adapter against an
 external commercial library. It is compiled only when `FF_USE_PUSOPEN` is set
-and the library is provided by the mission; the adapter is distributed under
-AGPL-3.0 (the adapter code itself), while the commercial library remains the
-property of its vendor and is not part of this distribution. See
+and the library is provided by the mission. Original project-authored adapter
+source is within the owner's MPL-2.0 authorization. The commercial library
+remains the property of its vendor, is excluded from that authorization, and
+retains its own terms. Combined distribution compatibility remains under
+NC-EXT-43. See
 `docs/interfaces/ICD.md`.
 
 ## 4. Review procedure
@@ -65,16 +80,17 @@ the same commit (norm N8):
 
 1. new dependency, reused code, curated third-party artefacts, or a change to
    this document or `LICENSE`;
-2. run the licence check (CI `docs` job): `LICENSE` is the AGPL-3.0 text and
-   no `Apache-2.0` SPDX headers remain anywhere in the repository;
-3. record the outcome of the compatibility analysis in this document;
+2. run both CI license checks: canonical MPL-2.0 text and project SPDX coverage
+   must pass; preserve historical reports and third-party license identifiers;
+3. record the exact dependency/generated-code compatibility disposition in this
+   document, with authority and evidence references;
 4. update `CITATION.cff` if the version/release changed.
 
 ## 5. SPDX expression
 
 ```text
 Copyright (C) 2026 Ilfrick (https://github.com/ilfrick/frick-fsw, https://www.housefz.com/git/ilfrick/frick-fsw)
-SPDX-License-Identifier: AGPL-3.0-only
+SPDX-License-Identifier: MPL-2.0
 ```
 
 ## 6. Project name / codename "Eärendil" (third-party names)
@@ -121,3 +137,13 @@ J. R. R. Tolkien's legendarium.
 | 0.4 | 2026-10-10 | frick-fsw | M7: SDLS cryptographic backend is mission-supplied and not distributed; reference backend is test-only AGPL |
 | 0.5 | 2026-10-10 | frick-fsw | M4: lwIP (BSD-3) and N7/ESA asn1-pusc-lib (GPL-3.0) analysed; fetched pinned, not committed |
 | 0.6 | 2026-10-10 | frick-fsw | §6: project codename "Eärendil" — copyright vs trademark, non-affiliation, owners/contacts, per-territory verification |
+| 0.7 | 2026-10-13 | frick-fsw | Record requested MPL-2.0 candidate transition, official license source, third-party review limits, and open NC-EXT-43; no release approval implied |
+| 0.8 | 2026-10-13 | frick-fsw | Tighten N13 checker to require exact SPDX declaration in initial comment header; document NC-EXT-44 and pending independent qualification |
+| 0.9 | 2026-10-13 | frick-fsw | Require format-specific comment syntax and script-only shebang handling in N13 header validation; T21 remains pending independent review |
+| 1.0 | 2026-10-13 | frick-fsw | Require C-family opening block-comment state before accepting starred SPDX lines; independent T21 review remains pending |
+| 1.1 | 2026-10-13 | frick-fsw | Explicitly prohibit an MPL grant in the candidate, qualify CFF release date, and remove present-distribution wording for the PUSopen adapter |
+| 1.2 | 2026-10-14 | frick-fsw | Record owner authorization for original project-authored content; limit NC-EXT-43 to external/generated component boundaries and combined distribution compatibility |
+| 1.3 | 2026-10-14 | frick-fsw | Align owner-decision date and clarify the PUSopen adapter authorization boundary |
+| 1.4 | 2026-10-14 | frick-fsw | Temporarily narrowed owner authorization to software code and restored AGPL wording for docs/artwork; superseded by 1.5 after reconciliation to the owner's stated code-and-materials scope |
+| 1.5 | 2026-10-14 | frick-fsw | Reconcile authorization to original project code and materials; exclude generated/external material and correct over-narrow code-only interpretation |
+| 1.6 | 2026-10-14 | frick-fsw | Restore the omitted 1.4 history event as a superseded interim correction; make revision chronology continuous |

@@ -16,12 +16,13 @@
 #         so the toolchain is installed under /opt/rtems/6; the CMake toolchain
 #         file reads the same variable)
 #
-# The same build is available containerised and reproducible via
-# `make rtems-toolchain` (tools/docker/rtems/Dockerfile).
+# The same build is available in a Docker environment via `make rtems-toolchain`
+# (tools/docker/rtems/Dockerfile). Mutable apt/RSB inputs do not establish
+# bit-for-bit reproducibility (NC-EXT-40).
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 RTEMS_HOME="${RTEMS_HOME:-/opt/rtems}"

@@ -1,5 +1,6 @@
 -- frick-fsw - Common types and sizes, mirrored from src/core/common/ff_types.h
--- and config/fsw_config.h. SPDX-License-Identifier: AGPL-3.0-only
+-- SPDX-License-Identifier: MPL-2.0
+-- and config/fsw_config.h.
 namespace Frick.Common
 
 def StatusOk : Int := 0

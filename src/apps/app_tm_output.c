@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "app.h"
 #include "core/pal/pal.h"
@@ -31,6 +31,9 @@ void FF_AppTmOutputMain(void *arg)
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "TO app telemetry sink installed");
     for (;;) {
+        /* Bound deferred callback work per cycle; deferred events produced by
+         * callbacks are drained on a later iteration, never recursively. */
+        (void)FF_EvsDispatchPending(8u);
         FF_PalTaskDelayMs(1000u);
     }
 }

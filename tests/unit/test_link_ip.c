@@ -5,13 +5,17 @@
  * IP link backend with a mock network stack and the reference loopback stack.
  *
  * Copyright (C) 2026 Ilfrick
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "transport/link/link_seg.h"
 #include "transport/link/link_ip.h"
+#include "transport/ccsds/ccsds.h"
 #include "drivers/net/ff_net_loopback.h"
+#include "pus/pus.h"
 #include "core/pal/pal.h"
+#include "core/evs/evs.h"
+#include "core/time/time.h"
 #include <string.h>
 
 /* ---- Mock byte stream for seg layer testing ---- */
@@ -716,10 +720,116 @@ static void test_ip_tcp_partial_write(void)
     g_mock_net_send_limit = 0u;
 }
 
+/* ---- PUS-C over IP demonstration ("pus_ip", SRS-REQ-060, method Tst|Dem) ---- */
+
+static uint8_t g_pus_reply[256];
+static uint16_t g_pus_reply_len;
+static uint16_t g_pus_reply_off; /* offset of the reply inside the mock net-stack TX */
+static uint16_t g_pus_tx_count;
+
+/* PUS TM sink: pushes every encoded TM packet onto the selected link. */
+static void pus_ip_tm_sink(const uint8_t *packet, uint16_t len)
+{
+    uint16_t off = g_mock_net_tx_len; /* where FF_LinkSend will place this packet */
+    if (FF_LinkSend(packet, len) == FF_SUCCESS) {
+        g_pus_tx_count++;
+    }
+    /* Keep the S17 ping reply (TM secondary header service/subservice at 7/8)
+     * together with the offset at which the send leg handed it to the stack. */
+    if ((len >= 9u) && (packet[7] == FF_PUS_SERVICE_TEST) && (packet[8] == 2u) &&
+        (len <= sizeof(g_pus_reply))) {
+        (void)memcpy(g_pus_reply, packet, len);
+        g_pus_reply_len = len;
+        g_pus_reply_off = off;
+    }
+}
+
+static void test_pus_ip_roundtrip(void)
+{
+    /* S4b exit criterion ("pus_ip"): carry a real PUS-C TM/TC exchange over the
+     * IP FF_Link_t backend end to end (PUS -> link -> mock net stack -> link ->
+     * PUS) against the mock FF_NetStack_t (g_mock_net). The reference loopback
+     * stack (FF_NetStackLoopback) is a socket pair, so it cannot self-loop a
+     * single link instance; the mock models the peer. This is the demonstration
+     * (Dem) evidence for SRS-REQ-060 alongside the unit tests. */
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+
+    g_mock_net_rx_len = 0u;
+    g_mock_net_tx_len = 0u;
+    g_pus_reply_len = 0u;
+    g_pus_reply_off = 0u;
+    g_pus_tx_count = 0u;
+
+    FF_LinkIpConfig_t cfg = FF_LinkIpDefaultConfig(&g_mock_net);
+    cfg.mode = FF_LINK_IPMODE_UDP;
+    cfg.port = 8081u;
+    FF_TEST_ASSERT(FF_LinkIpInit(&cfg) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkSelect(&FF_LinkIpBackend) == FF_SUCCESS);
+
+    /* TC path: a PUS S17 ping TC arriving over the link is handed to PUS. */
+    FF_Pus_TcHdr_t tc;
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION;
+    tc.service = FF_PUS_SERVICE_TEST;
+    tc.subservice = 1u;
+    tc.source_id = 0x0102u;
+    const uint8_t tc_payload[] = {0x11, 0x22};
+    uint8_t tc_frame[128];
+    uint16_t tc_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, tc_payload, sizeof(tc_payload), tc_frame,
+                                    sizeof(tc_frame), &tc_len) == FF_SUCCESS);
+
+    for (uint16_t i = 0u; i < tc_len; i++) {
+        g_mock_net_rx[i] = tc_frame[i];
+    }
+    g_mock_net_rx_len = tc_len;
+
+    uint8_t link_rx[128];
+    uint16_t link_rx_len = 0u;
+    FF_TEST_ASSERT(FF_LinkRecv(link_rx, sizeof(link_rx), &link_rx_len, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(link_rx_len == tc_len);
+    FF_TEST_ASSERT(memcmp(link_rx, tc_frame, tc_len) == 0);
+
+    /* TM path: install the sink, ingest the TC, TM is pushed over the link. */
+    FF_PusSetTmSink(pus_ip_tm_sink);
+    FF_TEST_ASSERT(FF_PusIngest(link_rx, link_rx_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(g_pus_tx_count >= 2u);  /* acceptance + completion + ping reply */
+    FF_TEST_ASSERT(g_pus_reply_len >= 9u); /* S17 ping reply captured */
+
+    /* Send-leg closure (R1-F01): the exact reply bytes were handed by
+     * FF_LinkSend to the net stack TX buffer (g_mock_net_tx), so the send path
+     * -- not merely the sink invocation -- carried the TM. */
+    FF_TEST_ASSERT(((uint32_t)g_pus_reply_off + (uint32_t)g_pus_reply_len) <=
+                   (uint32_t)g_mock_net_tx_len);
+    FF_TEST_ASSERT(memcmp(&g_mock_net_tx[g_pus_reply_off], g_pus_reply, g_pus_reply_len) == 0);
+
+    /* Loop the reply back through the net stack and receive it via the link. */
+    for (uint16_t i = 0u; i < g_pus_reply_len; i++) {
+        g_mock_net_rx[i] = g_pus_reply[i];
+    }
+    g_mock_net_rx_len = g_pus_reply_len;
+
+    uint8_t tm_rx[256];
+    uint16_t tm_rx_len = 0u;
+    FF_TEST_ASSERT(FF_LinkRecv(tm_rx, sizeof(tm_rx), &tm_rx_len, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(tm_rx_len == g_pus_reply_len);
+    FF_TEST_ASSERT(memcmp(tm_rx, g_pus_reply, g_pus_reply_len) == 0);
+    FF_TEST_ASSERT(tm_rx[7] == FF_PUS_SERVICE_TEST); /* service 17 */
+    FF_TEST_ASSERT(tm_rx[8] == 2u);                  /* subservice 2 = ping reply */
+
+    FF_PusSetTmSink(NULL); /* R1-F02: do not leak the global sink to later tests */
+}
+
 FF_TEST_MAIN(test_seg_basic_roundtrip, test_seg_max_frame_rejected, test_seg_buffer_too_small,
              test_seg_null_args, test_seg_length_prefix_encoding, test_seg_roundtrip_two_frames,
              test_seg_fragmented_stream, test_seg_max_size_fragmented_partial,
              test_seg_read_error_propagation, test_seg_over_max_length_prefix,
              test_ip_init_udp_default, test_ip_null_config, test_ip_null_stack,
              test_ip_backend_name, test_ip_send_no_backend, test_ip_udp_send_recv_roundtrip,
-             test_ip_tcp_send_segmented, test_ip_tcp_recv_reassembles, test_ip_tcp_partial_write)
+             test_ip_tcp_send_segmented, test_ip_tcp_recv_reassembles, test_ip_tcp_partial_write,
+             test_pus_ip_roundtrip)

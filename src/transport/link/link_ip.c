@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "fsw_config.h"
 #include "link_ip.h"
@@ -15,7 +15,10 @@
 #include <string.h>
 
 /* Reference peer address (127.0.0.1) for host tests / emulator. */
-#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+#define FF_LINK_IP_REF_PEER                                                                        \
+    {                                                                                              \
+        127u, 0u, 0u, 1u                                                                           \
+    }
 
 static FF_LinkIpConfig_t g_cfg;
 static FF_NetSock_t g_sock = -1;

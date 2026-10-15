@@ -6,24 +6,32 @@
  * callback buffering on recv, ring-full drop, and EtherType filtering.
  *
  * Copyright (C) 2026 Ilfrick
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "transport/link/link_tsn.h"
+#include "transport/ccsds/ccsds.h"
 #include "hal/hal_eth.h"
 #include "hal/hal_tsn.h"
+#include "pus/pus.h"
 #include "core/pal/pal.h"
+#include "core/evs/evs.h"
+#include "core/time/time.h"
 #include <string.h>
 
 /* ---- Mock MAC ---- */
 
-#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+#define MOCK_MAC_ADDR                                                                              \
+    {                                                                                              \
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55                                                         \
+    }
 #define MOCK_RX_BUF 256u
 
 static uint8_t g_captured_frame[MOCK_RX_BUF];
 static uint16_t g_captured_len;
 static FF_EthRxCb_t g_rx_cb;
 static void *g_rx_ctx;
+static bool g_mock_echo; /* when true, transmit loops the frame back to the RX callback */
 
 static FF_Status_t mock_mac_init(void *self)
 {
@@ -55,6 +63,14 @@ static FF_Status_t mock_mac_transmit(void *self, const uint8_t *frame, uint16_t 
     }
     (void)memcpy(g_captured_frame, frame, len);
     g_captured_len = len;
+    /* Optional loop-back: deliver the frame synchronously to the registered RX
+     * callback. Invariant this relies on (see src/transport/link/link_tsn.c):
+     * tsn_link_send does NOT hold the link lock while calling transmit, and
+     * tsn_eth_rx_cb takes a non-blocking try-lock. If either becomes blocking,
+     * this echo would self-deadlock. */
+    if (g_mock_echo && (g_rx_cb != NULL)) {
+        g_rx_cb(frame, len, g_rx_ctx);
+    }
     return FF_SUCCESS;
 }
 
@@ -123,6 +139,7 @@ static void reset_mocks(void)
     g_rx_ctx = NULL;
     g_mock_vid = 0u;
     g_mock_pcp = 0u;
+    g_mock_echo = false;
     memset(g_captured_frame, 0, sizeof(g_captured_frame));
 }
 
@@ -314,7 +331,7 @@ static void test_tsn_ring_full_drop(void)
                     (uint8_t[]){0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}, FF_LINK_TSN_ETHERTYPE,
                     &payload, 1u);
 
-    for (int i = 0; i < FF_LINK_TSN_RX_SLOTS; i++) {
+    for (unsigned i = 0u; i < FF_LINK_TSN_RX_SLOTS; i++) {
         simulate_rx(eth_frame, eth_len);
     }
     /* One more should be dropped (ring full). */
@@ -323,7 +340,7 @@ static void test_tsn_ring_full_drop(void)
     /* All 16 should be retrievable. */
     uint8_t rx_buf[FF_LINK_TSN_RX_FRAMESZ];
     uint16_t rx_len = 0u;
-    for (int i = 0; i < FF_LINK_TSN_RX_SLOTS; i++) {
+    for (unsigned i = 0u; i < FF_LINK_TSN_RX_SLOTS; i++) {
         FF_Status_t st = FF_LinkRecv(rx_buf, sizeof(rx_buf), &rx_len, 0u);
         FF_TEST_ASSERT(st == FF_SUCCESS);
         FF_TEST_ASSERT(rx_len == 1u);
@@ -429,8 +446,78 @@ static void test_tsn_init_idempotent(void)
     FF_TEST_ASSERT(st == FF_SUCCESS);
 }
 
+/* ---- PUS-C over TSN demonstration ("pus_tsn", SRS-REQ-061, method Tst|Dem) ---- */
+
+static void pus_tsn_tm_sink(const uint8_t *packet, uint16_t len)
+{
+    (void)FF_LinkSend(packet, len);
+}
+
+static void test_pus_tsn_roundtrip(void)
+{
+    /* S4b exit criterion ("pus_tsn"): carry a real PUS-C TM/TC exchange over the
+     * TSN FF_Link_t backend end to end (PUS -> link -> MAC -> link -> PUS) with
+     * the mock MAC looped back. Demonstration (Dem) evidence for SRS-REQ-061. */
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+
+    reset_mocks();
+    g_mock_echo = true;
+    FF_LinkTsnConfig_t cfg = FF_LinkTsnDefaultConfig(&g_mock_mac, &g_mock_tsn);
+    FF_TEST_ASSERT(FF_LinkTsnInit(&cfg) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkSelect(&FF_LinkTsnBackend) == FF_SUCCESS);
+
+    /* TC path: a PUS S17 ping TC arrives as an Ethernet frame (TC over TSN). */
+    FF_Pus_TcHdr_t tc;
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION;
+    tc.service = FF_PUS_SERVICE_TEST;
+    tc.subservice = 1u;
+    tc.source_id = 0x0102u;
+    const uint8_t tc_payload[] = {0x33, 0x44};
+    uint8_t tc_frame[128];
+    uint16_t tc_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, tc_payload, sizeof(tc_payload), tc_frame,
+                                    sizeof(tc_frame), &tc_len) == FF_SUCCESS);
+
+    uint8_t eth[128];
+    uint16_t eth_len = 0u;
+    build_eth_frame(eth, &eth_len, (uint8_t[]){0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
+                    (uint8_t[]){0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}, FF_LINK_TSN_ETHERTYPE,
+                    tc_frame, tc_len);
+    simulate_rx(eth, eth_len);
+
+    uint8_t link_rx[128];
+    uint16_t link_rx_len = 0u;
+    FF_TEST_ASSERT(FF_LinkRecv(link_rx, sizeof(link_rx), &link_rx_len, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(link_rx_len == tc_len);
+    FF_TEST_ASSERT(memcmp(link_rx, tc_frame, tc_len) == 0);
+
+    /* TM path: the sink transmits the TM, which the looped-back mock MAC returns. */
+    FF_PusSetTmSink(pus_tsn_tm_sink);
+    FF_TEST_ASSERT(FF_PusIngest(link_rx, link_rx_len) == FF_SUCCESS);
+
+    bool saw_reply = false;
+    for (uint16_t guard = 0u; guard < 8u; guard++) {
+        uint8_t tm_rx[256];
+        uint16_t tm_rx_len = 0u;
+        if (FF_LinkRecv(tm_rx, sizeof(tm_rx), &tm_rx_len, 0u) != FF_SUCCESS) {
+            break;
+        }
+        if ((tm_rx_len >= 9u) && (tm_rx[7] == FF_PUS_SERVICE_TEST) && (tm_rx[8] == 2u)) {
+            saw_reply = true;
+        }
+    }
+    FF_TEST_ASSERT(saw_reply);
+    FF_PusSetTmSink(NULL);
+}
+
 FF_TEST_MAIN(test_tsn_init_success, test_tsn_send_eth_frame, test_tsn_recv_after_rx_cb,
              test_tsn_recv_wrong_etype_dropped, test_tsn_recv_null_args, test_tsn_init_null_config,
              test_tsn_init_null_mac, test_tsn_send_too_large, test_tsn_ring_full_drop,
              test_tsn_backend_name, test_tsn_custom_dest_mac, test_tsn_short_frame_dropped,
-             test_tsn_oversized_payload_dropped, test_tsn_init_idempotent)
+             test_tsn_oversized_payload_dropped, test_tsn_init_idempotent, test_pus_tsn_roundtrip)

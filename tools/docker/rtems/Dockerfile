@@ -8,12 +8,13 @@
 # Build:  make rtems-toolchain   (docker build -t frick-rtems-toolchain:local tools/docker/rtems)
 # Use:    make rtems-docker      (cross compile inside this image)
 #
-# Reproducibility: the RTEMS Source Builder ref is the RTEMS project release tag
-# `6.2` (ARG below); the base image is pinned by digest.
+# Inputs: the base image is digest-pinned, but apt package resolution and the
+# RTEMS Source Builder release ref remain mutable; bit-for-bit reproducibility
+# is not established (NC-EXT-40).
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 FROM ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
 
 ARG RTEMS_RSB_REF=6.2

@@ -2,6 +2,7 @@
 
 | Date       | Scope                          | Profile | Conclusion                | Report |
 | ---------- | ------------------------------ | ------- | ------------------------- | ------ |
+| 2026-10-14 | N21/N22 governance docs update | R4      | APPROVED WITH COMMENTS    | 2026-10-14-r4-documentation-review-N21-N22.md |
 | 2026-10-10 | v0.1.0 baseline release        | R2      | APPROVED WITH COMMENTS    | 2026-10-10-baseline-vv-review.md |
 | 2026-10-10 | SSS requirements review (N14)  | R3      | APPROVED WITH COMMENTS    | 2026-10-10-sss-systems-review.md |
 | 2026-10-10 | Norms N1-N16 conflict analysis | R1+R3   | APPROVED WITH COMMENTS    | 2026-10-10-rules-conflict-review.md |
@@ -166,14 +167,175 @@
 | 2026-10-13 | S4b product assurance review (N20) | PA (Senior SW PA engineer) | REJECTED (2 Major R1-01/R1-02 open + 10 Minor + 6 V&V-gaps + 4 PA Minor: PA-MN-01/02/03/04) | 2026-10-13-s4b-pa-review.md |
 | 2026-10-13 | S4b R1+R2 delta re-review (N12) — NF-1/NF-2/NF-3 closure | R1+R2 (Senior FSW + Senior SW V&V, independent) | APPROVED (all findings fixed + 3 new findings NF-1/NF-2/NF-3 closed) | 2026-10-13-s4b-r1-r2-delta-review.md |
 | 2026-10-13 | S4b PA delta re-review (N12/N20) — all findings closure | PA (Senior SW PA engineer) | APPROVED (2 Major + 10 Minor + 6 V&V-gaps + 4 PA Minor + 3 Comments all fixed) | 2026-10-13-s4b-pa-delta-review.md |
+| 2026-10-13 | S4b follow-up code/V&V review (R1+R2) — host `pus_ip`/`pus_tsn` PUS-C round-trip demonstrations + doc deltas | R1+R2 (Senior FSW + Senior SW V&V, independent, norm N9) | APPROVED WITH COMMENTS (5 Minor: R2-F01/F02/F03/F04/F05) | 2026-10-13-s4b-followup-r1-r2-review.md (FRICK-REVIEW-0167) |
+| 2026-10-13 | S4b follow-up documentation review (R4, norm N17) — revision histories, counts, delivered-scope currency | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS (8 Minor: DOC-R4-023..030) | 2026-10-13-s4b-followup-r4-review.md (FRICK-REVIEW-0168) |
+| 2026-10-13 | S4b follow-up product-assurance review (N20) — evidence ledger, records, NC traceability, semaphores | PA (Senior SW PA engineer) | APPROVED WITH COMMENTS (10 Minor: PA-MN-01..10) | 2026-10-13-s4b-followup-pa-review.md (FRICK-REVIEW-0169) |
+| 2026-10-13 | S8-FU independent engineering/V&V delta review | R1+R2 (Senior FSW + Senior SW V&V, independent) | PARTIAL PASS; not approved for closure (GSW-F01 + evidence gaps) | 2026-10-13-s8-fu-r1-r2-review.md (FRICK-REVIEW-0170) |
+| 2026-10-13 | S8-FU documentation delta review | R4 (Senior SW documentation engineer) | REJECTED (closure/status claims, sprint/handover, README, verification, GAP-A5, attribution) | 2026-10-13-s8-fu-r4-review.md (FRICK-REVIEW-0171) |
+| 2026-10-13 | S8-FU product-assurance delta review | PA (Senior SW PA engineer) | FAIL (N12/N20 evidence incomplete; Category B authority input open) | 2026-10-13-s8-fu-pa-review.md (FRICK-REVIEW-0172) |
+| 2026-10-13 | S8-FU engineering/V&V delta re-review of FRICK-REVIEW-0170 corrections | R1+R2 (Senior FSW + Senior SW V&V, independent) | PARTIAL PASS (parser recovery verified; NC-EXT-13 opened; no NC closure) | 2026-10-13-s8-fu-r1-r2-delta-review.md (FRICK-REVIEW-0173) |
+| 2026-10-13 | S8-FU follow-up documentation review | R4 (Senior SW documentation engineer, independent) | REJECTED (R4-01..05: status consistency, latest verdict, stale summary, sprint precedence, M17) | 2026-10-13-s8-fu-followup-r4-review.md (FRICK-REVIEW-0174) |
+| 2026-10-13 | S8-FU follow-up product-assurance review | PA (Senior SW PA engineer, independent) | FAIL (PA-01..05: NC closure wording, open gates, mutable evidence identity, stale summary, severity basis) | 2026-10-13-s8-fu-followup-pa-review.md (FRICK-REVIEW-0175) |
+| 2026-10-13 | S8-FU final documentation delta review | R4 (Senior SW documentation engineer, independent) | REJECTED (R4-D1..D5: latest verdict, revision/M17 summaries, owner sequence, immutable evidence identity) | 2026-10-13-s8-fu-final-r4-delta.md (FRICK-REVIEW-0176) |
+| 2026-10-13 | S8-FU final product-assurance delta review | PA (Senior SW PA engineer, independent) | FAIL (PA-D1..D4: stale status, evidence identity, authority severity and owner-order decisions) | 2026-10-13-s8-fu-final-pa-delta.md (FRICK-REVIEW-0177) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | REJECTED (0178-01..05: PUS API/ICD inconsistencies, evidence identity, sprint order, M9 status) | 2026-10-13-s8-fu-r4-delta-0178.md (FRICK-REVIEW-0178) |
+| 2026-10-13 | S8-FU PA delta review | PA (Senior SW product assurance engineer, independent) | FAIL (0179-01..05: evidence identity, report publication, semaphores, authority/owner decisions) | 2026-10-13-s8-fu-pa-delta-0179.md (FRICK-REVIEW-0179) |
+| 2026-10-13 | S8-FU R4 documentation/policy delta review | R4 (Senior SW documentation engineer, independent) | REJECTED (0180-01..04: PA closure criteria, ICD authority status, CRC wording, N11 header) | 2026-10-13-s8-fu-r4-delta-0180.md (FRICK-REVIEW-0180) |
+| 2026-10-13 | S8-FU PA evidence/status delta review | PA (Senior SW product assurance engineer, independent) | FAIL (0181-01..04: immutable evidence identity, stale pointer at review time, NC-EXT-26/27 pending, authority profile) | 2026-10-13-s8-fu-pa-delta-0181.md (FRICK-REVIEW-0181) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | REJECTED (0182-01..02: ICD tailoring authority language and CRC decoder behavior) | 2026-10-13-s8-fu-r4-delta-0182.md (FRICK-REVIEW-0182) |
+| 2026-10-13 | S8-FU PA delta review | PA (Senior SW product assurance engineer, independent) | FAIL (0183-01..04: immutable evidence, N14/R3 review, and V&V review-log omission) | 2026-10-13-s8-fu-pa-delta-0183.md (FRICK-REVIEW-0183) |
+| 2026-10-13 | S8-FU R4 targeted delta re-review | R4 (Senior SW documentation engineer, independent) | APPROVED WITH COMMENTS (0182 correction scope only; not overall N12/N17 closure) | 2026-10-13-s8-fu-r4-delta-0184.md (FRICK-REVIEW-0184) |
+| 2026-10-13 | S8-FU PA delta review | PA (Senior SW product assurance engineer, independent) | FAIL (0185-01: duplicate/split V&V revision history; NC-EXT-34 opened) | 2026-10-13-s8-fu-pa-delta-0185.md (FRICK-REVIEW-0185) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | REJECTED (0186-01/02: NC-EXT-34 attribution and review-summary wording) | 2026-10-13-s8-fu-r4-delta-0186.md (FRICK-REVIEW-0186) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | PASS (history/index/status checks only; not overall closure or NC-EXT-34 disposition) | 2026-10-13-s8-fu-pa-delta-0187.md (FRICK-REVIEW-0187) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | PASS (FRICK-REVIEW-0186 correction scope only; NC-EXT-34 and overall N17 remain open) | 2026-10-13-s8-fu-r4-delta-0188.md (FRICK-REVIEW-0188) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | PASS WITH COMMENT (NC-EXT-34 history/status scope only; audit wording follow-up; not overall N20) | 2026-10-13-s8-fu-pa-delta-0189.md (FRICK-REVIEW-0189) |
+| 2026-10-13 | T1 V&V image requalification delta review | R2 (Senior SW V&V engineer, independent) | NOT YET REQUALIFIED (0190-01/02: mutable toolchain inputs and hosted Doxygen/Graphviz execution) | 2026-10-13-t1-r2-delta-0190.md (FRICK-REVIEW-0190) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0191-01/02: loop-audit revision/stale pointer and review-summary omission) | 2026-10-13-s8-fu-r4-delta-0191.md (FRICK-REVIEW-0191) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | PASS WITH COMMENT (0189-correction/status scope only; not overall N12/N20) | 2026-10-13-s8-fu-pa-delta-0192.md (FRICK-REVIEW-0192) |
+| 2026-10-13 | T1 V&V image requalification follow-up | R2 (Senior SW V&V engineer, independent) | NOT FULLY REQUALIFIED (0193: local docs generation passed; NC-EXT-35/36 remain open) | 2026-10-13-t1-r2-delta-0193.md (FRICK-REVIEW-0193) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0194-01/02: Gitea `sudo` step and stale T1 local-run status) | 2026-10-13-s8-fu-r4-delta-0194.md (FRICK-REVIEW-0194) |
+| 2026-10-13 | T1 R2 delta review | R2 (Senior SW V&V engineer, independent) | PASS (0194 correction scope only; T1 not fully requalified; NC-EXT-35/36 open) | 2026-10-13-t1-r2-delta-0195.md (FRICK-REVIEW-0195) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | APPROVED WITH COMMENTS (0194 correction scope only; hosted evidence/NC-EXT-36 open) | 2026-10-13-s8-fu-r4-delta-0196.md (FRICK-REVIEW-0196) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | PASS WITH COMMENT (record/status scope only; overall N12/N20 open) | 2026-10-13-s8-fu-pa-delta-0197.md (FRICK-REVIEW-0197) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0198-01 residual pinned/reproducible claims; 0198-02 selective-summary clarification) | 2026-10-13-s8-fu-r4-delta-0198.md (FRICK-REVIEW-0198) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NC-EXT-35 residual claim noted; no positive T1 qualification conclusion | 2026-10-13-s8-fu-pa-delta-0199.md (FRICK-REVIEW-0199) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0200-01: active pinned/reproducible wording remained) | 2026-10-13-s8-fu-r4-delta-0200.md (FRICK-REVIEW-0200) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NC-EXT-35 wording correction incomplete at review time; no T1 qualification conclusion | 2026-10-13-s8-fu-pa-delta-0201.md (FRICK-REVIEW-0201) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0202-01/02: active claims and stale tooling date) | 2026-10-13-s8-fu-r4-delta-0202.md (FRICK-REVIEW-0202) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for correction scope (PA-01/02; NC-EXT-38 tracks `ci-local` scope mismatch) | 2026-10-13-s8-fu-pa-delta-0203.md (FRICK-REVIEW-0203) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0204: tooling scope, pointer/range, split history, T18 claim) | 2026-10-13-s8-fu-r4-delta-0204.md (FRICK-REVIEW-0204) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for correction scope (ci-local scope and V&V qualification claim) | 2026-10-13-s8-fu-pa-delta-0205.md (FRICK-REVIEW-0205) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (0206 findings: citation/T18 claims, qualification status, local-gate scope) | 2026-10-13-s8-fu-r4-delta-0206.md (FRICK-REVIEW-0206) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (T18 claims/status, `ci-local` scope, T7 status) | 2026-10-13-s8-fu-pa-delta-0207.md (FRICK-REVIEW-0207) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (NC-EXT-38: CONTRIBUTING and driver checklist misstate `ci-local` scope) | 2026-10-13-s8-fu-r4-delta-0208.md (FRICK-REVIEW-0208) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (NC-EXT-38: CONTRIBUTING, driver checklist, ADR scope wording) | 2026-10-13-s8-fu-pa-delta-0209.md (FRICK-REVIEW-0209) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (N16: CONTRIBUTING history missing) | 2026-10-13-s8-fu-r4-delta-0210.md (FRICK-REVIEW-0210) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (NC-EXT-38: static-analysis gate omitted in driver/service guides) | 2026-10-13-s8-fu-pa-delta-0211.md (FRICK-REVIEW-0211) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (NC-EXT-41 active status range omits entry) | 2026-10-13-s8-fu-r4-delta-0212.md (FRICK-REVIEW-0212) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (NC-EXT-41 range; guide revision/history mismatches) | 2026-10-13-s8-fu-pa-delta-0213.md (FRICK-REVIEW-0213) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (NC-EXT-38: Makefile separate-target scope list incomplete) | 2026-10-13-s8-fu-r4-delta-0214.md (FRICK-REVIEW-0214) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (NC-EXT-41: duplicate V&V rows/history; README semaphore text conflict) | 2026-10-13-s8-fu-pa-delta-0215.md (FRICK-REVIEW-0215) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (NC-EXT-41: duplicate FRICK-REVIEW-0212/0213 ledger rows) | 2026-10-13-s8-fu-r4-delta-0216.md (FRICK-REVIEW-0216) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED (NC-EXT-41: duplicate FRICK-REVIEW-0212/0213 ledger rows) | 2026-10-13-s8-fu-pa-delta-0217.md (FRICK-REVIEW-0217) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (ambiguous status-registry vs product-scope deferral wording) | 2026-10-13-s8-fu-r4-delta-0218.md (FRICK-REVIEW-0218) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | PASS for narrow ledger/history/status correction only; no NC closure or overall phase approval | 2026-10-13-s8-fu-pa-delta-0219.md (FRICK-REVIEW-0219) |
+| 2026-10-13 | T13 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T13 requalification (false-positive closure classifier; insufficient boundary tests) | 2026-10-13-t13-r2-delta-0220.md (FRICK-REVIEW-0220) |
+| 2026-10-13 | T13 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T13 requalification (stale panel, scope-only boundary, test coverage) | 2026-10-13-t13-r2-delta-0221.md (FRICK-REVIEW-0221) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (metrics currency, closure semantics, design-traceability wording, stale pointer) | 2026-10-13-s8-fu-r4-delta-0222.md (FRICK-REVIEW-0222) |
+| 2026-10-13 | S8-FU PA delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for T13 delta requalification (stale panel; pending/open verdict forms) | 2026-10-13-s8-fu-pa-delta-0223.md (FRICK-REVIEW-0223) |
+| 2026-10-13 | T13 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T13 requalification (contradictory negative clause; boundary tests) | 2026-10-13-t13-r2-delta-0224.md (FRICK-REVIEW-0224) |
+| 2026-10-13 | S8-FU R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (NC-EXT-42 omitted from plan open-range summary) | 2026-10-13-s8-fu-r4-delta-0225.md (FRICK-REVIEW-0225) |
+| 2026-10-13 | S8-FU PA delta review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for T13 requalification (heuristic metric limits, NC range, history) | 2026-10-13-s8-fu-pa-delta-0226.md (FRICK-REVIEW-0226) |
+| 2026-10-13 | T13 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T13 requalification (contradictory negative clauses still counted closed) | 2026-10-13-t13-r2-delta-0227.md (FRICK-REVIEW-0227) |
+| 2026-10-13 | T13 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T13 requalification (latest-review summary and T13-specific test count were overstated) | 2026-10-13-t13-r2-delta-0228.md (FRICK-REVIEW-0228) |
+| 2026-10-13 | T13 R2 scoped delta review | R2 (Senior SW V&V engineer, independent) | No blocking finding in bounded correction; not T13 requalification or NC closure | 2026-10-13-t13-r2-delta-0229.md (FRICK-REVIEW-0229) |
+| 2026-10-13 | S8-FU R4 scoped delta review | R4 (Senior SW documentation engineer, independent) | APPROVED for scoped review only; no NC closure or overall N17 approval | 2026-10-13-s8-fu-r4-delta-0230.md (FRICK-REVIEW-0230) |
+| 2026-10-13 | S8-FU PA scoped delta review | PA (Senior SW product assurance engineer, independent) | Scoped corrections consistent; not T13 qualification, NC closure or phase approval | 2026-10-13-s8-fu-pa-delta-0231.md (FRICK-REVIEW-0231) |
+| 2026-10-13 | S8-FU R4 handover delta review | R4 (Senior SW documentation engineer, independent) | PASS for handover-summary scope only; no NC closure or overall N17 approval | 2026-10-13-s8-fu-r4-delta-0232.md (FRICK-REVIEW-0232) |
+| 2026-10-13 | MPL transition PA audit | PA (Senior SW product assurance engineer, independent) | OPEN findings; inventory only; no license approval or NC closure | 2026-10-13-mpl-transition-pa-audit-0233.md (FRICK-REVIEW-0233) |
+| 2026-10-13 | MPL transition R4 inventory | R4 (Senior SW documentation engineer, independent) | OPEN findings; inventory only; no transition approval or NC closure | 2026-10-13-mpl-transition-r4-inventory-0234.md (FRICK-REVIEW-0234) |
+| 2026-10-13 | T21 R2 delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T21 qualification (compound/malformed SPDX expressions pass) | 2026-10-13-mpl-t21-r2-delta-0235.md (FRICK-REVIEW-0235) |
+| 2026-10-13 | MPL transition R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (candidate-status wording, N13 traceability, ADR-0011 history) | 2026-10-13-mpl-transition-r4-delta-0236.md (FRICK-REVIEW-0236) |
+| 2026-10-13 | MPL transition PA delta review | PA (Senior SW product assurance engineer, independent) | OPEN / NOT APPROVED for release (authority, immutable evidence, hosted CI/T21 qualification) | 2026-10-13-mpl-transition-pa-delta-0237.md (FRICK-REVIEW-0237) |
+| 2026-10-13 | T21 R2 header-position delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T21 qualification (prose and post-code SPDX declarations; mismatched wrappers) | 2026-10-13-mpl-t21-r2-header-delta-0238.md (FRICK-REVIEW-0238) |
+| 2026-10-13 | T21 R2 C-preprocessor delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T21 qualification (C preprocessor directive treated as comment/header) | 2026-10-13-mpl-t21-r2-preprocessor-delta-0239.md (FRICK-REVIEW-0239) |
+| 2026-10-13 | T21 R2 file-format delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T21 qualification (shebang accepted in non-script formats; suffix matrix coverage) | 2026-10-13-mpl-t21-r2-format-delta-0240.md (FRICK-REVIEW-0240) |
+| 2026-10-13 | T21 R2 C block-comment-state delta review | R2 (Senior SW V&V engineer, independent) | NOT APPROVED for T21 qualification (starred declaration accepted without opening block comment) | 2026-10-13-mpl-t21-r2-block-state-delta-0241.md (FRICK-REVIEW-0241) |
+| 2026-10-13 | T21 R2 C block-comment-state re-review | R2 (Senior SW V&V engineer, independent) | No new finding in bounded correction; not T21 qualification or NC closure | 2026-10-13-mpl-t21-r2-block-state-delta-0242.md (FRICK-REVIEW-0242) |
+| 2026-10-13 | MPL transition R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (explicit no-grant wording; workflow files not identical) | 2026-10-13-mpl-transition-r4-delta-0243.md (FRICK-REVIEW-0243) |
+| 2026-10-13 | MPL transition R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (SVG prolog/header checker false negative; README release-label ambiguity; stale status JSON) | 2026-10-13-mpl-transition-r4-delta-0244.md (FRICK-REVIEW-0244) |
+| 2026-10-13 | T21 R2 SVG prolog delta re-review | R2 (Senior SW V&V engineer, independent) | SVG correction confirmed for bounded scope; not T21 qualification or NC closure | 2026-10-13-mpl-t21-r2-svg-delta-0245.md (FRICK-REVIEW-0245) |
+| 2026-10-13 | DDJF T21 tool-register reference R4 delta review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED (DDJF says T1..T20 while register contains T1..T21) | 2026-10-13-ddjf-t21-register-r4-delta-0246.md (FRICK-REVIEW-0246) |
+| 2026-10-13 | DDJF T21 tool-register reference R4 re-review | R4 (Senior SW documentation engineer, independent) | Bounded correction verified; no new finding; not overall N17/PA approval or NC closure | 2026-10-13-ddjf-t21-register-r4-delta-0247.md (FRICK-REVIEW-0247) |
+| 2026-10-14 | T21 PA unreadable-managed-file review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for T21 qualification (unreadable source-like files skipped) | 2026-10-14-mpl-t21-pa-unreadable-file-0248.md (FRICK-REVIEW-0248) |
+| 2026-10-14 | T21 fail-closed correction R2 delta | R2 (Senior SW V&V engineer, independent) | Bounded pass; no new finding in correction; NC-EXT-44 and T21 qualification remain open | 2026-10-14-t21-fail-closed-r2-delta-0249.md (FRICK-REVIEW-0249) |
+| 2026-10-14 | MPL authorization scope R4 delta | R4 (Senior SW documentation engineer, independent) | NOT APPROVED; active records narrowed owner authorization and asset/output scope ambiguities | 2026-10-14-mpl-scope-r4-delta-0250.md (FRICK-REVIEW-0250) |
+| 2026-10-14 | MPL authorization scope PA delta | PA (Senior SW product assurance engineer, independent) | NOT APPROVED for scope/status consistency; NC-EXT-43/44/45 remain open | 2026-10-14-mpl-scope-pa-delta-0251.md (FRICK-REVIEW-0251) |
+| 2026-10-14 | T21/MPL active status R4 delta re-review | R4 (Senior SW documentation engineer, independent) | NOT APPROVED; NC-EXT-43/45 scope/current-status wording findings | 2026-10-14-current-status-r4-delta-0252.md (FRICK-REVIEW-0252) |
+| 2026-10-14 | T21/MPL active status PA delta re-review | PA (Senior SW product assurance engineer, independent) | NOT APPROVED; README freshness and NC-EXT-45 PA gate wording | 2026-10-14-current-status-pa-delta-0253.md (FRICK-REVIEW-0253; follow-up response relabeled from 0251 to avoid collision) |
+| 2026-10-14 | T21/MPL current-status R4 follow-up | R4 (Senior SW documentation engineer, independent) | NOT APPROVED; one reported TQ history absence was fact-checked, current row-status correction remains | 2026-10-14-current-status-r4-followup-0254.md (FRICK-REVIEW-0254) |
+| 2026-10-14 | T21/MPL current-status PA follow-up | PA (Senior SW product assurance engineer, independent) | NOT APPROVED; handover R4-gate wording and T21 row/history alignment | 2026-10-14-current-status-pa-followup-0255.md (FRICK-REVIEW-0255) |
+| 2026-10-14 | Handover current-review pointer R4 delta | R4 (Senior SW documentation engineer, independent) | NOT APPROVED; latest review pointer wording corrected | 2026-10-14-handover-current-review-r4-0256.md (FRICK-REVIEW-0256) |
+| 2026-10-14 | Current status PA follow-up | PA (Senior SW product assurance engineer, independent) | NOT APPROVED; status.json summary stale, author replaced with current summary | 2026-10-14-current-status-pa-followup-0257.md (FRICK-REVIEW-0257) |
+| 2026-10-14 | Current-status R4 re-review | R4 (Senior SW documentation engineer, independent) | No new finding in bounded status/license-history scope; no NC closure | 2026-10-14-current-status-r4-rereview-0258.md (FRICK-REVIEW-0258) |
+| 2026-10-14 | Current-status PA re-review | PA (Senior SW product assurance engineer, independent) | No new finding in bounded status assertions; NCs and qualification gates remain open | 2026-10-14-current-status-pa-rereview-0259.md (FRICK-REVIEW-0259) |
+| 2026-10-14 | N21/N22 documentation review | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS; 19 non-functional findings deferred as NCs; functional finding #15 already tracked as NC-EXT-11 | 2026-10-14-r4-documentation-review-N21-N22.md (FRICK-REVIEW-0260) |
+| 2026-10-14 | N21/N22 governance and functional-scope PA review | PA (Senior SW Product Assurance engineer) | APPROVED WITH COMMENTS; bounded review conclusion, findings remain subject to N21 disposition and separate gates | 2026-10-14-pa-governance-functional-review.md (FRICK-REVIEW-0261; renumbered from duplicate 0260) |
+| 2026-10-14 | N22 test-document set scoped review | R4 (Senior SW documentation engineer) | APPROVED WITH COMMENTS; six non-functional findings recorded as NC-EXT-69..74; no overall N17/N20 closure | 2026-10-14-n22-doc-set-r4-review-0262.md (FRICK-REVIEW-0262) |
+| 2026-10-14 | Software Bus full-pipe overflow — PA review | PA (Senior SW Product Assurance engineer) | NOT APPROVED for scope; required EVS error event missing; NC-EXT-75 opened, correction requires independent delta review | 2026-10-14-sb-overflow-pa-review-0263.md (FRICK-REVIEW-0263) |
+| 2026-10-14 | Software Bus overflow EVS dispatch — R1 delta review | R1 (Senior FSW engineer) | NOT APPROVED; strict nonblocking mutex behavior unresolved (NC-EXT-75); SRS-REQ-011 ground-forwarding loss on EVS queue saturation (NC-EXT-76) | 2026-10-14-sb-overflow-r1-delta-0264.md (FRICK-REVIEW-0264) |
+| 2026-10-14 | Event envelope requirements — scoped R3 review | R3 (Senior Systems engineer profile) | NOT APPROVED for baselining; event-loss boundaries and measurement points underdefined; numeric parameters remain authority-owned TBDs (NC-EXT-76) | 2026-10-14-event-envelope-r3-review-0265.md (FRICK-REVIEW-0265) |
+| 2026-10-14 | Event envelope requirements — R3 delta review | R3 (Senior Systems engineer profile) | APPROVED WITH COMMENTS for continued development only; NOT APPROVED for baseline/N14 closure; NC-EXT-77 count comment corrected; NC-EXT-76 values and loss-counter realization remain open | 2026-10-14-event-envelope-r3-delta-0266.md (FRICK-REVIEW-0266) |
+| 2026-10-14 | SB/EVS structural stress documentation delta | R4 (Senior SW documentation engineer, independent) | APPROVED WITH COMMENTS for bounded document consistency only; 473 cross-package count and TS-5/TS-6 case/env/status tallies reconciled; no broad N17 or release approval | 2026-10-14-sb-evs-stress-r4-review-0268.md (FRICK-REVIEW-0268) |
+| 2026-10-14 | SB/EVS structural stress evidence delta | PA (Senior SW Product Assurance engineer, independent) | APPROVED WITH COMMENTS for bounded stress evidence only; fresh clean host build/28 CTest pass; stress claims limited to structural saturation; NC-EXT-75/76 remain open | 2026-10-14-sb-evs-stress-pa-review-0269.md (FRICK-REVIEW-0269) |
+| 2026-10-14 | SB/EVS structural characterization requirements delta | R3 (Senior Systems engineer, independent) | APPROVED WITH COMMENTS for bounded framework characterization only; final CSV retention finding resolved; not mission baseline/N14 closure | 2026-10-14-sb-evs-structural-r3-review-0270.md (FRICK-REVIEW-0270) |
+| 2026-10-14 | SB/EVS sweep test/runner delta | R2 (Senior SW V&V engineer, independent) | Initial NOT APPROVED; corrected oracle/runner accepted for exploratory host characterization only; not formal N10 tool-owner acceptance or compliance evidence | 2026-10-14-sb-evs-sweep-r2-review-0271.md (FRICK-REVIEW-0271) |
+| 2026-10-14 | SB/EVS characterization documentation | R4 (Senior SW documentation engineer, independent) | APPROVED WITH COMMENTS for bounded documentation consistency; scoped wording/output corrections verified; no overall N17 approval | 2026-10-14-sb-evs-sweep-r4-review-0272.md (FRICK-REVIEW-0272) |
+| 2026-10-14 | SB/EVS sweep evidence package | PA (Senior SW Product Assurance engineer, independent) | APPROVED WITH COMMENTS for evidence consistency only; no NC closure, T22 compliance qualification, or release approval | 2026-10-14-sb-evs-sweep-pa-review-0273.md (FRICK-REVIEW-0273) |
+| 2026-10-14 | SB/EVS sweep final runner source identity | R2 (Senior SW V&V engineer, independent) | ACCEPTABLE for existing exploratory characterization scope after header-only SPDX delta and byte-identical rerun; not formal N10 acceptance | 2026-10-14-sb-evs-sweep-r2-source-identity-delta-0274.md (FRICK-REVIEW-0274) |
+| 2026-10-14 | SB/EVS full CTest runner integration | R2 (Senior SW V&V engineer, independent) | PASS WITH COMMENT for local structural-characterization pipeline exercise; hosted CI and formal N10 disposition not approved | 2026-10-14-sb-evs-ctest-r2-review-0275.md (FRICK-REVIEW-0275) |
+| 2026-10-14 | SB/EVS CTest records | R4 (Senior SW documentation engineer, independent) | Initial NOT APPROVED; R4-01..03 corrected and verified closed in bounded delta; no overall N17 approval | 2026-10-14-sb-evs-ctest-r4-review-0276.md; 2026-10-14-sb-evs-ctest-r4-delta-0278.md (FRICK-REVIEW-0276/0278) |
+| 2026-10-14 | SB/EVS CTest evidence | PA (Senior SW Product Assurance engineer, independent) | APPROVED WITH COMMENTS; runtime discrepancy corrected and independently closed; no N10 qualification, mission acceptance, or release approval | 2026-10-14-sb-evs-ctest-pa-review-0277.md; 2026-10-14-sb-evs-ctest-pa-delta-0279.md (FRICK-REVIEW-0277/0279) |
 
 This directory stores every review report produced for frick-fsw, including
-**independent reviews** per norm N9. All reports are committed and pushed in
-the same development/verification cycle (norm N11).
+**independent reviews** per norm N9. Reports are required in the same
+development/verification cycle and are committed/pushed only after the full
+applicable verification and independent-review gates pass (norms N7/N11/N15).
+
+> **Current status:** FRICK-REVIEW-0167/0168/0169 remain APPROVED WITH COMMENTS;
+> their corrective actions are not closed until required delta reports are
+> recorded. The S8-FU assessments above found additional items; their reports
+> are recorded as FRICK-REVIEW-0170/0171/0172. Follow-up reviews
+> FRICK-REVIEW-0174/0175 also rejected/failed; the engineering/V&V review is
+> partial and not a closure. Further delta reviews FRICK-REVIEW-0176/0177
+> also rejected/failed; FRICK-REVIEW-0178 was REJECTED and FRICK-REVIEW-0179
+> was FAIL.
+> FRICK-REVIEW-0218 and FRICK-REVIEW-0220 are NOT APPROVED for their scopes;
+> FRICK-REVIEW-0219 is a narrow scoped PASS only and closes no NC;
+> FRICK-REVIEW-0221..0228 are NOT APPROVED for their reviewed scopes;
+> FRICK-REVIEW-0229 is a bounded R2 review without qualification/closure,
+> 0230 is a scoped R4 approval only, 0231 a scoped PA consistency pass, and
+> 0232 a scoped handover R4 pass only;
+> none closes an NC or the overall phase. T1/T18/T13 are not fully requalified.
+> FRICK-REVIEW-0270..0279 apply only to SB/EVS framework characterization,
+> evidence, documentation and the final runner-source identity; they do not
+> approve mission event performance, close NC-EXT-75/76, qualify T22 for
+> requirements-compliance evidence, or approve release. The latest R2/R4/PA
+> conclusions are bounded delta reviews, not approval of the aggregate worktree.
+> The
+> short NC list below is selective; the sprint-plan register is exhaustive.
+> NC-EXT-29, NC-EXT-33..47 and NC-EXT-48..77 remain open; FRICK-REVIEW-0233..0266 are
+> transition audits/follow-ups, not legal authorization or independent
+> provenance evidence. Owner authorization for original project-authored
+> code/materials is recorded; NC-EXT-43 remains open for external/generated
+> boundaries and combined-distribution compatibility. 0242, 0245 and 0249 are
+> bounded R2 results only; 0247 is a bounded R4 result. R4/PA 0252..0257 were
+> NOT APPROVED for their reviewed scopes; bounded follow-ups 0258/0259 found no
+> new status/history finding but close no NC or overall gate. FRICK-REVIEW-0260 is
+> the R4 N21/N22 documentation report; the PA report was renumbered FRICK-REVIEW-0261
+> to resolve a duplicate ID. Their bounded conclusions do not close NCs or satisfy
+> the overall N17/N20 gates; PA report finding #15's trace-count discrepancy is
+> tracked as NC-EXT-68. FRICK-REVIEW-0262 is a scoped R4 review with six
+> non-functional NCs (NC-EXT-69..74); N17/N20 remain open. FRICK-REVIEW-0263
+> rejected the initial SB overflow behavior; NC-EXT-75 is functionally corrected
+> in part but strict nonblocking mutex semantics remain unproven. FRICK-REVIEW-0264
+> identified an additional SRS-REQ-011 conflict at queue saturation (NC-EXT-76).
+> FRICK-REVIEW-0265 did not approve the first event-envelope requirements draft
+> for baselining. FRICK-REVIEW-0266 approves continued development with comments
+> only, not baseline/N14 closure. NC-EXT-77 records the corrected trace-count
+> comment; NC-EXT-76 retains authority values and loss-counter implementation.
+> T21 remains unqualified;
+> review,
+> PA, R2 and V&V semaphores remain yellow.
 
 - Template: `review-template.md`
 - Independent agent profiles: `../engineering/independent-review.md`
 - Rules: `../rules.md`
 
-To record a review: copy the template, fill it, append a row to the log, and
-commit the two files together with the change under review.
+To record a review: copy the template, fill it, and append a row to the log in
+the working tree immediately. Preserve failed/intermediate reports; commit and
+push the reports with the reviewed change only after all applicable verification
+and independent-review gates pass. This reconciles N11 evidence retention with
+the N7/N15/N17/N20 commit gate; do not publish a change whose required review
+has failed.

@@ -4,15 +4,16 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-PA-001                      |
-| Revision                          | 0.2                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.4                                    |
+| Date                              | 2026-10-13                             |
 | References                        | ECSS-Q-ST-80C, `docs/rules.md`, `docs/quality/ecss-compliance-matrix.md` |
 
 ## 1. Scope and objectives
 
-This plan states how product/quality assurance is applied to frick-fsw so that
-the delivered software is a controlled, verified, documented product at ECSS
-criticality B. The technical QA functions are embedded in the non-derogable
+This plan states how product/quality assurance is applied to frick-fsw. ECSS
+Category B is the project's target, not an assigned or accepted mission
+classification; the applicable classification and tailoring must be supplied
+by the authorized program/customer authority (NC-EXT-11). The technical QA functions are embedded in the non-derogable
 norms and the CI/CD gates; the organisational independence required at level A
 is a documented gap (GAP-A3).
 
@@ -35,7 +36,11 @@ is a documented gap (GAP-A3).
 
 - Code/line/function coverage and requirement coverage: `make coverage`,
   `make metrics`, README status panel.
-- All records are versioned and pushed every cycle (norm N11/N7).
+- All records are versioned and retained in the working tree every cycle
+  (N11). Commit/push the complete compliant change and its review evidence only
+  after applicable verification and independent-review gates pass (N7/N15/N17/N20);
+  rejected/failed intermediate reports remain available for the eventual
+  compliant change (NC-EXT-32).
 
 ## 4. Independence
 
@@ -57,3 +62,5 @@ are the periodic milestone reviews (R1/R2/R3/R4) and the per-phase PA review (N2
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial software product/quality assurance plan |
 | 0.2 | 2026-10-11 | frick-fsw | Add the N20 Senior SW PA review of every phase product (scope, independence, records) (PA-07) |
+| 0.3 | 2026-10-13 | frick-fsw | Clarify that ECSS Category B is the project target only and does not claim a mission/customer assignment; NC-EXT-11 remains open pending authority input and independent review. |
+| 0.4 | 2026-10-13 | frick-fsw | Clarify retention versus publication timing for review and PA evidence; NC-EXT-32 remains open pending independent verification |

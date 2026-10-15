@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #ifndef FF_SB_H
 #define FF_SB_H
@@ -38,8 +38,20 @@ FF_Status_t FF_SbInit(void);
 FF_Status_t FF_SbCreatePipe(FF_AppId_t app, uint16_t depth);
 FF_Status_t FF_SbSubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber);
 FF_Status_t FF_SbUnsubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber);
+/* Publishes without waiting for the SB or queue mutexes. A busy SB mutex returns
+ * FF_TIMEOUT before mutation. A busy subscriber queue drops that copy, continues
+ * fan-out, defers an EVS error, and returns FF_TIMEOUT. A full queue follows the
+ * overflow path and does not change the publish return status. */
 FF_Status_t FF_SbPublish(const FF_Msg_t *msg);
 FF_Status_t FF_SbReceive(FF_AppId_t app, FF_Msg_t *msg, uint32_t timeout_ms);
 FF_Status_t FF_SbGetStats(FF_SbStats_t *stats);
+
+#ifdef FF_TEST_HOOKS
+/* Deterministic contention injection for unit tests; absent from production builds. */
+FF_Status_t FF_SbTestLock(void);
+FF_Status_t FF_SbTestUnlock(void);
+FF_Status_t FF_SbTestQueueLock(FF_AppId_t app);
+FF_Status_t FF_SbTestQueueUnlock(FF_AppId_t app);
+#endif
 
 #endif /* FF_SB_H */

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0011                        |
-| Revision                          | 0.1                                    |
-| Date                              | 2026-10-10                             |
+| Revision                          | 0.2                                    |
+| Date                              | 2026-10-13                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SSS-REQ-001, SRS-REQ-037               |
 
@@ -56,12 +56,14 @@ The baseline is the **open-source RTEMS 6.2** release from the RTEMS project
 (`gitlab.rtems.org`, source-builder ref `6.2`); no vendor/commercial baseline or
 pre-built toolchain is used. Toolchain: `tools/scripts/setup_rtems.sh` builds the
 riscv toolchain and the RTEMS 6.2 kernel + `riscv/mpfs64imafdc` BSP with the RTEMS
-Source Builder into `$RTEMS_HOME/6` (default `/opt/rtems/6`), or the same build runs
-reproducibly in a container (`tools/docker/rtems/Dockerfile`). Then:
+Source Builder into `$RTEMS_HOME/6` (default `/opt/rtems/6`), or run the build in
+the Docker environment (`tools/docker/rtems/Dockerfile`). The base image is
+digest-pinned, but apt resolution and the RSB release reference are mutable;
+bit-for-bit reproducibility is not established (NC-EXT-40). Then:
 
 ```bash
 RTEMS_HOME=/opt/rtems make rtems        # cmake with cmake/toolchains/rtems-riscv-mpfs.cmake
-# or, reproducible and without a host toolchain:
+# or, using the Docker environment without a host toolchain (NC-EXT-40):
 make rtems-toolchain                    # build the open RTEMS 6.2 toolchain image (T18)
 make rtems-docker                       # cross compile inside the image
 ```
@@ -114,3 +116,4 @@ recommended for a release.
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial RTEMS integration guide (config table, entry point, build, verification) |
+| 0.2 | 2026-10-13 | frick-fsw | Disclose mutable apt/RSB inputs and remove unsubstantiated reproducibility claim (NC-EXT-40). |

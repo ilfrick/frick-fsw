@@ -9,7 +9,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "drivers/spacewire/mpfs/ff_spacewire_mpfs.h"
@@ -179,7 +179,6 @@ static void test_setup_and_init(void)
 static void test_send_recv(void)
 {
     uint8_t tx[4] = {0x11u, 0x22u, 0x33u, 0x44u};
-    uint8_t rx[8] = {0u};
 
     mock_bind();
     FF_TEST_ASSERT(g_drv.spw.init() == FF_SUCCESS);
@@ -221,7 +220,7 @@ static void test_rmap_read(void)
     FF_TEST_ASSERT(g_mock.tx_buf[3] == 0x00u); /* key */
     FF_TEST_ASSERT(g_mock.tx_buf[4] == 0xFEu); /* reply_addr */
     /* Transaction ID increments (now at indices 5,6). */
-    FF_TEST_ASSERT((g_mock.tx_buf[5] << 8) | g_mock.tx_buf[6] == 0u);
+    FF_TEST_ASSERT(((g_mock.tx_buf[5] << 8) | g_mock.tx_buf[6]) == 0u);
 }
 
 static void test_rmap_write(void)

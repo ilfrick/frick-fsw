@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: MPL-2.0
+
 """frick-fsw traceability convergence gate (norms N1/N3/N4/N10/N11).
 
 Validates docs/requirements/traceability.yaml as the single source of truth:

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TOOLS-001                     |
-| Revision                          | 0.3.24                                 |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.3.71                                 |
+| Date                              | 2026-10-14                             |
 | Applicable norms                  | N6, N10, N11                           |
 
 Norm N10 requires every test script / V&V tool to be **qualified** per
@@ -22,26 +22,28 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 
 | ID  | Tool / script                           | Location                        | Used for evidence of            | Qualification level        | Review (independence)                    | Status |
 | --- | --------------------------------------- | ------------------------------- | ------------------------------- | -------------------------- | ---------------------------------------- | ------ |
-| T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | reproducibility of all evidence | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
+| T1  | Docker V&V image                        | `tools/docker/Dockerfile`       | common container environment for specified jobs | reviewed + CM | internal (R2 on changes) | Graphviz added; local clean serialized Doxygen run passed with 107 warnings per FRICK-REVIEW-0193. Mutable base/package/tool sources remain (NC-EXT-35); hosted GitHub/Gitea execution/evidence remains open (NC-EXT-36); not fully requalified. |
 | T2  | Unit test harness `ff_test.h`           | `tests/ff_test.h`               | unit test results               | reviewed + CM              | internal                                | QUALIFIED |
-| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`, `test_can.c`, `test_i2c.c`, `test_spi.c`, `test_block.c`, `test_lwip_netif.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | QUALIFIED |
-| T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | QUALIFIED |
+| T3  | CTest / unit tests                      | `tests/unit/*.c` (incl. `test_r2_gap.c`, `test_r3_gap.c`, `test_nvm.c`, `test_mtd.c`, `test_can.c`, `test_i2c.c`, `test_spi.c`, `test_block.c`, `test_lwip_netif.c`, `test_sb_stress.c`, `test_sb_sweep.c`) | SRS/SSS test evidence | reviewed + CM | internal; independent at release (R2) | SB/EVS stress/sweep and default CTest boundary run locally; R2 FRICK-REVIEW-0271 accepted corrected exploratory sweep oracle after its delta, but formal tool-owner N10 acceptance and release-specific independent evidence remain pending; no mission-compliance credit |
+| T4  | Native simulator smoke                 | `tools/scripts/run_sim.sh`      | integration/smoke results       | reviewed + CM              | internal                                | Author-retested cached/fresh CMake-generator paths; independent delta qualification review pending (S8-FU) |
 | T5  | Lean 4 / lake / formal theorems         | `verification/lean/`            | norm N1 machine-checked proofs  | tool is self-checking; sources reviewed | review of theorem statements (R1/R2) | QUALIFIED |
 | T6  | Traceability gate                       | `tools/scripts/trace.py`        | norm N4 convergence             | reviewed + CM              | independent (R2), qualified once, reviewed at change | QUALIFIED |
-| T7  | Ground station `ff_gsw.py`              | `tools/gsw/ff_gsw.py`           | TC injection / TM decode logs   | reviewed + CM              | independent (R2) on changes             | QUALIFIED |
+| T7  | Ground station `ff_gsw.py`              | `tools/gsw/ff_gsw.py`; `tests/python/test_ff_gsw.py` | TC injection / TM decode logs | reviewed + CM + fixed golden vectors | independent (R2) on changes | Bounded local packet checks present; independent delta qualification review pending; external segment-to-ground E2E remains open; not currently claimed as fully qualified |
 | T8  | clang-tidy static analysis              | `.clang-tidy`, CI job            | defect / style evidence         | reviewed + CM              | internal                                | QUALIFIED |
-| T9  | Simulator bootstrap                     | `tools/scripts/run_sim.sh`      | boot and TM evidence            | reviewed + CM              | internal                                | Traced to T4, QUALIFIED |
+| T9  | Simulator bootstrap                     | `tools/scripts/run_sim.sh`      | boot and TM evidence            | reviewed + CM              | internal                                | Traced to T4; author-retested cached/fresh generator paths; independent delta review pending |
 | T10 | RTEMS toolchain bootstrap (open RTEMS project) | `tools/scripts/setup_rtems.sh`  | open-source RTEMS 6.2 cross toolchain + BSP | upstream-tested + CM       | internal                                | QUALIFIED |
 | T11 | CI workflows (GH Actions / Gitea)       | `.github/workflows`, `.gitea/workflows` | pipeline evidence `ci:*` | reviewed + CM              | internal                                | QUALIFIED |
 | T12 | Coverage collector                      | `tools/scripts/coverage.py`   | code line coverage metrics    | reviewed + CM              | internal (R2 on changes)                | QUALIFIED |
-| T13 | Status-panel generator (completion + coverage + semaphores) | `tools/scripts/metrics.py`    | README completion/coverage panel + V&V semaphores | reviewed + CM | internal (R2 on changes); R2 source review FRICK-REVIEW-0070 + PA approval FRICK-REVIEW-0068/0069/0071 | QUALIFIED |
-| T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`; `make misra-docker` (pinned container) | MISRA findings report, reproducible via `make misra-docker` | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
+| T13 | Status-panel generator (completion + coverage + semaphores) | `tools/scripts/metrics.py`; `tests/python/test_metrics.py` | README completion/coverage panel + V&V semaphores | reviewed + CM | internal (R2 on changes); R2 source review FRICK-REVIEW-0070 + PA approval FRICK-REVIEW-0068/0069/0071 | Registry/product-scope deferral distinction; verdict classifier rejects known scoped/open/pending/contradictory outcomes; 9 T13-focused tests pass (14 total Python tests include 5 GSW tests) and panel is current. FRICK-REVIEW-0221/0223/0224/0226/0227/0228 NOT APPROVED; 0229 is bounded only and 0230/0231 are scoped; none requalifies T13. Independent T13 qualification and NC-EXT-41 closure remain pending. |
+| T14 | MISRA C:2012 scan (cppcheck addon)      | `tools/scripts/misra.sh`; `make misra-docker` (Ubuntu package install) | Advisory MISRA findings report; checker/package versions are not pinned by this target | reviewed + CM              | internal (advisory; certified checker = GAP-A4) | QUALIFIED |
 | T15 | Renode (PolarFire SoC emulator)         | `tools/scripts/emulated_run.sh` | emulated boot/driver evidence | reviewed + CM              | internal (advisory; not silicon)        | QUALIFIED |
 | T16 | QEMU RISC-V (`riscv/rv64imafdc`)        | `tools/scripts/emulated_run.sh` | emulated RTEMS boot evidence  | reviewed + CM              | internal (advisory; generic virt)       | QUALIFIED |
 | T17 | Renode V&V environment (norm N18)       | `tools/scripts/renode_env_selftest.sh`, `renode_vv.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | env self-test PASS; functional run of the open RTEMS image: `RENODE_TEST: PASS` (incl. HAL checks `hal_gpio`/`hal_serial`/`hal_mem`/`hal_eth`/`hal_net`/`hal_nvm`/`hal_can`/`hal_i2c`/`hal_spi`/`hal_block`/`hal_tsn`/`hal_pcie`; on the lwIP-enabled image also `hal_net_lwip`); UART console + full Renode process log retained under `build/renode/` | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
-| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + `mpfs64imafdc` BSP (flight/Renode) and `rv64imafdc` BSP (QEMU) built; real cross build OK (plain + Renode + generic image) | reviewed + CM              | internal (RTEMS project upstream)       | QUALIFIED (see note) |
+| T18 | Open RTEMS 6.2 toolchain image          | `tools/docker/rtems/Dockerfile`, `setup_rtems.sh` (`make rtems-toolchain`/`rtems-docker`) | open-source RTEMS 6.2 toolchain + `mpfs64imafdc` BSP (flight/Renode) and `rv64imafdc` BSP (QEMU) built; real cross build OK (plain + Renode + generic image) | reviewed + CM | internal (RTEMS project upstream) | **NOT FULLY REQUALIFIED**: prior QEMU evidence used a stepwise-assembled image; clean Docker build and repeat target checks pending (NC-EXT-40). |
 | T19 | ASN1SCC PUS-C code generation           | `tools/scripts/gen_pus_asn1.sh`, `tools/docker/asn1scc/` (`make pus-asn1`) | C generated from the N7/ESA `asn1-pusc-lib` ASN.1/ACN model | reviewed + CM | ESA ASN1SCC (GPL+runtime exception) | QUALIFIED |
 | T20 | QEMU emulated-target functional check (M10) | `tools/scripts/qemu_vv.sh`, `cmake/toolchains/rtems-riscv-generic.cmake` (`make qemu-image`/`qemu-image-docker`, `make qemu`) | generic `rv64imafdc` image boots under `qemu-system-riscv64 -M virt -bios`: banner + 6 applications registered | reviewed + CM | independent R2 on change; not silicon | QUALIFIED |
+| T21 | N13 canonical license / SPDX policy checker | `tools/scripts/license_check.py`; `tests/python/test_license_check.py`; both CI workflow checker steps and `make gsw-selfcheck` test step | exact MPL license-text digest, exact project SPDX expressions and initial comment headers for managed code/config/build/test/tool roots, with format syntax, block-comment state, XML prolog, shebang and fail-closed unreadable-managed-file handling | reviewed + CM | FRICK-REVIEW-0248 NOT APPROVED; FRICK-REVIEW-0249 bounded R2 pass for fail-closed correction; FRICK-REVIEW-0250..0257 NOT APPROVED for documentation/status findings; 0258/0259 bounded no-new-finding status checks only; hosted/configuration evidence and immutable identity pending | **NOT FULLY QUALIFIED** — NC-EXT-43/44 |
+| T22 | SB/EVS structural sweep runner | `tools/scripts/sb_evs_structural_sweep.py`; `tests/unit/test_sb_sweep.c`; CTest `sb_evs_structural_sweep`; `make sb-evs-sweep` | CSV of fanout/depth/overflow-burst profiles and dispatch-cap checks; expressly exploratory structural characterization | Source review + inspection + CM; independent R2 FRICK-REVIEW-0271/0274/0275, R4 0276/0278 and PA 0277/0279; full runner registered in CTest and exercised by `make ci-local` | internal; no requirements/mission-compliance credit | 9,984-profile matrix and dispatch bounds 1–64 passed manually and through CTest in the local CI container; exact source/configuration/executable/CSV/log identities are in the evidence note. Local CI exercise and scoped review are complete; hosted CI and immutable build inputs remain open. This is not formal mission-compliance evidence. Initial CSV formatter defect/correction recorded (malformed CSV overwritten, not retained separately). NC-EXT-75/76 remain open |
 | —   | Evidence-claims mapping                 | `ci:renode` -> T17 (Renode V&V environment); `ci:emulated-run` -> T15/T16 (advisory CI step) and T20 (nightly QEMU job `.github/workflows/nightly.yml`) | Renode functional run (`RENODE_TEST: PASS`, HAL checks); QEMU `virt` generic-BSP boot | — | — | — |
 
 ## Qualification procedure (per tool)
@@ -56,20 +58,22 @@ tool, or always when targeting criticality A (norm N9 profiles R2).
 5. Any change to a qualified tool/script invalidates its qualification: the
    review is repeated and the register updated in the same commit (norm N11).
 
-**T18 note (reproducibility caveat).** The `frick-rtems-toolchain:local` image
+**T18 note (build-provenance limitation).** The `frick-rtems-toolchain:local` image
 that produced the recorded M10 QEMU pass was assembled by applying the updated
 `Dockerfile`'s steps individually (the extra `riscv/rv64imafdc` kernel-bset build
 and the `qemu-system-misc`/`cmake`/`ninja-build` install), each executed and
 verified in this environment; a single clean `docker build` of the updated
-`Dockerfile` was not completed locally. The clean, reproducible build is provided
-by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
-`make qemu`/`make renode`) is tracked as a closure action.
+`Dockerfile` was not completed locally. `make rtems-toolchain` provides the clean
+image-build procedure, but the base image, apt package resolution, and RSB
+reference are mutable; this does not establish bit-for-bit reproducibility.
+The recorded image was assembled stepwise, so T18 requalification remains open
+pending a clean image build and repeat of `make qemu`/`make renode` under NC-EXT-40.
 
 ## Evidence claims mapping
 
 | Qualification ID | Evidence claims it supports |
 | ---------------- | --------------------------- |
-| T1               | `ci:*` reproducibility for all jobs |
+| T1               | Common Docker environment for jobs that use T1; does not establish cross-build reproducibility while NC-EXT-35 remains open |
 | T5               | `lean` links in `traceability.yaml` |
 | T6               | norms N3, N4 convergence gate |
 | T7               | GSW-related test (`test_pus` S17 ping, TC injection) |
@@ -131,3 +135,49 @@ by `make rtems-toolchain`; re-qualification (a clean image build + re-run of
 | 0.3.22 | 2026-10-12 | frick-fsw | T10 `ci:rtems-cross-build` re-qualified: the script now also cross-builds with `FF_USE_LWIP=ON` (in-repo RTEMS `sys_arch` port, S6b-1) when the pinned lwIP tree is present (FRICK-REVIEW-0150 R2-02 / 0151 NC-151-02) |
 | 0.3.23 | 2026-10-12 | frick-fsw | T17 gains `hal_net_lwip` (lwIP netif bound to the emulated GEM on the lwIP-enabled image, S6b-2); T10 lwIP leg gains the Renode test app + `nm` link check |
 | 0.3.24 | 2026-10-12 | frick-fsw | NET follow-up: T3 list gains `test_lwip_netif.c` (host netif glue test against a mock `FF_EthMac_t`, 26/26 with `FF_USE_LWIP=ON`, ASan/UBSan clean; closes NC-154-01); T17 covers the host netif loopback as the TX/RX data-path evidence for the register-only GEM (NC-S6-01/NC-S6-03); T3 `test_gem` extended to assert 64-bit register writes (TBQP_HI/RBQP_HI + ADDR64) |
+| 0.3.25 | 2026-10-13 | frick-fsw | S4b follow-up: **T3 re-qualified** (two test scripts under T3 changed) — `test_link_ip` gains `test_pus_ip_roundtrip` (PUS-C TM/TC round-trip over the IP link backend; 20 funcs / 77 checks) and `test_link_tsn` gains `test_pus_tsn_roundtrip` (over the TSN backend with the mock MAC looped back; 15 funcs / 135 checks), the `Dem` evidence for SRS-REQ-060/061 (NC-S4b-02). No *tool* under `tools/` changed, and no T3 criterion/oracle changed beyond the two scripts. |
+| 0.3.26 | 2026-10-13 | frick-fsw | S4b follow-up review loop (FRICK-REVIEW-0167/0168/0169): **T3 re-qualified again** (authoring corrections to the same test scripts + the strict-warning gate). The test targets now genuinely compile under `-Wall -Wextra -Werror` (`tests/CMakeLists.txt`), which required four pre-existing test-script defects to be corrected (`test_link_tsn.c` sign-compare, `test_spacewire.c` unused variable + operator precedence, `test_time.c` tautological range asserts, `test_gptp.c` unused static helper). `test_link_ip` 20 funcs / **79** checks (was 77 — IP send-leg assertion added), `test_time` 99 checks (was 101 — tautological asserts removed). No tool under `tools/` changed. |
+| 0.3.27 | 2026-10-13 | frick-fsw | Independent assessment follow-up: T4/T9 (`run_sim.sh`) re-qualified after fixing the forced-Ninja generator conflict; verified with both cached Unix Makefiles and a fresh build directory. T7 (`ff_gsw.py`) re-qualified for TC construction/TM parsing against fixed golden PUS-C vectors; aligned CCSDS/PUS headers and offsets. Added `tests/python/test_ff_gsw.py`, `make gsw-selfcheck` and CI execution. External segment-to-ground interoperability evidence remains open under NC-EXT-03. |
+| 0.3.28 | 2026-10-13 | frick-fsw | T3 ASan/UBSan re-qualification after the sanitizer found an undersized mock register array in `test_gem_tsn.c`; mock range expanded to 4096 bytes (GEM ENST register block offset `0x0880`). Full sanitizer ctest now passes 27/27; test-fixture NC-EXT-09 recorded pending independent delta review. |
+| 0.3.29 | 2026-10-13 | frick-fsw | T7 re-qualification delta: `decode_tm()` packet-relative payload slicing fixed after independent review found absolute stream-offset use; `tests/python/test_ff_gsw.py` now covers noise prefix and concatenated packets in addition to fixed golden vectors, truncation and CRC error. SPDX header added. Independent re-review remains pending; external ground-segment E2E remains out of scope/open. |
+| 0.3.30 | 2026-10-13 | frick-fsw | T13 change corrects the legend to distinguish open/pending gates from explicitly deferred issues; README panel regenerated. Independent R2/PA requalification review pending under NC-EXT-10. |
+| 0.3.31 | 2026-10-13 | frick-fsw | T1 V&V image adds graphviz after Doxygen reported missing graph-map files; independent R2 requalification pending. |
+| 0.3.32 | 2026-10-13 | frick-fsw | Serialize clean Doxygen generation, include docs/Markdown inputs, and require Doxygen/Graphviz in both hosted CI workflows; record T1 reproducibility/CI findings NC-EXT-35/36 pending R2/PA. |
+| 0.3.33 | 2026-10-13 | frick-fsw | Update T1 row from FRICK-REVIEW-0193 local-run evidence; remove `sudo apt-get` from Gitea Doxygen step because the job uses the root-based V&V container; hosted workflow evidence remains pending. |
+| 0.3.34 | 2026-10-13 | frick-fsw | Correct Dockerfile reproducibility overclaim per FRICK-REVIEW-0197; NC-EXT-35 remains open pending immutable input control or approved claim scope. |
+| 0.3.35 | 2026-10-13 | frick-fsw | Remove remaining active T1 reproducibility overclaims from OCI label, Makefile, and README per FRICK-REVIEW-0198/0199; NC-EXT-35 remains open. |
+| 0.3.36 | 2026-10-13 | frick-fsw | Align T1 evidence-claim mapping and T14 package-input wording with actual mutable environment/checker inputs following FRICK-REVIEW-0200/0201. |
+| 0.3.37 | 2026-10-13 | frick-fsw | Clarify T18 build-provenance/reproducibility limitation and open NC-EXT-40 requalification status. |
+| 0.3.38 | 2026-10-13 | frick-fsw | Align T7 and T18 status text with pending independent review and clean-image requalification; track NC-EXT-39/40. |
+| 0.3.39 | 2026-10-13 | frick-fsw | Update T13/README status-panel deferral wording to distinguish registry entries from product-scope deferrals; independent delta review pending (NC-EXT-41). |
+| 0.3.40 | 2026-10-13 | frick-fsw | Prevent scoped/partial PA PASS from counting as overall closed review stream; add three focused verdict tests and regenerate panel; independent T13 delta review pending (NC-EXT-41). |
+| 0.3.41 | 2026-10-13 | frick-fsw | Restrict verdict recognition to affirmative prefixes, reject negative-substring false positives, add stream/negative/partial regression cases (7 total), and regenerate panel; T13 remains not fully requalified. |
+| 0.3.42 | 2026-10-13 | frick-fsw | Add pending/open/scope-only verdict boundaries, test approved-with-comments and stream behavior, and qualify T13 status after FRICK-REVIEW-0221..0223; requalification remains pending. |
+| 0.3.43 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0221/0223 NOT APPROVED and maintain T13 not-fully-requalified status pending fresh review. |
+| 0.3.44 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0224..0226 NOT APPROVED; later classifier/status corrections await fresh independent review; T13 remains not fully requalified. |
+| 0.3.45 | 2026-10-13 | frick-fsw | Record expanded negative-clause handling and latest R2/R4/PA findings; T13 remains not fully requalified pending fresh independent review. |
+| 0.3.46 | 2026-10-13 | frick-fsw | Add contradictory-negative regression cases and record FRICK-REVIEW-0227 NOT APPROVED; T13 remains not fully requalified. |
+| 0.3.47 | 2026-10-13 | frick-fsw | Correct T13 focused-test count to distinguish 9 metrics tests from 14 total Python tests and update latest review summary to 0227. |
+| 0.3.48 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0228 NOT APPROVED and retain T13 not-fully-requalified status pending fresh review. |
+| 0.3.49 | 2026-10-13 | frick-fsw | Clarify generated metrics are project-selected indicators and do not imply approved mission criticality assignment; independent review pending. |
+| 0.3.50 | 2026-10-13 | frick-fsw | Record bounded FRICK-REVIEW-0229/0230/0231 outcomes without claiming T13 qualification or closure. |
+| 0.3.51 | 2026-10-13 | frick-fsw | Add T21 candidate license checker and test references; independent qualification pending under NC-EXT-43. |
+| 0.3.52 | 2026-10-13 | frick-fsw | Correct exact SPDX expression parsing after FRICK-REVIEW-0235; retain T21 unqualified and NC-EXT-44 open pending independent re-review. |
+| 0.3.53 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0238 header-position finding; parser now limits qualification to initial comment region and tests cover late/mismatched declarations; T21 remains unqualified pending R2 delta. |
+| 0.3.54 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0239 C-preprocessor false-acceptance finding; distinguish C-family hash directives from comment lines and add regression test; T21 remains unqualified. |
+| 0.3.55 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0240 format-specific comment and shebang finding; restrict comment syntax by file format and add managed-format matrix tests; T21 remains unqualified. |
+| 0.3.56 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0241 C-family block-comment-state finding; require opening block delimiter for starred declaration lines and add C/H/DTS tests; T21 remains unqualified. |
+| 0.3.57 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0242 bounded no-new-finding re-review; T21 remains NOT FULLY QUALIFIED pending full applicable evidence and other reviews. |
+| 0.3.58 | 2026-10-13 | frick-fsw | Clarify T21 CI test execution through `make gsw-selfcheck`, include assets in declared header scope, and retain NOT FULLY QUALIFIED status |
+| 0.3.59 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0244 SVG XML-prolog false negative and author parser correction; T21 remains unqualified pending rerun and independent review |
+| 0.3.60 | 2026-10-13 | frick-fsw | Record FRICK-REVIEW-0245 bounded SVG parser correction result; T21 remains NOT FULLY QUALIFIED pending complete evidence and authority review |
+| 0.3.61 | 2026-10-14 | frick-fsw | Record FRICK-REVIEW-0248 unreadable-file finding and author fail-closed correction; T21 remains unqualified pending independent re-review |
+| 0.3.62 | 2026-10-14 | frick-fsw | Record bounded R2 pass FRICK-REVIEW-0249 and active-document scope findings FRICK-REVIEW-0250/0251; maintain T21 NOT FULLY QUALIFIED |
+| 0.3.63 | 2026-10-14 | frick-fsw | Record follow-up status reviews 0252..0255, correct active summaries and align T21 status without claiming qualification |
+| 0.3.64 | 2026-10-14 | frick-fsw | Record status follow-ups 0256/0257; T21 remains not fully qualified and independent review remains open |
+| 0.3.65 | 2026-10-14 | frick-fsw | Record bounded no-new-finding status reviews 0258/0259; T21 remains NOT FULLY QUALIFIED |
+| 0.3.67 | 2026-10-14 | frick-fsw | T3 delta: add deterministic synchronized SB and EVS mutex-contention oracles, including the open SRS-REQ-011 forwarding-loss observation; `test_sb` passes 298 checks, but independent R2 qualification remains pending |
+| 0.3.68 | 2026-10-14 | frick-fsw | Register T22 candidate SB/EVS structural sweep tool; record its exploratory-only scope, fresh sweep run, initial output defect/correction, and pending independent N10 review |
+| 0.3.69 | 2026-10-14 | frick-fsw | Correct T22 N10 gate statement: source review/inspection and independent R2 delta are complete, but local procedure's CI-execution criterion is not met because only the CTest boundary case—not the matrix runner—is currently wired into CI |
+| 0.3.70 | 2026-10-14 | frick-fsw | Register the full SB/EVS sweep runner as a CTest so `make ci-local` exercises it; retain T22 as pending independent requalification/hosted evidence, not mission compliance |
+| 0.3.71 | 2026-10-14 | frick-fsw | Record local CTest run identities and scoped R2/R4/PA review dispositions; hosted/immutable evidence and formal mission-compliance credit remain open |

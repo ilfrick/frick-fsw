@@ -2,15 +2,18 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 0.4 |
-| Date        | 2026-10-12 |
+| Revision    | 0.8 |
+| Date        | 2026-10-13 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
 
-This ICD defines the space-to-ground and ground-to-space packet interface of
-frick-fsw for the reference mission profile. It is the tailoring baseline for
-SRS-REQ-017/SSS-REQ-014.
+This ICD documents the implemented space-to-ground and ground-to-space packet
+interface as an internal reference profile for SRS-REQ-017/SSS-REQ-014. It is
+not an approved mission tailoring baseline; applicable profile values and
+acceptance rules require approval by the authorized mission/customer authority.
+In particular, unresolved sequence-count and primary-header acceptance policies
+remain subject to NC-EXT-06 and NC-EXT-13.
 
 Board-level peripheral interfaces (Ethernet/MAC, CAN, RS-422/485, SPI, I2C,
 PCIe, GPIO, SpaceWire) and their register/address maps are **not** part of this
@@ -30,7 +33,7 @@ reference driver headers, and their platform addresses in
 | Max TM frame / TC frame | `FF_PUS_MAX_TM_FRAME` / `FF_PUS_MAX_TC_FRAME` (1024) |
 | In/out-of-band transport | UART byte stream (target `/dev/console`, 115200 baud); loopback on host simulator |
 
-## 3. TM/TC frame field layout (CCSDS Space Packet + PUS secondary header)
+## 3. TC/TM packet field layout (CCSDS Space Packet + PUS secondary header)
 
 ```
     0                   1                   2                   3
@@ -38,23 +41,55 @@ reference driver headers, and their platform addresses in
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |version| type |  sec-hdr flag |   APID (TC 0x010, TM 0x020)    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  seq flags |      sequence count (per type)                   |
+    |  seq flags | sequence count (currently encoded as zero)       |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |        packet data length field (PDL, 16 bit)                 |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  PUS version  | (spare) | ack |  service    | subservice      |
+    | packet data: PUS secondary header + user data + optional CRC   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  source/application id [2] |     user data ...                |
+    |             (CRC trailer is part of packet data)                |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                 ... user data ...        |  CRC-16 (2 octets) |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-```
+  ```
 
-- PDL counts the bytes after the PDL field: `PUS secondary header (6) +
-  user data + CRC (2)`, i.e. PDL = len - 7 (packet without primary header).
-- CRC-16/CCITT-FALSE (poly `0x1021`, init `0xFFFF`, no reflection) covers the
-  whole packet; a receiver treats `crc16(packet with trailer) == 0` as valid
-  (SRS-REQ-004).
+  The diagram is schematic. The packet-data length counts every octet after
+  the six-octet primary header, including the optional CRC trailer; its
+  encoded value is that count minus one. Sequence-count fields are currently
+  emitted as zero by both TC and TM encoders pending the controlled profile
+  decision (NC-EXT-06); no per-type counter behavior is specified here.
+
+- TC secondary-header byte layout (5 octets, `FF_PUS_TC_SEC_HDR_LEN`):
+
+  | Secondary-header byte | Content |
+  | --------------------- | ------- |
+  | 0 | PUS version in high nibble; acknowledgement flags in low nibble |
+  | 1 | Service |
+  | 2 | Subservice |
+  | 3–4 | Source/application identifier, big-endian |
+
+- TM has a distinct 13-octet secondary header (`FF_PUS_TM_SEC_HDR_LEN`):
+
+  | Secondary-header byte(s) | Content |
+  | ------------------------- | ------- |
+  | 0 | PUS version in high nibble |
+  | 1 | Service |
+  | 2 | Subservice |
+  | 3–4 | Packet counter, big-endian |
+  | 5–6 | Destination identifier, big-endian |
+  | 7–10 | Coarse time, big-endian |
+  | 11–12 | Fine time, big-endian |
+
+  This is not the TC header with a time field appended.
+- PDL is the CCSDS packet-data length minus one. Let `crc_len` be 2 when
+  `FF_FRAME_WITH_CRC` is enabled and 0 otherwise. For TC,
+  `PDL = 5 + user_data_len + crc_len - 1`; for TM,
+  `PDL = 13 + user_data_len + crc_len - 1`. Both are equivalently total packet
+  length minus 7. The 6-octet primary header is not included in PDL.
+- When `FF_FRAME_WITH_CRC` is enabled, the encoder computes CRC-16/CCITT-FALSE
+  (poly `0x1021`, init `0xFFFF`, no reflection) over the packet bytes preceding
+  the two-octet CRC trailer (`total - 2` bytes); it does not include the trailer
+  in that calculation. The decoder independently computes the same CRC over
+  bytes before the trailer and compares it with the transmitted two-octet
+  value; it does not use a zero-residue check (SRS-REQ-004).
 
 ## 4. Implemented PUS services and subservices (open backend)
 
@@ -84,18 +119,21 @@ On-board time is a **CCSDS Unsegmented Time Code (CUC)** tailored to a 4-octet
 coarse + 2-octet fine T-field (agency-defined epoch). Two exchange forms are
 defined (R3 review NC-1):
 
-1. **PUS-C on-wire T-field — 6 octets, P-field implicit.** This is the form
-   inside the TM secondary header and the PUS service 9 payloads. The PUS-C
-   interface agreement fixes the tailoring, so the P-field is not transmitted:
+1. **Reference on-wire T-field — 6 octets, P-field not transmitted by this
+   implementation.** This representation is used inside the TM secondary
+   header and PUS service 9 payloads here; mission acceptance of the reference
+   tailoring remains subject to authority approval:
 
    | Field | Bytes | Value |
    | ----- | ----- | ----- |
    | coarse | 4 | whole seconds big-endian, `utc_ns / 1e9 + leap_seconds` |
    | fine | 2 | fraction of a second in units of 2^-16 s big-endian |
 
-   In the TM secondary header the T-field occupies user-data offsets 7..12
-   (coarse 7..10, fine 11..12); the TM secondary header is 13 bytes
-   (`FF_PUS_TM_SEC_HDR_LEN`). PUS service 9,1 (set time) accepts exactly this
+    In the TM secondary header, relative offsets 7..12 contain the T-field
+    (coarse 7..10, fine 11..12). Since the primary header is 6 octets, the
+    corresponding absolute packet offsets are 13..18 (coarse 13..16, fine
+    17..18). The TM secondary header is 13 bytes (`FF_PUS_TM_SEC_HDR_LEN`).
+    PUS service 9,1 (set time) accepts exactly this
    6-octet T-field; any other length is rejected with `FF_BAD_SIZE`, so a
    leading P byte can never be mis-parsed as the coarse MSB (SRS-REQ-024).
 
@@ -141,3 +179,7 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: CUC P-field/T-field layout, time base reference |
 | 0.3 | 2026-10-10 | frick-fsw | R3 review NC-1: distinguish PUS-C 6-octet on-wire T-field from explicit 7-octet P+T CUC; correct set-time rejection codes |
 | 0.4 | 2026-10-12 | frick-fsw | Scope note: board-level peripheral interfaces and their register maps are not part of the TM/TC ICD (they live in the HAL/driver headers and platform headers) — FRICK-REVIEW-0130 R3-06 |
+| 0.5 | 2026-10-13 | frick-fsw | Correct TC/TM secondary-header lengths and PDL arithmetic; NC-EXT-26 correction pending independent review |
+| 0.6 | 2026-10-13 | frick-fsw | Clarify CRC inclusion in PDL and label implemented zero sequence count pending profile decision (NC-EXT-26/NC-EXT-06) |
+| 0.7 | 2026-10-13 | frick-fsw | Identify ICD as an internal reference profile pending authority approval and distinguish CRC generation from residue validation (NC-EXT-13) |
+| 0.8 | 2026-10-13 | frick-fsw | Remove implication of approved CUC tailoring and document decoder CRC comparison behavior (NC-EXT-13/26) |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.25                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.31                                   |
+| Date                              | 2026-10-13                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
 
@@ -48,7 +48,7 @@ is in `docs/roadmap.md`.
 | OBJ-13 | Integrate a mathematics library (libm) behind a portable facade with determinism and licensing policy. | M6 |
 | OBJ-14 | Integrate CCSDS SDLS (355.0-B) middleware software: SDLS processing, security-association database and key management/rotation, with a pluggable cryptographic backend. | M7 |
 | OBJ-15 | Formal completeness (WP-FV-100): raise Lean coverage to 100% of generated requirements (theorem or explicit `lean_note`), mirror the pure-logic modules in Lean, and add C-level proof tooling (Frama-C/CBMC) alongside. | M5/M8 |
-| OBJ-16 | Complete deterministic Ethernet: full 802.1AS gPTP stack and the fabric CoreTSN path (multi-port switch / 802.1CB FRER). | M8 |
+| OBJ-16 | Complete deterministic Ethernet: full 802.1AS gPTP stack (**delivered**, M8) and the fabric CoreTSN path (multi-port switch / 802.1CB FRER; **deferred to M14**). | M8 (gPTP) / M14 (fabric CoreTSN) |
 | OBJ-17 | Declare and enforce a single C coding style codebase-wide and drive MISRA C:2012 compliance (documented deviations; certified checker = GAP-A4). | M9 |
 | OBJ-18 | Emulated-target verification: run the RTEMS binary on Renode (PolarFire SoC) and QEMU to verify boot/PAL/drivers without hardware (partial GAP-A5 mitigation). | M10 |
 | OBJ-19 | Extend the Renode functional test to **every HAL resource class** (ETH, NET/TCP-IP, TSN, CAN, SERIAL/RS-422/485, SPI, I2C, PCIE, GPIO/IRQ, SPACEWIRE, MEM/RAM-DMA, BLOCK eMMC/SD/SSD, NVM), so each interface is bound to its emulated peripheral and exercised on the emulated PolarFire SoC. | M11 |
@@ -70,6 +70,7 @@ is in `docs/roadmap.md`.
 | OBJ-28 | Implement **RS-485 half-duplex direction control** (DE/RE) with the requested assert timing. | M4-residual |
 | OBJ-29 | Complete the **GEM native TSN** shaping/filtering: 802.1Qav (CBS), 802.1Qci (PSFP), 802.1Qbb (PFC). | M8 |
 | OBJ-30 | Provide a documented **PUSopen(R) adapter** over the PUS product contract (the commercial library is user-supplied). | M4-residual |
+| OBJ-31 | Replace the reference scheduler stub with a bounded, table-driven Software Bus message dispatcher that uses the native RTEMS task scheduler/clock services, exposes liveness and overrun evidence, and has an authority-approved fault/recovery policy. | M17 (execution sprint S8-SCH, after S8-VV-FU and S8-PUS-FU, before M12) |
 
 ## 3. Resource and bus interface catalogue
 
@@ -189,7 +190,7 @@ database and key management/rotation, with a pluggable cryptographic backend
 ADR-0013; `docs/architecture/security-sdls.md`. The certified algorithm, HSM
 keystore, IV-uniqueness analysis and ground key management are GAP-A14.
 
-### M8 — Deterministic Ethernet completion: gPTP (802.1AS) and fabric CoreTSN (planned)
+### M8 — Deterministic Ethernet: gPTP (802.1AS) delivered; fabric CoreTSN deferred to M14
 
 Full 802.1AS gPTP stack (BMCA, Sync/Follow_Up, PDelay, servo disciplining the
 GEM TSU) and the fabric CoreTSN path (multi-port switch / 802.1CB FRER) via the
@@ -197,6 +198,12 @@ FIC generic fabric-device contract, plus the GEM native TSN shaping/filtering
 completion (802.1Qav CBS, 802.1Qci PSFP, 802.1Qbb PFC; SRS-REQ-066, OBJ-29).
 Requirements, Lean models where feasible, tests, docs; on-target timing = GAP-A5.
 (OBJ-16; SRS-REQ-068.)
+
+**Status:** the 802.1AS gPTP stack (`src/drivers/eth/gptp/`) and the GEM
+802.1Qci screener-type-1 filtering are **delivered** (S8); 802.1Qav (CBS) and
+802.1Qbb (PFC) return `FF_NOT_IMPLEMENTED` and are tracked as NC-S8-01/NC-S8-02;
+the fabric CoreTSN path is **deferred to M14** (SRS-REQ-068) pending the
+SRS-REQ-067 fabric contract.
 
 ### M9 — Code quality: MISRA C:2012 and coding style (in progress)
 
@@ -314,19 +321,20 @@ connection retains one of four slots until `init()` resets the table
 | M1 | baseline middleware | done | SB/EVS/ES/TBL/Time/PUS/Link delivered |
 | M2 | time base | done | PPS, CUC, time sources |
 | M3 | OBJ-01..OBJ-09 | done | HAL registry + `hal_*.h` contracts; SDD/CM/PA/validation/safety/compliance docs |
-| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C, MSS SPI, MSS block-device (MMC/SD) done; eMMC/storage/PCIe/SpaceWire pending; **PUS-C over IP/TSN (SRS-REQ-059/060/061), CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) restored as explicit M4-residual items**; CFDP/VFS → M15 |
+| M4 | OBJ-07, OBJ-10, OBJ-11, OBJ-05 (backends), OBJ-25..OBJ-28, OBJ-30, filestore/CFDP | in progress | GEM Ethernet + native TSN, MSS GPIO, MSS MMUART, RAM pool/DMA, QSPI/NOR MTD, MSS CAN, MSS I2C, MSS SPI, MSS block-device (MMC/SD) done; **PUS-C over IP/TSN (SRS-REQ-059/060/061) done** (seg/reassembly + IP/TSN link backends, host-verified, S4b); PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, NC-S7-01) done (S7); on-SoC eMMC/SD storage checks pending; **CAN-FD/CANopen/RS-485 DE (SRS-REQ-062/063/064) and the PUSopen adapter (SRS-REQ-065) remain explicit M4-residual items**; CFDP/VFS → M15 |
 | M5 | documentation & status program | in progress | living docs, status panel, handover, loop-audit (N19) |
 | M6 | OBJ-13 (mathematics library integration) | done | libm facade (`src/math/`), host tests |
 | M7 | OBJ-14 (CCSDS SDLS security + key management) | done | SDLS + SA/key mgmt/rotation, pluggable crypto backend |
-| M8 | OBJ-16 (deterministic Ethernet completion: gPTP 802.1AS + fabric CoreTSN) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | planned | — |
+| M8 | OBJ-16 (deterministic Ethernet: gPTP 802.1AS delivered; fabric CoreTSN deferred to M14) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | delivered (partial) | gPTP stack `src/drivers/eth/gptp/` (58 host checks) + GEM 802.1Qci screener type 1 (SRS-REQ-066/068); 802.1Qav/Qbb `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); fabric CoreTSN deferred to M14 |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (10/13 peripheral-bound) | **Peripheral-bound** done: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN (`hal_*`=PASS). Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process) and, on the **lwIP-enabled image**, an **lwIP netif bound to the emulated GEM** (`hal_net_lwip=PASS`, S6b-2; packet round-trip + GEM DMA = NC-S6-01/NC-S6-03). Pending: PCIE; SpaceWire is **contract-level only** (NC-S7-01: no emulated peripheral) |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (11/13 peripheral-bound) | **Peripheral-bound done (11/13): GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN/PCIe (`hal_*`=PASS)**. Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process) and, on the **lwIP-enabled image**, an **lwIP netif bound to the emulated GEM** (`hal_net_lwip=PASS`, S6b-2; packet round-trip + GEM DMA = NC-S6-01/NC-S6-03). SpaceWire is **contract-level only** (NC-S7-01: no emulated peripheral); the full GEM DMA packet round-trip is deferred to M14 |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
 | M15 | OBJ-23 (in-house fundamental PUS-C service set on the asn1-pusc-lib data model, after M14) | planned | + CFDP + virtual filestore (VFS) + PUS-C S23 |
 | M16 | OBJ-24 (in-house OBCP engine development, after M12) | planned | ECSS-compliant engine behind `FF_Obcp_t`; complements M12 (integration) |
+| M17 | OBJ-31 (RTEMS-backed table-driven application scheduler) | planned | cFS SCH behavioral pattern; native RTEMS owns task preemption; see `docs/architecture/scheduling.md`; execution scheduled in S8-SCH after S8-VV-FU and S8-PUS-FU, before M12 |
 
 **Completion policy (norm N19):** this table is updated at the start of every
 development loop together with the review of objectives/rules vs implementation
@@ -363,3 +371,9 @@ in `docs/status/status.json`; the live resume point is
 | 0.23 | 2026-10-12 | frick-fsw | M4/M11: GEM native TSN backend exercised peripheral-bound (SRS-REQ-038); M11 10/13 (`hal_tsn=PASS`); NET lwIP-on-GEM peripheral-bound deferred (NC-S6-01, sprint S6b) |
 | 0.24 | 2026-10-12 | frick-fsw | M4/M11/S6b-1: in-repo lwIP RTEMS `sys_arch` port (SRS-REQ-040); M11 row notes the NET (NC-S6-01/NC-S6-02) and SpaceWire (NC-S7-01) contract-level limits |
 | 0.25 | 2026-10-12 | frick-fsw | M4/M11/S6b-2: RTEMS object sizing wired + lwIP netif bound to the emulated GEM (`hal_net_lwip=PASS`); NC-S6-02 closed; NC-S6-03 opened (latent GEM 64-bit descriptor DMA) |
+| 0.26 | 2026-10-13 | frick-fsw | §6 status reconciled with the delivered S4b + S5 + S7 scope (FRICK-REVIEW-0168 DOC-R4-027): M4 row — PUS-C over IP/TSN (SRS-REQ-059/060/061) done, PCIe peripheral-bound (`hal_pcie=PASS`) + SpaceWire contract-level done, on-SoC eMMC/SD checks still pending; M11 row — 11/13 peripheral-bound (adds PCIe; `Pending: PCIE` removed), residual NET packet round-trip/GEM DMA + SpaceWire contract-level noted |
+| 0.27 | 2026-10-13 | frick-fsw | §M8 + §6: reconcile the gPTP / fabric-CoreTSN milestone status with the authoritative SRS (NC-S4b-07) — M8 recorded as **delivered (partial)** (802.1AS gPTP stack + GEM 802.1Qci; 802.1Qav/Qbb `FF_NOT_IMPLEMENTED`, NC-S8-01/NC-S8-02) instead of "planned", and the fabric CoreTSN path recorded as **deferred to M14** (SRS-REQ-068); OBJ-16 milestone updated to M8 (gPTP) / M14 (fabric CoreTSN) |
+| 0.28 | 2026-10-13 | frick-fsw | §M8/§6 milestone correction provenance: gPTP/CoreTSN status finding is NC-S4b-07; preserve the unresolved on-target residual and pending independent NC closure accurately. |
+| 0.29 | 2026-10-13 | frick-fsw | Add OBJ-31/M17: RTEMS-backed, cFS-SCH-inspired application message dispatcher; record industrial option trade, scheduler-failure recovery limits and S8-SCH execution slot |
+| 0.30 | 2026-10-13 | frick-fsw | Sequence S8-PUS-FU before S8-SCH and M12 to address independently reported, autonomously correctable PUS deviations before adding the scheduler increment |
+| 0.31 | 2026-10-13 | frick-fsw | Add S8-VV-FU for existing ES/HS application-test gap and bounded decoder fuzz/oracle work before the PUS and scheduler corrective sprints |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0007                         |
-| Revision                          | 0.5                                    |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.18                                   |
+| Date                              | 2026-10-13                             |
 | Audience                          | humans and agents using or evaluating the framework and the accessory repository elements |
 | Norms                             | N2 (English), N8 (current documentation), N16 (per-document revision history) |
 | Requirements                      | none introduced by this document; it describes the implemented baseline traced in `docs/requirements/SRS.md` and `docs/requirements/traceability.yaml` |
@@ -61,7 +61,9 @@ mission application**, for a small/medium spacecraft OBC:
   QEMU generic RISC-V target;
 - target ECSS criticality **B**, with the residual gaps to level A documented
   (`docs/quality/ecss-criticality-b.md`, `docs/quality/class-a-gaps.md`);
-- open source under **AGPL-3.0-only** (norm N13; `LICENSE`, `NOTICE`,
+- owner-authorized MPL-2.0 scope for original project-authored code and materials
+  (norm N13; external/generated compatibility remains open under NC-EXT-43;
+  `LICENSE`, `NOTICE`,
   `docs/quality/licensing.md`).
 
 The authoritative "what is included" matrix (implemented / interface-only /
@@ -82,10 +84,13 @@ To prevent over-reading the scope, the framework is explicitly **not**:
 - **a mission application** — the six `src/apps/*` are reference/demo and V&V
   apps; mission software is written by users on the SB/PUS/HAL seams;
 - **a TCP/IP stack** — it owns the `FF_NetStack_t` contract and ships an opt-in
-  lwIP adapter only; **PUS-C over IP is not implemented end-to-end** (§3.7);
+  lwIP adapter only; it carries PUS-C over IP through the `FF_Link_t` IP backend
+  (UDP/TCP) over a separately supplied stack, but that is a link backend, not a
+  TCP/IP stack of its own (§3.7);
 - **a TSN / gPTP stack** — it ships a MAC-level `FF_TsnBackend_t` contract and a
-  GEM backend implementing 802.1Q/Qbv plus an 802.1AS *time-read seam*; the full
-  gPTP stack and the fabric CoreTSN path are milestone M8 (§3.7);
+  GEM backend implementing 802.1Q/Qbv/Qci plus an 802.1AS *time-read seam*; the
+  full gPTP stack is implemented (milestone M8) while the fabric CoreTSN path is
+  deferred to M14 (§3.7, SRS-REQ-068);
 - **a file-transfer (CFDP/PUS-23) or on-board-autonomy implementation** — these
   are planned milestones (M15/M12/M16; see the README "Project scope" matrix);
 - **a crypto implementation** — the CCSDS SDLS sub-layer is middleware with a
@@ -136,13 +141,16 @@ optional commercial adapter (user-supplied). See `docs/architecture/pus-layer.md
 defines the packet/service semantics, not the physical link. In frick-fsw the
 TM/TC frames are carried by the framework's own link abstraction `FF_Link_t`
 (`src/transport/link/link.h`), a vtable of `init` / `send` / `recv` over opaque
-CCSDS frames. Only **two reference link backends ship** —
-`FF_LinkLoopbackBackend` (loopback; simulator/tests) and `FF_LinkUartBackend`
-(UART) — with the default being **loopback on the host** and **UART on the RTEMS
-platforms**; a user installs another backend at run time with `FF_LinkSelect()`
-(`src/transport/link/link.c`). There is **no** TCP/IP, TSN, CAN or SpaceWire
-PUS-C link backend implemented (planned); the HAL contracts for those devices are
-*device* contracts, not PUS-C link channels. User-facing details:
+CCSDS frames. **Four reference link backends ship** —
+`FF_LinkLoopbackBackend` (loopback; simulator/tests), `FF_LinkUartBackend`
+(UART), `FF_LinkIpBackend` (UDP default + TCP over `FF_NetStack_t`, SRS-REQ-060)
+and `FF_LinkTsnBackend` (TSN-scheduled Ethernet via the GEM MAC, EtherType
+0x88F5, SRS-REQ-061) — with the default being **loopback on the host** and
+**UART on the RTEMS platforms**; the segmentation/reassembly layer
+`src/transport/link/link_seg.{c,h}` (SRS-REQ-059) provides stream framing for
+TCP. A user installs another backend at run time with `FF_LinkSelect()`
+(`src/transport/link/link.c`). The CAN and SpaceWire HAL interfaces are *device*
+contracts, not PUS-C link channels. User-facing details:
 `docs/engineering/user-integration-manual.md` §7.1.
 
 ### 3.2 HAL contracts (interface deliverables, milestone M3)
@@ -227,13 +235,21 @@ WCET/stack cautions: `docs/architecture/numerics.md` and `docs/adr/ADR-0012`.
   fetched on demand (`tools/scripts/fetch_third_party.sh`) and built only with
   `FF_USE_LWIP=ON` (default **OFF**); Tuxera TCP/IP and RTEMS `libbsd` are
   **user-supplied**.
-- **PUS-C over IP is planned, not implemented**: no `FF_Link_t` TCP/IP/TSN
-  backend, no segmentation/reassembly, no EtherType/port allocation in
-  `docs/interfaces/ICD.md`, and the ground tool is serial-only.
+- **PUS-C over IP/TSN is implemented** (host-verified): the segmentation/
+  reassembly layer `src/transport/link/link_seg.{c,h}` (SRS-REQ-059), the IP
+  `FF_Link_t` backend `link_ip.{c,h}` (UDP default + TCP with seg framing over
+  any `FF_NetStack_t`, SRS-REQ-060) and the TSN `FF_Link_t` backend
+  `link_tsn.{c,h}` (GEM MAC, EtherType 0x88F5, SRS-REQ-061). Evidence:
+  `tests/unit/test_link_ip.c` (20 test functions incl. the `test_pus_ip_roundtrip`
+  PUS-C TM/TC demonstration) and `tests/unit/test_link_tsn.c` (15 test functions
+  incl. `test_pus_tsn_roundtrip`). The TM/TC ICD has no TCP/UDP/IPv4 or EtherType
+  allocation yet (mission input, `docs/interfaces/ICD.md`) and the supplied ground
+  tool is serial-only; on-target link-level qualification is **GAP-A5**.
 - **TSN**: `FF_TsnBackend_t` + the GEM native backend implement
-  802.1Q / 802.1Qbv plus an 802.1AS *time-read seam* (a hardware clock read,
-  not the gPTP protocol); 802.1Qav returns `FF_NOT_IMPLEMENTED`; the full
-  gPTP stack and the fabric CoreTSN path are planned at **M8**.
+  802.1Q / 802.1Qbv / 802.1Qci plus an 802.1AS *time-read seam* (a hardware clock
+  read); 802.1Qav/802.1Qbb return `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); the
+  gPTP stack (802.1AS, `src/drivers/eth/gptp/`) is **implemented** at milestone
+  **M8** and the fabric CoreTSN path is **deferred to M14** (SRS-REQ-068).
 
 User-facing details, tables, "how to use" steps and evidence are in
 `docs/engineering/user-integration-manual.md` (§7.1 PUS-C transport channels,
@@ -268,18 +284,18 @@ by the mission; "user-supplied" = deliberately left to the integrator.
 | -------- | ----------------- | ------------------- | ----------------- |
 | PAL (tasks/mutex/queue/time/console) | `src/core/pal/pal.h` | **Implemented** | POSIX (host + RTEMS) + RTEMS bootstrap |
 | `FF_Pus_Backend_t` (PUS product) | `src/pus/pus.h` | **Implemented** (default N7/ESA ASN.1; open CCSDS fallback) | `FF_PusBackendN7`, `FF_PusBackendOpen`; PUSopen optional (user-supplied) |
-| `FF_Link_t` (byte-stream CCSDS frame transport) | `src/transport/link/link.h` | **Implemented** (loopback + UART only) | `FF_LinkLoopbackBackend`, `FF_LinkUartBackend`; TCP/IP/SpaceWire/radio planned |
+| `FF_Link_t` (byte-stream CCSDS frame transport) | `src/transport/link/link.h` | **Implemented** (loopback, UART, IP, TSN) | `FF_LinkLoopbackBackend`, `FF_LinkUartBackend`, `FF_LinkIpBackend` (UDP/TCP, SRS-REQ-060), `FF_LinkTsnBackend` (EtherType 0x88F5, SRS-REQ-061) + `link_seg` (SRS-REQ-059); CAN/SpaceWire remain device contracts, not link channels |
 | `FF_PpsBackend_t` (1 Hz tone) | `src/core/time/pps.h` | **Implemented** (software); hardware capture = GAP-A7 | `FF_PpsSwBackend` |
 | `FF_CryptoBackend_t` (SDLS crypto) | `src/security/ff_sdls.h` | **Interface + reference test backend**; certified crypto/HSM = GAP-A14 | `FF_CryptoTestBackend`; mission crypto/HSM user-supplied |
 | `FF_EthMac_t`, `FF_NetIf_t` (Ethernet MAC / net-if) | `src/hal/hal_eth.h` | **Implemented** (contract; GEM MAC reference) | `src/drivers/eth/gem/ff_gem.{c,h}` |
 | `FF_NetStack_t` (pluggable TCP/IP stack) | `src/hal/hal_net.h` | **Implemented** (contract; loopback + opt-in lwIP adapter) | `FF_NetStackLoopback`; `FF_NetStackLwip` (`FF_USE_LWIP`) |
-| `FF_TsnBackend_t` (deterministic Ethernet) | `src/hal/hal_tsn.h` | **Implemented** (contract; GEM backend: 802.1Q/Qbv + 802.1AS time-read seam; 802.1Qav `FF_NOT_IMPLEMENTED`; gPTP/CoreTSN = M8) | `FF_TsnGem_t` (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`) |
+| `FF_TsnBackend_t` (deterministic Ethernet) | `src/hal/hal_tsn.h` | **Implemented** (contract; GEM backend: 802.1Q/Qbv/Qci + 802.1AS time-read seam; 802.1Qav/Qbb `FF_NOT_IMPLEMENTED`, NC-S8-01/02; gPTP implemented at M8, fabric CoreTSN deferred to M14) | `FF_TsnGem_t` (`src/drivers/eth/gem/ff_gem_tsn.{c,h}`) |
 | `FF_CanBackend_t` (CAN/CANopen) | `src/hal/hal_can.h` | **Implemented** (classic CAN reference; CAN-FD = fabric device) | `src/drivers/can/mpfs/ff_can_mpfs.c` |
 | `FF_Serial_t` (serial/RS-422/RS-485) | `src/hal/hal_serial.h` | **Implemented** | `src/drivers/serial/mpfs/ff_serial_mpfs.c` |
 | `FF_Spi_t`, `FF_I2c_t` (SPI/I2C) | `src/hal/hal_spi.h` | **Implemented** (SPI + I2C reference backends) | SPI `src/drivers/spi/mpfs/ff_spi_mpfs.c`; I2C `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` |
 | `FF_Gpio_t` (GPIO/IRQ) | `src/hal/hal_gpio.h` | **Implemented** | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` |
-| `FF_Pcie_t` (PCIe) | `src/hal/hal_pcie.h` | **Interface-only** (planned) | — |
-| SpaceWire (ECSS-E-ST-50-12/51/52/53) | `src/hal/hal_spacewire.h` | **Interface-only** (planned) | — |
+| `FF_Pcie_t` (PCIe) | `src/hal/hal_pcie.h` | **Implemented** (contract + MPFS reference backend; peripheral-bound ECAM config-space check `hal_pcie=PASS`; full enumeration/BAR/DMA = GAP-A5; SRS-REQ-031/032) | `src/drivers/pcie/mpfs/ff_pcie_mpfs.{c,h}` |
+| SpaceWire (ECSS-E-ST-50-12/51/52/53) | `src/hal/hal_spacewire.h` | **Contract-level** (`FF_SpaceWire_t`/`FF_Rmap_t` reference backend; no emulated peripheral, `hal_spacewire=CONTRACT`, NC-S7-01; SRS-REQ-032) | `src/drivers/spacewire/mpfs/ff_spacewire_mpfs.{c,h}` |
 | `FF_MemPool_t`, `FF_Dma_t`, `FF_Mtd_t`, `FF_Nvm_t`, `FF_BlockDev_t` | `src/hal/hal_mem.h` | **Implemented** (RAM pool/DMA/MTD/NVM/block-device reference) | `src/drivers/mem/ff_mem_static.c`, `src/drivers/mtd/mpfs/ff_mtd_mpfs.c`, `src/drivers/nvm/mpfs/ff_nvm_mpfs.c`, `src/drivers/block/mpfs/ff_block_mpfs.c` |
 
 The HAL registry (`src/hal/hal.c`, `hal.h`) is bounded and allocation-free; the
@@ -294,7 +310,7 @@ implemented / interface-only / planned / user-provided matrix is the README
 
 The **justification** dimension of the DDJF records *why* each major design
 element was chosen. Each decision is owned by the architecture decision record
-(ADR) that carries it in `docs/adr/` (ADR-0001…0014 and ADR-0016; **ADR-0015 is
+(ADR) that carries it in `docs/adr/` (ADR-0001…0014 and ADR-0016/0017; **ADR-0015 is
 unused** — no decision was taken under that number); the ADR is authoritative for
 the decision and this section summarises the rationale for readers.
 
@@ -311,7 +327,8 @@ the decision and this section summarises the rationale for readers.
 
 Further decisions with their own records (for completeness): CCSDS SDLS security
 with a **pluggable cryptographic backend** (ADR-0013); the **mathematics facade**
-over the platform `libm` (ADR-0012); **AGPL-3.0-only** licensing (ADR-0011);
+over the platform `libm` (ADR-0012); **MPL-2.0** project-file policy (ADR-0017;
+transition is not release-approved while NC-EXT-43 remains open);
 **Docker-deployed CI/CD** for both forges (ADR-0007); the **backwards ECSS
 documentation and traceability gate** (ADR-0006); and the **independent review
 agents** (ADR-0010). Where a rationale stated here and an ADR differ, the ADR is
@@ -326,18 +343,18 @@ What surrounds the framework sources, and why:
 | `config/` | single configuration point `fsw_config.h`; platform headers `config/platform/` (`platform_native.h`, `platform_mpfs.h`, `platform_qemu.h`); RTEMS application configuration `config/rtems/rtems_config.c`; mission tables `config/tables/` (`fsw_tables.{c,h}`) | one place to tailor sizes, APIDs, link device, platform specifics (norm N8) |
 | `tests/` | C unit tests `tests/unit/*.c` on the minimal assertion harness `tests/ff_test.h`; registered in `tests/CMakeLists.txt`; executed by ctest (V&V tool T3) | requirement-level unit verification on the host (norm N11) |
 | `verification/lean/` | Lean 4 project: `verification/lean/Frick/` modules (`Ccsds`, `Common`, `Hal`, `LeanOmega`, `Pus`, `Requirements`, `Sdls`, `SoftwareBus`, `Time`), `Main.lean`, `lakefile.lean`, pinned `lean-toolchain` | formal verification of requirement theorems (norm N1) |
-| `tools/scripts/` | V&V tools: `trace.py` (traceability gate T6), `coverage.py` (T12), `metrics.py` (status panel T13), `run_sim.sh` (T4/T9), `setup_rtems.sh` (T10), `renode_env_selftest.sh` / `renode_vv.sh` (T17), `emulated_run.sh` (T15/T16), `qemu_vv.sh` (T20), `gen_pus_asn1.sh` (T19), `misra.sh` (T14), `fetch_third_party.sh`, `ci_rtems_cross_build.sh` | all V&V scripts are qualified per norm N10 in `docs/vv/tool-qualification.md` |
-| `tools/gsw/` | ground station `ff_gsw.py` (T7): PUS-C TC injection and TM decode **over serial only** (qualified tool) | operator/automation interaction with the flight software |
-| `tools/docker/` | V&V image `Dockerfile` (T1); Renode environment `renode/` (T17); open RTEMS toolchain image `rtems/` (T18); ASN1SCC generator image `asn1scc/` (T19); Gitea `act_runner/` deployment | reproducible V&V/CI environments (norms N6/N10) |
+| `tools/scripts/` | V&V tools: `trace.py` (traceability gate T6), `coverage.py` (T12), `metrics.py` (status panel T13), `run_sim.sh` (T4/T9), `setup_rtems.sh` (T10), `renode_env_selftest.sh` / `renode_vv.sh` (T17), `emulated_run.sh` (T15/T16), `qemu_vv.sh` (T20), `gen_pus_asn1.sh` (T19), `misra.sh` (T14), `fetch_third_party.sh`, `ci_rtems_cross_build.sh` | qualification status and pending independent reviews are tracked in `docs/vv/tool-qualification.md` (N10) |
+| `tools/gsw/` | ground station `ff_gsw.py` (T7): PUS-C TC injection and TM decode **over serial only**; bounded packet checks exist, independent qualification review is pending | operator/automation interaction with the flight software |
+| `tools/docker/` | V&V image `Dockerfile` (T1); Renode environment `renode/` (T17); open RTEMS toolchain image `rtems/` (T18); ASN1SCC generator image `asn1scc/` (T19); Gitea `act_runner/` deployment | common controlled V&V/CI environments; mutable T1 inputs do not establish reproducibility (NC-EXT-35) |
 | `assets/` | project marks (logo) for codename "Eärendil" (`assets/README.md`) | branding/marketing material, no functional role |
 | `board/` | device-tree source `mpfs-rtpfs160zt.dts` | board description template for the RTPFS160ZT |
 | `cmake/toolchains/` | RTEMS toolchain files: `rtems-riscv-mpfs.cmake` (target `riscv/mpfs64imafdc`), `rtems-riscv-generic.cmake` (QEMU `riscv/rv64imafdc`) | cross-compilation for target and emulated-target builds |
 | `.github/workflows/`, `.gitea/workflows/` | CI pipelines `ci.yml` (both forges) and the nightly `nightly.yml` (GitHub) | continuous gates: format, build, test, smoke, Lean, trace, docs, RTEMS cross build, Renode (norm N6/N7/N11) |
 | `docs/` | the engineering documentation set described in §4.1 | norms N8/N16 documentation, reviews, status |
-| Root accessory files | `Makefile` (developer shortcuts), `CMakeLists.txt` (build), `CMakePresets.json`, `Doxyfile` (API docs, `make docs`), `LICENSE`/`NOTICE` (AGPL-3.0-only), `README.md` (human entry point), `AGENTS.md` (agent entry point), `CHANGELOG.md` (project history, norm N16), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CITATION.cff`, `.clang-format`/`.clang-tidy`/`.editorconfig` (style/static analysis) | entry points, build, style, licence, community |
+| Root accessory files | `Makefile` (developer shortcuts), `CMakeLists.txt` (build), `CMakePresets.json`, `Doxyfile` (API docs, `make docs`), `LICENSE` (MPL-2.0 for owner-authorized original content), `LICENSE-AGPL-3.0-only` (historical license text), `NOTICE`, `README.md` (human entry point), `AGENTS.md` (agent entry point), `CHANGELOG.md` (project history, norm N16), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CITATION.cff`, `.clang-format`/`.clang-tidy`/`.editorconfig` (style/static analysis) | entry points, build, style, licence, community |
 
 **Manual register of V&V tools**: `docs/vv/tool-qualification.md`
-(FRICK-VV-TOOLS-001) lists T1..T20 with qualification level and independence;
+(FRICK-VV-TOOLS-001) lists T1..T21 with qualification level and independence;
 a change to a registered script invalidates its qualification until re-review
 (norm N10).
 
@@ -345,7 +362,7 @@ a change to a registered script invalidates its qualification until re-review
 
 | Directory / file | Content |
 | ---------------- | ------- |
-| `docs/rules.md` | non-derogable norms N1-N20 (FRICK-RULES-001) |
+| `docs/rules.md` | non-derogable norms N1-N21 (FRICK-RULES-001) |
 | `docs/tooling.md` | approach and tooling, incl. CI evidence markers (FRICK-TOOLING-001) |
 | `docs/glossary.md` | project glossary (FRICK-GLOS-001) |
 | `docs/requirements/` | backwards ECSS requirements: `SSS.md`, `SRS.md`, `traceability.yaml` (manifest), `traceability.md` (generated view) — norms N3/N4 |
@@ -364,7 +381,7 @@ a change to a registered script invalidates its qualification until re-review
 
 ## 5. Building, running and verifying
 
-Full one-command pipeline and per-tool commands are in `AGENTS.md` §3
+The `ci-local` target scope and separate smoke/Doxygen commands are in `AGENTS.md` §3
 (agent entry point) and `README.md` "Quickstart" (human entry point). Summary
 of the `make` shortcuts (wired in `Makefile`):
 
@@ -375,11 +392,11 @@ of the `make` shortcuts (wired in `Makefile`):
 | `make verify-lean` | Lean 4 formal verification (norm N1) |
 | `make trace` | traceability convergence gate (norm N4) |
 | `make coverage metrics` | gcov coverage + README status panel |
-| `make ci-local` | whole cycle in the pinned Docker V&V image |
+| `make ci-local` | configure/build, unit tests, Lean and trace in the controlled Docker image; does not run format, smoke or Doxygen |
 | `make renode-env`, `make renode-image`, `make renode` | Renode V&V environment self-test / RTEMS image / functional run (norm N18, `RENODE_TEST: PASS`) |
 | `make qemu-image`, `make qemu` | QEMU `virt` generic-BSP emulated-target check (M10) |
 | `make pus-asn1` | ASN1SCC generation for the N7/ESA PUS-C ASN.1 default backend |
-| `make rtems-toolchain`, `make rtems-docker`, `make rtems` | open RTEMS 6.2 toolchain image / cross compile in image / cross compile with host toolchain |
+| `make rtems-toolchain`, `make rtems-docker`, `make rtems` | build open RTEMS 6.2 toolchain image / cross compile in image / cross compile with host toolchain; mutable image inputs limit reproducibility (NC-EXT-40) |
 
 Platform / target matrix (same C sources, different platform headers under
 `config/platform/`):
@@ -438,7 +455,7 @@ does not create new product requirements or certification claims.
 ## 7. Related documents
 
 - `AGENTS.md` (agent entry point, norms and quickstart), `README.md` (human
-  entry point and scope matrix), `docs/rules.md` (norms N1-N20),
+  entry point and scope matrix), `docs/rules.md` (norms N1-N21),
   `docs/tooling.md` (approach and tools).
 - `docs/engineering/user-integration-manual.md` (FRICK-ENG-0005) — how to
   integrate applications, drivers and third-party stacks, incl. §7.1 PUS-C
@@ -464,3 +481,16 @@ does not create new product requirements or certification claims.
 | 0.3 | 2026-10-12 | frick-fsw | Register the acronym (lead directive): retitle the document as the **Design Description and Justification File (DDJF)** and define "DDJF" = Design Description and Justification File, replacing the previous "no repository acronym defined" naming note; add the **justification dimension** as §3.10 "Design justification" cross-referencing the ADRs (ADR-0001…0014, 0016; ADR-0015 unused); add the §3.1 "PUS-C transport channels" cross-reference; register the acronym in `docs/glossary.md` and name the DDJF in the README documentation index and `AGENTS.md` |
 | 0.4 | 2026-10-12 | frick-fsw | M4/M11: record the reference MSS SPI driver (`FF_Spi_t`, SRS-REQ-069; host test + Renode `hal_spi=PASS`); SPI moves from interface-only to implemented |
 | 0.5 | 2026-10-12 | frick-fsw | M4/M11: record the reference MSS block-device driver (`FF_BlockDev_t`, SRS-REQ-070; host test + Renode `hal_block=PASS`); the block device moves from planned to implemented |
+| 0.6 | 2026-10-13 | frick-fsw | S4b/S7 scope currency (FRICK-REVIEW-0168 DOC-R4-023/024): §2.1/§3.1/§3.7 state that PUS-C over IP/TSN is implemented (seg/reassembly `link_seg.{c,h}` SRS-REQ-059; IP `FF_Link_t` backend `link_ip.{c,h}` SRS-REQ-060; TSN `FF_Link_t` backend `link_tsn.{c,h}` SRS-REQ-061) with the host `test_link_ip`/`test_link_tsn` evidence (incl. the `pus_*` round-trip demonstrations) and the on-target residual GAP-A5; §3.9 `FF_Link_t` row now lists all four backends and the PCIe (`hal_pcie=PASS`, SRS-REQ-031/032) / SpaceWire (`hal_spacewire=CONTRACT`, NC-S7-01) rows move from interface-only to delivered |
+| 0.7 | 2026-10-13 | frick-fsw | §2.1/§3.7/§3.9: reconcile the TSN/gPTP milestone statements with the authoritative SRS (NC-S4b-07) — the 802.1AS gPTP stack is implemented at M8 (`src/drivers/eth/gptp/`, SRS-REQ-068) and the fabric CoreTSN path is deferred to M14; 802.1Qci recorded as implemented, 802.1Qav/802.1Qbb as `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02) |
+| 0.8 | 2026-10-13 | frick-fsw | §2.1/§3.7/§3.9 milestone correction provenance: gPTP/CoreTSN status finding is NC-S4b-07; preserve the unresolved on-target residual and pending independent NC closure accurately. |
+| 0.9 | 2026-10-13 | frick-fsw | Describe `make ci-local` as using a controlled Docker V&V image; mutable input limitation tracked by NC-EXT-35. |
+| 0.10 | 2026-10-13 | frick-fsw | Bound `make ci-local` description to its actual configure/build/test/Lean/trace actions. |
+| 0.11 | 2026-10-13 | frick-fsw | Qualify V&V script assurance wording; status and pending reviews are tracked in the T10 register. |
+| 0.12 | 2026-10-13 | frick-fsw | Disclose mutable RTEMS image inputs and bound the clean-build statement under NC-EXT-40. |
+| 0.13 | 2026-10-13 | frick-fsw | Remove blanket T7 qualification wording consistent with pending independent tool review (NC-EXT-39). |
+| 0.14 | 2026-10-13 | frick-fsw | Update project license description to MPL-2.0 candidate; record NC-EXT-43 authority/compatibility gate |
+| 0.15 | 2026-10-13 | frick-fsw | Update tool-register range to T1..T21 and describe no-grant candidate license status |
+| 0.16 | 2026-10-14 | frick-fsw | Record owner authorization for original project content and update remaining NC-EXT-43 external-component scope |
+| 0.17 | 2026-10-14 | frick-fsw | Bound MPL authorization to software code, restore AGPL scope for docs/artwork, and track scope correction in NC-EXT-43 |
+| 0.18 | 2026-10-14 | frick-fsw | Correct license scope to owner-authorized original code/materials; generated outputs remain excluded |

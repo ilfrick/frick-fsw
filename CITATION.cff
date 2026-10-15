@@ -5,14 +5,18 @@ abstract: >-
   cFS-inspired flight software framework delivering PUS-C TM/TC on CCSDS Space
   Packets for a small/medium spacecraft OBC (Microchip RT PolarFire SoC
   RTPFS160ZT, RISC-V, RTEMS 6.2), target ECSS criticality B, with Lean 4 formal
-  verification and reproducible Docker-based V&V.
+  verification and Docker-based V&V. The V&V image inputs are mutable, so
+  reproducibility is not established (NC-EXT-35). The repository owner has
+  authorized MPL-2.0 for original project-authored code and materials created for
+  frick-fsw; third-party/generated-code disposition remains open under NC-EXT-43.
+  This citation describes the historical v0.1.0 release (2026-10-10), which
+  predates that transition; this metadata does not change prior grants.
 authors:
   - family-names: "ilfrick"
     given-names: "FSW Team"
     affiliation: "frick-fsw project"
 version: 0.1.0
 date-released: 2026-10-10
-license: AGPL-3.0-only
 keywords:
   - flight software
   - PUS-C

@@ -7,6 +7,293 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### SB/EVS requirements trace and audit correction (2026-10-14)
+
+- Clarified SRS-REQ-072 that dispatch-rate and `Lmax` performance guarantees
+  apply within the approved arrival/link performance envelopes, while
+  exactly-once loss accounting applies independently of envelope compliance.
+- Reconciled machine-readable and human-readable trace entries for
+  SSS-REQ-006/SRS-REQ-011/072, including implementation/test references and the
+  limitation that simulator/host characterization is not end-to-end receipt
+  evidence. Mission values and post-acceptance loss-counter/reporting semantics
+  remain TBD (NC-EXT-75/76).
+- Re-audited the current working tree for N19: 234 tracked modified paths and
+  120 untracked paths form a broad, mixed historical delta; no commit allowlist
+  or complete sprint scope is established. No aggregate commit/push is approved.
+- Registered the full T22 sweep runner in CTest; `make ci-local` now executes
+  the 9,984-profile matrix and dispatch bounds (30/30 tests, sweep 18.70 s).
+  The local CI-exercise gap and scoped R2/R4/PA reviews are closed; hosted CI
+  and immutable evidence remain open, so no formal tool-qualification claim is made.
+- Resolved the Doxygen cleanup permission issue by running the existing
+  `make docs` target inside `frick-vv:local`, where the container can remove its
+  root-owned prior output; generation completed with existing warnings.
+- No new reviews were started in this correction pass. The broader R1/R2/R4/PA
+  attempts were halted at user direction; their incomplete attempts are not
+  approvals or findings.
+
+### SB/EVS configured structural parameter characterization (2026-10-14)
+
+- Added a standalone parameterized host oracle and runner sweeping all fan-out
+  and queue-depth values 1–32 with zero overflow through the first configured
+  EVS notification saturation boundary (9,984 profiles); dispatch bounds 1–64
+  are checked with excess pending for bounds 1–63.
+- Retained the full result matrix and build/source identities in
+  `docs/vv/evidence/2026-10-14-sb-evs-structural-sweep.md` and `.csv`; 1,697,329
+  assertion checks passed. The initial CSV formatter underflow defect was
+  corrected; that malformed CSV was overwritten and is not retained separately.
+- Published the user-facing structural characterization and explicitly kept
+  mission arrival/service/link values and loss-detection/counter/reporting
+  semantics TBD. This does not establish requirements compliance, mission
+  performance, WCET, target timing or ground receipt; NC-EXT-75/76 remain open.
+- Recorded scoped R3/R2/R4/PA reviews FRICK-REVIEW-0270..0273. T22 formal
+  tool-owner N10 acceptance, hosted CI, RTEMS/target evidence and broader release
+  gates remain open; no commit/push or NC closure is claimed.
+
+### SB/EVS configured structural stress boundary (2026-10-14)
+
+- Added an isolated host stress executable that holds all 32 subscriber queue
+  locks for a publish, fills all 32 configured SB pipes at depth 32, then
+  generates three 32-event overflow bursts while EVS dispatch is withheld. The
+  test confirms the 32 busy-lock drops and deferred reports, 1024 queued SB
+  copies, 96 full-queue drops/log entries, EVS's 64-entry dispatch saturation
+  with 32 counted notification losses, and exact dispatch of 96 accepted
+  notifications across the two phases. The test uses distinct wildcard-routed
+  message IDs per overflow burst and checks both message-ID and application-ID
+  ordering in the retained log suffix to prove newest-record retention.
+- The case characterizes storage saturation only; it does not establish mission
+  event-rate, WCET, ground-receipt, or SRS-REQ-072 guarantees. Numeric mission
+  profiles and end-to-end loss reporting remain authority-owned TBDs; NC-EXT-75
+  and NC-EXT-76 remain open.
+- The first in-suite version failed because previous tests had consumed fixed PAL
+  queue slots across service reinitialization. The stress case was moved to a
+  standalone test process; full `make ci-local` then passed.
+- Added fresh clean-build evidence, selected artifact hashes, and scoped R4/PA
+  review records (FRICK-REVIEW-0268/0269). Reconciled TS-5/TS-6/SVA case totals,
+  exploratory-status semantics, sanitizer wording, and stale local-coverage
+  labels. These bounded reviews do not close NC-EXT-75/76 or broader gates.
+
+### SB subscriber queue-mutex contention behavior (2026-10-14)
+
+- Added portable `FF_PalQueueTryPut`: the internal queue mutex is acquired once;
+  `FF_TIMEOUT` means mutex busy and `FF_BUFFER_FULL` remains the separate full
+  queue result. `FF_SbPublish` skips only the busy pipe copy, increments dropped
+  accounting, continues bounded fan-out, requests a deferred EVS error with a
+  busy-specific message, and returns `FF_TIMEOUT`. A full pipe retains the
+  existing `FF_SUCCESS` publish result when no queue lock was busy.
+- Added deterministic held-queue-mutex coverage with two matched pipes, exact
+  status/statistics/copy/event assertions and proof the call returns before the
+  held mutex is released. Existing full-queue regression continues to exercise
+  the distinct overflow event/status path.
+- Updated SRS-REQ-001, architecture, TS-5/TS-6, traceability, and sprint status.
+  SRS-REQ-072 end-to-end loss counter/reporting and approved profile remain
+  unimplemented/open; authority-owned TBDs are unchanged. NC-EXT-75/76 remain
+  open.
+
+### Event-arrival and forwarding envelope requirements (2026-10-14)
+
+- Refined SSS-REQ-006 and SRS-REQ-011, allocated SRS-REQ-072, and updated
+  traceability and N22 cases to define EVS API arrival, acceptance/queueing,
+  PUS-S5 link handoff, ground receipt, `A(Δ) ≤ Bmax + Rmax·Δ`, minimum dispatch
+  service `Dmin`, maximum latency `Lmax`, and exactly-once loss accounting.
+- `Bmax`, `Rmax`, `Dmin`, `Lmax`, service interval, burst/link profile,
+  ground-receipt boundary and loss-counter semantics remain Systems/Operations
+  TBDs. Queue=64, batch=8 and nominal 1000 ms delay are candidate settings only.
+- FRICK-REVIEW-0265 did not approve the first requirements draft for baseline;
+  FRICK-REVIEW-0266 approves continued development with comments only, not N14
+  closure. NC-EXT-76 remains open pending authority values, loss-counter/report
+  implementation and verification. NC-EXT-77 records a corrected trace-count
+  comment; no NC closure is inferred.
+
+### Bounded SB publish lock failure (2026-10-14)
+
+- Added portable `FF_PalMutexTryLock` using POSIX `pthread_mutex_trylock` in the
+  shared host/RTEMS POSIX PAL implementation. `FF_SbPublish` now returns
+  `FF_TIMEOUT` before any SB statistics or pipe fan-out changes when the SB
+  mutex is busy.
+- SB overflow's explicit deferred EVS API also uses a non-waiting EVS mutex
+  attempt. On contention it returns `FF_TIMEOUT` without modifying the event log,
+  deferred queue, or notification statistics. Ordinary `FF_EvsSend` remains
+  synchronous; listener callbacks remain outside locks and dispatch remains
+  nonrecursive and bounded.
+- Deterministic lock-hold tests verify exact status, fan-out, counters, EVS log,
+  and notification statistics. SB success reports SB fan-out/accounting only;
+  it does not claim successful EVS enqueue or ground forwarding.
+- **NC-EXT-75/76 remain OPEN.** Queue saturation or EVS-lock contention can lose
+  SB overflow ground notification, and the secondary EVS status is not propagated
+  by SB. SRS-REQ-011's requirement owner must provide maximum event rate, maximum
+  burst, minimum dispatch service, and maximum forwarding latency plus an
+  authority-owned bounded overload policy. Mission values remain TBD; the later
+  requirement delta is recorded above and is not yet a baselined profile.
+
+### Software Bus full-pipe EVS correction (2026-10-14)
+
+- Corrected `FF_SbPublish`: each full matching subscriber pipe still drops the
+  new copy and increments `dropped`, and now raises `FF_EVS_SB_ERR` at
+  `FF_EVS_ERROR` after releasing the SB mutex, using the explicit
+  `FF_EvsSendDeferred` API. Ordinary `FF_EvsSend` retains synchronous listener
+  delivery. The fixed-size pending-notification ring is dispatched by the
+  TM-output task, at most eight callbacks per loop iteration; SB-overflow
+  callbacks that republish to a full pipe enqueue later work without recursively
+  nesting callbacks.
+- Initialized EVS before SB in the flight startup sequence so the SB overflow
+  path has a ready event log/listener service.
+- On notification-ring saturation, EVS retains the event in its circular log,
+  drops the listener notification, increments the EVS dropped-notification
+  counter, and returns `FF_NO_RESOURCE` rather than claiming enqueue success.
+- Added synchronous ordinary-send, full-pipe deferred-delivery,
+  re-entry/non-recursive-dispatch and notification-saturation tests, including
+  integrated SB overflow under EVS queue saturation; updated FRICK-ARCH-0002
+  and TS-5/TS-6 oracles. Existing
+  traceability already maps the SB and EVS tests to SRS-REQ-011. NC-EXT-75 and
+  NC-EXT-47 remain open; no NC closure or qualification is claimed.
+- R1 delta FRICK-REVIEW-0264 confirms listener work is deferred for SB overflow
+  while ordinary EVS sends remain synchronous, but does not approve strict
+  nonblocking behavior: PAL mutexes still wait forever (NC-EXT-75), and
+  deferred-queue saturation can lose the SRS-REQ-011 ground forward (NC-EXT-76).
+  Both functional issues remain open; no requirement is weakened by this record.
+
+### Commit/push authority and N21/NC review-record reconciliation (2026-10-14)
+
+- Recorded the user-directed N7 restriction: only `aeronautics-space-fsw-engineer`
+  may commit/push after verifying all applicable gates/norms and full sprint
+  scope; any exception requires explicit user delegation. Propagated to
+  `docs/rules.md`, `AGENTS.md`, `CONTRIBUTING.md`, and `README.md`.
+- Propagated the N21 missing-current/previous-sprint-feature wording to the
+  rules enforcement summary, sprint sequencing rule, and README focus summary.
+- Reconciled duplicate report IDs: R4 remains FRICK-REVIEW-0260; PA report is
+  FRICK-REVIEW-0261. Added both to `docs/reviews/README.md`.
+- Registered R4 follow-up NC-EXT-48..67 and PA report trace-count inconsistency
+  NC-EXT-68 in the sprint register; mapped overlapping PA findings to existing
+  NCs without claiming closure. New comprehensive test work packages remain
+  uncommitted/unpushed pending applicable gates.
+- Retained scoped R4 test-document review FRICK-REVIEW-0262 (APPROVED WITH
+  COMMENTS); registered its six non-functional findings as NC-EXT-69..74.
+
+### Comprehensive test specification and system verification architecture (2026-10-14)
+
+- Added `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001): the N22
+  controlled test specification. Covers all I/Os individually and combined,
+  nominal and out-of-bound conditions, all implemented features per the
+  requirements/project goals, and software-only robustness tests (memory safety,
+  overflow/underflow protection, defensive deserialization). Gaps mapped to
+  NC-EXT-47.
+- Added `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001):
+  system-level V-model levels, ICD-driven interface coverage, FDIR strategy,
+  timing/determinism, environmental, security and tool-qualification
+  architecture; authority-owned items recorded (NC-EXT-11/31, GAP-A4/A5/A6).
+- Clarified N21: functional issues **and lack of required features planned for
+  the current or previous sprints** are corrected in scope; other findings are
+  deferred as open NCs without stopping development.
+
+### Development governance: functional correction and test oracles (2026-10-14)
+
+- Added N22: requirement-based and integration tests cover nominal and
+  applicable out-of-bound operation and compare observed results with explicit
+  expected results. Defined integration testing and clarified that Renode is
+  an emulator (a possible test environment), not a test type; an aggregate
+  marker alone is not requirement coverage.
+- Logged NC-EXT-47 to assess existing test evidence against N22. The finding is
+  open and does not stop unrelated development under N21.
+
+### Project license transition (NC-EXT-43; status as of 2026-10-14)
+
+- The repository owner authorized MPL-2.0 for original project-authored code
+  and materials created for frick-fsw. Current N13/NOTICE/ADR records reflect
+  that project decision; no further owner authorization is pending for this
+  scope. This is not independent legal or provenance advice.
+- Third-party, generated, mission-supplied, commercial, and other externally
+  controlled content is excluded. NC-EXT-43 remains open for component
+  boundaries and combined-distribution compatibility; distribution-dependent
+  disposition and independent review remain required.
+- T21 has a bounded R2 pass for the unreadable-managed-file correction
+  (FRICK-REVIEW-0249), but remains NOT FULLY QUALIFIED. FRICK-REVIEW-0250..0257
+  contain NOT APPROVED documentation/status findings; author corrections are
+  pending independent re-review. No NC is closed and no release is approved.
+- Historical AGPL-3.0-only releases and prior recipients' rights are unchanged;
+  earlier transition audits remain point-in-time records and are not rewritten.
+- Bounded current-status re-reviews FRICK-REVIEW-0258/0259 found no new finding
+  in their respective scope; they do not close NCs, qualify T21, or approve a
+  release.
+
+### T13 metrics and status follow-up (NC-EXT-41/42)
+
+- Clarified that review-stream counts are heuristic indicators, not NC-closure
+  evidence; rejected contradictory negative, pending, open, and scoped verdicts.
+- Added focused verdict-classification tests and regenerated the README panel;
+  T13 remains not fully requalified pending independent review.
+- Corrected design-traceability metric wording to describe an SDD-text proxy;
+  NC-EXT-42 remains open pending independent disposition.
+- Recorded FRICK-REVIEW-0218..0226 and retained all NCs and assurance gates open.
+- Added explicit negative-suffix regression cases after FRICK-REVIEW-0227;
+  the review-count panel remains a heuristic indicator, not closure evidence.
+- Recorded FRICK-REVIEW-0228 NOT APPROVED; corrected review-summary and
+  T13-specific test-count descriptions without closing NC-EXT-41.
+- Clarified in generated metrics text that project-selected coverage targets
+  do not establish an approved mission criticality assignment.
+- Recorded scoped FRICK-REVIEW-0229..0232 outcomes; these do not qualify T13,
+  close NCs, or approve the overall documentation/assurance phase.
+
+### S8-FU documentation and review corrections (NC-EXT-35/38/39/40)
+
+- Qualified T1/T18 reproducibility wording against mutable tool inputs and
+  stepwise RTEMS image provenance; T1/T18 qualification remains open.
+- Corrected `ci-local`/`check` scope descriptions across project and contributor
+  documentation; listed separate applicable verification gates.
+- Reconciled T7/T18 qualification status wording and current review/status
+  records. No NC was closed; hosted CI and clean T18 rebuild/retest remain open.
+- Clarified `ci-local` scope in CONTRIBUTING, ADR-0007 and driver checklist
+  after FRICK-REVIEW-0208/0209; NC-EXT-38 remains open pending independent review.
+
+### Independent-review follow-up corrections
+
+- Corrected the ICD PDL diagram to show optional CRC bytes included in the
+  packet-data length and identified sequence count as currently encoded zero
+  pending the controlled profile decision (NC-EXT-06/26).
+- Reconciled sprint-plan, handover and README wording: corrective order remains
+  proposed, and the conflict with the earlier drivers-first directive awaits a
+  human owner decision (NC-EXT-30; no precedence inferred).
+- Clarified N14 report publication and rejected-review closure criteria to
+  require all applicable review findings and gates, not merely Major findings
+  (NC-EXT-32). All affected NCs remain open pending independent review.
+- The R4/PA delta review identified a missing current independent R3 review for
+  SSS-REQ-030; N14 is now recorded OPEN and NC-EXT-33 tracks the required review.
+- Clarified the ICD as an internal reference profile pending mission-authority
+  approval, corrected CRC generation/validation wording, and aligned PA/N11
+  closure and evidence-record guidance; NC-EXT-13/32 remain open for authority
+  disposition and independent verification.
+- Added Graphviz to the controlled V&V image after Doxygen emitted missing graph-map
+  errors. T1 requalification remains pending independent R2 review.
+- Corrected the V&V Dockerfile header to disclose that mutable base/package
+  inputs do not establish reproducibility; NC-EXT-35 remains open.
+
+### Assessment follow-up planning
+
+- The independent 2026-10-13 assessment findings C-04..C-16 that were not
+  already represented in the NC register are now tracked as NC-EXT-14..24.
+  Planned autonomous PUS corrections are grouped in S8-PUS-FU after S8-FU;
+  the scheduler defect is tracked separately as NC-EXT-19 in S8-SCH/M17, and
+  the PUS S11 stub remains NC-EXT-22 in M15. None of these NCs is closed by
+  adding the plan. Existing GAP-A1..A14 remain open and are mapped to their
+  work packages; authority, organizational-independence, target, and legal
+  decisions are explicitly retained as open dependencies.
+- Existing `GAP-R3-1` (ES/HS application tests) and the bounded decoder
+  fuzz/oracle gap (`NC-EXT-25`) are proposed for S8-VV-FU. The proposed sequence
+  is S8-FU → S8-VV-FU → S8-PUS-FU → S8-SCH/M17 → M12, but conflicts with the
+  earlier drivers-first directive; owner precedence is unresolved. New NCs
+  remain OPEN.
+- Follow-up independent reviews FRICK-REVIEW-0174/0175 rejected/failed the
+  mutable S8-FU delta. NC-EXT-28..31 track the status/evidence/sprint-order and
+  severity-basis findings; NC-EXT-13 remains an authority-owned open policy
+  issue with provisional severity. Review closure and dual-remote push remain
+  blocked pending the full gate cycle and fresh passing independent reviews.
+- Fresh delta reviews FRICK-REVIEW-0176/0177 also rejected/failed. Their
+  findings are retained in the open NC register; the handover and audit identify
+  the latest verdicts, and no closure, commit/push or release is authorized.
+- Further reviews FRICK-REVIEW-0178/0179 rejected/failed; NC-EXT-32 records the
+  review-record publication wording correction. Verification gates are
+  conservatively yellow pending complete immutable configuration and output
+  identity, even where the recorded test command passed.
+
 ### Added
 
 - **S4b — PUS-C over IP/TSN (restored M4 scope; SRS-REQ-059/060/061).**
@@ -44,6 +331,87 @@ change. All dates UTC, project language English (norm N2).
   propagation, partial-write, short/oversized RX, and over-max-prefix tests
   added (R2-01–R2-06 fix). R1+R2 delta re-review (FRICK-REVIEW-0165):
   **APPROVED**. PA delta re-review (FRICK-REVIEW-0166): **APPROVED**.
+
+- **S4b follow-up — NC-S4b-01..05 corrective work + host `pus_ip`/`pus_tsn`
+  demonstration (SRS-REQ-060/061, method `Tst | Dem`).** The S4b conformance audit
+  (norm N19) found five deviations. Corrective changes and host evidence are
+  present, but independent delta closure remains pending:
+  **NC-S4b-02 (Major)** — the S4b exit criterion "`pus_ip` / `pus_tsn` link
+  round-trip PASS" had no supporting check, the declared S4b "Renode check"
+  deliverable was not delivered (SKIP proxy is not a check), and the `Dem` method
+  of SRS-REQ-060/061 was unmet. Resolution: added `test_pus_ip_roundtrip` (a
+  PUS-C S17 ping TC is received over the IP `FF_Link_t` backend, ingested by PUS,
+  and the TM reply is pushed back over the same link against the mock
+  `FF_NetStack_t`; the reference `FF_NetStackLoopback` is a socket pair, so it
+  models the peer across two sockets, not a single-socket self-loop) and
+  `test_pus_tsn_roundtrip` (the same over the TSN backend, with the
+  mock MAC looped back) — `tests/unit/test_link_ip.c` (20 test funcs / 79 checks)
+  and `tests/unit/test_link_tsn.c` (15 test funcs / 135 checks). The on-target
+  (Renode) IP/TSN link-level round-trip remains **GAP-A5** (register-only GEM,
+  NC-S6-01 precedent). **NC-S4b-01** — GAP-A5 now enumerates the IP/TSN
+  link-level residual (`docs/quality/class-a-gaps.md` rev 0.11). **NC-S4b-03** —
+  corrected the stale S4b suite/check counts in `verification-results.md`, the
+  `Verfied` typo in `traceability.yaml`, and the stale sprint-plan/loop-audit
+  header revisions. **NC-S4b-04** — corrected the `traceability.md` SRS-REQ-059
+  mirror row (removed `test_link_tsn.c`, which tests SRS-REQ-061). **NC-S4b-05** —
+  reconciled the stale M4 status lists (this audit's §1 M4 row and
+  `verification-results.md` "Remaining (M4)") with the delivered S3/S4/S5/S7
+  state. The README metrics panel was regenerated (`make metrics`; gate
+  `tools/scripts/metrics.py --check`) so it folds in the new test-script lines.
+  Gate status: build + ctest 27/27 + trace (114/71/29/14/51) + smoke + GSW +
+  clang-format all PASS. The `-Wall -Wextra -Werror` gate is now **enforced on
+  the test targets** (`tests/CMakeLists.txt`) and every `tests/unit/*.c` compiles
+  clean under it; `make verify-lean` and `make renode` were not run on the
+  authoring host (no Lean toolchain; host-only change, no RTEMS image impact) and
+  are carried by CI (norm N18 proxy).
+
+- **S4b follow-up review corrections applied; closure pending.** Independent
+  reports `FRICK-REVIEW-0167` (R1+R2), `0168` (R4) and `0169` (PA) are
+  APPROVED WITH COMMENTS. Their reports require delta re-review, which has not
+  yet been recorded; findings remain open. Authoring corrections included IP
+  send-leg assertions, sink reset, mock-MAC invariant documentation, accurate
+  mock-vs-reference wording, evidence provenance, tool re-qualification notes,
+  histories and delivered-scope corrections. The `-Wall -Wextra -Werror` gate
+  was enforced on test targets and four pre-existing test defects were fixed.
+
+- **S4b follow-up, 2nd pass — NC-S4b-06..08 corrections applied; closure pending.**
+  The second-pass audit (`docs/status/loop-audit.md`) found three deviations
+  between implementation and documented scope; corrections are present, but
+  independent delta closure evidence is not yet in the repository.
+  **NC-S4b-06** — `README.md` "Low-level drivers": the table now lists the
+  delivered IP/TSN PUS-C link backends, PCIe and SpaceWire plus a PPS row; the
+  closing paragraph no longer classifies delivered drivers as "M3/M4
+  deliverables" (and no longer implies a `PPS` `hal_*.h` contract) but names the
+  genuinely open items (NC-S7-01, NC-S6-01/NC-S6-03, the on-SoC eMMC/SD checks;
+  GAP-A7); the architecture-diagram link node now reads "loopback / UART / IP /
+  TSN". **NC-S4b-07** — the gPTP / fabric-CoreTSN milestone statements in
+  `network-stack.md` §6, `software-description.md` §2.1/§3.7/§3.9,
+  `development-plan.md` §M8/§6 and `handover.md` contradicted the authoritative
+  SRS-REQ-068; all four now record the 802.1AS gPTP stack as implemented (M8,
+  `src/drivers/eth/gptp/`) and the fabric CoreTSN path as deferred to M14, with
+  the M8 plan row marked "delivered (partial)" (802.1Qav/Qbb =
+  `FF_NOT_IMPLEMENTED`, NC-S8-01/NC-S8-02) and OBJ-16 recorded as "M8 (gPTP) /
+  M14 (fabric CoreTSN)". **NC-S4b-08** — `handover.md` still carried the
+  reference-loopback claim already corrected elsewhere under R2-F03, an
+  understated `-Wall -Wextra -Werror` statement and an M4-residual driver list
+  omitting the delivered MSS SPI and MSS MMC/SD (BLOCK) backends; all three are
+  corrected. NC-S4b-06..08 remain open until independent R1/R2/R4/PA delta
+  reviews are completed and recorded.
+
+- **S8-FU assessment follow-up.** Cross-check of the external assessment opened
+  NC-EXT-01..13 and NC-S4b-09. Widened CCSDS decoder length validation, the
+  maximum TC-ingest buffer, ground-tool packet layout, GSW finite-buffer
+  resynchronization, malformed-input/golden-vector tests, and sanitizer mock
+  correction are implemented. Profile/requirements decisions, UART framing,
+  maximum-size application-ingest evidence, external ground-segment
+  interoperability, and review closure remain open. FRICK-REVIEW-0170 was a
+  partial pass, FRICK-REVIEW-0171 rejected, and FRICK-REVIEW-0172 failed;
+  FRICK-REVIEW-0173 re-verified the GSW resynchronization case. Current local
+  evidence includes pinned `make ci-local` (including Lean), 27/27 native and
+  sanitizer tests, trace, smoke, GSW vectors, RTEMS Docker cross-build and real
+  Renode functional PASS. Forge CI has not run on the uncommitted tree; all
+  review/assurance NCs remain open except where the NC register records an
+  independently verified bounded closure.
 
 - **M11/S6b-2 - lwIP netif bound to the GEM + RTEMS object sizing (SRS-REQ-040).**
   `config/rtems/rtems_config.c` now sets `CONFIGURE_MAXIMUM_TASKS 24` /

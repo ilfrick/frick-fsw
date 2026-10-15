@@ -2,13 +2,13 @@
 
 | Document id | FRICK-ENG-0003 |
 | ----------- | -------------- |
-| Revision    | 0.4 |
-| Date        | 2026-10-12 |
+| Revision    | 0.8 |
+| Date        | 2026-10-13 |
 | Audience    | humans and agents extending frick-fsw with low-level drivers |
 
 This guide explains how to add a **low-level driver** to frick-fsw (a new link,
 a board/BSP peripheral such as a PPS input, a new PAL/RTOS port) so that it is
-buildable, testable, traceable and verifiable under the project norms (N1-N20).
+buildable, testable, traceable and verifiable under the project norms (N1-N21).
 It mirrors the way NASA cFS separates the OSAL (our PAL) and the PSP/BSP from
 the application code.
 
@@ -178,7 +178,10 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 
 ## 8. V&V and tool qualification
 
-- Re-run the **full cycle** on every change (norm N15): `make ci-local`.
+- Re-run the required verification cycle on every change (norm N15). `make ci-local`
+  covers configure/build, unit tests, Lean and trace only; use the verification
+  plan for separate static-analysis/format, smoke, GSW, RTEMS, Renode, metrics
+  and documentation gates.
 - Record the run in `docs/vv/verification-results.md` (norm N11).
 - If the change touches a V&V script or tool, update
   `docs/vv/tool-qualification.md` (norm N10).
@@ -195,7 +198,8 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 - [ ] SRS/SSS + `traceability.yaml` updated; Lean model if there is logic.
 - [ ] `docs/architecture/overview.md` / ICD updated if the interface changed.
 - [ ] `CHANGELOG.md` + this document's History updated.
-- [ ] Full cycle (`make ci-local`) green; committed and pushed to both remotes.
+- [ ] `make ci-local` subset and all other applicable gates in the verification
+      plan, including static analysis, are green; commit/push only after review gates.
 
 ## 10. Heritage references
 
@@ -211,3 +215,7 @@ Every driver delivers behaviour that must be traceable (norm N3/N4):
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: PPS backend vtable + software backend delivered; board hook = GAP-A7 |
 | 0.3 | 2026-10-12 | frick-fsw | Clarify that only loopback/UART link backends are implemented; TCP/IP/TSN link backends are the M4-absorbed planned path, not yet in `src/transport/link/` |
 | 0.4 | 2026-10-12 | frick-fsw | Update §2 scope note: the TCP/IP/TSN link backends are now the explicit M4-residual scope (SRS-REQ-059/060/061), not an "absorbed" plan |
+| 0.5 | 2026-10-13 | frick-fsw | Clarify `ci-local` is a subset and point to separate applicable verification gates (NC-EXT-38). |
+| 0.6 | 2026-10-13 | frick-fsw | Correct checklist: `ci-local` is not the full cycle; require remaining applicable gates (NC-EXT-38). |
+| 0.7 | 2026-10-13 | frick-fsw | Explicitly include static analysis among gates outside `ci-local` (NC-EXT-38). |
+| 0.8 | 2026-10-13 | frick-fsw | Align revision metadata and track separately executed verification gates following independent review (NC-EXT-41). |

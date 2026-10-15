@@ -17,7 +17,8 @@
 # Job execution model (important):
 #   The `gitea/act_runner` image is a minimal Alpine image WITHOUT build tools,
 #   so `ubuntu-24.04:host` would run every job inside it and fail. The label
-#   therefore maps `ubuntu-24.04` to the pinned V&V image
+#   therefore maps `ubuntu-24.04` to the common controlled V&V image; mutable
+#   base/package inputs do not establish reproducibility (NC-EXT-35)
 #   (`ubuntu-24.04:docker://frick-vv:local`), which carries the toolchain plus
 #   nodejs for `actions/checkout`. Build that image first:
 #     docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
@@ -25,7 +26,7 @@
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 services:
   act_runner:
     image: gitea/act_runner:latest

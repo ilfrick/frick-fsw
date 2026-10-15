@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 name: ci
 
 on:
@@ -47,6 +47,9 @@ jobs:
 
       - name: Unit tests (Release)
         run: ctest --test-dir build/release --output-on-failure
+
+      - name: Ground-tool packet vectors (T7)
+        run: make gsw-selfcheck
 
       - name: AddressSanitizer (core suites)
         run: |
@@ -232,30 +235,12 @@ jobs:
           print('reviewer-agent personas: bodies in sync')
           EOF
       - name: Licence check (norm N13)
-        run: |
-          python3 - <<'EOF'
-          import re
-          from pathlib import Path
-          lic = Path("LICENSE").read_text(encoding="utf-8")
-          assert "GNU AFFERO GENERAL PUBLIC LICENSE" in lic and "Version 3" in lic, "LICENSE is not AGPL-3.0"
-          bad = []
-          for p in Path(".").rglob("*"):
-              if p.is_file() and ".git" not in p.parts:
-                  try:
-                      t = p.read_text(encoding="utf-8", errors="ignore")
-                  except Exception:
-                      continue
-                  if re.search(r"SPDX-License-Identifier:\s*Apache-2.0", t):
-                      bad.append(str(p))
-          if bad:
-              raise SystemExit("Apache-2.0 SPDX headers found: " + ", ".join(bad))
-          print("licence check (AGPL-3.0-only): OK")
-          EOF
+        run: python3 tools/scripts/license_check.py
       - name: Doxygen
         run: |
-          if command -v doxygen > /dev/null; then
-            mkdir -p build/doxygen && doxygen Doxyfile
-          else echo "doxygen not available"; fi
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+          make docs
 
   # evidence: ci-rtems-cross-build (SSS-REQ-001, SRS-REQ-016, SRS-REQ-037)
   # Per-commit proxy: if the RTEMS 6.2 toolchain is available, cross-build;

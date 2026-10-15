@@ -6,22 +6,29 @@ Copyright (C) 2026 Ilfrick
   GitHub: https://github.com/ilfrick/frick-fsw
   Gitea:  https://www.housefz.com/git/ilfrick/frick-fsw
 
-frick-fsw is free software: you can redistribute it and/or modify it under the
-terms of the GNU Affero General Public License as published by the Free Software
-Foundation, version 3 of the License, or (at your option) any later version.
-The full license text is in `LICENSE` (`AGPL-3.0-only`).
+Per the repository owner's direction dated 2026-10-14, original project-authored
+code and materials created for frick-fsw are designated MPL-2.0; the canonical
+text is in `LICENSE`. This does not change rights granted for prior
+distributions. Third-party, generated, mission-supplied, commercial, and other
+externally controlled material is outside the authorization and retains its own
+terms. **NC-EXT-43 remains open** for component boundaries and combined-
+distribution profiles. This notice records the owner decision; it is not a
+legal opinion or independent provenance finding.
 
-Every authored source, configuration and documentation file carries a header of
-the form:
+Original project-authored code and materials in the owner's stated scope use
+the following source notice form where the file format supports comments.
+Documentation and non-comment formats are covered by this notice and `LICENSE`:
 
     Copyright (C) 2026 Ilfrick
     https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-    SPDX-License-Identifier: AGPL-3.0-only
+    SPDX-License-Identifier: MPL-2.0
 
-Third-party components (toolchains, libraries, container images, standards
-references) are **not** relicensed: each retains its own copyright and license,
-and only permissive, AGPL-compatible material is used. The compatibility
-analysis is maintained in `docs/quality/licensing.md`.
+Third-party components (toolchains, libraries, generated code, container images,
+and standards references) are **not** relicensed: each retains its own copyright
+and license. Their incorporation, distribution, and notice obligations require
+separate review; see `docs/quality/licensing.md` and NC-EXT-43. The project
+license change does not alter third-party terms or retroactively remove prior
+recipients' license rights. This notice is not legal advice.
 
 Project name and codename ("Eärendil")
 --------------------------------------
@@ -45,4 +52,4 @@ intending to use such a name in commerce should verify the current trademark
 status and may need a licence (see `docs/quality/licensing.md §6`). This notice is
 **not legal advice**; consult qualified IP counsel before any commercial use.
 
-SPDX identifier: AGPL-3.0-only
+SPDX identifier: MPL-2.0

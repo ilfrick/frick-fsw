@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: MPL-2.0
 import Frick.Common
 
 -- frick-fsw formal model: HAL core registry (milestone M3).
@@ -9,7 +10,7 @@ import Frick.Common
 --
 -- Copyright (C) 2026 Ilfrick
 -- https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
--- SPDX-License-Identifier: AGPL-3.0-only
+-- SPDX-License-Identifier: MPL-2.0
 
 namespace Frick
 

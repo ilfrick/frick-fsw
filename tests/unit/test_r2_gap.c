@@ -18,7 +18,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "fsw_config.h"
@@ -67,7 +67,7 @@ static void test_evs_listener_and_ring(void)
     memset(&g_evs_last, 0, sizeof(g_evs_last));
     FF_EvsSetListener(evs_listener);
 
-    /* Formatted event reaches the listener with the correct fields. */
+    /* Ordinary event sends preserve synchronous listener delivery. */
     FF_TEST_ASSERT(FF_EvsSend(0x1234u, FF_EVS_WARNING, 7u, "x=%u", 42u) == FF_SUCCESS);
     FF_TEST_ASSERT(g_evs_listener_calls == 1u);
     FF_TEST_ASSERT(g_evs_last.event_id == 0x1234u);
@@ -75,6 +75,7 @@ static void test_evs_listener_and_ring(void)
     FF_TEST_ASSERT(g_evs_last.app_id == 7u);
     FF_TEST_ASSERT(strcmp(g_evs_last.text, "x=42") == 0);
     FF_TEST_ASSERT(FF_EvsGetTotalCount() == 1u);
+    FF_TEST_ASSERT(FF_EvsDispatchPending(FF_EVS_LOG_DEPTH) == 0u);
 
     /* Single-event read while the log is not yet full (start == 0 branch). */
     n = FF_EvsGetLog(out, FF_EVS_LOG_DEPTH);
@@ -85,7 +86,9 @@ static void test_evs_listener_and_ring(void)
     for (i = 0u; i < (FF_EVS_LOG_DEPTH + 3u); i++) {
         FF_TEST_ASSERT(FF_EvsSend((uint16_t)(0x1000u + i), FF_EVS_INFO, 1u, "e%u", i) ==
                        FF_SUCCESS);
+        FF_TEST_ASSERT(g_evs_listener_calls == i + 2u);
     }
+    FF_TEST_ASSERT(FF_EvsDispatchPending(FF_EVS_LOG_DEPTH) == 0u);
     FF_TEST_ASSERT(FF_EvsGetTotalCount() == (FF_EVS_LOG_DEPTH + 4u));
     n = FF_EvsGetLog(out, FF_EVS_LOG_DEPTH);
     FF_TEST_ASSERT(n == FF_EVS_LOG_DEPTH);
@@ -489,6 +492,7 @@ static void test_ccsds_telecommand(void)
     FF_Pus_TcHdr_t tc;
     FF_Pus_TcHdr_t dec;
     FF_Pus_TmHdr_t tmh;
+    FF_Pus_TmHdr_t tm_sentinel;
     uint8_t frame[128];
     uint8_t tmframe[128];
     uint16_t frame_len = 0u;
@@ -568,6 +572,88 @@ static void test_ccsds_telecommand(void)
     frame[frame_len - 1u] ^= 0xFFu;
     FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
                    FF_CRC_ERROR);
+
+    /* PDL is validated with widened arithmetic before CRC reads/subtraction.
+     * Keep the receive buffer allocated and assert rejected inputs do not
+     * publish partial output values. */
+    frame[frame_len - 1u] ^= 0xFFu;
+    data_len = 0xA55Au;
+    apid = 0x05AAu;
+    frame[4] = 0u;
+    frame[5] = 4u; /* packet-data field shorter than TC secondary header + CRC */
+    FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+
+    frame[4] = 0xFFu;
+    frame[5] = 0xFAu; /* header + PDL exceeds UINT16_MAX; former 16-bit sum wrapped */
+    FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+    frame[4] = 0xFFu;
+    frame[5] = 0xFFu; /* PDL + 1 also exceeds the representable packet length */
+    FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+
+    /* A decoder input is one complete CCSDS packet, not a packet plus a
+     * silently ignored suffix (which could be a coalesced second packet). */
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(0x010u, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    frame[frame_len] = 0xA5u;
+    FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, (uint16_t)(frame_len + 1u), &apid, &dec, &data,
+                                    &data_len) == FF_PARSE_ERROR);
+
+    /* TM rejects a packet-data field too short for its secondary header and
+     * CRC, before computing an unsigned payload length. */
+    FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, &tmh, NULL, 0u, tmframe, sizeof(tmframe), &tm_len) ==
+                   FF_SUCCESS);
+    tmframe[4] = 0u;
+    tmframe[5] = 12u;
+    apid = 0x05AAu;
+    data_len = 0xA55Au;
+    data = (const uint8_t *)(uintptr_t)0x1234u;
+    (void)memset(&tmh, 0xA5, sizeof(tmh));
+    (void)memset(&tm_sentinel, 0xA5, sizeof(tm_sentinel));
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(tmframe, tm_len, &apid, &tmh, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&tmh, &tm_sentinel, sizeof(tmh)) == 0);
+
+    /* TM rejects oversized/wrapping declared lengths and trailing data before
+     * CRC access; the supplied input length must describe exactly one packet. */
+    tmframe[4] = 0xFFu;
+    tmframe[5] = 0xFAu;
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(tmframe, tm_len, &apid, &tmh, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&tmh, &tm_sentinel, sizeof(tmh)) == 0);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, &tmh, NULL, 0u, tmframe, sizeof(tmframe), &tm_len) ==
+                   FF_SUCCESS);
+    tmframe[tm_len] = 0xA5u;
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(tmframe, (uint16_t)(tm_len + 1u), &apid, &tmh, &data,
+                                    &data_len) == FF_PARSE_ERROR);
+
+    /* The configured PUS payload maximum plus CCSDS/PUS headers and CRC fits
+     * the packet-size macro used by command ingest. */
+    {
+        static uint8_t max_frame[FF_CCSDS_MAX_TC_PACKET];
+        static uint8_t max_payload[FF_PUS_MAX_TC_FRAME];
+        uint16_t max_len = 0u;
+        uint16_t max_data_len = 0u;
+
+        (void)memset(max_payload, 0x5Au, sizeof(max_payload));
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(0x010u, &tc, max_payload, sizeof(max_payload), max_frame,
+                                        sizeof(max_frame), &max_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(max_len == FF_CCSDS_MAX_TC_PACKET);
+        FF_TEST_ASSERT(FF_CcsdsDecodeTc(max_frame, max_len, &apid, &dec, &data, &max_data_len) ==
+                       FF_SUCCESS);
+        FF_TEST_ASSERT(max_data_len == sizeof(max_payload));
+        FF_TEST_ASSERT(memcmp(data, max_payload, sizeof(max_payload)) == 0);
+    }
 }
 
 /* ------------------------------------------------------------------ */

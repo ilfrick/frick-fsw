@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.37                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.45                                   |
+| Date                              | 2026-10-14                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -15,14 +15,17 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 71, SSS = 29, GAP = 14, Lean theorems = 51, CI evidence
+Counts (current): SRS = 73, SSS = 30, GAP = 14, Lean theorems = 51, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). The planned
 requirements are documented-only with `ci:docs` as evidence until their
 implementation lands: M12..M16 (SRS-REQ-045/046/051/053/054 with SSS parents
 SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 (SRS-REQ-059..068 with SSS parents SSS-REQ-017/020/028/029)
-(SRS-REQ-052 is delivered by the fundamental PUS-C service set, M15).
+(SRS-REQ-052 is delivered by the fundamental PUS-C service set, M15). Event
+profile parameters in SSS-REQ-006/SRS-REQ-072 remain authority-owned TBDs;
+passing trace convergence does not establish event-rate, latency or loss-report
+compliance (NC-EXT-75/76).
 
 ## 1. Top-down matrix (SSS -> SRS)
 
@@ -33,7 +36,7 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SSS-REQ-003 (TM/TC chain) | SRS-REQ-003, SRS-REQ-004, SRS-REQ-009 |
 | SSS-REQ-004 (request verification) | SRS-REQ-005, SRS-REQ-006, SRS-REQ-007 |
 | SSS-REQ-005 (housekeeping) | SRS-REQ-008 |
-| SSS-REQ-006 (events) | SRS-REQ-011 |
+| SSS-REQ-006 (bounded event reporting and overload observability) | SRS-REQ-011, SRS-REQ-072 |
 | SSS-REQ-007 (time) | SRS-REQ-010 |
 | SSS-REQ-008 (health & safety) | SRS-REQ-014 |
 | SSS-REQ-009 (tables) | SRS-REQ-013, SRS-REQ-019 |
@@ -63,17 +66,17 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | Requirement | Implementation | Tests / CI | Lean | Note |
 | ----------- | -------------- | ---------- | ---- | ---- |
 | FRICK-SRS-REQ-000 | CMakeLists, presets, Makefile | ci:host-build | - | baseline |
-| SRS-REQ-001 | sb.c/h | test_sb.c | req_srs001_exact_and_wildcard, req_srs001_no_match_no_delivery | |
+| SRS-REQ-001 | sb.c/h, pal.h, pal_posix.c | test_sb.c | req_srs001_exact_and_wildcard, req_srs001_no_match_no_delivery | SB-lock busy asserts FF_TIMEOUT with no mutation; queue-lock busy asserts FF_TIMEOUT after partial fan-out and dropped accounting; full pipe remains a distinct overflow path |
 | SRS-REQ-002 | sb.c, pal_posix.c | test_sb.c | - | FIFO by ring-buffer semantics |
-| SRS-REQ-003 | ccsds.c | test_ccsds.c | req_srs003_tm_length, req_srs003_tc_length | |
+| SRS-REQ-003 | ccsds.c | test_ccsds.c, test_r2_gap.c | req_srs003_tm_length, req_srs003_tc_length | Lean models encoder bounds only; decoder PDL checks are C-tested, not C-refined |
 | SRS-REQ-004 | ccsds.c | test_ccsds.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | |
-| SRS-REQ-005 | pus.c | test_pus.c | - | dispatch contract in Frick.Pus |
+| SRS-REQ-005 | pus.c | test_pus.c, test_r3_gap.c | - | Malformed-frame S1 requirement conflicts with test_pus_malformed_tc_event; NC-EXT-04 open, oracle does not establish requirement |
 | SRS-REQ-006 | pus.c | test_pus.c | req_srs006_acceptance_completion, complete_ack_produces_two, ack_acceptance_is_counted | |
 | SRS-REQ-007 | pus.c | test_pus.c | req_srs007_counter_increases, req_srs007_counter_wrap_bounded | |
 | SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c | - | GAP-A2 formalisation |
 | SRS-REQ-009 | pus_services.c | test_pus.c | - | region bound asserted |
 | SRS-REQ-010 | time.c, pps.c, pus_services.c | test_pus.c, test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip | CUC round-trip |
-| SRS-REQ-011 | evs.c, fsw_main.c, pus.c | test_pus.c, ci:simulator-smoke | - | observed in simulator |
+| SRS-REQ-011 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c | test_pus.c, test_sb.c, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Forwarding-rate/latency guarantee applies within approved SSS-REQ-006 envelope; loss accounting is independent of that envelope. Mission profile and post-acceptance loss-detection/counter semantics remain TBD (NC-EXT-76); see host structural characterization, not compliance evidence |
 | SRS-REQ-012 | pus_services.c | test_pus.c | - | S17 ping/pong |
 | SRS-REQ-013 | tbl.c | test_tbl.c | - | atomic activate |
 | SRS-REQ-014 | es.c, app_hs.c | ci:simulator-smoke | - | roadmap HS unit tests |
@@ -121,9 +124,9 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending the QSPI controller command driver) |
 | SRS-REQ-057 | drivers/can/mpfs/ff_can_mpfs.c/h, config/platform/platform_mpfs.h | test_can.c, ci:renode | - | Reference MSS CAN backend (M4/M11; classic 2.0 A/B, CAN-FD rejected) |
 | SRS-REQ-058 | drivers/i2c/mpfs/ff_i2c_mpfs.c/h, config/platform/platform_mpfs.h | test_i2c.c, ci:renode | - | Reference MSS I2C backend (M4/M11; polled CoreI2C master, serial-clock divider reference-derived) |
-| SRS-REQ-059 | src/transport/link/link_seg.{c,h}, tests/unit/test_link_ip.c, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | Seg/reassembly: 2-byte BE length-prefix for TCP, allocation-free, fixed-point buffers (SRS-REQ-015); implemented in S4b |
-| SRS-REQ-060 | src/transport/link/link_ip.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | IP link backend: UDP datagrams + TCP with seg framing over `FF_NetStack_t` (loopback models both UDP and TCP); implemented in S4b |
-| SRS-REQ-061 | src/transport/link/link_tsn.{c,h}, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | TSN link backend: GEM MAC RX callback + ring buffer, Ethertype 0x88F5, over `FF_EthMac_t + FF_TsnBackend_t`; implemented in S4b |
+| SRS-REQ-059 | src/transport/link/link_seg.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | Seg/reassembly: 2-byte BE length-prefix for TCP, allocation-free, fixed-point buffers (SRS-REQ-015); implemented in S4b |
+| SRS-REQ-060 | src/transport/link/link_ip.{c,h}, tests/unit/test_link_ip.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | IP backend: UDP datagrams + TCP segmentation over `FF_NetStack_t`; PUS-C round-trip uses a mock `FF_NetStack_t`, while `FF_NetStackLoopback` is a separate socket-pair reference implementation; `test_pus_ip_roundtrip` is host demonstration only |
+| SRS-REQ-061 | src/transport/link/link_tsn.{c,h}, tests/unit/test_link_tsn.c, docs/engineering/user-integration-manual.md, docs/requirements/SRS.md | ci:build, ci:test | - | TSN link backend: GEM MAC RX callback + ring buffer, Ethertype 0x88F5, over `FF_EthMac_t + FF_TsnBackend_t`; implemented in S4b; PUS-C TM/TC round-trip `test_pus_tsn_roundtrip` (Dem) |
 | SRS-REQ-062 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CAN-FD fabric backend (M4-residual; planned) |
 | SRS-REQ-063 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | CANopen (CiA 301/302/402) reference stack (M4-residual; planned) |
 | SRS-REQ-064 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | RS-485 half-duplex DE/RE control (M4-residual; planned) |
@@ -133,6 +136,8 @@ SSS-REQ-022/023/024/026/027) and the restored M4-residual/M8 scope
 | SRS-REQ-068 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - | gPTP (802.1AS) full stack + fabric CoreTSN / 802.1CB (M8; planned) |
 | SRS-REQ-069 | drivers/spi/mpfs/ff_spi_mpfs.c/h, config/platform/platform_mpfs.h | test_spi.c, ci:renode | - | Reference MSS SPI backend (M4/M11; polled CoreSPI master, clock divider reference-derived) |
 | SRS-REQ-070 | drivers/block/mpfs/ff_block_mpfs.c/h, config/platform/platform_mpfs.h | test_block.c, ci:renode | - | Reference MSS block-device backend (M4/M11; polled SDHCI-style MMC/SD, buffer mode) |
+| SRS-REQ-071 | app_scheduler.c, tbl.c | test_r2_gap.c | - | Planned M17 application schedule dispatch; behavior not yet delivered |
+| SRS-REQ-072 | evs.c, sb.c, app_tm_output.c, fsw_main.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, ci:simulator-smoke | - | Dispatch-rate/latency guarantee applies only within approved arrival/link performance envelopes; exactly-once loss accounting applies independently. Candidate tests and the 9,984-profile host sweep characterize configured local structure only; mission envelope, ground boundary, post-acceptance loss detection/counter/reset semantics and overload-loss reporting remain TBD (NC-EXT-75/76) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -148,7 +153,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-003 | ccsds.c, pus.c, link.c | test_pus.c, test_ccsds.c | crc16_append_makes_zero |
 | SSS-REQ-004 | pus.c | test_pus.c | req_srs006_acceptance_completion |
 | SSS-REQ-005 | pus_services.c, app_hk.c | ci:simulator-smoke | - |
-| SSS-REQ-006 | evs.c, fsw_main.c, pus.c | ci:simulator-smoke | - |
+| SSS-REQ-006 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_pus.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Envelope performance values, ground-receipt boundary, and post-acceptance loss-detection/counter/reporting semantics are authority-owned TBDs; host structural sweep is not requirement compliance evidence |
 | SSS-REQ-007 | time.c, pps.c, pus_services.c | test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip |
 | SSS-REQ-008 | app_hs.c, es.c | ci:simulator-smoke | - |
 | SSS-REQ-009 | tbl.c, fsw_tables.c | test_tbl.c | - |
@@ -242,3 +247,11 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.35 | 2026-10-12 | frick-fsw | M11/S6b-2: SRS-REQ-040 mirror row also records the netif glue (`ff_lwip_netif.c/h`); counts unchanged 71/29/14 |
 | 0.36 | 2026-10-12 | frick-fsw | NET follow-up: SRS-REQ-040 mirror row records `test_lwip_netif.c` (NC-154-01 closed); counts unchanged 71/29/14 |
 | 0.37 | 2026-10-13 | frick-fsw | S4b delta re-review (N12/N20 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings (NF-1/NF-2/NF-3) raised and closed; delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean on authored files; max-size regression test added; test counts updated (test_link_ip 19 funcs, test_link_tsn 14 funcs) |
+| 0.38 | 2026-10-13 | frick-fsw | S4b follow-up (NC-S4b-02/03/04): host PUS-C TM/TC round-trip demonstration added for the IP backend (`test_pus_ip_roundtrip`) and the TSN backend (`test_pus_tsn_roundtrip`) — satisfies the `pus_ip`/`pus_tsn` S4b exit criterion and the `Dem` method of SRS-REQ-060/061; SRS-REQ-059 mirror row corrected (removed `test_link_tsn.c`, which tests SRS-REQ-061); counts unchanged 114/71/29/14/51 |
+| 0.39 | 2026-10-13 | frick-fsw | S4b follow-up 2nd pass: update the SRS-REQ-003 mirror to include decoder PDL-boundary checks in `test_r2_gap.c` and explicitly delimit the existing Lean proof to encoder bounds; counts unchanged 114/71/29/14/51 |
+| 0.40 | 2026-10-13 | frick-fsw | Assessment follow-up: disclose SRS-REQ-005/test-oracle conflict under NC-EXT-04; correct SRS-REQ-060 mirror to distinguish mock `FF_NetStack_t` round-trip from the socket-pair reference loopback; expand SRS-REQ-003 tests for TM malformed bounds and GSW stream offsets; counts unchanged 114/71/29/14/51 |
+| 0.41 | 2026-10-14 | frick-fsw | Add SRS-REQ-072 under SSS-REQ-006; record bounded SB mutex return and authority-owned event-rate/dispatch/latency inputs; trace counts pending convergence |
+| 0.42 | 2026-10-14 | frick-fsw | Reconcile current human-readable trace counts to 117 requirements (73 SRS, 30 SSS, 14 GAP) and state that event-envelope parameters remain TBD |
+| 0.43 | 2026-10-14 | frick-fsw | Update SRS-REQ-001 implementation/test summary for non-waiting PAL queue lock, partial fan-out and distinct full-queue status; trace gate remains 117/73/30/14/51 |
+| 0.44 | 2026-10-14 | frick-fsw | Trace the exploratory SB/EVS structural characterization and distinguish it from requirement compliance; clarify mission loss-accounting semantics remain TBD |
+| 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |

@@ -1,7 +1,7 @@
 # Doxyfile for frick-fsw (run: doxygen Doxyfile; output: build/doxygen)
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 
 PROJECT_NAME           = "frick-fsw"
 PROJECT_NUMBER         = 0.1.0
@@ -12,12 +12,13 @@ ALLOW_UNICODE_NAMES    = NO
 EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
-INPUT                  = README.md src config board
-FILE_PATTERNS          = *.c *.h *.dts
+INPUT                  = README.md CHANGELOG.md docs src config board
+FILE_PATTERNS          = *.c *.h *.dts *.md
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = README.md
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
+DOT_NUM_THREADS        = 1
 WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = NO
 QUIET                  = NO

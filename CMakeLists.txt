@@ -1,7 +1,7 @@
 # frick-fsw - build system (CMake)
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 
 cmake_minimum_required(VERSION 3.20)
 project(frick_fsw
@@ -151,6 +151,9 @@ endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
 target_include_directories(frick_fsw_core PUBLIC ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
+if(FF_BUILD_TESTS)
+  target_compile_definitions(frick_fsw_core PUBLIC FF_TEST_HOOKS)
+endif()
 
 if(NOT FF_PLATFORM MATCHES "^rtems")
   find_package(Threads REQUIRED)

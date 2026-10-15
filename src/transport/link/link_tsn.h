@@ -13,11 +13,18 @@
  * RX is callback-driven: the MAC invokes the registered callback, which pushes
  * the frame payload into a ring buffer. FF_LinkRecv reads from that buffer.
  *
+ * RX length semantics: the TX path zero-pads header+payload to the 60-byte
+ * Ethernet minimum (FF_LINK_TSN_MIN_FRAME, FCS excluded), and the RX path
+ * delivers the received payload including that padding. A received frame can
+ * therefore be longer than the PUS-C packet it carries, so a round-trip check
+ * asserts the PUS header fields (service/subservice) rather than the exact
+ * length and trailing bytes of the TM packet.
+ *
  * No dynamic allocation (SRS-REQ-015). All buffers are static.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #ifndef FF_LINK_TSN_H
 #define FF_LINK_TSN_H

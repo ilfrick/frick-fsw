@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.14                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.17                                   |
+| Date                              | 2026-10-13                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
 | RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |
@@ -41,8 +41,33 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   shall be tracked by PUS service 1 verification telemetry. `method: Tst | Anl`.
 - **SSS-REQ-005** — *Housekeeping*: the software shall collect and report
   housekeeping structures (PUS service 3). `method: Tst | Dem`.
-- **SSS-REQ-006** — *Event reporting*: on-board events shall be visible to the
-  ground (PUS service 5). `method: Tst | Dem`.
+- **SSS-REQ-006** — *Event reporting*: a valid event-submission attempt occurs
+  when an on-board producer calls the EVS send interface with valid arguments.
+  For an approved arrival envelope `A(Δ) ≤ Bmax + Rmax·Δ`, where `A(Δ)` counts
+  valid EVS submissions in any interval of `Δ` seconds, `Bmax` is the permitted
+  burst in events and `Rmax` is the sustained maximum in events/s, the system
+  shall forward every accepted submission as PUS service 5 telemetry to the
+  approved ground-receipt boundary within `Lmax` seconds. While a forwarding
+  backlog exists and the approved link-availability profile holds, the system
+  shall complete event dispatch to the selected link backend at no less than
+  `Dmin` events/s over each approved service-measurement interval. These
+  forwarding-rate and latency guarantees apply only while the approved arrival
+  and link-availability envelopes hold. Loss accounting applies independently
+  of those performance envelopes: each valid submission not accepted or
+  forwarded shall increment an independently readable event-loss counter
+  exactly once; its local event/loss record shall be retained when local
+  capacity and synchronization permit, and the loss count shall be reported at
+  the next available reporting opportunity. The SB publisher shall not wait for
+  event forwarding. `Bmax`, `Rmax`, `Dmin`, `Lmax`, the service-measurement
+  interval, burst/availability profile and ground-receipt boundary are **TBD**;
+  accountable authority: Systems + Operations, with FSW/V&V input; due before
+  requirement baseline/NC-EXT-76 closure. The post-acceptance loss-detection
+  point, counter range/wrap/reset semantics, and exact reporting opportunity
+  remain TBD; no local test or structural stress result supplies those decisions.
+  Current
+  implementation settings (64 queued notifications, dispatch batch 8, nominal
+  1000 ms task delay) are candidate design inputs only, not approved rates,
+  latency, or compliance evidence. `method: Tst | Anl | Dem`.
 - **SSS-REQ-007** — *Time management*: UTC correlation and CUC time reporting
   and setting through PUS service 9, independent of any hardware reference
   (CUC encoding/reporting boundary; the disciplined time base and its CUC frame
@@ -135,6 +160,14 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   control, and a documented adapter for the commercial PUSopen(R) PUS library.
   `method: Tst | Dem`. (milestone M4-residual)
 
+- **SSS-REQ-030** — *Table-driven application scheduling*: the framework shall
+  provide a bounded, table-driven service that dispatches configured Software
+  Bus messages at their approved monotonic-time rates, while leaving runnable
+  task selection and priority preemption to the native RTEMS scheduler. It shall
+  report scheduler liveness and dispatch overruns to the health-monitoring path;
+  mission-specific rates, timing budgets, and overrun responses remain controlled
+  configuration inputs. `method: Tst | Anl | Dem`. (milestone M17)
+
 ## 3. Derived system requirements
 
 - **SSS-REQ-014** (derived) — the reference communication link is a UART
@@ -169,3 +202,6 @@ deviations are resolved before every commit (norm N4).
 | 0.12 | 2026-10-11 | frick-fsw | M15: add SSS-REQ-026 CFDP + virtual filestore |
 | 0.13 | 2026-10-11 | frick-fsw | M16: add SSS-REQ-027 in-house OBCP engine development |
 | 0.14 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028 PUS-C over IP/TSN; SSS-REQ-029 extended fieldbus + PUSopen adapter; reconcile SSS-REQ-015 (open + N7/ESA default backends; PUSopen adapter planned, library user-supplied) — FRICK-REVIEW-0137 R3-01/R3-02 |
+| 0.15 | 2026-10-13 | frick-fsw | Add SSS-REQ-030 for RTEMS-backed, table-driven application dispatch (M17); rates and overrun policy remain mission inputs |
+| 0.16 | 2026-10-14 | frick-fsw | Refine SSS-REQ-006 with an explicit event-arrival envelope, minimum dispatch service, maximum ground-forwarding latency and overload observability; parameters remain authority-owned TBDs (NC-EXT-76) |
+| 0.17 | 2026-10-14 | frick-fsw | Clarify that loss accounting is independent of the arrival/link performance envelope and explicitly retain post-acceptance detection/counter/reporting semantics as authority-owned TBDs after the R3 delta review |

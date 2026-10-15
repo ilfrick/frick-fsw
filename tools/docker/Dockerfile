@@ -1,9 +1,10 @@
 # frick-fsw V&V image (norm N6/N8/N10)
 #
-# Pinned, reproducible toolchain used for every verification activity on host,
-# in CI and by agents. Qualification register: docs/vv/tool-qualification.md (T1).
+# Controlled tool image used by host, CI and agent verification activities.
+# Base/package inputs are not immutable; reproducibility is not established
+# (NC-EXT-35). Qualification register: docs/vv/tool-qualification.md (T1).
 #
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,7 +13,7 @@ ENV LANG=C.UTF-8
 RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential gcc g++ make cmake ninja-build \
       python3 python3-pip git curl ca-certificates \
-      doxygen clang clang-format clang-tidy cppcheck \
+      doxygen graphviz clang clang-format clang-tidy cppcheck \
       nodejs npm \
       pkg-config libc6-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -32,6 +33,6 @@ WORKDIR /workspace
 # Version label for the qualification register
 LABEL org.opencontainers.image.title="frick-fsw V&V environment" \
       org.opencontainers.image.version="0.1.0" \
-      org.opencontainers.image.description="Pinned toolchain for frick-fsw verification (cmake, gcc, python3, lean, clang-tools, doxygen)"
+      org.opencontainers.image.description="Controlled tool image for frick-fsw verification; base and package inputs are mutable (NC-EXT-35)"
 
 CMD ["/bin/bash"]

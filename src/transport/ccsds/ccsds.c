@@ -2,7 +2,7 @@
  * frick-fsw - CCSDS Space Packet codec implementation
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "ccsds.h"
 #include <string.h>
@@ -31,6 +31,37 @@ static void ff_put_u32(uint8_t *p, uint32_t v)
 static uint32_t ff_get_u32(const uint8_t *p)
 {
     return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
+}
+
+/* Validate the primary-header PDL against the actual packet boundary before
+ * any CRC access or subtraction. PDL is encoded as (packet data field length
+ * - 1); widened arithmetic prevents 16-bit wraparound. A decoder call
+ * represents exactly one packet, so trailing/coalesced bytes are rejected. */
+static bool ff_ccsds_packet_data_length(const uint8_t *raw, uint16_t len, uint16_t sec_len,
+                                        uint32_t *packet_data_len)
+{
+    uint16_t pdl;
+    uint32_t declared_data_len;
+    uint32_t minimum_data_len = (uint32_t)sec_len + (FF_FRAME_WITH_CRC ? 2u : 0u);
+    uint32_t expected_packet_len;
+
+    if ((raw == NULL) || (packet_data_len == NULL) || (len < FF_CCSDS_HDR_LEN)) {
+        return false;
+    }
+
+    pdl = ff_get_u16(&raw[4]);
+    declared_data_len = (uint32_t)pdl + 1u;
+    if (declared_data_len < minimum_data_len) {
+        return false;
+    }
+
+    expected_packet_len = (uint32_t)FF_CCSDS_HDR_LEN + declared_data_len;
+    if (expected_packet_len != (uint32_t)len) {
+        return false;
+    }
+
+    *packet_data_len = declared_data_len;
+    return true;
 }
 
 /* ---- CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF) --------------- */
@@ -106,8 +137,8 @@ FF_Status_t FF_CcsdsEncodeTc(uint16_t apid, const FF_Pus_TcHdr_t *hdr, const uin
 FF_Status_t FF_CcsdsDecodeTc(const uint8_t *raw, uint16_t len, uint16_t *apid, FF_Pus_TcHdr_t *hdr,
                              const uint8_t **data, uint16_t *data_len)
 {
-    uint16_t w0, pdl, sec_len = FF_PUS_TC_SEC_HDR_LEN;
-    uint16_t total_data;
+    uint16_t w0, sec_len = FF_PUS_TC_SEC_HDR_LEN;
+    uint32_t total_data;
     const uint8_t *sec;
 
     if ((raw == NULL) || (hdr == NULL) || (len < FF_CCSDS_HDR_LEN + sec_len)) {
@@ -117,9 +148,7 @@ FF_Status_t FF_CcsdsDecodeTc(const uint8_t *raw, uint16_t len, uint16_t *apid, F
     if (((w0 >> 12) & 0x01u) != FF_CCSDS_TC_PACKET) {
         return FF_PARSE_ERROR; /* not a telecommand */
     }
-    pdl = ff_get_u16(&raw[4]);
-    total_data = (uint16_t)(pdl + 1u);
-    if ((uint16_t)(FF_CCSDS_HDR_LEN + total_data) > len) {
+    if (!ff_ccsds_packet_data_length(raw, len, sec_len, &total_data)) {
         return FF_PARSE_ERROR;
     }
     if (FF_FRAME_WITH_CRC) {
@@ -140,7 +169,7 @@ FF_Status_t FF_CcsdsDecodeTc(const uint8_t *raw, uint16_t len, uint16_t *apid, F
         *apid = (uint16_t)(w0 & 0x07FFu);
     }
     if (data_len != NULL) {
-        *data_len = (uint16_t)(total_data - sec_len - (FF_FRAME_WITH_CRC ? 2u : 0u));
+        *data_len = (uint16_t)(total_data - (uint32_t)sec_len - (FF_FRAME_WITH_CRC ? 2u : 0u));
     }
     if (data != NULL) {
         *data = &raw[FF_CCSDS_HDR_LEN + sec_len];
@@ -191,7 +220,8 @@ FF_Status_t FF_CcsdsEncodeTm(uint16_t apid, const FF_Pus_TmHdr_t *hdr, const uin
 FF_Status_t FF_CcsdsDecodeTm(const uint8_t *raw, uint16_t len, uint16_t *apid, FF_Pus_TmHdr_t *hdr,
                              const uint8_t **data, uint16_t *data_len)
 {
-    uint16_t w0, pdl, total_data;
+    uint16_t w0;
+    uint32_t total_data;
     const uint8_t *sec;
 
     if ((raw == NULL) || (hdr == NULL) || (len < FF_CCSDS_HDR_LEN + FF_PUS_TM_SEC_HDR_LEN)) {
@@ -201,9 +231,7 @@ FF_Status_t FF_CcsdsDecodeTm(const uint8_t *raw, uint16_t len, uint16_t *apid, F
     if (((w0 >> 12) & 0x01u) != FF_CCSDS_TM_PACKET) {
         return FF_PARSE_ERROR; /* not telemetry */
     }
-    pdl = ff_get_u16(&raw[4]);
-    total_data = (uint16_t)(pdl + 1u);
-    if ((uint16_t)(FF_CCSDS_HDR_LEN + total_data) > len) {
+    if (!ff_ccsds_packet_data_length(raw, len, FF_PUS_TM_SEC_HDR_LEN, &total_data)) {
         return FF_PARSE_ERROR;
     }
     if (FF_FRAME_WITH_CRC) {
@@ -226,7 +254,8 @@ FF_Status_t FF_CcsdsDecodeTm(const uint8_t *raw, uint16_t len, uint16_t *apid, F
         *apid = (uint16_t)(w0 & 0x07FFu);
     }
     if (data_len != NULL) {
-        *data_len = (uint16_t)(total_data - FF_PUS_TM_SEC_HDR_LEN - (FF_FRAME_WITH_CRC ? 2u : 0u));
+        *data_len = (uint16_t)(total_data - (uint32_t)FF_PUS_TM_SEC_HDR_LEN -
+                               (FF_FRAME_WITH_CRC ? 2u : 0u));
     }
     if (data != NULL) {
         *data = &raw[FF_CCSDS_HDR_LEN + FF_PUS_TM_SEC_HDR_LEN];

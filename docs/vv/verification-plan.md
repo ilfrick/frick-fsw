@@ -4,10 +4,10 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.3                                  |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.1.4                                  |
+| Date                              | 2026-10-14                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
-| Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17 |
+| Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17, N21, N22 |
 
 ## 1. Scope
 
@@ -16,6 +16,11 @@ system demonstration, including formal verification (norm N1) and the
 qualification of V&V tools and test scripts (norm N10). It is executed in every
 development and verification cycle, and the results are recorded in
 `docs/vv/verification-results.md` and pushed with the cycle (norm N11).
+
+The **controlled test specification** (norm N22) is
+`docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001); the system-level
+verification architecture is `docs/vv/system-verification-architecture.md`
+(FRICK-VV-SVA-001).
 
 ## 2. V&V context per ECSS
 
@@ -105,7 +110,7 @@ Deployable by humans and agents, identical everywhere (norm N6/N8):
 | Host simulator | `frick_fsw` native build (POSIX threads) with loopback link |
 | RTEMS cross build | RTEMS 6.2 `riscv/mpfs64imafdc` cross compilation (`make rtems`) |
 | Emulated target | Renode PolarFire SoC (`make renode`, norm N18, `renode_vv.sh`, T17) and QEMU `virt` generic BSP (`make qemu`, `qemu_vv.sh`, T20) - `docs/vv/emulated-target.md`; see tool register T15-T17/T20 |
-| V&V container | `tools/docker/Dockerfile` - pinned toolchain |
+| V&V container | `tools/docker/Dockerfile` - controlled tool image; base/package sources are not fully immutable (NC-EXT-35) |
 | RTEMS toolchain container | `tools/docker/rtems/` - open RTEMS 6.2 toolchain + `mpfs64imafdc`/`rv64imafdc` BSPs + QEMU (`make rtems-toolchain`) |
 | Gitea CI/CD | `act_runner` in Docker (`tools/docker/act_runner/`) |
 | GitHub CI | `.github/workflows/ci.yml` (per-commit) + `.github/workflows/nightly.yml` (RTEMS + Renode + QEMU) |
@@ -192,3 +197,4 @@ the update is committed and pushed with the cycle (norm N11).
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid V-model and per-change cycle diagrams (norm N8) |
 | 0.1.2 | 2026-10-10 | frick-fsw | Add documentation review (R4, norm N17) to norms, gates, cycle and independence |
 | 0.1.3 | 2026-10-12 | frick-fsw | M10: add the emulated-target environment/activity (Renode T17 + QEMU T20, `docs/vv/emulated-target.md`) |
+| 0.1.4 | 2026-10-14 | frick-fsw | Reference the N22 controlled test specification (`FRICK-VV-TSPEC-001`) and the system verification architecture (`FRICK-VV-SVA-001`) |

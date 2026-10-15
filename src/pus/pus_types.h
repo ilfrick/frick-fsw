@@ -3,11 +3,11 @@
  *
  * These structures describe the PUS secondary headers carried inside CCSDS
  * Space Packets. The exact layout is a mission tailoring; the fields below
- * follow the reference tailoring documented in docs/interfaces/icd-ground.md.
+ * follow the reference tailoring documented in docs/interfaces/ICD.md.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #ifndef FF_PUS_TYPES_H
 #define FF_PUS_TYPES_H

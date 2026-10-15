@@ -2,10 +2,11 @@
  * frick-fsw - Software Bus implementation
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "sb.h"
 #include "core/pal/pal.h"
+#include "core/evs/evs.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -130,10 +131,21 @@ FF_Status_t FF_SbUnsubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber)
 
 FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
 {
+    FF_Status_t lock_status;
+    FF_AppId_t dropped_apps[FF_SB_MAX_SUBSCRIPTIONS];
+    bool dropped_busy[FF_SB_MAX_SUBSCRIPTIONS];
+    uint16_t dropped_count = 0u;
+    FF_MsgId_t dropped_msg_id;
+    bool queue_busy = false;
+
     if (!g_ready || (msg == NULL)) {
         return FF_INVALID_ARGUMENT;
     }
-    FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
+    dropped_msg_id = msg->msg_id;
+    lock_status = FF_PalMutexTryLock(g_bus_lock);
+    if (lock_status != FF_SUCCESS) {
+        return lock_status;
+    }
     g_stats.published++;
     for (uint16_t i = 0; i < FF_SB_MAX_SUBSCRIPTIONS; i++) {
         if (!g_subs[i].used) {
@@ -144,17 +156,63 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             if (pipe == NULL) {
                 continue;
             }
-            if (FF_PalQueuePut(pipe->queue, msg, 0u) == FF_SUCCESS) {
+            FF_Status_t queue_status = FF_PalQueueTryPut(pipe->queue, msg);
+            if (queue_status == FF_SUCCESS) {
                 g_stats.delivered++;
             }
             else {
                 g_stats.dropped++;
+                dropped_apps[dropped_count] = g_subs[i].app;
+                dropped_busy[dropped_count] = (queue_status == FF_TIMEOUT);
+                dropped_count++;
+                if (queue_status == FF_TIMEOUT) {
+                    queue_busy = true;
+                }
             }
         }
     }
     FF_PalMutexUnlock(g_bus_lock);
-    return FF_SUCCESS;
+
+    /* Avoid inline listener work in the publisher: TM-output dispatches the
+     * queued SB error from the deferred-notification path. */
+    for (uint16_t i = 0u; i < dropped_count; i++) {
+        if (dropped_busy[i]) {
+            (void)FF_EvsSendDeferred(FF_EVS_SB_ERR, FF_EVS_ERROR, dropped_apps[i],
+                                     "SB pipe queue busy; message 0x%04X copy dropped",
+                                     (unsigned)dropped_msg_id);
+        }
+        else {
+            (void)FF_EvsSendDeferred(FF_EVS_SB_ERR, FF_EVS_ERROR, dropped_apps[i],
+                                     "SB pipe full; message 0x%04X dropped",
+                                     (unsigned)dropped_msg_id);
+        }
+    }
+    return queue_busy ? FF_TIMEOUT : FF_SUCCESS;
 }
+
+#ifdef FF_TEST_HOOKS
+FF_Status_t FF_SbTestLock(void)
+{
+    return FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
+}
+
+FF_Status_t FF_SbTestUnlock(void)
+{
+    return FF_PalMutexUnlock(g_bus_lock);
+}
+
+FF_Status_t FF_SbTestQueueLock(FF_AppId_t app)
+{
+    ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    return (pipe != NULL) ? FF_PalQueueTestLock(pipe->queue) : FF_NOT_FOUND;
+}
+
+FF_Status_t FF_SbTestQueueUnlock(FF_AppId_t app)
+{
+    ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    return (pipe != NULL) ? FF_PalQueueTestUnlock(pipe->queue) : FF_NOT_FOUND;
+}
+#endif
 
 FF_Status_t FF_SbReceive(FF_AppId_t app, FF_Msg_t *msg, uint32_t timeout_ms)
 {

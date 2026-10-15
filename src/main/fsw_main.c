@@ -4,7 +4,7 @@
  * Boot and initialisation sequence (cFS style):
  *
  *   1. PAL         - platform / RTOS bootstrap
- *   2. SB / EVS    - Software Bus and Event Services
+ *   2. EVS / SB    - Event Services before Software Bus (SB overflow reporting)
  *   3. ES          - application registry
  *   4. TBL / TIME  - Table and Time Services
  *   5. PUS         - packet utilisation layer, open backend
@@ -13,7 +13,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "fsw_main.h"
 #include "fsw_config.h"
@@ -69,8 +69,8 @@ int ff_fsw_main(void)
 
     ff_print_banner();
 
-    if ((FF_PalInit() != FF_SUCCESS) || (FF_SbInit() != FF_SUCCESS) ||
-        (FF_EvsInit() != FF_SUCCESS) || (FF_EsInit() != FF_SUCCESS) ||
+    if ((FF_PalInit() != FF_SUCCESS) || (FF_EvsInit() != FF_SUCCESS) ||
+        (FF_SbInit() != FF_SUCCESS) || (FF_EsInit() != FF_SUCCESS) ||
         (FF_TblInit() != FF_SUCCESS) || (FF_TimeInit() != FF_SUCCESS) ||
         (FF_BoardInit() != FF_SUCCESS) || (FF_MissionTablesInit() != FF_SUCCESS)) {
         FF_PalPanic("core initialisation failed");

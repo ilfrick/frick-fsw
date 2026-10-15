@@ -4,11 +4,11 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0015                        |
-| Revision                          | 0.1                                    |
+| Revision                          | 0.2                                    |
 | Date                              | 2026-10-11                             |
 | Status                            | engineering assessment (decision support); rev 0.1 - estimates labelled |
 | Scope                             | Alternative to SRS-REQ-050: implement PUS-C (ECSS-E-ST-70-41C) from scratch |
-| Target                            | ECSS criticality B, MISRA C:2012, AGPL-3.0-only, RTEMS 6.2 / RTPFS160ZT |
+| Target                            | ECSS criticality B, MISRA C:2012, owner-authorized MPL-2.0 for original project code; NC-EXT-43 external-distribution scope open, RTEMS 6.2 / RTPFS160ZT |
 | Norms                             | N1, N3, N4, N5, N8, N9, N10, N11, N17  |
 | Related                           | `docs/architecture/pus-layer.md`, `ADR-0003`, `ADR-0004`, `docs/status/loop-audit.md` |
 
@@ -199,7 +199,7 @@ This is delivery of the framework PUS layer only; mission apps are out of scope.
 | Qualification | all evidence ours | must qualify ASN1SCC + generated code (GAP-A1b) | vendor qualification, if usable |
 | MISRA | clean if written so | generated code needs analysis/deviations | opaque, cannot be analysed |
 | Maintainability | own code, full traceability | model updates = regenerate; less code to own | vendor releases only |
-| Licensing | AGPL, ideal (N13) | GPL-3.0 combinable with AGPL (generated runtime exception); build tool not distributed | proprietary; never distributed; adapter only (ADR-0003) |
+| Licensing | MPL-2.0 project-file target (N13; NC-EXT-43 open) | GPL-3.0 / generated runtime-exception terms require specific counsel and distribution-profile review | proprietary; never distributed; adapter only (ADR-0003) |
 | Formal/Lean (N1) | fully modellable | model + generated code; logic ours | defeats the auditable/Lean default |
 | Verdict | justified only for **service behaviour** | **best for the data/wire layer** | optional drop-in only |
 
@@ -279,3 +279,4 @@ the current last milestone).
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-11 | frick-fsw | Initial assessment: fundamental PUS-C service scope, flight-worthiness, effort (person-month), ECSS-Q-ST-80C assurance, make-vs-buy (scratch / N7-ESA ASN.1 / PUSopen), risks, hybrid recommendation and proposed M15 |
+| 0.2 | 2026-10-13 | frick-fsw | Update project license target description; mark MPL transition as candidate under open NC-EXT-43 |

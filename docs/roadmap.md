@@ -2,8 +2,8 @@
 
 | Document id | FRICK-RM-0001 |
 | ----------- | ------------- |
-| Revision    | 0.19 |
-| Date        | 2026-10-12 |
+| Revision    | 0.22 |
+| Date        | 2026-10-13 |
 
 This roadmap records the planned development milestones of frick-fsw beyond the
 v0.1.0 baseline. Every milestone is delivered through the same non-derogable
@@ -210,6 +210,20 @@ contract and SB/EVS/Time/PUS bindings. Requirement SRS-REQ-054 / SSS-REQ-027;
 objective OBJ-24. **Execution order: after M12, before M13**; M14/M15 remain the
 last milestones.
 
+## M17 — RTEMS-backed application scheduler (planned; execution sprint S8-SCH)
+
+Replace the current reference scheduler stub with a bounded, allocation-free,
+cFS-SCH-inspired table-driven Software Bus message dispatcher. RTEMS 6.2
+continues to own task selection, priorities, and preemption; the application
+dispatcher uses RTEMS clock/task primitives and the monotonic time base. Include
+validated/atomic schedule-table activation, health/overrun evidence, and an
+authority-approved fault/recovery policy. Mission schedule rates, timing
+budgets, synchronization source, and missed-slot response remain TBD until
+controlled system inputs exist. See `docs/architecture/scheduling.md` for the
+option trade and recovery analysis. Requirement SRS-REQ-071 / SSS-REQ-030;
+objective OBJ-31. Sprint S8-SCH is scheduled after S8-VV-FU and S8-PUS-FU,
+before M12.
+
 ## History
 
 | Rev | Date | Author | Reason |
@@ -233,3 +247,6 @@ last milestones.
 | 0.17 | 2026-10-11 | frick-fsw | Add M16 (in-house OBCP engine development, after M12); M12 reframed as engine integration (user directive) |
 | 0.18 | 2026-10-12 | frick-fsw | Restore explicit M4 scope (N19 audit): PUS-C over IP/TSN + extended fieldbus (CAN-FD/CANopen/RS-485 DE) + PUSopen adapter made explicit deliverables (were only prose "absorbed"); M8 gains GEM TSN 802.1Qav/Qci/Qbb |
 | 0.19 | 2026-10-12 | frick-fsw | NET follow-up: M8 status updated from "planned" to "in progress" (S8 = M8 gPTP + CoreTSN now the active sprint per sprint-plan); NC-S6-03 co-implemented, NC-154-01 closed |
+| 0.20 | 2026-10-13 | frick-fsw | Add M17/OBJ-31 scheduler plan and link S8-SCH to controlled requirements and trade analysis |
+| 0.21 | 2026-10-13 | frick-fsw | Sequence S8-SCH after the new S8-PUS-FU corrective sprint; retain PUS S11 as M15 scope, not M17 scheduler scope |
+| 0.22 | 2026-10-13 | frick-fsw | Place M17 after S8-VV-FU and S8-PUS-FU; retain the distinction between the scheduler app and PUS S11 |

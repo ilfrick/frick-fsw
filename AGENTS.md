@@ -9,7 +9,7 @@
 > using only the repository contents and the commands below. Human entry point:
 > `README.md`.
 
-## 1. Ground rules (non-derogable, norm N1-N20)
+## 1. Ground rules (non-derogable, norm N1-N22)
 
 - Maintain `docs/rules.md` and the enforcement summary. Key gates before any
   commit/push:
@@ -17,11 +17,31 @@
   2. `make verify-lean` green (`lake build` in `verification/lean`).
   3. `make trace` green (bidirectional traceability, norm N4).
 - Every change (any origin: fix, review NC, requirement delta) re-runs the full
-  cycle (norm N15) and updates the revision history (norm N16).
+  applicable cycle (norm N15) and updates the revision history (norm N16).
+- **N21 controls work sequencing:** immediately correct functional bugs (bugs
+  affecting correct or intended software functionality) and implement missing
+  features committed for the current or previous sprints. Record non-functional
+  findings as NCs for later review/disposition; they do not stop unrelated
+  development. Do not expand a functional task into a broad wording/perfection
+  review loop. This does not itself waive separate commit, release, safety,
+  security, regulatory, or contractual gates, or close an NC.
+- **N22 controls test design:** requirement-based and integration tests include
+  applicable nominal and out-of-bound cases, each compared against explicit
+  expected results. Renode is an emulator that can host integration tests; it
+  is not itself a test type or evidence of requirement coverage merely because
+  it boots or emits an aggregate PASS marker. See `docs/rules.md` for definitions
+  and applicability/fidelity limits.
 - All repo content (docs, comments, commit messages) is **English** (norm N2).
 - Every change that touches behaviour, requirements, tooling or configuration
   must update the affected docs in the same commit (norm N8).
-- Every change is committed and pushed to **both** remotes (norm N7).
+- Only the `aeronautics-space-fsw-engineer` agent may commit or push, and only
+  after verifying all applicable gates/norms and completion of the full sprint
+  scope (N7). No other agent/subagent may commit or push unless the user
+  explicitly delegates that authority for a defined scope. The designated agent
+  may not waive gates or approve risk/release. Record intermediate review/V&V
+  evidence in the working tree immediately; retain failed-cycle reports and
+  publish them with the complete compliant change, never by bypassing a failed
+  gate (N11/N15).
 
 ## 2. Repository map
 
@@ -42,8 +62,11 @@
 ## 3. Quickstart (host simulator)
 
 ```bash
-# one-command local pipeline from a fresh clone (any POSIX host with docker):
-make ci-local            # = docker run the V&V image: format, build, test, lean, trace, docs
+# containerized configure/build/test/Lean/trace cycle from a fresh clone:
+make ci-local            # configure/build/test/Lean/trace only; no format, smoke, GSW, RTEMS, or docs
+make smoke               # native simulator smoke test (separate)
+make docs                # Doxygen generation (separate)
+make gsw-selfcheck        # GSW, metrics, and N13 license-policy Python checks
 
 # or without docker:
 make configure           # cmake -S . -B build/native
@@ -64,8 +87,9 @@ make pus-asn1            # generate the PUS-C ASN.1 (N7/ESA) default backend C (
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds
-the RSB toolchain into `/opt/rtems/6`, or use the reproducible containerised
-toolchain):
+the RSB toolchain into `/opt/rtems/6`, or use the Docker-based toolchain image.
+Its mutable base/apt/RSB inputs do not establish bit-for-bit reproducibility
+(NC-EXT-40):
 
 ```bash
 make rtems-toolchain    # build the open RTEMS 6.2 toolchain image (T18)
@@ -78,7 +102,7 @@ make rtems              # cross compile for riscv/mpfs64imafdc (host /opt/rtems)
 The project is deployable everywhere through Docker:
 
 ```bash
-# V&V image with pinned toolchain (cmake, ninja, gcc, python3, node, lean, doxygen, tidy)
+# Common controlled V&V image (cmake, ninja, gcc, python3, node, lean, doxygen, graphviz, tidy); mutable inputs do not establish reproducibility (NC-EXT-35)
 make docker-image        # builds frick-vv:local from tools/docker/Dockerfile
 
 # Gitea CI/CD: self-hosted Gitea Actions runner (norm N6)
@@ -87,7 +111,9 @@ docker compose -f tools/docker/act_runner/docker-compose.yml up -d
 ```
 
 The runner executes `.gitea/workflows/ci.yml` on the Gitea mirror. GitHub
-Actions executes the identical `.github/workflows/ci.yml`.
+Actions separately executes `.github/workflows/ci.yml`. The workflows contain
+platform-specific differences; both currently invoke the N13 license checker,
+but neither run is evidenced here as hosted qualification for T21.
 
 ## 5. Contribution checklist (agents and humans)
 
@@ -103,15 +129,21 @@ Actions executes the identical `.github/workflows/ci.yml`.
    `docs/engineering/independent-review.md`, and store the report in
    `docs/reviews/`.
 6. Resolve every finding to compliance (norm N12) before closing the NC.
-7. Run the **documentation review loop** (norm N17): instantiate the Senior SW
-   documentation reviewer (profile R4, `docs/engineering/independent-review.md`)
-   over the documentation affected by the change, correct every finding, and
-   re-review until the documentation review is APPROVED or APPROVED WITH
-   COMMENTS with all NCs closed.
-8. Run the **product-assurance review** (norm N20): instantiate the Senior SW PA
-   reviewer (`aeronautics-space-sw-pa-engineer`) over the products of the phase;
-   correct every finding and repeat until it passes.
-9. Commit + push to both `origin` (GitHub) and `gitea` remotes (norm N7).
+7. For a required **documentation review** (N17), scope it to the changed
+   product. Correct functional defects; record non-functional findings as NCs
+   for later disposition under N21. Do not repeat broad review cycles to
+   eliminate non-functional wording findings as a condition of continuing
+   unrelated development. Commit/release approval remains subject to its
+   separately applicable gates.
+8. For required **product assurance** (N20), record findings and their scope.
+   Correct functional bugs; non-functional findings are tracked as open NCs for
+   later review/disposition under N21. Escalate any immediate safety/security
+   concern to the authorized human authority. An NC is not closed or passed by
+   deferral.
+9. **Do not commit or push unless you are the `aeronautics-space-fsw-engineer`
+   agent or have explicit user delegation.** The designated FSW engineer commits
+   and pushes to both `origin` (GitHub) and `gitea` only after all applicable
+   gates/norms pass and the full sprint scope is complete (N7).
 
 ## 6. Standards references used
 
@@ -129,17 +161,19 @@ Actions executes the identical `.github/workflows/ci.yml`.
 | N4 | Bidirectional traceability, converged at every commit |
 | N5 | Deliverable for ECSS class B; class-A gaps documented |
 | N6 | Full SW V&V; deploy CI/CD via Docker (Gitea has no CI/CD) |
-| N7 | Commit and push compliant changes to both repositories |
+| N7 | Only `aeronautics-space-fsw-engineer` commits/pushes after all gates/norms and full sprint scope pass; explicit user delegation required for exceptions |
 | N8 | Complete, current, deployable documentation (humans + agents) |
 | N9 | Independent reviews by independent-context agents (R1/R2/R3/R4 + PA (N20) profiles) |
 | N10 | Test scripts / V&V tools reviewed & qualified per ECSS |
-| N11 | Test scripts and review results committed/pushed every cycle |
+| N11 | Test scripts and review results retained immediately; committed/pushed with each completed compliant cycle |
 | N12 | Non-conformances resolved by re-applying all rules to full compliance |
-| N13 | Open source project under AGPL-3.0-only; license documented/reviewed |
+| N13 | Owner-authorized MPL-2.0 for original project content; third-party/generated boundaries documented and reviewed |
 | N14 | SSS requirements reviewed by Senior Systems Engineer (R3); NCs to closure |
 | N15 | Every change re-runs the complete development+V&V cycle to success |
 | N16 | Detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17 | Documentation reviewed by the Senior SW documentation reviewer (R4) on every change; review loop closed before commit/push |
 | N18 | Functional validation of every change passes in the Renode emulated PolarFire SoC environment (**in force**; real open-RTEMS image verified) |
-| N19 | At the start of every development loop, `docs/status/loop-audit.md` audits conformance of the declared objectives (milestones) and all norms N1-N20 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone |
+| N19 | At the start of every development loop, `docs/status/loop-audit.md` audits conformance of the declared objectives (milestones) and all norms N1-N22 against the actual implementation; every gap is closed or tracked with owner/milestone |
 | N20 | Every phase product is independently reviewed also by the Senior SW Product Assurance engineer (`aeronautics-space-sw-pa-engineer`); findings are corrected and the reviews repeated until they pass |
+| N21 | Correct functional bugs and implement missing sprint-committed features; log other findings as NCs for later review/disposition; do not stop unrelated development; preserve separate release/safety/security gates |
+| N22 | Requirement-based and integration tests cover nominal and applicable out-of-bound operation against explicit expected results; Renode is an emulator, not a test type |

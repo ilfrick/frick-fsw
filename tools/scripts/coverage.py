@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: MPL-2.0
+
 """frick-fsw - gcov line coverage collector (norm N10, qualified tool).
 
 Usage:

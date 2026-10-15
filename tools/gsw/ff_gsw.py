@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MPL-2.0
 """frick-fsw Ground Support Tool (GSW).
 
 Sends PUS-C telecommands and decodes PUS-C telemetry over a serial port (target
-UART) or the host loopback log. It is a qualified V&V tool (see
-docs/vv/tool-qualification.md, T7): keep this script under review when changed
-(norm N10).
+UART) or the host loopback log. TC construction and TM parsing are covered by
+fixed packet vectors in `tests/python/test_ff_gsw.py` (tool register T7); an
+end-to-end link with an independent ground segment is not yet demonstrated.
+Keep this script under review when changed (norm N10).
 
 Commands:
   ff_gsw.py --connect /dev/ttyUSB0 --baud 115200            open interactive read
@@ -16,7 +18,6 @@ docs/interfaces/ICD.md).
 
 Copyright (C) 2026 Ilfrick
 https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-SPDX-License-Identifier: AGPL-3.0-only
 """
 from __future__ import annotations
 
@@ -44,12 +45,12 @@ def crc16(data: bytes, crc: int = 0xFFFF) -> int:
 def build_ping_packet(source_id: int = 0x0102, seq: int = 0) -> bytes:
     """Build a PUS service 17 subservice 1 (connection test) TC frame."""
     ack = 0x01 | 0x02 | 0x08  # acceptance + start + completion
-    sec = bytes([0x02, 0x00 | ack, 0x11, 0x01, (source_id >> 8) & 0xFF, source_id & 0xFF])
+    sec = bytes([((2 << 4) | ack), 0x11, 0x01, (source_id >> 8) & 0xFF, source_id & 0xFF])
     payload = b"\x01\x02\x03\x04"
     raw = sec + payload
-    pdl = len(raw)
-    hdr = struct.pack(">HHH", (0x1 << 13) | (0 << 12) | (1 << 11) | (0x01 << 8) | FF_APID_TC,
-                      0x0000 | (seq & 0x3FFF), pdl)
+    pdl = len(raw) + 2 - 1  # packet-data field includes the CRC; PDL is length minus one
+    hdr = struct.pack(">HHH", (1 << 12) | (1 << 11) | FF_APID_TC,
+                      0xC000 | (seq & 0x3FFF), pdl)
     frame = hdr + raw
     c = crc16(frame)
     return frame + bytes([(c >> 8) & 0xFF, c & 0xFF])
@@ -60,22 +61,30 @@ def decode_tm(stream: bytes) -> list:
     out = []
     pos = 0
     while pos + 7 <= len(stream):
-        (word, _seq, _pdl) = struct.unpack_from(">HHH", stream, pos)
+        (word, seq, _pdl) = struct.unpack_from(">HHH", stream, pos)
         apid = word & 0x07FF
-        if apid != FF_APID_TM or pos + 6 > len(stream):
+        if (((word >> 13) & 0x07) != 0 or ((word >> 12) & 0x01) != 0 or
+                ((word >> 11) & 0x01) != 1 or (seq >> 14) != 0x03 or
+                apid != FF_APID_TM):
             pos += 1
             continue
         pdl = _pdl
-        end = pos + 6 + pdl
+        end = pos + 7 + pdl
         if end > len(stream):
-            break
-        frame = stream[pos:end]
-        if crc16(frame) != 0:
+            # The input is a finite log buffer. Do not let a malformed header
+            # hide a later valid frame in the same buffer; resynchronize by one
+            # octet. A live incremental receiver must retain incomplete bytes
+            # separately before calling this finite-buffer decoder.
             pos += 1
             continue
-        svc = frame[6]
-        sub = frame[7]
-        data = frame[10:6 + pdl - 2] if 6 + pdl - 2 >= 10 else b""
+        frame = stream[pos:end]
+        if (pdl < 14 or crc16(frame) != 0 or (frame[6] >> 4) != 2):
+            # 13-byte PUS-C TM secondary header + 2-byte CRC, version 2.
+            pos += 1
+            continue
+        svc = frame[7]
+        sub = frame[8]
+        data = frame[19 : len(frame) - 2]
         out.append((svc, sub, data))
         pos = end
     return out

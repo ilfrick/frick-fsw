@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                         | 1.23                                  |
+| Revision                         | 1.31                                  |
 | Date                              | 2026-10-13                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
@@ -31,12 +31,27 @@ review).
 
 - **SRS-REQ-001** — *Delivery semantics*: a published message shall be copied
   into the input queue of every pipe whose subscription matches the message
-  identifier, and of every wildcard subscription. `method: Tst`, `lean: req_srs001_*`.
+  identifier, and of every wildcard subscription. If the SB mutex cannot be
+  acquired immediately, publish shall return `FF_TIMEOUT` without changing
+  statistics or delivering to any pipe. If a matching pipe's queue mutex cannot
+  be acquired immediately, the software shall drop only that subscriber's copy,
+  increment dropped accounting, continue bounded fan-out to other matching
+  pipes, request a deferred EVS error identifying the busy pipe/message, and
+  return `FF_TIMEOUT` to report incomplete fan-out. A full matching pipe shall
+  drop only that subscriber's copy and shall not wait for queue space; queue-full
+  remains distinct from queue-mutex contention and does not change the existing
+  publish status. `method: Tst`,
+  `lean: req_srs001_*`.
 - **SRS-REQ-002** — *Ordering*: messages delivered on a single pipe shall be
   received in FIFO order. `method: Tst | Anl`.
 - **SRS-REQ-003** — *Overflow safety*: for any frame of up to `FF_PUS_MAX_*_FRAME`
-  bytes the CCSDS Packet Data Length field shall not overflow (16 bit).
-  `method: Anl`, `lean: req_srs003_*`.
+  bytes the CCSDS Packet Data Length field shall not overflow (16 bit). TC and
+  TM decoders shall compute the declared packet-data length in widened
+  arithmetic and reject a packet if that field cannot contain its configured
+  PUS secondary header and CRC trailer, or if the primary-header length does
+  not describe exactly the supplied packet boundary.
+  `method: Tst | Anl`, `lean: req_srs003_*` (Lean covers encode-length bounds;
+  decoder input-bound checks are covered by C tests and are not C-refined).
 
 ## 3. CCSDS / PUS transport requirements
 
@@ -64,8 +79,12 @@ review).
   only access addresses inside registered memory regions. `method: Tst | Anl`.
 - **SRS-REQ-010** — *Time (S9)*: the UTC correlation shall be settable from
   ground and reported in CUC format. `method: Tst | Dem`.
-- **SRS-REQ-011** — *Events (S5)*: every on-board event (EVS) shall be
-  forwarded to ground as PUS service 5 telemetry. `method: Tst | Dem`.
+- **SRS-REQ-011** — *Events (S5)*: every valid event submission accepted by EVS
+  within the approved system-level event-arrival and link-availability envelope
+  shall be forwarded to the approved ground-receipt boundary as PUS service 5
+  telemetry within `Lmax`. Rejection, non-acceptance, or loss at any later stage
+  shall be accounted exactly once under SRS-REQ-072; a local log entry alone
+  shall not constitute ground forwarding. `method: Tst | Dem | Anl`.
 - **SRS-REQ-012** — *Test (S17)*: a connection-test telecommand (ping) shall
   be answered with the same data on service 17 subservice 2. `method: Tst`.
 
@@ -348,6 +367,54 @@ review).
   mock) and by an emulated-MMIO register check on the Renode PolarFire SoC.
   `method: Tst | Dem`. (milestone M4/M11)
 
+### Table-driven application scheduler (milestone M17)
+
+- **SRS-REQ-071** — *RTEMS-backed schedule dispatch*: the framework shall
+  provide an allocation-free, bounded schedule table that dispatches configured
+  Software Bus messages against the monotonic time base. The dispatch service
+  shall run as an ordinary RTEMS task, use RTEMS task-delay/clock services for
+  release timing, and shall not implement a competing task-preemption scheduler.
+  Table images shall be validated before activation and activated atomically.
+  The service shall expose heartbeat, late/missed-slot, and dispatch-failure
+  evidence to Health & Safety / EVS; numeric rates, timing tolerances, and
+  operational response to overruns are mission-controlled inputs (TBD until an
+  approved profile exists). `method: Tst | Anl | Dem`.
+
+### Event reporting envelope and overload behavior
+
+- **SRS-REQ-072** — *EVS rate, latency and overload behavior*: the event service
+  shall use the following measurement boundaries: an arrival is a call to an EVS
+  send interface with valid arguments; `A(Δ)` is the count of such arrivals in
+  any interval of `Δ` seconds; acceptance occurs only when the event is recorded
+  and, for deferred events, its forwarding notification is queued; dispatch
+  completion occurs when the PUS service 5 frame is accepted by the selected
+  link backend; and `Lmax` is measured from EVS arrival to receipt at the
+   approved ground boundary. Within the approved arrival and link-availability
+   performance envelopes, the service shall accept arrivals satisfying
+   `A(Δ) ≤ Bmax + Rmax·Δ`, complete dispatch at no less than `Dmin` events/s over
+   each approved service-measurement interval while backlog and link availability
+   conditions hold, and forward every accepted event to ground within `Lmax`.
+   Outside those performance envelopes, no dispatch-rate or latency guarantee is
+   asserted; the loss-accounting obligation below still applies to every valid
+   arrival, regardless of envelope compliance.
+  Every valid arrival rejected before acceptance, dropped from a bounded queue,
+  or lost after acceptance and before ground receipt shall increment an
+   independently readable monotonic loss counter exactly once, regardless of
+   whether the arrival/link performance envelope holds; local log/counter
+   evidence shall not be represented as ground forwarding. Loss status shall be
+  reported at the next available reporting opportunity. SB publish shall not
+  wait for event forwarding; if the SB mutex is unavailable, publish shall
+  return `FF_TIMEOUT` before changing statistics or delivering to any pipe
+  (SRS-REQ-001). `Bmax` (events), `Rmax` (events/s), `Dmin` (events/s),
+  `Lmax` (s), service-measurement interval, burst/link-availability profile and
+   ground-receipt boundary are **TBD**; accountable authority: Systems +
+   Operations, with FSW/V&V input; due before baseline/NC-75/76 closure. The
+   post-acceptance loss-detection point, counter range/wrap/reset semantics and
+   precise reporting opportunity are also TBD. Structural characterization does
+   not resolve these decisions or provide mission-envelope verification. Current
+  queue, dispatch batch and task-delay values are candidates only.
+  `method: Tst | Anl | Dem`.
+
 ### Extended transport and fieldbus (milestone M4-residual / M8)
 
 - **SRS-REQ-059** — *PUS-C link segmentation and reassembly*: the framework
@@ -359,12 +426,15 @@ review).
   reference `FF_Link_t` backend that carries PUS-C TM/TC over an IP-based link
   (TCP or UDP as selected by the mission ICD; the reference uses UDP datagrams,
   with TCP using the seg layer from SRS-REQ-059) using the network-stack contract
-  (`FF_NetStack_t`), selectable with `FF_LinkSelect`. `method: Tst | Dem`. (S4b: implemented)
+  (`FF_NetStack_t`), selectable with `FF_LinkSelect`. `method: Tst | Dem`. (S4b: implemented;
+  the `Dem` is evidenced by the host PUS-C TM/TC round-trip `test_pus_ip_roundtrip`
+  in `tests/unit/test_link_ip.c`.)
 - **SRS-REQ-061** — *TSN PUS-C link backend*: the framework shall provide a
   reference `FF_Link_t` backend that carries PUS-C TM/TC over the TSN-scheduled
   Ethernet path (`FF_TsnBackend_t` + GEM), selectable with `FF_LinkSelect`. The
   reference uses EtherType 0x88F5; on-target qualification is GAP-A5.
-  `method: Tst | Dem`. (S4b: implemented)
+  `method: Tst | Dem`. (S4b: implemented; the `Dem` is evidenced by the host
+  PUS-C TM/TC round-trip `test_pus_tsn_roundtrip` in `tests/unit/test_link_tsn.c`.)
 - **SRS-REQ-062** — *CAN-FD fabric backend*: the framework shall provide a
   reference CAN-FD backend behind `FF_CanBackend_t` reached through the generic
   fabric (FIC/AXI) device contract. `method: Tst | Dem`.
@@ -458,5 +528,13 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.19 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-069 reference MSS SPI driver (polled CoreSPI master; clock-divider reference derivation/GAP-A5) |
 | 1.20 | 2026-10-12 | frick-fsw  | M4/M11: add SRS-REQ-070 reference MSS block-device driver (polled SDHCI-style MMC/SD; buffer-mode, GAP-A5) |
 | 1.21 | 2026-10-13 | frick-fsw  | M8: update SRS-REQ-066 (Qci implemented; Qav/Qbb = FF_NOT_IMPLEMENTED, tracked NC-S8-01/NC-S8-02) and SRS-REQ-068 (gPTP stack implemented; fabric CoreTSN deferred to M14) |
-| 1.22 | 2026-10-13 | frick-fsw  | S4b: implement SRS-REQ-059 (seg/reassembly, 2-byte BE length-prefix for TCP; UDP/TSN use datagram/frame boundaries), SRS-REQ-060 (IP link backend: UDP + TCP over FF_NetStack_t) and SRS-REQ-061 (TSN link backend: Ethernet frames via GEM MAC, EtherType 0x88F5); add `(S4b: implemented)` notes; host unit tests test_link_ip (19) + test_link_tsn (14) |
-| 1.23 | 2026-10-13 | frick-fsw  | S4b delta re-review (N12 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings raised and closed (NF-1 unused variable, NF-2 buffer overflow in rx_partial, NF-3 doc omission); delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean; max-size regression test added; test counts updated |
+| 1.22 | 2026-10-13 | frick-fsw  | S4b: implement SRS-REQ-059 (seg/reassembly, 2-byte BE length-prefix for TCP; UDP/TSN use datagram/frame boundaries), SRS-REQ-060 (IP link backend: UDP + TCP over FF_NetStack_t) and SRS-REQ-061 (TSN link backend: Ethernet frames via GEM MAC, EtherType 0x88F5); add `(S4b: implemented)` notes; host unit tests test_link_ip (19) + test_link_tsn (14) — *counts as of the S4b baseline; superseded by 1.24 (20 / 15)* |
+| 1.23 | 2026-10-13 | frick-fsw  | S4b delta re-review (N12 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings raised and closed (NF-1 unused variable, NF-2 buffer overflow in rx_partial, NF-3 doc omission); delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean on the authored sources (at that revision the *test targets* were not yet built with those flags — that gap is closed in 1.24); max-size regression test added; test counts updated |
+| 1.24 | 2026-10-13 | frick-fsw  | S4b follow-up + review loop closure: state the `Dem` basis of SRS-REQ-060/061 explicitly (`test_pus_ip_roundtrip` / `test_pus_tsn_roundtrip` host PUS-C TM/TC round-trips; on-target link-level = GAP-A5); test counts advanced (`test_link_ip` 20 funcs / 79 checks, `test_link_tsn` 15 funcs / 135 checks); `-Wall -Wextra -Werror` is now enforced on the test targets (FRICK-REVIEW-0167/0168/0169 findings corrected) |
+| 1.25 | 2026-10-13 | frick-fsw  | S4b follow-up 2nd pass: strengthen SRS-REQ-003 with bounded decoder PDL arithmetic, minimum PUS-secondary-header/CRC size and exact packet-boundary checks after the independent assessment confirmed unsigned-underflow/wrap and trailing-byte acceptance; add C test evidence and explicitly delimit the Lean theorem scope |
+| 1.26 | 2026-10-13 | frick-fsw  | Assessment delta: add symmetric TC/TM malformed-PDL, wrap, exact-boundary and unchanged-output test evidence for SRS-REQ-003; record the unresolved SRS-REQ-005 malformed-TC reporting/test-oracle conflict in traceability rather than changing the requirement without system authority |
+| 1.27 | 2026-10-13 | frick-fsw  | Add SRS-REQ-071 for planned RTEMS-backed, table-driven dispatch; define application-dispatch vs native task-scheduling boundary |
+| 1.28 | 2026-10-14 | frick-fsw  | Define SRS-REQ-072 event-rate/dispatch/latency envelope and observable overload response; clarify SRS-REQ-001 bounded lock-contention return and SRS-REQ-011 envelope (NC-EXT-75/76; authority values TBD) |
+| 1.29 | 2026-10-14 | frick-fsw  | Codify user-approved partial fan-out and `FF_TIMEOUT` on subscriber queue-mutex contention; keep queue-full distinct and retain SRS-REQ-072 implementation/profile as open |
+| 1.30 | 2026-10-14 | frick-fsw  | Clarify exactly-once loss accounting is independent of envelope performance guarantees; enumerate unresolved detection/counter/reporting semantics and keep mission parameters TBD |
+| 1.31 | 2026-10-14 | frick-fsw  | Clarify SRS-REQ-072 `Lmax`/dispatch guarantees apply within approved performance envelopes while exactly-once loss accounting remains independent, after scoped R3 delta finding; mission values remain TBD |

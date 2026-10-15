@@ -9,7 +9,7 @@
 # Exit code 0 = PASS, 1 = FAIL.
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MPL-2.0
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -17,7 +17,11 @@ BUILD_DIR="${BUILD_DIR:-${ROOT}/build/native}"
 LOG="$(mktemp)"
 
 echo "[smoke] building"
-cmake -S "${ROOT}" -B "${BUILD_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=Debug >/dev/null
+# Reuse the generator already cached in BUILD_DIR when it is configured (e.g. the
+# Unix Makefiles cache produced by `make configure` / `make build`). Forcing
+# `-G Ninja` unconditionally made `make smoke` (and therefore `make check`) fail on
+# any tree configured through the Makefile (NC-S4b-09).
+cmake -S "${ROOT}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Debug >/dev/null
 cmake --build "${BUILD_DIR}" >/dev/null
 
 echo "[smoke] booting simulator (8 s window)"

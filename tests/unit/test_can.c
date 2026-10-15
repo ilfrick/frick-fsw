@@ -15,7 +15,7 @@
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
- * SPDX-License-Identifier: AGPL-3.0-only
+ * SPDX-License-Identifier: MPL-2.0
  */
 #include "../ff_test.h"
 #include "drivers/can/mpfs/ff_can_mpfs.h"
@@ -98,10 +98,10 @@ static void mock_write32(void *ctx, uint32_t off, uint32_t val)
                 m->tx_id = (idw >> FF_CAN_ID_SHIFT) & FF_CAN_ID_MASK;
                 m->tx_ext = ((val & FF_CAN_TX_CMD_IDE) != 0u) ? 1u : 0u;
                 m->tx_dlc = (val >> FF_CAN_TX_CMD_DLC_SHIFT) & 0xFu;
-                for (i = 0u; (i < m->tx_dlc) && (i < 4u); i++) {
+                for (i = 0u; (i < m->tx_dlc) && (i < FF_CAN_MAX_DLC) && (i < 4u); i++) {
                     m->tx_data[i] = (uint8_t)((lo >> (8u * i)) & 0xFFu);
                 }
-                for (i = 4u; i < m->tx_dlc; i++) {
+                for (i = 4u; (i < m->tx_dlc) && (i < FF_CAN_MAX_DLC); i++) {
                     m->tx_data[i] = (uint8_t)((hi >> (8u * (i - 4u))) & 0xFFu);
                 }
                 m->tx_valid[idx] = 0u;

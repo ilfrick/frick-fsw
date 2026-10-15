@@ -1,19 +1,23 @@
-# Non-derogable Norms (Rules N1-N20)
+# Non-derogable Norms (Rules N1-N22)
 
 |                                   |                                        |
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-RULES-001                        |
-| Revision                          | 1.4                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 2.8                                    |
+| Date                              | 2026-10-14                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C) |
 | Applicability                     | Every change to this repository, every generated artifact, every commit |
 
 The norms below are **non-derogable** (ND) for this project: none of them can be
 waived by any contributor, agent, or automated tool. Any change that does not
 satisfy all applicable norms is not compliant and must not be committed or
-pushed (norm N7). The norms are maintained here and are covered by the
-traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
+pushed (norm N7). Norms are maintained here. Allocated software requirements
+are traced through `docs/requirements/traceability.yaml`; governance norms are
+enforced through their stated CI/review mechanisms where applicable, not
+invented as mission SRS/SSS requirements. N21 governs development sequencing:
+non-functional findings remain visible NCs but do not stop unrelated
+development; this does not itself satisfy or waive a separate release gate.
 
 ## N1 - Formal verification with Lean
 
@@ -91,6 +95,13 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 > Every change compliant with all the norms shall be committed and pushed to
 > both repositories.
 
+- **Only the `aeronautics-space-fsw-engineer` agent may perform commit or push
+  operations**, and only after it has verified that all applicable gates and
+  project norms are fulfilled and the complete scope planned for the sprint is
+  complete. No other agent or subagent may commit or push unless the user
+  explicitly delegates that authority for a defined scope. This restriction
+  does not grant the designated agent authority to waive a gate, close an NC,
+  accept risk, or approve release.
 - Origin repositories: GitHub (`ilfrick/frick-fsw`) and Gitea
   (`ilfrick/frick-fsw`, https://www.housefz.com/git).
 - A commit is a candidate for push only if the full local pipeline passes
@@ -147,19 +158,23 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 ## N11 - Test scripts and review results in the repository
 
 > All test scripts and the results of all reviews (at every level) shall be
-> stored in the project repository and committed and pushed in every
-> development and verification cycle.
+> stored in the project repository. Intermediate-cycle evidence is recorded
+> immediately in the working tree; the complete evidence set is committed and
+> pushed with the change after all applicable verification and independent
+> review gates pass.
 
 - Test scripts and V&V harnesses live in `tests/`, `tools/scripts/`,
   `tools/gsw/` and `verification/`; they are versioned like the code they
   verify.
 - Review reports (including independent agent reviews, norm N9) are stored in
-  `docs/reviews/` using `docs/reviews/review-template.md` and are committed in
-  the same cycle as the reviewed change.
+  `docs/reviews/` using `docs/reviews/review-template.md` and recorded in the
+  working tree as produced. Failed/intermediate reports are preserved and
+  committed with the reviewed change only after applicable gates pass; N11
+  evidence retention does not override the N7/N12/N15/N17/N20 commit gates.
 - Verification results are recorded in `docs/vv/verification-results.md` and
   updated in every cycle (norm N6/N10/N11).
 - Test scripts and review results follow norm N7: compliant changes are pushed
-  to both repositories.
+  to both repositories only after the required gates pass.
 
 ## N12 - Non-conformance resolution to full compliance
 
@@ -173,31 +188,45 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   verification (norm N1) and the test scripts/V&V tools used (norm N10) are all
   re-run and re-reviewed as applicable.
 - An NC is **closed** only when the disposition is recorded, the re-verification
-  evidence is attached, and the review conclusion for the deltas is APPROVED or
-  APPROVED WITH COMMENTS (no Major findings open).
-- A REJECTED review blocks commit/push (norm N7) until all Major findings are
-  resolved and the deltas are re-reviewed.
+  evidence is attached, every finding/NC required by the applicable review
+  criteria is dispositioned, and the required delta-review conclusion is
+  APPROVED or APPROVED WITH COMMENTS. “No Major findings open” alone is not
+  sufficient when the applicable profile requires closure of Minor findings too.
+- A REJECTED review blocks commit/push (norm N7) until all findings required by
+  its applicable criteria are resolved and the delta re-review passes; N17 and
+  N20 require their respective finding-closure loops to pass.
 
 ## N13 - Open source licensing
 
-> The whole project shall be open source under AGPL-3.0 (or the maximum
-> permitted by the licenses of any reused code parts). The license shall be
-> documented in the project and reviewed/updated when the project changes.
+> The repository owner authorizes the Mozilla Public License, version 2.0
+> (`MPL-2.0`), for original project-authored code and materials created for this project.
+> This authorization excludes third-party, generated, mission-supplied,
+> commercial, and other externally controlled material; each retains its own
+> terms. The license and boundaries shall be documented and reviewed when
+> project content or dependencies change.
 
-- The project license is **AGPL-3.0-only** (GNU Affero General Public License
-  v3); the canonical text is in `LICENSE`.
-- All authored **source, configuration and build files** carry the SPDX header
-  `SPDX-License-Identifier: AGPL-3.0-only` (already applied repo-wide; new such
-  files must add it). Engineering documentation is covered by the project
-  `LICENSE`/`NOTICE` and the licence review (`docs/quality/licensing.md`); the
-  CI licence job remains authoritative.
+- The project owner authorized **MPL-2.0 for original project-authored code and
+  materials**; the canonical text is in `LICENSE`. NC-EXT-43 remains open for external and
+  generated-code boundaries and compatibility of combined distributions; it is
+  not a pending authority request for the original project content.
+- All authored source, configuration, build and asset-source files in the
+  owner-authorized scope that support comments carry the SPDX header
+  `SPDX-License-Identifier: MPL-2.0`; new project-authored
+  files must add it. Formats that prohibit comments (e.g. JSON) are covered by
+  `LICENSE`/`NOTICE` and metadata instead.
+  Third-party and generated material must retain its actual license and must
+  not receive a project MPL identifier without provenance/authority evidence.
+  Engineering documentation and non-comment formats are covered by `LICENSE`/`NOTICE` and the license
+  review (`docs/quality/licensing.md`).
 - The license context, compatibility analysis for reused/derived components and
   the review procedure are documented in `docs/quality/licensing.md`.
 - Any change that touches licence-relevant material (new dependency, reused
   code, third-party components) triggers a license review and update of
   `docs/quality/licensing.md` and `LICENSE` in the same commit (norm N8).
-- The CI `docs` job verifies that `LICENSE` is the AGPL-3.0 text and that no
-  `Apache-2.0` SPDX headers remain (norm N13 enforcement).
+- Both CI `docs` jobs verify the canonical MPL-2.0 license text and current
+  project-authored SPDX identifiers; historical reports retain point-in-time
+  license observations. The CI check does not replace legal and third-party
+  compatibility review.
 
 ## N14 - Senior systems-engineering review of SSS requirements
 
@@ -218,8 +247,9 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
   independent context, findings are resolved by re-applying all norms, and the
   review is repeated until the conclusion is APPROVED or APPROVED WITH COMMENTS
   with all NCs closed (norm N12).
-- The review reports are stored in `docs/reviews/` and committed and pushed
-  with the reviewed change (norm N11).
+- Review reports are recorded in `docs/reviews/` in the working tree when
+  produced. They are committed/pushed with the reviewed change only after the
+  applicable verification and review gates pass (N7/N11/N12/N15/N17/N20).
 
 ## N15 - Full development/verification cycle on every change
 
@@ -304,7 +334,7 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 
 > At the start of every development/verification loop, the declared project
 > objectives (the milestones/OBJs of `docs/development-plan.md` / `docs/roadmap.md`)
-> and adherence to **all** non-derogable rules (N1-N20) shall be compared against
+> and adherence to **all** non-derogable rules (N1-N22) shall be compared against
 > the **actual implementation** reached up to that point; the gaps and
 > discrepancies so identified shall be reconciled within the loop or explicitly
 > tracked with a disposition.
@@ -333,9 +363,80 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 - Scope: **every phase product, on every change** (not only code); PA review is
   additional to the R1/R2/R3/R4 reviews.
 - Loop (norm N12): review -> findings -> correction -> **re-review**, repeated
-  until the PA review passes (no open Major/Minor) before commit/push.
+  until all findings/NCs required by the applicable criteria are dispositioned
+  and the PA review passes before commit/push.
+- Because N12 treats every finding as an NC, PA PASS also requires disposition
+  and closure of all findings/NCs required by the applicable PA criteria;
+  “no open Major/Minor” alone is not sufficient when any Comment remains an
+  open NC under those criteria.
 - Reports are stored under `docs/reviews/` and logged in `docs/reviews/README.md`
   (norms N11/N17).
+
+## N21 - Functional-issue and sprint-commitment correction; non-blocking NCs
+
+> For active development, functional issues and lack of required features
+> planned for the current or previous sprints are addressed and corrected.
+> A **functional issue** is a software bug that affects correct or otherwise
+> intended software functionality (the common definition of a software bug).
+> Other findings are documented as non-conformances for later review and
+> disposition and deferred; they shall not stop unrelated development.
+
+- Functional issues and missing sprint-committed features are prioritized for
+  correction/implementation, with a regression test or other verification
+  appropriate to the behavior and affected requirement.
+- Non-functional findings—including documentation/metadata inconsistencies,
+  process or evidence gaps, and review comments that do not identify a
+  functional bug or missing sprint feature—are recorded in the applicable NC
+  register with evidence, impact, owner, and proposed later disposition. Do not
+  silently fix or close them as part of the active functional task; do not
+  repeat broad reviews to pursue wording perfection.
+- An open non-functional NC is not a stop-work condition for unrelated
+  development. It remains open and visible until the owner-authorized review or
+  disposition. This rule does not convert an open NC into a pass, compliance
+  claim, qualification, or release approval.
+- N21 governs development sequencing where earlier process/review language
+  could be read to require immediate correction of every finding before
+  proceeding. Existing commit, release, regulatory, contractual, safety, and
+  security approvals remain separate gates; N21 does not waive them. Any finding
+  that may present immediate safety, security, mission, or irreversible-action
+  risk is escalated to the authorized human authority without waiting for a
+  later NC review.
+
+## N22 - Requirement-based and integration testing with expected-result oracles
+
+> Requirement-based tests and integration tests shall exercise both nominal
+> operation and applicable out-of-bound operation, and shall compare observed
+> results with explicit expected results.
+
+- **Requirement-based test:** a verification case linked to one or more
+  controlled requirements, designed to demonstrate specified behavior and a
+  pass/fail criterion. The oracle is the expected observable result, not merely
+  successful execution, a log marker, or absence of a crash.
+- **Integration test:** a test of two or more integrated software components,
+  or software with its platform/interface, exercising their interaction across
+  defined interfaces. Renode can host integration tests; it is an emulator, not
+  a test type. A Renode boot or aggregate PASS marker alone does not establish
+  requirement coverage.
+- **Nominal operation** covers valid inputs, states, sequencing, and interfaces
+  within the specified operating envelope. **Out-of-bound operation** covers
+  applicable conditions outside that envelope, including range-violating or
+  malformed inputs, stale data, prohibited sequencing, and interface faults.
+  Test exact and near-boundary values where relevant. Expected rejection,
+  saturation, safe response, or other behavior must be specified by the
+  applicable requirement/interface contract. Do not invent an oracle where the
+  contract is silent; record an NC/TBD and obtain the responsible authority's
+  disposition.
+- Each applicable requirement-based and integration test includes nominal and
+  out-of-bound cases, preconditions/inputs, expected and observed results, an
+  explicit pass/fail comparison, and traceability. Record a justified reason
+  when either case class is genuinely inapplicable; do not test physically
+  meaningless values merely to claim coverage.
+- Select SIL/PIL/HIL/target/emulator according to the behavior and required
+  fidelity. Renode evidence establishes only behavior represented by its model
+  and exercised by the test; it does not replace target evidence where
+  hardware-specific behavior is material. Retain test cases/results under N11
+  and update them when requirements, interfaces, implementation, or oracle
+  changes. Applicable safety, independence, review, and release gates remain.
 
 ## Enforcement summary
 
@@ -347,20 +448,22 @@ traceability manifest (`docs/requirements/traceability.yaml`) and the CI gates.
 | N4   | `make trace` / CI job `trace` exits 0 before push |
 | N5   | `ecss-criticality-b.md`, `class-a-gaps.md`, `GAP-A*` manifest entries |
 | N6   | CI workflows + Docker V&V image + `docs/vv/**` records |
-| N7   | release/contribution process in `CONTRIBUTING.md`; dual remote push |
+| N7   | only designated `aeronautics-space-fsw-engineer` commits/pushes after all gates/norms and full sprint scope pass; dual remote push; explicit user delegation required for any exception |
 | N8   | README + AGENTS quickstart; docs updated per change (contribution checklist) |
 | N9   | `docs/engineering/independent-review.md`, evidence under `docs/reviews/` |
 | N10  | `docs/vv/tool-qualification.md`, re-qualification on any script change |
-| N11  | scripts + review reports + V&V results committed/pushed every cycle |
+| N11  | scripts + review reports + V&V results retained immediately; committed/pushed with each completed compliant cycle |
 | N12  | NC close-out loop: finding -> resolution -> full re-application of all norms -> re-review -> close |
-| N13  | AGPL-3.0-only project license + `docs/quality/licensing.md` + CI check |
+| N13  | MPL-2.0 project-file policy + licensing record + dual-CI check; NC-EXT-43 open |
 | N14  | SSS requirements reviewed by Senior Systems Engineer (R3), NCs closed by repeated reviews (N12), reports in repo (N11) |
 | N15  | every change re-runs the complete dev+V&V cycle until success; evidence recorded |
 | N16  | detailed revision history maintained (CHANGELOG + per-doc history + commits) |
 | N17  | documentation reviewed by the Senior SW documentation reviewer (R4) and the review loop closed before every commit/push |
 | N18  | functional validation of every change in the Renode emulated PolarFire SoC environment shall pass; the gate is **in force** (verified on the real open RTEMS 6.2 image: `make renode` -> `RENODE_TEST: PASS`); per-commit runners without the toolchain image record a SKIP proxy (never counted as a pass) and the nightly performs the real run |
-| N19  | at the start of every development loop, `docs/status/loop-audit.md` compares declared objectives and adherence to N1-N20 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone (no silent gap) |
+| N19  | at the start of every development loop, `docs/status/loop-audit.md` compares declared objectives and adherence to N1-N22 against the actual implementation; every gap is closed in the loop or tracked with owner/milestone (no silent gap) |
 | N20  | every phase product is independently reviewed also by the Senior SW PA engineer (`aeronautics-space-sw-pa-engineer`); findings are corrected and the reviews repeated until they pass, before commit/push |
+| N21  | correct functional issues and missing features committed for the current or previous sprints; other findings are recorded as NCs for later review/disposition and do not stop unrelated development; separate approval/release/safety/security gates and human escalation remain in force |
+| N22  | requirement-based and integration tests include applicable nominal and out-of-bound cases with explicit expected-result comparison; Renode is an emulator, not a test type |
 
 ## Interpretation notes (non-derogable content unchanged)
 
@@ -415,3 +518,17 @@ NCs) and are reviewed on every change (norm N8/N16).
 | 1.2 | 2026-10-10 | frick-fsw | Add N18 (Renode functional-validation gate) |
 | 1.3 | 2026-10-11 | frick-fsw | Add N19 (development-loop objective/rule conformance audit; `docs/status/loop-audit.md`) |
 | 1.4 | 2026-10-11 | frick-fsw | Add N20 (independent Senior SW PA review of every phase product; findings fixed and reviews repeated until pass) |
+| 1.5 | 2026-10-13 | frick-fsw | Clarify N11 working-tree evidence retention versus commit/push after all applicable gates pass (NC-EXT-32) |
+| 1.6 | 2026-10-13 | frick-fsw | Align N14 review-report publication with N11 gates (NC-EXT-32) |
+| 1.7 | 2026-10-13 | frick-fsw | Clarify N12 closure requires all findings required by applicable review criteria (NC-EXT-32) |
+| 1.8 | 2026-10-13 | frick-fsw | Clarify PA PASS criteria cannot leave an applicable open finding/NC (NC-EXT-32) |
+| 1.9 | 2026-10-13 | frick-fsw | Update N13 target to MPL-2.0 and record rights/third-party transition limits; NC-EXT-43 remains open |
+| 2.0 | 2026-10-14 | frick-fsw | Clarify N13 owner authorization for project-original content and exclude external material; third-party disposition remains open |
+| 2.1 | 2026-10-14 | frick-fsw | Clarify NC-EXT-43 is an external/combined-distribution compatibility gate, not pending authorization for original project content |
+| 2.2 | 2026-10-14 | frick-fsw | Bound MPL authorization to original software code and retain AGPL-3.0-only for project docs/artwork |
+| 2.3 | 2026-10-14 | frick-fsw | Reconcile N13 with owner authorization for original project code and materials; generated/external content remains excluded |
+| 2.4 | 2026-10-14 | frick-fsw | Align header metadata after N13 scope correction and review-driven status updates |
+| 2.5 | 2026-10-14 | frick-fsw | Add non-derogable N21: correct functional bugs; defer non-functional findings as open NCs without stopping unrelated development |
+| 2.6 | 2026-10-14 | frick-fsw | Add N22 requiring nominal and applicable out-of-bound requirement-based/integration tests with explicit expected-result comparison |
+| 2.7 | 2026-10-14 | frick-fsw | Extend N21 scope to missing sprint-committed features (current or previous sprints); clarify deferral of non-functional findings |
+| 2.8 | 2026-10-14 | frick-fsw | Add user-directed N7 control: commit/push restricted to `aeronautics-space-fsw-engineer` after all gates/norms and complete sprint scope, absent explicit user delegation |

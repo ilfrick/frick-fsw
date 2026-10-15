@@ -2,12 +2,13 @@
 
 | Document id | FRICK-GLOS-001 |
 | ----------- | -------------- |
-| Revision    | 0.2 |
-| Date        | 2026-10-12 |
+| Revision    | 0.4 |
+| Date        | 2026-10-14 |
 
 | Term | Definition |
 | ---- | ---------- |
-| AGPL-3.0 | GNU Affero General Public License v3; project license (norm N13). |
+| MPL-2.0 | Mozilla Public License version 2.0; owner-authorized for original project-authored code and materials (norm N13); NC-EXT-43 remains open for external/generated boundaries and combined-distribution compatibility. |
+| AGPL-3.0 | GNU Affero General Public License v3; former project license, retained in historical records and prior distribution notices. |
 | APID | Application Process Identifier (CCSDS Space Packet). |
 | BSP | Board Support Package (RTEMS). |
 | CCSDS | Consultative Committee for Space Data Systems. |
@@ -41,3 +42,5 @@
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial glossary (norm N8) |
 | 0.2 | 2026-10-12 | frick-fsw | Add DDJF = Design Description and Justification File (lead directive; FRICK-ENG-0007) |
+| 0.3 | 2026-10-13 | frick-fsw | Add MPL-2.0 project-license term and identify AGPL as former license |
+| 0.4 | 2026-10-14 | frick-fsw | Reflect owner authorization for original content and remaining external/generated NC-EXT-43 scope |

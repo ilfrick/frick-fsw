@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-REVIEW-AGENTS-001                |
-| Revision                          | 0.7                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 1.0                                    |
+| Date                              | 2026-10-13                             |
 | Applicable norms                  | N9, N10, N11, N14, N17, N20            |
 
 ## Purpose
@@ -94,8 +94,11 @@ REVIEW TASK (frick-fsw)
   profiles deliberately do not name a specific product so the process is
   product-agnostic and reproducible.
 - The review runs **offline from the author's session** to preserve the
-  independence of context. The report, once written, is committed to
-  `docs/reviews/` and pushed per norm N7/N11.
+   independence of context. Record the report and log entry in the working
+   tree immediately. Commit/push them with the reviewed change only after all
+   applicable verification and independent-review gates pass; a rejected or
+   failed intermediate report remains preserved for the eventual compliant
+   change. Norm N11 evidence retention does not override the N7/N15 commit gate.
 
 ## When independence is required
 
@@ -114,7 +117,9 @@ Review NC resolution follows norm N12; SSS review findings force the review to
 be repeated until closure (norm N14).
 
 A review log is kept in `docs/reviews/README.md`. Every review result is
-committed and pushed in the same cycle (norm N11).
+recorded in the working tree in the same cycle and retained in the final
+compliant change; commit/push occurs only after the required gates pass (N7,
+N11, N15, N17, N20).
 
 ## Non-conformance resolution loop (norm N12)
 
@@ -124,7 +129,11 @@ committed and pushed in the same cycle (norm N11).
    changed scripts/tools, N11 records) and all affected gates re-run.
 3. The delta is re-reviewed (same profile, independent context) and the NC is
    closed only when the disposition, evidence and re-approval are recorded.
-4. A REJECTED review blocks commit/push until every Major finding is resolved.
+4. A REJECTED review blocks commit/push until every finding required by the
+   applicable review criteria is resolved and the required re-review passes.
+   In particular, N17 requires closure of documentation-review findings and
+   N20 requires PA findings to be corrected and reviews repeated until PASS;
+   resolving Major findings alone is not sufficient.
 
 ## History
 
@@ -137,3 +146,6 @@ committed and pushed in the same cycle (norm N11).
 | 0.5 | 2026-10-11 | frick-fsw | Neutral agent names (dropped `frick-`); norm N20: independent Senior SW PA review of every phase product (fixed + repeated until pass) |
 | 0.6 | 2026-10-11 | frick-fsw | Five Senior personas versioned in-repo (`reviewer-agents/`) + project `.opencode/agents/`; header norms add N20; path harmonised (PA-05) |
 | 0.7 | 2026-10-11 | frick-fsw | Reviewer agents exposed with `mode: all` (usable as primary/front agents, not only subagents) |
+| 0.8 | 2026-10-13 | frick-fsw | Clarify review evidence is recorded immediately but committed/pushed only after applicable gates pass (NC-EXT-32) |
+| 0.9 | 2026-10-13 | frick-fsw | Clarify rejected-review closure criteria include all applicable findings, not only Major findings (NC-EXT-32) |
+| 1.0 | 2026-10-13 | frick-fsw | Align N12 closure wording with all applicable profile findings and required re-review (NC-EXT-32) |

@@ -41,9 +41,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-002
     derived: false
-    implementation: ["src/core/sb/sb.c", "src/core/sb/sb.h"]
+    implementation: ["src/core/sb/sb.c", "src/core/sb/sb.h", "src/core/pal/pal.h", "src/core/pal/pal_posix.c"]
     tests: ["tests/unit/test_sb.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: ["req_srs001_exact_and_wildcard", "req_srs001_no_match_no_delivery"]
+    lean_note: "Lean models exact/wildcard routing and no-match delivery only. Mutex contention, per-pipe queue-full behavior, event request semantics and partial fan-out are verified by deterministic PAL/SB tests in test_sb.c; the C implementation is not formally refined."
 
   - id: SRS-REQ-002
     level: srs
@@ -59,8 +60,9 @@ requirements:
     parent_sss: SSS-REQ-003
     derived: false
     implementation: ["src/transport/ccsds/ccsds.c"]
-    tests: ["tests/unit/test_ccsds.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_r2_gap.c"]
     lean: ["req_srs003_tm_length", "req_srs003_tc_length"]
+    lean_note: "Lean models the encoder length bound; decoder PDL input validation (widened arithmetic, minimum secondary-header/CRC size, exact supplied packet boundary) is exercised by test_r2_gap.c and is not C-refined."
 
   - id: SRS-REQ-004
     level: srs
@@ -74,10 +76,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-004
     derived: false
-    implementation: ["src/pus/pus.c"]
+    implementation: ["src/pus/pus.c", "src/apps/app_cmd_ingest.c"]
     tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
-    lean_note: "Unknown service/subservice and malformed frame handling covered by unit/integration tests; the dispatch contract is modeled in Frick.Pus."
+    lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; current test coverage does not establish the disputed requirement."
 
   - id: SRS-REQ-006
     level: srs
@@ -125,10 +127,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-006
     derived: false
-    implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
+    implementation: ["src/core/evs/evs.c", "src/core/sb/sb.c", "src/apps/app_tm_output.c", "src/main/fsw_main.c", "src/pus/pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_sb.c", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
-    lean_note: "Event-to-ground forwarding observed in the simulator smoke run; formal event-log invariant in GAP-A2."
+    lean_note: "SRS-REQ-011's forwarding rate/latency guarantee is bounded by the authority-owned event envelope in SSS-REQ-006/SRS-REQ-072; exactly-once loss accounting applies independently of that envelope. End-to-end ground forwarding and post-acceptance loss detection/counter semantics are not demonstrated; mission inputs remain TBD under NC-EXT-76. The host structural sweep is characterization, not requirement compliance evidence."
 
   - id: SRS-REQ-012
     level: srs
@@ -556,7 +558,7 @@ requirements:
     implementation: ["src/transport/link/link_seg.h", "src/transport/link/link_seg.c"]
     tests: ["tests/unit/test_link_ip.c"]
     lean: []
-    lean_note: "PUS-C link segmentation/reassembly for stream-oriented IP/TCP and TSN links (M4-residual, restored scope). Implemented as a bounded, allocation-free length-prefix framing layer (2-byte BE) in link_seg.c. Verfied by unit tests (test_link_ip.c) with a mock byte stream. UDP and TSN use datagram/frame boundaries directly (no seg layer needed)."
+    lean_note: "PUS-C link segmentation/reassembly for stream-oriented IP/TCP and TSN links (M4-residual, restored scope). Implemented as a bounded, allocation-free length-prefix framing layer (2-byte BE) in link_seg.c. Verified by unit tests (test_link_ip.c) with a mock byte stream. UDP and TSN use datagram/frame boundaries directly (no seg layer needed)."
 
   - id: SRS-REQ-060
     level: srs
@@ -565,7 +567,7 @@ requirements:
     implementation: ["src/transport/link/link_ip.h", "src/transport/link/link_ip.c"]
     tests: ["tests/unit/test_link_ip.c"]
     lean: []
-    lean_note: "Reference TCP/IP FF_Link_t backend (UDP default, TCP with seg) carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). Implemented and host-verified with a mock network stack and the reference loopback stack."
+    lean_note: "Reference TCP/IP FF_Link_t backend (UDP default, TCP with seg) carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). The backend is host-verified with a mock FF_NetStack_t (g_mock_net); the reference FF_NetStackLoopback stack is host-verified separately by test_netloop (it is a socket pair, so it models the peer rather than a single-link self-loop). A PUS-C TM/TC round-trip end to end over the backend is exercised by test_pus_ip_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5."
 
   - id: SRS-REQ-061
     level: srs
@@ -574,7 +576,7 @@ requirements:
     implementation: ["src/transport/link/link_tsn.h", "src/transport/link/link_tsn.c"]
     tests: ["tests/unit/test_link_tsn.c"]
     lean: []
-    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_EthMac_t + FF_TsnBackend_t + GEM (M4-residual, restored scope). Implemented and host-verified with mock MAC + mock TSN. Ethernet framing uses EtherType 0x88F5 (reference)." 
+    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_EthMac_t + FF_TsnBackend_t + GEM (M4-residual, restored scope). Implemented and host-verified with a mock MAC + mock TSN. Ethernet framing uses EtherType 0x88F5 (reference). A PUS-C TM/TC round-trip end to end over the backend (mock MAC looped back) is exercised by test_pus_tsn_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5."
 
   - id: SRS-REQ-062
     level: srs
@@ -657,6 +659,24 @@ requirements:
     lean: []
     lean_note: "Reference MSS MMC/SD (SDHCI-style, polled buffer-mode) block-device backend behind FF_BlockDev_t (M4/M11): read/write logic host-tested (32-bit register mock modelling the BlockSizeBlockCount/Argument1/CommandTransferMode/DataBuffer/interrupt flow, CMD17/18/24/25); MMIO register round trip on the emulated SoC (hal_block). Polled single/multi-block buffer mode only (no DMA/ADMA/CQ/SDIO/PHY tuning; no card init); on-target SD clock/bus-width and card initialisation = GAP-A5. Block count bounded to 16-bit BCCT; LBA bounded to 32-bit Argument1."
 
+  - id: SRS-REQ-071
+    level: srs
+    parent_sss: SSS-REQ-030
+    derived: false
+    implementation: ["docs/architecture/scheduling.md", "docs/development-plan.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Planned M17 requirement; implementation and behavioral verification are not yet delivered. RTEMS owns task preemption; the planned application scheduler dispatches SB messages from a validated, bounded schedule table."
+
+  - id: SRS-REQ-072
+    level: srs
+    parent_sss: SSS-REQ-006
+    derived: false
+    implementation: ["src/core/evs/evs.c", "src/core/sb/sb.c", "src/apps/app_tm_output.c", "src/main/fsw_main.c", "docs/architecture/sb-evs-characterization.md"]
+    tests: ["tests/unit/test_sb.c", "tests/unit/test_sb_stress.c", "tests/unit/test_sb_sweep.c", "tools/scripts/sb_evs_structural_sweep.py", "tests/unit/test_r2_gap.c", "ci:simulator-smoke"]
+    lean: []
+    lean_note: "Candidate queue/dispatch/contention behavior and exhaustive configured host structural sweep are characterization only; approved Bmax/Rmax/Dmin/Lmax, link-availability envelope, ground boundary, post-acceptance loss detection/counter semantics and loss-reporting behavior remain TBD under NC-EXT-75/76. No compliance claim."
+
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001
     level: sss
@@ -698,10 +718,10 @@ requirements:
   - id: SSS-REQ-006
     level: sss
     derived: false
-    implementation: ["src/core/evs/evs.c", "src/main/fsw_main.c", "src/pus/pus.c"]
-    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
+    implementation: ["src/core/evs/evs.c", "src/core/sb/sb.c", "src/apps/app_tm_output.c", "src/main/fsw_main.c", "src/pus/pus.c", "docs/architecture/sb-evs-characterization.md"]
+    tests: ["tests/unit/test_sb.c", "tests/unit/test_pus.c", "tests/unit/test_sb_stress.c", "tests/unit/test_sb_sweep.c", "tools/scripts/sb_evs_structural_sweep.py", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
     lean: []
-    lean_note: "PUS service 5 event stream observed in simulator logs/TM."
+    lean_note: "Simulator smoke observes event/TM operation but is not end-to-end receipt proof. Host tests and structural sweep characterize local SB/EVS behavior only; they do not verify the authority-owned arrival/link envelope, ground boundary, exactly-once end-to-end loss counter or reporting semantics. Mission inputs remain TBD under NC-EXT-75/76."
 
   - id: SSS-REQ-007
     level: sss
@@ -880,6 +900,14 @@ requirements:
     tests: ["ci:docs"]
     lean: []
     lean_note: "Extended fieldbus and PUS-library coverage (M4-residual, restored scope): CAN-FD (fabric), CANopen (CiA 301/302/402), RS-485 half-duplex direction control, PUSopen(R) adapter. Planned."
+
+  - id: SSS-REQ-030
+    level: sss
+    derived: false
+    implementation: ["docs/architecture/scheduling.md", "docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["ci:docs"]
+    lean: []
+    lean_note: "Planned bounded table-driven SB scheduler. Native RTEMS owns task selection and preemption; mission rates, timing budgets and recovery policy require controlled inputs."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

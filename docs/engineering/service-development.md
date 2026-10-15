@@ -2,13 +2,13 @@
 
 | Document id | FRICK-ENG-0004 |
 | ----------- | -------------- |
-| Revision    | 0.1 |
-| Date        | 2026-10-10 |
+| Revision    | 0.4 |
+| Date        | 2026-10-13 |
 | Audience    | humans and agents extending the PUS-C service set |
 
 This guide explains how to add a **PUS-C service or subservice** to frick-fsw
 (ECSS-E-ST-70-41C) on top of the backend-agnostic dispatcher, following the
-norms (N1-N20). It covers the handler contract, registration, telemetry
+norms (N1-N21). It covers the handler contract, registration, telemetry
 emission, telecommand verification, error reporting, the provider registration
 hooks (housekeeping, parameters, functions, memory) and the tests.
 
@@ -151,7 +151,10 @@ Add the test to `tests/CMakeLists.txt` and give it a `add_test` name.
    `verification/lean/Frick/` and link the theorem (norm N1).
 4. Update `docs/architecture/pus-layer.md` (tailoring matrix) and the ICD when
    the packet layout is mission-specific (norm N8).
-5. Re-run the full cycle (`make ci-local`), record evidence in
+5. Re-run the required verification cycle; `make ci-local` covers configure/build,
+    unit tests, Lean and trace only. Run the remaining applicable static analysis,
+    format, smoke, GSW, RTEMS, Renode, metrics and documentation gates per the
+   verification plan. Record evidence in
    `docs/vv/verification-results.md`, and request an independent review when the
    criticality requires it (`docs/engineering/independent-review.md`, N9).
 
@@ -178,3 +181,6 @@ Add the test to `tests/CMakeLists.txt` and give it a `add_test` name.
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial PUS service extension guide (norm N8) |
+| 0.2 | 2026-10-13 | frick-fsw | Clarify `ci-local` is a subset and point to separate applicable verification gates (NC-EXT-38). |
+| 0.3 | 2026-10-13 | frick-fsw | Explicitly list static analysis among gates outside `ci-local` (NC-EXT-38). |
+| 0.4 | 2026-10-13 | frick-fsw | Align revision metadata and separate-gate scope record following independent review (NC-EXT-41). |
