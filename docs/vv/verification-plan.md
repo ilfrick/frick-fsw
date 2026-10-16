@@ -200,16 +200,16 @@ given host is recorded as SKIP with the reason and is never counted as a pass.
 
 | # | Check | Command | Scope / limitation |
 | - | ----- | ------- | ------------------ |
-| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 37/37 CTest, Lean `lake build`, `trace.py`; no format/smoke/docs |
+| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 40/40 CTest (incl. `test_es_hs_lifecycle`, `test_decoder_corpus`), Lean `lake build`, `trace.py`; no format/smoke/docs |
 | S2 | Simulator smoke | `make smoke` | 6 apps registered, EVS→PUS TM on loopback |
 | S3 | GSW / metrics / license self-check | `make gsw-selfcheck` | GSW python tests, README metrics, N13 license policy |
-| S4 | Coverage metrics | `make metrics` | regenerates README panel; 35/35 coverage CTest |
+| S4 | Coverage metrics | `make metrics` | regenerates README panel; the S8-VV-FU coverage CTest subset passes (40/40) |
 | S5 | Documentation generation | `make docs` | Doxygen; warning count is recorded, not claimed "warning-free" |
 | S6 | Format + whitespace + JSON | `clang-format --dry-run --Werror`, `git diff --check`, `python3 -m json.tool` | all managed C/H, no trailing whitespace, valid status JSON |
 | S7 | RTEMS cross-build | `make rtems-docker` | compile/link evidence only; not target runtime/timing |
 | S8 | Emulated-target functional validation | `make renode` | Renode emulation (norm N18); not physical hardware |
 | S9 | Focused UART PDL host test | `test_link_uart` | host PTY framing cases (NC-EXT-07 characterization); not physical UART |
-| S10 | Focused R2-gap regression | `test_r2_gap` | CCSDS/ingest/GSW corrections |
+| S10 | Focused R2-gap regression + S8-VV-FU corpus | `test_r2_gap`, `test_es_hs_lifecycle`, `test_decoder_corpus` | CCSDS/ingest/GSW corrections plus the bounded ES/HS lifecycle and decoder fuzz/property corpus with requirement-grounded oracles (GAP-R3-1, NC-EXT-25) |
 
 Physical-target tests are excluded from the every-sprint set per the owner
 decision of 2026-10-16 (postponed); their absence is disclosed on the README
@@ -226,3 +226,4 @@ of this set is itself a change and follows the same N15/N17/N20 gates.
 | 0.1.3 | 2026-10-12 | frick-fsw | M10: add the emulated-target environment/activity (Renode T17 + QEMU T20, `docs/vv/emulated-target.md`) |
 | 0.1.4 | 2026-10-14 | frick-fsw | Reference the N22 controlled test specification (`FRICK-VV-TSPEC-001`) and the system verification architecture (`FRICK-VV-SVA-001`) |
 | 0.1.5 | 2026-10-16 | frick-fsw | Add §9 "Sprint verification set" (owner direction): the named S1-S10 checks executed and retained at every sprint, with the physical-target exclusion disclosed |
+| 0.1.6 | 2026-10-16 | frick-fsw | S8-VV-FU: extend §9 S1 to 40/40 CTest (add `test_es_hs_lifecycle`, `test_decoder_corpus`) and S10 to include the new bounded ES/HS lifecycle and decoder fuzz/property corpus; update S4 wording to the S8-VV-FU coverage subset |

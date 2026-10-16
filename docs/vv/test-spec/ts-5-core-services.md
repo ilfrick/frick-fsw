@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS5                     |
-| Revision                         | 0.8                                    |
+| Revision                         | 0.9                                    |
 | Date                             | 2026-10-16                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
@@ -106,13 +106,15 @@ appears here only as a fixture of the SB fan-out scenario `N22-TS5-62`.
 
 ## 2. Test cases
 
-Case IDs `N22-TS5-1` … `N22-TS5-75`; groups: `1–15` Software Bus, `16–29`
+Case IDs `N22-TS5-1` … `N22-TS5-76`; groups: `1–15` Software Bus, `16–29`
 Table Services, `30–34` Event Services, `35–42` Executive Services, `43–48`
 scheduler application, `49–53` Health & Safety (HS/FDIR), `54–61` mathematics
 facade, `62–68` combined scenarios and environment-bound gaps, `69–70` core-
 services memory determinism and statistics-counter wrap boundaries, `71–73`
 SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock contention;
-`74` is the authority-profile event-rate/dispatch/latency case (currently gap/TBD).
+`74` is the authority-profile event-rate/dispatch/latency case (currently gap/TBD);
+`75` is the SB queue-mutex contention case and `76` is the new ES/HS lifecycle +
+health-detection host integration harness (S8-VV-FU).
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -164,9 +166,9 @@ SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock content
 | N22-TS5-46 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` table-driven dispatch of configured SB messages (injected clock) | nominal | run the dispatcher with three entries (1000/5000/10000 ms) over 30 s of injected time; also poll at 137 ms (drift) and across a 4500 ms jump (missed slots) | fixed results with explicit expected values: 30/6/3 releases over 30 s with zero misses (per-entry absolute targets, no starvation — NC-EXT-19 corrected); 10 releases in 10.001 s for the 137 ms case (no cumulative drift); a 4500 ms jump on a 1500 ms entry yields exactly one release plus 3 counted missed slots and no catch-up burst; `max_out` bounds releases per poll (SRS-REQ-071/SSS-REQ-030). Evidence: `tests/unit/test_sched.c` (`test_no_starvation`, `test_no_cumulative_drift`, `test_first_release_boundary`, `test_missed_slots_bounded`, `test_max_out_bound`, `test_null_out_allowed`, `test_real_sb_delivery`). **Scope limit:** host execution with an injected clock; the *mission* rates/tolerances remain TBD (row N22-TS5-48) and target/RTEMS timing evidence is not available | SIL | individual | covered |
 | N22-TS5-47 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` / `ff_sched.c` heartbeat, late/missed-slot and dispatch-failure evidence | nominal | force a late release and an SB publish failure and observe the health-monitoring path | **partial** — the mechanism is delivered: `FF_SchedGetStats` exposes release/`missed`/`late`/`publish_errors` counters (asserted in host test: `test_missed_slots_bounded`, `test_no_starvation`), and `app_scheduler.c` emits EVS heartbeat/missed-slot/dispatch-failure events (`0x0601`–`0x0605`). The host test verifies the counter semantics but **not** the EVS emission to the Health & Safety listener, which requires the running application set (integration/simulator smoke). No end-to-end health-path oracle is asserted here; M17/S8-SCH follow-up. NC-EXT-19 remains open pending independent review | SIL | individual | gap |
 | N22-TS5-48 | SRS-REQ-071 | `app_scheduler.c` mission-controlled rates, timing tolerances and overrun response | nominal | apply a mission rate/jitter/overrun profile | **gap** — SRS-REQ-071 states numeric rates, timing tolerances and the operational response to overruns are mission-controlled inputs, TBD until an approved profile exists. Open TBD (NC-EXT-47 §7.3; FRICK-ARCH-0018 §1/§5). No oracle is asserted here | SIL | individual | gap |
-| N22-TS5-49 | SSS-REQ-008, SRS-REQ-014 | `app_hs.c` periodic heartbeat event | nominal | run `FF_AppHsMain` and observe EVS over at least one heartbeat period | the HS task emits a heartbeat event (id `0x0502`, `FF_EVS_INFO`) once per loop period (5000 ms) and remains alive (SSS-REQ-008 heartbeat; SRS-REQ-014; `app_hs.c`) | SIL | individual | covered |
+| N22-TS5-49 | SSS-REQ-008, SRS-REQ-014 | `app_hs.c` periodic heartbeat event | nominal | run `FF_AppHsStep` (one monitoring pass) and observe EVS over at least one heartbeat period | the HS monitoring pass emits a heartbeat event (id `0x0502`, `FF_EVS_INFO`) once per pass (independent EVS-listener oracle), and remains alive (SSS-REQ-008 heartbeat; SRS-REQ-014; `app_hs.c` / `FF_AppHsStep`; host integration harness `tests/unit/test_es_hs_lifecycle.c`). The 5000 ms cadence itself follows from the `FF_PalTaskDelayMs(5000u)` loop and is not re-timed here; cadence vs watchdog window remains `gap` (N22-TS5-52) | SIL | individual | covered |
 | N22-TS5-50 | SSS-REQ-008 | `app_hs.c` commandable software reset registered as PUS S8 function #1 | nominal | start HS; invoke PUS service 8 function id 1 | HS registers `ff_hs_fn_reset` as PUS S8 function 1 and invoking it performs the on-board reset action (`FF_PalPanic`) as the commandable software reset (SSS-REQ-008; `app_hs.c`). The harness must stub/intercept `FF_PalPanic` so the reset action is observable without ending the run | SIL | individual | covered |
-| N22-TS5-51 | SRS-REQ-014, SSS-REQ-008 | `app_hs.c` detects a FAILED application and reports it | OOB | put an application into `FF_APP_FAILED` (e.g. PAL task-create failure) and run one HS loop | HS observes `FF_EsGetState(id) == FF_APP_FAILED` for each monitored id and raises an `FF_EVS_APP_ERROR` critical event naming the id (SRS-REQ-014 "Health & Safety shall detect failed applications"; SSS-REQ-008). The detection latency/recovery budget is mission-controlled and owned by TS-6 `N22-TS6-41` | SIL | individual | covered |
+| N22-TS5-51 | SRS-REQ-014, SSS-REQ-008 | `app_hs.c` detects a FAILED application and reports it | OOB | inject a PAL task-create failure to place an application into `FF_APP_FAILED`, then run one HS monitoring pass (`FF_AppHsStep`) | HS observes `FF_EsGetState(id) == FF_APP_FAILED` and raises exactly one `FF_EVS_APP_ERROR` critical event per pass naming the failed id (SRS-REQ-014 "Health & Safety shall detect failed applications"; SSS-REQ-008); the RUNNING application is not reported (no false positive). Independent EVS-listener oracle in the host integration harness `tests/unit/test_es_hs_lifecycle.c` (S8-VV-FU, closes the `GAP-R3-1` simulator-smoke gap). Detection latency/recovery budget is mission-controlled and owned by TS-6 `N22-TS6-41`/`N22-TS6-31` | SIL | individual | covered |
 | N22-TS5-52 | SSS-REQ-008 | `app_hs.c` heartbeat cadence versus the external watchdog window | nominal | stop/lose the HS heartbeat and observe the external watchdog reaction | **gap** — SSS-REQ-008 requires a heartbeat but no clause fixes the missed-kick escalation latency or the external watchdog window; HS uses a 5000 ms cadence and the watchdog is external (RTEMS/monitor), TBD. Open TBD (NC-EXT-47 §7.5; GAP-A5). No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-53 | SRS-REQ-014 | `app_hs.c` treatment of non-RUNNING, non-FAILED applications | OOB | an application in `FF_APP_STOPPED` or `FF_APP_LOADED` during an HS loop | **gap** — SRS-REQ-014 requires detecting *failed* applications; no clause defines whether a STOPPED or LOADED application is a health anomaly for HS. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: HS flags only `FF_APP_FAILED`. No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-54 | SRS-REQ-033, SSS-REQ-018 | `math` facade elementary functions within tolerance | nominal | `FF_MathSqrt(4)`, `FF_MathSin/Cos/Tan(0)`, `FF_MathTan(π/4)`, `FF_MathPow(2,10)`, `FF_MathExp(0)`, `FF_MathLog(1)`, `FF_MathFabs(-3.5)`, `FF_MathFmod(7,3)` | each result is within the documented tolerance of the reference value (≤ 1e-9 for the covered inputs) (SRS-REQ-033 "within the accuracy of the platform libm … tolerance (<= 1e-9)"; SSS-REQ-018; `test_math.c`) | SIL | individual | covered |
@@ -191,6 +193,7 @@ SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock content
 | N22-TS5-73 | SRS-REQ-011 | SB overflow forwarding when EVS lock is contended | OOB | fill the one-entry subscriber pipe, hold EVS mutex with synchronized hook, and publish a second matching message | **gap** — current code completes SB publish/drop accounting but cannot log/enqueue the EVS report; SRS-REQ-011 requires ground forwarding and no authority-owned overload policy defines the bounded failure outcome. Do not treat this observation as an acceptable requirement oracle; NC-EXT-76 remains open until maximum rate/burst, minimum dispatch service, maximum forwarding latency and overload policy are controlled | SIL | individual | gap |
 | N22-TS5-74 | SRS-REQ-072, SSS-REQ-006 | Event-arrival envelope, dispatch service and ground-forwarding latency | nominal + OOB | timestamp each valid EVS API submission, acceptance/queueing, PUS S5 frame acceptance by selected link backend, and ground receipt; inject arrivals satisfying approved `A(Δ) ≤ Bmax + Rmax·Δ`, then exceed each approved bound under approved link profile | **gap/TBD** — in-envelope accepted events must reach the approved ground boundary within `Lmax`, with dispatch completion ≥ `Dmin` over each approved service interval; rejection, queue loss, and post-acceptance loss must increment the independent loss counter exactly once and be reported when possible. Local EVS log alone is not ground receipt. Parameters/profile and counter-reporting oracle are not approved/implemented; no numeric pass/fail oracle exists yet (NC-EXT-76). Queue=64, batch=8 and nominal 1000 ms task delay are candidates only; HIL/target ground-receipt fidelity remains TBD | SIL | combined | gap |
 | N22-TS5-75 | SRS-REQ-001 | SB queue-mutex contention skips only the contended copy and reports incomplete fan-out | OOB | create two matching pipes in deterministic subscription order; hold the first pipe's queue mutex with the test hook; publish while it remains held; then release it | `FF_SbPublish` returns exactly `FF_TIMEOUT` before the held mutex is released; `published` and `dropped` each increase by one, `delivered` increases by one; contended pipe remains empty, second pipe receives the exact message; one deferred `FF_EVS_SB_ERR`/`FF_EVS_ERROR` identifies the busy subscriber/message and contains `queue busy`, with no inline listener call. Full queue is separately covered by TS-6 `N22-TS6-44` and keeps `FF_SUCCESS` | SIL | combined | covered |
+| N22-TS5-76 | SRS-REQ-014, SSS-REQ-008 | ES/HS lifecycle + health-detection host integration harness | nominal + OOB | register a RUNNING application and a registered-but-unstarted HS task, step HS (observes only `FF_APP_LOADED`, no FAILED report); then inject a PAL task-create failure to drive an application to `FF_APP_FAILED`, step HS, and step again | each HS pass raises exactly one `0x0502` `FF_EVS_INFO` heartbeat for the HS application and exactly one `FF_EVS_APP_ERROR` `CRITICAL` naming the FAILED id (one per pass while the failure persists); the RUNNING application is never reported (no false positive); `FF_EsGetState` reflects `FF_APP_LOADED`/`FF_APP_RUNNING`/`FF_APP_FAILED` deterministically (SRS-REQ-014 "applications run as independent tasks… track states"; SSS-REQ-008 "monitor application health"). Independent EVS-listener oracle in `tests/unit/test_es_hs_lifecycle.c` (S8-VV-FU). Detection latency, external-watchdog cadence and the task-return/abort restart contract remain `gap` (N22-TS6-41/N22-TS5-52/N22-TS6-31); the harness records only the grounded detection oracle here | SIL | combined | covered |
 
 ## 3. Gaps (mapping to NC-EXT-47 sub-items)
 
@@ -300,15 +303,15 @@ automated on the baseline, so that `covered` is not read as `passing`:
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 75 |
+| Total cases | 76 |
 | Nominal | 48 |
 | Out-of-bound | 26 |
-| Mixed nominal + out-of-bound | 1 |
+| Mixed nominal + out-of-bound | 2 |
 | Individual | 66 |
-| Combined | 9 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 54 |
+| Combined | 10 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 55 |
 | `gap` (no controlled oracle; recorded under NC-EXT-47) | 21 |
-| SIL / PIL / HIL (primary assignments; target remains gap) | 72 / 1 / 2 |
+| SIL / PIL / HIL (primary assignments; target remains gap) | 73 / 1 / 2 |
 
 Requirement coverage in this scope: `SRS-REQ-001/002/011/013/014/015/019/033/
 044/071` and `SSS-REQ-002/008/009/018/030` all have at least one case. Every
@@ -329,3 +332,4 @@ delivered.
 | 0.6 | 2026-10-14 | frick-fsw | Specify deterministic multiple-subscriber queue-lock contention oracle, continued partial fan-out and exact return/statistics/event behavior; keep SRS-REQ-072 profile/loss-reporting gap open |
 | 0.7 | 2026-10-14 | frick-fsw | Reconcile case summary to all 75 table rows, use one primary environment token per case and retain HIL/target ground receipt as a gap |
 | 0.8 | 2026-10-16 | frick-fsw | Update scheduler rows 43–47/66 for the delivered S8-SCH dispatcher (`ff_sched` validation, atomic activation, absolute per-entry targets, bounded per-poll work, missed-slot/heartbeat counters) with host oracles in `tests/unit/test_sched.c`; retain mission-rate/tolerance, target-timing, EVS-to-HS integration and TBL load/activate coupling gaps; NC-EXT-19 remains open |
+| 0.9 | 2026-10-16 | frick-fsw | S8-VV-FU: upgrade HS rows 49/51 to a grounded host integration oracle and add `N22-TS5-76` (ES/HS lifecycle + FAILED-application detection with an independent EVS-listener oracle), closing `GAP-R3-1`'s host-integration gap; `FF_AppHsStep` extracted as a non-blocking test seam. Detection latency, watchdog cadence (TS-5/TS-6 `N22-TS5-52`/`N22-TS6-31`) and the task-return/abort restart contract (TS-6 `N22-TS6-41`) remain `gap`; no NC closed or phase approved |

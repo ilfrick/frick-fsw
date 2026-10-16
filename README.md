@@ -73,8 +73,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 9904/17940 (55.2%) | gcov |
-| Code function coverage | 1097/1341 (81.8%) | gcov |
+| Code statement (line) coverage | 10238/18419 (55.6%) | gcov |
+| Code function coverage | 1125/1373 (81.9%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

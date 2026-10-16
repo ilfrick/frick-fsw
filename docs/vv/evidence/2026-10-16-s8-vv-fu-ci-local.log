@@ -1,0 +1,93 @@
+Internal ctest changing into directory: /workspace/build/native
+Test project /workspace/build/native
+      Start  1: ccsds
+ 1/40 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/40 Test  #2: sb ...............................   Passed    0.00 sec
+      Start  3: sb_stress
+ 3/40 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/40 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  5: sb_evs_structural_sweep
+ 5/40 Test  #5: sb_evs_structural_sweep ..........   Passed   16.94 sec
+      Start  6: tbl
+ 6/40 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: sched
+ 7/40 Test  #7: sched ............................   Passed    0.00 sec
+      Start  8: pus
+ 8/40 Test  #8: pus ..............................   Passed    0.00 sec
+      Start  9: pusopen_adapter_contract
+ 9/40 Test  #9: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 10: time
+10/40 Test #10: time .............................   Passed    0.00 sec
+      Start 11: r2_gap
+11/40 Test #11: r2_gap ...........................   Passed    0.02 sec
+      Start 12: r3_gap
+12/40 Test #12: r3_gap ...........................   Passed    0.00 sec
+      Start 13: es_hs_lifecycle
+13/40 Test #13: es_hs_lifecycle ..................   Passed    0.07 sec
+      Start 14: decoder_corpus
+14/40 Test #14: decoder_corpus ...................   Passed    0.03 sec
+      Start 15: link_uart
+15/40 Test #15: link_uart ........................   Passed    0.33 sec
+      Start 16: hal
+16/40 Test #16: hal ..............................   Passed    0.00 sec
+      Start 17: math
+17/40 Test #17: math .............................   Passed    0.00 sec
+      Start 18: sdls
+18/40 Test #18: sdls .............................   Passed    0.00 sec
+      Start 19: gem
+19/40 Test #19: gem ..............................   Passed    0.00 sec
+      Start 20: gem_tsn
+20/40 Test #20: gem_tsn ..........................   Passed    0.00 sec
+      Start 21: gptp
+21/40 Test #21: gptp .............................   Passed    0.00 sec
+      Start 22: netloop
+22/40 Test #22: netloop ..........................   Passed    0.00 sec
+      Start 23: gpio
+23/40 Test #23: gpio .............................   Passed    0.00 sec
+      Start 24: serial
+24/40 Test #24: serial ...........................   Passed    0.00 sec
+      Start 25: mem
+25/40 Test #25: mem ..............................   Passed    0.00 sec
+      Start 26: nvm
+26/40 Test #26: nvm ..............................   Passed    0.00 sec
+      Start 27: mtd
+27/40 Test #27: mtd ..............................   Passed    0.00 sec
+      Start 28: can
+28/40 Test #28: can ..............................   Passed    0.00 sec
+      Start 29: i2c
+29/40 Test #29: i2c ..............................   Passed    0.00 sec
+      Start 30: spi
+30/40 Test #30: spi ..............................   Passed    0.00 sec
+      Start 31: block
+31/40 Test #31: block ............................   Passed    0.00 sec
+      Start 32: pcie
+32/40 Test #32: pcie .............................   Passed    0.00 sec
+      Start 33: spacewire
+33/40 Test #33: spacewire ........................   Passed    0.00 sec
+      Start 34: fabric
+34/40 Test #34: fabric ...........................   Passed    0.00 sec
+      Start 35: canfd
+35/40 Test #35: canfd ............................   Passed    0.01 sec
+      Start 36: canopen
+36/40 Test #36: canopen ..........................   Passed    0.00 sec
+      Start 37: link_ip
+37/40 Test #37: link_ip ..........................   Passed    0.00 sec
+      Start 38: link_tsn
+38/40 Test #38: link_tsn .........................   Passed    0.00 sec
+      Start 39: lwip
+39/40 Test #39: lwip .............................   Passed    0.00 sec
+      Start 40: lwip_netif
+40/40 Test #40: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 40
+
+Label Time Summary:
+host-pty              =   0.33 sec*proc (1 test)
+link                  =   0.33 sec*proc (1 test)
+sb-evs                =  16.94 sec*proc (1 test)
+tool-qualification    =  16.94 sec*proc (1 test)
+uart                  =   0.33 sec*proc (1 test)
+
+Total Test time (real) =  17.47 sec

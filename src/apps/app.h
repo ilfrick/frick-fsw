@@ -21,6 +21,10 @@ void FF_AppTmOutputMain(void *arg);
 void FF_AppSchedulerMain(void *arg);
 void FF_AppHkMain(void *arg);
 void FF_AppHsMain(void *arg);
+/* One Health & Safety monitoring pass (FAILED-application scan + heartbeat).
+ * Same behaviour as one iteration of the FF_AppHsMain loop; provided as a
+ * bounded, non-blocking entry point for host integration tests (S8-VV-FU). */
+void FF_AppHsStep(FF_AppId_t app);
 void FF_AppSampleMain(void *arg);
 
 /* Renode functional test application (norm N18; registered only when

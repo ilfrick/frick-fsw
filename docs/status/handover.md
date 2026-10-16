@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.65                                   |
+| Revision                          | 2.66                                   |
 | Date                              | 2026-10-16                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -63,12 +63,19 @@ sprint scope pass; exceptions require explicit user delegation. Credentials in
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (27/27) + trace + format
+# Host build + unit tests (40/40) + trace + format
 cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
-python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 114/71/29/14/51
+python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 117/73/30/14/62
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
+```
+
+The canonical cycle is `make ci-local` in `frick-vv:local` (configure/build/40 CTest/
+Lean/trace). For the AddressSanitizer leg and coverage/metrics regeneration, run
+inside the container (`build/asan`, `make coverage`, `make metrics`) so the
+panel and the `ci-local` cache agree; the README panel is green only when
+`tools/scripts/metrics.py --check` passes after `make coverage` in the image.
 
 # Renode V&V environment self-test (fast)
 make renode-env
@@ -87,46 +94,40 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `13ebf92`; documentation reconciled 2026-10-15)
+## 4. Current state (baseline `f0e1083`; committed 2026-10-16)
 
-- **Committed baseline:** HEAD `13ebf92` is pushed to both `origin` and `gitea`.
-  This is the S4c/S4d/defaults implementation plus the follow-up metrics/format
-  correction. The repository evidence reviewed here does not establish that
-  every N7 pre-push authorization/gate was satisfied for that historical push.
-- **Current working tree:** the status/documentation reconciliation is an
-  uncommitted delta. Initial independent reviews 0308 (R4) and 0309 (PA) have
-  been recorded; bounded correction re-review 0310 confirmed the identified
-  wording findings addressed. This does not establish broader N17/N20 closure.
-  The earlier green run does not cover this delta. Local validation is recorded
-  in `docs/vv/verification-results.md`.
-- **Hosted GitHub CI:** run `38793643786` passed all eight jobs for `13ebf92`,
-  including Debug/Release unit tests, ASan, static analysis, Lean, trace,
-  documentation, simulator smoke, and the Renode/QEMU and RTEMS proxy checks.
-  The earlier run `38792882219` failed the format and metrics-currency checks;
-  those failures were corrected in `13ebf92`. Gitea Actions execution for this
-  revision could not be independently verified (its Actions API returned 401).
-- **S4c/S4d:** fabric contract, CAN-FD fabric backend, documented CANopen subset,
-  RS-485 DE/RE control, and the user-supplied PUSopen adapter seam are
-  implemented. Focused host tests pass (fabric 119, CAN-FD 328, CANopen 178,
-  serial 67, PUSopen adapter 33 checks). The full host suite passes 36/36 in
-  Debug, Release and ASan. The CANopen non-blocking serialization guard is a
-  post-FRICK-REVIEW-0307 code change with host regression evidence, but no
-  independent delta review; NC-S4c-04 therefore remains open with target and
-  integration limitations. NC-S4c-02 is closed only for its enumerated
-  source-level defects; NC-EXT-82 is closed only for enumerated dependency
-  checkout behavior.
-- **Known limit:** no CAN-FD fabric peripheral is available in the Renode model;
-  CAN-FD evidence is host/contract-level only under NC-S4c-01/GAP-A5. PUSopen
-  tests use a controlled API test double and do not establish vendor SDK
-  compatibility. No certification, qualification, release, airworthiness, or
-  flight-readiness claim is made.
-- **Current defaults (ADR-0018):** open CCSDS PUS backend by default; N7/ESA
-  ASN.1 backend is optional (`FF_USE_PUS_ASN1=ON`). lwIP is enabled by default;
-  fetch pinned lwIP before direct CMake configure (`make configure` does this).
-- Previous hosted GitHub run #85 for `03366f1` is historical. Gitea Actions for
-  `13ebf92` remains unverified; retain the distinction from the green GitHub
-  run. See the loop audit and verification record. The remaining bullets below
-  are historical snapshots unless explicitly identified as current.
+- **Committed baseline:** HEAD `f0e1083bfd804584c37e780e4dc6621b88b0be69` is pushed to both
+  `origin` and `gitea`. This baseline adds the S8-SCH bounded schedule dispatcher
+  (`ff_sched`, committed in the same delta) and the S8-VV-FU ES/HS lifecycle host
+  integration harness plus the deterministic bounded CCSDS/PUS decoder corpus.
+  Local gates are green on `f0e1083`: `make ci-local` 40/40 CTest (17.5 s), ASan
+  40/40 (80.99 s), `make trace` PASS (117 requirements/62 Lean theorems),
+  `make format-check` + `git diff --check` clean, `status.json` valid, `make
+  coverage`/`make metrics` regenerated the README panel (10238/18419 statements,
+  1125/1373 functions). Evidence is retained under
+  `docs/vv/evidence/2026-10-16-s8-vv-fu-{ci-local,asan,trace}.log` and recorded in
+  `docs/vv/verification-results.md` (S8-VV-FU section).
+- **S8-SCH delivered:** `ff_sched` table-driven dispatcher (`ff_sched.{c,h}`,
+  `app_scheduler.c`) with validation, atomic double-buffer activation, absolute
+  per-entry release targets, bounded per-poll work, missed-slot/heartbeat/
+  publish-error stats; `test_sched` 57 checks. NC-EXT-19 functionally corrected;
+  remains OPEN pending independent R4/PA review.
+- **S8-VV-FU implemented/committed:** `test_es_hs_lifecycle.c` (ES/HS lifecycle +
+  FAILED-application detection host integration with an EVS-listener oracle) and
+  `test_decoder_corpus.c` (bounded random-byte/length-boundary/single-bit-
+  mutation/cross-type/round-trip/`FF_PusIngest` corpus with requirement-grounded
+  oracles). GAP-R3-1 and NC-EXT-25 materially closed; both remain OPEN pending the
+  independent R2/R3 delta review (owner disposition §3.2 is tracking only).
+- **Batch execution under way:** per owner direction, R4 + PA review will be run
+  once over the current batch (S8-SCH + S8-VV-FU + S8-PUS-FU + S9–S12 OBCP) after the
+  batch is complete. The next sprint in the batch is S8-PUS-FU.
+- **Hosted GitHub CI:** run `38793643786` passed all eight jobs for the prior
+  baseline `13ebf92`; no hosted CI run covers `f0e1083` yet.
+- **Known limits:** NC-EXT-01/02/03/04/06/07/13/19/25/47 and all target/authority/
+  phase/safety/security/release gates remain OPEN. Renode is emulation; RTEMS
+  cross-build is not target runtime evidence; no physical RTPFS160ZT evidence is
+  established (owner-postponed, README-disclosed). No commit/push of the next
+  batch increments until the batch review passes and gates clear.
 
 - **Historical snapshot (2026-10-14):** M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered. Current M4 S4c/S4d implementation status is given above and in the roadmap.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -303,6 +304,22 @@ occasion; prefer Docker.
     metadata/effectivity corrections. The applicable local cycle then passed;
     logs/hashes are recorded in verification-results 2.58. This is not target
     evidence or sprint completion. No commit/push is currently eligible.
+
+13. **Current as of this increment (S8-VV-FU committed):** baseline is now HEAD
+    `f0e1083` (pushed to `origin` and `gitea`): it adds S8-SCH `ff_sched` and the
+    S8-VV-FU ES/HS lifecycle host integration harness + deterministic bounded
+    CCSDS/PUS decoder corpus. Local gates are green on `f0e1083` (40/40 CTest
+    default + 40/40 ASan, `make trace` PASS 117/62, `make format-check` +
+    `git diff --check` clean, `status.json` valid, coverage/README regenerated
+    10238/18419 statements). Evidence is under
+    `docs/vv/evidence/2026-10-16-s8-vv-fu-{ci-local,asan,trace}.log` and in
+    verification-results.md (S8-VV-FU section). GAP-R3-1 and NC-EXT-25 are
+    materially closed but remain OPEN pending independent R2/R3 review (owner
+    disposition §3.2 is tracking only); NC-EXT-19 functionally corrected, stays
+    OPEN pending R4/PA. The batch R4 + PA review is deferred until the batch
+    (S8-SCH + S8-VV-FU + S8-PUS-FU + S9–S12 OBCP) is complete. **Next sprint:
+    S8-PUS-FU.** No commit/push of subsequent increments until the batch review
+    passes and gates clear; no phase/safety/security/release approval is claimed.
 
 ### Historical 2026-10-14 status narrative (superseded for current actions by §4/§5)
 

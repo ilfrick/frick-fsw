@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.58                                   |
+| Revision                          | 2.59                                   |
 | Date                              | 2026-10-16                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
@@ -305,6 +305,73 @@ hashes.
   Renode remains emulation; cross-build is not target runtime evidence. The
   owner-directed physical-target test deferral is explicitly disclosed on the
   README homepage and does not close target-dependent findings.
+
+## S8-VV-FU: ES/HS lifecycle + bounded decoder corpus (2026-10-16)
+
+- **Source delta/effectivity:** source HEAD now `f0e1083bfd804584c37e780e4dc6621b88b0be69` (pushed to both
+  `origin` and `gitea`). Changed files: `src/apps/app.h`, `src/apps/app_hs.c`
+  (extracted the `FF_AppHsStep` monitoring pass as a non-blocking test seam),
+  `tests/unit/test_es_hs_lifecycle.c` and `tests/unit/test_decoder_corpus.c`
+  (new), `tests/CMakeLists.txt`, and the controlled documentation set
+  (`docs/requirements/traceability.{yaml,md}`,
+  `docs/vv/test-spec/ts-5-core-services.md` (rev 0.9),
+  `docs/vv/test-spec/ts-6-sw-robustness.md` (rev 1.3),
+  `docs/architecture/applications.md` (rev 0.4), `docs/vv/verification-results.md`,
+  `docs/vv/verification-plan.md`, `docs/status/status.json`/`handover.md`/
+  `loop-audit.md`, `docs/planning/sprint-plan.md`, `CHANGELOG.md`, `README.md`
+  metrics panel). `src/apps/app_hs.c` behaviour is unchanged for flight (the
+  loop body is now `FF_AppHsStep`).
+- **New host tests:**
+  - `tests/unit/test_es_hs_lifecycle.c` — ES registry + POSIX-PAL task start to
+    `RUNNING`, idempotent restart, and PAL task-create resource exhaustion driving
+    `FF_APP_FAILED`, observed through an independent EVS-listener oracle: exactly
+    one `0x0502` `FF_EVS_INFO` heartbeat per HS pass and exactly one
+    `FF_EVS_APP_ERROR` `CRITICAL` naming the FAILED id per pass (SRS-REQ-014,
+    SSS-REQ-008); RUNNING/LOADED applications are not reported (no false
+    positive). The task-return/abort state transition is recorded as an
+    observation only (state stays `RUNNING`, no spurious report), not a
+    requirement oracle (TS-6 `N22-TS6-41`).
+  - `tests/unit/test_decoder_corpus.c` — deterministic (fixed seed), bounded,
+    allocation-free corpus with requirement-grounded oracles: random-byte
+    robustness (never accepted, never counted by `FF_PusGetTcCount`);
+    length-boundary (truncation/extension/undermined-PDL rejected with
+    `FF_PARSE_ERROR`, SRS-REQ-003); single-bit mutation (no mutation accepted;
+    `FF_CRC_ERROR` consistent with an independent CRC-16 recomputation,
+    SRS-REQ-004); cross-type rejection; seeded TC/TM round-trip property
+    (fields + payload recovered exactly); bounded `FF_PusIngest` corpus:
+    non-telecommand APID `FF_ERROR`, malformed/corrupted/truncated valid frame not
+    executed (handler-invocation marker stays at zero delta, SRS-REQ-005),
+    unknown service `FF_NOT_FOUND`.
+- **Results (S8-VV-FU):** `make ci-local` (40/40 CTest, 17.5 s), Debug 40/40
+  CTest, ASan leg (AddressSanitizer) 40/40 (80.99 s), `make trace` PASS (117
+  requirements, 62 Lean theorems), `make renode-env` PASS and `make renode`
+  functional `RENODE_TEST: PASS` (exercises the core-services MPFS RTEMS image;
+  not a per-requirement oracle, NC-EXT-47 §7.6). `make format-check` and
+  `git diff --check` clean; `status.json` valid. `make coverage` regenerated the
+  README panel (statement coverage 10238/18419 (55.6%), function coverage
+  1125/1373 (81.9%)).
+- **Evidence retained:** `docs/vv/evidence/2026-10-16-s8-vv-fu-{ci-local,asan,trace}.log`
+  (SHA-256: `dafa42b3bfb07637e3fd07c08df603d5230b5f84ee96a18868bc02efacfcd346`
+  ci-local; `651560eff4e23682df678df9a74768209aea17cdd48916d31bc27a002bb387a9`
+  asan; `4194d2643d92337e5d81684644bcb6ba626e8615a769747c3dc66b8bf67e8a03`
+  trace). The ASan run output is saved on
+  `docs/vv/evidence/2026-10-16-s8-vv-fu-asan.log`.
+- **Test-spec impact:** TS-5 §3.2 moves to 76 total / 55 covered / 21 gap
+  (new `N22-TS5-76` integration row; HS rows 49/51 upgraded to a grounded host
+  oracle). TS-6 §3.2 moves to 58 total / 30 covered / 27 gap / 1 exploratory
+  (rows 55–58 added; `N22-TS6-35` flipped gap→covered; `N22-TS6-41` narrowed).
+- **NC disposition:** GAP-R3-1 and NC-EXT-25 are materially closed (host
+  integration harness and bounded decoder corpus exist with controlled oracles)
+  but **remain OPEN** pending the independent R2/R3 delta review (owner
+  disposition §3.2 is tracking only). NC-EXT-04/06/13 (profile/header cases),
+  NC-EXT-03 (external E2E), NC-EXT-47 sub-clauses, target/hardware (GAP-A5),
+  and all phase/authority/safety/security/release gates remain open. No
+  qualification, NC closure, N17/N20, or release approval is claimed.
+
+- **S8-VV-FU evidence hashes (sha256sum):**
+  - `docs/vv/evidence/2026-10-16-s8-vv-fu-ci-local.log` — `dafa42b3bfb07637e3fd07c08df603d5230b5f84ee96a18868bc02efacfcd346`
+  - `docs/vv/evidence/2026-10-16-s8-vv-fu-asan.log` — `651560eff4e23682df678df9a74768209aea17cdd48916d31bc27a002bb387a9`
+  - `docs/vv/evidence/2026-10-16-s8-vv-fu-trace.log` — `4194d2643d92337e5d81684644bcb6ba626e8615a769747c3dc66b8bf67e8a03`
 
 ## S4c/S4d, defaults and N18 verification cycle (2026-10-15)
 

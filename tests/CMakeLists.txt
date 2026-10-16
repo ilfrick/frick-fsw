@@ -30,7 +30,11 @@ if(FF_PLATFORM STREQUAL "native")
   target_link_libraries(test_link_uart PRIVATE Threads::Threads)
 endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_pus test_time test_r2_gap test_r3_gap test_sched)
+add_executable(test_es_hs_lifecycle unit/test_es_hs_lifecycle.c)
+add_executable(test_decoder_corpus unit/test_decoder_corpus.c)
+
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_pus
+                    test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_decoder_corpus)
 if(NOT FF_USE_PUSOPEN)
   # Compile the in-repository adapter against a controlled test double. This
   # checks its seam without requiring or claiming compatibility with vendor SDK.
@@ -134,6 +138,8 @@ endif()
 add_test(NAME time  COMMAND test_time)
 add_test(NAME r2_gap COMMAND test_r2_gap)
 add_test(NAME r3_gap COMMAND test_r3_gap)
+add_test(NAME es_hs_lifecycle COMMAND test_es_hs_lifecycle)
+add_test(NAME decoder_corpus COMMAND test_decoder_corpus)
 if(TARGET test_link_uart)
   add_test(NAME link_uart COMMAND test_link_uart)
   set_tests_properties(link_uart PROPERTIES TIMEOUT 5 LABELS "link;uart;host-pty")

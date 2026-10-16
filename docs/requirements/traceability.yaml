@@ -60,26 +60,27 @@ requirements:
     parent_sss: SSS-REQ-003
     derived: false
     implementation: ["src/transport/ccsds/ccsds.c"]
-    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_r2_gap.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_r2_gap.c", "tests/unit/test_decoder_corpus.c"]
     lean: ["req_srs003_tm_length", "req_srs003_tc_length"]
-    lean_note: "Lean models the encoder length bound; decoder PDL input validation (widened arithmetic, minimum secondary-header/CRC size, exact supplied packet boundary) is exercised by test_r2_gap.c and is not C-refined."
+    lean_note: "Lean models the encoder length bound; decoder PDL input validation (widened arithmetic, minimum secondary-header/CRC size, exact supplied packet boundary) is exercised by test_r2_gap.c and the bounded length-boundary corpus in test_decoder_corpus.c; neither is C-refined."
 
   - id: SRS-REQ-004
     level: srs
     parent_sss: SSS-REQ-003
     derived: false
     implementation: ["src/transport/ccsds/ccsds.c"]
-    tests: ["tests/unit/test_ccsds.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_decoder_corpus.c"]
     lean: ["req_srs004_crc_appended_zero", "req_srs004_crc_initial"]
+    lean_note: "Lean models CRC presence/initial value on encode; the CRC-match/reject decoder contract (SRS-REQ-004) is required only on decode and is exercised by the single-bit mutation corpus in test_decoder_corpus.c (host SIL), not C-refined."
 
   - id: SRS-REQ-005
     level: srs
     parent_sss: SSS-REQ-004
     derived: false
     implementation: ["src/pus/pus.c", "src/apps/app_cmd_ingest.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_decoder_corpus.c"]
     lean: []
-    lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; current test coverage does not establish the disputed requirement."
+    lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; the S8-VV-FU corpus additionally asserts the 'shall not be executed' clause (malformed/unknown-service frames invoke no handler) on host, but does not resolve the S1-completion-reporting conflict or claim profile compliance."
 
   - id: SRS-REQ-006
     level: srs
@@ -155,9 +156,9 @@ requirements:
     parent_sss: SSS-REQ-008
     derived: false
     implementation: ["src/core/es/es.c", "src/apps/app_hs.c"]
-    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c"]
+    tests: ["ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_es_hs_lifecycle.c"]
     lean: []
-    lean_note: "Application lifecycle and HS detection exercised in the simulator; dedicated HS unit tests are scheduled (docs/roadmap.md)."
+    lean_note: "Application lifecycle and HS detection demonstrated in the simulator and now exercised by a bounded host integration harness with an independent EVS-listener oracle (S8-VV-FU, test_es_hs_lifecycle.c); the detection latency and external-watchdog window remain TBD (TS-5 N22-TS5-52, TS-6 N22-TS6-31)."
 
   - id: SRS-REQ-015
     level: srs
@@ -734,9 +735,9 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/apps/app_hs.c", "src/core/es/es.c"]
-    tests: ["ci:simulator-smoke"]
+    tests: ["ci:simulator-smoke", "tests/unit/test_es_hs_lifecycle.c"]
     lean: []
-    lean_note: "HS heartbeat and health checks demonstrated in the simulator."
+    lean_note: "HS heartbeat and FAILED-application detection demonstrated in the simulator and now covered by a bounded host integration harness with an independent EVS-listener oracle (S8-VV-FU, test_es_hs_lifecycle.c); the heartbeat cadence vs. the external watchdog window remains an HIL/TBD gap (TS-5 N22-TS5-52, TS-6 N22-TS6-31)."
 
   - id: SSS-REQ-009
     level: sss

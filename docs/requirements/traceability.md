@@ -71,9 +71,9 @@ compliance (NC-EXT-75/76).
 | FRICK-SRS-REQ-000 | CMakeLists, presets, Makefile | ci:host-build | - | baseline |
 | SRS-REQ-001 | sb.c/h, pal.h, pal_posix.c | test_sb.c | req_srs001_exact_and_wildcard, req_srs001_no_match_no_delivery | SB-lock busy asserts FF_TIMEOUT with no mutation; queue-lock busy asserts FF_TIMEOUT after partial fan-out and dropped accounting; full pipe remains a distinct overflow path |
 | SRS-REQ-002 | sb.c, pal_posix.c | test_sb.c | - | FIFO by ring-buffer semantics |
-| SRS-REQ-003 | ccsds.c | test_ccsds.c, test_r2_gap.c | req_srs003_tm_length, req_srs003_tc_length | Lean models encoder bounds only; decoder PDL checks are C-tested, not C-refined |
-| SRS-REQ-004 | ccsds.c | test_ccsds.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | |
-| SRS-REQ-005 | pus.c | test_pus.c, test_r3_gap.c | - | Malformed-frame S1 requirement conflicts with test_pus_malformed_tc_event; NC-EXT-04 open, oracle does not establish requirement |
+| SRS-REQ-003 | ccsds.c | test_ccsds.c, test_r2_gap.c, test_decoder_corpus.c | req_srs003_tm_length, req_srs003_tc_length | Lean models encoder bounds only; decoder PDL checks (incl. length-boundary corpus) C-tested, not C-refined |
+| SRS-REQ-004 | ccsds.c | test_ccsds.c, test_decoder_corpus.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | CRC-match/reject on decode exercised by S8-VV-FU single-bit mutation corpus (host SIL), not C-refined |
+| SRS-REQ-005 | pus.c | test_pus.c, test_r2_gap.c, test_r3_gap.c, test_decoder_corpus.c | - | Malformed-frame S1 requirement conflicts with test_pus_malformed_tc_event; NC-EXT-04 open. S8-VV-FU corpus asserts 'shall not be executed' (no handler for malformed/unknown-service) on host |
 | SRS-REQ-006 | pus.c | test_pus.c | req_srs006_acceptance_completion, complete_ack_produces_two, ack_acceptance_is_counted | |
 | SRS-REQ-007 | pus.c | test_pus.c | req_srs007_counter_increases, req_srs007_counter_wrap_bounded | |
 | SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c | - | GAP-A2 formalisation |
@@ -82,7 +82,7 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-011 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c | test_pus.c, test_sb.c, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Forwarding-rate/latency guarantee applies within approved SSS-REQ-006 envelope; loss accounting is independent of that envelope. Mission profile and post-acceptance loss-detection/counter semantics remain TBD (NC-EXT-76); see host structural characterization, not compliance evidence |
 | SRS-REQ-012 | pus_services.c | test_pus.c | - | S17 ping/pong |
 | SRS-REQ-013 | tbl.c | test_tbl.c | - | atomic activate |
-| SRS-REQ-014 | es.c, app_hs.c | ci:simulator-smoke | - | roadmap HS unit tests |
+| SRS-REQ-014 | es.c, app_hs.c | ci:simulator-smoke, test_r2_gap.c, test_es_hs_lifecycle.c | - | HS/ES host integration harness with EVS-listener oracle added in S8-VV-FU (detection-latency and external-watchdog cadence stay TBD) |
 | SRS-REQ-015 | pal_posix.c, pal_rtems.c | ci:static-analysis | - | no heap after init |
 | SRS-REQ-016 | CMake, rtems toolchain, pal | ci:dual-build | - | same sources |
 | SRS-REQ-017 | fsw_config.h, ccsds.c | test_ccsds.c | - | derived: tailoring |
@@ -158,7 +158,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-005 | pus_services.c, app_hk.c | ci:simulator-smoke | - |
 | SSS-REQ-006 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_pus.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Envelope performance values, ground-receipt boundary, and post-acceptance loss-detection/counter/reporting semantics are authority-owned TBDs; host structural sweep is not requirement compliance evidence |
 | SSS-REQ-007 | time.c, pps.c, pus_services.c | test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip |
-| SSS-REQ-008 | app_hs.c, es.c | ci:simulator-smoke | - |
+| SSS-REQ-008 | app_hs.c, es.c | ci:simulator-smoke, test_es_hs_lifecycle.c | - | HS host integration harness with EVS-listener oracle added in S8-VV-FU (watchdog window stays TBD) |
 | SSS-REQ-009 | tbl.c, fsw_tables.c | test_tbl.c | - |
 | SSS-REQ-010 | pal, fsw_config.h | ci:static-analysis | - |
 | SSS-REQ-011 | CMake, presets, toolchain | ci:dual-build | - |

@@ -40,6 +40,43 @@ change. All dates UTC, project language English (norm N2).
   NC-EXT-19 is **not** closed and no schedulability, qualification or flight-use
   claim is made.
 
+### S8-VV-FU ES/HS lifecycle + decoder corpus, first increment (2026-10-16)
+
+- Extracted `FF_AppHsStep(FF_AppId_t)` from `src/apps/app_hs.c` as a
+  non-blocking monitoring-pass seam (heartbeat event `0x0502` + FAILED-application
+  scan); `FF_AppHsMain` behaviour in flight is unchanged (loop body is now one
+  `FF_AppHsStep` call). Declared in `src/apps/app.h`.
+- Added `tests/unit/test_es_hs_lifecycle.c` — bounded ES/HS host integration
+  harness with an independent EVS-listener oracle: registers RUNNING and LOADED
+  apps, restarts idempotently, drives `FF_APP_FAILED` via PAL task-create
+  resource exhaustion, and asserts exactly one `FF_EVS_APP_ERROR` CRITICAL naming
+  the id per HS pass plus exactly one `0x0502` heartbeat per pass; the RUNNING app
+  is never reported (no false positive). The task-return/abort transition is an
+  observation only, not a requirement oracle.
+- Added `tests/unit/test_decoder_corpus.c` — deterministic (fixed seed), bounded,
+  allocation-free CCSDS/PUS decoder corpus with requirement-grounded oracles:
+  random-byte robustness (never accepted, never counted); length-boundary
+  (truncation/extension/undermined-PDU rejected, exact packet boundary,
+  SRS-REQ-003); single-bit mutation of the CRC-covered region (no mutation
+  accepted, CRC verdict consistent with an independent CRC-16 recomputation,
+  SRS-REQ-004); cross-type rejection; seeded TC/TM round-trip property; bounded
+  `FF_PusIngest` corpus (non-telecommand APID `FF_ERROR`, malformed/corrupt/
+  truncated valid frame not executed — handler-invocation marker stays at zero
+  delta, SRS-REQ-005, unknown service `FF_NOT_FOUND`).
+- Wired both tests into `tests/CMakeLists.txt` and the ctest matrix.
+- Test-spec updates: TS-5 rows 49/51 upgraded to grounded host oracles, new
+  integration row `N22-TS5-76`; TS-6 added rows 55–58 and flipped
+  `N22-TS6-35` gap→covered, narrowed `N22-TS6-41`. TS-5 §3.2 is now 76 total /
+  55 covered / 21 gap; TS-6 §3.2 is 58 total / 30 covered / 27 gap / 1 exploratory.
+- Traceability updates: SRS-REQ-003/004/005 and SRS-REQ-014/SSS-REQ-008 now cite the
+  new tests, with lean notes delimiting Lean coverage to the encoder/structural
+  model and the decoder/ES-HS host-SIL oracle respectively.
+- Results: `make ci-local` 40/40 CTest (17.5 s); ASan leg 40/40 (80.99 s);
+  `make trace` PASS (117 requirements/62 Lean theorems); `make format-check` +
+  `git diff --check` clean; `make coverage` regenerated the README panel
+  (10238/18419 statements, 1125/1373 functions). Evidence:
+  `docs/vv/evidence/2026-10-16-s8-vv-fu-{ci-local,asan,trace}.log`.
+
 ### CI format-gate correction (2026-10-16)
 
 - Restored the clang-format layout of `FF_LINK_IP_REF_PEER`, `FF_LINK_TSN_REF_MAC`

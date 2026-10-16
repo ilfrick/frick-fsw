@@ -36,6 +36,25 @@ static FF_Status_t ff_hs_fn_reset(const uint8_t *args, uint16_t len)
     return FF_SUCCESS; /* not reached */
 }
 
+/* One monitoring pass: report every FAILED application, then raise the
+ * periodic heartbeat. Extracted so the health-check behaviour can be exercised
+ * by a deterministic host integration test without entering the blocking
+ * 5000 ms cadence loop (S8-VV-FU; GAP-R3-1). The behaviour is identical to the
+ * loop body of FF_AppHsMain. */
+void FF_AppHsStep(FF_AppId_t app)
+{
+    /* Watchdog style check: every app must still be RUNNING. */
+    for (FF_AppId_t id = 1u; id <= (FF_AppId_t)FF_EsGetAppCount(); id++) {
+        if (FF_EsGetState(id) == FF_APP_FAILED) {
+            (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, app, "HS: app %u failed",
+                             (unsigned)id);
+        }
+    }
+
+    /* Periodic heartbeat EVS event (also visible to ground via PUS 5). */
+    (void)FF_EvsSend(0x0502u, FF_EVS_INFO, app, "HS heartbeat");
+}
+
 void FF_AppHsMain(void *arg)
 {
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
@@ -44,16 +63,7 @@ void FF_AppHsMain(void *arg)
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "HS app monitoring");
 
     for (;;) {
-        /* Watchdog style check: every app must still be RUNNING. */
-        for (FF_AppId_t id = 1u; id <= (FF_AppId_t)FF_EsGetAppCount(); id++) {
-            if (FF_EsGetState(id) == FF_APP_FAILED) {
-                (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, app, "HS: app %u failed",
-                                 (unsigned)id);
-            }
-        }
-
-        /* Periodic heartbeat EVS event (also visible to ground via PUS 5). */
-        (void)FF_EvsSend(0x0502u, FF_EVS_INFO, app, "HS heartbeat");
+        FF_AppHsStep(app);
         FF_PalTaskDelayMs(5000u);
     }
 }
