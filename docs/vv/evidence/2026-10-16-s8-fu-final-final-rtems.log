@@ -1,0 +1,22 @@
+bash tools/scripts/fetch_third_party.sh lwip-only
+[fetch] done (lwip-only): /home/nicola/fsw/frick-fsw/third_party
+docker run --rm -v /home/nicola/fsw/frick-fsw:/workspace -w /workspace frick-rtems-toolchain:local \
+  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems && cmake --build build/rtems -j$(nproc)'
+-- Optional PUS-C ASN.1 (N7/ESA) backend ENABLED
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /workspace/build/rtems
+[ 11%] Built target frick_pus_asn1
+[ 95%] Built target frick_fsw_core
+[100%] Built target frick_fsw
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /workspace/third_party/lwip/../mbedtls
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+-- Doxygen needs to be installed to generate the doxygen documentation
+-- Configuring done (0.0s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/build/renode
+[ 62%] Built target frick_lwip
+[ 64%] Built target frick_net_lwip
+[ 98%] Built target frick_fsw_core
+[100%] Built target frick_fsw

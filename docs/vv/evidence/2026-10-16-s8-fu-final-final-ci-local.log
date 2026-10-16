@@ -1,0 +1,178 @@
+bash tools/scripts/fetch_third_party.sh lwip-only
+[fetch] done (lwip-only): /home/nicola/fsw/frick-fsw/third_party
+docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.47kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/ubuntu:24.04
+#4 DONE 0.0s
+
+#5 [2/4] RUN apt-get update && apt-get install -y --no-install-recommends       build-essential gcc g++ make cmake ninja-build       python3 python3-pip git curl ca-certificates       doxygen graphviz clang clang-format clang-tidy cppcheck       nodejs npm       pkg-config libc6-dev     && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [3/4] RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf       | sh -s -- -y --default-toolchain leanprover/lean4:v4.10.0
+#6 CACHED
+
+#7 [4/4] WORKDIR /workspace
+#7 CACHED
+
+#8 exporting to image
+#8 exporting layers done
+#8 writing image sha256:5cbc72aa4125cfdbd8c0baa4ac2a1cb9d1447ff3147ac0b94e2ed0d918b83e91 done
+#8 naming to docker.io/library/frick-vv:local done
+#8 DONE 0.0s
+docker run --rm -v /home/nicola/fsw/frick-fsw:/workspace -w /workspace frick-vv:local \
+  bash -lc 'cmake -S . -B /workspace/build/ci -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+    && cmake --build /workspace/build/ci \
+    && ctest --test-dir /workspace/build/ci --output-on-failure \
+    && cd /workspace/verification/lean && lake build \
+    && cd /workspace && python3 tools/scripts/trace.py docs/requirements/traceability.yaml'
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /workspace/third_party/lwip/../mbedtls
+-- Doxygen build started
+-- Configuring done (0.3s)
+-- Generating done (0.2s)
+-- Build files have been written to: /workspace/build/ci
+ninja: no work to do.
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+      Start  1: ccsds
+ 1/37 Test  #1: ccsds ............................   Passed    0.04 sec
+      Start  2: sb
+ 2/37 Test  #2: sb ...............................   Passed    0.02 sec
+      Start  3: sb_stress
+ 3/37 Test  #3: sb_stress ........................   Passed    0.02 sec
+      Start  4: sb_sweep_boundary
+ 4/37 Test  #4: sb_sweep_boundary ................   Passed    0.02 sec
+      Start  5: sb_evs_structural_sweep
+ 5/37 Test  #5: sb_evs_structural_sweep ..........   Passed   18.55 sec
+      Start  6: tbl
+ 6/37 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: pus
+ 7/37 Test  #7: pus ..............................   Passed    0.00 sec
+      Start  8: pusopen_adapter_contract
+ 8/37 Test  #8: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start  9: time
+ 9/37 Test  #9: time .............................   Passed    0.00 sec
+      Start 10: r2_gap
+10/37 Test #10: r2_gap ...........................   Passed    0.03 sec
+      Start 11: r3_gap
+11/37 Test #11: r3_gap ...........................   Passed    0.04 sec
+      Start 12: link_uart
+12/37 Test #12: link_uart ........................   Passed    0.33 sec
+      Start 13: hal
+13/37 Test #13: hal ..............................   Passed    0.01 sec
+      Start 14: math
+14/37 Test #14: math .............................   Passed    0.01 sec
+      Start 15: sdls
+15/37 Test #15: sdls .............................   Passed    0.00 sec
+      Start 16: gem
+16/37 Test #16: gem ..............................   Passed    0.00 sec
+      Start 17: gem_tsn
+17/37 Test #17: gem_tsn ..........................   Passed    0.00 sec
+      Start 18: gptp
+18/37 Test #18: gptp .............................   Passed    0.01 sec
+      Start 19: netloop
+19/37 Test #19: netloop ..........................   Passed    0.00 sec
+      Start 20: gpio
+20/37 Test #20: gpio .............................   Passed    0.02 sec
+      Start 21: serial
+21/37 Test #21: serial ...........................   Passed    0.02 sec
+      Start 22: mem
+22/37 Test #22: mem ..............................   Passed    0.01 sec
+      Start 23: nvm
+23/37 Test #23: nvm ..............................   Passed    0.02 sec
+      Start 24: mtd
+24/37 Test #24: mtd ..............................   Passed    0.00 sec
+      Start 25: can
+25/37 Test #25: can ..............................   Passed    0.02 sec
+      Start 26: i2c
+26/37 Test #26: i2c ..............................   Passed    0.00 sec
+      Start 27: spi
+27/37 Test #27: spi ..............................   Passed    0.01 sec
+      Start 28: block
+28/37 Test #28: block ............................   Passed    0.02 sec
+      Start 29: pcie
+29/37 Test #29: pcie .............................   Passed    0.00 sec
+      Start 30: spacewire
+30/37 Test #30: spacewire ........................   Passed    0.03 sec
+      Start 31: fabric
+31/37 Test #31: fabric ...........................   Passed    0.01 sec
+      Start 32: canfd
+32/37 Test #32: canfd ............................   Passed    0.01 sec
+      Start 33: canopen
+33/37 Test #33: canopen ..........................   Passed    0.00 sec
+      Start 34: link_ip
+34/37 Test #34: link_ip ..........................   Passed    0.00 sec
+      Start 35: link_tsn
+35/37 Test #35: link_tsn .........................   Passed    0.01 sec
+      Start 36: lwip
+36/37 Test #36: lwip .............................   Passed    0.01 sec
+      Start 37: lwip_netif
+37/37 Test #37: lwip_netif .......................   Passed    0.11 sec
+
+100% tests passed, 0 tests failed out of 37
+
+Label Time Summary:
+host-pty              =   0.33 sec*proc (1 test)
+link                  =   0.33 sec*proc (1 test)
+sb-evs                =  18.55 sec*proc (1 test)
+tool-qualification    =  18.55 sec*proc (1 test)
+uart                  =   0.33 sec*proc (1 test)
+
+Total Test time (real) =  19.46 sec
+info: downloading https://releases.lean-lang.org/lean4/v4.10.0/lean-4.10.0-linux.tar.zst
+info: installing /root/.elan/toolchains/leanprover--lean4---v4.10.0
+Build completed successfully.
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /workspace/docs/requirements/traceability.yaml
+requirements in manifest: 117
+  srs=73 sss=30 gap=14
+lean theorems found: 62
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  1 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (117 requirements, 73 srs, 30 sss, 14 gaps, 62 lean theorems checked)

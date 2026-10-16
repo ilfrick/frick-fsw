@@ -1,0 +1,87 @@
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+      Start  1: ccsds
+ 1/37 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/37 Test  #2: sb ...............................   Passed    0.00 sec
+      Start  3: sb_stress
+ 3/37 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/37 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  5: sb_evs_structural_sweep
+ 5/37 Test  #5: sb_evs_structural_sweep ..........   Passed   17.50 sec
+      Start  6: tbl
+ 6/37 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: pus
+ 7/37 Test  #7: pus ..............................   Passed    0.00 sec
+      Start  8: pusopen_adapter_contract
+ 8/37 Test  #8: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start  9: time
+ 9/37 Test  #9: time .............................   Passed    0.00 sec
+      Start 10: r2_gap
+10/37 Test #10: r2_gap ...........................   Passed    0.02 sec
+      Start 11: r3_gap
+11/37 Test #11: r3_gap ...........................   Passed    0.00 sec
+      Start 12: link_uart
+12/37 Test #12: link_uart ........................   Passed    0.33 sec
+      Start 13: hal
+13/37 Test #13: hal ..............................   Passed    0.00 sec
+      Start 14: math
+14/37 Test #14: math .............................   Passed    0.00 sec
+      Start 15: sdls
+15/37 Test #15: sdls .............................   Passed    0.00 sec
+      Start 16: gem
+16/37 Test #16: gem ..............................   Passed    0.00 sec
+      Start 17: gem_tsn
+17/37 Test #17: gem_tsn ..........................   Passed    0.00 sec
+      Start 18: gptp
+18/37 Test #18: gptp .............................   Passed    0.00 sec
+      Start 19: netloop
+19/37 Test #19: netloop ..........................   Passed    0.00 sec
+      Start 20: gpio
+20/37 Test #20: gpio .............................   Passed    0.00 sec
+      Start 21: serial
+21/37 Test #21: serial ...........................   Passed    0.00 sec
+      Start 22: mem
+22/37 Test #22: mem ..............................   Passed    0.00 sec
+      Start 23: nvm
+23/37 Test #23: nvm ..............................   Passed    0.00 sec
+      Start 24: mtd
+24/37 Test #24: mtd ..............................   Passed    0.00 sec
+      Start 25: can
+25/37 Test #25: can ..............................   Passed    0.00 sec
+      Start 26: i2c
+26/37 Test #26: i2c ..............................   Passed    0.01 sec
+      Start 27: spi
+27/37 Test #27: spi ..............................   Passed    0.00 sec
+      Start 28: block
+28/37 Test #28: block ............................   Passed    0.00 sec
+      Start 29: pcie
+29/37 Test #29: pcie .............................   Passed    0.00 sec
+      Start 30: spacewire
+30/37 Test #30: spacewire ........................   Passed    0.00 sec
+      Start 31: fabric
+31/37 Test #31: fabric ...........................   Passed    0.00 sec
+      Start 32: canfd
+32/37 Test #32: canfd ............................   Passed    0.01 sec
+      Start 33: canopen
+33/37 Test #33: canopen ..........................   Passed    0.00 sec
+      Start 34: link_ip
+34/37 Test #34: link_ip ..........................   Passed    0.00 sec
+      Start 35: link_tsn
+35/37 Test #35: link_tsn .........................   Passed    0.00 sec
+      Start 36: lwip
+36/37 Test #36: lwip .............................   Passed    0.00 sec
+      Start 37: lwip_netif
+37/37 Test #37: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 37
+
+Label Time Summary:
+host-pty              =   0.33 sec*proc (1 test)
+link                  =   0.33 sec*proc (1 test)
+sb-evs                =  17.50 sec*proc (1 test)
+tool-qualification    =  17.50 sec*proc (1 test)
+uart                  =   0.33 sec*proc (1 test)
+
+Total Test time (real) =  17.95 sec
