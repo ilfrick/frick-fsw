@@ -4,13 +4,13 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-SVA-WP2                       |
-| Revision                         | 0.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.3                                    |
+| Date                             | 2026-10-16                             |
 | Norms                            | N5, N10, N11, N15, N21, N22            |
 | Umbrella                         | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) §2–3 |
 | Test cases (oracles)            | work packages `ts-1-*` … `ts-6-*` (`docs/vv/test-spec/README.md`) |
 | Levels / selection               | `docs/vv/test-spec/sva-1-levels-vmodel.md` (FRICK-VV-SVA-WP1) |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 |
+| Baseline                         | Historical initial snapshot: working tree at HEAD `57974d2` as read 2026-10-14. Revision 0.3 reflects the 2026-10-16 candidate at HEAD `13ebf92` plus uncommitted UART source/test and documentation delta. |
 
 > **Authority statement.** This work package defines the system-level *interface
 > verification* and *FDIR test strategy* for the current baseline. It does **not**
@@ -63,7 +63,7 @@ clause that grounds the oracle; an OOB row without a grounding clause is `gap`.
 | IP (UDP/TCP) | `src/transport/link/link_ip.c`; FRICK-ICD-001 §5.1 | PUS-C round-trip over IP | desync, partial frame `ts-2` SRS-REQ-060 | SIL/PIL | L1/L2 |
 | TSN (0x88F5) | `src/transport/link/link_tsn.c`; FRICK-ICD-001 §5.2 | EtherType 0x88F5, 60-byte pad, 16-slot ring | bad PCP/VID, RX over-length `ts-2` SRS-REQ-061 | PIL-Renode | L1/L2 |
 | Segmentation/reassembly | `src/transport/link/link_seg.c`; SRS-REQ-059 | 2-byte BE prefix, max 1024, reasm | desync, oversized `ts-2` SRS-REQ-059/060/061 | SIL/PIL | L1/L2 |
-| UART | `src/transport/link/link_uart.c`; FRICK-ICD-001 §5 | TM/TC byte-stream framing | offset parse, malformed `ts-2`, `test_netloop` | SIL/PIL | L1/L2 |
+| UART | `src/transport/link/link_uart.c`; FRICK-ICD-001 §2/§3 | NC-EXT-07 host characterization: PDL framing, partial/coalesced retention, disconnect `FF_ERROR`, and ambiguous plausible candidate; malformed candidate may encompass a following valid TC | N22-TS2-81 characterization only; `tests/unit/test_link_uart.c` production backend on POSIX PTY | SIL host PTY; RTEMS cross-build only | L1/L2 characterization; no SRS closure, target runtime/timing or physical UART claim; timeout/recovery authority open |
 
 ### 2.3 HAL peripheral contracts
 
@@ -177,3 +177,5 @@ clause (NC-linked). Environment: SIL unless marked PIL/HIL.
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-14 | frick-fsw | Initial interface-coverage and FDIR-strategy work package for N22; ICD/OOB intents per clause, combined-coupling scenarios, fault-injection catalogue with oracle/gap discipline, limits and ownership summary |
+| 0.2 | 2026-10-15 | frick-fsw | Add UART PDL framing evidence and explicitly preserve timeout/recovery authority and target-runtime gaps |
+| 0.3 | 2026-10-16 | frick-fsw | Align UART interface strategy with NC-driven characterization status, disconnect result, and malformed-candidate loss limitation |

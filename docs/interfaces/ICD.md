@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 0.8 |
-| Date        | 2026-10-13 |
+| Revision    | 1.2 |
+| Date        | 2026-10-16 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -30,8 +30,8 @@ reference driver headers, and their platform addresses in
 | TC APID | `0x010` |
 | TM APID | `0x020` |
 | Packet CRC | CRC-16/CCITT-FALSE, trailer appended (enable `FF_FRAME_WITH_CRC=1`) |
-| Max TM frame / TC frame | `FF_PUS_MAX_TM_FRAME` / `FF_PUS_MAX_TC_FRAME` (1024) |
-| In/out-of-band transport | UART byte stream (target `/dev/console`, 115200 baud); loopback on host simulator |
+| Max TM / TC PUS payload | `FF_PUS_MAX_TM_FRAME` / `FF_PUS_MAX_TC_FRAME` (1024 octets); complete CCSDS packet capacities also include the primary header, PUS secondary header, and configured CRC trailer (`FF_CCSDS_MAX_TM_PACKET` / `FF_CCSDS_MAX_TC_PACKET`; 1037 octets for TC with the current configuration) |
+| In/out-of-band transport | UART byte stream (target `/dev/console`, 115200 baud), framed by CCSDS primary-header PDL into one complete TC packet per receive call; partial packets persist across timeout and coalesced packets are returned one per call. Reference timeout uses termios VTIME in 100 ms units (rounded up), so requested short timeouts can overrun by <100 ms plus scheduling/driver latency; a single receive owner is required. A zero-byte read substantially before the configured VTIME chunk is treated as `FF_ERROR` (host disconnect case); RTEMS runtime semantics are not measured. A plausible in-range but malformed PDL candidate can retain and eventually consume bytes that include a following valid TC. No inner-boundary recovery is guessed because no independent sync delimiter is defined; authority must decide timeout/partial-discard/recovery policy before mission use. Loopback on host simulator. These are internal software reference behaviors pending approved profile/authority decisions. |
 
 ## 3. TC/TM packet field layout (CCSDS Space Packet + PUS secondary header)
 
@@ -183,3 +183,7 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 0.6 | 2026-10-13 | frick-fsw | Clarify CRC inclusion in PDL and label implemented zero sequence count pending profile decision (NC-EXT-26/NC-EXT-06) |
 | 0.7 | 2026-10-13 | frick-fsw | Identify ICD as an internal reference profile pending authority approval and distinguish CRC generation from residue validation (NC-EXT-13) |
 | 0.8 | 2026-10-13 | frick-fsw | Remove implication of approved CUC tailoring and document decoder CRC comparison behavior (NC-EXT-13/26) |
+| 0.9 | 2026-10-15 | frick-fsw | Define internal reference UART receive framing, timeout granularity and single-reader assumption; this remains a project reference profile, not mission-tailoring approval |
+| 1.0 | 2026-10-15 | frick-fsw | Record head-of-line behavior for plausible incomplete PDL candidates and the pending authority disposition on timeout/recovery policy |
+| 1.1 | 2026-10-15 | frick-fsw | Distinguish the 1024-octet configured PUS payload maximum from the 1037-octet maximum complete TC packet capacity |
+| 1.2 | 2026-10-16 | frick-fsw | Document disconnected-UART early-zero handling and explicit malformed plausible-PDL packet-loss/recovery limitation from R1 review |

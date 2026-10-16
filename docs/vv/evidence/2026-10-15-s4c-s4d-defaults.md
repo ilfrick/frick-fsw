@@ -2,8 +2,9 @@
 
 ## Scope and status
 
-This note records host, emulation, and cross-build results for the uncommitted
-S4c/S4d increment and ADR-0018 default changes. It is not an independent review,
+This note records the original local host, emulation, and cross-build results
+for the S4c/S4d increment and ADR-0018 default changes. Its local build records
+are point-in-time results from the then-uncommitted worktree. It is not an independent review,
 qualification record, certification claim, release authorization, or flight
 readiness finding.
 
@@ -104,17 +105,39 @@ The fail-closed ASN.1 and dirty-lwIP probe outputs, including command dispositio
 are retained in `2026-10-15-s4c-config-probes.md`. Other failed build/permission
 attempts are summarized above; raw logs are not retained for those attempts.
 
-## Open actions
+## Open actions at the original local-cycle baseline (historical)
 
 - Required independent FSW/V&V, systems, documentation, and PA reviews have
   occurred (FRICK-REVIEW-0288..0292 and bounded delta reviews 0293..0307). Functional
   corrections received bounded review, while integration/authority, dependency
   evidence, provenance, hosted-CI, target-CAN-FD, and vendor-SDK findings remain
   open; record and disposition these before any closure claim.
-- Run hosted GitHub and Gitea CI only after the applicable reviews and gates;
-  neither hosted result is represented by these local tests.
+- At the time of the local cycle, hosted GitHub and Gitea CI had not yet run;
+  see the committed-status addendum below for the later GitHub result.
 - Preserve emulator/target limits; no Renode CAN-FD result or vendor PUSopen
   compatibility result exists.
-- Do not commit or push until all applicable gates, review dispositions, and
-  sprint scope are complete under AGENTS.md. This note does not authorize a
-  release, flight, or operational action.
+- At that point in time, the applicable gates/reviews and sprint-scope condition
+  had not been met. This historical note does not authorize release, flight, or
+  operational action; see the committed-status addendum for subsequent state.
+
+## Committed-status addendum (2026-10-15)
+
+- The increment is committed as `13ebf92f46775aec5d26cc2fdc5bd47258ed4f1a`
+  and pushed to both Git remotes. GitHub Actions run
+  [38793643786](https://github.com/ilfrick/frick-fsw/actions/runs/38793643786)
+  passed all eight jobs. The prior run
+  [38792882219](https://github.com/ilfrick/frick-fsw/actions/runs/38792882219)
+  failed the formatter and generated-metrics checks; those were corrected in
+  the follow-up commit before the green run.
+- Following the host regression-test addition, the focused CANopen suite reports
+  178 checks, zero failures. The new non-blocking guard and callback-contention
+  drop diagnostic were added after review 0307; they have no independent delta
+  review yet, so NC-S4c-04 remains open.
+- Gitea Actions status could not be checked (Actions API returned HTTP 401).
+  The latest Renode run is emulated-target evidence only; no physical hardware
+  result is claimed. Renode has no CAN-FD fabric peripheral model. PUSopen
+  remains an end-user-supplied integration; its API test double does not prove
+  vendor SDK compatibility.
+- The run/evidence and residual NC status are also summarized in
+  `docs/vv/verification-results.md`, `docs/status/handover.md`, and
+  `docs/status/loop-audit.md`.

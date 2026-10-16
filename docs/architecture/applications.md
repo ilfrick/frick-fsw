@@ -11,7 +11,7 @@ V&V exerciser (simulator smoke).
 
 | App | Entry | Role |
 | --- | ----- | ---- |
-| CMD_INGEST | `FF_AppCmdIngestMain` | receives TC frames from the link and feeds `FF_PusIngest` |
+| CMD_INGEST | `FF_AppCmdIngestMain` | receives TC frames from the link and feeds `FF_PusIngest` through the single-iteration `FF_AppCmdIngestReceiveOne` path, whose bounded buffer is `FF_CCSDS_MAX_TC_PACKET` |
 | TM_OUTPUT  | `FF_AppTmOutputMain`  | drains the PUS TM sink into the link (loopback/UART) |
 | SCHEDULER  | `FF_AppSchedulerMain` | reference scheduler stub; planned replacement is the bounded SB schedule dispatcher (M17/SRS-REQ-071), with native RTEMS retaining task scheduling |
 | HK         | `FF_AppHkMain`        | periodic housekeeping via Table/ps platform data |

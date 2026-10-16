@@ -4,11 +4,11 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-001                     |
-| Revision                         | 0.2                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.3                                    |
+| Date                             | 2026-10-15                             |
 | Norms                            | N6, N10, N11, N15, N21, N22            |
 | Applicable standards             | ECSS-E-ST-40C Rev.1, ECSS-Q-ST-80C Rev.2, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
-| Baseline                         | Uncommitted working tree at HEAD `57974d2` + current changes |
+| Baseline                         | Committed HEAD `13ebf92`; GitHub Actions run `38793643786` passed all eight jobs; Gitea Actions status unverified |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 
 This document defines the **comprehensive test specification** required by norm
@@ -72,8 +72,8 @@ target evidence where hardware-specific behavior is material (GAP-A5).
 ## 2. Requirements traceability base
 
 The traceability manifest (`docs/requirements/traceability.yaml`) currently
-converges at **117 requirements (73 SRS, 30 SSS, 14 GAP), 51 Lean theorems**
-(`make trace` PASS). Every SRS requirement must map to at least one nominal and
+converges at **117 requirements (73 SRS, 30 SSS, 14 GAP)**. The current `make
+trace` run finds/checks **62 Lean theorems**. Every SRS requirement must map to at least one nominal and
 (at most) the applicable out-of-bound test cases below.
 
 ## 3. Test categories
@@ -217,5 +217,6 @@ These are recorded, not fixed, under N21; they do not stop unrelated development
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
+| 0.3 | 2026-10-15 | frick-fsw | Reconcile baseline to committed HEAD 13ebf92 and current trace result (62 Lean theorems); retain GitHub/Gitea evidence distinction |
 | 0.2 | 2026-10-14 | frick-fsw | Update unit-suite file count after registering isolated SB/EVS structural stress coverage |
 | 0.1 | 2026-10-14 | frick-fsw | Initial comprehensive test specification per N22 and owner comprehensiveness directive; defines I/O (individual/combined), nominal/out-of-bound, feature and software-only robustness coverage; maps gaps to NC-EXT-47 |

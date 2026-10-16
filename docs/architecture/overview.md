@@ -96,7 +96,7 @@ software runs on the host simulator and on the MPFS target (see
 | Table Services (TBL) | load / validate / activate of mission tables | `src/core/tbl/` |
 | Time Services (TIME) | UTC correlation, CUC encoding | `src/core/time/` |
 | CCSDS transport | Space Packet encode/decode, CRC-16/CCITT-FALSE | `src/transport/ccsds/` |
-| Link layer | byte-stream transport (loopback / UART) | `src/transport/link/` |
+| Link layer | frame-oriented API over loopback / UART byte stream | `src/transport/link/` |
 | PUS layer | TC dispatch, S1 verification, TM emission, open CCSDS backend default; optional N7/ESA ASN.1 backend | `src/pus/` |
 | Applications | scheduler, command ingest, TM output, HK, HS, sample telemetry | `src/apps/` |
 | Hardware abstraction (HAL) | bus/device/memory contracts + bounded registry (M3) | `src/hal/` |

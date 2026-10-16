@@ -4,14 +4,14 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-SVA-WP1                       |
-| Revision                         | 0.3                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.5                                    |
+| Date                             | 2026-10-16                             |
 | Norms                            | N5, N10, N11, N15, N21, N22            |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package SVA-1 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) §1 |
 | Plans                            | `docs/vv/verification-plan.md` (FRICK-VV-PLAN-001), `docs/vv/validation-plan.md` (FRICK-VV-VAL-001) |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 (uncommitted changes possible) |
+| Baseline                         | Historical initial snapshot: working tree at HEAD `57974d2` as read 2026-10-14. Current revision 0.5 TS-2 counts/evidence reflect the 2026-10-16 candidate at source HEAD `13ebf92` plus uncommitted UART implementation/test and characterization-count changes; source digest `8a80a8c4…08f6e4af` is in the bounded candidate manifest. Candidate/build environment is not immutable or fully reproducible. |
 
 > **Authority statement.** This work package defines the system-level verification
 > *levels*, the *V-model closure relations*, the *environment fidelity limits*,
@@ -232,13 +232,13 @@ TS-6 → umbrella §6 (memory safety, numeric protection, general robustness).
 
 ### 6.3 Package-to-level map (as delivered)
 
-Counts are the per-package coverage summaries at this baseline; totals 473 cases
+Counts are the per-package coverage summaries at this baseline; totals 474 cases
 across the six packages.
 
 | PKG | Domain | Primary level(s) | Primary env | Nominal / OOB | Covered / gap discipline |
 | --- | --- | --- | --- | --- | --- |
 | TS-1 | CCSDS packet, PUS-C core and services, time/CUC | L1 (+L2 combined) | SIL (PIL/HIL rows only as gaps) | 48 / 46 (94) | 66 covered / 28 gap (NC-EXT-47 §7.2/7.3/7.5/7.6) |
-| TS-2 | Link layer, segmentation, SDLS | L1 + L2 | SIL (PIL/HIL rows as gaps) | 44 / 36 (80) | gaps mapped per NC-EXT-47 |
+| TS-2 | Link layer, segmentation, SDLS | L1 + L2 | SIL (PIL/HIL rows as gaps) | 44 / 37 (81) | 48 covered / 32 gaps / 1 NC-EXT-07 characterization (no requirement credit) |
 | TS-3 | I/O group A: GPIO, serial, mem/DMA, GEM, netstack/lwIP, TSN, gPTP | L1 + L2 | SIL + PIL-Renode (per-check markers) | 45 / 45 (90) | Renode rows `covered` only where a per-check observable exists |
 | TS-4 | I/O group B: CAN, I2C, SPI, MTD, block, PCIe, SpaceWire, NVM | L1 + L2 | SIL + PIL-Renode (per-check markers) | 40 / 40 (80) | `hal_pcie=PASS` recorded as *not* peripheral-bound |
 | TS-5 | Core services: SB, TBL, EVS, ES, scheduler, HS/FDIR, math | L1 + L2 | SIL (PIL/HIL/target as gaps) | 48 / 26 + 1 mixed (75) | 52 covered / 23 gap |
@@ -315,4 +315,6 @@ higher-level claim. (c) Evidence supported by a tool whose qualification is open
 | --- | --- | --- | --- |
 | 0.2 | 2026-10-14 | frick-fsw | Reconcile TS-6 case totals and coverage summary after adding the configured SB/EVS structural stress case |
 | 0.3 | 2026-10-14 | frick-fsw | Reconcile TS-5 case totals (75) and six-package total (473); align the TS-5 primary environment and gap summary |
+| 0.4 | 2026-10-15 | frick-fsw | Reconcile TS-2 nominal/OOB and covered/gap counts, plus six-package total, after adding UART framing case |
+| 0.5 | 2026-10-16 | frick-fsw | Exclude NC-driven UART characterization from requirement-covered count and reconcile TS-2 coverage status |
 | 0.1 | 2026-10-14 | frick-fsw | Initial SVA-1 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: five verification levels with entry/exit criteria and can/cannot-establish limits, V-model leg-by-leg closure, environment-fidelity table with explicit emulator limits (SIL, PIL-Renode `beaglev-fire`, PIL-QEMU `virt`, HIL RTPFS160ZT), environment/level selection rules per test category, acceptance criteria and evidence per level, the flow into the N22 case tables, and the authority-owned parameters left unassigned |

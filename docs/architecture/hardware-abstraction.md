@@ -87,8 +87,21 @@ A conforming backend must respect, and document, the following (these are the
   cached for a later release. A drain timeout returns `FF_TIMEOUT` even though
   the line is released; target electrical timing remains board-specific.
 9. **Packet vs stream framing** — CAN/SpaceWire are frame/packet oriented while
-   UART is a byte stream; the contract states which, and boundary framing is the
-   backend's responsibility.
+    UART is a byte stream; the contract states which, and boundary framing is the
+    backend's responsibility. The reference UART link uses the CCSDS primary
+    header PDL to assemble exactly one configured-size TC packet per `recv`,
+    retains incomplete packets across timeout returns, and keeps coalesced bytes
+    for the next call. It does not make a mission-profile decision about primary
+    header version/APID/sequence flags; the packet codec and approved profile
+    govern those checks. The current POSIX/RTEMS termios `VTIME` mechanism is
+    decisecond-granular; a short requested timeout may return up to 100 ms late,
+    plus scheduler/driver latency. The command-ingest task is the sole receive
+    owner; other consumers must serialize externally. Timeout tolerance and
+    target UART behavior remain unapproved/unverified. Because CCSDS PDL is the
+    only stream boundary marker, a plausible incomplete maximum-length header
+    may retain later bytes (including another packet) across receive timeouts;
+    the parser does not guess an inner boundary. The recovery/discard policy is
+    authority-owned and remains open.
 
 ## 5. Pluggable third-party stacks (example: TCP/IP and TSN)
 

@@ -4,14 +4,14 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS2                     |
-| Revision                         | 0.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.9                                    |
+| Date                             | 2026-10-16                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-2 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 | Scope                            | Link backends (`link.c`, `link_loopback.c`, `link_uart.c`, `link_ip.c`, `link_tsn.c`), PUS-C segmentation/reassembly (`link_seg.c`, SRS-REQ-059) and the CCSDS SDLS sub-layer (`src/security/ff_sdls.c`, SRS-REQ-034/035) |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 (uncommitted changes possible) |
+| Baseline                         | Candidate delta: source HEAD `13ebf92` plus uncommitted UART receive-framing changes/tests and prior T7 changes; see current verification-results. Earlier TS-2 cases retain their historical baselines. |
 | Modules under test               | `src/transport/link/link.c`, `link_loopback.c`, `link_uart.c`, `link_seg.c`, `link_ip.c`, `link_tsn.c`; `src/security/ff_sdls.c` |
 | Interfaces cited                 | `link.h`, `link_seg.h`, `link_ip.h`, `link_tsn.h`, `security/ff_sdls.h`, `core/common/ff_types.h`, `docs/interfaces/ICD.md` (FRICK-ICD-001), `docs/architecture/security-sdls.md` (FRICK-ARCH-0010), `docs/architecture/network-stack.md` (FRICK-ARCH-0012) |
 
@@ -42,6 +42,10 @@ link backend). SSS parents carried by the same modules: `SSS-REQ-014` (transport
 and link decoupled; `link*` implementation set), `SSS-REQ-019` (SDLS),
 `SSS-REQ-028` (PUS-C transport over IP and TSN).
 
+N22-TS2-81 is an additional NC-driven characterization case for the current
+UART reference implementation, not a requirement-derived verification case;
+its timeout/recovery behavior awaits authority disposition (NC-EXT-07).
+
 Out of scope (owned by other work packages): CCSDS/PUS/time codec (TS-1), the
 I/O device drivers and HAL seams (TS-3/TS-4), core services (TS-5), the
 software-only robustness programme (TS-6), and the general multicore/timing
@@ -70,6 +74,10 @@ its own behavior is TS-3.
   (the requirement/interface is silent, contradictory, mission-tailored or the
   feature is not wired), so the case is recorded against **NC-EXT-47** and
   **not** executed to a fabricated oracle.
+- `characterization` = a controlled requirement oracle is absent, but the case
+  captures explicitly identified current implementation behavior for an open
+  NC. It earns no SRS/SSS verification credit and is not an accepted mission
+  interface policy; retain the owner/authority NC open.
 - **Gap discipline (N22)**: every `OOB` row (and any nominal row) whose expected
   behaviour is not defined by a requirement/architecture/interface clause is
   `gap`; the oracle cell names the open NC/TBD and, where applicable, an
@@ -90,10 +98,11 @@ its own behavior is TS-3.
 
 ## 2. Test cases
 
-Case IDs `N22-TS2-1` … `N22-TS2-80`; groups: `1–8` link core and loopback,
+Case IDs `N22-TS2-1` … `N22-TS2-81`; groups: `1–8` link core and loopback,
 `9–16` IP backend (UDP/TCP), `17–29` segmentation/reassembly, `30–37` TSN
 backend, `38–41` UART backend, `42–69` SDLS (backend, SA/key lifecycle,
-protect/unprotect), `70–80` combined scenarios and environment-bound gaps.
+protect/unprotect), `70–80` combined scenarios and environment-bound gaps, and
+`81` UART packet-framing integration.
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -136,7 +145,7 @@ protect/unprotect), `70–80` combined scenarios and environment-bound gaps.
 | N22-TS2-37 | SRS-REQ-061 | `link_tsn.c` receive into a too-small caller buffer | OOB | a queued 4-octet frame retrieved with `cap` = 2 | **gap** — no clause defines the small-buffer contract for TSN RX (the implementation drops the frame). Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_BUFFER_FULL`, frame discarded. No oracle is asserted here | SIL | individual | gap |
 | N22-TS2-38 | SRS-REQ-016 | `link_uart.c` device open and 115200 baud configuration | nominal | `FF_LinkSelect(&FF_LinkUartBackend)` with `FF_LINK_UART_DEVICE` openable | init = `FF_SUCCESS`; the device is opened and put in raw mode with `B115200` input and output speeds (ICD §2 "UART byte stream, 115200 baud"; `link_uart.c`) | SIL | individual | covered |
 | N22-TS2-39 | SRS-REQ-016 | `link_uart.c` open failure | OOB | `FF_LINK_UART_DEVICE` cannot be opened | **gap** — no clause defines the UART open-failure return or the subsequent send/recv state. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: `FF_ERROR` from init and `FF_NOT_READY` from send/recv. No oracle is asserted here | SIL | individual | gap |
-| N22-TS2-40 | SRS-REQ-016 | `link_uart.c` byte send/recv round trip | nominal | paired pseudo-terminal; `FF_LinkSend(bytes)`; `FF_LinkRecv` | `FF_SUCCESS`; the bytes arrive in order; `recv` reports the received length (ICD §2 UART byte stream; `link.h`) | SIL | individual | covered |
+| N22-TS2-40 | SRS-REQ-016 | `link_uart.c` UART configuration and byte transmit | nominal | paired pseudo-terminal; backend init and transmit one packet | init = `FF_SUCCESS`; transmitted bytes arrive in order at the peer (ICD §2 UART device and rate) | SIL | individual | covered |
 | N22-TS2-41 | SRS-REQ-016 | `link_uart.c` short write and EAGAIN timeout | OOB | `write` returns fewer octets than requested; `read` returns with no data (`EAGAIN`) | **gap** — no clause defines the partial-write or EAGAIN contract. Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: `FF_ERROR` (short write), `FF_TIMEOUT` (EAGAIN). No oracle is asserted here | SIL | individual | gap |
 | N22-TS2-42 | SRS-REQ-034, SSS-REQ-019 | `ff_sdls.c` pluggable cryptographic backend registration | nominal | `FF_SdlsInit()`; `FF_SdlsSetBackend(&FF_CryptoTestBackend)`; `FF_SdlsGetBackend()` | init = `FF_SUCCESS`; the backend is registered and returned by `FF_SdlsGetBackend`; its `init()` is invoked (SRS-REQ-034 "pluggable cryptographic backend"; `ff_sdls.h`) | SIL | individual | covered |
 | N22-TS2-43 | SRS-REQ-034 | `ff_sdls.c` backend IV-length enforcement (`iv_len >= 4`) | OOB | `FF_SdlsSetBackend` with `iv_len` = 3 and `iv_len` = 0 | `FF_INVALID_ARGUMENT`; backend not registered (FRICK-ARCH-0010 §4 "the backend must provide `iv_len >= 4`, enforced by `FF_SdlsSetBackend`") | SIL | individual | covered |
@@ -171,12 +180,13 @@ protect/unprotect), `70–80` combined scenarios and environment-bound gaps.
 | N22-TS2-72 | SRS-REQ-059, SRS-REQ-060, SSS-REQ-028 | TCP-segmented PUS frames end to end | nominal | TCP mode; send a PUS TM frame spanning multiple read chunks and recv it | the seg prefix frames the TM; reassembly returns the TM byte-identical and `FF_PusIngest` accepts it (SRS-REQ-059 + SRS-REQ-060) | SIL | combined | covered |
 | N22-TS2-73 | SRS-REQ-034, SRS-REQ-059, SRS-REQ-060 | SDLS-protected PUS frame carried over the link | nominal | protect a CCSDS/PUS frame with an AUTH_ENC SA, carry the protected unit over the IP link, unprotect on receipt | **gap** — SDLS is not wired into any link backend, `fsw_main.c` or application (only `tests/unit/test_sdls.c` calls `FF_Sdls*`); there is no controlled secure-link requirement or integrated path, so no oracle exists (NC-EXT-47 §7.1 for the combined path, §7.3 for the missing contract; key/HSM = GAP-A14). No oracle is asserted here | SIL | combined | gap |
 | N22-TS2-74 | SRS-REQ-027, SRS-REQ-039, SRS-REQ-060 | IP link backend over two pluggable stacks | nominal | select the IP backend over `FF_NetStackLoopback` and over the mock `FF_NetStack_t`; UDP round trip on each | the same PUS frame round-trips over both stacks without a change to the backend (SRS-REQ-027 pluggable stack; SRS-REQ-039 reference stack; SRS-REQ-060) | SIL | combined | covered |
-| N22-TS2-75 | SRS-REQ-060, SRS-REQ-061 | Link backend ↔ ground support tool end to end | nominal | host simulator link backend ↔ `tools/gsw/ff_gsw.py` exchange of PUS-C TM/TC | **gap** — the GSW operates a manual serial/`--connect` session and `tools/gsw/ff_gsw.py` records that "an end-to-end link with an independent ground segment is not yet demonstrated"; `tests/python/test_ff_gsw.py` covers packet vectors only, so no per-requirement link↔GSW oracle exists (NC-EXT-47 §7.1/§7.6). No oracle is asserted here | SIL | combined | gap |
+| N22-TS2-75 | SRS-REQ-060, SRS-REQ-061 | Link backend ↔ ground support tool end to end | nominal | host simulator link backend ↔ `tools/gsw/ff_gsw.py` exchange of PUS-C TM/TC | **gap** — `tests/python/test_ff_gsw.py` now covers fixed vectors and link-independent fragmented/coalesced serial stream decoding, but no per-requirement host link↔GSW integration or independent ground-segment exchange is available (NC-EXT-03; NC-EXT-47 §7.1/§7.6). No oracle is asserted here | SIL | combined | gap |
 | N22-TS2-76 | SRS-REQ-044, SRS-REQ-034, SRS-REQ-035 | SDLS functional check on the emulated PolarFire SoC (Renode) | nominal | Renode run of `app_renode_test` exercising SDLS protect/unprotect | **gap** — no Renode check exercises the SDLS sub-layer; the `RENODE_TEST: PASS` aggregate marker is not a per-requirement oracle (NC-EXT-47 §7.6). No oracle is asserted here | PIL | individual | gap |
 | N22-TS2-77 | SRS-REQ-044, SRS-REQ-060, SRS-REQ-061 | Link backend functional check on the emulated PolarFire SoC (Renode) | nominal | Renode run of `app_renode_test` driving an `FF_Link_t` backend (IP/TSN/UART) round trip | **gap** — the Renode test application exercises the `hal_*` seams (`hal_eth`, `hal_net`, `hal_tsn`, …) but never selects nor drives `FF_LinkIpBackend`/`FF_LinkTsnBackend`/`FF_LinkUartBackend`; `RENODE_TEST: PASS` is not a per-requirement oracle (NC-EXT-47 §7.6). No oracle is asserted here | PIL | combined | gap |
 | N22-TS2-78 | SRS-REQ-060, SRS-REQ-061 | On-target link-level PUS-C over UART/IP/TSN (HIL) | nominal | target RTPFS160ZT; PUS-C TM/TC over the flight UART and mission IP/TSN link | **gap** — on-silicon framing, TCP stream segmentation, UDP/TSN timing and electrical integrity require flight hardware; GAP-A5 / NC-EXT-31 (NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
 | N22-TS2-79 | SRS-REQ-016 | On-target UART byte stream at 115200 baud (HIL) | nominal | target `/dev/console` UART at 115200 8N1 | **gap** — on-target UART timing and line integrity at the configured baud require flight hardware; GAP-A5 (NC-EXT-47 §7.5). No oracle is asserted here | HIL | individual | gap |
 | N22-TS2-80 | SRS-REQ-035 | Real cryptographic backend, HSM and ground key management (HIL) | nominal | certified CCSDS 352.0-B algorithm + hardware keystore; IV-uniqueness and key-distribution procedures | **gap** — GAP-A14: algorithm/HSM qualification, protected zeroisation, IV/counter uniqueness analysis and ground key management are mission/HW-supplied (FRICK-ARCH-0010 §7; NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
+| N22-TS2-81 | NC-EXT-07 characterization; no approved SRS oracle | `link_uart.c` packet framing over split/coalesced UART stream | OOB | PTY sends partial TC, receive timeout, remainder + second packet; too-small `cap`; over-limit PDL then valid packet; maximum frame; plausible maximum-length incomplete PDL followed by a valid packet and enough suffix to complete the declared candidate; close PTY master and read with a longer timeout | split frame is retained on timeout; complete frames return one per call byte-identically; too-small `cap` returns `FF_BAD_SIZE` without consuming the frame; over-limit candidate resynchronizes one octet; maximum 1037-octet frame is intact. For plausible incomplete candidate, return `FF_TIMEOUT`, emit no inner packet, then return the retained entire declared-length candidate only after its remaining bytes arrive (no sync delimiter permits guessing); a zero-byte read substantially before its configured VTIME chunk returns `FF_ERROR` on disconnect rather than retrying to deadline. This exposes the open malformed-candidate/head-of-line recovery policy (ICD §2/§3) | SIL | individual | characterization of current host reference behavior only; no requirement closure, timeout/recovery authority or target evidence |
 
 ## 3. Gaps (mapping to NC-EXT-47 sub-items)
 
@@ -260,27 +270,36 @@ oracle.**
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 80 |
+| Total cases | 81 |
 | Nominal | 44 |
-| Out-of-bound | 36 |
-| Individual | 71 |
+| Out-of-bound | 37 |
+| Individual | 72 |
 | Combined | 9 |
 | `covered` (oracle grounded in a requirement/architecture/interface clause) | 48 |
 | `gap` (no controlled oracle; recorded under NC-EXT-47) | 32 |
-| SIL / PIL / HIL | 75 / 2 / 3 |
+| `characterization` (NC-driven; no requirement closure) | 1 |
+| SIL / PIL / HIL | 76 / 2 / 3 |
 
 Requirement coverage in this scope: `SRS-REQ-015/016/026/027/028/034/035/039/
 044/059/060/061` and `SSS-REQ-014/019/028` all have at least one case; the link
 selection and dispatch API, all four reference backends, the segmentation and
-reassembly layer, and the SDLS backend/SA/key-lifecycle and protect/unprotect
-surfaces have nominal and (where a controlled contract exists) out-of-bound
-cases. Existing automated evidence lives in `tests/unit/test_link_ip.c`,
-`test_link_tsn.c`, `test_netloop.c` and `test_sdls.c`; the loopback and UART
-backends have **no** dedicated unit-test target in `tests/CMakeLists.txt`, so
-their nominal cases are specified (grounded) but not yet automated.
+reassembly layer, the UART stream framing, and the SDLS backend/SA/key-lifecycle
+and protect/unprotect surfaces have nominal and (where a controlled contract
+exists) out-of-bound cases. Automated evidence includes
+`tests/unit/test_link_uart.c` (host PTY), `test_link_ip.c`, `test_link_tsn.c`,
+`test_netloop.c` and `test_sdls.c`. The loopback backend still has no dedicated
+unit-test target; its cases are specified but not automated.
 
 ## History
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-14 | frick-fsw | Initial TS-2 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: nominal + out-of-bound case table with explicit oracles for the link core/selection, loopback, IP (UDP/TCP via seg), TSN and UART backends, the PUS-C segmentation/reassembly layer (SRS-REQ-059) and the CCSDS SDLS sub-layer (SRS-REQ-034/035); gaps mapped to NC-EXT-47 sub-items with the open NC/TBD named |
+| 0.2 | 2026-10-15 | frick-fsw | Clarify that new GSW stream-fragmentation tests are link-independent and do not close the host link↔GSW or external ground-segment E2E gap |
+| 0.3 | 2026-10-15 | frick-fsw | Add host-PTY evidence for production UART split/coalesced PDL framing, timeout retention, undersized caller capacity and max packet; update case counts |
+| 0.4 | 2026-10-15 | frick-fsw | Add explicit plausible-incomplete-header retention/release oracle and distinguish test evidence from authority-owned recovery policy |
+| 0.5 | 2026-10-15 | frick-fsw | Add SRS-REQ-017 to the scope list cited by UART framing case N22-TS2-81 |
+| 0.6 | 2026-10-15 | frick-fsw | Remove SRS-REQ-017 mapping because UART PDL framing does not validate the APID/mission-identifier profile |
+| 0.7 | 2026-10-16 | frick-fsw | Add explicit disconnected-terminal zero-read outcome to N22-TS2-81; preserve malformed plausible-candidate recovery as open |
+| 0.8 | 2026-10-16 | frick-fsw | Remove unsupported SRS-REQ-016 verification mapping from host UART characterization case per independent V&V review |
+| 0.9 | 2026-10-16 | frick-fsw | Define characterization-only status for N22-TS2-81 and reconcile coverage counts after independent V&V review |
