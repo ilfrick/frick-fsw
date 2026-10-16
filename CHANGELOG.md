@@ -7,6 +7,21 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### CI format-gate correction (2026-10-16)
+
+- Restored the clang-format layout of `FF_LINK_IP_REF_PEER`, `FF_LINK_TSN_REF_MAC`
+  and `MOCK_MAC_ADDR` to the form produced by the CI runner's clang-format 18.x.
+  They had been collapsed by a local clang-format 23 run, which made the hosted
+  `static analysis` job's "Format check" step fail (exit 123).
+- Pinned formatting to the runner's clang-format major: `make format` and the
+  new `make format-check` refuse to run when the local clang-format major differs
+  from `FF_CLANG_FORMAT_MAJOR` (default 18), with an explicit override variable.
+  The previous "clang-format passed" statement in the S8-FU entry was produced
+  under a newer host clang-format and did not cover the CI gate.
+- Refreshed the README metrics panel (review-stream counter 116 -> 117 after
+  review 0339) which had failed the hosted `build / unit tests` job's
+  "Metrics panel currency (norm N8)" step.
+
 ### S8-FU protocol ingest, GSW and UART framing corrective work (2026-10-15)
 
 - Hardened CCSDS TC/TM packet-length checks and added symmetric boundary tests;

@@ -16,7 +16,7 @@ BUILD_DIR ?= build/native
 CMAKE ?= cmake
 
 .PHONY: all fetch-third-party configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
-        trace format docs doxygen rtems docker-image clean smoke gsw-selfcheck \
+        trace format format-check docs doxygen rtems docker-image clean smoke gsw-selfcheck \
         coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
@@ -152,8 +152,30 @@ qemu:
 clean:
 	rm -rf build
 
+# Formatting is pinned to the clang-format major version used by the CI runner
+# (ubuntu-24.04 ships 18.x). clang-format >= 19 lays out single-line macro
+# definitions differently, so formatting with a newer host version silently
+# breaks the CI "Format check" gate. Run 'make format' inside the V&V image or
+# set FF_CLANG_FORMAT_ALLOW_UNPINNED=1 to override deliberately.
+FF_CLANG_FORMAT_MAJOR ?= 18
+
+define ff_clang_format_guard
+	@v="$$(clang-format --version 2>/dev/null | grep -oE '[0-9]+' | head -1)"; \
+	if [ -z "$$v" ]; then echo "error: clang-format not found on PATH"; exit 1; fi; \
+	if [ "$$v" != "$(FF_CLANG_FORMAT_MAJOR)" ] && [ -z "$(FF_CLANG_FORMAT_ALLOW_UNPINNED)" ]; then \
+	  echo "error: clang-format $$v != pinned major $(FF_CLANG_FORMAT_MAJOR) (CI runner uses 18.x)"; \
+	  echo "       use the V&V image (docker run --rm -v \$$PWD:/workspace -w /workspace frick-vv:local make format)"; \
+	  echo "       or set FF_CLANG_FORMAT_ALLOW_UNPINNED=1 to override"; exit 1; fi
+endef
+
 format:
+	$(ff_clang_format_guard)
 	clang-format -i src config tests
+
+# Same check as the CI "Format check" step (norm N10; tool T-format).
+format-check:
+	$(ff_clang_format_guard)
+	find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
 
 docs:
 	rm -rf build/doxygen
