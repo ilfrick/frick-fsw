@@ -29,10 +29,12 @@
 #include "core/es/es.h"
 #include "core/tbl/tbl.h"
 #include "core/time/time.h"
+#include "apps/app.h"
 #if !defined(FF_TEST_NO_HAL)
 #include "hal/hal.h"
 #endif
 #include "transport/ccsds/ccsds.h"
+#include "transport/link/link.h"
 #include "pus/pus.h"
 #include "pus/pus_types.h"
 #if defined(FRICK_USE_LIBM) && (FRICK_USE_LIBM == 1)
@@ -491,6 +493,7 @@ static void test_ccsds_telecommand(void)
 {
     FF_Pus_TcHdr_t tc;
     FF_Pus_TcHdr_t dec;
+    FF_Pus_TcHdr_t tc_sentinel;
     FF_Pus_TmHdr_t tmh;
     FF_Pus_TmHdr_t tm_sentinel;
     uint8_t frame[128];
@@ -579,21 +582,34 @@ static void test_ccsds_telecommand(void)
     frame[frame_len - 1u] ^= 0xFFu;
     data_len = 0xA55Au;
     apid = 0x05AAu;
+    data = (const uint8_t *)(uintptr_t)0x1234u;
     frame[4] = 0u;
     frame[5] = 4u; /* packet-data field shorter than TC secondary header + CRC */
+    (void)memset(&dec, 0xA5, sizeof(dec));
+    tc_sentinel = dec;
     FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
                    FF_PARSE_ERROR);
     FF_TEST_ASSERT(data_len == 0xA55Au);
     FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&dec, &tc_sentinel, sizeof(dec)) == 0);
 
     frame[4] = 0xFFu;
     frame[5] = 0xFAu; /* header + PDL exceeds UINT16_MAX; former 16-bit sum wrapped */
     FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
                    FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&dec, &tc_sentinel, sizeof(dec)) == 0);
     frame[4] = 0xFFu;
     frame[5] = 0xFFu; /* PDL + 1 also exceeds the representable packet length */
     FF_TEST_ASSERT(FF_CcsdsDecodeTc(frame, frame_len, &apid, &dec, &data, &data_len) ==
                    FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&dec, &tc_sentinel, sizeof(dec)) == 0);
 
     /* A decoder input is one complete CCSDS packet, not a packet plus a
      * silently ignored suffix (which could be a coalesced second packet). */
@@ -631,6 +647,22 @@ static void test_ccsds_telecommand(void)
     FF_TEST_ASSERT(data_len == 0xA55Au);
     FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
     FF_TEST_ASSERT(memcmp(&tmh, &tm_sentinel, sizeof(tmh)) == 0);
+    tmframe[4] = 0xFFu;
+    tmframe[5] = 0xFFu; /* PDL + 1 exceeds the representable packet length */
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(tmframe, tm_len, &apid, &tmh, &data, &data_len) ==
+                   FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&tmh, &tm_sentinel, sizeof(tmh)) == 0);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, &tmh, NULL, 0u, tmframe, sizeof(tmframe), &tm_len) ==
+                   FF_SUCCESS);
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(tmframe, (uint16_t)(tm_len - 3u), &apid, &tmh, &data,
+                                    &data_len) == FF_PARSE_ERROR);
+    FF_TEST_ASSERT(apid == 0x05AAu);
+    FF_TEST_ASSERT(data_len == 0xA55Au);
+    FF_TEST_ASSERT(data == (const uint8_t *)(uintptr_t)0x1234u);
+    FF_TEST_ASSERT(memcmp(&tmh, &tm_sentinel, sizeof(tmh)) == 0);
     FF_TEST_ASSERT(FF_CcsdsEncodeTm(0x020u, &tmh, NULL, 0u, tmframe, sizeof(tmframe), &tm_len) ==
                    FF_SUCCESS);
     tmframe[tm_len] = 0xA5u;
@@ -662,6 +694,32 @@ static void test_ccsds_telecommand(void)
 
 static uint8_t g_pus_rx[8192];
 static uint16_t g_pus_rx_len;
+static uint8_t g_cmd_ingest_frame[FF_CCSDS_MAX_TC_PACKET];
+static uint16_t g_cmd_ingest_frame_len;
+static uint16_t g_cmd_ingest_recv_cap;
+
+static FF_Status_t cmd_ingest_test_recv(uint8_t *data, uint16_t cap, uint16_t *len,
+                                        uint32_t timeout_ms)
+{
+    (void)timeout_ms;
+    if ((data == NULL) || (len == NULL)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    g_cmd_ingest_recv_cap = cap;
+    if (g_cmd_ingest_frame_len > cap) {
+        return FF_BAD_SIZE;
+    }
+    memcpy(data, g_cmd_ingest_frame, g_cmd_ingest_frame_len);
+    *len = g_cmd_ingest_frame_len;
+    return FF_SUCCESS;
+}
+
+static const FF_Link_t g_cmd_ingest_test_link = {
+    .name = "test-max-tc",
+    .init = NULL,
+    .send = NULL,
+    .recv = cmd_ingest_test_recv,
+};
 
 static void pus_sink(const uint8_t *packet, uint16_t len)
 {
@@ -734,11 +792,18 @@ static FF_Status_t pus_param_setter(uint8_t id, const uint8_t *data, uint16_t le
 }
 
 static bool g_pus_func_called;
+static uint8_t g_pus_func_args[FF_PUS_MAX_TC_FRAME];
+static uint16_t g_pus_func_args_len;
 
 static FF_Status_t pus_function_ok(const uint8_t *args, uint16_t len)
 {
-    (void)args;
-    (void)len;
+    if (len > sizeof(g_pus_func_args)) {
+        return FF_BAD_SIZE;
+    }
+    if (len > 0u) {
+        memcpy(g_pus_func_args, args, len);
+    }
+    g_pus_func_args_len = len;
     g_pus_func_called = true;
     return FF_SUCCESS;
 }
@@ -862,11 +927,19 @@ static void test_pus_service8_function(void)
     const uint8_t f7[2] = {7u, 0x77u};
     const uint8_t f8[2] = {8u, 0x88u};
     const uint8_t f200[2] = {200u, 0x00u};
+    FF_Pus_TcHdr_t tc;
+    static uint8_t max_tc_payload[FF_PUS_MAX_TC_FRAME];
 
     FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(pus_sink);
     pus_register_all();
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION;
+    tc.service = 8u;
+    tc.subservice = 1u;
+    tc.source_id = 0x0102u;
 
     FF_TEST_ASSERT(pus_ingest(8u, 1u, NULL, 0u) == FF_BAD_SIZE);
 
@@ -874,7 +947,33 @@ static void test_pus_service8_function(void)
     g_pus_rx_len = 0u;
     FF_TEST_ASSERT(pus_ingest(8u, 1u, f7, sizeof(f7)) == FF_SUCCESS);
     FF_TEST_ASSERT(g_pus_func_called);
+    FF_TEST_ASSERT(g_pus_func_args_len == 1u);
+    FF_TEST_ASSERT(g_pus_func_args[0] == 0x77u);
     FF_TEST_ASSERT(pus_stream_has(8u, 2u));
+
+    /* Exercise the production command-ingest receive buffer and one-step
+     * receive path at the maximum configured packet size. The first payload
+     * octet is the function identifier; remaining octets must reach the
+     * registered service handler unchanged. */
+    max_tc_payload[0] = 7u;
+    for (uint16_t i = 1u; i < (uint16_t)sizeof(max_tc_payload); i++) {
+        max_tc_payload[i] = (uint8_t)(i & 0xFFu);
+    }
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, max_tc_payload,
+                                    (uint16_t)sizeof(max_tc_payload), g_cmd_ingest_frame,
+                                    sizeof(g_cmd_ingest_frame),
+                                    &g_cmd_ingest_frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(g_cmd_ingest_frame_len == FF_CCSDS_MAX_TC_PACKET);
+    g_cmd_ingest_recv_cap = 0u;
+    g_pus_func_called = false;
+    g_pus_func_args_len = 0u;
+    FF_TEST_ASSERT(FF_LinkSelect(&g_cmd_ingest_test_link) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_AppCmdIngestReceiveOne(1u, 25u) == FF_SUCCESS);
+    FF_TEST_ASSERT(g_cmd_ingest_recv_cap == FF_CCSDS_MAX_TC_PACKET);
+    FF_TEST_ASSERT(g_pus_func_called);
+    FF_TEST_ASSERT(g_pus_func_args_len == (uint16_t)(sizeof(max_tc_payload) - 1u));
+    FF_TEST_ASSERT(memcmp(g_pus_func_args, &max_tc_payload[1], g_pus_func_args_len) == 0);
+    FF_TEST_ASSERT(FF_LinkInit() == FF_SUCCESS);
 
     /* A failing function reports its error and a failure status TM. */
     g_pus_rx_len = 0u;

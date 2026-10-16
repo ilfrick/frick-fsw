@@ -16,6 +16,19 @@ if(NOT FF_BUILD_HAL)
 endif()
 add_executable(test_r3_gap unit/test_r3_gap.c)
 
+if(FF_PLATFORM STREQUAL "native")
+  # Exercise the production UART backend against a host PTY. The PTY path is a
+  # test-only compile-time override; no hardware/target evidence is implied.
+  add_executable(test_link_uart unit/test_link_uart.c
+    ${FF_SRC_DIR}/transport/link/link_uart.c)
+  target_include_directories(test_link_uart PRIVATE ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
+  target_compile_definitions(test_link_uart PRIVATE
+    FF_LINK_UART_DEVICE=\"/dev/ttyUSB0\"
+    FF_LINK_UART_DEVICE_ENV=\"FRICK_TEST_UART_DEVICE\")
+  target_compile_options(test_link_uart PRIVATE -Wall -Wextra -Werror)
+  target_link_libraries(test_link_uart PRIVATE Threads::Threads)
+endif()
+
 set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_pus test_time test_r2_gap test_r3_gap)
 if(NOT FF_USE_PUSOPEN)
   # Compile the in-repository adapter against a controlled test double. This
@@ -119,6 +132,10 @@ endif()
 add_test(NAME time  COMMAND test_time)
 add_test(NAME r2_gap COMMAND test_r2_gap)
 add_test(NAME r3_gap COMMAND test_r3_gap)
+if(TARGET test_link_uart)
+  add_test(NAME link_uart COMMAND test_link_uart)
+  set_tests_properties(link_uart PROPERTIES TIMEOUT 5 LABELS "link;uart;host-pty")
+endif()
 if(FF_BUILD_HAL)
   add_test(NAME hal COMMAND test_hal)
 endif()

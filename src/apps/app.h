@@ -15,6 +15,8 @@
 
 /* cFS style application entry points: void AppMain(void *arg) */
 void FF_AppCmdIngestMain(void *arg);
+/* Process one link receive using the production maximum-packet buffer. */
+FF_Status_t FF_AppCmdIngestReceiveOne(FF_AppId_t app, uint32_t timeout_ms);
 void FF_AppTmOutputMain(void *arg);
 void FF_AppSchedulerMain(void *arg);
 void FF_AppHkMain(void *arg);

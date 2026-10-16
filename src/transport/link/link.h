@@ -2,7 +2,9 @@
  * frick-fsw - Link layer (TM/TC physical + data link)
  *
  * A link moves opaque CCSDS frames between the flight software and the
- * outside world (UART, SpaceWire, IP, TSN, radio). The transport codec is
+ * outside world (UART, SpaceWire, IP, TSN, radio). Stream framing is backend-
+ * specific; the UART backend retains partial and coalesced data and returns one
+ * complete packet per recv call. The transport codec is
  * link agnostic; this header defines the frame-oriented byte-stream contract
  * plus reference backends: an in-memory loopback (simulator/tests), UART,
  * IP (UDP/TCP, SRS-REQ-060), and TSN over GEM (SRS-REQ-061).

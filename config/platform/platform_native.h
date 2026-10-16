@@ -17,7 +17,9 @@
 #define FF_CPU_HZ 24000000u /* nominal, unused on host */
 #define FF_MEMORY_POOL_SIZE (16u * 1024u * 1024u)
 
+#ifndef FF_LINK_UART_DEVICE
 #define FF_LINK_UART_DEVICE "/dev/ttyUSB0"
+#endif
 #define FF_LINK_BAUDRATE 115200u
 
 #define FF_BOARD_NAME "host simulator"
