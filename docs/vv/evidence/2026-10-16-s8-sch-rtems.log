@@ -1,0 +1,165 @@
+# S7 make rtems-docker  2026-10-16T07:27:33Z  HEAD 92f9f1d
+bash tools/scripts/fetch_third_party.sh lwip-only
+[fetch] done (lwip-only): /home/nicola/fsw/frick-fsw/third_party
+docker run --rm -v /home/nicola/fsw/frick-fsw:/workspace -w /workspace frick-rtems-toolchain:local \
+  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems && cmake --build build/rtems -j$(nproc)'
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/rtems/6/bin/riscv-rtems6-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- CMAKE_BUILD_TYPE not set - defaulting to Debug build.
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /workspace/third_party/lwip/../mbedtls
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+-- Doxygen needs to be installed to generate the doxygen documentation
+-- Configuring done (1.5s)
+-- Generating done (0.2s)
+-- Build files have been written to: /workspace/build/rtems
+[  0%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/def.c.obj
+[  3%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/dns.c.obj
+[  1%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/init.c.obj
+[  3%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/inet_chksum.c.obj
+[  3%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ip.c.obj
+[  5%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/mem.c.obj
+[  5%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/memp.c.obj
+[  5%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/netif.c.obj
+[  7%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/pbuf.c.obj
+[  7%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/raw.c.obj
+[  9%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/stats.c.obj
+[  9%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/sys.c.obj
+[  9%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/altcp.c.obj
+[ 11%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/altcp_alloc.c.obj
+[ 11%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/altcp_tcp.c.obj
+[ 11%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/tcp.c.obj
+[ 13%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/tcp_in.c.obj
+[ 13%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/tcp_out.c.obj
+[ 15%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/timeouts.c.obj
+[ 15%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/udp.c.obj
+[ 15%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/acd.c.obj
+[ 16%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/autoip.c.obj
+[ 16%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/dhcp.c.obj
+[ 18%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/icmp.c.obj
+[ 18%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/etharp.c.obj
+[ 18%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/igmp.c.obj
+[ 20%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/ip4_frag.c.obj
+[ 20%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/ip4.c.obj
+[ 20%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv4/ip4_addr.c.obj
+[ 22%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/dhcp6.c.obj
+[ 22%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/ethip6.c.obj
+[ 22%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/icmp6.c.obj
+[ 24%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/inet6.c.obj
+[ 24%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/ip6.c.obj
+[ 26%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/ip6_addr.c.obj
+[ 26%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/ip6_frag.c.obj
+[ 26%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/mld6.c.obj
+[ 28%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/core/ipv6/nd6.c.obj
+[ 28%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/api_lib.c.obj
+[ 28%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/api_msg.c.obj
+[ 30%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/err.c.obj
+[ 30%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/if_api.c.obj
+[ 32%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/netbuf.c.obj
+[ 32%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/netdb.c.obj
+[ 32%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/netifapi.c.obj
+[ 33%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/sockets.c.obj
+[ 33%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ethernet.c.obj
+[ 33%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/api/tcpip.c.obj
+[ 35%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/bridgeif.c.obj
+[ 35%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/bridgeif_fdb.c.obj
+[ 37%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/lowpan6_common.c.obj
+[ 37%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/lowpan6.c.obj
+[ 37%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/lowpan6_ble.c.obj
+[ 39%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/zepif.c.obj
+[ 39%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/auth.c.obj
+[ 39%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/ccp.c.obj
+[ 41%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/chap-md5.c.obj
+[ 41%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/chap_ms.c.obj
+[ 43%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/chap-new.c.obj
+[ 43%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/demand.c.obj
+[ 43%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/eap.c.obj
+[ 45%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/ecp.c.obj
+[ 45%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/eui64.c.obj
+[ 45%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/fsm.c.obj
+[ 47%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/ipcp.c.obj
+[ 47%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/ipv6cp.c.obj
+[ 49%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/lcp.c.obj
+[ 49%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/magic.c.obj
+[ 50%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/multilink.c.obj
+[ 50%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/mppe.c.obj
+[ 50%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/ppp.c.obj
+[ 50%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/pppapi.c.obj
+[ 52%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/pppcrypt.c.obj
+[ 52%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/pppoe.c.obj
+[ 54%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/pppol2tp.c.obj
+[ 54%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/pppos.c.obj
+[ 54%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/upap.c.obj
+[ 56%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/utils.c.obj
+[ 56%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/vj.c.obj
+[ 58%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/polarssl/arc4.c.obj
+[ 58%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/polarssl/des.c.obj
+[ 58%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/polarssl/md4.c.obj
+[ 58%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/polarssl/sha1.c.obj
+[ 60%] Building C object CMakeFiles/frick_lwip.dir/third_party/lwip/src/netif/ppp/polarssl/md5.c.obj
+[ 60%] Building C object CMakeFiles/frick_lwip.dir/src/hal/net/lwip/rtems/sys_arch.c.obj
+[ 62%] Linking C static library libfrick_lwip.a
+[ 62%] Built target frick_lwip
+[ 64%] Building C object CMakeFiles/frick_net_lwip.dir/src/hal/net/lwip/ff_net_lwip.c.obj
+[ 64%] Building C object CMakeFiles/frick_net_lwip.dir/src/hal/net/lwip/ff_lwip_netif.c.obj
+[ 64%] Linking C static library libfrick_net_lwip.a
+[ 64%] Built target frick_net_lwip
+[ 64%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_posix.c.obj
+[ 66%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/sb/sb.c.obj
+[ 66%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/evs/evs.c.obj
+[ 66%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_rtems.c.obj
+[ 67%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/es/es.c.obj
+[ 67%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/sched/ff_sched.c.obj
+[ 67%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/tbl/tbl.c.obj
+[ 67%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/time/pps.c.obj
+[ 69%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/time/time.c.obj
+[ 69%] Building C object CMakeFiles/frick_fsw_core.dir/src/bsp/mpfs/board.c.obj
+[ 71%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/ccsds/ccsds.c.obj
+[ 71%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link.c.obj
+[ 73%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_loopback.c.obj
+[ 73%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_uart.c.obj
+[ 73%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_seg.c.obj
+[ 75%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_ip.c.obj
+[ 75%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_tsn.c.obj
+[ 75%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.obj
+[ 77%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus_services.c.obj
+[ 77%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_open.c.obj
+[ 79%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_pusopen.c.obj
+[ 79%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_cmd_ingest.c.obj
+[ 79%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_tm_output.c.obj
+[ 79%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hk.c.obj
+[ 81%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_scheduler.c.obj
+[ 81%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hs.c.obj
+[ 83%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_sample.c.obj
+[ 83%] Building C object CMakeFiles/frick_fsw_core.dir/config/tables/fsw_tables.c.obj
+[ 84%] Building C object CMakeFiles/frick_fsw_core.dir/src/hal/hal.c.obj
+[ 84%] Building C object CMakeFiles/frick_fsw_core.dir/src/math/ff_math.c.obj
+[ 84%] Building C object CMakeFiles/frick_fsw_core.dir/src/security/ff_sdls.c.obj
+[ 86%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/eth/gem/ff_gem.c.obj
+[ 86%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/eth/gem/ff_gem_tsn.c.obj
+[ 86%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/eth/gptp/ff_gptp.c.obj
+[ 88%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/net/ff_net_loopback.c.obj
+[ 88%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/gpio/mpfs/ff_gpio_mpfs.c.obj
+[ 90%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/serial/mpfs/ff_serial_mpfs.c.obj
+[ 90%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/mem/ff_mem_static.c.obj
+[ 90%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/nvm/mpfs/ff_nvm_mpfs.c.obj
+[ 92%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/mtd/mpfs/ff_mtd_mpfs.c.obj
+[ 92%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/can/mpfs/ff_can_mpfs.c.obj
+[ 92%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/i2c/mpfs/ff_i2c_mpfs.c.obj
+[ 94%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/spi/mpfs/ff_spi_mpfs.c.obj
+[ 94%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/block/mpfs/ff_block_mpfs.c.obj
+[ 96%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/pcie/mpfs/ff_pcie_mpfs.c.obj
+[ 96%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/fabric/mpfs/ff_fabric_mpfs.c.obj
+[ 96%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/spacewire/mpfs/ff_spacewire_mpfs.c.obj
+[ 98%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/can/fabric/ff_canfd_fabric.c.obj
+[ 98%] Building C object CMakeFiles/frick_fsw_core.dir/src/drivers/can/canopen/ff_canopen.c.obj
+[ 98%] Linking C static library libfrick_fsw_core.a
+[ 98%] Built target frick_fsw_core
+[ 98%] Building C object CMakeFiles/frick_fsw.dir/config/rtems/rtems_config.c.obj
+[ 98%] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.obj
+[100%] Linking C executable frick_fsw
+[100%] Built target frick_fsw

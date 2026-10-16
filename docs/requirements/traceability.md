@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.46                                   |
-| Date                              | 2026-10-15                             |
+| Revision                          | 0.47                                   |
+| Date                              | 2026-10-16                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -62,6 +62,7 @@ compliance (NC-EXT-75/76).
 | SSS-REQ-027 (in-house OBCP engine) | SRS-REQ-054 |
 | SSS-REQ-028 (PUS-C over IP/TSN) | SRS-REQ-059, SRS-REQ-060, SRS-REQ-061 |
 | SSS-REQ-029 (extended fieldbus + PUSopen) | SRS-REQ-062, SRS-REQ-063, SRS-REQ-064, SRS-REQ-065 |
+| SSS-REQ-030 (application scheduling) | SRS-REQ-071 |
 
 ## 2. Requirement verification summary (SRS)
 
@@ -138,7 +139,7 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-068 | src/drivers/eth/gptp/ff_gptp.c/h, src/hal/hal_tsn.h | tests/unit/test_gptp.c | - | gPTP stack implemented/host-tested; fabric CoreTSN/802.1CB remains deferred to M14 |
 | SRS-REQ-069 | drivers/spi/mpfs/ff_spi_mpfs.c/h, config/platform/platform_mpfs.h | test_spi.c, ci:renode | - | Reference MSS SPI backend (M4/M11; polled CoreSPI master, clock divider reference-derived) |
 | SRS-REQ-070 | drivers/block/mpfs/ff_block_mpfs.c/h, config/platform/platform_mpfs.h | test_block.c, ci:renode | - | Reference MSS block-device backend (M4/M11; polled SDHCI-style MMC/SD, buffer mode) |
-| SRS-REQ-071 | app_scheduler.c, tbl.c | test_r2_gap.c | - | Planned M17 application schedule dispatch; behavior not yet delivered |
+| SRS-REQ-071 | core/sched/ff_sched.{c,h}, apps/app_scheduler.c, core/tbl/tbl.c | test_sched.c, ci:host-build | - | Bounded, allocation-free table-driven dispatch (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets (no shared-timestamp starvation, NC-EXT-19), bounded per-poll work with missed-slot/heartbeat/dispatch-failure evidence; host-verified with an injected clock. Mission rates, jitter limits, late-slot policy and recovery authority remain TBD, so no schedulability, jitter, WCET or target-evidence claim is made |
 | SRS-REQ-072 | evs.c, sb.c, app_tm_output.c, fsw_main.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, ci:simulator-smoke | - | Dispatch-rate/latency guarantee applies only within approved arrival/link performance envelopes; exactly-once loss accounting applies independently. Candidate tests and the 9,984-profile host sweep characterize configured local structure only; mission envelope, ground boundary, post-acceptance loss detection/counter/reset semantics and overload-loss reporting remain TBD (NC-EXT-75/76) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
@@ -179,6 +180,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-027 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - |
 | SSS-REQ-028 | docs/development-plan.md, docs/roadmap.md, docs/planning/sprint-plan.md | ci:docs | - |
 | SSS-REQ-029 | src/drivers/can/fabric/ff_canfd_fabric.c, src/drivers/can/canopen/ff_canopen.c, src/drivers/serial/mpfs/ff_serial_mpfs.c, src/pus/adapters/pus_adapter_pusopen.c, docs/planning/sprint-plan.md | tests/unit/test_canfd.c, tests/unit/test_canopen.c, tests/unit/test_serial.c, tests/unit/test_pusopen.c | - |
+| SSS-REQ-030 | src/core/sched/ff_sched.c, src/core/sched/ff_sched.h, src/apps/app_scheduler.c, docs/architecture/scheduling.md | tests/unit/test_sched.c, ci:host-build | - |
 
 ## 4. Gaps to ECSS class A (norm N5)
 
@@ -258,3 +260,4 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.44 | 2026-10-14 | frick-fsw | Trace the exploratory SB/EVS structural characterization and distinguish it from requirement compliance; clarify mission loss-accounting semantics remain TBD |
 | 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |
 | 0.46 | 2026-10-15 | frick-fsw | Update trace matrix for S4c/S4d source/test/Lean evidence and ADR-0018 PUS/lwIP defaults; retain explicit target-peripheral and vendor-SDK limits |
+| 0.47 | 2026-10-16 | frick-fsw | Sync the readable mirror to the manifest: add the SRS-REQ-071 / SSS-REQ-030 delivered rows (core/sched/ff_sched + test_sched) and restore the missing SSS-REQ-030 rows in sections 1 and 3 (29 -> 30 SSS rows, mirroring the yaml); mission rate/jitter/recovery inputs remain TBD |

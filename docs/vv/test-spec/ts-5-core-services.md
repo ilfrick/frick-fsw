@@ -4,15 +4,15 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS5                     |
-| Revision                         | 0.7                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.8                                    |
+| Date                             | 2026-10-16                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-5 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 | Scope                            | Core services: Software Bus (`sb`), Table Services (`tbl`), Event Services (`evs`), Executive Services (`es`), the scheduler application, the Health & Safety (HS/FDIR) application, and the mathematics facade (`math`) |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 (uncommitted changes possible) |
-| Modules under test               | `src/core/sb/sb.c`, `src/core/tbl/tbl.c`, `src/core/evs/evs.c`, `src/core/es/es.c`, `src/apps/app_scheduler.c`, `src/apps/app_hs.c`, `src/math/ff_math.c` |
+| Baseline                         | Working tree 2026-10-16 (S8-SCH dispatcher increment); previous baseline HEAD `57974d2` read 2026-10-14 |
+| Modules under test               | `src/core/sb/sb.c`, `src/core/tbl/tbl.c`, `src/core/evs/evs.c`, `src/core/es/es.c`, `src/core/sched/ff_sched.c`, `src/apps/app_scheduler.c`, `src/apps/app_hs.c`, `src/math/ff_math.c` |
 | Interfaces cited                 | `src/core/sb/sb.h`, `src/core/tbl/tbl.h`, `src/core/evs/evs.h`, `src/core/es/es.h`, `src/apps/app.h`, `src/math/ff_math.h`, `src/core/common/ff_types.h`, `config/fsw_config.h`; `docs/architecture/software-bus.md` (FRICK-ARCH-0002), `docs/architecture/applications.md` (FRICK-ARCH-0005), `docs/architecture/numerics.md` (FRICK-ARCH-0009), `docs/architecture/scheduling.md` (FRICK-ARCH-0018) |
 
 > **Authority statement.** This work package defines verification *cases and
@@ -38,8 +38,9 @@ Executive Services states, Health & Safety detection of failed applications),
 initialisation), `SRS-REQ-019` (configuration concentrated in
 `config/fsw_config.h` plus mission tables), `SRS-REQ-033` (portable mathematics
 facade over `libm`), `SRS-REQ-044` (Renode functional-validation environment,
-cited only by the PIL gap case `N22-TS5-67`), and `SRS-REQ-071` (planned
-RTEMS-backed, table-driven schedule dispatch). SSS parents carried by the same
+cited only by the PIL gap case `N22-TS5-67`), and `SRS-REQ-071` (RTEMS-backed,
+table-driven schedule dispatch; dispatcher delivered and host-verified, with
+mission rates/tolerances/target timing still TBD). SSS parents carried by the same
 modules: `SSS-REQ-002` (publish/subscribe bus with configurable pipe depth),
 `SSS-REQ-008` (Health & Safety: application health monitoring, heartbeat and a
 commandable software reset), `SSS-REQ-009` (table load/validate/activate),
@@ -157,11 +158,11 @@ SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock content
 | N22-TS5-40 | SRS-REQ-014 | `es.c` state progression LOADED → RUNNING is observable | nominal | read `FF_EsGetState` before and after start | the state is `FF_APP_LOADED` before start and `FF_APP_RUNNING` after, for each registered app (SRS-REQ-014 "Executive Services shall track states") | SIL | individual | covered |
 | N22-TS5-41 | SRS-REQ-014, SRS-REQ-019 | `es.c` application registry capacity (`FF_ES_MAX_APPS` = 32, plus one) | OOB | register 32 apps, then a 33rd | the registry does not exceed `FF_ES_MAX_APPS` and the 32 existing apps are unchanged; the 33rd registration adds no app and does not displace an existing one (bounded registry, `FF_ES_MAX_APPS` = SRS-REQ-019 config point; SRS-REQ-014). The exact refusal status and state transition are not fixed by a clause and are owned by TS-6 `N22-TS6-36` | SIL | individual | covered |
 | N22-TS5-42 | SRS-REQ-014 | `es.c` invalid configuration, unknown id and invalid lookup | OOB | `FF_EsRegisterApp(NULL, &id)`; cfg with `name = NULL`; `entry = NULL`; `FF_EsStartApp` for a never-registered id; `FF_EsGetState(0xFFFD)`; `FF_EsGetId(NULL)`; `FF_EsGetId("missing")` | **gap** — SRS-REQ-014 requires registration/lifecycle tracking but no clause fixes the invalid-argument, unknown-id or invalid-lookup return contract. Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: `FF_INVALID_ARGUMENT` / `FF_NOT_FOUND` / `FF_APP_FAILED` / `FF_INVALID_ID`. No oracle is asserted here. The failed-start/rollback path is owned by TS-6 `N22-TS6-37` | SIL | individual | gap |
-| N22-TS5-43 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` schedule-table image validation (magic, size, entry count ≤ 8) | nominal | a schedule table with `magic = FF_SCHED_MAGIC`, `count <= 8`, and size equal to the table struct; run the validator | the validator accepts the well-formed bounded image (`FF_SUCCESS`) (SRS-REQ-071 "allocation-free, bounded schedule table … validated before activation"; SSS-REQ-030 bounded table-driven service; `app_scheduler.c` `ff_sched_validate`) | SIL | individual | covered |
-| N22-TS5-44 | SRS-REQ-071 | `app_scheduler.c` rejected schedule-table images | OOB | images with wrong magic, `count = 9`, and size ≠ `sizeof(ff_sched_table_t)` | each image is rejected (`FF_ERROR`) with no dispatch of its entries (bounded schedule image, SRS-REQ-071; `app_scheduler.c` `ff_sched_validate`) | SIL | individual | covered |
-| N22-TS5-45 | SRS-REQ-071 | `app_scheduler.c` validated-before-activation and atomic schedule-table activation | nominal | publish/deploy a new schedule image and activate it | **gap** — SRS-REQ-071 requires table images to be "validated before activation and activated atomically", but the reference stub calls `FF_TblRegister` only and never `FF_TblLoad`/`FF_TblActivate`, so no activation path exists to observe. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). Uncontrolled observation only: the initial in-memory image is used directly. No oracle is asserted here | SIL | individual | gap |
-| N22-TS5-46 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` table-driven dispatch of configured SB messages | nominal | run the dispatcher with the three sample entries (1000/5000/10000 ms) and observe SB publishes | **gap** — SRS-REQ-071/SSS-REQ-030 define the planned mission dispatcher; the reference stub is demonstration code and the numeric rates/tolerances are mission-controlled TBD, so no controlled dispatch-rate oracle exists. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). Uncontrolled observation only: entry messages appear on the bus roughly per poll. No oracle is asserted here | SIL | individual | gap |
-| N22-TS5-47 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` heartbeat, late/missed-slot and dispatch-failure evidence | nominal | force a late release and an SB publish failure and observe the health-monitoring path | **gap** — SRS-REQ-071 requires heartbeat/late-missed-slot/dispatch-failure evidence to Health & Safety / EVS, and SSS-REQ-030 requires liveness/overrun reporting; the stub emits none. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). No oracle is asserted here | SIL | individual | gap |
+| N22-TS5-43 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` schedule-table image validation (magic, size, entry count ≤ 16, payload bound) | nominal | a schedule table with `magic = FF_SCHED_MAGIC`, `count <= FF_SCHED_MAX_ENTRIES` (16), `payload_len <= FF_SCHED_PAYLOAD_MAX`, and size equal to `sizeof(FF_SchedTable_t)`; also the zero-entry and full-capacity images; run `FF_SchedValidate` | the validator accepts each well-formed bounded image (`FF_SUCCESS`) (SRS-REQ-071 "allocation-free, bounded schedule table … validated before activation"; SSS-REQ-030 bounded table-driven service). Evidence: `tests/unit/test_sched.c` `test_validate_rejects` (accept path) | SIL | individual | covered |
+| N22-TS5-44 | SRS-REQ-071 | `ff_sched.c` rejected schedule-table images | OOB | images with NULL pointer, `size` ± 1, wrong magic, `count = FF_SCHED_MAX_ENTRIES + 1`, zero period, `payload_len > FF_SCHED_PAYLOAD_MAX`, and duplicate `msg_id` | each image is rejected (`FF_ERROR`) and no entry of a rejected image is ever dispatched (bounded schedule image, SRS-REQ-071). Evidence: `tests/unit/test_sched.c` `test_validate_rejects` | SIL | individual | covered |
+| N22-TS5-45 | SRS-REQ-071 | `ff_sched.c` validated-before-activation and atomic schedule-table activation | nominal | activate an invalid image, then a valid one; observe `FF_SchedActiveCount` and the rejection counter | activation validates first: an invalid image leaves the previously active table untouched (count unchanged) and increments `invalid_activations`; a valid image becomes active (`FF_SchedActiveCount` = new count) (SRS-REQ-071 "validated before activation and activated atomically"; SSS-REQ-030). Evidence: `tests/unit/test_sched.c` `test_activate_atomic`. **Scope limit:** atomicity is established for the single-writer double-buffer publish only; cross-core/interrupt memory ordering is not established and is deferred to the multicore work (M14) | SIL | individual | covered |
+| N22-TS5-46 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` table-driven dispatch of configured SB messages (injected clock) | nominal | run the dispatcher with three entries (1000/5000/10000 ms) over 30 s of injected time; also poll at 137 ms (drift) and across a 4500 ms jump (missed slots) | fixed results with explicit expected values: 30/6/3 releases over 30 s with zero misses (per-entry absolute targets, no starvation — NC-EXT-19 corrected); 10 releases in 10.001 s for the 137 ms case (no cumulative drift); a 4500 ms jump on a 1500 ms entry yields exactly one release plus 3 counted missed slots and no catch-up burst; `max_out` bounds releases per poll (SRS-REQ-071/SSS-REQ-030). Evidence: `tests/unit/test_sched.c` (`test_no_starvation`, `test_no_cumulative_drift`, `test_first_release_boundary`, `test_missed_slots_bounded`, `test_max_out_bound`, `test_null_out_allowed`, `test_real_sb_delivery`). **Scope limit:** host execution with an injected clock; the *mission* rates/tolerances remain TBD (row N22-TS5-48) and target/RTEMS timing evidence is not available | SIL | individual | covered |
+| N22-TS5-47 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` / `ff_sched.c` heartbeat, late/missed-slot and dispatch-failure evidence | nominal | force a late release and an SB publish failure and observe the health-monitoring path | **partial** — the mechanism is delivered: `FF_SchedGetStats` exposes release/`missed`/`late`/`publish_errors` counters (asserted in host test: `test_missed_slots_bounded`, `test_no_starvation`), and `app_scheduler.c` emits EVS heartbeat/missed-slot/dispatch-failure events (`0x0601`–`0x0605`). The host test verifies the counter semantics but **not** the EVS emission to the Health & Safety listener, which requires the running application set (integration/simulator smoke). No end-to-end health-path oracle is asserted here; M17/S8-SCH follow-up. NC-EXT-19 remains open pending independent review | SIL | individual | gap |
 | N22-TS5-48 | SRS-REQ-071 | `app_scheduler.c` mission-controlled rates, timing tolerances and overrun response | nominal | apply a mission rate/jitter/overrun profile | **gap** — SRS-REQ-071 states numeric rates, timing tolerances and the operational response to overruns are mission-controlled inputs, TBD until an approved profile exists. Open TBD (NC-EXT-47 §7.3; FRICK-ARCH-0018 §1/§5). No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-49 | SSS-REQ-008, SRS-REQ-014 | `app_hs.c` periodic heartbeat event | nominal | run `FF_AppHsMain` and observe EVS over at least one heartbeat period | the HS task emits a heartbeat event (id `0x0502`, `FF_EVS_INFO`) once per loop period (5000 ms) and remains alive (SSS-REQ-008 heartbeat; SRS-REQ-014; `app_hs.c`) | SIL | individual | covered |
 | N22-TS5-50 | SSS-REQ-008 | `app_hs.c` commandable software reset registered as PUS S8 function #1 | nominal | start HS; invoke PUS service 8 function id 1 | HS registers `ff_hs_fn_reset` as PUS S8 function 1 and invoking it performs the on-board reset action (`FF_PalPanic`) as the commandable software reset (SSS-REQ-008; `app_hs.c`). The harness must stub/intercept `FF_PalPanic` so the reset action is observable without ending the run | SIL | individual | covered |
@@ -180,7 +181,7 @@ SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock content
 | N22-TS5-63 | SRS-REQ-011 | EVS event forwarded end-to-end to PUS service 5 | nominal | wire the EVS listener to `FF_PusEmitEvent` as in `fsw_main.c`; raise one event of each severity | each EVS event becomes a PUS service 5 telemetry packet whose payload carries the event id and type (SRS-REQ-011; the PUS S5 encoding itself is owned by TS-1) | SIL | combined | covered |
 | N22-TS5-64 | SRS-REQ-014, SSS-REQ-008 | ES start plus HS detection of the same application set | OOB | register and start two apps; force one to `FF_APP_FAILED`; run an HS loop | ES reports `FF_APP_RUNNING` for the healthy app and `FF_APP_FAILED` for the failed app in the same run, and HS raises the critical event for the failed id (SRS-REQ-014 state tracking + HS detection; SSS-REQ-008) | SIL | combined | covered |
 | N22-TS5-65 | SRS-REQ-014, SRS-REQ-001 | core-service initialisation order with ES-created pipes | nominal | initialise EVS, TBL, SB and ES; register apps (each creating a pipe); start all; publish | initialisation order is honoured with no resource clash; every registered app has a working pipe after `FF_EsStartAll` (SRS-REQ-014 lifecycle; SRS-REQ-001 pipes; FRICK-ARCH-0005 §1 app set) | SIL | combined | covered |
-| N22-TS5-66 | SRS-REQ-071, SRS-REQ-013 | scheduler dispatch from a validated, atomically-activated schedule table | nominal | deploy a schedule image through Table Services, activate it, and let the scheduler dispatch its entries onto the SB | **gap** — SRS-REQ-071 requires the dispatcher to consume a validated, atomically-activated table, but the reference stub neither loads/activates through TBL nor exposes the dispatch contract; slavey coupling of TBL and the scheduler is not delivered. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). No oracle is asserted here | SIL | combined | gap |
+| N22-TS5-66 | SRS-REQ-071, SRS-REQ-013 | scheduler dispatch from a validated, atomically-activated schedule table | nominal | deploy a schedule image through Table Services, activate it, and let the scheduler dispatch its entries onto the SB | **gap** — SRS-REQ-071 requires the dispatcher to consume a validated, atomically-activated table; the app now registers the schedule image with Table Services and wires `FF_SchedValidate` as the validator, and activates it atomically through `FF_SchedActivate`, but the TBL-driven operational flow (`FF_TblLoad`/`FF_TblActivate` → dispatcher re-activation and dispatch coupling) is not delivered. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). No oracle is asserted here | SIL | combined | gap |
 | N22-TS5-67 | SRS-REQ-044, SRS-REQ-014 | core services on the emulated PolarFire SoC (Renode) | nominal | Renode `polarfire-soc` run of `app_renode_test` exercising the core services | **gap** — SRS-REQ-044 requires a checkable result per change, but the `RENODE_TEST: PASS` aggregate marker is not a per-requirement oracle and no per-check core-service observable is emitted. Open NC-EXT-47 §7.6. No oracle is asserted here | PIL | combined | gap |
 | N22-TS5-68 | SRS-REQ-014, SRS-REQ-071 | core services on target silicon (HIL) | nominal | RTPFS160ZT target: application start, heartbeats, SB/EVS/TBL operation under RTEMS 6.2, watchdog/reset path | **gap** — on-silicon timing, watchdog escalation, scheduler liveness and HS reset behaviour require flight hardware; target evidence remains GAP-A5 (NC-EXT-31). Open TBD (NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
 | N22-TS5-69 | SRS-REQ-015 | core services stay allocation-free after initialisation | nominal | initialise EVS, TBL, SB and ES; register and start the app set; run a bounded publish/load/activate/event workload; observe the process heap via an interposed allocator | no heap allocation occurs during or after the workload — every SB pipe/queue, the TBL registry and the EVS log are static tables sized at compile time, and the allocation counter is unchanged after `FF_EsStartAll` (SRS-REQ-015 "shall not allocate dynamic memory after initialisation"; FRICK-ARCH-0002 §4 static pools; FRICK-ARCH-0009 §4 facade is allocation-free). The sanitizer/leak leg over the whole registered ctest set is owned by TS-6 `N22-TS6-5` | SIL | individual | covered |
@@ -209,18 +210,22 @@ the specific open NC where one exists. Gap rows assert **no** oracle.
   (copy count) (TBD; NC-EXT-47 §7.3).
 - `N22-TS5-28` — TBL registration with an incomplete definition (TBD;
   NC-EXT-47 §7.3).
-- `N22-TS5-45` — scheduler validated-before-activation / atomic activation not
-  delivered (NC-EXT-19 / M17; NC-EXT-47 §7.3).
-- `N22-TS5-46` — scheduler table-driven dispatch rates/tolerances
-  mission-controlled TBD (NC-EXT-19 / M17; NC-EXT-47 §7.3).
+- `N22-TS5-45` — scheduler atomic activation: single-writer double-buffer only;
+  cross-core/interrupt memory ordering deferred to M14 (NC-EXT-47 §7.3).
+- `N22-TS5-46` — mission dispatch rates/jitter tolerances remain
+  mission-controlled TBD; host-verified dispatcher behavior is covered but no
+  target/RTEMS timing evidence exists (NC-EXT-19 / M17; NC-EXT-47 §7.3).
 - `N22-TS5-47` — scheduler heartbeat / late-missed-slot / dispatch-failure
-  evidence not delivered (NC-EXT-19 / M17; NC-EXT-47 §7.3).
+  counters are host-verified, but the EVS-to-Health&Safety end-to-end oracle
+  requires the running application set (integration/simulator smoke;
+  NC-EXT-19 / M17; NC-EXT-47 §7.3).
 - `N22-TS5-48` — scheduler mission rates, tolerances and overrun response TBD
   (NC-EXT-47 §7.3; FRICK-ARCH-0018 §1/§5).
 - `N22-TS5-53` — HS treatment of STOPPED/LOADED (non-RUNNING, non-FAILED)
   applications (TBD; NC-EXT-47 §7.3).
 - `N22-TS5-66` — scheduler ↔ TBL validated/activated dispatch coupling not
-  delivered (NC-EXT-19 / M17; NC-EXT-47 §7.3).
+  delivered (registration and validator are wired; the TBL load/activate →
+  dispatch path is missing) (NC-EXT-19 / M17; NC-EXT-47 §7.3).
 - `N22-TS5-70` — SB `FF_SbStats_t` counter width and unsigned wrap/saturation
 - `N22-TS5-73` — SRS-REQ-011 outcome when SB overflow event cannot acquire EVS
   lock (authority policy gap; TBD; NC-EXT-47 §7.3).
@@ -259,10 +264,12 @@ oracle.**
 The cases above are **specified**; the following records what is actually
 automated on the baseline, so that `covered` is not read as `passing`:
 
-- **Registered core-service suites**: `test_sb.c`, `test_tbl.c`, `test_r2_gap.c`
-  and `test_r3_gap.c` already assert several of these oracles (SB fan-out / FIFO
-  / no-match / wildcard / saturation / drop, TBL lifecycle / revert / dump /
-  capacity, EVS listener and ring, ES registry/lifecycle, TBL atomic activate).
+- **Registered core-service suites**: `test_sb.c`, `test_tbl.c`, `test_r2_gap.c`,
+  `test_r3_gap.c` and `test_sched.c` already assert several of these oracles (SB
+  fan-out / FIFO / no-match / wildcard / saturation / drop, TBL lifecycle /
+  revert / dump / capacity, EVS listener and ring, ES registry/lifecycle, TBL
+  atomic activate, scheduler image validation / atomic activation / per-entry
+  release targets / missed-slot accounting).
   `test_math.c` covers SRS-REQ-033 tolerance, helpers and domain behaviour. The
   SB/TBL/ES/EVS/HS row-to-suite mapping must be confirmed by the runner before
   any statement of "verified".
@@ -272,11 +279,16 @@ automated on the baseline, so that `covered` is not read as `passing`:
   dropped statistic, retained queued message and publish return. The applicable
   SIL run passed (`test_sb`, 48 checks; `make test`, 27/27) and is recorded in
   `docs/vv/verification-results.md`; broader NC-EXT-47 remains open.
-- **Scheduler (`SRS-REQ-071`) is not delivered**: the traceability entry records
-  "implementation and behavioral verification are not yet delivered"; the stub
-  `app_scheduler.c` validates a table image but never loads/activates it, uses a
-  single shared last-run timestamp, and emits no heartbeat/late/dispatch
-  evidence. Its behaviour rows are therefore `gap`, not `covered`.
+- **Scheduler (`SRS-REQ-071`) dispatcher delivered and host-tested**: the
+  bounded, allocation-free `src/core/sched/ff_sched.c` replaces the shared
+  last-run stub; `tests/unit/test_sched.c` asserts validation accept/reject,
+  atomic activation, per-entry absolute release targets (no starvation —
+  NC-EXT-19 corrected), no cumulative drift, bounded `max_out`, missed-slot
+  accounting and real SB delivery, with explicit expected values. Rows
+  `N22-TS5-43/44/45/46` move to `covered`. Mission rates/tolerances, RTEMS/target
+  timing, the EVS-to-HS end-to-end oracle (`N22-TS5-47`) and the TBL
+  load/activate→dispatch coupling (`N22-TS5-66`) remain `gap`, so NC-EXT-19 is
+  **not** closed here.
 - **HS (`SSS-REQ-008`) has no dedicated automated suite** on the baseline
   (lifecycle/HS detection is currently simulator-smoke only); rows `N22-TS5-49`
   to `N22-TS5-51` are specified and instrumentable on the host but must be added.
@@ -294,8 +306,8 @@ automated on the baseline, so that `covered` is not read as `passing`:
 | Mixed nominal + out-of-bound | 1 |
 | Individual | 66 |
 | Combined | 9 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 52 |
-| `gap` (no controlled oracle; recorded under NC-EXT-47) | 23 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 54 |
+| `gap` (no controlled oracle; recorded under NC-EXT-47) | 21 |
 | SIL / PIL / HIL (primary assignments; target remains gap) | 72 / 1 / 2 |
 
 Requirement coverage in this scope: `SRS-REQ-001/002/011/013/014/015/019/033/
@@ -316,3 +328,4 @@ delivered.
 | 0.5 | 2026-10-14 | frick-fsw | Add SRS-REQ-072 event-envelope and synchronized SB/EVS lock-contention cases with explicit TBD parameters, failure boundary and candidate-versus-oracle distinction |
 | 0.6 | 2026-10-14 | frick-fsw | Specify deterministic multiple-subscriber queue-lock contention oracle, continued partial fan-out and exact return/statistics/event behavior; keep SRS-REQ-072 profile/loss-reporting gap open |
 | 0.7 | 2026-10-14 | frick-fsw | Reconcile case summary to all 75 table rows, use one primary environment token per case and retain HIL/target ground receipt as a gap |
+| 0.8 | 2026-10-16 | frick-fsw | Update scheduler rows 43–47/66 for the delivered S8-SCH dispatcher (`ff_sched` validation, atomic activation, absolute per-entry targets, bounded per-poll work, missed-slot/heartbeat counters) with host oracles in `tests/unit/test_sched.c`; retain mission-rate/tolerance, target-timing, EVS-to-HS integration and TBL load/activate coupling gaps; NC-EXT-19 remains open |

@@ -663,10 +663,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-030
     derived: false
-    implementation: ["docs/architecture/scheduling.md", "docs/development-plan.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/core/sched/ff_sched.c", "src/core/sched/ff_sched.h", "src/apps/app_scheduler.c", "docs/architecture/scheduling.md", "docs/development-plan.md", "docs/planning/sprint-plan.md"]
+    tests: ["tests/unit/test_sched.c", "ci:host-build"]
     lean: []
-    lean_note: "Planned M17 requirement; implementation and behavioral verification are not yet delivered. RTEMS owns task preemption; the planned application scheduler dispatches SB messages from a validated, bounded schedule table."
+    lean_note: "Bounded allocation-free table-driven dispatcher delivered (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets with bounded per-poll work and missed-slot accounting, host-verified with an injected clock (tests/unit/test_sched.c). RTEMS task selection/preemption remains out of scope; mission rates, jitter limits, late-slot policy and recovery authority remain TBD controlled inputs, so no schedulability, jitter or WCET claim is made and no target evidence is implied."
 
   - id: SRS-REQ-072
     level: srs
@@ -904,10 +904,10 @@ requirements:
   - id: SSS-REQ-030
     level: sss
     derived: false
-    implementation: ["docs/architecture/scheduling.md", "docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/core/sched/ff_sched.c", "src/core/sched/ff_sched.h", "src/apps/app_scheduler.c", "docs/architecture/scheduling.md", "docs/development-plan.md", "docs/roadmap.md", "docs/planning/sprint-plan.md"]
+    tests: ["tests/unit/test_sched.c", "ci:host-build"]
     lean: []
-    lean_note: "Planned bounded table-driven SB scheduler. Native RTEMS owns task selection and preemption; mission rates, timing budgets and recovery policy require controlled inputs."
+    lean_note: "Bounded table-driven SB dispatcher delivered (S8-SCH first increment), host-verified with an injected clock; native RTEMS owns task selection and preemption. Mission rates, timing budgets, jitter limits and recovery policy still require controlled inputs, so no schedulability claim is made."
 
   # ------------------------------------------------------------------ GAPS (class A, norm N5)
   - id: GAP-A1

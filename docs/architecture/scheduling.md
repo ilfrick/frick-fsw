@@ -2,9 +2,9 @@
 
 | Document id | FRICK-ARCH-0018 |
 | --- | --- |
-| Revision | 0.1 |
-| Date | 2026-10-13 |
-| Status | Planned design input; not an implementation or assurance claim |
+| Revision | 0.2 |
+| Date | 2026-10-16 |
+| Status | Design input with a partially implemented dispatcher; the implementation is not an assurance, schedulability or qualification claim |
 
 ## 1. Scope and terminology
 
@@ -15,12 +15,12 @@ ready task runs, priority preemption, and synchronization. The dispatcher is
 itself an ordinary Executive Services task and therefore receives its CPU time
 under RTEMS' configured native scheduler.
 
-The current `src/apps/app_scheduler.c` is only a reference stub. It polls at
-100 ms, uses one shared `g_last_run` timestamp for all entries, ignores Table
-Services activation/error results, and has no missed-slot, heartbeat, or
-recovery semantics. It is not suitable as a mission scheduler. In particular,
-one entry resetting the shared timestamp can starve entries with longer
-periods. This plan does not claim the current scheduler behavior is correct.
+The former `src/apps/app_scheduler.c` reference stub polled at 100 ms, used one
+shared `g_last_run` timestamp for all entries, ignored Table Services
+activation/error results, and had no missed-slot, heartbeat or recovery
+semantics. One entry resetting the shared timestamp starved entries with longer
+periods (tracked as NC-EXT-19). That stub has been replaced by the bounded
+dispatcher described in section 5.1; mission suitability is still not claimed.
 
 ## 2. Industrial/flight-software options reviewed
 
@@ -123,6 +123,40 @@ design item.
   identity and timing assumptions. Closure requires R1/R2/R3/R4/PA gates as
   applicable; none of this plan alone authorizes flight use.
 
+## 5.1 Implementation status (first S8-SCH increment, 2026-10-16)
+
+Delivered and host-verified (not an approved mission profile):
+
+- `src/core/sched/ff_sched.{c,h}`: fixed-capacity (`FF_SCHED_MAX_ENTRIES` = 16),
+  statically allocated schedule image; no dynamic allocation anywhere.
+- Validation (`FF_SchedValidate`): image size, magic, entry-count bound,
+  non-zero period, payload bound, and duplicate `msg_id` rejection. Rate
+  divisibility and major-frame alignment are deliberately **not** checked —
+  they are mission inputs that remain `TBD`.
+- Atomic activation (`FF_SchedActivate`): a rejected image leaves the active
+  table untouched; accepted images are published through a single-writer
+  double buffer. Interrupt/multi-core memory-ordering beyond that single-writer
+  publish is not established and is tracked with the platform/SMP work (M14).
+- Per-entry **absolute** release targets: each entry keeps its own next-due
+  instant, so a short period cannot starve a longer one (corrects NC-EXT-19)
+  and relative-delay drift does not accumulate.
+- Bounded work per poll: at most one release per entry per call; slots crossed
+  while late are counted (`missed`) and never burst-released. The provisional
+  no-catch-up/skip behaviour is a project selection and still requires an
+  authority-approved late-slot policy (NC-EXT-07 scope).
+- Diagnostics for the §5 evidence requirement: release/missed/late/publish-error
+  counters exposed by `FF_SchedGetStats`, plus EVS heartbeat, missed-slot and
+  dispatch-failure events emitted by `src/apps/app_scheduler.c`.
+- Host verification: `tests/unit/test_sched.c` (nominal and out-of-bound cases
+  with explicit expected results, injected clock) plus real SB delivery.
+
+Explicitly **not** established: mission rates/jitter/tolerances, WCET, target
+RTEMS timing, watchdog interaction, clock-discontinuity behaviour, table
+load/activate-over-SB operational flow, and recovery authority. Section 5's
+gate ("replace the stub only after requirements and review approval") is **not
+yet satisfied**: the independent R/PA review of this increment is pending, so
+NC-EXT-19 is not closed and no flight-use authorization is implied.
+
 ## 6. Sources checked (accessed 2026-10-13)
 
 - NASA, `nasa/SCH`, README: https://github.com/nasa/SCH — states SCH is a cFS
@@ -157,3 +191,4 @@ design item.
 | Rev | Date | Author | Reason |
 | --- | --- | --- | --- |
 | 0.1 | 2026-10-13 | frick-fsw | Record scheduler option trade, cFS-SCH behavior, RTEMS ownership boundary, recovery limits and M17 plan |
+| 0.2 | 2026-10-16 | frick-fsw | Record the delivered S8-SCH dispatcher increment (ff_sched validation/atomic activation/absolute per-entry targets, bounded per-poll work, missed-slot and heartbeat diagnostics) and state explicitly that the section 5 review gate, mission timing inputs and target evidence remain open |

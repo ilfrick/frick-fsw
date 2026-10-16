@@ -4,14 +4,14 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS6                     |
-| Revision                         | 1.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 1.2                                    |
+| Date                             | 2026-10-16                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001), §6 |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-6 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 | Scope                            | Software-only robustness: memory safety, numeric/overflow protection, PAL concurrency and timing edges, software-level fault injection and resource bounds; **no I/O and no functional precondition** |
-| Baseline                         | Working tree at HEAD `57974d2` as read 2026-10-14 (uncommitted changes possible) |
+| Baseline                         | Working tree 2026-10-16 (S8-SCH dispatcher increment); previous baseline HEAD `57974d2` read 2026-10-14 |
 | Modules under test               | `src/core/pal/pal_posix.c`, `src/core/sb/sb.c`, `src/core/evs/evs.c`, `src/core/es/es.c`, `src/core/tbl/tbl.c`, `src/transport/ccsds/ccsds.c`, `src/pus/pus.c`, `src/drivers/mem/ff_mem_static.c`, `src/math/ff_math.c`, `src/hal/hal.c` |
 | Interfaces cited                 | `pal.h`, `sb.h`, `evs.h`, `es.h`, `tbl.h`, `hal_mem.h`, `math/ff_math.h`, `transport/ccsds/ccsds.h`, `core/common/ff_types.h`, `config/fsw_config.h`; `docs/architecture/software-bus.md` (FRICK-ARCH-0002), `docs/architecture/numerics.md` (FRICK-ARCH-0009) |
 
@@ -150,7 +150,7 @@ case (not a mission-envelope requirement).
 | N22-TS6-30 | SRS-REQ-015, SSS-REQ-010 | PAL queue delete with a blocked waiter, then put after delete | OOB | a task blocks in `FF_PalQueueGet` on a non-empty wait; another deletes the queue; a later `FF_PalQueuePut` uses the stale id | **gap** — no clause defines the delete-with-waiter behaviour (waiter release, use-after-delete, or reuse of the destroyed slot's `pthread_cond_t`/`pthread_mutex_t`). Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: the waiter remains blocked and the id is reported `FF_NOT_FOUND`. No oracle is asserted here | SIL | individual | gap |
 | N22-TS6-31 | SRS-REQ-014, SSS-REQ-008 | Health & Safety heartbeat cadence and missed-kick escalation on target | OOB | stop the HS heartbeat (hang/delete the task) and observe the external watchdog reaction within the configured window | **gap** — HS emits a 5000 ms heartbeat and the watchdog is external (`FF_PalPanic`/RTEMS monitor); no clause defines the missed-kick escalation latency, the external watchdog window, or the recovery sequence on the target. Open TBD (NC-EXT-47 §7.5). No oracle is asserted here | HIL | individual | gap |
 | N22-TS6-32 | SRS-REQ-051, SRS-REQ-001 | multicore interference and cache coherence on the shared Software Bus | OOB | run the SB publish/receive load on more than one U54 core under RTEMS SMP with shared-memory SB state | **gap** — SRS-REQ-051 (multicore/SMP) is a planned milestone (M14) with no controlled interference/coherence oracle; the shared SB lock and the cache-coherency obligations are the RISC-V/RTEMS BSP's responsibility (GAP-A5). Open TBD (NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
-| N22-TS6-33 | SRS-REQ-071, SSS-REQ-030 | reference scheduler starvation with mixed periods | OOB | run the table-driven dispatcher with 1000/5000/10000 ms entries and a single shared last-run timestamp | **gap** — NC-EXT-19: the reference dispatcher advances one shared `g_last_run`, so entries with longer periods can starve shorter entries; no controlled dispatch-order/lateness oracle exists and the numeric rates/tolerances are mission-controlled. Open NC-EXT-19 (NC-EXT-47 §7.3). No oracle is asserted here | SIL | individual | gap |
+| N22-TS6-33 | SRS-REQ-071, SSS-REQ-030 | mixed-period dispatch starvation (per-entry absolute release targets) | OOB | run the table-driven dispatcher with 1000/5000/10000 ms entries over 30 s of injected time; also a 137 ms poll cadence and a 4500 ms jump | **covered (host)** — the shared-`g_last_run` starvation (NC-EXT-19) is corrected: each entry keeps its own absolute next-due instant. Expected results with explicit values: 30/6/3 releases in 30 s with zero missed slots (a short period no longer starves longer ones); 10 releases in 10.001 s for the 137 ms case (no cumulative drift); a 4500 ms jump on a 1500 ms entry yields exactly one release plus 3 counted missed slots and no catch-up burst. Evidence: `tests/unit/test_sched.c` (`test_no_starvation`, `test_no_cumulative_drift`, `test_missed_slots_bounded`). **Limit:** host with injected clock only; mission rates/tolerances and target timing remain `gap` (NC-EXT-47 §7.3), and NC-EXT-19 stays open pending independent review | SIL | individual | covered |
 | N22-TS6-34 | SRS-REQ-031 | ISR-context safety of core services (calling SB/EVS/TBL/PAL from an ISR) | OOB | invoke `FF_EvsSend`, `FF_SbPublish`, `FF_TblGet` and a PAL mutex lock from an interrupt context | **gap** — SRS-REQ-031 requires only that a GPIO ISR defers work to a task; no clause states which core-service calls are ISR-safe or their locking behaviour, and `FF_EvsSend`/`FF_SbPublish` take a mutex that cannot be held from an ISR. Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: a deadlock/`FF_ERROR`. No oracle is asserted here | SIL | individual | gap |
 | N22-TS6-35 | SRS-REQ-003, SRS-REQ-004 | bounded, reproducible decoder fuzz/property corpus beyond selected vectors | OOB | feed a seeded, resource-bounded corpus of mutated TC/TM byte streams to `FF_CcsdsDecodeTc/Tm` and `FF_PusIngest` | **gap** — NC-EXT-25: no deterministic bounded fuzz/property corpus or independent oracle exists; only selected boundary vectors are tested. Open NC-EXT-25 (NC-EXT-47 §7.3). Uncontrolled observation only: no crash (ASan); acceptance is not a correctness oracle. No oracle is asserted here | SIL | individual | gap |
 | N22-TS6-36 | SRS-REQ-014 | ES invalid state, registry saturation and start-before-register | OOB | `FF_EsStartApp` for a never-registered id; `FF_EsGetState` for an invalid id; register `FF_ES_MAX_APPS` apps then one more | **gap** — `es.h` declares the state enum and functions but no clause fixes the invalid-id/saturation return contract or the state transition on a failed start. Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: `FF_NOT_FOUND`/`FF_ERROR` with the count pinned at `FF_ES_MAX_APPS`. No oracle is asserted here | SIL | individual | gap |
@@ -221,7 +221,9 @@ controlled, requirement-mapped set.**
 
 - `N22-TS6-22` — PUS provider-reported output lengths (NC-EXT-24).
 - `N22-TS6-28` — concurrent TM generation on unlocked PUS globals (NC-EXT-05).
-- `N22-TS6-33` — reference scheduler starvation with mixed periods
+- `N22-TS6-33` — mixed-period starvation corrected and host-verified
+  (per-entry absolute release targets); mission rates/tolerances and target
+  timing remain `gap` and NC-EXT-19 stays open pending independent review
   (NC-EXT-19).
 - `N22-TS6-35` — bounded, reproducible decoder fuzz/property corpus
   (NC-EXT-25).
@@ -283,8 +285,8 @@ and this increment's execution, so that `covered` is not read as `passing`:
 | Out-of-bound | 39 |
 | Individual | 44 |
 | Combined | 10 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 24 |
-| `gap` (no controlled oracle; recorded under NC-EXT-47) | 29 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 25 |
+| `gap` (no controlled oracle; recorded under NC-EXT-47) | 28 |
 | Exploratory structural stress (not mission-envelope evidence) | 1 |
 | SIL / PIL / HIL (primary environment assignments; HIL/target TS6-52 remains gap) | 49 / 1 / 4 |
 | Unique cases assigned a primary environment | 54 |
@@ -336,3 +338,4 @@ does not establish a time-based arrival envelope, WCET, or ground forwarding.
 | 0.9 | 2026-10-14 | frick-fsw | Distinguish overflow bursts in the retained-log oracle; reconcile all environment assignments and update the case-group index per independent delta findings |
 | 1.0 | 2026-10-14 | frick-fsw | Set the primary environment token to SIL and explicitly retain HIL/target ground-receipt fidelity as a gap; align the V-model package totals |
 | 1.1 | 2026-10-14 | frick-fsw | Define exploratory status as a separate non-coverage category and reconcile sanitizer evidence wording with committed configuration |
+| 1.2 | 2026-10-16 | frick-fsw | Move the mixed-period starvation case (N22-TS6-33) to covered with the per-entry absolute-target host oracle in `tests/unit/test_sched.c`; retain mission-rate/target-timing gaps and keep NC-EXT-19 open pending independent review |

@@ -7,6 +7,39 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### S8-SCH bounded schedule dispatcher, first increment (2026-10-16)
+
+- Added `src/core/sched/ff_sched.{c,h}`: a fixed-capacity (16 entries),
+  statically allocated, allocation-free schedule dispatcher with image
+  validation (magic, size, entry-count bound, non-zero period, payload bound,
+  duplicate `msg_id`), atomic single-writer double-buffer activation, per-entry
+  **absolute** release targets, bounded per-poll work (at most one release per
+  entry per call), missed-slot counting with no catch-up burst, and
+  release/late/missed/publish-error statistics.
+- Replaced the `app_scheduler.c` reference stub, which advanced one shared
+  `g_last_run` timestamp and therefore starved longer-period entries
+  (NC-EXT-19). The application now registers the reference schedule image with
+  Table Services (validator wired to `FF_SchedValidate`), activates it
+  atomically, and emits EVS heartbeat, missed-slot and dispatch-failure events
+  (`0x0601`–`0x0605`) without placing a large receive buffer on its 16 KiB task
+  stack (`FF_SchedPoll` accepts a NULL `out` when only the release side effect is
+  wanted).
+- Added `tests/unit/test_sched.c` (nominal and out-of-bound cases with explicit
+  expected results, injected clock, plus real SB delivery). The mixed-period
+  regression yields 30/6/3 releases over 30 s where the old shared-timestamp
+  algorithm yields 30/0/0, so the test genuinely catches NC-EXT-19.
+- Updated `docs/architecture/scheduling.md` (§5.1 implementation status) and
+  `docs/architecture/applications.md` (SCHEDULER row), V&V test specs TS-5
+  (rows 43–47/66) and TS-6 (row 33), and `traceability.yaml`/`traceability.md`
+  for SRS-REQ-071 / SSS-REQ-030 (also restoring the missing SSS-REQ-030 rows in
+  the readable mirror).
+- Limits retained: mission rates, jitter tolerances, late-slot policy and
+  recovery authority remain controlled inputs (TBD); RTEMS/target timing, the
+  EVS-to-HS end-to-end oracle and the TBL load/activate → dispatch coupling are
+  not delivered; the §5 independent-review gate is not yet satisfied, so
+  NC-EXT-19 is **not** closed and no schedulability, qualification or flight-use
+  claim is made.
+
 ### CI format-gate correction (2026-10-16)
 
 - Restored the clang-format layout of `FF_LINK_IP_REF_PEER`, `FF_LINK_TSN_REF_MAC`

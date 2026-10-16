@@ -79,6 +79,7 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/core/evs/evs.c
   ${FF_SRC_DIR}/core/es/es.c
   ${FF_SRC_DIR}/core/tbl/tbl.c
+  ${FF_SRC_DIR}/core/sched/ff_sched.c
   ${FF_SRC_DIR}/core/time/time.c
   ${FF_SRC_DIR}/core/time/pps.c
   ${FF_SRC_DIR}/bsp/mpfs/board.c
