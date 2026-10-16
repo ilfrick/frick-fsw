@@ -7,6 +7,63 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### S8-FU protocol ingest, GSW and UART framing corrective work (2026-10-15)
+
+- Hardened CCSDS TC/TM packet-length checks and added symmetric boundary tests;
+  factored production command-ingest receive into a testable one-packet helper
+  and verified the maximum configured TC through the real helper.
+- Added incremental bounded GSW serial-stream parsing and deadline-limited exact
+  ping-response reading, with tests for split/coalesced input and timeout bounds.
+- Implemented bounded CCSDS-PDL UART stream framing in the production backend;
+  host PTY tests exercise partial/coalesced frames, too-small caller capacity,
+  over-limit recovery, maximum packet, timeout retention, and ambiguous
+  incomplete-header head-of-line behavior. V&V 0319 accepts only this enumerated
+  host scope. NC-EXT-07 remains open for authorized timeout/recovery policy and
+  target runtime/timing/hardware evidence.
+- Corrected the GEM TSN mock fixture size for exercised offsets; focused ASan
+  evidence is bounded to that fixture scope (V&V 0318).
+- Final local candidate checks: `make ci-local` 37/37 CTest plus Lean/trace;
+  smoke, GSW/license, metrics, docs, clang-format, Renode emulation and RTEMS
+  cross-build passed. No hosted run covers this uncommitted candidate. Renode
+  is emulation, not hardware verification; NC-EXT-03 external ground E2E and
+  NC-EXT-07 authority/target items remain open. NC-EXT-01/02 have bounded V&V
+  evidence accepted, but remain open pending authorized NC-owner dispositions.
+- R4 FRICK-REVIEW-0323 and PA FRICK-REVIEW-0324 accepted their enumerated
+  documentation/status corrections only. NC-EXT-01/02 remain OPEN pending
+  authorized owner disposition; the scoped reviews do not pass N17/N20 phase
+  or release gates.
+
+### S8-FU post-review verification cycle (2026-10-16)
+
+- Re-ran `make ci-local` on the current documentation candidate: 37/37 CTest,
+  Lean and trace passed; retained the full output at
+  `docs/vv/evidence/2026-10-16-s8-fu-ci-local.log`. Smoke, GSW/license checks,
+  metrics, Doxygen generation, all-source clang-format, JSON validation,
+  `git diff --check`, RTEMS cross-build, and Renode emulation also passed.
+- These local results are not hosted CI, target runtime/timing, physical UART,
+  external ground-segment E2E, qualification, release, or flight evidence.
+  S8-FU remains open for authorized NC/profile decisions and applicable final
+  independent review/assurance gates.
+- R1 review 0325 findings were addressed for disconnected-UART zero reads and
+  unique host PTY paths; R1 0326 accepted only those bounded corrections. R2
+  reviews 0327–0329 corrected TS-2-81 to NC-driven characterization (no SRS
+  credit) and reconciled 48 covered / 32 gaps / 1 characterization. R4/PA 0330/
+  0331 findings were accepted as corrected by bounded reviews 0332/0333; final
+  current-document verification remains due. NC-EXT-07's malformed plausible
+  PDL recovery and all authority/target gates remain open.
+- Re-ran the applicable local cycle after current-document reconciliation:
+  `make ci-local` 37/37, Lean/trace, smoke, GSW/license, metrics, docs,
+  formatting, JSON/diff checks, RTEMS cross-build and Renode emulation passed;
+  focused UART PTY reported 51/0. See verification-results 2.53 and the
+  candidate manifest for retained logs and hashes. This remains local evidence
+  only; sprint, authority, external E2E, target and release gates remain open.
+- Owner decision (2026-10-16): physical-target tests are postponed. Added a
+  prominent README disclaimer that no RTPFS160ZT runtime/timing/physical-UART
+  evidence is established; the deferral does not close target-dependent NCs.
+  Scoped R4/PA reviews 0336/0337 accepted the metadata/effectivity corrections,
+  and the applicable local cycle passed. NC-EXT-01/02/03 and NC-EXT-07 remain
+  open; no overall sprint/release approval follows.
+
 ### S4c/S4d delivery and default configuration reconciliation (2026-10-15)
 
 - Implemented and host-tested the generic fabric-window contract, fabric CAN-FD

@@ -16,6 +16,13 @@ applications for demonstration and V&V. See
 [`docs/development-plan.md`](docs/development-plan.md) for the product boundary
 and the milestone/objective plan.
 
+> **Physical-target verification disclaimer (2026-10-16):** Per the project
+> owner's decision, physical-target tests are postponed. This repository's
+> current evidence does **not** establish RTEMS runtime behavior, timing, or
+> physical UART/peripheral behavior on RTPFS160ZT hardware. Renode is emulation
+> and the RTEMS cross-build is compile/link evidence only. Postponement is not
+> qualification, acceptance, or closure of target-dependent non-conformances.
+
 > Agent-oriented project guide: **`AGENTS.md`**. Non-derogable norms (rules
 > N1-N22): **`docs/rules.md`**. Approach & tools: **`docs/tooling.md`**.
 > The repository owner authorizes **MPL-2.0 for original project-authored
@@ -44,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-14. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-16. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -56,7 +63,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | SSS requirements satisfied | 24/30 (80.0%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 67/73 (91.8%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 33/98 (33.7%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 34/116 (29.3%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -66,8 +73,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 7135/10373 (68.8%) | gcov |
-| Code function coverage | 826/846 (97.6%) | gcov |
+| Code statement (line) coverage | 7321/10668 (68.6%) | gcov |
+| Code function coverage | 842/862 (97.7%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -79,7 +86,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | simulator smoke | 🟡 (YELLOW) |
 | lean verification | 🟡 (YELLOW) |
 | traceability | 🟡 (YELLOW) |
-| ci github | 🟡 (YELLOW) |
+| ci github | 🟢 (GREEN) |
 | ci gitea | 🟡 (YELLOW) |
 | documentation set | 🟡 (YELLOW) |
 | documentation review | 🟡 (YELLOW) |
@@ -437,12 +444,15 @@ start per norm N19 (see [`docs/planning/sprint-plan.md`](docs/planning/sprint-pl
 milestone status in [`docs/roadmap.md`](docs/roadmap.md) and
 [`docs/status/status.json`](docs/status/status.json)).
 
-The remaining “drivers first” directive conflicts with the proposed corrective
-sequence in the sprint plan; **the human owner has not approved precedence**
-(NC-EXT-30). Do not treat either order as authorized until reconciled. ECSS
-Category B is the project target, not an assigned or accepted mission
-classification; authoritative classification and tailoring remain program
-inputs (norm N5). Tooling is open-source/free where practicable.
+The earlier “drivers first” directive conflicted with the proposed corrective
+sequence. The owner's instruction was to resume with the next sprint as planned;
+this document interprets that as selecting **S8-FU**, the first sprint in the
+proposed corrective sequence. It is an interpretation, not an explicit owner
+quote naming S8-FU. Independent R4 review 0311 accepted this bounded
+interpretation; NC-EXT-30/65 are closed for this plan-wording issue only.
+Remaining driver work stays tracked. ECSS Category B is the project target, not an assigned or accepted
+mission classification; authoritative classification and tailoring remain
+program inputs (norm N5). Tooling is open-source/free where practicable.
 
 | Milestone | Status |
 | --- | --- |
@@ -450,7 +460,12 @@ inputs (norm N5). Tooling is open-source/free where practicable.
 | M4, M5, M8, M9, M11 | 🟡 in progress |
 | M12, M13, M14, M15, M16, M17 | ⬜ planned |
 
-Current focus: **S8-FU** — continue functional development under N21: correct functional issues and implement missing features committed for the current or previous sprints, and record non-functional findings as open NCs for later review/disposition without stopping unrelated work. N22 requires requirement-based and integration tests to compare nominal and applicable out-of-bound cases against expected results; NC-EXT-47 tracks later assessment of existing test-oracle/coverage evidence. The SB/EVS requirement delta defines arrival, dispatch and ground-receipt boundaries, but `Bmax`/`Rmax`/`Dmin`/`Lmax`, link profile and loss-counter semantics remain authority TBDs: NC-EXT-75/76 stay open and FRICK-REVIEW-0266 is not N14/baseline approval. NC-EXT-77 records a corrected trace-count comment. Owner authorization for original project-authored code and materials is recorded; NC-EXT-43 remains for external/generated boundaries and combined-distribution compatibility. NC-S4b-01..09, NC-EXT-01..77 and GAP-R3-1 remain open. Applicable commit/release and safety/security gates remain separate. T21 remains NOT FULLY QUALIFIED; T1/T13/T18 are not fully requalified, and hosted CI/immutable evidence remain open. See `docs/planning/sprint-plan.md` and `docs/vv/verification-results.md`.
+The green `ci github` semaphore below refers to run `38793643786` on committed
+baseline `13ebf92`; it does not cover this uncommitted documentation delta. The
+other semaphore entries reflect their current recorded registry state and do
+not imply a blanket pass for this working tree.
+
+Current execution scope: S4c/S4d/defaults are committed at `13ebf92`; GitHub Actions run `38793643786` passed all eight jobs. Gitea Actions status remains unverified, and this result is not qualification or release evidence. Per the owner decision dated 2026-10-16, **physical-target testing is postponed**; see the prominent disclaimer above. The owner also directed: postpone NC-EXT-03/06/07/29/43/47 and NC-S4c-04 to the last sprint (M15/S18-25); defer all other open NCs indefinitely (§3.2 of `docs/planning/sprint-plan.md`). Dispositions do not close NCs or waive gates. A named sprint verification set (S1–S10) is recorded in `docs/vv/verification-plan.md` §9 and was executed/retained for this change (logs in `docs/vv/evidence/2026-10-16-s8-fu-nc-disposition-*.log`, hashes recorded in `docs/vv/verification-results.md`). Independent N17/N20 reviews 0338/0339 are recorded: PA review 0339 is **NOT PASSED** for this delta; N21 does not unblock N20 phase assurance. No phase/release approval or NC closure is claimed. See the cited documents for details. PUSopen remains end-user-supplied; vendor SDK compatibility is not claimed. The plan interprets the owner's general instruction as selecting **S8-FU** next; bounded R4 0311 accepted that interpretation and closed NC-EXT-30/65 for that wording only. Other NCs and applicable T21, safety, security, assurance and release gates remain open.
 
 ## Contributing
 

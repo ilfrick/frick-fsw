@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.4                                  |
-| Date                              | 2026-10-14                             |
+| Revision                          | 0.1.5                                  |
+| Date                              | 2026-10-16                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17, N21, N22 |
 
@@ -189,6 +189,33 @@ Each cycle updates `docs/vv/verification-results.md` with the executed
 activities, environment (docker tag / commit hash), results and any NC opened;
 the update is committed and pushed with the cycle (norm N11).
 
+## 9. Sprint verification set (executed and retained at every sprint)
+
+Owner direction (2026-10-16): in addition to the per-change cycle above, the
+following named set is executed and its raw output retained **at every sprint**,
+so sprint-level evidence identity is explicit and reproducible. Raw logs are
+stored under `docs/vv/evidence/` and their SHA-256 hashes recorded in
+`docs/vv/verification-results.md` (norm N11). A member that cannot run on a
+given host is recorded as SKIP with the reason and is never counted as a pass.
+
+| # | Check | Command | Scope / limitation |
+| - | ----- | ------- | ------------------ |
+| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 37/37 CTest, Lean `lake build`, `trace.py`; no format/smoke/docs |
+| S2 | Simulator smoke | `make smoke` | 6 apps registered, EVS→PUS TM on loopback |
+| S3 | GSW / metrics / license self-check | `make gsw-selfcheck` | GSW python tests, README metrics, N13 license policy |
+| S4 | Coverage metrics | `make metrics` | regenerates README panel; 35/35 coverage CTest |
+| S5 | Documentation generation | `make docs` | Doxygen; warning count is recorded, not claimed "warning-free" |
+| S6 | Format + whitespace + JSON | `clang-format --dry-run --Werror`, `git diff --check`, `python3 -m json.tool` | all managed C/H, no trailing whitespace, valid status JSON |
+| S7 | RTEMS cross-build | `make rtems-docker` | compile/link evidence only; not target runtime/timing |
+| S8 | Emulated-target functional validation | `make renode` | Renode emulation (norm N18); not physical hardware |
+| S9 | Focused UART PDL host test | `test_link_uart` | host PTY framing cases (NC-EXT-07 characterization); not physical UART |
+| S10 | Focused R2-gap regression | `test_r2_gap` | CCSDS/ingest/GSW corrections |
+
+Physical-target tests are excluded from the every-sprint set per the owner
+decision of 2026-10-16 (postponed); their absence is disclosed on the README
+homepage and does not close target-dependent NCs. Adding or removing a member
+of this set is itself a change and follows the same N15/N17/N20 gates.
+
 ## History
 
 | Rev | Date       | Author    | Reason |
@@ -198,3 +225,4 @@ the update is committed and pushed with the cycle (norm N11).
 | 0.1.2 | 2026-10-10 | frick-fsw | Add documentation review (R4, norm N17) to norms, gates, cycle and independence |
 | 0.1.3 | 2026-10-12 | frick-fsw | M10: add the emulated-target environment/activity (Renode T17 + QEMU T20, `docs/vv/emulated-target.md`) |
 | 0.1.4 | 2026-10-14 | frick-fsw | Reference the N22 controlled test specification (`FRICK-VV-TSPEC-001`) and the system verification architecture (`FRICK-VV-SVA-001`) |
+| 0.1.5 | 2026-10-16 | frick-fsw | Add §9 "Sprint verification set" (owner direction): the named S1-S10 checks executed and retained at every sprint, with the physical-target exclusion disclosed |

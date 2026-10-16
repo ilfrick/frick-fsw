@@ -4,15 +4,16 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.29                                   |
-| Date                              | 2026-10-15                             |
+| Revision                          | 2.58                                   |
+| Date                              | 2026-10-16                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
 
 This log is the running verification record. Every development/verification
 cycle appends a row with the evidence produced and identifies the configuration
-and artifact state. The SB/EVS structural-stress entry is historical; the current
-uncommitted candidate is the S4c/S4d/defaults increment described below.
+and artifact state. The local S4c/S4d/defaults cycle below records its original
+pre-commit mutable-tree state; the committed baseline and subsequent hosted CI
+result are recorded in the current-status addendum.
 Emulator console captures under `build/` are regenerable build outputs. The
 final-cycle Renode UART/process and QEMU console logs were copied into
 `docs/vv/evidence/2026-10-15-{renode-console,renode-process,qemu-console}.log`.
@@ -20,6 +21,290 @@ They came from the uncommitted candidate worktree with the observed local
 toolchain images; they must not be attributed to the committed baseline. The
 exact mutable candidate and tool inputs are not fully captured by the recorded
 hashes.
+
+## Current committed status addendum (2026-10-15)
+
+- **Baseline:** `13ebf92f46775aec5d26cc2fdc5bd47258ed4f1a`, pushed to GitHub and
+  Gitea. GitHub Actions run [38793643786](https://github.com/ilfrick/frick-fsw/actions/runs/38793643786)
+  completed successfully for this commit (all eight jobs). It includes Debug,
+  Release and ASan CTest (36/36 each), metrics currency, lwIP adapter tests,
+  static analysis/format, simulator smoke, Lean, traceability, documentation,
+  RTEMS CI check, and Renode/QEMU emulation checks.
+- **Failed-run history:** the preceding GitHub run
+  [38792882219](https://github.com/ilfrick/frick-fsw/actions/runs/38792882219)
+  failed its format and README-metrics checks. The host Debug/Release/ASan test
+  steps passed. The formatter-version mismatch and stale generated metrics were
+  corrected in `13ebf92`; the subsequent run above passed.
+- **Focused host results:** `test_fabric` 119 checks, `test_canfd` 328,
+  `test_canopen` 178, `test_serial` 67, and `test_pusopen` 33; zero failures.
+  The CANopen serialization guard and RX-contention-drop test were added after
+  FRICK-REVIEW-0307; they have host regression evidence but no independent delta
+  review, and NC-S4c-04 remains open.
+- **Emulation boundary:** local `renode_vv.sh` and the final GitHub Renode checks
+  passed for the exercised MPFS RTEMS image. Renode/QEMU are emulators; these
+  results are not physical-hardware verification. Renode has no CAN-FD fabric
+  peripheral, so NC-S4c-01/GAP-A5 remain open for that path.
+- **Gitea and qualification:** both Git remotes contain the commit, but Gitea
+  Actions status could not be verified because its Actions API returned HTTP
+  401. A green GitHub run does not qualify T23, establish complete provenance,
+  resolve remaining NCs, or authorize release/flight. The PUSopen seam continues
+  to use an in-repository API test double; vendor SDK compatibility is not
+  claimed.
+
+## Historical initial reconciliation snapshot (2026-10-15; superseded by current S8-FU continuation below)
+
+- **Baseline:** source HEAD remains `13ebf92`; documentation and test changes in
+  this cycle are uncommitted and are not covered by the earlier hosted run.
+- **Checks passed:** `make ci-local` (Debug build, 36/36 CTest, Lean build,
+  traceability 117 requirements/62 Lean theorems); `make metrics` (coverage and
+  README status panel regenerated); containerized `make docs`; containerized
+  `make gsw-selfcheck` (5 GSW, 9 metrics, 14 license tests plus CLI check);
+  native `make smoke` (banner and six applications); JSON parse and
+  `git diff --check`.
+- **S8-FU test result:** `test_r2_gap` reports 587 checks / 0 failures, including
+  N22-TS1-96. The complete 36-test CTest suite passed. The local Renode script
+  returned `RENODE_TEST: PASS` for its existing HAL/RTEMS checks; it did not
+  exercise the CCSDS/PUS receive path or N22-TS1-96.
+- **Recovered attempts:** host `make docs` could not run because Doxygen is not
+  installed on the host; containerized Doxygen completed with existing warnings.
+  First container smoke attempt found a host-path CMake cache mismatch in
+  `build/native`; the generated cache was removed and a fresh native smoke build
+  passed. Those failed attempts are not counted as passes.
+- **Review status:** initial independent R4 report FRICK-REVIEW-0308 returned
+  APPROVED WITH COMMENTS (one low finding); initial PA report FRICK-REVIEW-0309
+  was NOT ACCEPTED with one Major and one Minor finding. The identified README,
+  N7-status, and N21 wording corrections are reflected in this working tree;
+  bounded re-review FRICK-REVIEW-0310 confirmed those corrections addressed
+  within scope. Broader N17/N20 closure is not established.
+- **Sequencing decision:** the owner instructed resumption with the next sprint
+  as planned. The plan interprets this as S8-FU first in the proposed corrective
+  sequence; it does not claim the owner named S8-FU verbatim. R4 review
+  FRICK-REVIEW-0311 accepted the bounded interpretation, and PA re-review
+  FRICK-REVIEW-0312 found no new bounded assurance finding. NC-EXT-30/65 are
+  closed only for this plan-wording issue. S8-FU is the current sprint; unrelated
+  requirements, safety, security, target, qualification and release gates remain
+  open as recorded.
+- **S8-FU initial test delta:** added `N22-TS1-96` in `test_r2_gap` to drive a
+  maximum configured PUS TC payload through CCSDS encoding, `FF_PusIngest`, and
+  service-8 dispatch, checking all handler argument bytes. Independent V&V
+  review FRICK-REVIEW-0313 accepted this stated host scope. No application
+  receive-loop, target, timing, or physical-hardware claim is added. The review
+  confirmed that this test does
+  not exercise `FF_AppCmdIngestMain`/`FF_LinkRecv`; NC-EXT-02 remains open until
+  direct receive-boundary evidence or an accepted closure rationale is recorded.
+- **S8-FU review follow-up:** R4 review FRICK-REVIEW-0314 accepted the corrected
+  baseline/evidence/handover wording; PA review FRICK-REVIEW-0315 accepted the
+  bounded status record. Neither review closes NC-EXT-02 or any broader phase,
+  safety, qualification, or release gate.
+- **Limits:** this documentation/test-source delta has no new GitHub/Gitea run,
+  QEMU run, or target test. The local Renode check passed, but did not exercise
+  CCSDS/PUS ingest or `FF_AppCmdIngestMain`; it is not evidence for N22-TS1-96
+  or physical hardware. No production code or requirements changed; do not treat
+  prior GitHub run `38793643786` as covering these edits. NC-EXT-30/65 are closed
+  only for the reviewed sequencing wording; NC-EXT-02 and unrelated applicable
+  NC/release gates remain open.
+
+## S8-FU continuation: CCSDS, command ingest, and GSW stream (2026-10-15; uncommitted)
+
+- **Baseline/effectivity:** source HEAD remains `13ebf92`; current uncommitted
+  changes include `src/apps/app.h`, `src/apps/app_cmd_ingest.c`,
+  `tests/unit/test_r2_gap.c`, `tools/gsw/ff_gsw.py`,
+  `tests/python/test_ff_gsw.py`, and associated controlled documentation.
+- **Focused checks:** `test_r2_gap` reports 613 checks / 0 failures after TC/TM
+  boundary symmetry and production receive-helper coverage. GSW tests pass
+  12/12; all Python tests pass 35/35. Independent R2 FRICK-REVIEW-0317 also
+  ran `make gsw-selfcheck` successfully (GSW 12, metrics 9, license 14 plus
+  checker and CLI). The full sprint cycle still requires final re-run after all
+  scope changes.
+- **Independent V&V:** FRICK-REVIEW-0316 accepts the listed host codec boundary
+  and maximum-size production receive-helper behavior, bounded to host SIL.
+  V&V accepted proposed bounded closure for NC-EXT-01/02; the authorized NC-owner
+  disposition remains pending, so both remain OPEN in the register. No target,
+  real-link, RTEMS stack, timing, or hardware claim is made.
+- **NC-EXT-09:** fresh focused ASan build/test of `test_gem_tsn` passed 1/1;
+  executable reported 22/22. FRICK-REVIEW-0318 accepts the 4096-byte test mock
+  for the enumerated exercised offsets only. This is not a whole-suite sanitizer
+  result or hardware evidence.
+- **GSW/NC-EXT-03:** the incremental serial parser and deadline-limited exact
+  S17.2 echo reader are implemented; R2 FRICK-REVIEW-0317 accepted this bounded
+  host behavior. A plausible incomplete candidate can hold later data until
+  timeout; matching the fixed echo tuple does not prove freshness or unique
+  response correlation. External ground-segment interoperability remains open;
+  T7 is not fully qualified.
+- **Hosted/emulation limits:** no new GitHub/Gitea run covers this combined
+  delta. The earlier Renode PASS is not evidence for the GSW Python path; this
+  software-only GSW delta does not add target evidence. Do not claim full S8-FU
+  completion until remaining project-correctable scope, applicable reviews, and
+  final verification cycle are complete.
+
+## S8-FU UART framing and final local verification cycle (2026-10-15; uncommitted)
+
+- **Candidate/effectivity:** source HEAD `13ebf92` plus the current uncommitted
+  S8-FU working-tree delta. The configuration is not an immutable build
+  manifest; no new hosted GitHub/Gitea run covers it.
+- **UART evidence:** focused host PTY `link_uart` CTest passed 1/1; executable
+  reported 46 checks / 0 failures. Independent V&V FRICK-REVIEW-0319 accepts
+  only the enumerated host PDL-framing behaviors. `make rtems-docker` compiled
+  and linked the final VTIME implementation; this is cross-build evidence, not
+  target runtime, timing, peripheral, or hardware evidence. NC-EXT-07 remains
+  OPEN for authority-approved timeout tolerance/recovery policy and target
+  runtime/timing evidence.
+- **Candidate identity:** the bounded software-source digest, changed-file
+  inventory, observed image/tool identities, relevant build options, binary
+  hashes and retained CTest/UART output logs are recorded in
+  `docs/vv/evidence/2026-10-15-s8-fu-candidate-manifest.md`. This improves
+  effectivity/replay assessment but does not close NC-EXT-29: Docker package
+  inputs and other environment/provenance elements remain mutable or unrecorded.
+- **Full applicable local checks after the UART/test/docs updates:**
+  `make ci-local` passed build, **37/37 CTest** (including `link_uart`), Lean
+  4.10.0 build, and traceability (117 requirements: 73 SRS, 30 SSS, 14 GAP;
+  62 Lean theorems). `make smoke` passed banner + six applications;
+  `make gsw-selfcheck` passed Python suites (GSW 12/12, metrics 9/9, license
+  14/14), SPDX checker, and CLI frame/CRC self-check; `make metrics` passed and
+  regenerated the README panel (coverage 7311/10650 statements, 68.6%);
+  containerized `make docs` generated `build/doxygen/html/index.html` with
+  existing unresolved-reference/markup warnings; `make renode` reported
+  `RENODE_TEST: PASS` for its emulator checks. Renode did not exercise the UART
+  receive path or establish physical-hardware behavior.
+- **Formatting:** `clang-format --dry-run --Werror` passed over all C/H files
+  after formatting three previously modified files (`link_ip.c`, `link_tsn.c`,
+  `test_link_tsn.c`); `git diff --check` passed.
+- **Attempts retained:** host `make docs` initially failed because prior
+  container-owned output could not be removed; the containerized docs run above
+  succeeded. Intermediate RTEMS candidates using `poll()` and `select()` failed
+  to link in the project toolchain; those implementations were replaced, and
+  the final termios VTIME candidate cross-build passed. The earlier full-tree
+  format probe also identified the three files above; they were formatted and
+  the complete format probe then passed. These superseded failures are not
+  reported as passes.
+- **Gate status:** project-correctable local checks for this delta are green,
+  but S8-FU is not complete. Authority/profile inputs, residual assurance and
+  documentation dispositions, applicable independent R4/PA reviews, external
+  ground-segment E2E (NC-EXT-03), and target/hardware/runtime evidence remain
+  open. No commit/push, qualification, release, or flight-readiness conclusion
+  is authorized by these results.
+- **Independent documentation/PA delta reviews:** R4 FRICK-REVIEW-0320 found
+  current-summary, ICD-size, evidence-index and audit inconsistencies; these
+  were corrected and R4 re-review 0322 accepted those corrections but found a
+  stale SVA-1 baseline/effectivity field. That field is now corrected in the
+  candidate. PA FRICK-REVIEW-0321 required NC-EXT-01/02 to remain OPEN pending
+  authorized NC-owner dispositions and identified incomplete candidate identity
+  and a missing TS-2 SRS-REQ-017 scope mapping. The NC statuses are corrected;
+  after R4 noted that PDL framing does not establish APID/mission-identifier
+  compliance, SRS-REQ-017 was removed from TS-2 scope and case mapping rather
+  than claiming unsupported coverage. The manifest above is recorded. R4 0323
+  accepted the TS-2/NC-status corrections for bounded scope; PA 0324 accepted
+  corrections to 0321 findings 1/3. Neither is broad N17/N20 approval; other
+  S8-FU authority, safety/security, target, external-E2E and qualification gates
+  remain open.
+
+## S8-FU post-documentation-review verification cycle (2026-10-16; uncommitted; superseded for source by the R1 correction below)
+
+- **Effectivity:** same source/configuration candidate as the manifest above
+  (source HEAD `13ebf92` plus uncommitted changes); documentation/status deltas
+  now include R4 0323 and PA 0324 bounded re-review results. No source files
+  changed after the manifest digest was computed. No hosted CI run covers this
+  candidate.
+- **`make ci-local`:** PASS; incremental build, 37/37 CTest, Lean 4.10.0 build,
+  and trace PASS (117 requirements: 73 SRS, 30 SSS, 14 GAP; 62 Lean theorems).
+  Full captured command output is
+  `docs/vv/evidence/2026-10-16-s8-fu-ci-local.log`, SHA-256
+  `f3785eeac061c74a4bb7e2f706707bcf6848d6ee1f736280581110b6f17c54a5`.
+- **Separate checks:** `make smoke` passed banner + six applications;
+  `make gsw-selfcheck` passed GSW 12/12, metrics 9/9, license 14/14, SPDX and
+  CLI frame/CRC checks. `make metrics` passed the coverage build/CTest (35/35)
+  and regenerated the README metrics panel at 7311/10650 statements (68.6%).
+  Containerized `make docs` produced `build/doxygen/html/index.html`; it emitted
+  112 Doxygen warnings (not all are necessarily attributable to this delta).
+  Full-source clang-format, `git diff --check` and status JSON validation passed.
+- **Target-related checks:** `make rtems-docker` cross-build passed; the RTEMS
+  Renode image rebuilt and `make renode` reported `RENODE_TEST: PASS`. These
+  remain cross-build/emulation evidence; UART receive framing was not exercised
+  in Renode and no target runtime, timing, peripheral or physical-hardware result
+  is claimed.
+- **Gate state:** local project-correctable verification remains green, but
+  S8-FU scope is not complete. NC-EXT-01/02 await authorized NC-owner
+  dispositions; NC-EXT-03 awaits external ground E2E/profile/correlation;
+  NC-EXT-07 awaits approved timeout/recovery policy and target runtime evidence.
+  Other authority/profile and applicable N17/N20, external, provenance,
+  qualification and release items remain open. No commit/push is authorized.
+
+## S8-FU R1 corrective delta verification (2026-10-16; uncommitted)
+
+- **Source delta/effectivity:** responds to FRICK-REVIEW-0325. UART now returns
+  `FF_ERROR` for a zero-byte read substantially earlier than its configured
+  VTIME chunk, with host PTY disconnect coverage. The test creates its device
+  symlink under a unique `mkdtemp` directory through a test-only environment
+  override. The plausible malformed PDL recovery behavior is unchanged; R1
+  finding 2 remains authority-blocked under NC-EXT-07, with no guessed inner
+  boundary.
+- **Independent review:** R1 FRICK-REVIEW-0326 accepts findings 1 and 3 for
+  bounded source/host-test scope; finding 2 remains open for approved recovery
+  policy. No RTEMS runtime/timing or physical UART evidence follows.
+- **Focused test:** after the correction, `test_link_uart` reported **51
+  checks / 0 failures**, including disconnect and unique-path setup. This is a
+  host PTY result only.
+- **V&V mapping correction:** R2 FRICK-REVIEW-0327 found N22-TS2-81 did not
+  verify SRS-REQ-016 portability. TS-2 0.8 removed that mapping and marked the
+  case NC-EXT-07 characterization-only. R2 0328 required the status/count to be
+  defined; TS-2 0.9 and SVA-1 0.5 now define and reconcile **48 covered, 32
+  gaps, 1 characterization**. R2 0329 accepted these bounded corrections;
+  SRS-REQ-016 remains in the package for separately mapped cases, including
+  HIL gap N22-TS2-79. SVA-2 0.3 now describes the characterization-only UART
+  scope.
+- **Failed attempts retained:**
+  `docs/vv/evidence/2026-10-16-s8-fu-uart-correction-attempts.md` records the
+  host/container build-directory permission mismatch and the first compilation
+  failure (`FF_LINK_UART_TEST_DEVICE` stale guard and `mkdtemp` feature-level
+  declaration); both were corrected before the passing run.
+- **Final current-document cycle:** after the TS-2/SVA/ICD/status and R4/PA
+  corrections, `make ci-local` passed 37/37 CTest, Lean 4.10.0 and trace;
+  smoke, GSW/license, metrics (35/35 coverage CTest), Doxygen, all-source
+  format, diff/JSON, RTEMS cross-build and Renode emulation passed. Focused
+  UART PTY test: 51 checks / 0 failures. Logs, hashes and artifact identities
+  are in the candidate manifest. Doxygen emitted 112 warnings. These are local
+  candidate results, not hosted CI, target runtime or qualification. Authority,
+  external, target and release blockers mean no commit/push is eligible.
+- **Final repeated cycle:** after updating the verification/status records, the
+  applicable local cycle was repeated and raw CI-local, auxiliary, RTEMS
+  cross-build and Renode outputs retained as
+  `2026-10-16-s8-fu-final-final-*.log`. Exact hashes/scope are in the candidate
+  manifest. CI-local again passed 37/37 CTest, Lean and trace; auxiliary and
+  build/emulation checks also passed with 112 Doxygen warnings. No code or
+  authority decision changed in this repeat.
+
+## Owner decision: physical-target tests postponed (2026-10-16)
+
+- The user directed postponement of physical-target tests and requested an
+  explicit homepage disclaimer. README now states that no physical RTPFS160ZT
+  runtime/timing/UART evidence is established, and distinguishes RTEMS
+  cross-build from Renode emulation. Postponement is not qualification,
+  acceptance, NC closure, or proof of target behavior.
+- NC-EXT-07 remains OPEN for ambiguous malformed-PDL recovery and approved
+  timeout/partial-discard policy; target runtime/timing/physical UART evidence
+  is deferred, not silently claimed. NC-EXT-01/02 still await authorized
+  NC-owner dispositions, NC-EXT-03 needs external ground E2E/profile disposition,
+  and provenance/assurance/release gates remain. This decision alone does not
+  complete S8-FU or make commit/push eligible.
+- **Effectivity caveat:** the physical-target deferral and README/sprint-plan/
+  status edits described here occurred after the preceding final local cycle.
+  They were not covered by that earlier cycle. Scoped R4/PA reviews 0336/0337
+  closed only the bounded documentation findings. The applicable local cycle
+  below has now been rerun; this does not close target or authority-dependent
+  NCs or imply overall sprint completion or commit/push eligibility.
+- **Post-deferral cycle:** `make ci-local` passed (37/37 CTest, Lean and trace);
+  smoke, GSW/license, metrics (35/35 coverage tests), docs, full-source format,
+  diff/JSON, RTEMS cross-build, Renode emulation and focused UART PTY (51/0)
+  passed. Doxygen emitted 112 warnings. Raw logs are
+  `docs/vv/evidence/2026-10-16-s8-fu-target-deferral-{ci-local,aux,rtems,renode,uart}.log`;
+  SHA-256 values are respectively `ab240a95d9d6f0b490cfebbc8b072bea7063ab415b4528146e237f35f4402e37`,
+  `4f7c4a7f79591007dc6ee3031f36b93ee6eccb79f94dd76c2cdb4b29c664c858`,
+  `3ca3a64f24b094deb2213162523579ab88c102e0ee79c65355df26c03ebcd4de`,
+  `0a806a8d52b575244eaf4d0bd1b2ffabbe9e4d3309385b8e4482899869db446a`, and
+  `92e36c7aa75914e61cb3dc4d13750b8940aec62d0145dcae71d41ea3c5a0e220`.
+  Renode remains emulation; cross-build is not target runtime evidence. The
+  owner-directed physical-target test deferral is explicitly disclosed on the
+  README homepage and does not close target-dependent findings.
 
 ## S4c/S4d, defaults and N18 verification cycle (2026-10-15)
 
@@ -582,6 +867,28 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | SB/EVS full CTest runner integration | R2 (independent) | 2026-10-14 | PASS WITH COMMENT for local characterization runner execution; not N10 formal qualification | docs/reviews/2026-10-14-sb-evs-ctest-r2-review-0275.md (FRICK-REVIEW-0275) |
 | SB/EVS CTest records | R4 (independent) | 2026-10-14 | Initial NOT APPROVED; R4-01..03 closed by bounded delta re-review | docs/reviews/2026-10-14-sb-evs-ctest-r4-review-0276.md; docs/reviews/2026-10-14-sb-evs-ctest-r4-delta-0278.md (FRICK-REVIEW-0276/0278) |
 | SB/EVS CTest evidence | PA (independent) | 2026-10-14 | APPROVED WITH COMMENTS; duration discrepancy closed by bounded delta; no N10/mission/release acceptance | docs/reviews/2026-10-14-sb-evs-ctest-pa-review-0277.md; docs/reviews/2026-10-14-sb-evs-ctest-pa-delta-0279.md (FRICK-REVIEW-0277/0279) |
+| CCSDS decoder / command-ingest bounded host V&V | V&V (independent) | 2026-10-15 | Accepted bounded codec and receive-helper evidence; NC-EXT-01/02 remain pending authorized NC-owner disposition | docs/reviews/2026-10-15-ccsds-ingest-vv-review-0316.md (FRICK-REVIEW-0316) |
+| GSW T7 parser/ping bounded delta | R2 (independent) | 2026-10-15 | PASS for enumerated host parser/ping behavior; external E2E and T7 qualification remain open | docs/reviews/2026-10-15-gsw-t7-r2-review-0317.md (FRICK-REVIEW-0317) |
+| GEM TSN mock fixture focused ASan | V&V (independent) | 2026-10-15 | Accepted exercised-offset host fixture scope; no whole-suite/target claim | docs/reviews/2026-10-15-gem-tsn-fixture-vv-review-0318.md (FRICK-REVIEW-0318) |
+| UART PDL stream framing | V&V (independent) | 2026-10-15 | Accepted enumerated host PTY behaviors; NC-EXT-07 remains OPEN for authority policy and target runtime/timing | docs/reviews/2026-10-15-uart-framing-vv-review-0319.md (FRICK-REVIEW-0319) |
+| S8-FU documentation delta | R4 (independent) | 2026-10-15 | CHANGES REQUIRED; four major current-summary, ICD-size, evidence-index and active-audit findings | docs/reviews/2026-10-15-s8-fu-r4-delta-review-0320.md (FRICK-REVIEW-0320) |
+| S8-FU product-assurance delta | PA (independent) | 2026-10-15 | Bounded evidence accepted with findings; N20 phase review NOT PASSED | docs/reviews/2026-10-15-s8-fu-pa-delta-review-0321.md (FRICK-REVIEW-0321) |
+| S8-FU documentation re-review | R4 (independent) | 2026-10-15 | Bounded corrections accepted except SVA-1 effectivity finding; no overall N17 approval | docs/reviews/2026-10-15-s8-fu-r4-delta-rereview-0322.md (FRICK-REVIEW-0322) |
+| S8-FU documentation targeted re-review | R4 (independent) | 2026-10-15 | Accepted TS-2 requirement mapping and NC-EXT-01/02 status corrections for bounded scope | docs/reviews/2026-10-15-s8-fu-r4-final-delta-review-0323.md (FRICK-REVIEW-0323) |
+| S8-FU PA targeted re-review | PA (independent) | 2026-10-15 | Accepted corrections to 0321 findings 1/3; bounded only, N20 phase/release review NOT PASSED | docs/reviews/2026-10-15-s8-fu-pa-final-delta-review-0324.md (FRICK-REVIEW-0324) |
+| S8-FU independent code review | R1 (independent) | 2026-10-16 | CHANGES REQUESTED: UART early-zero busy-spin, malformed plausible-PDL recovery ambiguity, shared PTY path | docs/reviews/2026-10-16-s8-fu-fsw-r1-review-0325.md (FRICK-REVIEW-0325) |
+| S8-FU FSW corrective delta | R1 (independent) | 2026-10-16 | Findings 1/3 accepted for bounded host/source scope; finding 2 remains authority-blocked | docs/reviews/2026-10-16-s8-fu-fsw-r1-delta-0326.md (FRICK-REVIEW-0326) |
+| UART disconnect/test-path V&V delta | R2 (independent) | 2026-10-16 | Host behavior accepted with TS-2 requirement-mapping finding | docs/reviews/2026-10-16-s8-fu-uart-vv-delta-0327.md (FRICK-REVIEW-0327) |
+| TS-2 UART characterization mapping re-review | R2 (independent) | 2026-10-16 | Mapping corrected; status/count reconciliation required | docs/reviews/2026-10-16-s8-fu-uart-vv-count-delta-0328.md (FRICK-REVIEW-0328) |
+| TS-2 UART characterization count re-review | R2 (independent) | 2026-10-16 | Accepted 48 covered / 32 gaps / 1 characterization for bounded scope | docs/reviews/2026-10-16-s8-fu-uart-vv-count-rereview-0329.md (FRICK-REVIEW-0329) |
+| S8-FU current documentation delta | R4 (independent) | 2026-10-16 | CHANGES REQUIRED; three minor metadata/effectivity/review-ledger findings; no broad N17 approval | docs/reviews/2026-10-16-s8-fu-r4-review-0330.md (FRICK-REVIEW-0330) |
+| S8-FU current product-assurance delta | PA (independent) | 2026-10-16 | Bounded evidence accepted with two minor effectivity/history findings; N20 phase product NOT PASSED | docs/reviews/2026-10-16-s8-fu-pa-review-0331.md (FRICK-REVIEW-0331) |
+| S8-FU R4 finding re-review | R4 (independent) | 2026-10-16 | Closed 0330 findings 1–3 within bounded scope; no overall N17 approval | docs/reviews/2026-10-16-s8-fu-r4-rereview-0332.md (FRICK-REVIEW-0332) |
+| S8-FU PA finding re-review | PA (independent) | 2026-10-16 | Closed 0331 findings 1–2 within bounded scope; final cycle and N20 phase gate remain separate | docs/reviews/2026-10-16-s8-fu-pa-rereview-0333.md (FRICK-REVIEW-0333) |
+| Target-test deferral R4 review | R4 (independent) | 2026-10-16 | Changes required: sprint-plan date/effectivity and explicit verification-cycle boundary | docs/reviews/2026-10-16-target-test-deferral-r4-review-0334.md (FRICK-REVIEW-0334) |
+| Target-test deferral PA review | PA (independent) | 2026-10-16 | One minor sprint-plan date/effectivity finding; no N20 phase approval | docs/reviews/2026-10-16-target-test-deferral-pa-review-0335.md (FRICK-REVIEW-0335) |
+| Target-test deferral R4 re-review | R4 (independent) | 2026-10-16 | Findings 0334-1/2 closed within scope; final cycle remains pending | docs/reviews/2026-10-16-target-test-deferral-r4-rereview-0336.md (FRICK-REVIEW-0336) |
+| Target-test deferral PA re-review | PA (independent) | 2026-10-16 | Finding 0335-1 closed within scope; no N20 phase approval | docs/reviews/2026-10-16-target-test-deferral-pa-rereview-0337.md (FRICK-REVIEW-0337) |
 ## History
 
 | Rev | Date       | Author    | Reason |
@@ -724,3 +1031,33 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.27 | 2026-10-15 | frick-fsw | Record latest full local test-cycle sweep timings (17.71/18.82/102.14 s) from retained Debug/Release/ASan logs |
 | 2.28 | 2026-10-15 | frick-fsw | Correct the review-limit paragraph to distinguish historical review timing snapshots from the current 17.71/18.82/102.14 s cycle |
 | 2.29 | 2026-10-15 | frick-fsw | Record timing chronology review reports 0306/0307 and extend the bounded review pointer; no test or provenance claim expanded |
+| 2.30 | 2026-10-15 | frick-fsw | Record committed baseline 13ebf92, green GitHub CI run 38793643786, the preceding failed checks and fixes, Gitea API verification limit, 178-check CANopen host result and remaining target/review limits |
+| 2.31 | 2026-10-15 | frick-fsw | Record the initial uncommitted documentation reconciliation cycle (at that point docs-only), current 62-theorem trace result, recovered host-docs/smoke attempts, and the fact that prior hosted CI does not cover the new doc delta |
+| 2.32 | 2026-10-15 | frick-fsw | Retain initial independent R4/PA review reports 0308/0309, their findings and corrections, and pending bounded delta re-reviews |
+| 2.33 | 2026-10-15 | frick-fsw | Record final bounded correction re-review 0310 and keep broader review, hosted-CI, N7, and release gates distinct |
+| 2.34 | 2026-10-15 | frick-fsw | Record owner sequencing instruction and its R4/PA accepted S8-FU interpretation; close NC-EXT-30/65 narrowly and mark S8-FU current |
+| 2.35 | 2026-10-15 | frick-fsw | Record initial S8-FU NC-EXT-02 maximum-size PUS ingest test and keep independent/target evidence outstanding |
+| 2.36 | 2026-10-15 | frick-fsw | Record full local cycle, 587-check focused result, Renode scope limit, and V&V finding that NC-EXT-02's production receive boundary remains untested |
+| 2.37 | 2026-10-15 | frick-fsw | Record bounded V&V acceptance of N22-TS1-96 scope and reconcile the still-open NC-EXT-02 status |
+| 2.38 | 2026-10-15 | frick-fsw | Record R4/PA review 0314/0315 acceptance of evidence wording while preserving NC-EXT-02 receive-boundary gap |
+| 2.39 | 2026-10-15 | frick-fsw | Mark the earlier reconciliation as point-in-time; record S8-FU continuation for NC-EXT-01/02 and live GSW framing with remaining gates |
+| 2.40 | 2026-10-15 | frick-fsw | Record R2 T7 review 0317 and current 12/12 GSW, 35/35 Python evidence; retain NC-EXT-03 external E2E/qualification limits |
+| 2.41 | 2026-10-15 | frick-fsw | Record focused ASan result and independent V&V 0318 for bounded NC-EXT-09 closure |
+| 2.42 | 2026-10-15 | frick-fsw | Record final local S8-FU verification cycle, UART PTY evidence/V&V 0319, RTEMS cross-build, docs generation, and remaining authority/target gates |
+| 2.43 | 2026-10-15 | frick-fsw | Correct NC-EXT-01/02 owner-disposition status and record R4/PA review findings/corrections in the candidate evidence ledger |
+| 2.44 | 2026-10-15 | frick-fsw | Add candidate source/build-artifact manifest and retained test logs; record R4/PA findings and current corrections with final re-review pending |
+| 2.45 | 2026-10-15 | frick-fsw | Clarify bounded V&V evidence does not close NCs without owner disposition; correct TS-2 requirement mapping and retain open profile policy |
+| 2.46 | 2026-10-15 | frick-fsw | Record bounded R4 0323 and PA 0324 acceptance of NC-status and TS-2 mapping corrections; retain all phase/authority gates |
+| 2.47 | 2026-10-16 | frick-fsw | Record post-review full local cycle on current S8-FU candidate, including fresh CI-local, Renode emulation and RTEMS cross-build; retain authority/release blockers |
+| 2.48 | 2026-10-16 | frick-fsw | Register independent R1 findings, bounded UART disconnect/test-path corrections, retained failed attempts and the authority-blocked malformed-PDL recovery; final post-correction verification pending |
+| 2.49 | 2026-10-16 | frick-fsw | Record R1/R2 UART corrective reviews, current bounded candidate manifest and characterization-only test mapping; authority and overall phase gates remain open |
+| 2.50 | 2026-10-16 | frick-fsw | Record R1/R2 reviews, current candidate verification, S8-FU R4/PA findings and bounded 48/32/1 characterization mapping; final document delta review and cycle pending |
+| 2.51 | 2026-10-16 | frick-fsw | Correct ICD date, verification-results revision/history and current review ledger per R4 0330; qualify status.json cycle effectivity per PA 0331; delta re-reviews and final cycle pending |
+| 2.52 | 2026-10-16 | frick-fsw | Record bounded R4 0332 and PA 0333 closure of scoped findings; preserve final current-document cycle, authority, N20 and release gates |
+| 2.53 | 2026-10-16 | frick-fsw | Record final local applicable cycle on updated current documentation; retain authority, external, target and release blockers |
+| 2.54 | 2026-10-16 | frick-fsw | Retain exact logs/hashes from final repeated applicable cycle after status/evidence updates; no change to authority or release gates |
+| 2.55 | 2026-10-16 | frick-fsw | Record owner's physical-target test postponement and homepage disclaimer; preserve target-dependent NC and other sprint blockers |
+| 2.56 | 2026-10-16 | frick-fsw | Clarify target-deferral documentation effectivity and pending rerun/review per bounded R4/PA findings |
+| 2.57 | 2026-10-16 | frick-fsw | Record bounded 0334/0335 findings and 0336/0337 closure; applicable rerun and other sprint gates remain open |
+| 2.58 | 2026-10-16 | frick-fsw | Record final applicable local cycle after owner-directed target-test deferral disclaimer; retain target, authority, external, provenance and release limits |
+| 2.59 | 2026-10-16 | frick-fsw | Record owner NC dispositions (§3.2 of sprint plan): postpone NC-EXT-03/06/07/29/43/47 and NC-S4c-04 to the last sprint; defer all other open NCs indefinitely. Add sprint verification set (V&V plan §9 S1–S10) and retain logs/hashes under docs/vv/evidence/2026-10-16-s8-fu-nc-disposition-*.log (sha256: 312e641f c00d1f1b eb5dac7d 536991b5 7bc5e6d3 1175218c b83c6532 6c7d4a10 ci-local; 4f7c4a7f 79591007 dc6ee303 1f36b93e e6eccb79 f94dd76c 2cdb4b29 c664c858 aux; 3ca3a64f 24b094de b2213162 523579ab 88c102e0 ee79c653 55df26c0 3ebcd4de rtems; 0a806a8d 52b57524 4eaf4d0b d1b2ffab be9e4d33 09385b8e 44828998 69db446a renode; 92e36c7a a75914e6 1cb3dc4d 13750b89 40aec62d 0145dcae 71d41ea3 c5a0e220 uart); independent reviews 0338/0339 recorded. These are policy/disposition and verification-set changes; PA review (0339) is NOT PASSED for this delta; no phase/release approval or NC closure is claimed. Physical-target exclusion remains. |

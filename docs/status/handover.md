@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.40                                   |
-| Date                              | 2026-10-15                             |
+| Revision                          | 2.65                                   |
+| Date                              | 2026-10-16                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -87,24 +87,34 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `6ce6bd7`; S4c/S4d and defaults work in progress, updated 2026-10-15)
+## 4. Current state (baseline `13ebf92`; documentation reconciled 2026-10-15)
 
-- **Current working tree:** HEAD `6ce6bd7` is present on `origin` and `gitea`.
-  Current S4c/S4d implementation, PUS-open/lwIP-on configuration, CI dependency
-  ordering, and documentation reconciliation are uncommitted; no commit or push
-  has been made for this increment.
+- **Committed baseline:** HEAD `13ebf92` is pushed to both `origin` and `gitea`.
+  This is the S4c/S4d/defaults implementation plus the follow-up metrics/format
+  correction. The repository evidence reviewed here does not establish that
+  every N7 pre-push authorization/gate was satisfied for that historical push.
+- **Current working tree:** the status/documentation reconciliation is an
+  uncommitted delta. Initial independent reviews 0308 (R4) and 0309 (PA) have
+  been recorded; bounded correction re-review 0310 confirmed the identified
+  wording findings addressed. This does not establish broader N17/N20 closure.
+  The earlier green run does not cover this delta. Local validation is recorded
+  in `docs/vv/verification-results.md`.
+- **Hosted GitHub CI:** run `38793643786` passed all eight jobs for `13ebf92`,
+  including Debug/Release unit tests, ASan, static analysis, Lean, trace,
+  documentation, simulator smoke, and the Renode/QEMU and RTEMS proxy checks.
+  The earlier run `38792882219` failed the format and metrics-currency checks;
+  those failures were corrected in `13ebf92`. Gitea Actions execution for this
+  revision could not be independently verified (its Actions API returned 401).
 - **S4c/S4d:** fabric contract, CAN-FD fabric backend, documented CANopen subset,
-  RS-485 DE/RE control, and PUSopen adapter/test-double seam are implemented.
-  Focused host tests passed (fabric 119, CAN-FD 328, CANopen 171, serial 67,
-  PUSopen adapter 33 checks). Fresh default configuration showed
-  `FF_USE_LWIP=ON`, `FF_USE_PUS_ASN1=OFF`; build and CTest passed 36/36. Full
-  final local verification cycle including Debug/Release/ASan 36/36, Lean, trace,
-  formatting, docs, smoke, GSW, RTEMS cross-build, Renode and QEMU has passed.
-  Independent reviews FRICK-REVIEW-0288..0307 and bounded deltas have been
-  performed. NC-S4c-02 is closed only for enumerated host-level source defects;
-  NC-EXT-82 is closed only for tested reused-checkout integrity behavior. T23
-  qualification, provenance, hosted CI, target/vendor, integration and authority
-  findings remain open. Hosted CI has not run for this uncommitted candidate.
+  RS-485 DE/RE control, and the user-supplied PUSopen adapter seam are
+  implemented. Focused host tests pass (fabric 119, CAN-FD 328, CANopen 178,
+  serial 67, PUSopen adapter 33 checks). The full host suite passes 36/36 in
+  Debug, Release and ASan. The CANopen non-blocking serialization guard is a
+  post-FRICK-REVIEW-0307 code change with host regression evidence, but no
+  independent delta review; NC-S4c-04 therefore remains open with target and
+  integration limitations. NC-S4c-02 is closed only for its enumerated
+  source-level defects; NC-EXT-82 is closed only for enumerated dependency
+  checkout behavior.
 - **Known limit:** no CAN-FD fabric peripheral is available in the Renode model;
   CAN-FD evidence is host/contract-level only under NC-S4c-01/GAP-A5. PUSopen
   tests use a controlled API test double and do not establish vendor SDK
@@ -113,10 +123,10 @@ occasion; prefer Docker.
 - **Current defaults (ADR-0018):** open CCSDS PUS backend by default; N7/ESA
   ASN.1 backend is optional (`FF_USE_PUS_ASN1=ON`). lwIP is enabled by default;
   fetch pinned lwIP before direct CMake configure (`make configure` does this).
-- Previous hosted GitHub run #85 for `03366f1` and the prior Gitea evidence gap
-  remain historical; NC-EXT-36 and other prior open gates remain open. See the
-  loop audit and CI history. The remaining bullets below are retained as an
-  earlier 2026-10-14 baseline snapshot unless updated by the current status.
+- Previous hosted GitHub run #85 for `03366f1` is historical. Gitea Actions for
+  `13ebf92` remains unverified; retain the distinction from the green GitHub
+  run. See the loop audit and verification record. The remaining bullets below
+  are historical snapshots unless explicitly identified as current.
 
 - **Historical snapshot (2026-10-14):** M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered. Current M4 S4c/S4d implementation status is given above and in the roadmap.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -180,16 +190,17 @@ occasion; prefer Docker.
   - Delta re-review: R1+R2 (FRICK-REVIEW-0165-D1) + PA (FRICK-REVIEW-0166-D1)
     both APPROVED; all findings from initial REJECTED reviews resolved (2 Major,
     10 Minor, 6 V&V gaps, 4 PA Minor, 3 Comments + NF-1/NF-2/NF-3 closed).
- - **M8** gPTP (802.1AS) and Qci are delivered (S8); fabric CoreTSN is deferred to
+  - **M8** gPTP (802.1AS) and Qci are delivered (S8); fabric CoreTSN is deferred to
     **M14** (SRS-REQ-068). The repository owner authorized MPL-2.0 for original
-    project content; S8-FU now addresses remaining external compatibility and
-    assurance work. The proposed corrective sequence is S8-FU →
-   S8-VV-FU → S8-PUS-FU → S8-SCH/M17 → M12, but an earlier “drivers first”
-   owner directive conflicts with that ordering. No precedence is approved;
-   obtain the human owner's decision before starting the next competing sprint.
-   The later M12/M16/M13/M9/M14/M15 sequence is as recorded in
-         `docs/planning/sprint-plan.md` rev 0.97, subject to its applicable gates.
-- Requirements: **117 (73 srs / 30 sss / 14 gap)**; Lean 51 theorems.
+    project content; S8-FU addresses remaining corrective work. The owner's
+    general instruction to resume with the next sprint as planned is interpreted
+    here as selecting S8-FU ahead of competing driver-first sequencing; it did
+     not explicitly name S8-FU. R4 review 0311 accepted this bounded
+     interpretation; NC-EXT-30/65 are closed for this planning wording issue
+     only. The later M12/M16/M13/M9/M14/M15 sequence is recorded in
+     `docs/planning/sprint-plan.md` rev 1.27, subject to applicable gates.
+- Requirements: **117 (73 srs / 30 sss / 14 gap)**; current `make trace`
+  run found/checked 62 Lean theorems.
 - Recent reviews: FRICK-REVIEW-0040 (real RTEMS+Renode), 0041 (M12/M13 plan),
   0042 (GPIO), 0043 (SERIAL), 0044 (MEM), 0045 (PUS-C ASN.1), 0046 (README/docs),
   0101..0105 (NVM/MTD + board repl), **0106..0119** (M4/M11 MSS CAN: R1/R2/R4
@@ -217,18 +228,81 @@ occasion; prefer Docker.
 
 ## 5. Immediate next steps (priority order)
 
-1. Obtain the remaining scoped R4 review of the latest status/review-index and
-   final evidence edits; preserve its bounded verdict and do not infer overall
-   N17 closure.
-2. Obtain system/operations and board/electrical authority inputs for NC-S4c-03,
-   NC-S4c-04 integration evidence, and NC-S4c-01/05 target fabric mapping; keep
-   vendor PUSopen compatibility unclaimed.
-3. After all applicable review and local gates pass, run hosted GitHub and Gitea
-   workflows and retain exact commit/run identities. No hosted CI result exists
-   for this uncommitted candidate; T23 is not qualified.
-4. Only after full sprint scope and required gates/reviews are satisfied, create
-   a new commit (no amend/force-push) and push to both remotes. This is not
-   authorization for release, flight, or operational action.
+1. The current S4c/S4d/defaults code is committed and pushed; GitHub CI is green
+   for `13ebf92`. Gitea Actions status remains unverified, and no release,
+   qualification, or flight-readiness conclusion follows from the GitHub run.
+2. Keep NC-S4c-01/03/04/05 open as applicable. In particular, the CANopen guard
+   has host-test evidence, but needs independent review and integration evidence;
+   Renode does not model the CAN-FD fabric peripheral, and no physical-hardware
+   result is claimed. PUSopen remains user-supplied; vendor SDK compatibility is
+   not established.
+3. The owner's instruction to resume with the next sprint as planned is
+   interpreted here as selecting **S8-FU**, the first sprint in the proposed
+   corrective sequence; the instruction did not explicitly name that sprint.
+   Independent R4 review 0311 accepted this bounded interpretation and closed
+   NC-EXT-30/65 for this planning comment only; no broader gate is closed.
+ 4. T23/NC-EXT-82 closure remains narrowly scoped; broader provenance, licensing,
+    independent-review, safety/security, authority, and release gates remain
+    open. This is not authorization for release, flight, or operational action.
+5. S8-FU factors the production receive iteration into
+   `FF_AppCmdIngestReceiveOne`, called by `FF_AppCmdIngestMain`; N22-TS1-96 drives
+   a maximum-size TC through that exact helper using a controlled link and checks
+    the receive capacity and dispatched bytes. V&V review 0316 accepted this
+    bounded host evidence; NC-EXT-01/02 remain OPEN pending authorized NC-owner
+   recording of that bounded disposition.
+   NC-EXT-03 remains open for external ground-segment E2E; no target/hardware
+    claim follows from the local Renode run.
+6. **Historical 2026-10-15 UART status, superseded by items 8–9:** the first
+   host PTY TS2-81 run reported 46 checks and V&V 0319 accepted its enumerated
+   PDL behavior. The later R1 correction adds disconnect handling and unique
+   test paths (51 checks); R1/R2 and current NC-EXT-07 limits are recorded in
+   items 8–9 and `docs/vv/verification-results.md`.
+7. R4 review 0323 accepted the bounded TS-2/NC-status documentation corrections;
+   PA review 0324 accepted its bounded findings 1/3 corrections. Neither is
+   general N17/N20 or phase approval. The candidate source/build/artifact
+   identity and retained CTest logs are in
+    `docs/vv/evidence/2026-10-16-s8-fu-r1-candidate-manifest.md`; the Oct-15
+    manifest is retained as the earlier source snapshot. NC-EXT-29 remains
+   open because this is not complete reproducibility/provenance evidence.
+8. Independent R1 review 0325 identified a zero-read busy-spin on terminal
+   disconnect, ambiguous malformed in-range PDL recovery that can consume a
+   following valid TC, and a shared PTY test path. R1 delta 0326 accepted the
+   fail-fast zero-read behavior and unique temporary PTY path for bounded host
+   scope. The malformed-candidate recovery remains authority-blocked under
+   NC-EXT-07; no inner-boundary heuristic was introduced. The user confirmed
+   that no approved authority decisions are available and selected to keep
+   S8-FU blocked; no policy is inferred. See the sprint register and review
+   reports 0325/0326.
+9. Independent V&V reviews 0327–0329 accepted the disconnected-PTY host oracle,
+   required TS-2 case 81 to be characterization-only (not SRS-REQ-016 coverage),
+   and reconciled TS-2/SVA-1 as 48 covered, 32 gaps, 1 characterization. The
+   updated SVA-2 interface summary, ICD and test/tool records reflect this. The
+   user chose to keep authority-blocked; no controlled recovery/profile/NC-owner
+   decisions were supplied. The current code candidate digest and logs are in
+   `docs/vv/evidence/2026-10-16-s8-fu-r1-candidate-manifest.md`. NC-EXT-07,
+   NC-EXT-01/02 and broader S8-FU remain open; there is no commit/push eligibility.
+10. R4 review 0330 and PA review 0331 raised metadata/effectivity/ledger findings.
+    Bounded re-reviews 0332 and 0333 accepted their corrections, but explicitly
+    require a final full applicable cycle against the current documentation.
+    This is not broad N17 or N20 phase approval. Run and retain that cycle, then
+    reconcile its result in verification/status records without changing the
+    user-directed authority-blocked state.
+11. The applicable local cycle was rerun after those corrections: CI-local 37/37,
+    Lean/trace, smoke, GSW/license, metrics, docs, formatting, JSON/diff, RTEMS
+    cross-build, Renode and focused UART PTY (51/0) passed. Retained logs and
+    hashes are referenced by verification-results 2.53 and the current
+    candidate manifest. This does not close S8-FU authority/external/target
+    items or authorize commit/push.
+12. On 2026-10-16 the user decided to postpone physical-target tests and require
+    a homepage disclaimer. README now states that no physical RTPFS160ZT runtime,
+    timing, or physical UART evidence is established and distinguishes cross-build
+    from Renode emulation. This is a deferral, not an NC closure or general
+    verification waiver. NC-EXT-07 remains open for recovery policy; NC-EXT-01/02
+    owner dispositions, NC-EXT-03 external E2E/profile, and other sprint/release
+    gates remain unresolved. Scoped R4/PA reviews 0336/0337 accepted only the
+    metadata/effectivity corrections. The applicable local cycle then passed;
+    logs/hashes are recorded in verification-results 2.58. This is not target
+    evidence or sprint completion. No commit/push is currently eligible.
 
 ### Historical 2026-10-14 status narrative (superseded for current actions by §4/§5)
 
@@ -295,7 +369,7 @@ occasion; prefer Docker.
 > conflicts with “drivers first”; do not start a competing sprint until the plan
 > and human owner resolve ordering/approval.
 
-**Historical resumption point (SB/EVS configured structural stress; superseded by the current §4/§5 state):**
+**Historical resumption snapshot (SB/EVS configured structural stress; point-in-time text, superseded by current §4/§5; do not use its hosted-CI/NC statuses as current):**
 
  1. Continue using `docs/planning/sprint-plan.md` rev 1.10. Under N21,
      correct functional bugs and implement missing features committed for the
@@ -353,8 +427,8 @@ occasion; prefer Docker.
       detection/counter/reporting semantics, N14 mission baseline, hosted CI,
       and broader sprint/release gates remain open. A fresh RTEMS 6 cross-build
       (`build/rtems-sweep-final`, ELF64 RISC-V) and real Renode functional check
-      (`RENODE_TEST: PASS`) have since passed; hosted CI on this uncommitted tree
-      remains unrun. R2 source-identity delta FRICK-REVIEW-0274 confirms the
+       (`RENODE_TEST: PASS`) had passed at the time; hosted CI on that then-current
+       uncommitted tree was unrun. R2 source-identity delta FRICK-REVIEW-0274 confirms the
       final script hash and byte-identical retained CSV.
  2. Then continue from the open NC register in the same plan. Keep
         NC-S4b-01..09, NC-EXT-01..81 and GAP-R3-1 open until independent delta reviews or
@@ -372,8 +446,10 @@ occasion; prefer Docker.
   5. FRICK-REVIEW-0173 independently verified the finite-buffer GSW resynchronization
     case but did not close T7 overall; it opened NC-EXT-13 for the CCSDS primary
     header profile/acceptance decision. Its severity is provisional pending the
-    controlled criterion and rationale tracked by NC-EXT-31. NC-EXT-02 lacks maximum-size
-   application-ingest evidence and NC-EXT-03 lacks external ground-segment E2E.
+     controlled criterion and rationale tracked by NC-EXT-31. At this historical
+     snapshot NC-EXT-02 lacked maximum-size application-ingest evidence; current
+     status is in §4 and `docs/planning/sprint-plan.md`. NC-EXT-03 lacks external
+     ground-segment E2E.
   6. Status gates for documentation review, PA review, review closure, loop audit
      and V&V records are intentionally yellow while this loop is open. Do not
      commit/push until N15/N17/N20 and required independent re-reviews pass.
@@ -382,10 +458,12 @@ occasion; prefer Docker.
      complete immutable configuration/tool/artifact/log identity. Host
       `make check` is blocked at `verify-lean` because `lake` is absent; Docker
       `lake build` passed in the observed local image.
-  7. The proposed sprint sequence is S8-FU closure → S8-VV-FU (GAP-R3-1,
+   7. The proposed sprint sequence is S8-FU closure → S8-VV-FU (GAP-R3-1,
    NC-EXT-25) → S8-PUS-FU (NC-EXT-14..18,
    20..21, 23..24 where requirements/profile permit autonomous correction) →
-    S8-SCH (NC-EXT-19/M17) → M12, subject to owner precedence decision NC-EXT-30.
+     S8-SCH (NC-EXT-19/M17) → M12. The current plan interprets the owner's
+     general resumption instruction as selecting S8-FU first; bounded R4 review
+     0311 accepted this wording, closing NC-EXT-30/65 only for this plan comment.
     NC-EXT-22 (PUS S11 stub) is assigned to M15;
     it is not closed by the application scheduler. Existing GAP-A1..A14 remain
      open in `class-a-gaps.md`; mission-specific licensing/adoption and
@@ -600,3 +678,28 @@ occasion; prefer Docker.
 | 2.38 | 2026-10-15 | frick-fsw | Record final bounded R4/PA evidence reviews 0302/0303; keep phase/release and hosted/provenance/target/authority gates open |
 | 2.39 | 2026-10-15 | frick-fsw | Record latest R4/PA timing chronology follow-ups 0304/0305 and keep all broader gates open |
 | 2.40 | 2026-10-15 | frick-fsw | Record R4/PA timing text follow-ups 0306/0307 and retain open phase/release, hosted, provenance and authority gates |
+| 2.41 | 2026-10-15 | frick-fsw | Reconcile current baseline to pushed HEAD 13ebf92; record green GitHub run 38793643786, prior CI formatting/metrics failures and correction, Gitea API verification limit, CANopen guard/test delta, and unresolved sprint precedence; retain NC-S4c-04 and broader gates open |
+| 2.42 | 2026-10-15 | frick-fsw | Clarify committed baseline versus current uncommitted documentation delta, state that prior GitHub CI does not cover it, and avoid asserting historical N7 pre-push compliance without supporting records |
+| 2.43 | 2026-10-15 | frick-fsw | Record initial scoped R4/PA reviews 0308/0309, their corrected findings and pending delta re-reviews; retain N7 and hosted-CI limits |
+| 2.44 | 2026-10-15 | frick-fsw | Record bounded final re-review 0310 of the 0308/0309 wording corrections; retain uncommitted-delta, historical N7, Gitea, and broader review limits |
+| 2.45 | 2026-10-15 | frick-fsw | Record the owner's sequencing direction: resume with S8-FU; keep NC-EXT-30 open pending independent R4 review of the plan change |
+| 2.46 | 2026-10-15 | frick-fsw | Clarify S8-FU as this plan's interpretation of the owner's general instruction, not a verbatim owner selection; preserve pending NC-EXT-30 review |
+| 2.47 | 2026-10-15 | frick-fsw | Reconcile current and prior resume passages to sprint-plan rev 1.26 and distinguish owner instruction from the plan's S8-FU interpretation |
+| 2.48 | 2026-10-15 | frick-fsw | Record R4 review 0311 closure of NC-EXT-30/65 for bounded sequencing wording and align current sprint pointer to S8-FU |
+| 2.49 | 2026-10-15 | frick-fsw | Record N22-TS1-96 as partial host evidence for NC-EXT-02, retain receive-loop limitation, and label older handover passage as point-in-time history |
+| 2.50 | 2026-10-15 | frick-fsw | Record the production receive-helper test, V&V 0316 accepted bounded evidence, and remaining NC-owner/target/NC-EXT-03 limits |
+| 2.51 | 2026-10-15 | frick-fsw | Record UART PDL framing, host PTY V&V 0319, current local verification results and NC-EXT-07 authority/target limits |
+| 2.52 | 2026-10-15 | frick-fsw | Clarify NC-EXT-01/02 remain open until authorized owner dispositions are recorded; record current PA/R4 findings |
+| 2.53 | 2026-10-15 | frick-fsw | Link S8-FU candidate manifest and retained logs; record R4/PA corrective delta and remaining review/authority blockers |
+| 2.54 | 2026-10-15 | frick-fsw | Record R4 0323 and PA 0324 bounded acceptance; preserve NC-owner and broader N17/N20 gates |
+| 2.55 | 2026-10-15 | frick-fsw | Reconcile exact NC-EXT-01/02 evidence wording and record current R4/PA bounded re-review plus candidate manifest pointer |
+| 2.56 | 2026-10-16 | frick-fsw | Record fresh post-review CI-local, smoke, tools, docs, RTEMS cross-build and Renode results; S8-FU authority gates remain open |
+| 2.57 | 2026-10-16 | frick-fsw | Record independent R1 UART findings, bounded corrections, unresolved malformed-PDL recovery and user's authority-blocked direction |
+| 2.58 | 2026-10-16 | frick-fsw | Record V&V 0327–0329 case-mapping/count correction, SVA-2 update, current manifest and authority-blocked sprint status |
+| 2.59 | 2026-10-16 | frick-fsw | Mark the 46-check UART summary historical, point to the current 51-check candidate manifest and reconcile active baseline claims |
+| 2.60 | 2026-10-16 | frick-fsw | Record bounded R4/PA finding re-review acceptance and identify final applicable verification cycle as next action |
+| 2.61 | 2026-10-16 | frick-fsw | Record final applicable local verification cycle and preserve authority/external/target blockers |
+| 2.62 | 2026-10-16 | frick-fsw | Record physical-target test postponement, homepage disclaimer and remaining independent blockers |
+| 2.63 | 2026-10-16 | frick-fsw | Record scoped R4/PA findings on target-deferral documentation; sprint header/effectivity corrected and latest cycle/re-review pending |
+| 2.64 | 2026-10-16 | frick-fsw | Record bounded R4/PA re-review 0336/0337; final applicable verification and non-target sprint gates remain open |
+| 2.65 | 2026-10-16 | frick-fsw | Record post-deferral local verification cycle and keep all authority/external/release gates open |

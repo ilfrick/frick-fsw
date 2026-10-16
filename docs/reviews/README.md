@@ -2,6 +2,33 @@
 
 | Date       | Scope                          | Profile | Conclusion                | Report |
 | ---------- | ------------------------------ | ------- | ------------------------- | ------ |
+| 2026-10-16 | Physical-target deferral PA re-review | PA | 0335 metadata finding resolved; no phase approval | 2026-10-16-target-test-deferral-pa-rereview-0337.md |
+| 2026-10-16 | Physical-target deferral R4 re-review | R4 | 0334 findings resolved within scope; applicable local cycle passed | 2026-10-16-target-test-deferral-r4-rereview-0336.md |
+| 2026-10-16 | Physical-target test deferral PA review | PA | One minor sprint-plan metadata finding; no N20 phase approval | 2026-10-16-target-test-deferral-pa-review-0335.md |
+| 2026-10-16 | Physical-target test deferral documentation review | R4 | Two minor metadata/effectivity findings; changes required | 2026-10-16-target-test-deferral-r4-review-0334.md |
+| 2026-10-16 | PA bounded finding re-review | PA | 0331 findings addressed; final current-document cycle still pending; no N20 phase approval | 2026-10-16-s8-fu-pa-rereview-0333.md |
+| 2026-10-16 | R4 bounded finding re-review | R4 | 0330 findings 1–3 closed within scope; no overall N17 approval | 2026-10-16-s8-fu-r4-rereview-0332.md |
+| 2026-10-16 | S8-FU current product assurance | PA | Two minor effectivity/history findings; N20 phase product not passed | 2026-10-16-s8-fu-pa-review-0331.md |
+| 2026-10-16 | S8-FU current documentation delta | R4 | Three minor metadata/effectivity/ledger findings; changes required | 2026-10-16-s8-fu-r4-review-0330.md |
+| 2026-10-16 | TS-2 UART characterization count | R2 | Bounded status/count correction accepted; no requirement or target closure | 2026-10-16-s8-fu-uart-vv-count-rereview-0329.md |
+| 2026-10-16 | TS-2 UART characterization mapping re-review | R2 | Changes required for `characterization` status definition and count reconciliation | 2026-10-16-s8-fu-uart-vv-count-delta-0328.md |
+| 2026-10-16 | UART disconnect/test-path V&V delta | R2 | Host behavior accepted with finding that N22-TS2-81 must not map SRS-REQ-016 | 2026-10-16-s8-fu-uart-vv-delta-0327.md |
+| 2026-10-16 | UART framing corrective delta | R1 | Findings 1/3 accepted for bounded host/source scope; ambiguous malformed-PDL recovery remains authority-blocked | 2026-10-16-s8-fu-fsw-r1-delta-0326.md |
+| 2026-10-16 | S8-FU code delta | R1 | Changes requested: disconnected-UART busy-spin, ambiguous malformed-PDL recovery, shared test PTY path | 2026-10-16-s8-fu-fsw-r1-review-0325.md |
+| 2026-10-15 | UART PDL stream framing | V&V | Host PTY behavior accepted; NC-EXT-07 remains OPEN for timeout/recovery authority and target runtime | 2026-10-15-uart-framing-vv-review-0319.md |
+| 2026-10-15 | S8-FU product assurance delta | PA | Bounded evidence accepted with findings; NC-EXT-01/02 owner dispositions, candidate identity and TS-2 mapping require correction; N20 not passed | 2026-10-15-s8-fu-pa-delta-review-0321.md |
+| 2026-10-15 | S8-FU documentation delta re-review | R4 | Corrected current summaries/evidence/ICD/audit accepted; SVA-1 effectivity finding remains | 2026-10-15-s8-fu-r4-delta-rereview-0322.md |
+| 2026-10-15 | S8-FU product-assurance targeted re-review | PA | Findings 0321-1/3 addressed; bounded acceptance only, N20 phase review not passed | 2026-10-15-s8-fu-pa-final-delta-review-0324.md |
+| 2026-10-15 | S8-FU documentation targeted re-review | R4 | TS-2 requirement mapping and NC-EXT-01/02 status corrections accepted for bounded scope only | 2026-10-15-s8-fu-r4-final-delta-review-0323.md |
+| 2026-10-15 | S8-FU documentation delta | R4 | Changes required; four major current-summary, ICD-size, evidence-index and active-audit findings | 2026-10-15-s8-fu-r4-delta-review-0320.md |
+| 2026-10-15 | GEM TSN mock fixture extent | V&V | Focused ASan evidence accepts NC-EXT-09 for exercised host offsets only | 2026-10-15-gem-tsn-fixture-vv-review-0318.md |
+| 2026-10-15 | T7 incremental GSW receiver | R2 | Bounded host parser/ping delta PASS; NC-EXT-03 external E2E remains OPEN | 2026-10-15-gsw-t7-r2-review-0317.md |
+| 2026-10-15 | CCSDS decoder symmetry / max-size command ingest | V&V | Accepted bounded host codec and production receive-helper scope; target/backend limits retained | 2026-10-15-ccsds-ingest-vv-review-0316.md |
+| 2026-10-15 | S8-FU NC-EXT-02 maximum-size TC evidence | V&V+R4+PA | V&V accepts bounded host test only; R4/PA wording PASS; NC-EXT-02 remains OPEN | 2026-10-15-nc-ext-02-vv-review-0313.md; 2026-10-15-nc-ext-02-r4-review-0314.md; 2026-10-15-nc-ext-02-pa-review-0315.md |
+| 2026-10-15 | Owner instruction / S8-FU sequence interpretation | R4+PA | R4 PASS; bounded wording accepted, no PA finding; NC-EXT-30/65 scoped closure | 2026-10-15-sprint-sequence-r4-review-0311.md; 2026-10-15-sprint-sequence-pa-review-0312.md |
+| 2026-10-15 | Status-reconciliation correction delta | R4+PA | C1 and PA-0309-01/02 addressed within bounded scope; no broader closure | 2026-10-15-status-reconciliation-final-delta-0310.md |
+| 2026-10-15 | Status-reconciliation documentation delta | R4 | APPROVED WITH COMMENTS; C1 closed by bounded re-review 0310 | 2026-10-15-status-reconciliation-r4-review-0308.md |
+| 2026-10-15 | Status-reconciliation delta, N7/N21 assurance | PA | Initial NOT ACCEPTED; findings addressed in bounded re-review 0310 | 2026-10-15-status-reconciliation-pa-review-0309.md |
 | 2026-10-14 | N21/N22 governance docs update | R4      | APPROVED WITH COMMENTS    | 2026-10-14-r4-documentation-review-N21-N22.md |
 | 2026-10-10 | v0.1.0 baseline release        | R2      | APPROVED WITH COMMENTS    | 2026-10-10-baseline-vv-review.md |
 | 2026-10-10 | SSS requirements review (N14)  | R3      | APPROVED WITH COMMENTS    | 2026-10-10-sss-systems-review.md |
@@ -301,6 +328,7 @@
 | 2026-10-15 | S4c/S4d post-0303 timing snapshot clarification | PA (Senior SW Product Assurance engineer, independent) | PASS for corrected chronology; 0303 is a point-in-time record, latest values are 17.27/18.21/98.44 s; no phase/release closure | 2026-10-15-s4c-s4d-pa-final-cycle-followup-0305.md (FRICK-REVIEW-0305) |
 | 2026-10-15 | S4c/S4d timing chronology text correction | R4 (Senior SW documentation engineer, independent) | APPROVED for bounded current-vs-historical timing consistency; no overall N17 or release closure | 2026-10-15-s4c-s4d-r4-timing-text-fix-0306.md (FRICK-REVIEW-0306) |
 | 2026-10-15 | S4c/S4d timing chronology PA follow-up | PA (Senior SW Product Assurance engineer, independent) | PASS for bounded record consistency; NOT APPROVED for phase/release closure | 2026-10-15-s4c-s4d-pa-timing-text-fix-0307.md (FRICK-REVIEW-0307) |
+| 2026-10-15 | UART PDL stream-framing behavior | V&V (independent) | Accepted enumerated host PTY behavior; NC-EXT-07 remains OPEN for authority policy and target runtime/timing evidence | 2026-10-15-uart-framing-vv-review-0319.md (FRICK-REVIEW-0319) |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. Reports are required in the same
@@ -358,6 +386,31 @@ applicable verification and independent-review gates pass (norms N7/N11/N15).
 > dependency checkout-state behavior. NC-S4c-01/03/04/05, T23 qualification,
 > complete candidate provenance, hosted CI, vendor compatibility, and overall
 > phase/release gates remain open. PA 0297 is not phase or release approval.
+> The current uncommitted S8-FU candidate includes CCSDS/ingest/GSW and UART
+> framing deltas. Reports 0316..0319 and 0327..0329 are bounded V&V/R2
+> conclusions; 0325/0326 are bounded R1 code review. These do not constitute
+> broad R4/PA or phase approval. NC-EXT-01/02 remain open pending authorized
+> NC-owner dispositions; NC-EXT-03 external E2E and NC-EXT-07 timeout/recovery
+> authority and target evidence remain open. The candidate is not covered by
+> hosted run `38793643786`.
+> FRICK-REVIEW-0320/0321 found bounded current-summary/ICD/evidence-index,
+> NC-owner disposition, candidate identity and TS-2 scope-record issues. R4
+> re-review 0322 accepted the summary/ICD/index/audit corrections but retained
+> one SVA-1 effectivity finding; that correction is now in the candidate and
+> received targeted R4 re-review 0323. PA re-review 0324 accepted corrections
+> for the NC-owner status and TS-2 mapping; findings do not constitute NC closure
+> or N20 phase approval.
+> R1 review 0325 identified UART disconnect busy-spin, malformed plausible-PDL
+> packet-loss ambiguity and a shared test path; R1 delta 0326 accepted only the
+> disconnect and unique-path corrections for bounded host/source scope. R2
+> 0327..0329 accepted host-only behavior, corrected N22-TS2-81 to
+> characterization-only, and reconciled 48 covered / 32 gaps / 1
+> characterization. The malformed-PDL recovery remains authority-blocked under
+> NC-EXT-07. R4 0330 findings were closed within scope by 0332; PA 0331 findings
+> were corrected and accepted by 0333. The later target-test deferral disclaimer
+> was reviewed within scope by R4/PA 0336/0337, and the applicable local cycle
+> passed. These bounded reviews do not pass overall N17/N20 or close remaining
+> authority/external/target-dependent NCs.
 
 - Template: `review-template.md`
 - Independent agent profiles: `../engineering/independent-review.md`
@@ -369,3 +422,5 @@ push the reports with the reviewed change only after all applicable verification
 and independent-review gates pass. This reconciles N11 evidence retention with
 the N7/N15/N17/N20 commit gate; do not publish a change whose required review
 has failed.
+| 2026-10-16 | S8-FU NC disposition & sprint-set doc review | R4 | APPROVED WITH COMMENTS; minor non-functional findings F1–F11; no overall N17 phase approval | 2026-10-16-s8-fu-nc-disposition-r4-review-0338.md |
+| 2026-10-16 | S8-FU NC disposition & sprint-set PA review | PA | NOT PASSED; minor findings outstanding; N21 does not unblock N20 phase assurance | 2026-10-16-s8-fu-nc-disposition-pa-review-0339.md |
