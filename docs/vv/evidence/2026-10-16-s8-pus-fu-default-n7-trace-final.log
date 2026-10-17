@@ -1,0 +1,42 @@
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /home/nicola/fsw/frick-fsw/docs/requirements/traceability.yaml
+requirements in manifest: 117
+  srs=73 sss=30 gap=14
+lean theorems found: 62
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  1 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (117 requirements, 73 srs, 30 sss, 14 gaps, 62 lean theorems checked)

@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/2] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[2/2] Linking C executable tests/test_pus_fu
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+    Start 9: pus_fu
+1/1 Test #9: pus_fu ...........................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec

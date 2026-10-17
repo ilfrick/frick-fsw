@@ -76,10 +76,10 @@ int ff_fsw_main(void)
         FF_PalPanic("core initialisation failed");
     }
 
-    /* PUS layer with the default open backend. */
+    /* Select the configured project-default PUS backend. */
     if ((FF_PusInit() != FF_SUCCESS) ||
 #if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
-        (FF_PusSetBackend(&FF_PusBackendN7) != FF_SUCCESS) /* optional N7 backend */
+        (FF_PusSetBackend(&FF_PusBackendN7) != FF_SUCCESS) /* project default */
 #else
         (FF_PusSetBackend(&FF_PusBackendOpen) != FF_SUCCESS)
 #endif

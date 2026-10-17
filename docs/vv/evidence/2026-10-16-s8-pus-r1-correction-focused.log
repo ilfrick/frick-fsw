@@ -1,0 +1,20 @@
+[0/2] Re-checking globbed directories...
+[1/45] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+FAILED: tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o 
+/usr/bin/cc -DFF_TEST_HOOKS -DFF_USE_LWIP=1 -DFF_USE_N7_OBCP=1 -DFF_USE_PUS_ASN1=1 -DFRICK_USE_LIBM=1 -I/workspace/src -I/workspace/src/core -I/workspace/config -I/workspace/build/ci/n7s-obcp/flat -I/workspace/third_party/n7s-obcp/src/obcp_engine -I/workspace/third_party/n7s-obcp/src -I/workspace/src/hal/net/lwip -I/workspace/third_party/lwip/src/include -I/workspace/third_party/lwip/contrib/ports/unix/port/include -I/workspace/third_party/asn1-pusc-lib-generated/common -I/workspace/third_party/asn1-pusc-lib/wrappers/c -g -std=gnu99 -Wall -Wextra -Werror -MD -MT tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o -MF tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o.d -o tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o -c /workspace/tests/unit/test_pus_fu.c
+In file included from /workspace/tests/unit/test_pus_fu.c:23:
+/workspace/tests/unit/test_pus_fu.c: In function ‘test_ncext_23_duplicate_provider_rejected’:
+/workspace/tests/unit/test_pus_fu.c:120:49: error: ‘alternate_hk_provider’ undeclared (first use in this function)
+  120 |     FF_TEST_ASSERT(FF_PusRegisterHkProvider(7u, alternate_hk_provider) == FF_ALREADY_EXISTS);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/workspace/tests/unit/../ff_test.h:20:15: note: in definition of macro ‘FF_TEST_ASSERT’
+   20 |         if (!(cond)) {                                                                             \
+      |               ^~~~
+/workspace/tests/unit/test_pus_fu.c:120:49: note: each undeclared identifier is reported only once for each function it appears in
+  120 |     FF_TEST_ASSERT(FF_PusRegisterHkProvider(7u, alternate_hk_provider) == FF_ALREADY_EXISTS);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/workspace/tests/unit/../ff_test.h:20:15: note: in definition of macro ‘FF_TEST_ASSERT’
+   20 |         if (!(cond)) {                                                                             \
+      |               ^~~~
+[2/45] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus_services.c.o
+ninja: build stopped: subcommand failed.

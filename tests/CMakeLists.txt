@@ -32,9 +32,23 @@ endif()
 
 add_executable(test_es_hs_lifecycle unit/test_es_hs_lifecycle.c)
 add_executable(test_decoder_corpus unit/test_decoder_corpus.c)
+add_executable(test_pus_fu unit/test_pus_fu.c)
+if(FF_USE_N7_OBCP)
+  add_executable(test_obcp_integration unit/test_obcp_integration.c)
+endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_pus
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_pus test_pus_fu
                     test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_decoder_corpus)
+if(TARGET test_obcp_integration)
+  list(APPEND FF_TEST_TARGETS test_obcp_integration)
+  target_include_directories(test_obcp_integration PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+if(FF_USE_PUS_ASN1)
+  # Exercise the configured default adapter against the actual generated N7
+  # headers and CRC implementation linked through frick_fsw_core.
+  add_executable(test_pus_n7_adapter unit/test_pus_n7_adapter.c)
+  list(APPEND FF_TEST_TARGETS test_pus_n7_adapter)
+endif()
 if(NOT FF_USE_PUSOPEN)
   # Compile the in-repository adapter against a controlled test double. This
   # checks its seam without requiring or claiming compatibility with vendor SDK.
@@ -132,6 +146,14 @@ set_tests_properties(sb_evs_structural_sweep PROPERTIES TIMEOUT 180 LABELS "tool
 add_test(NAME tbl   COMMAND test_tbl)
 add_test(NAME sched COMMAND test_sched)
 add_test(NAME pus   COMMAND test_pus)
+add_test(NAME pus_fu COMMAND test_pus_fu)
+if(TARGET test_obcp_integration)
+  add_test(NAME obcp_engine_connectivity COMMAND test_obcp_integration)
+  set_tests_properties(obcp_engine_connectivity PROPERTIES TIMEOUT 30)
+endif()
+if(TARGET test_pus_n7_adapter)
+  add_test(NAME pus_n7_adapter_contract COMMAND test_pus_n7_adapter)
+endif()
 if(TARGET test_pusopen)
   add_test(NAME pusopen_adapter_contract COMMAND test_pusopen)
 endif()

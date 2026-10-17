@@ -7,6 +7,159 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### S8 reconciliation: independent-review closure of the PUS/SCH/VV delta (2026-10-17)
+
+- Processed the four independent reconciliation reviews and closed their
+  bounded findings (working tree only; no requirement, architecture or
+  behavioural source change):
+  - **0370 R2** (V&V delta, APPROVED WITH COMMENTS): synchronized the §3 gap
+    mapping with the case tables in `ts-1-protocol-core.md`,
+    `ts-5-core-services.md` and `ts-6-sw-robustness.md` (TS-1: removed covered
+    `N22-TS1-47/49`; TS-5: removed covered `N22-TS5-45/46`, added `N22-TS5-74`;
+    TS-6: removed covered `N22-TS6-33/35`, added `N22-TS6-52`), kept the residual
+    limits visible; rephrased the `test_pus_n7_adapter.c` CRC comment as a
+    compatibility check rather than an independent reference cross-check;
+    scoped the `test_pusopen.c` APID/type-guard assertion to the local adapter
+    contract; stated in `test_es_hs_lifecycle.c` that the heartbeat event id
+    (`0x0502`) and diagnostic text are implementation-defined; mirrored the
+    shared-`FF_CcsdsCrc16` common-mode limitation into the TS-1/TS-6 oracles.
+  - **0371 R3** (requirement grounding, CHANGES REQUIRED): `FRICK-ICD-001`
+    rev 1.3 replaces the generic S3 "(admin)" row with the implemented
+    TC[3,1]/[3,3]/[3,5]/[3,6]/[3,27] codes and payload shapes, and replaces the
+    S6 `addr[4]+size[2]` description with the implemented provisional
+    `region id[1] + byte offset[4 BE] + length[2 BE]` profile, with an explicit
+    provisional/authority-pending note (ADR-0020; NC-EXT-16/18); TS1-103 pins
+    the ECSS-E-ST-70-41C 2016 edition for its clause citation.
+  - **0372 R4** (documentation, CHANGES REQUIRED at the reviewed revision):
+    completed the TS-1 history for the S6 rows 45–49/§1.3 ground, corrected the
+    NC-EXT-92 section reference to TS-4 §3.1, restated the S8-VV-FU cycle count
+    and de-duplicated the S8-PUS-FU wording; TS-1 rev 1.9, TS-5 rev 1.3, TS-6
+    rev 1.5, sprint-plan rev 1.70.
+  - **0374 R2** (follow-up oracle/consistency re-review, APPROVED WITH COMMENTS): recomputed the TS-6 §3.2 environment counts to 53/1/4 = 58, corrected the `GAP-R3-1` status wording in TS-5/TS-6, and recorded the scheduler activation→`FF_SchedInit` test-completeness limit and the `ff_sched.h`/`ADR-0020` §1.3 ground rows.
+  - **0375 R3** (ICD delta, APPROVED WITH COMMENTS): ICD rev 1.4 with state-flag qualification, TM[6,6] shape, TC[3,27] framing and Service-11 stub; fixed the `FF_PusRegisterMemoryRegion(region_id, base, size)` signature in the engineering docs.
+  - **0376 R4** — independent documentation re-review. **CORRECTED APPROVED WITH COMMENTS** (the underlying S8-PUS-FU/S8-SCH/S8-VV-FU documentation changes are substantively correct; four Major citation errors and two Comment errors found in the author's self-authored placeholder were corrected in the independent report: `pus.h:66`→`:69`, the `status.json` "revision" key and the loop-audit ICD-1.4 parenthetical mis-attributions, the phantom N11 "through 0364" string, and the TS-1 §3.2→§3.1 section reference). No source/requirement change resulted from 0376; the review report itself carries the report's own N9-independence caveat (a fresh-context independent R4 agent performed it, but the report retains the conservative PA-0377-remaining-dependence note). PA **0377** pending independent re-verification of the corrected tree; no commit/push until it passes.
+  - **0373 PA** (no approval): recorded the narrow-closure vs PA-acceptance
+    taxonomy in the review log, registered NC-EXT-93 for the review-log ID
+    collision (0338/0339 used by two report series) with a bounded mitigation,
+    and queued two bounded follow-ups (independent review of the `N22-TS5-77`
+    oracle; PA re-verification of the refreshed candidate manifest). NC-EXT-84
+    provenance stays open.
+- Refreshed candidate identity:
+  `docs/vv/evidence/2026-10-17-s8-reconciliation-candidate-manifest.md` lists
+  every file differing from `b8c3aee` with SHA-256/size plus the cycle tree's
+  `CMakeCache.txt`/`frick_fsw` hashes; it supersedes the stale 49-file (PA 0361)
+  and 19-file (PA 0364) inventories and is not a signed run attestation.
+- Reconciliation cycle evidence: `make ci-local` (fresh configure) 43/43 CTest
+  + Lean (62 theorems) + trace PASS, pinned `format-check`, containerized
+  `docs`, `gsw-selfcheck` and `smoke`, all green and retained as
+  `docs/vv/evidence/2026-10-17-s8-reconciliation-*.log`. No phase, N17/N20,
+  PUS-C compliance, target or release claim; authority-owned NCs remain open.
+
+### S8-PUS-FU bounded corrective increment (in progress, 2026-10-16)
+
+- Reject duplicate `(service, subservice)` registrations and duplicate HK/parameter
+  provider, parameter setter, and function identifiers with `FF_ALREADY_EXISTS`;
+  existing registrations are not shadowed.
+- Validate HK and parameter provider-returned lengths against the supplied output
+  capacity before sending report telemetry; over-capacity reports return
+  `FF_BAD_SIZE` and emit no report TM. This check cannot prevent a provider from
+  writing past the supplied buffer.
+- Make the registered S11 scheduling stub visible: it returns
+  `FF_NOT_IMPLEMENTED` and emits an EVS warning on invocation. S11 capability
+  remains deferred; this does not imply PUS-C service compliance.
+- Set `FF_USE_PUS_ASN1=ON` by default per ADR-0019; update CI and local build
+  entry points to generate the pinned common ASN1SCC inputs. The N7 adapter TC
+  CRC path checks exact PDL/frame length and minimum secondary-header/trailer
+  size. Its host test now links the generated common sources and actual N7/ESA
+  CRC wrapper, exercising valid/corrupt CRC and malformed boundaries. This does
+  not establish full service-codec mapping or mission-profile compatibility;
+  NC-EXT-20 remains open.
+- Record the existing PUSopen seam's received APID/type guard and controlled
+  stub test (wrong APID rejected before upstream decode); commercial SDK
+  compatibility remains unverified and NC-EXT-21 remains open.
+- Propagate housekeeping report-provider failures rather than returning success
+  without report telemetry; propagate TM encoding failure as well, retain the
+  first report-loop failure and continue bounded iteration, including a later
+  missing-provider result. TS1-101/102 check failure status and no TM. The TM sink API is `void`, so downstream
+  delivery failure is not observable here. Broader S3 mapping and NC-EXT-17 remain
+  open pending profile reconciliation and independent review.
+- Add `tests/unit/test_pus_fu.c` for duplicate registration, zero/full/over-max
+  provider lengths on HK plus over-max parameter provider output, and S11 stub
+  status/event behavior and HK provider-failure propagation. Register it in CTest;
+  TS-1 cases 97–101 and the PUS-layer
+  architecture note document these local API contracts.
+- Follow R1/R2 review 0349/0350 with S3 first-failure preservation, report-all
+  order tests, exact HK packet lengths, capacity+1 cases, duplicate-callback
+  retention oracles, and the N7 adapter test trace link. Reviews 0354–0356
+  confirm these bounded corrections; full-cycle/authority gates remain open.
+- Correct S8-SCH test evidence after review 0352: exact validation status,
+  rejected-image dispatch preservation for the tested first entry, and aligned
+  1000 ms missed-slot input with explicit ID/payload/time output checks. R2
+  re-review 0353 accepts the bounded oracles. R1 review 0351 opens NC-EXT-90 for
+  unchecked absolute-target overflow; mission time-range policy and target
+  timing remain unresolved.
+- Current local default-N7 evidence is indexed in
+  `docs/vv/verification-results.md`; successful, stale-cache and environment-
+  limitation logs are kept separately. Fresh default-N7 CI-local, format,
+  coverage, docs, RTEMS cross-build and Renode emulator results are retained. The host suite, ASan suite and Renode
+  image must all be explicitly configured with N7 enabled. Renode is emulation,
+  not physical-hardware evidence or a PUS-service-specific oracle. This is not
+  the full S8-PUS-FU scope; remaining authority/profile items and batch
+  R4/PA/V&V review are open. No NC, phase, or release gate is closed by this
+  entry.
+
+### S9 OBCP candidate intake (in progress, 2026-10-16)
+
+- Added a pinned fetch path for `n7space/n7s-obcp` and its MicroPython submodule;
+  third-party sources remain uncommitted/ignored. Parent and submodule revisions,
+  upstream native test evidence, and known limits are documented.
+- Source/API review identified cooperative begin/end-step callbacks, but no
+  VM-enforced budget for arbitrary Python between callbacks; the pinned execute
+  entry point returns `true` without propagating interpreter failure. These
+  limitations and the limited upstream test are recorded under NC-S9-01.
+
+### S9 OBCP default integration (in progress, 2026-10-16)
+
+- Build and link the pinned N7 OBCP/MicroPython sources by default using
+  `FF_USE_N7_OBCP=ON`; configure-time generated sources are copied into the
+  binary tree and cleaned from the dependency checkout to preserve strict
+  dependency identity checks.
+- Add `FF_Obcp_t`-style project adapter APIs for initialization, Python source
+  execution, cooperative abort request, and status query. Add a connectivity
+  test through the engine using explicit callback test doubles for all typed
+  datapool operations, events, output, step control, relative/absolute time and
+  packet channels. Compare received Python bytes as bytes, and assert callback
+  effects because the upstream execute Boolean is not a script-success oracle.
+- Strengthen the OBCP connectivity test with a pre-execution READY-state check
+  and an event sentinel after the final Python assertion, providing an
+  independent completion oracle. Update SRS/SSS trace mappings to identify the
+  bounded implementation and test evidence without claiming requirement closure.
+- Extend the PUS parameter-provider test with zero-length and exact-capacity S20
+  outputs and explicit telemetry packet-length checks. Correct decoder-corpus
+  documentation to identify the reused CRC routine as an internal consistency
+  check rather than an independent oracle; external/reference-oracle independence
+  remains open.
+- Record the R4/PA/V&V review batch and deltas: current local status reconciled,
+  NC-EXT-83 closed only for the PA-accepted 23-file product-set and listed local
+  results, NC-EXT-86/87 closed narrowly by R4, and NC-EXT-84/85 plus authority,
+  target, and release gates remain open.
+- Record PA 0346 verification of the observed 221-file generated N7 source tree
+  and R4 0347 narrow closure of NC-EXT-85. Generator/tool provenance and broad
+  documentation, authority, target and phase/release gates remain open.
+- Correct S3 report-all failure aggregation so later missing providers cannot
+  overwrite the first failure; add forward/reverse-order regression oracles.
+  Expand provider boundary tests to capacity+1, verify HK zero/exact TM lengths,
+  exercise retained service/HK-provider registrations after duplicate rejection,
+  and add the N7 adapter test to SRS-REQ-050 trace links. Authority-dependent
+  PUS profile decisions remain open.
+- Defer NC-S9-01/open: host connectivity does not establish production service
+  bindings, PUS S18 lifecycle, RTEMS/RISC-V behavior, resource bounds, arbitrary
+  loop abort, truthful interpreter result, or mission suitability. Do not claim
+  SRS-REQ-045 complete or enable mission procedures on this evidence.
+- Defer S11-S12/M16 replacement-engine development per owner direction; retain
+  SRS-REQ-054 as a separately governed fallback requirement rather than silently
+  changing its baseline.
+
 ### S8-SCH bounded schedule dispatcher, first increment (2026-10-16)
 
 - Added `src/core/sched/ff_sched.{c,h}`: a fixed-capacity (16 entries),
@@ -66,8 +219,12 @@ change. All dates UTC, project language English (norm N2).
 - Wired both tests into `tests/CMakeLists.txt` and the ctest matrix.
 - Test-spec updates: TS-5 rows 49/51 upgraded to grounded host oracles, new
   integration row `N22-TS5-76`; TS-6 added rows 55–58 and flipped
-  `N22-TS6-35` gap→covered, narrowed `N22-TS6-41`. TS-5 §3.2 is now 76 total /
-  55 covered / 21 gap; TS-6 §3.2 is 58 total / 30 covered / 27 gap / 1 exploratory.
+  `N22-TS6-35` gap→covered, narrowed `N22-TS6-41`. TS-5 was then counted as
+  76 total / 55 covered / 21 gap; the same unreleased change set later corrected
+  that record (duplicate identifier `N22-TS5-73` renumbered to `N22-TS5-77`), so
+  TS-5 is now **77 total / 56 covered / 21 gap** (see the 2026-10-17
+  reconciliation entry above). TS-6 §3.2 is 58 total / 30 covered / 27 gap /
+  1 exploratory.
 - Traceability updates: SRS-REQ-003/004/005 and SRS-REQ-014/SSS-REQ-008 now cite the
   new tests, with lean notes delimiting Lean coverage to the encoder/structural
   model and the decoder/ES-HS host-SIL oracle respectively.

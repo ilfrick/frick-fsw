@@ -133,9 +133,10 @@ PUS-C services shipped (open backend catalogue in `docs/interfaces/ICD.md`
 **20** parameter management (provider-registered). The default PUS product is
 the **N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN backend**
 (`FF_PusBackendN7`, ASN1SCC-compiled at build time, `FF_USE_PUS_ASN1=ON`
-default; ADR-0016); the open CCSDS backend is the fallback; PUSopen is an
-optional commercial adapter (user-supplied). See `docs/architecture/pus-layer.md`
-(FRICK-ARCH-0003) and `docs/adr/ADR-0003`, `docs/adr/ADR-0016`.
+default; ADR-0019); the open CCSDS backend is an explicit alternative; PUSopen
+is an optional commercial adapter (user-supplied). See
+`docs/architecture/pus-layer.md` (FRICK-ARCH-0003) and `docs/adr/ADR-0003`,
+`docs/adr/ADR-0016`, `docs/adr/ADR-0019`.
 
 **PUS-C transport channels.** PUS-C is **transport-agnostic**: ECSS-E-ST-70-41C
 defines the packet/service semantics, not the physical link. In frick-fsw the
@@ -283,7 +284,7 @@ by the mission; "user-supplied" = deliberately left to the integrator.
 | Contract | Header / location | Status in this repo | Reference backend |
 | -------- | ----------------- | ------------------- | ----------------- |
 | PAL (tasks/mutex/queue/time/console) | `src/core/pal/pal.h` | **Implemented** | POSIX (host + RTEMS) + RTEMS bootstrap |
-| `FF_Pus_Backend_t` (PUS product) | `src/pus/pus.h` | **Implemented** (default open CCSDS; optional N7/ESA ASN.1) | `FF_PusBackendOpen`, optional `FF_PusBackendN7`; PUSopen optional (user-supplied) |
+| `FF_Pus_Backend_t` (PUS product) | `src/pus/pus.h` | **Implemented** (default N7/ESA adapter uses generated common types and CRC; reference framing/field coding; open alternative) | `FF_PusBackendN7`, `FF_PusBackendOpen`; PUSopen optional (user-supplied) |
 | `FF_Link_t` (byte-stream CCSDS frame transport) | `src/transport/link/link.h` | **Implemented** (loopback, UART, IP, TSN) | `FF_LinkLoopbackBackend`, `FF_LinkUartBackend`, `FF_LinkIpBackend` (UDP/TCP, SRS-REQ-060), `FF_LinkTsnBackend` (EtherType 0x88F5, SRS-REQ-061) + `link_seg` (SRS-REQ-059); CAN/SpaceWire remain device contracts, not link channels |
 | `FF_PpsBackend_t` (1 Hz tone) | `src/core/time/pps.h` | **Implemented** (software); hardware capture = GAP-A7 | `FF_PpsSwBackend` |
 | `FF_CryptoBackend_t` (SDLS crypto) | `src/security/ff_sdls.h` | **Interface + reference test backend**; certified crypto/HSM = GAP-A14 | `FF_CryptoTestBackend`; mission crypto/HSM user-supplied |
@@ -321,7 +322,7 @@ the decision and this section summarises the rationale for readers.
 | **Pluggable backends behind contracts** (HAL/device contracts, `FF_Pus_Backend_t`, `FF_Link_t`) | Decoupling the middleware from any specific stack/device keeps the protocol logic (CCSDS/PUS) independent of the physical link and lets a mission supply or swap a backend without modifying the core; it also keeps the auditable path buildable and Lean-verifiable. | ADR-0009 (link/transport), ADR-0003 (PUS backend), ADR-0008 (single config point + tables), ADR-0014 (reference drivers / third-party) |
 | **Lean 4 formal verification** | Norm N1 requires every generated code artifact to be checked with Lean; the mirrored theorems discharge requirement-level properties (codec, bus, PUS dispatch, counters, bounds) and are linked from the traceability manifest, giving machine-checked evidence in CI. | ADR-0005 (norm N1) |
 | **ECSS criticality B with documented class-A gaps** | Class B is the target for a small/medium OBC framework; the residual gaps to class A are not waived silently but documented as `GAP-A*` entries (e.g. GAP-A1 formal-verification depth, GAP-A4 on-target runtime evidence, GAP-A5 on-target hardware/PHY), so the claim is bounded and auditable. | norm N5; `docs/quality/ecss-criticality-b.md`, `docs/quality/class-a-gaps.md` |
-| **Optional PUS-C ASN.1 (N7/ESA) backend** | The N7 Space / ESA `asn1-pusc-lib` ASN.1/ACN model is an opt-in PUS backend compiled from generated sources (`FF_USE_PUS_ASN1=ON`); the open CCSDS codec is the default. | ADR-0018 (supersedes ADR-0016 default selection) |
+| **PUS-C ASN.1 (N7/ESA) backend** | N7 Space / ESA `asn1-pusc-lib` is the configured default (`FF_USE_PUS_ASN1=ON`); generated common type definitions and CRC are used, while service-specific field mapping remains planned. `FF_USE_PUS_ASN1=OFF` selects the open codec. | ADR-0019 (ADR-0018 superseded for PUS selection) |
 | **lwIP default / third-party** | lwIP is an embedded-heritage BSD-3-Clause stack behind the `FF_NetStack_t` contract and built by default (`FF_USE_LWIP=ON`) from the pinned fetched source; it can be disabled explicitly. | ADR-0018 |
 | **TSN is an Ethernet-MAC-level capability** | TSN (IEEE 802.1Q/Qbv/Qav, 802.1AS) shapes and schedules the Ethernet link; on the PolarFire SoC the GEM provides it natively, so frick-fsw models it as a MAC-level capability (`FF_TsnBackend_t`) rather than as a PUS-C transport; the multi-port fabric CoreTSN path is a separate device (planned M8). | ADR-0014 (GEM native TSN) |
 
@@ -395,7 +396,7 @@ of the `make` shortcuts (wired in `Makefile`):
 | `make ci-local` | configure/build, unit tests, Lean and trace in the controlled Docker image; does not run format, smoke or Doxygen |
 | `make renode-env`, `make renode-image`, `make renode` | Renode V&V environment self-test / RTEMS image / functional run (norm N18, `RENODE_TEST: PASS`) |
 | `make qemu-image`, `make qemu` | QEMU `virt` generic-BSP emulated-target check (M10) |
-| `make pus-asn1` | ASN1SCC generation for the optional N7/ESA PUS-C ASN.1 backend (configure with `FF_USE_PUS_ASN1=ON`) |
+| `make pus-asn1` | ASN1SCC generation for the default N7/ESA PUS-C adapter; CMake requires these inputs unless `FF_USE_PUS_ASN1=OFF` |
 | `make rtems-toolchain`, `make rtems-docker`, `make rtems` | build open RTEMS 6.2 toolchain image / cross compile in image / cross compile with host toolchain; mutable image inputs limit reproducibility (NC-EXT-40) |
 
 Platform / target matrix (same C sources, different platform headers under

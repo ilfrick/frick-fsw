@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.47                                   |
+| Revision                          | 0.50                                   |
 | Date                              | 2026-10-16                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
@@ -17,9 +17,11 @@ document is regenerated/reviewed in the same commit (norms N8/N11).
 
 Counts (current): SRS = 73, SSS = 30, GAP = 14, Lean theorems = 62, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
-is reported in CI but not claimed by any requirement, norm N1). The planned
-requirements remain documented-only with `ci:docs`: M12..M16 (SRS-REQ-045/046/
-051/053/054 with SSS parents SSS-REQ-022/023/024/026/027). S4b requirements
+is reported in CI but not claimed by any requirement, norm N1). M12 OBCP
+(SRS-REQ-045 / SSS-REQ-022) now has a partial adapter and host callback-connectivity
+test mapping; production bindings, bounded execution, target/resource evidence
+and mission suitability remain open. Other planned requirements remain
+documented-only with `ci:docs`: SRS-REQ-046/051/053/054. S4b requirements
 059/060/061, fieldbus/PUSopen requirements 062..065, GEM TSN 066, fabric 067,
 and gPTP 068 have implementation and host-test links to their delivered or
 partial scope; target/emulator and vendor-SDK limits remain explicit. Residual
@@ -72,11 +74,11 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-001 | sb.c/h, pal.h, pal_posix.c | test_sb.c | req_srs001_exact_and_wildcard, req_srs001_no_match_no_delivery | SB-lock busy asserts FF_TIMEOUT with no mutation; queue-lock busy asserts FF_TIMEOUT after partial fan-out and dropped accounting; full pipe remains a distinct overflow path |
 | SRS-REQ-002 | sb.c, pal_posix.c | test_sb.c | - | FIFO by ring-buffer semantics |
 | SRS-REQ-003 | ccsds.c | test_ccsds.c, test_r2_gap.c, test_decoder_corpus.c | req_srs003_tm_length, req_srs003_tc_length | Lean models encoder bounds only; decoder PDL checks (incl. length-boundary corpus) C-tested, not C-refined |
-| SRS-REQ-004 | ccsds.c | test_ccsds.c, test_decoder_corpus.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | CRC-match/reject on decode exercised by S8-VV-FU single-bit mutation corpus (host SIL), not C-refined |
+| SRS-REQ-004 | ccsds.c, pus_adapter_n7.c | test_ccsds.c, test_decoder_corpus.c, test_pus_n7_adapter.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | CRC-match/reject on decode exercised by CCSDS mutation corpus and controlled N7-adapter seam test (host SIL); generated N7 SDK compatibility remains unverified |
 | SRS-REQ-005 | pus.c | test_pus.c, test_r2_gap.c, test_r3_gap.c, test_decoder_corpus.c | - | Malformed-frame S1 requirement conflicts with test_pus_malformed_tc_event; NC-EXT-04 open. S8-VV-FU corpus asserts 'shall not be executed' (no handler for malformed/unknown-service) on host |
 | SRS-REQ-006 | pus.c | test_pus.c | req_srs006_acceptance_completion, complete_ack_produces_two, ack_acceptance_is_counted | |
 | SRS-REQ-007 | pus.c | test_pus.c | req_srs007_counter_increases, req_srs007_counter_wrap_bounded | |
-| SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c | - | GAP-A2 formalisation |
+| SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c, test_pus_fu.c | - | GAP-A2 formalisation; provider length cases are local API bounds only |
 | SRS-REQ-009 | pus_services.c | test_pus.c | - | region bound asserted |
 | SRS-REQ-010 | time.c, pps.c, pus_services.c | test_pus.c, test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip | CUC round-trip |
 | SRS-REQ-011 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c | test_pus.c, test_sb.c, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Forwarding-rate/latency guarantee applies within approved SSS-REQ-006 envelope; loss accounting is independent of that envelope. Mission profile and post-acceptance loss-detection/counter semantics remain TBD (NC-EXT-76); see host structural characterization, not compliance evidence |
@@ -113,12 +115,12 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
 | SRS-REQ-043 | tools/scripts/emulated_run.sh, tools/scripts/qemu_vv.sh, cmake/toolchains/rtems-riscv-generic.cmake, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10, done: Renode + QEMU generic-BSP) |
 | SRS-REQ-044 | tools/docker/renode/, tools/scripts/renode_vv.sh, src/apps/app_renode_test.c | ci:renode | - | Renode functional validation, N18 in force (M10) |
-| SRS-REQ-045 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | OBCP engine uPython/MicroPython (planned, M12) |
+| SRS-REQ-045 | src/obcp/ff_obcp.c, src/obcp/ff_obcp.h, docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | tests/unit/test_obcp_integration.c, docs/vv/test-spec/ts-9-obcp-integration.md | - | Pinned N7 OBCP integration in progress; host callback connectivity only; M12 incomplete |
 | SRS-REQ-046 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | Reference mission services (planned, M13) |
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-049 | drivers/mem/ff_mem_static.c/h | test_mem.c | - | Static RAM pool + DMA helper + Renode DDR check (M4/M11) |
-| SRS-REQ-050 | src/pus/adapters/pus_adapter_n7.c, src/pus/adapters/pus_adapter_open.c, tools/scripts/gen_pus_asn1.sh, tools/docker/asn1scc/Dockerfile | test_pus.c | req_srs050_open_backend_is_default, req_srs050_n7_is_opt_in | Open CCSDS backend default; optional N7/ESA ASN.1 backend (ADR-0018) |
+| SRS-REQ-050 | src/pus/adapters/pus_adapter_n7.c, src/pus/adapters/pus_adapter_open.c, tools/scripts/gen_pus_asn1.sh, tools/docker/asn1scc/Dockerfile | test_pus.c, test_pus_n7_adapter.c | req_srs050_n7_backend_is_default, req_srs050_default_enables_n7 | N7/ESA configured default; generated common types and CRC used; full service-codec mapping remains planned (ADR-0019) |
 | SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 | SRS-REQ-052 | docs/architecture/pus-c-from-scratch-assessment.md, src/pus/pus.h | ci:docs | - | Fundamental PUS-C service set (planned, M15) |
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
@@ -165,14 +167,14 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-012 | SRS/SSS/traceability/quality docs | ci:trace, ci:docs | - |
 | SSS-REQ-013 | workflows, tools/docker | ci:ci-pipeline | - |
 | SSS-REQ-014 | link.h, link_loopback.c, link_uart.c | test_pus.c | - |
-| SSS-REQ-015 | adapters | test_pus.c | - |
+| SSS-REQ-015 | N7/open/PUSopen adapters | test_pus.c, test_pus_n7_adapter.c | - |
 | SSS-REQ-016 | time.c, pps.c, fsw_config.h | test_time.c | req_srs022_tone_second_advance, req_srs021_utc_non_regression |
 | SSS-REQ-017 | hal.c/h + hal_*.h, fsw_config.h | test_hal.c | req_srs025_registry_bound |
 | SSS-REQ-018 | math/ff_math.c/h | test_math.c | - |
 | SSS-REQ-019 | security/ff_sdls.c/h | test_sdls.c | req_srs035_epoch_monotonic |
 | SSS-REQ-020 | drivers/eth/gem/ff_gem.c, CMakeLists.txt | test_gem.c | - |
 | SSS-REQ-021 | .clang-format, docs/engineering/coding-style.md, docs/quality/misra-c.md | ci:static-analysis | - |
-| SSS-REQ-022 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - |
+| SSS-REQ-022 | src/obcp/ff_obcp.c, src/obcp/ff_obcp.h, docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | tests/unit/test_obcp_integration.c, docs/vv/test-spec/ts-9-obcp-integration.md | - |
 | SSS-REQ-023 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - |
 | SSS-REQ-024 | docs/development-plan.md, docs/roadmap.md | ci:docs | - |
 | SSS-REQ-025 | docs/development-plan.md, docs/roadmap.md | ci:docs | - |
@@ -261,3 +263,6 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |
 | 0.46 | 2026-10-15 | frick-fsw | Update trace matrix for S4c/S4d source/test/Lean evidence and ADR-0018 PUS/lwIP defaults; retain explicit target-peripheral and vendor-SDK limits |
 | 0.47 | 2026-10-16 | frick-fsw | Sync the readable mirror to the manifest: add the SRS-REQ-071 / SSS-REQ-030 delivered rows (core/sched/ff_sched + test_sched) and restore the missing SSS-REQ-030 rows in sections 1 and 3 (29 -> 30 SSS rows, mirroring the yaml); mission rate/jitter/recovery inputs remain TBD |
+| 0.48 | 2026-10-16 | frick-fsw | Map partial selected-N7 OBCP adapter/test evidence to SRS-REQ-045 and SSS-REQ-022 without claiming M12 or requirement completion |
+| 0.49 | 2026-10-16 | frick-fsw | Update SRS-REQ-050 and SSS-REQ-015 mirror for ADR-0019 default-N7 selection, generated-source test paths, and explicit full service-codec mapping limits |
+| 0.50 | 2026-10-16 | frick-fsw | Reconcile partial OBCP mappings and revision history with manifest; no SRS-REQ-045 closure claim |

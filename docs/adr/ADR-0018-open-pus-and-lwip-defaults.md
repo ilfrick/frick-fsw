@@ -1,23 +1,20 @@
 # ADR-0018 - Open PUS backend and lwIP default configuration
 
-| Status | Accepted by the repository owner instruction; implementation subject to project review gates |
+| Status | Superseded for PUS default by ADR-0019; lwIP decision remains in force |
 | ------ | -------- |
 | Date   | 2026-10-15 |
 
 ## Context
 
-The repository default had selected the N7/ESA ASN.1 backend only when generated
-sources were available, otherwise changing to the open CCSDS backend after a
-configure warning. The lwIP adapter was opt-in despite the project having a
-pinned, fetched lwIP dependency and tested adapter. The owner directed that the
-default PUS backend be **OPEN** and lwIP be **ON**.
+At the time of this decision, the owner directed that the default PUS backend be
+**OPEN** and lwIP be **ON**. The later PUS-default correction is recorded in
+ADR-0019; this ADR remains the controlling record for the lwIP decision.
 
 ## Decision
 
-- The local open CCSDS PUS backend is the default. `FF_USE_PUS_ASN1` defaults to
-  `OFF`; setting it to `ON` explicitly enables the optional N7/ESA backend and
-  requires its generated files (`make pus-asn1`). The PUSopen adapter remains
-  optional and requires a user-supplied SDK.
+- The former open-PUS default is superseded by ADR-0019. See ADR-0019 for the
+  current N7/ESA default and explicit open-backend selection. The PUSopen
+  adapter remains optional and requires a user-supplied SDK.
 - `FF_USE_LWIP` defaults to `ON`. The pinned lwIP tree must be fetched before
   CMake configure (`make configure` does this; direct CMake/CI flows must run
   `tools/scripts/fetch_third_party.sh` first). Users may explicitly disable
@@ -32,12 +29,11 @@ default PUS backend be **OPEN** and lwIP be **ON**.
   licensing/distribution impacts remain subject to project-specific evidence.
 - Clean CI jobs fetch pinned third-party inputs before any default CMake
   configuration. Fetch success does not establish immutable build provenance.
-- The N7 backend remains available as an opt-in alternative; deep per-service
-  ASN.1 type-codec mapping remains M15. `SRS-REQ-050` and current documentation
-  specify the new default and optional backend status.
-- This decision supersedes ADR-0016's default-selection decision. Its
-  build-time-generation and no-vendoring rationale remains applicable to the
-  optional N7 backend.
+- Deep per-service ASN.1 type-codec mapping remains M15; see ADR-0019 for the
+  current default and integration limits.
+- The PUS-default portion of this ADR supersedes ADR-0016 temporarily; ADR-0019
+  reinstates its default-selection intent. The build-time-generation and
+  no-vendoring rationale of ADR-0016 remains applicable.
 
 ## Traceability
 

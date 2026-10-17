@@ -51,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-16. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-17. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -60,10 +60,10 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
 | Sprints completed | 10/33 (30.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
-| SSS requirements satisfied | 25/30 (83.3%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 68/73 (93.2%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
+| SRS requirements delivered | 69/73 (94.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 34/117 (29.1%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 36/152 (23.7%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -73,8 +73,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 10238/18419 (55.6%) | gcov |
-| Code function coverage | 1125/1373 (81.9%) | gcov |
+| Code statement (line) coverage | 12879/29345 (43.9%) | gcov |
+| Code function coverage | 1455/2307 (63.1%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -113,9 +113,12 @@ Issues explicitly deferred in the status registry: none. Open/pending gates are 
 ## Highlights
 
 - **PUS-C** (ECSS-E-ST-70-41C) on CCSDS Space Packets (CCSDS 133.0-B-2) with
-  CRC-16/CCITT-FALSE trailer; the open CCSDS codec is the default, with optional
-  N7/ESA ASN.1 (`FF_USE_PUS_ASN1=ON`, `make pus-asn1`) and commercial PUSopen
-  (`FRICK_USE_PUSOPEN`) adapters.
+  N7/ESA selected as the configured default (`FF_USE_PUS_ASN1=ON`; generate its
+  common ASN1SCC inputs with `make pus-asn1`). The adapter uses the generated
+  type widths and N7/ESA CRC but delegates framing and PUS field coding to the
+  reference codec; full service-codec mapping remains planned. Set
+  `FF_USE_PUS_ASN1=OFF` for the open CCSDS alternative. Commercial PUSopen
+  (`FRICK_USE_PUSOPEN`) remains a separate optional adapter.
 - **TCP/IP**: lwIP adapter is enabled by default (`FF_USE_LWIP=ON`) and uses the
   pinned fetched source; run `tools/scripts/fetch_third_party.sh` before direct
   CMake configure. `make configure` fetches dependencies first.

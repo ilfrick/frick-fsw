@@ -22,10 +22,10 @@ CMAKE ?= cmake
 all: build
 
 fetch-third-party:
-	bash tools/scripts/fetch_third_party.sh lwip-only
+	bash tools/scripts/fetch_third_party.sh all
 
-configure: fetch-third-party
-	$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug
+configure: pus-asn1
+	$(CMAKE) -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON
 
 build: configure
 	$(CMAKE) --build $(BUILD_DIR) -j$(shell nproc)
@@ -40,7 +40,7 @@ sb-evs-sweep: build
 run: build
 	./$(BUILD_DIR)/frick_fsw
 
-smoke:
+smoke: pus-asn1
 	bash tools/scripts/run_sim.sh
 
 gsw-selfcheck:
@@ -88,9 +88,10 @@ check: build test verify-lean trace smoke gsw-selfcheck
 	@echo "frick-fsw: local check bundle PASS; other N15 gates are separate"
 
 # Configure/build/test/Lean/trace subset inside controlled Docker image (norm N6/N8, T1).
-ci-local: fetch-third-party docker-image
+ci-local: pus-asn1 docker-image
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-vv:local \
 	  bash -lc 'cmake -S . -B /workspace/build/ci -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+	    -DFF_USE_PUS_ASN1=ON \
 	    && cmake --build /workspace/build/ci \
 	    && ctest --test-dir /workspace/build/ci --output-on-failure \
 	    && cd /workspace/verification/lean && lake build \
@@ -101,9 +102,9 @@ docker-image:
 
 # RTEMS 6.2 cross build (open-source RTEMS; requires the toolchain in /opt/rtems,
 # installed by tools/scripts/setup_rtems.sh).
-rtems: fetch-third-party
+rtems: pus-asn1
 	$(CMAKE) -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
-	  -DFF_PLATFORM=rtems
+	  -DFF_PLATFORM=rtems -DFF_USE_PUS_ASN1=ON
 	$(CMAKE) --build build/rtems -j$(shell nproc)
 
 # Docker-based open-source RTEMS 6.2 toolchain build; mutable apt/RSB inputs do
@@ -112,35 +113,35 @@ rtems-toolchain:
 	docker build -t frick-rtems-toolchain:local tools/docker/rtems
 
 # Cross build inside the toolchain image (no host toolchain needed).
-rtems-docker: fetch-third-party
+rtems-docker: pus-asn1
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
-	  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems && cmake --build build/rtems -j$$(nproc)'
+	  bash -lc 'cmake -S . -B build/rtems -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake -DFF_PLATFORM=rtems -DFF_USE_PUS_ASN1=ON && cmake --build build/rtems -j$$(nproc)'
 
-verify-rtems:
+verify-rtems: pus-asn1
 	bash tools/scripts/ci_rtems_cross_build.sh
 
 # Generate C from the N7/ESA asn1-pusc-lib ASN.1/ACN PUS-C model (needs Docker).
-pus-asn1:
+pus-asn1: fetch-third-party
 	bash tools/scripts/gen_pus_asn1.sh
 
 # Build the RTEMS image for Renode functional validation (norm N18). Requires the
 # RTEMS toolchain in /opt/rtems 6; output build/renode/frick_fsw_renode.elf.
-renode-image: fetch-third-party
+renode-image: pus-asn1
 	$(CMAKE) -S . -B build/renode -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-mpfs.cmake \
-	  -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON
+	  -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON -DFF_USE_PUS_ASN1=ON
 	$(CMAKE) --build build/renode -j$(shell nproc)
 	cp build/renode/frick_fsw build/renode/frick_fsw_renode.elf
 
 # Build the generic-BSP RTEMS image for QEMU `virt` emulated-target verification
 # (milestone M10 / SRS-REQ-043). Requires the RTEMS toolchain with BSP
 # rv64imafdc in /opt/rtems 6; output build/rtems-generic/frick_fsw.
-qemu-image: fetch-third-party
+qemu-image: pus-asn1
 	$(CMAKE) -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake \
-	  -DFF_PLATFORM=rtems-generic
+	  -DFF_PLATFORM=rtems-generic -DFF_USE_PUS_ASN1=ON
 	$(CMAKE) --build build/rtems-generic -j$(shell nproc)
 
 # Same, containerised (no host toolchain; the image has cmake + qemu + the BSP).
-qemu-image-docker: fetch-third-party
+qemu-image-docker: pus-asn1
 	docker run --rm -v $(CURDIR):/workspace -w /workspace frick-rtems-toolchain:local \
 	  bash -lc 'cmake -S . -B build/rtems-generic -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/rtems-riscv-generic.cmake -DFF_PLATFORM=rtems-generic && cmake --build build/rtems-generic -j$$(nproc)'
 
@@ -170,7 +171,7 @@ endef
 
 format:
 	$(ff_clang_format_guard)
-	clang-format -i src config tests
+	find src config tests -name '*.[ch]' -print0 | xargs -0 clang-format -i
 
 # Same check as the CI "Format check" step (norm N10; tool T-format).
 format-check:
@@ -183,8 +184,8 @@ docs:
 	doxygen Doxyfile
 	test -s build/doxygen/html/index.html || { echo "error: 'make docs' produced no build/doxygen/html/index.html (silent doxygen failure)"; exit 1; }
 
-coverage-configure:
-	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON
+coverage-configure: pus-asn1
+	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON -DFF_USE_PUS_ASN1=ON
 
 coverage: coverage-configure
 	$(CMAKE) --build build/coverage -j$(shell nproc)

@@ -2,6 +2,50 @@
 
 | Date       | Scope                          | Profile | Conclusion                | Report |
 | ---------- | ------------------------------ | ------- | ------------------------- | ------ |
+| 2026-10-17 | S8 reconciliation V&V/test-evidence delta | R2 | APPROVED WITH COMMENTS; 1 Medium (TS-1/TS-5/TS-6 §3 gap-list vs table) and 5 Minor findings; counts recomputed (TS-1 103/77/26, TS-2 81/48/32, TS-5 77/56/21, TS-6 58/30/27+1); no qualification/target/closure approval | 2026-10-17-s8-vv-pus-delta-0370.md |
+| 2026-10-17 | Requirement grounding of provisional PUS/S6/scheduler policy | R3 | CHANGES REQUIRED for interface consistency; F-002/F-003 (ICD S6 profile and S3 subservice codes) corrected by ICD rev 1.3; all authority-owned policy items remain OPEN | 2026-10-17-s8-requirement-grounding-r3-0371.md |
+| 2026-10-17 | S8 reconciliation documentation delta | R4 | CHANGES REQUIRED in the reviewed revision; bounded findings corrected (TS-1 §3 list, TS-1 history, TS-5 §3, NC-EXT-92 section reference, S8-VV-FU leg count, S8-PUS-FU wording); delta re-review pending; no aggregate N17 approval | 2026-10-17-s8-current-docs-r4-0372.md |
+| 2026-10-17 | S8 reconciliation PA (no approval) — stale candidate inventories and TS-5-77 oracle review; PA 0373 accepts bounded narrow closures and queued the final identity/PA re-verification | PA | Bounded narrow closures consistent; NC-EXT-84 provenance and the missing independent review of the `N22-TS5-77` oracle raised; stale candidate inventories (F-0373-04) and the narrow-closure vs PA-acceptance taxonomy (F-0373-01) recorded as NC-EXT-93 | 2026-10-17-s8-reconciliation-pa-0373.md |
+| 2026-10-17 | S8-TS-5-77 oracle and post-0370/0372 delta re-verification | R2 | APPROVED WITH COMMENTS (no Major findings); found the TS-6 §3.2 environment-row undercount, the `GAP-R3-1` closure-status tension and a bounded activation→`FF_SchedInit` coverage limit, and confirmed TS-1/TS-5/TS-6 counts | 2026-10-17-s8-ts5-77-oracle-r2-0374.md |
+| 2026-10-17 | ICD rev 1.3/1.4 delta review (provisional S3/S6/S11/EBCP profile) | R3 | APPROVED WITH COMMENTS; F-002/F-003 resolved; F-0375-01..04/06/08 corrected (enable/disable state-flag qualification, TM[6,6] shape, TC[3,27] framing, §4 scope, Service 11 stub, registration-signature docs, ECSS edition verification, sprint-plan header); all authority items remain OPEN | 2026-10-17-s8-icd-1-3-delta-r3-0375.md |
+| 2026-10-17 | S8 reconciliation documentation re-review (independent re-verification) | R4 | CORRECTED APPROVED WITH COMMENTS; 4 Major citation errors and 2 Comment errors in the original self-authored 0376 placeholder corrected (pus.h:66→:69, status.json revision-key misclaim, loop-audit ICD-1.4 parenthetical mis-attribution, phantom N11 'through 0364'); N9 independence noted as self-contextual; PA 0377 re-verification remains required; no N17/N20/phase approval | 2026-10-17-s8-reconciliation-docs-r4-rereview-0376.md |
+| 2026-10-17 | S8 reconciliation PA final re-verification (211-file manifest, 7/8 gates green, QEMU SKIP, checklist item-2 discrepancies) | PA | Bounded PA re-verification only — manifest identity verified (211 files, digest c50798b5), all 10 evidence-log/build hashes independently recomputed and match, NC/authority status confirmed, no overstating claims, ICD rev 1.4 provisional; checklist item 2 corrected (code delta includes PUS behavioral changes; FF_USE_N7_OBCP=ON and ff_obcp.c compiled; src/obcp/ new vs b8c3aee); F-0377-01 (README index gap), F-0377-02 (code-delta scope), F-0377-03 (OBCP default/compiled), F-0377-04 (0376 CHANGELOG characterization) recorded; no N20 phase/release approval | 2026-10-17-s8-reconciliation-pa-final-0377.md |
+| 2026-10-16 | Loop-audit working-tree scope boundary | R4 | Confirms current CI status and narrow NC-EXT-91 disposition; broader candidate and release gates remain open | 2026-10-16-s8-loop-audit-r4-rereview.md |
+| 2026-10-16 | Handover results pointer and review-index PA status | R4 | Confirms revision 2.87 pointer and NC-EXT-91 narrow closure status; no aggregate N17 approval | 2026-10-16-s8-final-reference-r4-rereview.md |
+| 2026-10-16 | PUS/Scheduler delta inventory identity | PA | Independently verified 19-file hashes/digest and cited log/cache/executable references; NC-EXT-91 closed narrowly for this delta only | 2026-10-16-s8-pus-scheduler-delta-pa-identity.md |
+| 2026-10-16 | Provisional PUS/Scheduler and format-wrapper delta | FSW/PA/R4 | S3/format deltas have bounded FSW review; provisional-only scope confirmed; PA identity check independently completed and NC-EXT-91 closed narrowly for the enumerated PUS/Scheduler delta | 2026-10-16-s8-provisional-pus-scheduler-delta-assessment.md |
+| 2026-10-16 | Loop-audit and review index | R4 | 0369 confirms current N8/N9/N17 pointers and 0367/0368 dispositions; no aggregate approval | 2026-10-16-s8-audit-index-r4-check-0369.md |
+| 2026-10-16 | Handover §5 re-review | R4 | 0368 closes R4-01 for historical/current action labeling only | 2026-10-16-s8-handover-nextsteps-r4-rereview-0368.md |
+| 2026-10-16 | Handover §5 currentness | R4 | 0367 identifies stale historical steps; corrected and resolved by 0368 | 2026-10-16-s8-handover-nextsteps-r4-review-0367.md |
+| 2026-10-16 | Handover CI hash re-review | R4 | 0366 confirms 0365 correction and hash; no aggregate N17 approval | 2026-10-16-s8-handover-ci-hash-r4-rereview-0366.md |
+| 2026-10-16 | Handover current CI hash | R4 | 0365 found stale latest-log pointer; corrected and resolved by 0366 | 2026-10-16-s8-handover-ci-hash-r4-review-0365.md |
+| 2026-10-16 | Final CI-local run linkage | PA | 0364 verifies selected-file/log/cache/executable hash-record consistency only; no signed run attestation or NC-EXT-84 closure | 2026-10-16-s8-final-ci-pa-rereview-0364.md |
+| 2026-10-16 | Current evidence/status correction | R4 | 0363 confirms 0362 corrections and rechecks current digest/log pointer; no aggregate N17 approval | 2026-10-16-s8-current-docs-r4-rereview-0363.md |
+| 2026-10-16 | Current evidence/status docs | R4 | 0362 identifies stale evidence pointer and manifest review status; author corrected, delta re-review pending | 2026-10-16-s8-current-docs-r4-review-0362.md |
+| 2026-10-16 | Current 49-file candidate identity | PA | 0361 independently verifies listed-file hashes/digest; NC-EXT-84 and run-to-config provenance remain open | 2026-10-16-s8-current-candidate-pa-identity-0361.md |
+| 2026-10-16 | S8-SCH PA delta | PA | 0360 accepts bounded host oracle corrections conditionally; NC-EXT-19/90 and full-cycle identity/authority gates remain open | 2026-10-16-s8-sched-pa-delta-0360.md |
+| 2026-10-16 | TS1 history reference | R4 | 0359 corrects revision 1.5 reference to 0358; scoped review only | 2026-10-16-s8-ts1-history-r4-review-0359.md |
+| 2026-10-16 | TS1 review-status wording | R4 | 0358 records corrected TS1-97/98/102 status wording after 0357; full N17 remains open | 2026-10-16-s8-ts1-r4-rereview-0358.md |
+| 2026-10-16 | S8-PUS/S8-SCH documentation delta | R4 | 0357 identifies four currentness/history/scope corrections; author applied changes and delta re-review pending | 2026-10-16-s8-docs-r4-review-0357.md |
+| 2026-10-16 | S8-PUS-FU PA delta | PA | 0354 accepts bounded corrections conditionally on current full-cycle evidence; no N20 phase/release approval | 2026-10-16-s8-pus-pa-delta-0354.md |
+| 2026-10-16 | S8-PUS-FU first-failure fix | R1 | 0355 confirms first-error retention and both report-all order oracles; focused test passes | 2026-10-16-s8-pus-r1-rereview-0355.md |
+| 2026-10-16 | S8-PUS-FU test-evidence delta | R2 | 0356 confirms bounded provider/retention oracles and SRS-REQ-050 trace mapping; full cycle remains required | 2026-10-16-s8-pus-r2-rereview-0356.md |
+| 2026-10-16 | S8-SCH scheduler implementation | R1 | 0351 confirms tested starvation correction; opens NC-EXT-90 for unchecked time arithmetic overflow | 2026-10-16-s8-sched-r1-review-0351.md |
+| 2026-10-16 | S8-SCH scheduler test evidence | R2 | 0352 identifies missed-slot mismatch and insufficient dispatch oracles; bounded corrections followed by 0353 | 2026-10-16-s8-sched-r2-review-0352.md |
+| 2026-10-16 | S8-SCH test-oracle correction | R2 | 0353 accepts corrected bounded host oracles; narrows activation-preservation claim; target/authority gates remain open | 2026-10-16-s8-sched-r2-rereview-0353.md |
+| 2026-10-16 | S8-PUS-FU test evidence | R2 | 0350 identifies TS1 boundary/length/retention oracles and SRS-REQ-050 test-link gaps; corrections pending cycle/re-review | 2026-10-16-s8-pus-r2-review-0350.md |
+| 2026-10-16 | S8-PUS-FU service code | R1 | 0349 finds first-error overwrite in S3 report-all; functional correction and delta verification pending | 2026-10-16-s8-pus-r1-review-0349.md |
+| 2026-10-16 | S8 currentness R4 confirmation | R4 | 0348 confirms final NC-EXT-85 status-row correction; no broad N17/phase approval | 2026-10-16-s8-currentness-r4-confirmation-0348.md |
+| 2026-10-16 | S8 currentness/status delta | R4 | 0347 closes NC-EXT-85 narrowly; no overall N17/phase approval | 2026-10-16-s8-currentness-r4-rereview-0347.md |
+| 2026-10-16 | N7 generated flat-source tree hash list | PA | 0346 verifies 221-file observed tree identity; generator/tool provenance remains OPEN (NC-EXT-84) | 2026-10-16-n7-generated-tree-pa-verification-0346.md |
+| 2026-10-16 | S8 candidate product-set identity | PA | 0345 accepts the 23-file local evidence identity narrowly; NC-EXT-84 generated-source provenance remains open | 2026-10-16-s8-batch-pa-rereview-0345.md |
+| 2026-10-16 | S8 batch status reconciliation | R4 | 0344 closes NC-EXT-86/87 narrowly; NC-EXT-85 remains open for current-status corrections | 2026-10-16-s8-batch-r4-rereview-0344.md |
+| 2026-10-16 | Complete S8 batch verification | V&V | 0343 corrections confirmed with 43/43 cycle; CRC check described as non-independent, NC-EXT-25 remains open | 2026-10-16-s8-batch-vv-review-0343.md |
+| 2026-10-16 | Complete S8 batch assurance | PA | 0342: NC-EXT-83/84 remain open; no N20 phase approval | 2026-10-16-s8-batch-pa-review-0342.md |
+| 2026-10-16 | Complete S8 batch documentation | R4 | 0341 identifies three status/scope NCs; no phase approval | 2026-10-16-s8-batch-r4-review-0341.md |
+| 2026-10-16 | S8-PUS/OBCP verification delta | V&V | 0340 findings confirmed corrected by review 0343 and post-correction test cycle; no requirement/target closure | 2026-10-16-s8-pus-obcp-vv-review-0340.md |
+| 2026-10-16 | S8-PUS/OBCP candidate assurance | PA | 0339 configuration identity and generation provenance NCs; no N20 phase approval | 2026-10-16-s8-pus-obcp-pa-review-0339.md |
+| 2026-10-16 | S8-PUS/OBCP documentation delta | R4 | No blocking claim defect; stale status-count NC, now corrected pending delta review | 2026-10-16-s8-pus-obcp-r4-review-0338.md |
 | 2026-10-16 | Physical-target deferral PA re-review | PA | 0335 metadata finding resolved; no phase approval | 2026-10-16-target-test-deferral-pa-rereview-0337.md |
 | 2026-10-16 | Physical-target deferral R4 re-review | R4 | 0334 findings resolved within scope; applicable local cycle passed | 2026-10-16-target-test-deferral-r4-rereview-0336.md |
 | 2026-10-16 | Physical-target test deferral PA review | PA | One minor sprint-plan metadata finding; no N20 phase approval | 2026-10-16-target-test-deferral-pa-review-0335.md |
@@ -9,6 +53,8 @@
 | 2026-10-16 | PA bounded finding re-review | PA | 0331 findings addressed; final current-document cycle still pending; no N20 phase approval | 2026-10-16-s8-fu-pa-rereview-0333.md |
 | 2026-10-16 | R4 bounded finding re-review | R4 | 0330 findings 1–3 closed within scope; no overall N17 approval | 2026-10-16-s8-fu-r4-rereview-0332.md |
 | 2026-10-16 | S8-FU current product assurance | PA | Two minor effectivity/history findings; N20 phase product not passed | 2026-10-16-s8-fu-pa-review-0331.md |
+| 2026-10-16 | S8-FU NC disposition & sprint-set doc review | R4 | APPROVED WITH COMMENTS; minor non-functional findings F1–F11; no overall N17 phase approval | 2026-10-16-s8-fu-nc-disposition-r4-review-0338.md |
+| 2026-10-16 | S8-FU NC disposition & sprint-set PA review | PA | NOT PASSED; minor findings outstanding; N21 does not unblock N20 phase assurance | 2026-10-16-s8-fu-nc-disposition-pa-review-0339.md |
 | 2026-10-16 | S8-FU current documentation delta | R4 | Three minor metadata/effectivity/ledger findings; changes required | 2026-10-16-s8-fu-r4-review-0330.md |
 | 2026-10-16 | TS-2 UART characterization count | R2 | Bounded status/count correction accepted; no requirement or target closure | 2026-10-16-s8-fu-uart-vv-count-rereview-0329.md |
 | 2026-10-16 | TS-2 UART characterization mapping re-review | R2 | Changes required for `characterization` status definition and count reconciliation | 2026-10-16-s8-fu-uart-vv-count-delta-0328.md |
@@ -422,5 +468,26 @@ push the reports with the reviewed change only after all applicable verification
 and independent-review gates pass. This reconciles N11 evidence retention with
 the N7/N15/N17/N20 commit gate; do not publish a change whose required review
 has failed.
-| 2026-10-16 | S8-FU NC disposition & sprint-set doc review | R4 | APPROVED WITH COMMENTS; minor non-functional findings F1–F11; no overall N17 phase approval | 2026-10-16-s8-fu-nc-disposition-r4-review-0338.md |
-| 2026-10-16 | S8-FU NC disposition & sprint-set PA review | PA | NOT PASSED; minor findings outstanding; N21 does not unblock N20 phase assurance | 2026-10-16-s8-fu-nc-disposition-pa-review-0339.md |
+
+## Ledger notes
+
+**Review-ID collision at 0338/0339 (recorded 2026-10-17; NC-EXT-93).** IDs
+`0338` and `0339` are each carried by two different review reports:
+`2026-10-16-s8-fu-nc-disposition-{r4,pa}-review-{0338,0339}.md` (S8-FU NC
+disposition series, committed at `1398a8e`) and
+`2026-10-16-s8-pus-obcp-{r4,pa}-review-{0338,0339}.md` plus
+`2026-10-16-s8-pus-obcp-vv-review-0340.md` (S8-PUS/OBCP series, added by the
+current uncommitted batch, which therefore introduced the collision). Rows in
+this log are disambiguated by report filename; citations of "PA-0339-01/02"
+mean the S8-PUS/OBCP PA report. No evidence file was renamed in this cycle
+because citations in sprint-plan/loop-audit/handover/verification-results refer
+to both series and a rename requires a bounded, individually reviewed cleanup
+(tracked as NC-EXT-93, owner FSW, not blocking unrelated work under N21).
+
+**Closure taxonomy (recorded 2026-10-17; PA 0373 F-0373-01).** A finding in this
+log such as "CLOSED narrowly by R1/R2 review NNNN" means the *raising profile*
+confirmed the enumerated bounded correction for the enumerated files/scope. It
+is **not** PA full-cycle acceptance, phase/product approval, an N17/N20 pass,
+PUS-C/mission-profile compliance, a release gate, or closure of the surrounding
+NC. PA acceptance of a candidate requires its own review of the then-current
+tree and identity (see PA 0345/0361/0373).

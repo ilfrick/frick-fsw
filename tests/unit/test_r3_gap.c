@@ -415,6 +415,7 @@ static void test_pus_hk_s3_lifecycle(void)
     uint16_t dl = 0u;
     uint8_t create_payload[2];
     uint8_t one[1];
+    uint8_t report_request[2];
 
     r3_push_setup();
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(provider_id, r3_hk_provider) == FF_SUCCESS);
@@ -436,40 +437,42 @@ static void test_pus_hk_s3_lifecycle(void)
     /* Report on request (3,27) produces (3,25) with the provider image. */
     rx_reset();
     one[0] = report_id;
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
-                     sizeof(one), frame, sizeof(frame));
+    report_request[0] = 1u;
+    report_request[1] = report_id;
+    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+                     report_request, sizeof(report_request), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
     FF_TEST_ASSERT(dl == 5u);
     FF_TEST_ASSERT(d[0] == report_id);
     FF_TEST_ASSERT((d[1] == 0xAAu) && (d[2] == 0xBBu) && (d[3] == 0xCCu) && (d[4] == 0xDDu));
 
-    /* Disable (3,4): report is silent. */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 4u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    /* Disable periodic generation (3,6); a one-shot (3,27) still reports. */
+    flen = encode_tc(FF_PUS_SERVICE_HK, 6u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+                     report_request, sizeof(report_request), frame, sizeof(frame));
+    FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
+    FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
+
+    /* Enable periodic generation (3,5); one-shot remains available. */
+    flen = encode_tc(FF_PUS_SERVICE_HK, 5u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
-    FF_TEST_ASSERT(!rx_find(3u, 25u, &d, &dl));
+    rx_reset();
+    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+                     report_request, sizeof(report_request), frame, sizeof(frame));
+    FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
+    FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
 
-    /* Enable (3,3): report resumes. */
+    /* Delete (3,3); a second delete is a completion failure (not found). */
     flen = encode_tc(FF_PUS_SERVICE_HK, 3u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
-                     sizeof(one), frame, sizeof(frame));
-    FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
-    FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
-
-    /* Delete (3,2); a second delete is a completion failure (not found). */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 2u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
-                     sizeof(one), frame, sizeof(frame));
-    FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
-    rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 2u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 3u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_NOT_FOUND);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));

@@ -43,14 +43,16 @@ traceability manifest (level `gap`, `justification` records the disposition).
 
 ## GAP-A1b - ASN1SCC generation in the build (optional PUS-C ASN.1 backend; sub-item of GAP-A1)
 
-The optional PUS-C ASN.1 backend (SRS-REQ-050) requires the **ASN1SCC** compiler at build
+The default N7/ESA PUS adapter (SRS-REQ-050) requires the **ASN1SCC** compiler at build
 time; ASN1SCC is not distributed as a tool in the V&V image. Handled by
 `tools/docker/asn1scc/Dockerfile` (pinned) + `tools/scripts/gen_pus_asn1.sh`
 (tool T19); generation is validated and the code is git-ignored.
-**Implemented as an optional backend (ADR-0018):** generated code is consumed by
-CMake when `FF_USE_PUS_ASN1=ON`; the open CCSDS backend is the default.
-Generation tooling remains available. Tracked as a sub-item of GAP-A1 (no separate manifest entry); not a
-class-A flight gap (build-time tool, re-qualified as T19).
+**Implemented as the configured default (ADR-0019):** generated common type and
+runtime code is consumed by CMake with `FF_USE_PUS_ASN1=ON`; the open CCSDS
+backend is selected with `FF_USE_PUS_ASN1=OFF`. Full service-specific ASN.1
+mapping remains planned. Tracked as a sub-item of GAP-A1 (no separate manifest
+entry); not a class-A flight gap (build-time tool, T19 delta requalification
+pending).
 
 ## GAP-A2 - Full PUS-C service coverage
 

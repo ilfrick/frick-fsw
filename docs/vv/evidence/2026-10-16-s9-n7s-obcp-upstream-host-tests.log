@@ -1,0 +1,7 @@
+make: ingresso nella directory «/home/nicola/fsw/frick-fsw/third_party/n7s-obcp»
+Cloning MicroPython directory...
+Applying modifications to clone...
+cp src/modifications/py/mpstate.h src/micropython_clone/py/mpstate.h
+cp: impossibile creare il file regolare 'src/micropython_clone/py/mpstate.h': File o directory non esistente
+make: *** [Makefile:21: clone] Errore 1
+make: uscita dalla directory «/home/nicola/fsw/frick-fsw/third_party/n7s-obcp»

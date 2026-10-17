@@ -1,0 +1,60 @@
+[0/2] Re-checking globbed directories...
+[1/44] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[2/44] Linking C static library libfrick_fsw_core.a
+[3/44] Linking C executable tests/test_sb
+[4/44] Linking C executable frick_fsw
+[5/44] Linking C executable tests/test_ccsds
+[6/44] Linking C executable tests/test_tbl
+[7/44] Linking C executable tests/test_sched
+[8/44] Linking C executable tests/test_sb_sweep
+[9/44] Linking C executable tests/test_r3_gap
+[10/44] Linking C executable tests/test_sb_stress
+[11/44] Linking C executable tests/test_pus
+[12/44] Linking C executable tests/test_time
+[13/44] Linking C executable tests/test_es_hs_lifecycle
+[14/44] Linking C executable tests/test_pus_fu
+[15/44] Linking C executable tests/test_decoder_corpus
+[16/44] Linking C executable tests/test_r2_gap
+[17/44] Linking C executable tests/test_pus_n7_adapter
+[18/44] Linking C executable tests/test_math
+[19/44] Linking C executable tests/test_gem
+[20/44] Linking C executable tests/test_gem_tsn
+[21/44] Linking C executable tests/test_gptp
+[22/44] Linking C executable tests/test_pusopen
+[23/44] Linking C executable tests/test_hal
+[24/44] Linking C executable tests/test_sdls
+[25/44] Linking C executable tests/test_gpio
+[26/44] Linking C executable tests/test_netloop
+[27/44] Linking C executable tests/test_obcp_integration
+[28/44] Linking C executable tests/test_mtd
+[29/44] Linking C executable tests/test_i2c
+[30/44] Linking C executable tests/test_spi
+[31/44] Linking C executable tests/test_pcie
+[32/44] Linking C executable tests/test_block
+[33/44] Linking C executable tests/test_nvm
+[34/44] Linking C executable tests/test_serial
+[35/44] Linking C executable tests/test_mem
+[36/44] Linking C executable tests/test_can
+[37/44] Linking C executable tests/test_fabric
+[38/44] Linking C executable tests/test_spacewire
+[39/44] Linking C executable tests/test_canfd
+[40/44] Linking C executable tests/test_canopen
+[41/44] Linking C executable tests/test_link_tsn
+[42/44] Linking C executable tests/test_lwip
+[43/44] Linking C executable tests/test_link_ip
+[44/44] Linking C executable tests/test_lwip_netif
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+    Start 9: pus_fu
+1/1 Test #9: pus_fu ...........................***Failed    0.01 sec
+FAIL /workspace/tests/unit/test_pus_fu.c:100: FF_PusIngest(frame, frame_len) == FF_ERROR
+/workspace/tests/unit/test_pus_fu.c checks=131 failures=1
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	  9 - pus_fu (Failed)
+Errors while running CTest

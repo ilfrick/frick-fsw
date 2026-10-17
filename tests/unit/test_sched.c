@@ -77,29 +77,29 @@ static void test_validate_rejects(void)
 {
     FF_SchedTable_t t = ff_test_table(3u);
 
-    FF_TEST_ASSERT(FF_SchedValidate(NULL, sizeof(t)) != FF_SUCCESS);
-    FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) - 1u) != FF_SUCCESS);
-    FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) + 1u) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(NULL, sizeof(t)) == FF_ERROR);
+    FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) - 1u) == FF_ERROR);
+    FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) + 1u) == FF_ERROR);
 
     FF_SchedTable_t bad = t;
     bad.magic = 0xDEADBEEFu;
-    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) == FF_ERROR);
 
     bad = t;
     bad.count = (uint16_t)(FF_SCHED_MAX_ENTRIES + 1u);
-    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) == FF_ERROR);
 
     bad = t;
     bad.entries[1].period_ms = 0u; /* zero period is out of bounds */
-    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) == FF_ERROR);
 
     bad = t;
     bad.entries[1].payload_len = (uint16_t)(FF_SCHED_PAYLOAD_MAX + 1u);
-    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) == FF_ERROR);
 
     bad = t;
     bad.entries[2].msg_id = bad.entries[0].msg_id; /* duplicate entry */
-    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedValidate(&bad, sizeof(bad)) == FF_ERROR);
 
     FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t)) == FF_SUCCESS);
 
@@ -128,13 +128,26 @@ static void test_activate_atomic(void)
     FF_SchedTable_t good = ff_test_table(2u);
     FF_SchedTable_t bad = ff_test_table(2u);
     bad.magic = 0u;
+    bad.entries[0].msg_id = 0x0B01u;
+    bad.entries[0].payload[0] = 0xEEu;
 
     FF_TEST_ASSERT(FF_SchedActivate(&good, sizeof(good)) == FF_SUCCESS);
     FF_TEST_ASSERT(FF_SchedActiveCount() == 2u);
 
     /* A rejected activation must not disturb the active table. */
-    FF_TEST_ASSERT(FF_SchedActivate(&bad, sizeof(bad)) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SchedActivate(&bad, sizeof(bad)) == FF_ERROR);
     FF_TEST_ASSERT(FF_SchedActiveCount() == 2u);
+
+    /* Polling after rejection must dispatch the old image's contents, never
+     * the distinct message/payload from the rejected image. */
+    FF_SchedInit(0u);
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    FF_TEST_ASSERT(FF_SchedPoll(1000u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == good.entries[0].msg_id);
+    FF_TEST_ASSERT(out[0].msg_id != bad.entries[0].msg_id);
+    FF_TEST_ASSERT(out[0].length == good.entries[0].payload_len);
+    FF_TEST_ASSERT(out[0].payload[0] == good.entries[0].payload[0]);
+    FF_TEST_ASSERT(out[0].payload[1] == good.entries[0].payload[1]);
 
     FF_SchedStats_t st;
     FF_SchedGetStats(&st);
@@ -209,6 +222,11 @@ static void test_missed_slots_bounded(void)
     /* Jump 3.5 periods ahead in one poll: exactly one bounded release, three
      * skipped slots recorded, and no catch-up burst. */
     FF_TEST_ASSERT(FF_SchedPoll(4500u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_TEST_ASSERT(out[0].length == t.entries[0].payload_len);
+    FF_TEST_ASSERT(out[0].payload[0] == t.entries[0].payload[0]);
+    FF_TEST_ASSERT(out[0].payload[1] == t.entries[0].payload[1]);
+    FF_TEST_ASSERT(out[0].time_ns == 4500u * FF_MS);
 
     FF_SchedStats_t st;
     FF_SchedGetStats(&st);
@@ -218,6 +236,11 @@ static void test_missed_slots_bounded(void)
     /* Next release is the absolute target 5000 ms, not now + period. */
     FF_TEST_ASSERT(FF_SchedPoll(4999u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
     FF_TEST_ASSERT(FF_SchedPoll(5000u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_TEST_ASSERT(out[0].length == t.entries[0].payload_len);
+    FF_TEST_ASSERT(out[0].payload[0] == t.entries[0].payload[0]);
+    FF_TEST_ASSERT(out[0].payload[1] == t.entries[0].payload[1]);
+    FF_TEST_ASSERT(out[0].time_ns == 5000u * FF_MS);
 }
 
 static void test_max_out_bound(void)
@@ -270,6 +293,52 @@ static void test_before_init_no_dispatch(void)
     FF_TEST_ASSERT(FF_SchedPoll(0u, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
 }
 
+static void test_time_exhaustion_does_not_wrap(void)
+{
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(1u); /* 1000 ms */
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+
+    /* An initial deadline that cannot fit disables this entry for this epoch. */
+    FF_SchedInit(UINT64_MAX - (500u * FF_MS));
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+
+    /* A valid first release may dispatch once, but its overflowing next target
+     * must not wrap and cause another early dispatch. */
+    FF_SchedResetStats();
+    FF_SchedInit(UINT64_MAX - (1500u * FF_MS));
+    uint64_t due = UINT64_MAX - (500u * FF_MS);
+    FF_TEST_ASSERT(FF_SchedPoll(due, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+    FF_TEST_ASSERT(st.dispatched == 1u);
+
+    /* A representable deadline exactly at UINT64_MAX remains a valid release. */
+    FF_SchedResetStats();
+    FF_SchedInit(UINT64_MAX - (1000u * FF_MS));
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX - 1u, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+    FF_TEST_ASSERT(st.dispatched == 1u);
+
+    /* Huge elapsed time cannot wrap the 32-bit missed-slot diagnostic. */
+    FF_SchedResetStats();
+    FF_SchedInit(0u);
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.missed == UINT32_MAX);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+}
+
 static void test_real_sb_delivery(void)
 {
     FF_TEST_ASSERT(FF_SbInit() == FF_SUCCESS);
@@ -299,4 +368,4 @@ static void test_real_sb_delivery(void)
 FF_TEST_MAIN(test_validate_rejects, test_activate_atomic, test_first_release_boundary,
              test_no_starvation, test_no_cumulative_drift, test_missed_slots_bounded,
              test_max_out_bound, test_null_out_allowed, test_before_init_no_dispatch,
-             test_real_sb_delivery)
+             test_time_exhaustion_does_not_wrap, test_real_sb_delivery)

@@ -20,6 +20,31 @@
 
 static uint8_t g_rx[8 * 128];
 static uint16_t g_rx_count;
+static uint8_t g_region[64];
+
+static bool stream_has_memory_bytes(uint32_t offset, uint16_t length)
+{
+    uint16_t pos = 0u;
+    while ((pos + 6u) <= g_rx_count) {
+        uint16_t packet_pdl = (uint16_t)(((uint16_t)g_rx[pos + 4u] << 8) | g_rx[pos + 5u]);
+        uint16_t packet_len = (uint16_t)(6u + packet_pdl + 1u);
+        if (packet_len > (g_rx_count - pos)) {
+            return false;
+        }
+        uint16_t apid = 0u;
+        FF_Pus_TmHdr_t hdr;
+        const uint8_t *data = NULL;
+        uint16_t data_len = 0u;
+        if ((FF_CcsdsDecodeTm(&g_rx[pos], packet_len, &apid, &hdr, &data, &data_len) ==
+             FF_SUCCESS) &&
+            (hdr.service == FF_PUS_SERVICE_MEMORY) && (hdr.subservice == 6u) &&
+            (data_len == length) && (memcmp(data, &g_region[offset], length) == 0)) {
+            return true;
+        }
+        pos = (uint16_t)(pos + packet_len);
+    }
+    return false;
+}
 
 static void tm_sink(const uint8_t *packet, uint16_t len)
 {
@@ -76,9 +101,9 @@ static void test_ping_roundtrip(void)
     FF_TEST_ASSERT(stream_has(17u, 2u));
 
 #if defined(FF_USE_PUS_ASN1) && (FF_USE_PUS_ASN1 == 1)
-    /* SRS-REQ-050: the optional N7/ESA ASN.1 backend must not corrupt the
-     * reference framing — its TM output is byte-identical to the open backend
-     * (same ECSS Annex B.1 CRC). */
+    /* SRS-REQ-050: the configured default N7 adapter must preserve reference
+     * framing. The pinned generated common types are built into this target;
+     * full service-specific ASN.1 payload mapping remains planned. */
     {
         FF_Pus_TmHdr_t h;
         uint8_t a[128];
@@ -97,16 +122,16 @@ static void test_ping_roundtrip(void)
         FF_TEST_ASSERT(la == lb);
         FF_TEST_ASSERT(la > 0u);
         FF_TEST_ASSERT(memcmp(a, b, la) == 0);
-        /* And the N7 backend can be selected as the active backend. */
+        /* Verify explicit adapter selection; fsw_main selects N7 when the
+         * default FF_USE_PUS_ASN1=ON configuration is built. */
         FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendN7) == FF_SUCCESS);
+        FF_TEST_ASSERT(FF_PusGetBackend() == &FF_PusBackendN7);
         FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     }
 #endif
 }
 
-/* ---- Service 6 : memory dump bounded to registered regions (SRS-REQ-009) */
-
-static uint8_t g_region[64];
+/* ---- Service 6 : logical-region dump and byte-offset bounds (SRS-REQ-009) */
 
 /* The PUS codec reads multi-byte TC fields in network (big-endian) order. */
 static void wr_u32be(uint8_t *p, uint32_t v)
@@ -125,12 +150,17 @@ static void wr_u16be(uint8_t *p, uint16_t v)
 
 static void test_memory_dump_bounded(void)
 {
-    uint8_t payload[6];
+    uint8_t payload[7];
     uint8_t frame[128];
     uint16_t frame_len = 0u;
     FF_Pus_TcHdr_t tc;
 
-    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(g_region, sizeof(g_region)) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(1u, g_region, sizeof(g_region)) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(1u, g_region, sizeof(g_region)) == FF_ALREADY_EXISTS);
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(0u, g_region, sizeof(g_region)) ==
+                   FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(2u, NULL, 1u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(2u, g_region, 0u) == FF_INVALID_ARGUMENT);
 
     memset(&tc, 0, sizeof(tc));
     tc.version = FF_PUS_VERSION;
@@ -139,27 +169,81 @@ static void test_memory_dump_bounded(void)
     tc.subservice = 5u;                 /* dump (reply TM is 6,6) */
     tc.source_id = 0x0102u;
 
-    /* In-region dump succeeds and produces a memory TM (6,6). */
+    /* Provisional profile: region ID (1), byte offset (4), and size (2).
+     * In-region dump succeeds without serializing a host pointer. */
     g_rx_count = 0u;
-    wr_u32be(&payload[0], (uint32_t)(uintptr_t)g_region);
-    wr_u16be(&payload[4], 4u);
+    payload[0] = 1u;
+    wr_u32be(&payload[1], 4u);
+    wr_u16be(&payload[5], 4u);
     FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
                                     &frame_len) == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
     FF_TEST_ASSERT(stream_has(6u, 6u));
+    FF_TEST_ASSERT(stream_has_memory_bytes(4u, 4u));
 
-    /* Out-of-region dump is rejected: no (6,6) TM, completion failure 1,8. */
+    /* The full region and the final byte are both valid boundaries. */
+    g_rx_count = 0u;
+    payload[0] = 1u;
+    wr_u32be(&payload[1], 0u);
+    wr_u16be(&payload[5], sizeof(g_region));
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(stream_has(6u, 6u));
+    FF_TEST_ASSERT(stream_has_memory_bytes(0u, sizeof(g_region)));
+    g_rx_count = 0u;
+    wr_u32be(&payload[1], sizeof(g_region) - 1u);
+    wr_u16be(&payload[5], 1u);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(stream_has(6u, 6u));
+    FF_TEST_ASSERT(stream_has_memory_bytes(sizeof(g_region) - 1u, 1u));
+
+    /* Offset+length outside region is rejected: no dump TM, completion failure. */
     {
-        uint8_t stack[8]; /* never registered */
         g_rx_count = 0u;
-        wr_u32be(&payload[0], (uint32_t)(uintptr_t)stack);
-        wr_u16be(&payload[4], 4u);
+        payload[0] = 1u;
+        wr_u32be(&payload[1], 62u);
+        wr_u16be(&payload[5], 4u);
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_ERROR);
         FF_TEST_ASSERT(!stream_has(6u, 6u));
         FF_TEST_ASSERT(stream_has(1u, 8u)); /* completion failure */
     }
+
+    /* Unknown region identifiers are rejected, even when the offset fits. */
+    g_rx_count = 0u;
+    payload[0] = 2u;
+    wr_u32be(&payload[1], 0u);
+    wr_u16be(&payload[5], 4u);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_ERROR);
+    FF_TEST_ASSERT(!stream_has(6u, 6u));
+    FF_TEST_ASSERT(stream_has(1u, 8u));
+
+    /* Zero-length dumps are rejected, including at offset zero. */
+    g_rx_count = 0u;
+    payload[0] = 1u;
+    wr_u32be(&payload[1], 0u);
+    wr_u16be(&payload[5], 0u);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(!stream_has(6u, 6u));
+    FF_TEST_ASSERT(stream_has(1u, 8u));
+
+    /* Oversized data requests are rejected before any memory read. */
+    g_rx_count = 0u;
+    payload[0] = 1u;
+    wr_u32be(&payload[1], 0u);
+    wr_u16be(&payload[5], (uint16_t)(FF_PUS_MAX_TM_FRAME + 1u));
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(!stream_has(6u, 6u));
 }
 
 /* ---- Service 9 : time management (SRS-REQ-010, R3 NC-1) -------------

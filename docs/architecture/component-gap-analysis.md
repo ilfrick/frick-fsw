@@ -101,22 +101,32 @@ mode (one task per OBCP) and is designed to be embedded in a larger C flight
 application. Upstream targets are x86-64 and ARM Cortex-M7; the RISC-V/RTEMS port
 is to be validated at integration (M12). Callbacks map to frick-fsw SB/EVS/Time/PUS.
 
-**Fallback:** if n7s-obcp is not integrable (licence/qualification/portability),
-**develop an ECSS-compliant engine** (MicroPython-based, same C interface and
-module surface) with the ECSS OBCP guidance (ECSS-E-ST-70 series) and MISRA C.
+**S9-S10 implementation status (2026-10-16):** the candidate is integrated into
+the default build at immutable upstream revision
+`55d6d97e7e7ff08a130698f7a922bcf58acb3d99`, with MicroPython pinned at
+`647c8b96cae7e202c7a020395b7cfe65e5b8ce04`. `src/obcp/ff_obcp.{h,c}` supplies a
+single-context adapter and the native connectivity test exercises callback
+module connectivity with test doubles. This does not establish production SB,
+EVS, Time, PUS or PUS S18 bindings; RTEMS/RISC-V portability; arbitrary-script
+abort bounds; WCET; memory/stack limits; engine validation; or mission
+suitability. NC-S9-01 is DEFERRED/OPEN and NC-EXT-43/legal review remains open.
 
-Work (M12): vendored pinned under `third_party/` (not committed, like lwIP/PUS-C);
-adapter behind a `FF_Obcp_t` contract; callbacks to SB/EVS/Time/PUS; the OBCP
-modules mapped to frick-fsw services (datapool → parameters, events → EVS/PUS S5,
-time → Time Services, packets → PUS); resource bounds and safety (stack/heap,
-no dynamic growth, watchdog, execution time budget, OBCP state reporting via
-PUS S18); ECSS/Renode validation (extend the N18 functional test).
+**Future fallback:** if the pinned engine is later rejected by the authorized
+licensing, qualification, or portability disposition, assess the separate M16
+in-house OBCP product under its own requirements and approval. It is not a
+prerequisite to proceeding with current S9-S12 integration work.
+
+Remaining M12 work: bind the adapter callbacks to controlled mission services;
+map OBCP state/control to PUS S18 and approved command lifecycle; establish target
+portability and resource/execution bounds; and run project V&V at the agreed
+levels. The current callback connectivity test is host-only with test doubles.
 
 ## 6. Gap linkage
 
-Missing mission services (LC/SC/MM/CS/FM/DS/CF/SBN/ECI, equipment manager) and the
-OBCP engine are **scope/mission features**, not defects of the framework core;
-they are planned (M4/M12/M13) and recorded as requirements SSS-REQ-022/023 and
+Missing mission services (LC/SC/MM/CS/FM/DS/CF/SBN/ECI, equipment manager) and
+mission-ready OBCP service integration are **scope/mission features**, not
+defects of the framework core; they are planned (M4/M12/M13) and recorded as
+requirements SSS-REQ-022/023 and
 SRS-REQ-045/046; the **in-house OBCP engine** is milestone **M16**
 (SSS-REQ-027 / SRS-REQ-054). Real-silicon residual remains GAP-A5.
 
@@ -126,3 +136,5 @@ SRS-REQ-045/046; the **in-house OBCP engine** is milestone **M16**
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial cFS/other-FSW component gap analysis; OBCP engine (n7s-obcp) and equipment-manager decisions |
 | 0.2 | 2026-10-11 | frick-fsw | M16: M12 integrates / M16 develops the in-house OBCP engine; requirements SSS-REQ-027 / SRS-REQ-054 |
+| 0.3 | 2026-10-16 | frick-fsw | Record S9-S10 pinned n7s-obcp/MicroPython acquisition and explicitly bound the claim to dependency identity only |
+| 0.4 | 2026-10-16 | frick-fsw | Record default-build engine integration, test-double connectivity evidence and remaining deferred assurance gaps |

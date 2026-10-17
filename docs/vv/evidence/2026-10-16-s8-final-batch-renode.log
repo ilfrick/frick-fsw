@@ -1,0 +1,2 @@
+bash tools/scripts/renode_vv.sh
+[renode] PASS (RENODE_TEST: PASS)

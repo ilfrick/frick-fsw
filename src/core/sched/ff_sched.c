@@ -29,6 +29,12 @@ static FF_SchedStats_t g_stats;
 
 #define FF_NS_PER_MS 1000000ULL
 
+static void ff_sched_add_missed(uint64_t skipped)
+{
+    uint64_t room = (uint64_t)UINT32_MAX - g_stats.missed;
+    g_stats.missed = (skipped >= room) ? UINT32_MAX : (g_stats.missed + (uint32_t)skipped);
+}
+
 static FF_Status_t ff_sched_check_image(const FF_SchedTable_t *t, size_t size)
 {
     if (t == NULL) {
@@ -102,7 +108,14 @@ void FF_SchedInit(uint64_t now_ns)
     }
     for (uint16_t i = 0u; i < t->count; i++) {
         /* First release is one full period after the epoch. */
-        g_next_due_ns[i] = now_ns + ((uint64_t)t->entries[i].period_ms * FF_NS_PER_MS);
+        uint64_t period_ns = (uint64_t)t->entries[i].period_ms * FF_NS_PER_MS;
+        if (now_ns > (UINT64_MAX - period_ns)) {
+            g_next_due_ns[i] = 0u;
+            g_stats.time_exhaustions++;
+        }
+        else {
+            g_next_due_ns[i] = now_ns + period_ns;
+        }
     }
     for (uint16_t i = t->count; i < FF_SCHED_MAX_ENTRIES; i++) {
         g_next_due_ns[i] = 0u;
@@ -132,10 +145,19 @@ uint16_t FF_SchedPoll(uint64_t now_ns, FF_Msg_t *out, uint16_t max_out, FF_AppId
         uint64_t over = now_ns - due;
         uint64_t skip = over / period_ns;
         if (skip > 0u) {
-            g_stats.missed += (uint32_t)skip;
+            ff_sched_add_missed(skip);
             g_stats.late_polls++;
         }
-        g_next_due_ns[i] = due + ((skip + 1u) * period_ns);
+        uint64_t steps = skip + 1u;
+        if (steps > ((UINT64_MAX - due) / period_ns)) {
+            /* Do not wrap an exhausted absolute target into the distant past:
+             * disable only this entry until an explicit reinitialization. */
+            g_next_due_ns[i] = 0u;
+            g_stats.time_exhaustions++;
+        }
+        else {
+            g_next_due_ns[i] = due + (steps * period_ns);
+        }
 
         FF_Msg_t msg;
         memset(&msg, 0, sizeof(msg));

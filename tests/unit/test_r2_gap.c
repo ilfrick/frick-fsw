@@ -884,7 +884,8 @@ static void test_pus_service3_hk(void)
     const uint8_t create_bad_prov[2] = {4u, 99u};
     const uint8_t bad_size[1] = {3u};
     const uint8_t sel3[1] = {3u};
-    const uint8_t sel4[1] = {4u};
+    const uint8_t report3[2] = {1u, 3u}; /* N=1, report-structure ID */
+    const uint8_t report4[2] = {1u, 4u};
 
     FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
@@ -897,29 +898,32 @@ static void test_pus_service3_hk(void)
     FF_TEST_ASSERT(pus_ingest(3u, 1u, create_ok, sizeof(create_ok)) == FF_ALREADY_EXISTS);
     FF_TEST_ASSERT(pus_ingest(3u, 1u, create_bad_prov, sizeof(create_bad_prov)) == FF_SUCCESS);
 
-    /* Report all: report 3 emits (3,25); report 4 has no provider => NOT_FOUND. */
+    /* Explicit list: report 3 emits (3,25); report 4 has no provider => NOT_FOUND. */
     g_pus_rx_len = 0u;
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, NULL, 0u) == FF_NOT_FOUND);
+    const uint8_t report_list[] = {2u, 3u, 4u};
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, report_list, sizeof(report_list)) == FF_NOT_FOUND);
     FF_TEST_ASSERT(pus_stream_has(3u, 25u));
 
-    /* Report one enabled report. */
+    /* One-shot request for one report. */
     g_pus_rx_len = 0u;
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, report3, sizeof(report3)) == FF_SUCCESS);
     FF_TEST_ASSERT(pus_stream_has(3u, 25u));
 
-    /* Disable suppresses emission; enable restores it. */
-    FF_TEST_ASSERT(pus_ingest(3u, 4u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    /* Disable periodic generation; explicit one-shot report still emits. */
+    FF_TEST_ASSERT(pus_ingest(3u, 6u, sel3, sizeof(sel3)) == FF_SUCCESS);
     g_pus_rx_len = 0u;
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_SUCCESS);
-    FF_TEST_ASSERT(!pus_stream_has(3u, 25u));
-    FF_TEST_ASSERT(pus_ingest(3u, 3u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, report3, sizeof(report3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_stream_has(3u, 25u));
+    FF_TEST_ASSERT(pus_ingest(3u, 5u, sel3, sizeof(sel3)) == FF_SUCCESS);
 
     /* Selector errors and delete semantics. */
-    FF_TEST_ASSERT(pus_ingest(3u, 2u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 27u, report4, sizeof(report4)) == FF_NOT_FOUND);
     FF_TEST_ASSERT(pus_ingest(3u, 3u, NULL, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 4u, NULL, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 2u, sel4, sizeof(sel4)) == FF_SUCCESS);
-    FF_TEST_ASSERT(pus_ingest(3u, 2u, sel4, sizeof(sel4)) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(pus_ingest(3u, 6u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 3u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 3u, sel3, sizeof(sel3)) == FF_NOT_FOUND);
 }
 
 static void test_pus_service8_function(void)

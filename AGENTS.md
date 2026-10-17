@@ -81,8 +81,8 @@ make renode-env          # Renode V&V environment self-test (norm N18; needs doc
 make renode              # Renode functional validation (norm N18; SKIP proxy if the RTEMS image is absent)
 make qemu-image          # generic riscv/rv64imafdc RTEMS image for QEMU (milestone M10)
 make qemu                # QEMU `virt` emulated-target check (M10; SKIP proxy if the image is absent)
-make pus-asn1            # generate the optional N7/ESA PUS-C ASN.1 backend (build-time; ASN1SCC)
-                         # (FF_USE_PUS_ASN1 defaults OFF; open PUS backend is default)
+make pus-asn1            # generate default N7/ESA common ASN.1 inputs (build-time; ASN1SCC)
+                         # (FF_USE_PUS_ASN1 defaults ON; set OFF to select open CCSDS backend)
 ```
 
 RTEMS cross build (open-source RTEMS 6.2; `tools/scripts/setup_rtems.sh` builds

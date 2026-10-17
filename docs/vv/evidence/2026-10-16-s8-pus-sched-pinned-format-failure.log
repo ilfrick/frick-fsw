@@ -1,0 +1,44 @@
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+src/core/sched/ff_sched.c:115:10: error: code should be clang-formatted [-Wclang-format-violations]
+        } else {
+         ^
+src/core/sched/ff_sched.c:156:10: error: code should be clang-formatted [-Wclang-format-violations]
+        } else {
+         ^
+tests/unit/test_pus_fu.c:277:73: error: code should be clang-formatted [-Wclang-format-violations]
+        if ((g_rx_buf[pos + 7u] == 3u) && (g_rx_buf[pos + 8u] == 25u) &&
+                                                                        ^
+tests/unit/test_pus_fu.c:278:35: error: code should be clang-formatted [-Wclang-format-violations]
+            (packet_len == 23u) && (g_rx_buf[pos + 19u] == report_id) &&
+                                  ^
+tests/unit/test_pus_fu.c:278:73: error: code should be clang-formatted [-Wclang-format-violations]
+            (packet_len == 23u) && (g_rx_buf[pos + 19u] == report_id) &&
+                                                                        ^
+tests/unit/test_pus_fu.c:357:21: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_Status_t st = FF_CcsdsEncodeTc(FF_APID_TC, &tc, &report_id, 1u, frame, sizeof(frame),
+                    ^
+tests/unit/test_pus_fu.c:357:93: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_Status_t st = FF_CcsdsEncodeTc(FF_APID_TC, &tc, &report_id, 1u, frame, sizeof(frame),
+                                                                                            ^
+tests/unit/test_pus_fu.c:684:54: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(test_hk_standard_subservice_assignments,
+                                                     ^
+tests/unit/test_pus_fu.c:685:55: error: code should be clang-formatted [-Wclang-format-violations]
+             test_ncext_23_duplicate_service_rejected, test_ncext_23_duplicate_provider_rejected,
+                                                      ^
+tests/unit/test_pus_fu.c:685:98: error: code should be clang-formatted [-Wclang-format-violations]
+             test_ncext_23_duplicate_service_rejected, test_ncext_23_duplicate_provider_rejected,
+                                                                                                 ^
+tests/unit/test_pus_fu.c:686:52: error: code should be clang-formatted [-Wclang-format-violations]
+             test_ncext_24_provider_length_bounded, test_s3_report_all_preserves_first_failure,
+                                                   ^
+tests/unit/test_pus_fu.c:686:96: error: code should be clang-formatted [-Wclang-format-violations]
+             test_ncext_24_provider_length_bounded, test_s3_report_all_preserves_first_failure,
+                                                                                               ^
+tests/unit/test_pus.c:38:88: error: code should be clang-formatted [-Wclang-format-violations]
+        if ((FF_CcsdsDecodeTm(&g_rx[pos], packet_len, &apid, &hdr, &data, &data_len) == FF_SUCCESS) &&
+                                                                                       ^
+tests/unit/test_pus.c:159:81: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_TEST_ASSERT(FF_PusRegisterMemoryRegion(0u, g_region, sizeof(g_region)) == FF_INVALID_ARGUMENT);
+                                                                                ^
+make: *** [Makefile:179: format-check] Error 123

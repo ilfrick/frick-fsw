@@ -55,6 +55,7 @@ typedef struct
 } ff_hk_report_t;
 typedef struct
 {
+    uint8_t id;
     const uint8_t *base;
     uint32_t size;
     bool used;
@@ -107,6 +108,13 @@ static FF_Status_t reg_provider(ff_provider_t *tbl, uint8_t id, FF_Pus_DataProvi
     if (fn == NULL) {
         return FF_INVALID_ARGUMENT;
     }
+    /* Reject duplicate provider ids so a later registration cannot silently
+     * shadow an earlier provider (NC-EXT-23, C-15). */
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (tbl[i].used && (tbl[i].id == id)) {
+            return FF_ALREADY_EXISTS;
+        }
+    }
     for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
         if (!tbl[i].used) {
             tbl[i].used = true;
@@ -132,6 +140,13 @@ FF_Status_t FF_PusRegisterParamSetter(uint8_t id, FF_Pus_ParamSetter_t setter)
     if (setter == NULL) {
         return FF_INVALID_ARGUMENT;
     }
+    /* Reject duplicate setter ids so a later registration cannot silently shadow
+     * an earlier setter (NC-EXT-23, C-16). */
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (g_param_setters[i].used && (g_param_setters[i].id == id)) {
+            return FF_ALREADY_EXISTS;
+        }
+    }
     for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
         if (!g_param_setters[i].used) {
             g_param_setters[i].used = true;
@@ -148,6 +163,13 @@ FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn)
     if (fn == NULL) {
         return FF_INVALID_ARGUMENT;
     }
+    /* Reject duplicate function ids so a later registration cannot silently
+     * shadow an earlier function (NC-EXT-23, C-16). */
+    for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
+        if (g_functions[i].used && (g_functions[i].id == id)) {
+            return FF_ALREADY_EXISTS;
+        }
+    }
     for (uint16_t i = 0; i < FF_PUS_MAX_REG; i++) {
         if (!g_functions[i].used) {
             g_functions[i].used = true;
@@ -159,14 +181,20 @@ FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn)
     return FF_NO_RESOURCE;
 }
 
-FF_Status_t FF_PusRegisterMemoryRegion(const void *base, uint32_t size)
+FF_Status_t FF_PusRegisterMemoryRegion(uint8_t region_id, const void *base, uint32_t size)
 {
-    if ((base == NULL) || (size == 0u)) {
+    if ((region_id == 0u) || (base == NULL) || (size == 0u)) {
         return FF_INVALID_ARGUMENT;
+    }
+    for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
+        if (g_mem_regions[i].used && (g_mem_regions[i].id == region_id)) {
+            return FF_ALREADY_EXISTS;
+        }
     }
     for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
         if (!g_mem_regions[i].used) {
             g_mem_regions[i].used = true;
+            g_mem_regions[i].id = region_id;
             g_mem_regions[i].base = (const uint8_t *)base;
             g_mem_regions[i].size = size;
             return FF_SUCCESS;
@@ -250,25 +278,61 @@ static FF_Status_t svc3_disable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
 static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    uint8_t want = (len >= 1u) ? d[0] : 0u; /* 0 = all enabled reports */
+    if ((len < 2u) || (d[0] == 0u) || (len != (uint16_t)(1u + d[0]))) {
+        return FF_BAD_SIZE;
+    }
+
     FF_Status_t rc = FF_SUCCESS;
-    for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
-        if (!g_hk_reports[i].used || !g_hk_reports[i].enabled) {
+    for (uint16_t requested = 0u; requested < d[0]; requested++) {
+        uint8_t report_id = d[requested + 1u];
+        ff_hk_report_t *report = NULL;
+        for (uint16_t i = 0u; i < FF_PUS_MAX_HK_REPORTS; i++) {
+            if (g_hk_reports[i].used && (g_hk_reports[i].report_id == report_id)) {
+                report = &g_hk_reports[i];
+                break;
+            }
+        }
+        if (report == NULL) {
+            if (rc == FF_SUCCESS) {
+                rc = FF_NOT_FOUND;
+            }
             continue;
         }
-        if ((want != 0u) && (g_hk_reports[i].report_id != want)) {
-            continue;
-        }
-        FF_Pus_DataProvider_t prov = find_provider(g_hk_providers, g_hk_reports[i].provider_id);
+        /* TC[3,27] is a one-shot request and is independent of the report's
+         * periodic-generation enabled/disabled state. */
+        FF_Pus_DataProvider_t prov = find_provider(g_hk_providers, report->provider_id);
         if (prov == NULL) {
-            rc = FF_NOT_FOUND;
+            if (rc == FF_SUCCESS) {
+                rc = FF_NOT_FOUND;
+            }
             continue;
         }
         uint8_t payload[FF_PUS_MAX_TM_FRAME];
-        uint16_t plen = sizeof(payload) - 1u;
-        payload[0] = g_hk_reports[i].report_id;
-        if (prov(g_hk_reports[i].report_id, &payload[1], &plen) == FF_SUCCESS) {
-            (void)FF_PusSendTm(FF_PUS_SERVICE_HK, 25u, payload, (uint16_t)(plen + 1u));
+        uint16_t cap = (uint16_t)(sizeof(payload) - 1u);
+        uint16_t plen = cap;
+        payload[0] = report_id;
+        FF_Status_t provider_st = prov(report_id, &payload[1], &plen);
+        if (provider_st == FF_SUCCESS) {
+            /* Validate the provider-reported length before encoding/copying it
+             * into the TM frame; a provider that over-reports its own bound must
+             * not produce a malformed/oversized telemetry packet (NC-EXT-24,
+             * C-16). */
+            if (plen > cap) {
+                if (rc == FF_SUCCESS) {
+                    rc = FF_BAD_SIZE;
+                }
+                continue;
+            }
+            FF_Status_t send_st =
+                FF_PusSendTm(FF_PUS_SERVICE_HK, 25u, payload, (uint16_t)(plen + 1u));
+            if ((send_st != FF_SUCCESS) && (rc == FF_SUCCESS)) {
+                rc = send_st;
+            }
+        }
+        else if (rc == FF_SUCCESS) {
+            /* Do not acknowledge a requested report as successful when its
+             * provider failed to produce the requested data. */
+            rc = provider_st;
         }
     }
     return rc;
@@ -279,26 +343,26 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
 static FF_Status_t svc6_dump(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 6u) {
+    if (len != 7u) {
         return FF_BAD_SIZE;
     }
-    uint32_t addr = rd_u32(&d[0]);
-    uint16_t size = rd_u16(&d[4]);
-    if (size > FF_PUS_MAX_TM_FRAME) {
+    uint8_t region_id = d[0];
+    uint32_t offset = rd_u32(&d[1]);
+    uint16_t size = rd_u16(&d[5]);
+    if ((region_id == 0u) || (size == 0u) || (size > FF_PUS_MAX_TM_FRAME)) {
         return FF_BAD_SIZE;
     }
 
     for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
-        if (!g_mem_regions[i].used) {
+        if (!g_mem_regions[i].used || (g_mem_regions[i].id != region_id)) {
             continue;
         }
-        /* PUS memory management addresses are 32-bit. Bound the requested range
-         * against each region with overflow-safe arithmetic, then read from the
-         * registered (full-width) pointer so host simulators stay correct. */
-        uint32_t base32 = (uint32_t)(uintptr_t)g_mem_regions[i].base;
-        uint32_t end32 = base32 + g_mem_regions[i].size;
-        if ((addr >= base32) && (addr <= end32) && ((uint32_t)size <= (end32 - addr))) {
-            const uint8_t *src = g_mem_regions[i].base + (ptrdiff_t)(addr - base32);
+        /* Provisional profile: region ID plus a 32-bit byte offset. The wire
+         * value is never a host/target pointer; subtraction-based checks avoid
+         * overflow at the region boundary. */
+        if ((offset <= g_mem_regions[i].size) &&
+            ((uint32_t)size <= (g_mem_regions[i].size - offset))) {
+            const uint8_t *src = g_mem_regions[i].base + (ptrdiff_t)offset;
             return FF_PusSendTm(FF_PUS_SERVICE_MEMORY, 6u, src, size);
         }
     }
@@ -372,6 +436,12 @@ static FF_Status_t svc11_stub(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16
     (void)tc;
     (void)d;
     (void)len;
+    /* S11 is registered so unknown-service dispatch (PUS service 1 subservice 9)
+     * is never returned for it, but it is a stub: report transparently (NC-EXT-22,
+     * C-15). A dedicated event makes the stub status observable to operators and
+     * tests rather than a silent NOT_IMPLEMENTED. */
+    (void)FF_EvsSend(FF_EVS_PUS_TC_ERR, FF_EVS_WARNING, 0u,
+                     "PUS service 11 scheduling not implemented (stub)");
     return FF_NOT_IMPLEMENTED;
 }
 
@@ -410,10 +480,17 @@ static FF_Status_t svc20_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
         return FF_NOT_FOUND;
     }
     uint8_t payload[FF_PUS_MAX_TM_FRAME];
-    uint16_t plen = sizeof(payload) - 1u;
+    uint16_t cap = (uint16_t)(sizeof(payload) - 1u);
+    uint16_t plen = cap;
     payload[0] = d[0];
     if (prov(d[0], &payload[1], &plen) != FF_SUCCESS) {
         return FF_ERROR;
+    }
+    /* Validate the provider-reported length before encoding/copying it into the
+     * TM frame; a provider that over-reports its own bound must not produce a
+     * malformed/oversized telemetry packet (NC-EXT-24, C-16). */
+    if (plen > cap) {
+        return FF_BAD_SIZE;
     }
     return FF_PusSendTm(FF_PUS_SERVICE_PARAMETER, 4u, payload, (uint16_t)(plen + 1u));
 }
@@ -437,8 +514,8 @@ FF_Status_t FF_PusRegisterCoreServices(void)
         uint8_t subservice;
         FF_Pus_Handler_t handler;
     } table[] = {
-        {3u, 1u, svc3_create},   {3u, 2u, svc3_delete},   {3u, 3u, svc3_enable},
-        {3u, 4u, svc3_disable},  {3u, 27u, svc3_report},  {6u, 5u, svc6_dump},
+        {3u, 1u, svc3_create},   {3u, 3u, svc3_delete},   {3u, 5u, svc3_enable},
+        {3u, 6u, svc3_disable},  {3u, 27u, svc3_report},  {6u, 5u, svc6_dump},
         {8u, 1u, svc8_function}, {9u, 1u, svc9_set_time}, {9u, 2u, svc9_report_time},
         {11u, 1u, svc11_stub},   {11u, 2u, svc11_stub},   {17u, 1u, svc17_ping},
         {20u, 1u, svc20_set},    {20u, 3u, svc20_report},

@@ -1,0 +1,17 @@
+S8-PUS-FU default-N7 Renode build attempt (host make renode-image)
+Date: 2026-10-16
+Command: make renode-image
+Result: FAIL (exit 2)
+
+CMake Error: The current CMakeCache.txt directory
+/home/nicola/fsw/frick-fsw/build/renode is different than the directory
+/workspace/build/renode where CMakeCache.txt was created.
+CMake Error: The source /home/nicola/fsw/frick-fsw/CMakeLists.txt does not
+match the source /workspace/CMakeLists.txt used to generate cache.
+
+Cause: an existing build/renode cache was generated inside Docker using the
+container source path `/workspace`; invoking the same cache from the host path
+`/home/nicola/fsw/frick-fsw` is invalid. Recovery: retained this record, removed
+only the disposable build/renode directory, and configured/built the RTEMS image
+inside frick-rtems-toolchain:local at `/workspace` with FF_USE_PUS_ASN1=ON.
+This was a build-directory identity issue, not a source compilation failure.

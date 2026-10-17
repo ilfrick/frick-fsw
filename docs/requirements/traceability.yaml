@@ -68,8 +68,8 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-003
     derived: false
-    implementation: ["src/transport/ccsds/ccsds.c"]
-    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_decoder_corpus.c"]
+    implementation: ["src/transport/ccsds/ccsds.c", "src/pus/adapters/pus_adapter_n7.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_decoder_corpus.c", "tests/unit/test_pus_n7_adapter.c"]
     lean: ["req_srs004_crc_appended_zero", "req_srs004_crc_initial"]
     lean_note: "Lean models CRC presence/initial value on encode; the CRC-match/reject decoder contract (SRS-REQ-004) is required only on decode and is exercised by the single-bit mutation corpus in test_decoder_corpus.c (host SIL), not C-refined."
 
@@ -103,7 +103,7 @@ requirements:
     parent_sss: SSS-REQ-005
     derived: false
     implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_fu.c"]
     lean: []
     lean_note: "Housekeeping flow exercised end-to-end in the simulator; formalisation in the class-A work package (GAP-A2)."
 
@@ -190,9 +190,9 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-015
     derived: true
-    justification: "ADR-0003/ADR-0018: PUS product abstraction; the open CCSDS backend is the default, the N7/ESA ASN.1 backend is optional (SRS-REQ-050), and the PUSopen(R) adapter is optional (SRS-REQ-065)."
+    justification: "ADR-0003/ADR-0019: PUS product abstraction; N7/ESA is the configured default (SRS-REQ-050), the open CCSDS backend is selectable, and the PUSopen(R) adapter is optional (SRS-REQ-065)."
     implementation: ["src/pus/pus.h", "src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_n7_adapter.c"]
 
   - id: SRS-REQ-019
     level: srs
@@ -430,10 +430,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-022
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/obcp/ff_obcp.c", "src/obcp/ff_obcp.h", "docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["tests/unit/test_obcp_integration.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
     lean: []
-    lean_note: "OBCP engine for uPython/MicroPython On-Board Control Procedures (milestone M12). First integration candidate: n7space/n7s-obcp (MicroPython-based, MIT, ESA-funded); if not integrable, develop an ECSS-compliant engine (ECSS-E-ST-70 series). Planned; no code in this baseline."
+    lean_note: "M12 OBCP integration is in progress using pinned n7space/n7s-obcp behind FF_Obcp_t. Host callback-connectivity evidence exists; production mission service/PUS S18 bindings, bounded arbitrary-script execution/result reporting, target/resource evidence and mission suitability remain open. Does not establish SRS-REQ-045 completion. SRS-REQ-054 remains a separately governed fallback requirement; replacement-engine development is deferred by owner direction."
 
   - id: SRS-REQ-046
     level: srs
@@ -476,9 +476,9 @@ requirements:
     parent_sss: SSS-REQ-015
     derived: false
     implementation: ["src/pus/adapters/pus_adapter_n7.c", "src/pus/adapters/pus_adapter_open.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
-    tests: ["tests/unit/test_pus.c"]
-    lean: ["req_srs050_open_backend_is_default", "req_srs050_n7_is_opt_in"]
-    lean_note: "The local open CCSDS codec is the default PUS backend. The optional N7/ESA ASN.1 backend remains available when explicitly enabled with FF_USE_PUS_ASN1=ON and generated sources are present; its detailed type-codec mapping remains M15."
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_n7_adapter.c"]
+    lean: ["req_srs050_n7_backend_is_default", "req_srs050_default_enables_n7"]
+    lean_note: "The N7/ESA backend is selected by default with FF_USE_PUS_ASN1=ON and generated common ASN1SCC sources. The current adapter exercises generated type-width assertions and the N7/ESA CRC implementation but delegates framing and PUS field coding to the reference codec; complete service-specific ASN.1 mapping remains M15. FF_USE_PUS_ASN1=OFF selects the open CCSDS alternative."
 
   - id: SRS-REQ-051
     level: srs
@@ -789,9 +789,9 @@ requirements:
   - id: SSS-REQ-015
     level: sss
     derived: true
-    justification: "Applicable PUS-C backends are pluggable behind FF_Pus_Backend_t: the open CCSDS backend is the default (ADR-0018), the N7/ESA ASN.1 backend is optional (SRS-REQ-050), and the PUSopen adapter is optional (commercial, never distributed)."
-    implementation: ["src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
-    tests: ["tests/unit/test_pus.c"]
+    justification: "Applicable PUS-C backends are pluggable behind FF_Pus_Backend_t: N7/ESA is the reference default (ADR-0019), the open CCSDS backend is selectable, and the PUSopen adapter is optional (commercial, never distributed)."
+    implementation: ["src/pus/adapters/pus_adapter_n7.c", "src/pus/adapters/pus_adapter_open.c", "src/pus/adapters/pus_adapter_pusopen.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_n7_adapter.c"]
 
   - id: SSS-REQ-016
     level: sss
@@ -841,10 +841,10 @@ requirements:
   - id: SSS-REQ-022
     level: sss
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
-    tests: ["ci:docs"]
+    implementation: ["src/obcp/ff_obcp.c", "src/obcp/ff_obcp.h", "docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
+    tests: ["tests/unit/test_obcp_integration.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
     lean: []
-    lean_note: "On-board autonomy: execution of user-provided On-Board Control Procedures (OBCP) in uPython/MicroPython (milestone M12). Planned; the plan/roadmap/gap-analysis documents are checked by the docs job."
+    lean_note: "M12 OBCP integration in progress: the pinned N7 engine is built behind FF_Obcp_t and host callback connectivity is tested. Production bindings, arbitrary-script execution guarantees, target/resource evidence and mission-use suitability are not established; do not claim SRS-REQ-045 completion."
 
   - id: SSS-REQ-023
     level: sss

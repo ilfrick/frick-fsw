@@ -1,0 +1,5 @@
+error: clang-format 23 != pinned major 18 (CI runner uses 18.x)
+       use the V&V image (docker run --rm -v $PWD:/workspace -w /workspace frick-vv:local make format)
+       or set FF_CLANG_FORMAT_ALLOW_UNPINNED=1 to override
+make: *** [Makefile:178: format-check] Errore 1
+exit=2

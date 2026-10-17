@@ -2,7 +2,7 @@
 
 | Document id | FRICK-ARCH-0018 |
 | --- | --- |
-| Revision | 0.2 |
+| Revision | 0.3 |
 | Date | 2026-10-16 |
 | Status | Design input with a partially implemented dispatcher; the implementation is not an assurance, schedulability or qualification claim |
 
@@ -140,6 +140,14 @@ Delivered and host-verified (not an approved mission profile):
 - Per-entry **absolute** release targets: each entry keeps its own next-due
   instant, so a short period cannot starve a longer one (corrects NC-EXT-19)
   and relative-delay drift does not accumulate.
+- Checked deadline arithmetic: if the first or next target cannot be represented
+  in `uint64_t` monotonic nanoseconds, that entry is disabled until explicit
+  `FF_SchedInit` and `time_exhaustions` increments. Activation clears targets
+  and must be followed by `FF_SchedInit` to resume dispatch; the missed-slot
+  diagnostic saturates at `UINT32_MAX`. No wrapped target is dispatched. This is
+  the provisional public-reference policy in ADR-0020, not a mission-approved
+  clock-domain or recovery requirement; NC-EXT-90 stays open for authority/target
+  evidence.
 - Bounded work per poll: at most one release per entry per call; slots crossed
   while late are counted (`missed`) and never burst-released. The provisional
   no-catch-up/skip behaviour is a project selection and still requires an
@@ -192,3 +200,4 @@ NC-EXT-19 is not closed and no flight-use authorization is implied.
 | --- | --- | --- | --- |
 | 0.1 | 2026-10-13 | frick-fsw | Record scheduler option trade, cFS-SCH behavior, RTEMS ownership boundary, recovery limits and M17 plan |
 | 0.2 | 2026-10-16 | frick-fsw | Record the delivered S8-SCH dispatcher increment (ff_sched validation/atomic activation/absolute per-entry targets, bounded per-poll work, missed-slot and heartbeat diagnostics) and state explicitly that the section 5 review gate, mission timing inputs and target evidence remain open |
+| 0.3 | 2026-10-16 | frick-fsw | Select checked, non-wrapping deadline arithmetic with per-entry disable/counter as provisional framework behavior; cite ADR-0020 and keep NC-EXT-90/mission authority limits open |

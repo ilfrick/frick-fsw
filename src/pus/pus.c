@@ -64,10 +64,22 @@ void FF_PusSetTmSink(FF_Pus_TmSink_t sink)
     g_tm_sink = sink;
 }
 
+/* ---- Registration ------------------------------------------------- */
+
 FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Handler_t handler)
 {
     if (handler == NULL) {
         return FF_INVALID_ARGUMENT;
+    }
+    /* Reject duplicate (service, subservice) registrations deterministically so a
+     * later registration cannot silently shadow an earlier one (NC-EXT-23, C-15).
+     * The first slot that matches service+subservice wins; a second registration of
+     * the same pair is refused. */
+    for (uint16_t i = 0; i < FF_PUS_MAX_SERVICES; i++) {
+        if (g_svcs[i].used && (g_svcs[i].service == service) &&
+            (g_svcs[i].subservice == subservice)) {
+            return FF_ALREADY_EXISTS;
+        }
     }
     for (uint16_t i = 0; i < FF_PUS_MAX_SERVICES; i++) {
         if (!g_svcs[i].used) {

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 2.66                                   |
-| Date                              | 2026-10-16                             |
+| Revision                          | 3.05                                   |
+| Date                              | 2026-10-17                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -63,16 +63,17 @@ sprint scope pass; exceptions require explicit user delegation. Credentials in
 ## 3. How to build / test / verify (exact commands)
 
 ```bash
-# Host build + unit tests (40/40) + trace + format
-cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug && cmake --build build/native
+# Host build + unit tests (default N7 backend) + trace + format
+make pus-asn1
+cmake -S . -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON && cmake --build build/native
 ctest --test-dir build/native --output-on-failure
 python3 tools/scripts/trace.py docs/requirements/traceability.yaml   # PASS 117/73/30/14/62
 docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local \
   bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
 ```
 
-The canonical cycle is `make ci-local` in `frick-vv:local` (configure/build/40 CTest/
-Lean/trace). For the AddressSanitizer leg and coverage/metrics regeneration, run
+The canonical cycle is `make ci-local` in `frick-vv:local` (configure/build/CTest/
+Lean/trace; test count varies with the candidate). For the AddressSanitizer leg and coverage/metrics regeneration, run
 inside the container (`build/asan`, `make coverage`, `make metrics`) so the
 panel and the `ci-local` cache agree; the README panel is green only when
 `tools/scripts/metrics.py --check` passes after `make coverage` in the image.
@@ -94,19 +95,13 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (baseline `f0e1083`; committed 2026-10-16)
+## 4. Current state (latest pushed baseline `b8c3aee`; candidate uncommitted)
 
-- **Committed baseline:** HEAD `f0e1083bfd804584c37e780e4dc6621b88b0be69` is pushed to both
-  `origin` and `gitea`. This baseline adds the S8-SCH bounded schedule dispatcher
-  (`ff_sched`, committed in the same delta) and the S8-VV-FU ES/HS lifecycle host
-  integration harness plus the deterministic bounded CCSDS/PUS decoder corpus.
-  Local gates are green on `f0e1083`: `make ci-local` 40/40 CTest (17.5 s), ASan
-  40/40 (80.99 s), `make trace` PASS (117 requirements/62 Lean theorems),
-  `make format-check` + `git diff --check` clean, `status.json` valid, `make
-  coverage`/`make metrics` regenerated the README panel (10238/18419 statements,
-  1125/1373 functions). Evidence is retained under
-  `docs/vv/evidence/2026-10-16-s8-vv-fu-{ci-local,asan,trace}.log` and recorded in
-  `docs/vv/verification-results.md` (S8-VV-FU section).
+- **Committed baseline:** latest pushed baseline is `b8c3aee`. S8-SCH and
+  S8-VV-FU are delivered on the pushed history. S8-PUS-FU remains uncommitted;
+  its current default-N7 build/test candidate must not be conflated with prior
+  cycle evidence. Candidate verification and generated-input identity are
+  recorded in `docs/vv/verification-results.md`.
 - **S8-SCH delivered:** `ff_sched` table-driven dispatcher (`ff_sched.{c,h}`,
   `app_scheduler.c`) with validation, atomic double-buffer activation, absolute
   per-entry release targets, bounded per-poll work, missed-slot/heartbeat/
@@ -118,16 +113,76 @@ occasion; prefer Docker.
   mutation/cross-type/round-trip/`FF_PusIngest` corpus with requirement-grounded
   oracles). GAP-R3-1 and NC-EXT-25 materially closed; both remain OPEN pending the
   independent R2/R3 delta review (owner disposition §3.2 is tracking only).
-- **Batch execution under way:** per owner direction, R4 + PA review will be run
-  once over the current batch (S8-SCH + S8-VV-FU + S8-PUS-FU + S9–S12 OBCP) after the
-  batch is complete. The next sprint in the batch is S8-PUS-FU.
-- **Hosted GitHub CI:** run `38793643786` passed all eight jobs for the prior
-  baseline `13ebf92`; no hosted CI run covers `f0e1083` yet.
-- **Known limits:** NC-EXT-01/02/03/04/06/07/13/19/25/47 and all target/authority/
+- **Batch reviews 0341–0343 completed; delta closure is in progress.** They
+  covered S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration. Remaining
+  controlled-profile/interface work and focused delta reviews mean the sprint is
+  not complete. The pinned N7 engine is integrated into the
+  default core build with host callback-connectivity evidence, but production
+  mission service/PUS S18 binding and M12 completion are not claimed. NC-S9-01
+  remains deferred/open. See `docs/architecture/obcp-integration-assessment.md`.
+ - **Review batch 0338–0340:** R4 found a stale current-cycle count; PA identified
+   candidate-identity and generated-source provenance gaps; V&V found missing
+   OBCP READY and post-final-assertion oracles. The test/trace and candidate
+   product-set identity findings were addressed in subsequent bounded reviews.
+   NC-EXT-84 remains open for generated-source/tool provenance.
+ - **Full S8 batch reviews 0341–0347:** R4 identified status.json, current-cycle,
+  and S8-SCH plan-status reconciliation NCs; PA reaffirmed NC-EXT-83/84; V&V
+  found missing S20 zero/exact-capacity oracles and an overstatement that the
+  decoder corpus CRC check was independent. The S20 cases and CRC wording are
+  corrected in the working tree. Post-0343 CI-local and applicable auxiliary
+  verification legs have passed; see the candidate manifest and evidence logs.
+   PA 0345 accepts product-set identity for the manifest's 23 enumerated files
+   and local results only (NC-EXT-83 narrow closure). PA 0346 verifies the 221-file
+   generated tree identity but not tool provenance; NC-EXT-84 remains open.
+   R4 0347 closes NC-EXT-85 only for current-status reconciliation. No phase or
+   release approval follows.
+ - **S8-PUS-FU R1/R2 findings 0349/0350:** R1 found S3 report-all could replace
+  an earlier failure with a later `FF_NOT_FOUND`; code now retains the first
+  failure and TS1-102 exercises both error orders. R2 identified missing exact
+  capacity+1, HK encoded-length, duplicate-retention, and SRS-REQ-050 trace
+  evidence; bounded test/spec/trace corrections are in the working tree. The
+   focused `pus_fu` test passes after retained compile/oracle failures. R1/R2
+   delta re-reviews confirm the bounded fixes; PA considers its delta acceptable
+   conditionally on configuration-matched full-cycle evidence. Current CI-local
+   and auxiliary legs pass; PA 0361 verified listed-file identity only. NC-EXT-
+   88/89 remain OPEN pending formal dispositions. R4 0357–0359 and 0362–0363
+   reviewed the scoped TS1/status/audit/manifest corrections; no aggregate N17
+   approval follows. NC-EXT-14/15/16/18 still need controlled inputs.
+ - **S8-SCH review delta:** R2 scheduler review found mismatched missed-slot
+  inputs and insufficient rejected-image/output oracles. Tests/specs now align
+  on a 1000 ms period, assert exact validation statuses, dispatched old-image
+  first-entry output and missed-slot message fields. Focused `sched` passed 1/1;
+  R2 re-review 0353 accepts these bounded oracles after narrowing the claim to
+  the tested entry and fixing duplicate TS6 history numbering. R1 identified
+  unchecked `uint64_t` release-target overflow; NC-EXT-90 records the open time
+  domain/exhaustion policy. NC-EXT-19 remains OPEN for independent review,
+  mission inputs, target timing, and authority decisions.
+- **Latest local cycle legs:** final `make ci-local` passed 43/43 + Lean/trace
+  after correcting old S3 test vectors and formatting (verification-results
+  2.89; latest post-loop-audit log hash retained there). Smoke, GSW/license, pinned format and
+  format-check passed. Containerized docs generation, Renode PASS and RTEMS 6.2
+  cross-build passed; Doxygen emitted unresolved-reference/list/entity warnings
+  while output generation succeeded. PA independently verified the supplemental
+  19-file PUS/Scheduler delta identity and cited log/cache/executable hashes;
+  NC-EXT-91 is closed narrowly for that delta only. Broader candidate identity,
+  provenance, physical-target and hosted CI evidence remain open.
+- **Hosted GitHub CI:** last recorded run `38793643786` passed all eight jobs
+  for the earlier baseline `13ebf92`; no hosted CI run covers the latest pushed
+  S8-SCH/S8-VV-FU baseline or this uncommitted default-N7 candidate.
+- **Known limits:** NC-EXT-01/02/03/04/06/07/13/19/25/47/90 and all target/authority/
   phase/safety/security/release gates remain OPEN. Renode is emulation; RTEMS
   cross-build is not target runtime evidence; no physical RTPFS160ZT evidence is
   established (owner-postponed, README-disclosed). No commit/push of the next
   batch increments until the batch review passes and gates clear.
+- **Specific sprint inputs still missing:** S8-PUS-FU cannot finish NC-EXT-14/15/16
+  (PUS request/verification/subservice oracle) or NC-EXT-18 (S6 address width and
+  region-ID contract) by guessing; controlled PUS profile/SRS/ICD and system
+  authority dispositions are needed before those implementation decisions.
+  Implemented bounded NC corrections remain open pending independent review.
+  For OBCP, NC-S9-01 is deferred and is not a stop on unrelated work, but missing
+  production bindings and an accepted execution envelope block M12/SRS-REQ-045
+  closure and mission use. Batch reviews and product-assurance approval are also
+  required before commit under N7/N9/N20.
 
 - **Historical snapshot (2026-10-14):** M1..M7, M8, M10 delivered; M9 in progress; M11(11/13) in progress; M12-M17 planned; S4b delivered. Current M4 S4c/S4d implementation status is given above and in the roadmap.
 - **N18 in force**: open RTEMS 6.2 toolchain built and validated; real cross
@@ -139,9 +194,29 @@ occasion; prefer Docker.
   `build/rtems-generic/qemu-console.log`) — banner + 6 applications registered on
   `qemu-system-riscv64 -M virt`. The toolchain image (`tools/docker/rtems`, T18)
   now also builds the `rv64imafdc` BSP and carries QEMU.
-- **Historical snapshot superseded:** prior text described N7/ESA ASN.1 as the
-  PUS default. ADR-0018 now makes the open backend default and retains N7/ESA as
-  an opt-in backend (`FF_USE_PUS_ASN1=ON`).
+- **PUS backend decision:** ADR-0019 records the owner clarification that
+  `FF_USE_PUS_ASN1=ON` is the default. ADR-0018 remains applicable to lwIP only.
+  Current N7 integration uses generated common type-width definitions and the
+  N7/ESA CRC wrapper, but delegates packet framing and PUS field coding to the
+  reference codec; full service-codec mapping is not claimed.
+- **OBCP integration (S9, working tree):** pinned `n7space/n7s-obcp` engine is
+   now built/linked by default behind `src/obcp/ff_obcp.{h,c}`; `make flat`
+   generates ignored embedded sources at configure time. The connectivity test
+   exercises the engine with test callback doubles across datapool, EVS, output,
+   step-control, time and packet modules. It does not establish production
+   service bindings, PUS S18, target portability, resource bounds or mission
+   suitability. Abort is cooperative at script-defined begin-step callbacks;
+   arbitrary Python loops can run indefinitely, and the pinned engine's execute
+   return does not propagate interpreter errors. NC-S9-01 is DEFERRED/OPEN;
+   SRS-REQ-045 is not claimed complete and mission procedures must not be enabled
+   from this evidence. Assessment: `docs/architecture/obcp-integration-assessment.md`.
+   Default `make ci-local` passes 43/43 CTest + Lean + trace; `make rtems-docker`
+   cross-build, rebuilt-image Renode run (`RENODE_TEST: PASS`) and pinned-container
+   format-check, docs generation, smoke and GSW self-check pass. Renode does not
+   execute an OBCP script. Evidence and limits are recorded in
+   `docs/vv/verification-results.md`.
+   S11-S12/M16 in-house replacement-engine development is deferred per owner
+   direction; keep SRS-REQ-054 as a separately governed open fallback requirement.
 - **M11 in progress (Renode HAL coverage, OBJ-19):** **11/13 peripheral-bound**
   classes done — **GPIO** (`ff_gpio_mpfs`, SRS-REQ-047), **SERIAL**
   (`ff_serial_mpfs`, SRS-REQ-048), **MEM** (`ff_mem_static`, SRS-REQ-049),
@@ -227,7 +302,12 @@ occasion; prefer Docker.
   (APPROVED) and **FRICK-REVIEW-0166-D1** (APPROVED) resolve all findings including
   3 new findings (NF-1/NF-2/NF-3) raised and closed in the delta.
 
-## 5. Immediate next steps (priority order)
+## 5. Historical next-step ledger and current resume actions
+
+> Items 1–14 below preserve prior handover decisions and snapshots; items 1–12
+> are superseded historical records, not current instructions. For present
+> priorities, use item 15 and the live state in §4 plus
+> `docs/planning/sprint-plan.md`.
 
 1. The current S4c/S4d/defaults code is committed and pushed; GitHub CI is green
    for `13ebf92`. Gitea Actions status remains unverified, and no release,
@@ -305,8 +385,8 @@ occasion; prefer Docker.
     logs/hashes are recorded in verification-results 2.58. This is not target
     evidence or sprint completion. No commit/push is currently eligible.
 
-13. **Current as of this increment (S8-VV-FU committed):** baseline is now HEAD
-    `f0e1083` (pushed to `origin` and `gitea`): it adds S8-SCH `ff_sched` and the
+13. **Historical S8-VV-FU completion snapshot:** baseline is now HEAD
+    `b8c3aee` (pushed to `origin` and `gitea`): it adds S8-SCH `ff_sched` and the
     S8-VV-FU ES/HS lifecycle host integration harness + deterministic bounded
     CCSDS/PUS decoder corpus. Local gates are green on `f0e1083` (40/40 CTest
     default + 40/40 ASan, `make trace` PASS 117/62, `make format-check` +
@@ -316,10 +396,73 @@ occasion; prefer Docker.
     verification-results.md (S8-VV-FU section). GAP-R3-1 and NC-EXT-25 are
     materially closed but remain OPEN pending independent R2/R3 review (owner
     disposition §3.2 is tracking only); NC-EXT-19 functionally corrected, stays
-    OPEN pending R4/PA. The batch R4 + PA review is deferred until the batch
-    (S8-SCH + S8-VV-FU + S8-PUS-FU + S9–S12 OBCP) is complete. **Next sprint:
-    S8-PUS-FU.** No commit/push of subsequent increments until the batch review
-    passes and gates clear; no phase/safety/security/release approval is claimed.
+    OPEN pending R4/PA. At that historical snapshot S8-PUS-FU was next. Current
+    active status and review/cycle results are in §§4–5 and
+    `docs/planning/sprint-plan.md`. No phase/safety/security/release approval is
+    inferred.
+
+14. **Historical candidate snapshot (2026-10-16, pre-0343; superseded for current
+    status by §4 above and §5 next steps):** uncommitted changes added
+    duplicate-registration rejection, provider-output-length checks, visible
+    S11-stub status, N7-adapter TC CRC/PDL guards, and HK provider-failure
+    propagation. Tests `test_pus_fu`/`test_pus_n7_adapter` and TS-1 cases 97–101
+    were added. At that snapshot, `make ci-local` and ASan passed 42/42;
+    format-check, smoke, GSW/license checks and docs generation passed.
+    Coverage/README refreshed to 10388/18736 statements and 1145/1400 functions.
+    A then-current Renode result was from a build configured before the
+    default-N7 transition and is retained only as historical evidence. Later
+    post-0343 Renode evidence is in the current candidate manifest and remains
+    emulation only, not physical hardware or an OBCP procedure oracle. The current
+    host adapter test links pinned generated
+    common ASN1SCC files and the real N7/ESA CRC wrapper, not a controlled CRC
+    double. No mission SDK/profile compatibility is claimed.
+    This remains an incomplete S8-PUS-FU increment: C-04..C-06, C-09, C-15/C-16
+    and related interface items remain. PUSopen C-12 has controlled-stub APID
+    validation evidence but NC-EXT-21 remains OPEN pending independent review and
+    commercial SDK compatibility is unverified. NC-EXT-17 has bounded host
+    evidence for provider-failure propagation but remains OPEN for broader S3
+    mapping and independent review. NC-EXT-20/22/23/24 remain OPEN pending
+     independent review/disposition. No commit/push is eligible
+     until the sprint scope, applicable gates and batch R4+PA+V&V review pass.
+
+15. **Current resume actions (2026-10-17):**
+     - Preserve verified local-cycle evidence. R4 0357–0369 covered earlier
+       deltas and do not establish aggregate N17 or phase approval. The four
+       reconciliation reviews 0370 (R2 V&V delta), 0371 (R3 requirement
+       grounding), 0372 (R4 documentation) and 0373 (PA) were processed on
+       2026-10-17: their bounded findings are corrected (TS-1/TS-5/TS-6 §3 gap
+       lists and histories, oracle-independence wording, sprint-plan counts and
+       references, review-log ledger), `FRICK-ICD-001` rev 1.4 now records the       implemented S3 subservice codes and S6 wire profile as **provisional**
+       (ADR-0020), and NC-EXT-93 records the review-log ID collision. Two
+       bounded follow-ups are queued: an independent review of the `N22-TS5-77`
+       scheduler oracle (PA F-0373-02) and a PA re-verification of the refreshed
+       candidate manifest (PA F-0373-04). PA granted no approval; the narrow
+       R1/R2 closures are not PA full-cycle acceptance.
+     - ADR-0020 and the candidate now record bounded public-reference defaults:
+       ECSS-referenced S3 subservice mapping and one-shot list request, a
+       logical region-ID/byte-offset S6 profile, and checked scheduler deadline
+       exhaustion. These are framework implementation choices only, not
+       mission baselines. Obtain controlled PUS profile/SRS/ICD inputs or
+       authorized dispositions for NC-EXT-14/15/16/18; keep these NCs open and
+       do not enable mission procedures from the provisional choices.
+    - Keep NC-EXT-19/90 open pending approved schedule/time-domain/exhaustion
+      policy, Table Services operational integration evidence, and applicable
+      target timing/fault-response evidence. No schedulability or target runtime
+      claim follows from host tests, cross-build, or Renode.
+    - Continue only bounded selected-N7 OBCP integration. NC-S9-01, production
+      service/PUS S18 bindings, and accepted script execution/resource envelope
+      block mission use and SRS-REQ-045 closure. Do not implement a replacement
+      engine or claim SRS-REQ-054 complete.
+     - Keep NC-EXT-84 provenance, hosted CI, physical-target, full sprint,
+       independent-review and release gates open. Do not commit or push.
+     - Reconciliation cycle evidence: `make ci-local` 43/43 + Lean (62 theorems)
+       + trace PASS, pinned `format-check`, containerized `docs`, `gsw-selfcheck`
+       and `smoke` all green on 2026-10-17; logs retained under
+       `docs/vv/evidence/2026-10-17-s8-reconciliation-*.log` and the refreshed
+       candidate manifest `2026-10-17-s8-reconciliation-candidate-manifest.md`
+       supersedes the stale 49/19-file inventories (verification-results 2.90,
+       loop-audit 10.7, sprint-plan 1.69). Renode/RTEMS/QEMU legs must be
+       re-recorded for this tree before any claim cites them.
 
 ### Historical 2026-10-14 status narrative (superseded for current actions by §4/§5)
 
@@ -720,3 +863,41 @@ occasion; prefer Docker.
 | 2.63 | 2026-10-16 | frick-fsw | Record scoped R4/PA findings on target-deferral documentation; sprint header/effectivity corrected and latest cycle/re-review pending |
 | 2.64 | 2026-10-16 | frick-fsw | Record bounded R4/PA re-review 0336/0337; final applicable verification and non-target sprint gates remain open |
 | 2.65 | 2026-10-16 | frick-fsw | Record post-deferral local verification cycle and keep all authority/external/release gates open |
+| 2.68 | 2026-10-16 | frick-fsw | Record in-progress S8-PUS-FU N7 adapter CRC/PDL correction, 42/42 host and ASan cycle, and controlled-SDK/emulation evidence limits |
+| 2.69 | 2026-10-16 | frick-fsw | Record S3 provider-failure propagation, TS1-101, updated coverage and 42/42 cycle; retain S8-PUS-FU and independent-review gates open |
+| 2.70 | 2026-10-16 | frick-fsw | Extend S3 TC oracle to provider and telemetry-encoding failures, refresh current evidence and coverage; no NC or sprint closure claimed |
+| 2.71 | 2026-10-16 | frick-fsw | Record ADR-0019 default-N7 decision, actual generated-source host test, stale-cache cycle correction and current Renode/ASan evidence status; sprint remains incomplete |
+| 2.72 | 2026-10-16 | frick-fsw | Record bounded R4/PA/V&V reviews 0338–0340, status reconciliation, and applied test/trace fixes pending delta review and fresh evidence cycle |
+| 2.73 | 2026-10-16 | frick-fsw | Record full-batch reviews 0341–0343, S20 boundary test/CRC-oracle corrections, and the pending refreshed CI, candidate manifest and focused delta reviews |
+| 2.74 | 2026-10-16 | frick-fsw | Record completed post-0343 local/ASan/auxiliary cycle, corrected current-cycle status and candidate-manifest identity pending PA acceptance |
+| 2.75 | 2026-10-16 | frick-fsw | Reconcile R4 delta findings on review status and cycle counts; record bounded PA acceptance of enumerated product-set identity without phase/release approval |
+| 2.76 | 2026-10-16 | frick-fsw | Record PA 0345 narrow closure of NC-EXT-83, leave NC-EXT-84 open, and update the active batch review/cycle status |
+| 2.77 | 2026-10-16 | frick-fsw | Record exact generated-tree hash-list verification, reconcile NC-EXT-83/84 status and queue final R4 currentness delta |
+| 2.78 | 2026-10-16 | frick-fsw | Mark pre-0343 42/42 PUS candidate narrative as historical and reconcile it with the current 43/43 post-0343 cycle and Renode evidence |
+| 2.79 | 2026-10-16 | frick-fsw | Record PA 0346 generated-tree identity verification and R4 0347 narrow NC-EXT-85 closure; retain generator, authority, target and release gates |
+| 2.80 | 2026-10-16 | frick-fsw | Record final R4 0347 NC-EXT-85 narrow disposition and update current status references; no overall N17 or phase approval |
+| 2.81 | 2026-10-16 | frick-fsw | Record R1/R2 findings 0349/0350, S3 report-all first-error fix and new PUS test/trace deltas; full verification and delta reviews remain pending |
+| 2.82 | 2026-10-16 | frick-fsw | Record focused PUS pass and retained compile/oracle attempts; update current candidate identity and full-cycle gates as pending |
+| 2.83 | 2026-10-16 | frick-fsw | Record S8-PUS R1/R2/PA delta outcomes, S8-SCH R2 oracle corrections/re-review and NC-EXT-90 time-range residual; current cycle and R4 remain pending |
+| 2.84 | 2026-10-16 | frick-fsw | Record R4 0357–0359 bounded documentation corrections and current CI-local state; auxiliary evidence and latest audit review remain pending |
+| 2.85 | 2026-10-16 | frick-fsw | Record current candidate ASan/smoke/GSW/format/docs/Renode passes, host-tool failures and pending RTEMS cross-build/identity review |
+| 2.86 | 2026-10-16 | frick-fsw | Record RTEMS 6.2 cross-build pass and 49-file candidate identity aid; preserve pending independent identity review, current CI rerun and target/hosted gates |
+| 2.87 | 2026-10-16 | frick-fsw | Record PA 0361 bounded identity verification and latest CI-local identity-cycle pass; keep provenance, full review, authority, hosted and target gates open |
+| 2.88 | 2026-10-16 | frick-fsw | Record R4 0362/0363 re-review of current audit/manifest evidence status and clarify current cycle and NC closure state |
+| 2.89 | 2026-10-16 | frick-fsw | Record PA 0364 bounded final run-linkage review and current R4 gate for verification-results 2.82/status updates |
+| 2.90 | 2026-10-16 | frick-fsw | Correct latest CI-local hash pointer per R4 0365; retain current bounded review/phase gates |
+| 2.91 | 2026-10-16 | frick-fsw | Record R4 0366 confirmation of corrected final CI-local hash pointer; no aggregate N17/phase approval |
+| 2.92 | 2026-10-16 | frick-fsw | Refresh immediate next steps after current reviews and local verification; record authority/target/OBCP blockers and prohibit commit/push pending gates |
+| 2.93 | 2026-10-16 | frick-fsw | Record latest post-0366 CI-local log pointer and update verification-results revision 2.83 reference |
+| 2.94 | 2026-10-16 | frick-fsw | Mark stale items 1–12 in §5 as historical/superseded per R4 0367 and direct resume to current item 15 |
+| 2.95 | 2026-10-16 | frick-fsw | Record ADR-0020 provisional public-reference implementation boundaries and stale-vector failure correction; fresh full CI-local remains pending |
+| 2.96 | 2026-10-16 | frick-fsw | Record corrected 43/43 CI-local/Lean/trace pass; clarify auxiliary cycle and candidate identity review remain pending |
+| 2.97 | 2026-10-16 | frick-fsw | Reconcile R4 current-action and sequence-note findings; retain non-aggregate review and phase limits |
+| 2.98 | 2026-10-16 | frick-fsw | Correct local-cycle leg effectivity and report current host/pinned formatting limitations, NC-EXT-91 and remaining auxiliary reruns |
+| 2.99 | 2026-10-16 | frick-fsw | Record successful docs/Renode/RTEMS legs and corrected format recipe; retain pending recursive format/CI retry and exact-candidate identity gap |
+| 3.00 | 2026-10-16 | frick-fsw | Record successful pinned format/CI retry, auxiliary gates, and PA narrow closure of NC-EXT-91; preserve broader identity, mission and release limits |
+| 3.01 | 2026-10-16 | frick-fsw | Update current verification-results reference after PA narrow identity disposition; preserve broader candidate and release gates |
+| 3.02 | 2026-10-16 | frick-fsw | Fix stale results revision pointer identified by scoped R4 review |
+| 3.03 | 2026-10-16 | frick-fsw | Point current-cycle summary to post-reference CI-local rerun and verification-results 2.88 |
+| 3.04 | 2026-10-16 | frick-fsw | Point current-cycle summary to post-loop-audit CI-local rerun and verification-results 2.89 |
+| 3.05 | 2026-10-17 | frick-fsw | Process the four reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA), record ICD rev 1.4 provisional S3/S6 profile, NC-EXT-93, the corrected TS-1/TS-5/TS-6 §3 lists/histories and the sprint-plan 1.69 counts, and point the current-cycle summary to the 2026-10-17 reconciliation logs, the refreshed candidate manifest and verification-results 2.90 |

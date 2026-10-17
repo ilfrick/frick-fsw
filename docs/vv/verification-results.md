@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.59                                   |
-| Date                              | 2026-10-16                             |
+| Revision                          | 2.90                                   |
+| Date                              | 2026-10-17                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
 
@@ -21,6 +21,69 @@ They came from the uncommitted candidate worktree with the observed local
 toolchain images; they must not be attributed to the committed baseline. The
 exact mutable candidate and tool inputs are not fully captured by the recorded
 hashes.
+
+## S8 reconciliation cycle: independent-review closure of the PUS/SCH/VV delta (2026-10-17; uncommitted)
+
+- **Scope of this cycle.** Working-tree-only reconciliation after the bounded
+  S8-PUS-FU / S8-SCH / S8-VV-FU deltas: case-table/count reconciliation in
+  TS-1/TS-5/TS-6, the sprint-plan NC rows, the review-log ledger, and the
+  documentation findings raised by the four independent reviews below. No
+  requirement, architecture or behavioural source change is part of this cycle.
+- **Retained evidence (this tree, host).**
+  `docs/vv/evidence/2026-10-17-s8-reconciliation-{ci-local,format-check,docs,gsw-selfcheck,smoke}.log`.
+  SHA-256: ci-local `4cecaa75b86fa54236af6cb7bc32e37243b4976569ce2bc198e88401cb5d53f3`,
+  format-check `c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774`,
+  docs `f89ee26e06c0db0c012a375463b42db0b33718f0ab0061c58ef17e400459e57d`,
+  gsw-selfcheck `c9fbce7e1a7e2fa9b721cf161d156c46068ec767468005e518ec1f0da75292a9`,
+  smoke `64b1a189c44a1ea3586e31609d63740ae4f5f415b00f63a03a3a6b7ab987b0cf`.
+- **Cycle result.** `make ci-local` (fresh `build/ci` configure, `FF_USE_PUS_ASN1=ON`):
+  Debug build green, **43/43 CTest**, Lean `Build completed successfully`
+  (62 theorems), traceability `PASS` (117 requirements / 73 SRS / 30 SSS /
+  14 gaps / 62 Lean theorems). Pinned `make format-check` (clang-format 18 in
+  `frick-vv:local`) green; containerized `make docs` green; `make gsw-selfcheck`
+  green; native `make smoke` green.
+- **Candidate identity.** `docs/vv/evidence/2026-10-17-s8-reconciliation-candidate-manifest.md`
+  lists every file differing from the pushed baseline `b8c3aee` with its SHA-256
+  and size, plus the cycle tree's `build/ci/CMakeCache.txt` and
+  `build/ci/frick_fsw` hashes. It supersedes the stale 49-file (PA 0361) and
+  19-file (PA 0364) inventories for the current tree. It is a working-tree
+  snapshot, **not** a signed/immutable run attestation or release manifest.
+- **Independent reviews processed (records in `docs/reviews/`).**
+  - **0370 R2** (V&V delta, APPROVED WITH COMMENTS): recomputed TS-1 103
+    (77/26), TS-2 81 (48/32+1 characterization), TS-5 77 (56/21), TS-6 58
+    (30/27+1 exploratory); found the §3 gap lists out of sync in TS-1/TS-5/TS-6
+    and comment-level independence wording issues. Corrections applied: gap
+    lists synchronized; N7-adapter CRC comment rephrased (compatibility, not
+    independent); PUSopen guard comment scoped to the local adapter contract;
+    `test_es_hs_lifecycle.c` header states the heartbeat id/text are
+    implementation-defined; the shared-`FF_CcsdsCrc16` common-mode limit is
+    mirrored into TS-1 §3.1/TS-6 §3.
+  - **0371 R3** (requirement grounding, CHANGES REQUIRED): F-002/F-003 required
+    the ICD to record the implemented S3 subservice codes and the S6 wire
+    profile. `FRICK-ICD-001` rev 1.4 now lists TC[3,1]/[3,3]/[3,5]/[3,6]/[3,27]
+    with payload shapes and the S6 `region id[1] + byte offset[4 BE] +
+    length[2 BE]` profile, with an explicit provisional/authority-pending note
+    (ADR-0020; NC-EXT-16/18); TS1-103 pins the ECSS-E-ST-70-41C 2016 edition for
+    its clause citation. All R3 authority-owned items remain OPEN.
+  - **0372 R4** (documentation, CHANGES REQUIRED at the reviewed revision):
+    TS-1 §3 gap list (blocking), TS-1 history completeness for the S6 rows
+    45–49/§1.3, TS-5 §3 completion, NC-EXT-92 section reference, S8-VV-FU leg
+    count and S8-PUS-FU wording corrected; TS-1 rev 1.9, TS-5 rev 1.3, TS-6
+    rev 1.5. The review-log duplicate-ID ledger defect is recorded as NC-EXT-93
+    with a bounded mitigation (see `docs/reviews/README.md` "Ledger notes").
+  - **0373 PA** (assurance, no approval): narrow closures consistent; stale
+    candidate inventories (F-0373-04), the missing independent review of the
+    `N22-TS5-77` oracle (F-0373-02), the narrow-closure-vs-PA-acceptance
+    taxonomy (F-0373-01) and open NC-EXT-84 provenance were raised; the first
+    two are queued as bounded follow-up reviews, the taxonomy is now stated in
+    the review log, and NC-EXT-84 remains open. PA verified the pre-existing
+    TS-4 §3.1/§3.2 count mismatch (`covered` 62 vs 64 rows) at `b8c3aee` and in
+    the worktree → NC-EXT-92 (pre-existing, not introduced here).
+- **Not established by this cycle.** No phase/product/release approval, no
+  N17/N20 aggregate pass, no PUS-C or mission-profile compliance, no target or
+  physical-hardware evidence, no closure of authority-owned NCs
+  (NC-EXT-14..22/26/84/90/92/93), and no claim that the reviewed revisions
+  (`b8c3aee`) remain the current tree for anything other than this candidate.
 
 ## Current committed status addendum (2026-10-15)
 
@@ -336,7 +399,8 @@ hashes.
     robustness (never accepted, never counted by `FF_PusGetTcCount`);
     length-boundary (truncation/extension/undermined-PDL rejected with
     `FF_PARSE_ERROR`, SRS-REQ-003); single-bit mutation (no mutation accepted;
-    `FF_CRC_ERROR` consistent with an independent CRC-16 recomputation,
+     `FF_CRC_ERROR` consistent with an internal CRC recomputation using the same
+     `FF_CcsdsCrc16` implementation as the decoder; not an independent oracle,
     SRS-REQ-004); cross-type rejection; seeded TC/TM round-trip property
     (fields + payload recovered exactly); bounded `FF_PusIngest` corpus:
     non-telecommand APID `FF_ERROR`, malformed/corrupted/truncated valid frame not
@@ -372,6 +436,325 @@ hashes.
   - `docs/vv/evidence/2026-10-16-s8-vv-fu-ci-local.log` — `dafa42b3bfb07637e3fd07c08df603d5230b5f84ee96a18868bc02efacfcd346`
   - `docs/vv/evidence/2026-10-16-s8-vv-fu-asan.log` — `651560eff4e23682df678df9a74768209aea17cdd48916d31bc27a002bb387a9`
   - `docs/vv/evidence/2026-10-16-s8-vv-fu-trace.log` — `4194d2643d92337e5d81684644bcb6ba626e8615a769747c3dc66b8bf67e8a03`
+
+## S8-PUS-FU bounded corrective increment — in progress (2026-10-16)
+
+- **Scope actually exercised:** deterministic duplicate rejection for service
+  `(service, subservice)`, HK/parameter providers, parameter setters, and
+  function ids; HK and parameter provider-returned length bounds, including S20
+  zero-length and exact-capacity results with encoded-size assertions; S11 stub warning
+  + `FF_NOT_IMPLEMENTED`; N7 adapter structural PDL checks and CRC behavior via
+  pinned generated ASN1SCC common code and the N7/ESA CRC wrapper. Tests are
+  `tests/unit/test_pus_fu.c` (`pus_fu`) and `tests/unit/test_pus_n7_adapter.c`
+  (`pus_n7_adapter_contract`); current suite also exercises the PUSopen APID
+  validation seam in `tests/unit/test_pusopen.c` (`pusopen_adapter_contract`)
+  and HK provider-failure propagation with no TM (`test_pus_fu`, TS1-101).
+  Full service-codec mapping, commercial PUSopen SDK integration, and mission
+  profile compatibility are not evidenced. This does not complete the sprint.
+- **Results:** final `make ci-local` PASS (42/42 CTest, Lean build, trace PASS:
+  117 requirements / 62 theorems); ASan CTest PASS (42/42, before only a test
+  assertion/comment formatting correction); coverage CTest PASS (42/42);
+  clang-format 18 format-check PASS; smoke and GSW/license self-check PASS;
+  Doxygen PASS with existing unresolved-reference/markup warnings; RTEMS
+  cross-build PASS; Renode `RENODE_TEST: PASS`. Coverage/README: 10418/18766
+  statements (55.5%) and 1148/1401 functions (81.9%). Renode is emulation and
+  its boot marker is not physical hardware evidence or a PUS-specific oracle.
+  The host suite executes the N7 adapter test against generated common code/CRC.
+- **Evidence SHA-256:** final ci-local
+  `69d091afc3874c88b5d88dcb95e6066798724c156eed45c3458757932e26fa9c`; ASan
+  `2d9a866080c940829831a000442ebfaaf17d6faacbf953100601419d05e485c3`; coverage
+  `82980333b6fbdd63fac0f92dc4f93db7d368e5aa3706642a6388874404469c0b`; format
+  `c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774`; docs
+  `306780099bd2e6886e27c6a2fc892d649a9c78e8f640186c18895481fd1f7c02`; Renode
+  `0a806a8d52b575244eaf4d0bd1b2ffabbe9e4d3309385b8e4482899869db446a`; RTEMS
+  build `3b35f04e705c67b3c46452113bfa7e9f1c4c4282a2ccd6fb214b039f318360b3`.
+  Failed/stale-cache and host-environment attempts are retained separately and
+  are not counted as passes.
+- **Post-0343 fresh default-N7 cycle:** after adding the S20 provider zero/exact
+  boundary oracles and correcting the decoder-corpus CRC wording, `make ci-local`
+  passed **43/43 CTest**, Lean and bidirectional trace. Log:
+  `docs/vv/evidence/2026-10-16-s8-final-batch-ci-local.log`, SHA-256
+  `8c416fa97704672841be8f63a6de3154d0baec2eafc1bbf97b9da0db3e102ee4`. This
+  result covers the current source/test/requirements manifest at execution; auxiliary
+  formatting, smoke, GSW, docs, ASan and Renode legs were refreshed separately.
+  The full applicable local batch reports ASan 43/43 PASS, smoke PASS, GSW/license
+  PASS, format PASS, docs PASS (existing Doxygen warnings), and Renode PASS
+  (`RENODE_TEST: PASS`). Hashes and candidate association are in
+  `docs/vv/evidence/2026-10-16-s8-batch-candidate-manifest.md`. The first ASan
+  attempt failed because stale build outputs were root-owned; the retained failure
+  log is `2026-10-16-s8-final-batch-asan.log`; corrected-permission retry passed.
+- **Candidate identity:** `docs/vv/evidence/2026-10-16-s8-batch-candidate-manifest.md`
+  records the source/configuration/test file-set digest, N7/MicroPython commit
+  pins, generated flat-tree digest, host executable hashes and local-result
+  log hashes. PA 0345 independently accepted the product-set identity for its
+  23 enumerated files and listed local evidence only (NC-EXT-83 closed narrowly).
+  PA 0346 independently verified the 221-file generated flat-tree list and
+  aggregate digest against the observed tree. NC-EXT-84 remains open for
+  generator/tool provenance. R4 0347 closed NC-EXT-85 narrowly for status-currentness
+  only. This is not a complete immutable/
+  reproducible build or release record.
+- **R1/R2 PUS corrective delta (0349/0350):** S3 report-all now retains the
+  first encountered provider/encoding/missing-provider failure; TS1-102 checks
+  provider-failure then missing-provider and the reverse order, with no report
+  TM. TS1-97/98 add retained service/HK provider behavior, capacity+1 provider
+  cases, exact HK output lengths, and the SRS-REQ-050 N7-adapter test trace.
+  Focused `pus_fu` CTest passed after two retained attempts:
+  `2026-10-16-s8-pus-r1-correction-focused.log` failed compile due to a missing
+  forward declaration (SHA-256 `8bf4eaba671a6a0077e688c452f4f8448d4ecf4a704ba0335065a6836f2cb6df`);
+  `...-focused-retry.log` built but failed the new duplicate-handler oracle
+  because the test omitted backend selection (SHA-256
+  `55b4420a729a1b5a0a2619c951a5ac339325dab30c379fc72343b6a5ababe0c0`);
+  `...-focused-retry2.log` passed (SHA-256
+  `d4c76d073515e6ad1ad8da40ba8f9bb6bd34a836c4661f63d2d396603ad38e85`). These
+  are focused evidence only. The current product-set digest/manifest predates
+  this delta; a new full applicable cycle and candidate manifest are required.
+   R1 re-review confirms the first-failure correction; R2 re-review confirms the
+   bounded TS1/trace oracles. PA 0354 considers this correction scope acceptable
+   conditional on configuration-matched full-cycle evidence. These reviews do
+   not close NC-EXT-88/89, which remain open pending full-cycle evidence and
+   required NC-owner disposition; current R4 delta review is outstanding.
+
+## S8-SCH scheduler evidence correction — in progress (2026-10-16)
+
+- R2 re-review 0353 confirms the corrected bounded host oracles: TS5-44 exact
+  invalid-image statuses; TS5-45 dispatch of the prior image's tested first
+  entry after rejecting a distinct image; and TS5-46/TS6-33 aligned 1000 ms
+  missed-slot scenario with explicit message ID, payload, time, missed count,
+  and next-release checks.
+- Focused `sched` CTest passed 1/1 in
+  `2026-10-16-s8-sched-r2-correction-focused-retry.log` (SHA-256
+  `337d4dea131f70361fc3560498e771b7555272aee0a5f4476809f723533f585c`). The
+  first attempt (`...focused.log`, SHA-256
+  `07e9f5a75740adc7d32fe1ee887cf396f1879450a0c40df9e371f65f4683d7ed`) failed
+  before build/test because Ninja could not write the build log due to
+  permissions; preserve as a failed environment attempt.
+- R1 identified unbounded absolute-target arithmetic near `UINT64_MAX`. NC-EXT-90
+  tracks the unspecified monotonic-time domain and exhaustion behavior; this
+  policy is not guessed. No mission timing, target schedulability, or RTEMS
+  runtime claim follows from these host tests. Full current cycle and R4 review
+  of the changed specs/status remain pending.
+
+## PUS/Scheduler provisional-policy delta — verification in progress (2026-10-16)
+
+- Applied provisional public-reference behavior from ADR-0020: PUS Service 3
+  standardized housekeeping subservice assignments and counted TC[3,27]
+  request lists with one-shot requests independent of periodic-generation
+  state; Service 6 logical region-ID/byte-offset range checks; checked
+  non-wrapping scheduler deadline arithmetic and saturating missed-slot stats.
+  These remain framework choices only, not approved mission-interface or
+  time-domain baselines.
+- Focused host evidence after correcting old test vectors: `test_pus` passed,
+  `test_pus_fu` passed (159 checks), `test_r2_gap` passed (615 checks),
+  `test_r3_gap` passed (201 checks), and `test_sched` passed (90 checks).
+- The first full `make ci-local` for this delta failed at `r2_gap` (9 assertions)
+  because that suite still used the former S3 subservice IDs and one-byte/empty
+  report requests. The functional test vectors and their one-shot expectations
+  were corrected. Retained output:
+  `docs/vv/evidence/2026-10-16-s8-pus-sched-stale-test-failure-ci-local.log`
+  (SHA-256
+  `61944010212058025babd544c33c1b40af5c42e392bf11eb2eded1ec8e9b82d4`).
+- Fresh `make ci-local` against the corrected tree passed: build, **43/43 CTest**,
+  Lean build, and trace convergence (117 requirements, 73 SRS, 30 SSS, 14 gaps,
+  62 Lean theorems). Retained log
+  `docs/vv/evidence/2026-10-16-s8-pus-sched-corrected-ci-local.log` (SHA-256
+  `c7f3deab0bfc6983e1f6b7d28b1d929988aacf00effb355943d13da513a44e68`). The
+  earlier failed run remains retained above. This does not claim complete
+  auxiliary/target cycle, approved profile compatibility, target behavior,
+  mission procedure enablement, or closure of NC-EXT-14..18/90.
+- Additional candidate checks: native `make smoke` passed (banner and six apps);
+  GSW/metrics/license Python checks passed (12/12, 9/9, 14/14), license checker
+  passed, and GSW ping self-check passed. Pinned-container `make format` and
+  `make format-check` both passed after the Makefile correction. Final combined
+  log `2026-10-16-s8-final-format-ci-local.log` (SHA-256
+  `cd0572e3a5cbb812087712982dd095c4ea565c9208c47f48be1b16490f016ae8`). The first
+  pinned format check found style deltas; the initial `make format` helper failed
+  because its recipe passed directories directly to clang-format. The recipe
+  now enumerates C/H files. Retained failures:
+  `2026-10-16-s8-pus-sched-aux-host-format-environment-failure.log`
+  (SHA-256 `5b290949588b77d9e7600ddaeb56e834326901f69d49ca6358c3b697480306ca`)
+  and `2026-10-16-s8-pus-sched-pinned-format-failure.log` (SHA-256
+  `fbd7253dd0f71744d2aa93fb5d110df8436903c1ca36e6aaefbb564b63c3abc2`).
+- Containerized Doxygen generation, Renode `RENODE_TEST: PASS`, and RTEMS 6.2
+  cross-build of core/application binaries passed; combined retained log
+  `docs/vv/evidence/2026-10-16-s8-pus-sched-docs-renode-rtems.log` (SHA-256
+  `0aa439a9c1a11b53ce7a53a565ffb68ac1cbf843a30968348fe6ace793fc79fb`). Doxygen
+  emitted documented unresolved-reference/list/entity warnings; output-existence
+  check passed. Renode remains emulation, and cross-build is not target runtime.
+- The `make format` recipe change is recorded as a T24 tool delta in
+  `docs/vv/tool-qualification.md`. A bounded independent FSW review found no
+  functional issue; formal tool qualification and hosted execution remain open.
+- Supplemental 19-file PUS/Scheduler identity aid:
+  `docs/vv/evidence/2026-10-16-s8-pus-scheduler-delta-identity.md`; it records
+  source/test/policy hashes and final log/cache/executable references. PA
+  independently verified all hashes/digest and the cited references; NC-EXT-91
+  is closed narrowly for this PUS/Scheduler delta only. Broader product identity
+  and NC-EXT-84 provenance remain open.
+- After the R4 corrections to the handover pointer and review index, a fresh
+  `make ci-local` again passed build, **43/43 CTest**, Lean and trace. Retained
+  log `docs/vv/evidence/2026-10-16-s8-final-reference-ci-local.log` (SHA-256
+  `96adac3903e268e07e27a9e76d1d9c2961adf187731e86b2d5ad323f6d86efd4`). The
+  CMake cache and host executable hashes remain `7f865d42506bf513a1057ceb4f57aafb2e7d87a61c5d58676f71f5cad49da7f6` and
+  `7ee78ef375b21cbae7355439679247a4eaa533368491a3cc8eaa82e267256f3d`.
+  The R4 delta re-review passed for those two documentation corrections only;
+  this is not aggregate N17 approval.
+- After refreshing loop-audit revision 10.5, a further `make ci-local` passed
+  build, **43/43 CTest**, Lean and trace (117 requirements; 73 SRS, 30 SSS,
+  14 gaps, 62 Lean theorems). Retained log
+  `docs/vv/evidence/2026-10-16-s8-final-loop-audit-ci-local.log` (SHA-256
+  `bcecddfc889bc3c0878db6ea29b41d98d962b550df92ff5aff5cb1b802bcdf83`). The
+  CMake cache and host executable remain SHA-256
+  `7f865d42506bf513a1057ceb4f57aafb2e7d87a61c5d58676f71f5cad49da7f6` and
+  `7ee78ef375b21cbae7355439679247a4eaa533368491a3cc8eaa82e267256f3d`.
+  R4 re-review of the loop-audit row passed within scope; no aggregate N17
+  approval is implied.
+
+## Current S8 corrective candidate — local verification legs (2026-10-16)
+
+- Latest identity-cycle `make ci-local`: PASS, build complete, 43/43 CTest, Lean build and trace
+  convergence (117 requirements, 73 SRS, 30 SSS, 14 gaps, 62 Lean theorems).
+  Latest log `2026-10-16-s8-post-0366-final-ci-local.log`, SHA-256
+  `9bd831d5fca6070b6373c088d2d4d7f552715dc9fd719b2efb4b281727b13d86`.
+- Full ASan CTest: PASS, 43/43; log `2026-10-16-s8-current-asan.log`, SHA-256
+  `ba94445586b20306fcaa728a79380cf3a035fd3edf931925755e02fff20e7822`.
+- `make smoke`: PASS, banner plus six applications; log SHA-256
+  `64b1a189c44a1ea3586e31609d63740ae4f5f415b00f63a03a3a6b7ab987b0cf`.
+- `make gsw-selfcheck`: PASS (12 GSW tests, 9 metrics tests, 14 license tests,
+  license checker, packet frame/CRC self-check); log SHA-256
+  `258c12f04b8483e30474e25564f1caa69a65db605106fa0f6ceb9436fdfe5138`.
+- Pinned-container `make format-check`: PASS; log SHA-256
+  `c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774`.
+- Pinned-container `make docs`: PASS and `build/doxygen/html/index.html` exists;
+  log SHA-256 `f3fcf299d075207065dfdb78d7f11fb3a91dcddc376fbcdfa41e908b8682eb32`.
+- `make renode`: PASS (`RENODE_TEST: PASS`); log SHA-256
+  `0a806a8d52b575244eaf4d0bd1b2ffabbe9e4d3309385b8e4482899869db446a`. This
+  remains emulator functional validation, not flight-procedure execution or
+  physical-target evidence.
+- Failed attempts retained: host `make format-check` rejected installed
+  clang-format 23 vs pinned major 18; retrying the tool in `frick-vv:local`
+  passed. A nested-container smoke suite failed because the V&V image has no
+  Docker CLI; host execution is the supported path. The combined failed run is
+  `2026-10-16-s8-current-smoke-gsw-format-docs.log` (SHA-256
+  `17de9f9a6301dd8960a54286269c344c855a493c4a18ea49c111a9ac48fbdf97`).
+  `make rtems-docker` completed: `frick_fsw_core` and `frick_fsw` built for
+  RTEMS 6.2; log SHA-256
+  `4eaba96ba9c13402bb4331c4b712b7786ab1a470106a2cef99b91fbad13ded59`.
+
+PA 0361 independently verified the 49-file current manifest digest and hashes.
+The latest CI-local output, cache hash and host executable hash are cross-
+referenced in the manifest as post-run observations; PA 0364 reviewed the prior
+run's correlation. This is not a signed build attestation or complete tool
+provenance.
+These are local evidence only. NC-EXT-14/15/16/18,
+NC-EXT-19/90, NC-EXT-84, NC-S9-01, target/mission authority and hosted CI gates
+remain open. No sprint, phase, qualification or release approval is claimed.
+
+## S9 OBCP candidate intake — in progress (2026-10-16)
+
+- **Dependency identity:** successful `obcp-only` fetch verifies upstream engine
+  revision `55d6d97e7e7ff08a130698f7a922bcf58acb3d99` and MicroPython submodule
+  `647c8b96cae7e202c7a020395b7cfe65e5b8ce04`. Acquisition is not integration.
+- **Upstream test:** clean-retry log
+  `docs/vv/evidence/2026-10-16-s9-n7s-obcp-upstream-host-tests-retry.log`
+  builds and runs the included native flat datapool test (1 test, 0 failures).
+  The first failed generation/build attempt is retained in
+  `2026-10-16-s9-n7s-obcp-upstream-host-tests.log`. Neither log verifies
+  frick-fsw bindings, RTEMS/RISC-V, resource bounds, execution abort, PUS S18,
+  or target operation; upstream tests are not claimed as qualified project V&V.
+- **Source review:** the pinned engine exposes cooperative begin/end-step
+  callbacks for procedure-defined boundaries, but no VM-enforced instruction
+  quota for arbitrary code between callbacks; the execute implementation
+  returns `true` without propagating interpreter failure. See
+  `docs/architecture/obcp-integration-assessment.md` and open NC-S9-01. Do not
+  claim SRS-REQ-045 or M12 completion.
+- **Related regression:** explicit `FF_USE_PUS_ASN1=OFF` fresh host build and
+  CTest passed 41/41; see
+  `docs/vv/evidence/2026-10-16-s8-pus-fu-open-backend-explicit-check.log`.
+  This verifies only the alternate PUS build/test path and is unrelated to OBCP
+  operation.
+- **Final applicable cycle after S9 intake/docs/tooling updates:** `make
+  ci-local` PASS (42/42 CTest, Lean build, trace PASS); `make docs` PASS with
+  existing Doxygen warnings. `bash -n tools/scripts/fetch_third_party.sh`,
+  `git diff --check`, and direct `trace.py` PASS. Logs:
+  `2026-10-16-s9-s8-candidate-ci-local.log`, `2026-10-16-s9-docs.log`, and
+  `2026-10-16-s9-obcp-fetch.log`.
+- **SHA-256:** ci-local
+  `74277cb2c34dddc7c2e8f8529640268bf58dcb7a547058e5b25b8c2fa0d16cde`; docs
+  initial `1a922ab4199f562c609add6a47ba8f0c0e53f049e674d9e1a66c7a6acbcfb223`,
+  final `2807228aaf5fd3e71f2376ff93569d226f9249593acb0c384de7ee0882e3c167`; clean
+  fetch `02121122b17fb51e197653379f28c6c78587896cc7e8c4910255157922d9aedd`;
+  upstream host test retry
+  `e9c34fec844941c4f593f3f10e2d51d6eb486635407045101f624ac6ecc482ca`.
+
+## S9 OBCP adapter integration — in progress (2026-10-16)
+
+- **Default integration:** CMake option `FF_USE_N7_OBCP=ON` is default; CMake
+  generates the pinned upstream flat embedded source tree and links it plus
+  `src/obcp/ff_obcp.c` into `frick_fsw_core`. This integration build does not
+  execute or revalidate the upstream N7 test suite.
+- **Connectivity test:** configured with `FF_USE_N7_OBCP=ON`,
+  `FF_USE_LWIP=OFF`, `FF_USE_PUS_ASN1=OFF`, `FF_BUILD_TESTS=ON`; native build
+  passed. CTest passed **40/40**, including `obcp_engine_connectivity` (test
+  callback doubles exercise integer/enum/float/Boolean datapool read/write, event,
+  text output, begin/end step, relative/absolute time and get-time, packet channel
+  discovery/availability/send/receive, null/empty-script rejection, missing
+  callback rejection and overlength-input rejection. The Python receive oracle
+  checks a bytes value (`b'OK'`); a post-final-assertion event sentinel provides
+  an independent completion oracle because the upstream execute Boolean does
+  not establish interpreter success. READY status is queried before execution.
+  A development-time failing run exposed the byte-vs-text test-oracle mismatch;
+  the failure and correction are retained in
+  `docs/vv/evidence/2026-10-16-s9-obcp-connectivity-oracle-failure.log`. The test
+  now compares `b'OK'`, verifies READY before execution, and checks event 514
+  after the final Python assertion, avoiding reliance on the upstream execute
+  Boolean as the sole pass oracle.
+  Build directory: `build/obcp`. This alternate PUS build configuration means
+  these results are limited to the OBCP integration configuration; they do not
+  replace the project default full-cycle checks.
+- **Not established:** production service bindings, PUS S18 command/state
+  lifecycle, RTEMS/RISC-V portability, WCET/resource limits, abort bound for
+  arbitrary Python, interpreter exception-to-result mapping, engine qualification,
+  or mission suitability. NC-S9-01 remains DEFERRED/OPEN; SRS-REQ-045 is not
+  claimed complete. See `docs/architecture/obcp-integration-assessment.md`.
+- **Review-corrected delta:** V&V review 0340 identified that TS9-07's final
+  Python assertion lacked an independent completion oracle and TS9-02 did not
+  query READY before execution. The test now asserts READY before running and
+  sends event 514 only after the final `gettime()` assertion; TS9-12 records the
+  sentinel. SRS/SSS trace links now identify the bounded implementation/test
+  without asserting requirement completion. A fresh 43/43 `make ci-local` plus
+  Lean/trace passed for this corrected candidate; focused independent delta
+  review remains pending.
+- **Default full local cycle:** `make ci-local` PASS with N7 OBCP and default
+  N7/ESA PUS enabled: 43/43 CTest, Lean build and bidirectional trace PASS.
+  Evidence: `docs/vv/evidence/2026-10-16-s9-obcp-ci-local.log` (SHA-256
+  `2865bdf5f372f22d20d77e1f18146a6b6522365aee674edf8c1fea1e7789ab0f`).
+- **RTEMS cross-build:** `make rtems-docker` PASS with OBCP enabled; the
+  `riscv/mpfs64imafdc` application and static core link. This establishes
+  cross-compile/link only, not RTEMS runtime behavior or physical-target evidence.
+  Evidence log SHA-256 `b6e62524946c7b57f02768d49fab17fde2d10580cee1a68a3181d4e85a41db2a`.
+- **Renode N18:** rebuilt the RTEMS Renode image with the default OBCP engine
+  linked, then `make renode` PASS (`RENODE_TEST: PASS`). This is emulated FSW
+  boot/integration evidence only; the Renode test app does not invoke an OBCP
+  script and is not OBCP functional coverage or physical-target evidence.
+  Build log SHA-256 `8e267f18cb62525513035d01453770d240457da351041cd211a8bb419014c3ed`;
+  run log SHA-256 `0a806a8d52b575244eaf4d0bd1b2ffabbe9e4d3309385b8e4482899869db446a`.
+- **Formatting:** pinned-container `make format-check` PASS; evidence log
+  `docs/vv/evidence/2026-10-16-s9-obcp-format.log` (SHA-256
+  `c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774`).
+- **Supplemental local checks:** `make smoke` PASS (banner + six registered
+  applications); `make gsw-selfcheck` PASS (14 GSW tests, MPL-2.0 identity check,
+  TC frame/CRC self-check). Evidence hashes: smoke
+  `64b1a189c44a1ea3586e31609d63740ae4f5f415b00f63a03a3a6b7ab987b0cf`, GSW
+  `8c33af03e8d70db2ae8158ad3ecc87103c006f92707eb2f00492129330a15a0b`.
+- **Documentation generation:** controlled-container `make docs` PASS; generated
+  `build/doxygen/html/index.html` and retained warnings are in
+  `docs/vv/evidence/2026-10-16-s9-obcp-docs.log` (SHA-256
+  `19abce359c3de4eada46d2cc9e2b3cdeaaf5dcd8b9a5a0df03a3652769508f65`).
+- **Limits/disposition:** TS-1 cases 97–101 document the bounded host behavior.
+  NC-EXT-17/20/21/22/23/24 remain OPEN pending independent review/disposition;
+  NC-EXT-20 also lacks full SDK/profile confirmation. Other S8-PUS-FU defects,
+  authority/profile dependencies, and batch
+  R4/PA/V&V review remain open. No sprint completion, NC closure, PUS-C
+  compliance, phase approval, or release approval is asserted.
 
 ## S4c/S4d, defaults and N18 verification cycle (2026-10-15)
 
@@ -1128,3 +1511,34 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.57 | 2026-10-16 | frick-fsw | Record bounded 0334/0335 findings and 0336/0337 closure; applicable rerun and other sprint gates remain open |
 | 2.58 | 2026-10-16 | frick-fsw | Record final applicable local cycle after owner-directed target-test deferral disclaimer; retain target, authority, external, provenance and release limits |
 | 2.59 | 2026-10-16 | frick-fsw | Record owner NC dispositions (§3.2 of sprint plan): postpone NC-EXT-03/06/07/29/43/47 and NC-S4c-04 to the last sprint; defer all other open NCs indefinitely. Add sprint verification set (V&V plan §9 S1–S10) and retain logs/hashes under docs/vv/evidence/2026-10-16-s8-fu-nc-disposition-*.log (sha256: 312e641f c00d1f1b eb5dac7d 536991b5 7bc5e6d3 1175218c b83c6532 6c7d4a10 ci-local; 4f7c4a7f 79591007 dc6ee303 1f36b93e e6eccb79 f94dd76c 2cdb4b29 c664c858 aux; 3ca3a64f 24b094de b2213162 523579ab 88c102e0 ee79c653 55df26c0 3ebcd4de rtems; 0a806a8d 52b57524 4eaf4d0b d1b2ffab be9e4d33 09385b8e 44828998 69db446a renode; 92e36c7a a75914e6 1cb3dc4d 13750b89 40aec62d 0145dcae 71d41ea3 c5a0e220 uart); independent reviews 0338/0339 recorded. These are policy/disposition and verification-set changes; PA review (0339) is NOT PASSED for this delta; no phase/release approval or NC closure is claimed. Physical-target exclusion remains. |
+| 2.60 | 2026-10-16 | frick-fsw | Record the in-progress S8-PUS-FU bounded registration/provider/S11 corrections, 41/41 ci-local and ASan evidence, refreshed coverage, recovered RTEMS toolchain-container Renode pass, and remaining sprint/review limits |
+| 2.61 | 2026-10-16 | frick-fsw | Extend the same in-progress evidence set with N7 adapter CRC/PDL guards and PUSopen APID seam assessment, controlled-double tests, 42/42 host and ASan runs, refreshed coverage, license-check correction, and explicit optional-SDK/emulation limits |
+| 2.62 | 2026-10-16 | frick-fsw | Add S3 HK provider-failure propagation/no-TM test (TS1-101), refresh coverage and final cycle records, and retain failed-check attempts plus corrections |
+| 2.63 | 2026-10-16 | frick-fsw | Extend TS1-101 to telemetry-encoding failure, rerun final 42/42 host/ASan cycle, refresh coverage (10388/18736 statements), and update evidence hashes |
+| 2.64 | 2026-10-16 | frick-fsw | Refresh final S8-PUS-FU evidence for default N7 and generated-source tests; preserve the ASan run's exact scope, report current coverage/docs results, and retain failed environment attempts |
+| 2.65 | 2026-10-16 | frick-fsw | Record S9 upstream OBCP dependency identity, limited native test, source/API suitability gate NC-S9-01, and explicit open-PUS backend regression evidence |
+| 2.66 | 2026-10-16 | frick-fsw | Record final post-intake default-N7 CI-local/docs/trace/fetch cycle, hashes, and the bounded scope of upstream OBCP test evidence |
+| 2.67 | 2026-10-16 | frick-fsw | Record default N7 OBCP engine linkage, adapter connectivity test results and explicit limits; keep NC-S9-01 open/deferred |
+| 2.68 | 2026-10-16 | frick-fsw | Extend N7 adapter connectivity oracles across all callback types and record that the upstream execute Boolean is not a truthful script-result oracle |
+| 2.69 | 2026-10-16 | frick-fsw | Correct TS9 oracle per V&V review: assert READY before execute and require post-final-assertion event sentinel; update SRS/SSS implementation and test trace links |
+| 2.70 | 2026-10-16 | frick-fsw | Record review-corrected OBCP test and trace delta with fresh local CI evidence; no requirement closure claimed |
+| 2.71 | 2026-10-16 | frick-fsw | Record full-batch V&V corrections for parameter-provider boundary coverage and accurately bounded decoder CRC oracle; newest candidate cycle pending |
+| 2.72 | 2026-10-16 | frick-fsw | Record post-0343 43/43 CI-local/Lean/trace pass; auxiliary applicable cycle legs and configuration-matched evidence review remain pending |
+| 2.73 | 2026-10-16 | frick-fsw | Record ASan and auxiliary local-cycle passes, Doxygen warning boundary and candidate manifest; PA identity acceptance and focused delta reviews remain open |
+| 2.74 | 2026-10-16 | frick-fsw | Record PA 0345 product-set identity disposition and generated-source per-file hash record; NC-EXT-84 provenance and phase/release gates remain open |
+| 2.75 | 2026-10-16 | frick-fsw | Record narrow NC-EXT-83 closure and distinguish accepted 23-file identity from remaining NC-EXT-84 generated-tool provenance and all phase/release gates |
+| 2.76 | 2026-10-16 | frick-fsw | Record the generated flat-source hash-list verification disposition and keep tool provenance, currentness review and mission/phase gates open |
+| 2.77 | 2026-10-16 | frick-fsw | Record PA 0346 generated-tree identity check and R4 0347 currentness disposition; keep NC-EXT-84 and all mission/phase gates open |
+| 2.78 | 2026-10-16 | frick-fsw | Record R1/R2 PUS code/test/trace corrections and focused pass plus retained failed attempts; current full cycle and delta reviews pending |
+| 2.79 | 2026-10-16 | frick-fsw | Record PUS R1/R2 re-review and conditional PA assessment, scheduler R2 oracle correction/re-review and focused run, and open scheduler time-range NC-EXT-90 |
+| 2.80 | 2026-10-16 | frick-fsw | Record current CI-local/ASan/smoke/GSW/pinned format/docs/Renode/RTEMS pass results and retained tool-environment failures |
+| 2.81 | 2026-10-16 | frick-fsw | Record identity-cycle CI-local result, retained combined-container failure and PA 0361 verification of current 49-file product identity |
+| 2.82 | 2026-10-16 | frick-fsw | Record final post-review CI-local pass and post-run correlation of log/cache/executable hashes in candidate manifest |
+| 2.83 | 2026-10-16 | frick-fsw | Record the post-0366 CI-local rerun and update current manifest log pointer; results remain local evidence only |
+| 2.84 | 2026-10-16 | frick-fsw | Record provisional PUS/Scheduler framework policy delta, stale-vector failure and correction, focused regression passes, and fresh 43/43 CI-local/Lean/trace pass with mission/target limits |
+| 2.85 | 2026-10-16 | frick-fsw | Record current smoke/GSW/docs/Renode/RTEMS results, retained format environment/recipe failures and T24 correction, with recursive pinned formatting and newest full CI cycle pending |
+| 2.86 | 2026-10-16 | frick-fsw | Record successful pinned format/format-check and final 43/43 CI-local/Lean/trace cycle; add delta identity aid and keep PA verification open |
+| 2.87 | 2026-10-16 | frick-fsw | Record PA independent verification and narrow NC-EXT-91 closure for the supplemental PUS/Scheduler delta inventory; broader provenance gates remain open |
+| 2.88 | 2026-10-16 | frick-fsw | Record fresh post-R4-reference CI-local 43/43/Lean/trace pass and retained log; no aggregate N17 approval |
+| 2.89 | 2026-10-16 | frick-fsw | Record fresh post-loop-audit CI-local 43/43/Lean/trace pass, retained log and bounded R4 review; no aggregate N17 approval |
+| 2.90 | 2026-10-17 | frick-fsw | Record the four independent reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA) and their bounded corrections: TS-1/TS-5/TS-6 §3 gap-list synchronization, oracle-independence wording, `FRICK-ICD-001` rev 1.4 (R3 0371 published rev 1.3; R3 0375 corrected the ICD to rev 1.4; provisional S3 subservice codes and S6 profile), TS-1 rev 1.9 / TS-5 rev 1.3 / TS-6 rev 1.5 histories, sprint-plan rev 1.70 with NC-EXT-93, review-log ledger/closure-taxonomy note; R2 0374 and R3 0375 follow-up closure; fresh ci-local 43/43 + Lean 62 + trace PASS with retained logs and the refreshed candidate identity manifest. No phase/release/N20 approval; authority and target gates remain open |

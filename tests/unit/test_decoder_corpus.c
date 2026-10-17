@@ -137,8 +137,9 @@ static void build_templates(pkt_t *tc_out, uint16_t *n_tc_out, pkt_t *tm_out, ui
     *n_tm_out = n_tm;
 }
 
-/* Independent oracle for the CRC property (SRS-REQ-004): recompute the
- * CRC-16/CCITT-FALSE over the frame and compare with the trailer. */
+/* Internal consistency check for the CRC property (SRS-REQ-004): recompute
+ * using the project CRC routine and compare with the trailer. This is not an
+ * independent oracle and cannot detect a common-mode defect in that routine. */
 static bool crc_matches(const uint8_t *raw, uint16_t len)
 {
     uint16_t expect = FF_CcsdsCrc16(raw, (uint16_t)(len - 2u));
@@ -313,8 +314,8 @@ static void test_length_boundary(void)
 
 /* Flip every bit of every byte of every template: no mutated frame may be
  * accepted (CRC-16/CCITT-FALSE detects all single-bit errors in the covered
- * region), and an FF_CRC_ERROR verdict must be consistent with an independent
- * CRC recomputation. */
+ * region), and an FF_CRC_ERROR verdict must be consistent with an internal
+ * CRC recomputation. The check shares FF_CcsdsCrc16 with the decoder. */
 static void test_single_bit_mutations_rejected(const pkt_t *pkts, uint16_t n, bool is_tc)
 {
     static uint8_t mutated[CORPUS_MAX_LEN];
@@ -344,8 +345,8 @@ static void test_single_bit_mutations_rejected(const pkt_t *pkts, uint16_t n, bo
                     continue;
                 }
                 if (rc == FF_CRC_ERROR) {
-                    /* Verdict consistency: the independent oracle must agree
-                     * that the CRC does not match. */
+                    /* Verdict consistency only: this check shares the CRC
+                     * implementation with the decoder and is not independent. */
                     if (crc_matches(mutated, pkt->len)) {
                         anomaly("FF_CRC_ERROR reported although CRC matches");
                     }

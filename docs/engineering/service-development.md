@@ -98,7 +98,7 @@ application can supply data without writing a service handler:
 | `FF_PusRegisterParamProvider(id, fn)` | S20 report | same shape |
 | `FF_PusRegisterParamSetter(id, fn)` | S20 set | `fn(id, data, len)` applies a new value |
 | `FF_PusRegisterFunction(id, fn)` | S8 function | `fn(args, len)` invokes a named function |
-| `FF_PusRegisterMemoryRegion(base, size)` | S6 memory | allow-list for dumps (out-of-region refused) |
+| `FF_PusRegisterMemoryRegion(region_id, base, size)` | S6 memory | allow-list for dumps (out-of-region refused); `region_id` is the wire region identifier |
 
 Example: applications register their housekeeping blocks in `app_hk.c`; the
 S3 handler in `pus_services.c` walks the providers and builds the structure.

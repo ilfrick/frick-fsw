@@ -1,0 +1,6 @@
+bash tools/scripts/fetch_third_party.sh all
+[fetch] done (all): /workspace/third_party
+bash tools/scripts/gen_pus_asn1.sh
+[pus-asn1] building ASN1SCC image frick-asn1scc:local
+tools/scripts/gen_pus_asn1.sh: line 24: docker: command not found
+make: *** [Makefile:125: pus-asn1] Error 127

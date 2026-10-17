@@ -71,9 +71,9 @@ theorem req_srs064_drain_poll_count_bounded (polls limit : Nat) :
     boundedDrainPollCount polls limit ≤ limit := by
   exact Nat.min_le_right polls limit
 
-def defaultPusBackend : String := "open"
+def defaultPusBackend : String := "n7"
 def n7BackendEnabled (enabled : Bool) : Bool := enabled
 
-theorem req_srs050_open_backend_is_default : defaultPusBackend = "open" := by rfl
-theorem req_srs050_n7_is_opt_in : n7BackendEnabled false = false := by rfl
+theorem req_srs050_n7_backend_is_default : defaultPusBackend = "n7" := by rfl
+theorem req_srs050_default_enables_n7 : n7BackendEnabled true = true := by rfl
 end Frick.S4c

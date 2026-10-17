@@ -133,9 +133,10 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
 - **SSS-REQ-025** — *Fundamental PUS-C service capability set*: the system shall
   provide the fundamental PUS-C service set (S1/3/5/6/8/9/11/12/17/18-surface/
   19/20) with the associated packet/state behaviour and a bounded on-board
-  parameter datapool through the configured `FF_Pus_Backend_t`; the default
-  backend is the open CCSDS codec and the N7/ESA ASN.1/ACN backend is optional
-  when explicitly selected and generated sources are available. `method: Tst | Anl`.
+  parameter datapool through the configured `FF_Pus_Backend_t`; the reference
+  configuration selects the N7/ESA ASN.1/ACN adapter by default, while the open
+  CCSDS codec remains explicitly selectable. The backend selection does not
+  imply complete service-specific ASN.1 mapping. `method: Tst | Anl`.
 - **SSS-REQ-026** — *On-board file delivery and storage*: the system shall provide
   a **CFDP** entity (CCSDS 727.0-B) delivering files to/from the ground over the
   mission link, on a bounded **virtual filestore (VFS)** with a pluggable storage
@@ -177,9 +178,11 @@ Radiation-Tolerant PolarFire SoC FPGA (part number RTPFS160ZT). It provides:
   byte stream (`loopback` on host, `uart` on target); the transport codec and
   the link layer are decoupled to allow SpaceWire/radio back-ends later.
   `derived justification: ADR-0003/ADR-0009, ICD-GND`.
-- **SSS-REQ-015** (derived) — the framework shall expose the open PUS backend as
-  the default and the optional N7/ESA ASN.1 backend; the PUSopen(R) adapter is
-  covered by SSS-REQ-029. `derived justification: ADR-0018 supersedes ADR-0016`.
+- **SSS-REQ-015** (derived) — the framework shall expose the N7/ESA ASN.1 PUS
+  backend as the reference default and retain the open CCSDS backend as an
+  explicitly selectable alternative; the PUSopen(R) adapter is covered by
+  SSS-REQ-029. `derived justification: ADR-0019; ADR-0018 remains applicable to
+  lwIP only`.
 
 ## 4. Traceability
 
@@ -209,3 +212,4 @@ deviations are resolved before every commit (norm N4).
 | 0.17 | 2026-10-14 | frick-fsw | Clarify that loss accounting is independent of the arrival/link performance envelope and explicitly retain post-acceptance detection/counter/reporting semantics as authority-owned TBDs after the R3 delta review |
 | 0.18 | 2026-10-15 | frick-fsw | S4c/S4d scope: CANopen specified as a documented subset; open PUS backend made default, optional N7 backend retained per ADR-0018 |
 | 0.19 | 2026-10-15 | frick-fsw | Align SSS PUS default data-model selection to ADR-0018; open CCSDS default and optional explicit N7/ESA ASN.1 backend |
+| 0.20 | 2026-10-16 | frick-fsw | Restore the owner-directed N7/ESA PUS backend default under ADR-0019; retain open CCSDS as explicit alternative and preserve service-codec integration limits |

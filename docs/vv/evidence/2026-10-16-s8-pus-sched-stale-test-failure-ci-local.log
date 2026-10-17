@@ -1,0 +1,414 @@
+bash tools/scripts/fetch_third_party.sh all
+[fetch] done (all): /home/nicola/fsw/frick-fsw/third_party
+bash tools/scripts/gen_pus_asn1.sh
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:75:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:81:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:26:16: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:27:19: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/Parameter.acn:30:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+[pus-asn1] generated common ASN1SCC runtime/types into /home/nicola/fsw/frick-fsw/third_party/asn1-pusc-lib-generated/common
+docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.47kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B 0.0s done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/ubuntu:24.04
+#4 DONE 0.0s
+
+#5 [2/4] RUN apt-get update && apt-get install -y --no-install-recommends       build-essential gcc g++ make cmake ninja-build       python3 python3-pip git curl ca-certificates       doxygen graphviz clang clang-format clang-tidy cppcheck       nodejs npm       pkg-config libc6-dev     && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [3/4] RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf       | sh -s -- -y --default-toolchain leanprover/lean4:v4.10.0
+#6 CACHED
+
+#7 [4/4] WORKDIR /workspace
+#7 CACHED
+
+#8 exporting to image
+#8 exporting layers done
+#8 writing image sha256:5cbc72aa4125cfdbd8c0baa4ac2a1cb9d1447ff3147ac0b94e2ed0d918b83e91 0.0s done
+#8 naming to docker.io/library/frick-vv:local done
+#8 DONE 0.0s
+docker run --rm -v /home/nicola/fsw/frick-fsw:/workspace -w /workspace frick-vv:local \
+  bash -lc 'cmake -S . -B /workspace/build/ci -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+    -DFF_USE_PUS_ASN1=ON \
+    && cmake --build /workspace/build/ci \
+    && ctest --test-dir /workspace/build/ci --output-on-failure \
+    && cd /workspace/verification/lean && lake build \
+    && cd /workspace && python3 tools/scripts/trace.py docs/requirements/traceability.yaml'
+-- Default PUS-C backend: N7/ESA ASN.1 enabled
+-- Default OBCP engine: pinned N7 Space/MicroPython
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /workspace/third_party/lwip/../mbedtls
+-- Doxygen build started
+-- Configuring done (16.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/build/ci
+[0/2] Re-checking globbed directories...
+[1/212] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_pusopen.c.o
+[2/212] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_open.c.o
+[3/212] Building C object CMakeFiles/frick_fsw_core.dir/src/core/sched/ff_sched.c.o
+[4/212] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_cmd_ingest.c.o
+[5/212] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_tm_output.c.o
+[6/212] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_scheduler.c.o
+[7/212] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.o
+[8/212] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus_services.c.o
+[9/212] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hk.c.o
+[10/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmarm.c.o
+[11/212] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hs.c.o
+[12/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmbase.c.o
+[13/212] Building C object CMakeFiles/frick_fsw_core.dir/src/obcp/ff_obcp.c.o
+[14/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmx64.c.o
+[15/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmthumb.c.o
+[16/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmrv32.c.o
+[17/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/argcheck.c.o
+[18/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmx86.c.o
+[19/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/asmxtensa.c.o
+[20/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/builtinhelp.c.o
+[21/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/builtinimport.c.o
+[22/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/builtinevex.c.o
+[23/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/binary.c.o
+[24/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/cstack.c.o
+[25/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/bc.c.o
+[26/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitglue.c.o
+[27/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/embed_util.c.o
+[28/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitinlinerv32.c.o
+[29/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitcommon.c.o
+[30/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnarm.c.o
+[31/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitinlinethumb.c.o
+[32/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitinlinextensa.c.o
+[33/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitndebug.c.o
+[34/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnrv32.c.o
+[35/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnthumb.c.o
+[36/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnxtensa.c.o
+[37/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnative.c.o
+[38/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnx64.c.o
+[39/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitbc.c.o
+[40/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnx86.c.o
+[41/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/frozenmod.c.o
+[42/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/emitnxtensawin.c.o
+[43/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/compile.c.o
+[44/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/gchelper_generic.c.o
+[45/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/malloc.c.o
+[46/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modarray.c.o
+[47/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/formatfloat.c.o
+[48/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/gc.c.o
+[49/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modcollections.c.o
+[50/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/map.c.o
+[51/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/lexer.c.o
+[52/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modcmath.c.o
+[53/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/moderrno.c.o
+[54/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modio.c.o
+[55/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modgc.c.o
+[56/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modmicropython.c.o
+[57/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modmath.c.o
+[58/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modbuiltins.c.o
+[59/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcpcontrol.c.o
+[60/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcpio.c.o
+[61/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcpdatapool.c.o
+[62/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcpevents.c.o
+[63/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modsys.c.o
+[64/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcptime.c.o
+[65/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modthread.c.o
+[66/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modstruct.c.o
+[67/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/modobcppackets.c.o
+[68/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/mphalport.c.o
+[69/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/mpz.c.o
+[70/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlr.c.o
+[71/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlraarch64.c.o
+[72/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/mpstate.c.o
+[73/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nativeglue.c.o
+[74/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrmips.c.o
+[75/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrsetjmp.c.o
+[76/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrrv32.c.o
+[77/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrpowerpc.c.o
+[78/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrrv64.c.o
+[79/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/mpprint.c.o
+[80/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrthumb.c.o
+[81/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrx86.c.o
+[82/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrxtensa.c.o
+[83/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/obcpengine.c.o
+[84/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/nlrx64.c.o
+[85/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objattrtuple.c.o
+[86/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objarray.c.o
+[87/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objboundmeth.c.o
+[88/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objcell.c.o
+[89/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objcode.c.o
+[90/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/obj.c.o
+[91/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objdeque.c.o
+[92/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objclosure.c.o
+[93/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objbool.c.o
+[94/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objcomplex.c.o
+[95/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objenumerate.c.o
+[96/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objfilter.c.o
+[97/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objdict.c.o
+[98/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objfloat.c.o
+[99/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objgetitemiter.c.o
+[100/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objgenerator.c.o
+[101/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objexcept.c.o
+[102/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objfun.c.o
+[103/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objint.c.o
+[104/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objint_mpz.c.o
+[105/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objint_longlong.c.o
+[106/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objnamedtuple.c.o
+[107/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objmodule.c.o
+[108/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objmap.c.o
+[109/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objnone.c.o
+[110/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objpolyiter.c.o
+[111/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objlist.c.o
+[112/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objobject.c.o
+[113/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objringio.c.o
+[114/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objproperty.c.o
+[115/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objrange.c.o
+[116/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objslice.c.o
+[117/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objreversed.c.o
+[118/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objset.c.o
+[119/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objstrunicode.c.o
+[120/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objstringio.c.o
+[121/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objsingleton.c.o
+[122/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objtuple.c.o
+[123/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objzip.c.o
+[124/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/opmethods.c.o
+[125/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/pairheap.c.o
+[126/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/parsenumbase.c.o
+[127/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objtype.c.o
+[128/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/profile.c.o
+[129/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/parsenum.c.o
+[130/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/persistentcode.c.o
+[131/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/pystack.c.o
+[132/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/objstr.c.o
+[133/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/reader.c.o
+[134/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/repl.c.o
+[135/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/qstr.c.o
+[136/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/runtime_utils.c.o
+[137/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/ringbuf.c.o
+[138/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/parse.c.o
+[139/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/sequence.c.o
+[140/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/scheduler.c.o
+[141/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/showbc.c.o
+[142/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/smallint.c.o
+[143/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/scope.c.o
+[144/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/unicode.c.o
+[145/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/stackctrl.c.o
+[146/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/runtime.c.o
+[147/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/vstr.c.o
+[148/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/warning.c.o
+[149/212] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_n7.c.o
+[150/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/stream.c.o
+[151/212] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt.c.o
+[152/212] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.o
+[153/212] Building C object CMakeFiles/frick_fsw_core.dir/n7s-obcp/flat/vm.c.o
+[154/212] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding_acn.c.o
+[155/212] Building C object tests/CMakeFiles/test_sched.dir/unit/test_sched.c.o
+[156/212] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding.c.o
+[157/212] Building C object tests/CMakeFiles/test_pus.dir/unit/test_pus.c.o
+[158/212] Building C object tests/CMakeFiles/test_decoder_corpus.dir/unit/test_decoder_corpus.c.o
+[159/212] Building C object tests/CMakeFiles/test_r2_gap.dir/unit/test_r2_gap.c.o
+[160/212] Building C object tests/CMakeFiles/test_obcp_integration.dir/unit/test_obcp_integration.c.o
+[161/212] Building C object tests/CMakeFiles/test_r3_gap.dir/unit/test_r3_gap.c.o
+[162/212] Building C object tests/CMakeFiles/test_pusopen.dir/unit/test_pusopen.c.o
+[163/212] Building C object tests/CMakeFiles/test_pus_n7_adapter.dir/unit/test_pus_n7_adapter.c.o
+[164/212] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/BasicTypes.c.o
+[165/212] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[166/212] Building C object tests/CMakeFiles/test_pusopen.dir/__/src/pus/adapters/pus_adapter_pusopen.c.o
+[167/212] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[168/212] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[169/212] Linking C static library libfrick_pus_asn1.a
+[170/212] Linking C static library libfrick_fsw_core.a
+[171/212] Linking C executable frick_fsw
+[172/212] Linking C executable tests/test_ccsds
+[173/212] Linking C executable tests/test_sb_stress
+[174/212] Linking C executable tests/test_tbl
+[175/212] Linking C executable tests/test_sb_sweep
+[176/212] Linking C executable tests/test_sb
+[177/212] Linking C executable tests/test_r2_gap
+[178/212] Linking C executable tests/test_es_hs_lifecycle
+[179/212] Linking C executable tests/test_decoder_corpus
+[180/212] Linking C executable tests/test_sched
+[181/212] Linking C executable tests/test_pus
+[182/212] Linking C executable tests/test_time
+[183/212] Linking C executable tests/test_r3_gap
+[184/212] Linking C executable tests/test_pus_fu
+[185/212] Linking C executable tests/test_pus_n7_adapter
+[186/212] Linking C executable tests/test_hal
+[187/212] Linking C executable tests/test_sdls
+[188/212] Linking C executable tests/test_gem_tsn
+[189/212] Linking C executable tests/test_netloop
+[190/212] Linking C executable tests/test_pusopen
+[191/212] Linking C executable tests/test_gem
+[192/212] Linking C executable tests/test_obcp_integration
+[193/212] Linking C executable tests/test_gptp
+[194/212] Linking C executable tests/test_nvm
+[195/212] Linking C executable tests/test_mtd
+[196/212] Linking C executable tests/test_gpio
+[197/212] Linking C executable tests/test_mem
+[198/212] Linking C executable tests/test_math
+[199/212] Linking C executable tests/test_serial
+[200/212] Linking C executable tests/test_can
+[201/212] Linking C executable tests/test_i2c
+[202/212] Linking C executable tests/test_fabric
+[203/212] Linking C executable tests/test_pcie
+[204/212] Linking C executable tests/test_spacewire
+[205/212] Linking C executable tests/test_block
+[206/212] Linking C executable tests/test_spi
+[207/212] Linking C executable tests/test_link_ip
+[208/212] Linking C executable tests/test_canfd
+[209/212] Linking C executable tests/test_link_tsn
+[210/212] Linking C executable tests/test_canopen
+[211/212] Linking C executable tests/test_lwip
+[212/212] Linking C executable tests/test_lwip_netif
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+      Start  1: ccsds
+ 1/43 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/43 Test  #2: sb ...............................   Passed    0.01 sec
+      Start  3: sb_stress
+ 3/43 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/43 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  5: sb_evs_structural_sweep
+ 5/43 Test  #5: sb_evs_structural_sweep ..........   Passed   17.71 sec
+      Start  6: tbl
+ 6/43 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: sched
+ 7/43 Test  #7: sched ............................   Passed    0.00 sec
+      Start  8: pus
+ 8/43 Test  #8: pus ..............................   Passed    0.00 sec
+      Start  9: pus_fu
+ 9/43 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start 10: obcp_engine_connectivity
+10/43 Test #10: obcp_engine_connectivity .........   Passed    0.00 sec
+      Start 11: pus_n7_adapter_contract
+11/43 Test #11: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 12: pusopen_adapter_contract
+12/43 Test #12: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 13: time
+13/43 Test #13: time .............................   Passed    0.00 sec
+      Start 14: r2_gap
+14/43 Test #14: r2_gap ...........................***Failed    0.01 sec
+FAIL /workspace/tests/unit/test_r2_gap.c:902: pus_ingest(3u, 27u, NULL, 0u) == FF_NOT_FOUND
+FAIL /workspace/tests/unit/test_r2_gap.c:903: pus_stream_has(3u, 25u)
+FAIL /workspace/tests/unit/test_r2_gap.c:907: pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_SUCCESS
+FAIL /workspace/tests/unit/test_r2_gap.c:908: pus_stream_has(3u, 25u)
+FAIL /workspace/tests/unit/test_r2_gap.c:911: pus_ingest(3u, 4u, sel3, sizeof(sel3)) == FF_SUCCESS
+FAIL /workspace/tests/unit/test_r2_gap.c:913: pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_SUCCESS
+FAIL /workspace/tests/unit/test_r2_gap.c:918: pus_ingest(3u, 2u, NULL, 0u) == FF_BAD_SIZE
+FAIL /workspace/tests/unit/test_r2_gap.c:920: pus_ingest(3u, 4u, NULL, 0u) == FF_BAD_SIZE
+FAIL /workspace/tests/unit/test_r2_gap.c:921: pus_ingest(3u, 2u, sel4, sizeof(sel4)) == FF_SUCCESS
+/workspace/tests/unit/test_r2_gap.c checks=613 failures=9
+
+      Start 15: r3_gap
+15/43 Test #15: r3_gap ...........................   Passed    0.00 sec
+      Start 16: es_hs_lifecycle
+16/43 Test #16: es_hs_lifecycle ..................   Passed    0.07 sec
+      Start 17: decoder_corpus
+17/43 Test #17: decoder_corpus ...................   Passed    0.03 sec
+      Start 18: link_uart
+18/43 Test #18: link_uart ........................   Passed    0.33 sec
+      Start 19: hal
+19/43 Test #19: hal ..............................   Passed    0.00 sec
+      Start 20: math
+20/43 Test #20: math .............................   Passed    0.00 sec
+      Start 21: sdls
+21/43 Test #21: sdls .............................   Passed    0.00 sec
+      Start 22: gem
+22/43 Test #22: gem ..............................   Passed    0.00 sec
+      Start 23: gem_tsn
+23/43 Test #23: gem_tsn ..........................   Passed    0.00 sec
+      Start 24: gptp
+24/43 Test #24: gptp .............................   Passed    0.00 sec
+      Start 25: netloop
+25/43 Test #25: netloop ..........................   Passed    0.00 sec
+      Start 26: gpio
+26/43 Test #26: gpio .............................   Passed    0.00 sec
+      Start 27: serial
+27/43 Test #27: serial ...........................   Passed    0.00 sec
+      Start 28: mem
+28/43 Test #28: mem ..............................   Passed    0.00 sec
+      Start 29: nvm
+29/43 Test #29: nvm ..............................   Passed    0.00 sec
+      Start 30: mtd
+30/43 Test #30: mtd ..............................   Passed    0.00 sec
+      Start 31: can
+31/43 Test #31: can ..............................   Passed    0.00 sec
+      Start 32: i2c
+32/43 Test #32: i2c ..............................   Passed    0.01 sec
+      Start 33: spi
+33/43 Test #33: spi ..............................   Passed    0.00 sec
+      Start 34: block
+34/43 Test #34: block ............................   Passed    0.01 sec
+      Start 35: pcie
+35/43 Test #35: pcie .............................   Passed    0.00 sec
+      Start 36: spacewire
+36/43 Test #36: spacewire ........................   Passed    0.01 sec
+      Start 37: fabric
+37/43 Test #37: fabric ...........................   Passed    0.00 sec
+      Start 38: canfd
+38/43 Test #38: canfd ............................   Passed    0.00 sec
+      Start 39: canopen
+39/43 Test #39: canopen ..........................   Passed    0.00 sec
+      Start 40: link_ip
+40/43 Test #40: link_ip ..........................   Passed    0.00 sec
+      Start 41: link_tsn
+41/43 Test #41: link_tsn .........................   Passed    0.00 sec
+      Start 42: lwip
+42/43 Test #42: lwip .............................   Passed    0.01 sec
+      Start 43: lwip_netif
+43/43 Test #43: lwip_netif .......................   Passed    0.00 sec
+
+98% tests passed, 1 tests failed out of 43
+
+Label Time Summary:
+host-pty              =   0.33 sec*proc (1 test)
+link                  =   0.33 sec*proc (1 test)
+sb-evs                =  17.71 sec*proc (1 test)
+tool-qualification    =  17.71 sec*proc (1 test)
+uart                  =   0.33 sec*proc (1 test)
+
+Total Test time (real) =  18.31 sec
+
+The following tests FAILED:
+	 14 - r2_gap (Failed)
+Errors while running CTest
+make: *** [Makefile:92: ci-local] Errore 8

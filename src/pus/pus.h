@@ -7,11 +7,11 @@
  * transfer framing, ASM/CLTU) lives behind the FF_Pus_Backend_t vtable.
  *
  * Three backends are defined:
- *   - FF_PusBackendN7    : optional PUS-C ASN.1 (N7 Space / ESA asn1-pusc-lib,
- *                          ASN1SCC-compiled) backend when FF_USE_PUS_ASN1 is
- *                          enabled (SRS-REQ-050, ADR-0018).
- *   - FF_PusBackendOpen  : default open reference backend on the local CCSDS
- *                          codec (always available).
+ *   - FF_PusBackendN7    : default PUS-C backend using N7 Space / ESA
+ *                          asn1-pusc-lib generated types and CRC when
+ *                          FF_USE_PUS_ASN1 is enabled (default ON).
+ *   - FF_PusBackendOpen  : always-available open reference backend on the local
+ *                          CCSDS codec; select with FF_USE_PUS_ASN1=OFF.
  *   - FF_PusBackendPusopen : adapter for the commercial PUSopen(R) C library.
  *
  * Services implemented by the reference core: 1, 3, 5, 6, 8, 9, 11 (stub),
@@ -66,7 +66,7 @@ FF_Status_t FF_PusRegisterHkProvider(uint8_t id, FF_Pus_DataProvider_t provider)
 FF_Status_t FF_PusRegisterParamProvider(uint8_t id, FF_Pus_DataProvider_t provider);
 FF_Status_t FF_PusRegisterParamSetter(uint8_t id, FF_Pus_ParamSetter_t setter);
 FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn);
-FF_Status_t FF_PusRegisterMemoryRegion(const void *base, uint32_t size);
+FF_Status_t FF_PusRegisterMemoryRegion(uint8_t region_id, const void *base, uint32_t size);
 
 /* ---- Statistics --------------------------------------------------- */
 uint16_t FF_PusNextTmCounter(void);

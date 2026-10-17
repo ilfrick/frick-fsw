@@ -55,6 +55,7 @@ generation provenance, and distribution profile require a controlled review.
 | Platform `libm` | Toolchain-provided host/RTEMS library | LGPL/BSD-style reported | Not relicensed; distribution/link mode not independently verified |
 | lwIP | Pinned fetched stack, not committed per repository record | BSD-3-Clause reported | Preserve upstream terms; verify exact tag, notices, and integration/distribution |
 | N7 Space / ESA `asn1-pusc-lib` | Fetched GPL-3.0 code; generated output described separately | GPL-3.0 reported | Compatibility and generated-code/runtime-exception applicability require legal review; do not infer from the prior AGPL analysis |
+| N7 Space `n7s-obcp` / MicroPython | Pinned fetched OBCP candidate; source includes a pinned MicroPython submodule | MIT stated upstream for engine and MicroPython | Verify complete notices, provenance, modifications/patches, generated outputs, and combined-distribution compatibility before integration/release; NC-EXT-43 remains open |
 | ASN1SCC generator/runtime | External generator and generated-code conditions described in ADR-0016 | GPL/runtime exception reported | Verify exact version and applicable generated-code license before distributing output |
 | SDLS mission backend | Mission-supplied interface; project reference backend is local | Mission/HW-specific | Mission code is outside the project license unless separately contributed and authorized |
 
@@ -147,3 +148,4 @@ J. R. R. Tolkien's legendarium.
 | 1.4 | 2026-10-14 | frick-fsw | Temporarily narrowed owner authorization to software code and restored AGPL wording for docs/artwork; superseded by 1.5 after reconciliation to the owner's stated code-and-materials scope |
 | 1.5 | 2026-10-14 | frick-fsw | Reconcile authorization to original project code and materials; exclude generated/external material and correct over-narrow code-only interpretation |
 | 1.6 | 2026-10-14 | frick-fsw | Restore the omitted 1.4 history event as a superseded interim correction; make revision chronology continuous |
+| 1.7 | 2026-10-16 | frick-fsw | Record pinned N7 OBCP/MicroPython candidate and defer combined-distribution/legal compatibility to independent/legal review |

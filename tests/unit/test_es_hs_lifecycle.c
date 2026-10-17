@@ -18,8 +18,15 @@
  * fixed by any clause (TS-6 `N22-TS6-41`/`N22-TS6-36`, NC-EXT-47 §7.2); those
  * sub-cases are recorded as observations only. Detection latency and the
  * external watchdog window are mission inputs (TS-5 `N22-TS5-52`, TS-6
- * `N22-TS6-31`). GAP-R3-1 stays OPEN until the independent R2/R3 delta review
- * is recorded; nothing here closes an NC or approves a phase.
+ * `N22-TS6-31`). The heartbeat event id (`0x0502`) and the "HS: app %u failed"
+ * diagnostic text this harness matches on are implementation-defined literals of
+ * `src/apps/app_hs.c` (no controlled requirement/interface clause fixes them),
+ * so the event-identification oracle is coupled to the implementation under
+ * test: it can confirm the event stream is unchanged relative to that
+ * implementation, but it cannot independently detect a defect in the shared
+ * literal itself. A controlled identifier/text contract would be required to
+ * remove that coupling. GAP-R3-1 stays OPEN until the independent R2/R3 delta
+ * review is recorded; nothing here closes an NC or approves a phase.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw

@@ -22,7 +22,8 @@ option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" 
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
 option(FF_USE_LWIP    "Build the lwIP network-stack adapter (default backend; needs third_party/lwip)" ON)
 option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
-option(FF_USE_PUS_ASN1 "Enable the optional N7/ESA asn1-pusc-lib PUS-C backend (needs generated code; see make pus-asn1)" OFF)
+option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C backend by default (generated code required; see make pus-asn1)" ON)
+option(FF_USE_N7_OBCP "Build and link the pinned N7 Space MicroPython OBCP backend" ON)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems | rtems-generic")
 
@@ -62,11 +63,55 @@ if(FF_USE_PUS_ASN1)
   if((NOT EXISTS "${FF_PUS_ASN1_GEN}/BasicTypes.h") OR (NOT EXISTS "${FF_PUS_ASN1_LIB}/wrappers/c/Crc.c"))
     message(FATAL_ERROR
       "FF_USE_PUS_ASN1=ON but generated PUS-C ASN.1 sources are missing. "
-      "Run 'make pus-asn1' and reconfigure, or set FF_USE_PUS_ASN1=OFF to select the open CCSDS backend.")
+      "Run 'make pus-asn1' and reconfigure, or set FF_USE_PUS_ASN1=OFF to select the open CCSDS alternative.")
   else()
     add_compile_definitions(FF_USE_PUS_ASN1=1)
-    message(STATUS "Optional PUS-C ASN.1 (N7/ESA) backend ENABLED")
+    message(STATUS "Default PUS-C backend: N7/ESA ASN.1 enabled")
   endif()
+endif()
+
+# The OBCP engine is fetched as a pinned external dependency. Its upstream
+# `flat` target generates a single-directory source set for embedded builds;
+# configure it before the project source list is collected. This generates
+# sources but does not run or revalidate upstream engine tests.
+if(FF_USE_N7_OBCP)
+  set(FF_N7_OBCP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/n7s-obcp)
+  if(NOT EXISTS "${FF_N7_OBCP_DIR}/src/obcp_engine/obcpengine.h" OR
+     NOT EXISTS "${FF_N7_OBCP_DIR}/src/micropython/py/mpstate.h")
+    message(FATAL_ERROR
+      "FF_USE_N7_OBCP=ON but pinned N7 OBCP/MicroPython sources are missing. "
+      "Run 'bash tools/scripts/fetch_third_party.sh obcp-only'.")
+  endif()
+  execute_process(
+    COMMAND make flat
+    WORKING_DIRECTORY ${FF_N7_OBCP_DIR}
+    RESULT_VARIABLE FF_N7_OBCP_GENERATE_RESULT
+    OUTPUT_VARIABLE FF_N7_OBCP_GENERATE_OUTPUT
+    ERROR_VARIABLE FF_N7_OBCP_GENERATE_ERROR)
+  if(NOT FF_N7_OBCP_GENERATE_RESULT EQUAL 0)
+    message(FATAL_ERROR
+      "N7 OBCP source generation failed (${FF_N7_OBCP_GENERATE_RESULT}).\n"
+      "${FF_N7_OBCP_GENERATE_OUTPUT}\n${FF_N7_OBCP_GENERATE_ERROR}")
+  endif()
+  set(FF_N7_OBCP_GENERATED_FLAT_DIR ${FF_N7_OBCP_DIR}/src/flat)
+  set(FF_N7_OBCP_FLAT_DIR ${CMAKE_CURRENT_BINARY_DIR}/n7s-obcp/flat)
+  file(MAKE_DIRECTORY ${FF_N7_OBCP_FLAT_DIR})
+  file(COPY ${FF_N7_OBCP_GENERATED_FLAT_DIR}/ DESTINATION ${FF_N7_OBCP_FLAT_DIR})
+  # The upstream Makefile generates in its checkout. Copy the generated source
+  # set to the binary tree and remove only those generated directories so the
+  # pinned dependency remains clean for strict fetch/identity checks.
+  file(REMOVE_RECURSE
+    ${FF_N7_OBCP_DIR}/src/build-embed
+    ${FF_N7_OBCP_DIR}/src/flat
+    ${FF_N7_OBCP_DIR}/src/micropython_clone
+    ${FF_N7_OBCP_DIR}/src/micropython_embed)
+  file(GLOB FF_N7_OBCP_SOURCES CONFIGURE_DEPENDS "${FF_N7_OBCP_FLAT_DIR}/*.c")
+  if(NOT FF_N7_OBCP_SOURCES)
+    message(FATAL_ERROR "N7 OBCP source generation produced no C sources")
+  endif()
+  set_source_files_properties(${FF_N7_OBCP_SOURCES} PROPERTIES COMPILE_OPTIONS "-w;-fno-common")
+  add_compile_definitions(FF_USE_N7_OBCP=1)
+  message(STATUS "Default OBCP engine: pinned N7 Space/MicroPython")
 endif()
 
 # ----------------------------------------------------------------------
@@ -102,6 +147,12 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/apps/app_sample.c
   ${CMAKE_CURRENT_SOURCE_DIR}/config/tables/fsw_tables.c
 )
+
+if(FF_USE_N7_OBCP)
+  list(APPEND FF_CORE_SOURCES
+    ${FF_SRC_DIR}/obcp/ff_obcp.c
+    ${FF_N7_OBCP_SOURCES})
+endif()
 
 # Renode functional test application (norm N18): compiled and registered only
 # when enabled, so the default/flight reference set stays at six applications.
@@ -154,6 +205,11 @@ endif()
 
 add_library(frick_fsw_core STATIC ${FF_CORE_SOURCES})
 target_include_directories(frick_fsw_core PUBLIC ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
+if(FF_USE_N7_OBCP)
+  target_include_directories(frick_fsw_core PUBLIC ${FF_N7_OBCP_FLAT_DIR})
+  target_include_directories(frick_fsw_core PUBLIC ${FF_N7_OBCP_DIR}/src/obcp_engine
+    ${FF_N7_OBCP_DIR}/src)
+endif()
 if(FF_BUILD_TESTS)
   target_compile_definitions(frick_fsw_core PUBLIC FF_TEST_HOOKS)
 endif()
@@ -227,11 +283,11 @@ if(FF_USE_LWIP)
   target_link_libraries(frick_fsw_core PUBLIC frick_net_lwip)
 endif()
 
-# Optional PUS-C ASN.1 (N7 Space / ESA) backend (SRS-REQ-050). Build-time code
+# Default PUS-C ASN.1 (N7 Space / ESA) adapter (SRS-REQ-050). Build-time code
 # generation: the C is produced by `make pus-asn1` (tools/scripts/gen_pus_asn1.sh)
 # from the pinned asn1-pusc-lib model with the ESA ASN1SCC compiler; nothing
-# generated or third-party is committed. Enable with -DFF_USE_PUS_ASN1=ON;
-# otherwise the open CCSDS backend is selected by default.
+# generated or third-party is committed. The N7 backend is the default;
+# -DFF_USE_PUS_ASN1=OFF selects the open CCSDS alternative.
 if(FF_USE_PUS_ASN1)
   add_library(frick_pus_asn1 STATIC
     ${FF_PUS_ASN1_GEN}/BasicTypes.c

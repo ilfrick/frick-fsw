@@ -22,6 +22,10 @@ The **controlled test specification** (norm N22) is
 verification architecture is `docs/vv/system-verification-architecture.md`
 (FRICK-VV-SVA-001).
 
+The bounded OBCP adapter/engine connectivity test is specified separately in
+`docs/vv/test-spec/ts-9-obcp-integration.md` (FRICK-VV-TS-9). It is explicitly
+limited to host callback connectivity and is not evidence of SRS-REQ-045 closure.
+
 ## 2. V&V context per ECSS
 
 - Verification against requirements: ECSS-E-ST-40C (software verification

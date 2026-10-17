@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS5                     |
-| Revision                         | 0.9                                    |
-| Date                             | 2026-10-16                             |
+| Revision                         | 1.3                                    |
+| Date                             | 2026-10-17                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-5 |
@@ -13,7 +13,7 @@
 | Scope                            | Core services: Software Bus (`sb`), Table Services (`tbl`), Event Services (`evs`), Executive Services (`es`), the scheduler application, the Health & Safety (HS/FDIR) application, and the mathematics facade (`math`) |
 | Baseline                         | Working tree 2026-10-16 (S8-SCH dispatcher increment); previous baseline HEAD `57974d2` read 2026-10-14 |
 | Modules under test               | `src/core/sb/sb.c`, `src/core/tbl/tbl.c`, `src/core/evs/evs.c`, `src/core/es/es.c`, `src/core/sched/ff_sched.c`, `src/apps/app_scheduler.c`, `src/apps/app_hs.c`, `src/math/ff_math.c` |
-| Interfaces cited                 | `src/core/sb/sb.h`, `src/core/tbl/tbl.h`, `src/core/evs/evs.h`, `src/core/es/es.h`, `src/apps/app.h`, `src/math/ff_math.h`, `src/core/common/ff_types.h`, `config/fsw_config.h`; `docs/architecture/software-bus.md` (FRICK-ARCH-0002), `docs/architecture/applications.md` (FRICK-ARCH-0005), `docs/architecture/numerics.md` (FRICK-ARCH-0009), `docs/architecture/scheduling.md` (FRICK-ARCH-0018) |
+| Interfaces cited                 | `src/core/sb/sb.h`, `src/core/tbl/tbl.h`, `src/core/evs/evs.h`, `src/core/es/es.h`, `src/apps/app.h`, `src/math/ff_math.h`, `src/core/sched/ff_sched.h`, `src/core/common/ff_types.h`, `config/fsw_config.h`; `docs/architecture/software-bus.md` (FRICK-ARCH-0002), `docs/architecture/applications.md` (FRICK-ARCH-0005), `docs/architecture/numerics.md` (FRICK-ARCH-0009), `docs/architecture/scheduling.md` (FRICK-ARCH-0018); `docs/adr/ADR-0020-provisional-pus-and-scheduler-policies.md` (§"Scheduler time exhaustion reference", the source of the checked-arithmetic policy for `N22-TS5-77`) |
 
 > **Authority statement.** This work package defines verification *cases and
 > oracles* for the current baseline. It does not assign criticality, accept
@@ -103,18 +103,23 @@ appears here only as a fixture of the SB fan-out scenario `N22-TS5-62`.
 | FRICK-ARCH-0009 §3/§4 | Facade domain behaviour follows platform `libm`; callers requiring a fallback test with `FF_MathIsFinite()`; the facade is reentrant and thread-safe; transcendental functions are not guaranteed bit-for-bit identical across toolchains and are not for hard real-time paths without WCET/stack analysis (GAP-A4) |
 | FRICK-ARCH-0018 §1/§3/§5 | The dispatcher is an ordinary ES task; RTEMS retains task selection/preemption; the current stub uses one shared `g_last_run` and ignores Table Services activation/error results; the planned dispatcher validates a fixed-capacity schedule image, activates it atomically through Table Services, and emits missed/late/dispatch-error evidence; all mission rates/tolerances/recovery authority are TBD |
 | `sb.h`, `tbl.h`, `evs.h`, `es.h`, `app.h`, `ff_math.h`, `ff_types.h`, `fsw_config.h` | Declared API/contract: status codes (`FF_SUCCESS=0` and the negative set `FF_INVALID_ARGUMENT`/`FF_NO_RESOURCE`/`FF_NOT_FOUND`/`FF_ALREADY_EXISTS`/`FF_BAD_SIZE`/`FF_NOT_READY`/`FF_NAME_TOO_LONG`/`FF_TIMEOUT`/`FF_ERROR`), `FF_Msg_t` shape and `FF_SbStats_t`, the TBL load/validate/activate/revert/dump lifecycle with an optional `NULL` validator and `FF_TBL_INVALID_HANDLE`, EVS "circular on-board log" and optional listener, ES state enum and 1-based app ids, and the bounds `FF_SB_MAX_PIPES`=32, `FF_SB_MAX_SUBSCRIPTIONS`=96, `FF_SB_QUEUE_DEPTH_MAX`=32, `FF_SB_DEFAULT_DEPTH`=16, `FF_SB_WILDCARD`=0xFFFF, `FF_ES_MAX_APPS`=32, `FF_ES_APP_NAME_LEN`=16, `FF_EVS_LOG_DEPTH`=64, `FF_EVS_TEXT_LEN`=96, `FF_TBL_MAX_TABLES`=32, `FF_TBL_MAX_SIZE`=4096 |
+| `src/core/sched/ff_sched.h` | Declared contract for `N22-TS5-77`: `FF_SchedInit`/`FF_SchedActivate` release-target clearing and the "must be followed by `FF_SchedInit`" re-establish rule (lines 102-103); the `time_exhaustions`/`missed` saturation policy (`uint32` saturation, no wrap) |
+| `docs/adr/ADR-0020-provisional-pus-and-scheduler-policies.md` §"Scheduler time exhaustion reference" | Provisional checked-arithmetic policy for `N22-TS5-77`: an unrepresentable initial deadline disables the entry and increments `time_exhaustions` once; an overflowing next target dispatches its due release only; the overflow/recovery budget remains authority/TBD (NC-EXT-90) |
 
 ## 2. Test cases
 
-Case IDs `N22-TS5-1` … `N22-TS5-76`; groups: `1–15` Software Bus, `16–29`
-Table Services, `30–34` Event Services, `35–42` Executive Services, `43–48`
-scheduler application, `49–53` Health & Safety (HS/FDIR), `54–61` mathematics
-facade, `62–68` combined scenarios and environment-bound gaps, `69–70` core-
-services memory determinism and statistics-counter wrap boundaries, `71–73`
-SB/EVS bounded lock contention and SRS-REQ-011 forwarding under EVS lock contention;
-`74` is the authority-profile event-rate/dispatch/latency case (currently gap/TBD);
-`75` is the SB queue-mutex contention case and `76` is the new ES/HS lifecycle +
-health-detection host integration harness (S8-VV-FU).
+Case IDs `N22-TS5-1` … `N22-TS5-77`, all unique; groups: `1–15` Software Bus,
+`16–29` Table Services, `30–34` Event Services, `35–42` Executive Services,
+`43–48` scheduler application, `49–53` Health & Safety (HS/FDIR), `54–61`
+mathematics facade, `62–68` combined scenarios and environment-bound gaps,
+`69–70` core-services memory determinism and statistics-counter wrap
+boundaries, `71–73` SB/EVS bounded lock contention and SRS-REQ-011 forwarding
+under EVS lock contention; `74` is the authority-profile
+event-rate/dispatch/latency case (currently gap/TBD); `75` is the SB
+queue-mutex contention case, `76` is the ES/HS lifecycle + health-detection
+host integration harness (S8-VV-FU), and `77` is the S8-SCH checked
+release-target / deadline-exhaustion and missed-counter saturation case
+(provisional ADR-0020 policy; NC-EXT-90 remains open).
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -161,14 +166,14 @@ health-detection host integration harness (S8-VV-FU).
 | N22-TS5-41 | SRS-REQ-014, SRS-REQ-019 | `es.c` application registry capacity (`FF_ES_MAX_APPS` = 32, plus one) | OOB | register 32 apps, then a 33rd | the registry does not exceed `FF_ES_MAX_APPS` and the 32 existing apps are unchanged; the 33rd registration adds no app and does not displace an existing one (bounded registry, `FF_ES_MAX_APPS` = SRS-REQ-019 config point; SRS-REQ-014). The exact refusal status and state transition are not fixed by a clause and are owned by TS-6 `N22-TS6-36` | SIL | individual | covered |
 | N22-TS5-42 | SRS-REQ-014 | `es.c` invalid configuration, unknown id and invalid lookup | OOB | `FF_EsRegisterApp(NULL, &id)`; cfg with `name = NULL`; `entry = NULL`; `FF_EsStartApp` for a never-registered id; `FF_EsGetState(0xFFFD)`; `FF_EsGetId(NULL)`; `FF_EsGetId("missing")` | **gap** — SRS-REQ-014 requires registration/lifecycle tracking but no clause fixes the invalid-argument, unknown-id or invalid-lookup return contract. Open TBD (NC-EXT-47 §7.2). Uncontrolled observation only: `FF_INVALID_ARGUMENT` / `FF_NOT_FOUND` / `FF_APP_FAILED` / `FF_INVALID_ID`. No oracle is asserted here. The failed-start/rollback path is owned by TS-6 `N22-TS6-37` | SIL | individual | gap |
 | N22-TS5-43 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` schedule-table image validation (magic, size, entry count ≤ 16, payload bound) | nominal | a schedule table with `magic = FF_SCHED_MAGIC`, `count <= FF_SCHED_MAX_ENTRIES` (16), `payload_len <= FF_SCHED_PAYLOAD_MAX`, and size equal to `sizeof(FF_SchedTable_t)`; also the zero-entry and full-capacity images; run `FF_SchedValidate` | the validator accepts each well-formed bounded image (`FF_SUCCESS`) (SRS-REQ-071 "allocation-free, bounded schedule table … validated before activation"; SSS-REQ-030 bounded table-driven service). Evidence: `tests/unit/test_sched.c` `test_validate_rejects` (accept path) | SIL | individual | covered |
-| N22-TS5-44 | SRS-REQ-071 | `ff_sched.c` rejected schedule-table images | OOB | images with NULL pointer, `size` ± 1, wrong magic, `count = FF_SCHED_MAX_ENTRIES + 1`, zero period, `payload_len > FF_SCHED_PAYLOAD_MAX`, and duplicate `msg_id` | each image is rejected (`FF_ERROR`) and no entry of a rejected image is ever dispatched (bounded schedule image, SRS-REQ-071). Evidence: `tests/unit/test_sched.c` `test_validate_rejects` | SIL | individual | covered |
-| N22-TS5-45 | SRS-REQ-071 | `ff_sched.c` validated-before-activation and atomic schedule-table activation | nominal | activate an invalid image, then a valid one; observe `FF_SchedActiveCount` and the rejection counter | activation validates first: an invalid image leaves the previously active table untouched (count unchanged) and increments `invalid_activations`; a valid image becomes active (`FF_SchedActiveCount` = new count) (SRS-REQ-071 "validated before activation and activated atomically"; SSS-REQ-030). Evidence: `tests/unit/test_sched.c` `test_activate_atomic`. **Scope limit:** atomicity is established for the single-writer double-buffer publish only; cross-core/interrupt memory ordering is not established and is deferred to the multicore work (M14) | SIL | individual | covered |
-| N22-TS5-46 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` table-driven dispatch of configured SB messages (injected clock) | nominal | run the dispatcher with three entries (1000/5000/10000 ms) over 30 s of injected time; also poll at 137 ms (drift) and across a 4500 ms jump (missed slots) | fixed results with explicit expected values: 30/6/3 releases over 30 s with zero misses (per-entry absolute targets, no starvation — NC-EXT-19 corrected); 10 releases in 10.001 s for the 137 ms case (no cumulative drift); a 4500 ms jump on a 1500 ms entry yields exactly one release plus 3 counted missed slots and no catch-up burst; `max_out` bounds releases per poll (SRS-REQ-071/SSS-REQ-030). Evidence: `tests/unit/test_sched.c` (`test_no_starvation`, `test_no_cumulative_drift`, `test_first_release_boundary`, `test_missed_slots_bounded`, `test_max_out_bound`, `test_null_out_allowed`, `test_real_sb_delivery`). **Scope limit:** host execution with an injected clock; the *mission* rates/tolerances remain TBD (row N22-TS5-48) and target/RTEMS timing evidence is not available | SIL | individual | covered |
+| N22-TS5-44 | SRS-REQ-071 | `ff_sched.c` rejected schedule-table images | OOB | images with NULL pointer, `size` ± 1, wrong magic, `count = FF_SCHED_MAX_ENTRIES + 1`, zero period, `payload_len > FF_SCHED_PAYLOAD_MAX`, and duplicate `msg_id` | each `FF_SchedValidate` call returns exactly `FF_ERROR` (SRS-REQ-071 bounded-image validation); rejected activation/dispatch preservation is separately exercised by TS5-45. Evidence: `tests/unit/test_sched.c` `test_validate_rejects` | SIL | individual | covered |
+| N22-TS5-45 | SRS-REQ-071 | `ff_sched.c` validated-before-activation and atomic schedule-table activation | nominal + OOB | activate a valid two-entry table, reject a distinct invalid table whose first message ID/payload differ, initialize the epoch, then poll at the first release boundary | invalid activation returns `FF_ERROR`, active count remains unchanged, `invalid_activations` increments, and dispatch output matches the prior image's tested first entry ID/payload rather than the rejected image's distinct data (SRS-REQ-071 "validated before activation and activated atomically"; SSS-REQ-030). Evidence: `tests/unit/test_sched.c` `test_activate_atomic`. **Scope limit:** oracle checks first-entry preservation; atomicity is tested only for the single-writer double-buffer publish; cross-core/interrupt memory ordering is not established and is deferred to M14 | SIL | individual | covered |
+| N22-TS5-46 | SRS-REQ-071, SSS-REQ-030 | `ff_sched.c` table-driven dispatch of configured SB messages (injected clock) | nominal | run the dispatcher with three entries (1000/5000/10000 ms) over 30 s of injected time; also poll at 137 ms (drift) and across a 4500 ms jump on a 1000 ms entry | fixed results with explicit expected values: 30/6/3 releases over 30 s with zero misses (per-entry absolute targets, no starvation — NC-EXT-19 corrected); 10 releases in 10.001 s for the 137 ms case (no cumulative drift); the 4500 ms poll emits exactly one configured message with explicit ID/payload/time oracle, counts 3 skipped slots, and a following release occurs at 5000 ms with matching output; `max_out` bounds releases per poll (SRS-REQ-071/SSS-REQ-030). Evidence: `tests/unit/test_sched.c` (`test_no_starvation`, `test_no_cumulative_drift`, `test_first_release_boundary`, `test_missed_slots_bounded`, `test_max_out_bound`, `test_null_out_allowed`, `test_real_sb_delivery`). **Scope limit:** host execution with an injected clock; the *mission* rates/tolerances remain TBD (row N22-TS5-48) and target/RTEMS timing evidence is not available | SIL | individual | covered |
 | N22-TS5-47 | SRS-REQ-071, SSS-REQ-030 | `app_scheduler.c` / `ff_sched.c` heartbeat, late/missed-slot and dispatch-failure evidence | nominal | force a late release and an SB publish failure and observe the health-monitoring path | **partial** — the mechanism is delivered: `FF_SchedGetStats` exposes release/`missed`/`late`/`publish_errors` counters (asserted in host test: `test_missed_slots_bounded`, `test_no_starvation`), and `app_scheduler.c` emits EVS heartbeat/missed-slot/dispatch-failure events (`0x0601`–`0x0605`). The host test verifies the counter semantics but **not** the EVS emission to the Health & Safety listener, which requires the running application set (integration/simulator smoke). No end-to-end health-path oracle is asserted here; M17/S8-SCH follow-up. NC-EXT-19 remains open pending independent review | SIL | individual | gap |
 | N22-TS5-48 | SRS-REQ-071 | `app_scheduler.c` mission-controlled rates, timing tolerances and overrun response | nominal | apply a mission rate/jitter/overrun profile | **gap** — SRS-REQ-071 states numeric rates, timing tolerances and the operational response to overruns are mission-controlled inputs, TBD until an approved profile exists. Open TBD (NC-EXT-47 §7.3; FRICK-ARCH-0018 §1/§5). No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-49 | SSS-REQ-008, SRS-REQ-014 | `app_hs.c` periodic heartbeat event | nominal | run `FF_AppHsStep` (one monitoring pass) and observe EVS over at least one heartbeat period | the HS monitoring pass emits a heartbeat event (id `0x0502`, `FF_EVS_INFO`) once per pass (independent EVS-listener oracle), and remains alive (SSS-REQ-008 heartbeat; SRS-REQ-014; `app_hs.c` / `FF_AppHsStep`; host integration harness `tests/unit/test_es_hs_lifecycle.c`). The 5000 ms cadence itself follows from the `FF_PalTaskDelayMs(5000u)` loop and is not re-timed here; cadence vs watchdog window remains `gap` (N22-TS5-52) | SIL | individual | covered |
 | N22-TS5-50 | SSS-REQ-008 | `app_hs.c` commandable software reset registered as PUS S8 function #1 | nominal | start HS; invoke PUS service 8 function id 1 | HS registers `ff_hs_fn_reset` as PUS S8 function 1 and invoking it performs the on-board reset action (`FF_PalPanic`) as the commandable software reset (SSS-REQ-008; `app_hs.c`). The harness must stub/intercept `FF_PalPanic` so the reset action is observable without ending the run | SIL | individual | covered |
-| N22-TS5-51 | SRS-REQ-014, SSS-REQ-008 | `app_hs.c` detects a FAILED application and reports it | OOB | inject a PAL task-create failure to place an application into `FF_APP_FAILED`, then run one HS monitoring pass (`FF_AppHsStep`) | HS observes `FF_EsGetState(id) == FF_APP_FAILED` and raises exactly one `FF_EVS_APP_ERROR` critical event per pass naming the failed id (SRS-REQ-014 "Health & Safety shall detect failed applications"; SSS-REQ-008); the RUNNING application is not reported (no false positive). Independent EVS-listener oracle in the host integration harness `tests/unit/test_es_hs_lifecycle.c` (S8-VV-FU, closes the `GAP-R3-1` simulator-smoke gap). Detection latency/recovery budget is mission-controlled and owned by TS-6 `N22-TS6-41`/`N22-TS6-31` | SIL | individual | covered |
+| N22-TS5-51 | SRS-REQ-014, SSS-REQ-008 | `app_hs.c` detects a FAILED application and reports it | OOB | inject a PAL task-create failure to place an application into `FF_APP_FAILED`, then run one HS monitoring pass (`FF_AppHsStep`) | HS observes `FF_EsGetState(id) == FF_APP_FAILED` and raises exactly one `FF_EVS_APP_ERROR` critical event per pass naming the failed id (SRS-REQ-014 "Health & Safety shall detect failed applications"; SSS-REQ-008); the RUNNING application is not reported (no false positive). Independent EVS-listener oracle in the host integration harness `tests/unit/test_es_hs_lifecycle.c` (S8-VV-FU). The host-integration evidence is materially closed by this harness; **GAP-R3-1 remains OPEN pending the independent R2/R3 delta review** and is not closed by source-file scope alone. Detection latency/recovery budget is mission-controlled and owned by TS-6 `N22-TS6-41`/`N22-TS6-31` | SIL | individual | covered |
 | N22-TS5-52 | SSS-REQ-008 | `app_hs.c` heartbeat cadence versus the external watchdog window | nominal | stop/lose the HS heartbeat and observe the external watchdog reaction | **gap** — SSS-REQ-008 requires a heartbeat but no clause fixes the missed-kick escalation latency or the external watchdog window; HS uses a 5000 ms cadence and the watchdog is external (RTEMS/monitor), TBD. Open TBD (NC-EXT-47 §7.5; GAP-A5). No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-53 | SRS-REQ-014 | `app_hs.c` treatment of non-RUNNING, non-FAILED applications | OOB | an application in `FF_APP_STOPPED` or `FF_APP_LOADED` during an HS loop | **gap** — SRS-REQ-014 requires detecting *failed* applications; no clause defines whether a STOPPED or LOADED application is a health anomaly for HS. Open TBD (NC-EXT-47 §7.3). Uncontrolled observation only: HS flags only `FF_APP_FAILED`. No oracle is asserted here | SIL | individual | gap |
 | N22-TS5-54 | SRS-REQ-033, SSS-REQ-018 | `math` facade elementary functions within tolerance | nominal | `FF_MathSqrt(4)`, `FF_MathSin/Cos/Tan(0)`, `FF_MathTan(π/4)`, `FF_MathPow(2,10)`, `FF_MathExp(0)`, `FF_MathLog(1)`, `FF_MathFabs(-3.5)`, `FF_MathFmod(7,3)` | each result is within the documented tolerance of the reference value (≤ 1e-9 for the covered inputs) (SRS-REQ-033 "within the accuracy of the platform libm … tolerance (<= 1e-9)"; SSS-REQ-018; `test_math.c`) | SIL | individual | covered |
@@ -194,6 +199,7 @@ health-detection host integration harness (S8-VV-FU).
 | N22-TS5-74 | SRS-REQ-072, SSS-REQ-006 | Event-arrival envelope, dispatch service and ground-forwarding latency | nominal + OOB | timestamp each valid EVS API submission, acceptance/queueing, PUS S5 frame acceptance by selected link backend, and ground receipt; inject arrivals satisfying approved `A(Δ) ≤ Bmax + Rmax·Δ`, then exceed each approved bound under approved link profile | **gap/TBD** — in-envelope accepted events must reach the approved ground boundary within `Lmax`, with dispatch completion ≥ `Dmin` over each approved service interval; rejection, queue loss, and post-acceptance loss must increment the independent loss counter exactly once and be reported when possible. Local EVS log alone is not ground receipt. Parameters/profile and counter-reporting oracle are not approved/implemented; no numeric pass/fail oracle exists yet (NC-EXT-76). Queue=64, batch=8 and nominal 1000 ms task delay are candidates only; HIL/target ground-receipt fidelity remains TBD | SIL | combined | gap |
 | N22-TS5-75 | SRS-REQ-001 | SB queue-mutex contention skips only the contended copy and reports incomplete fan-out | OOB | create two matching pipes in deterministic subscription order; hold the first pipe's queue mutex with the test hook; publish while it remains held; then release it | `FF_SbPublish` returns exactly `FF_TIMEOUT` before the held mutex is released; `published` and `dropped` each increase by one, `delivered` increases by one; contended pipe remains empty, second pipe receives the exact message; one deferred `FF_EVS_SB_ERR`/`FF_EVS_ERROR` identifies the busy subscriber/message and contains `queue busy`, with no inline listener call. Full queue is separately covered by TS-6 `N22-TS6-44` and keeps `FF_SUCCESS` | SIL | combined | covered |
 | N22-TS5-76 | SRS-REQ-014, SSS-REQ-008 | ES/HS lifecycle + health-detection host integration harness | nominal + OOB | register a RUNNING application and a registered-but-unstarted HS task, step HS (observes only `FF_APP_LOADED`, no FAILED report); then inject a PAL task-create failure to drive an application to `FF_APP_FAILED`, step HS, and step again | each HS pass raises exactly one `0x0502` `FF_EVS_INFO` heartbeat for the HS application and exactly one `FF_EVS_APP_ERROR` `CRITICAL` naming the FAILED id (one per pass while the failure persists); the RUNNING application is never reported (no false positive); `FF_EsGetState` reflects `FF_APP_LOADED`/`FF_APP_RUNNING`/`FF_APP_FAILED` deterministically (SRS-REQ-014 "applications run as independent tasks… track states"; SSS-REQ-008 "monitor application health"). Independent EVS-listener oracle in `tests/unit/test_es_hs_lifecycle.c` (S8-VV-FU). Detection latency, external-watchdog cadence and the task-return/abort restart contract remain `gap` (N22-TS6-41/N22-TS5-52/N22-TS6-31); the harness records only the grounded detection oracle here | SIL | combined | covered |
+| N22-TS5-77 | SRS-REQ-071 | `ff_sched.c` initial and subsequent release-target arithmetic and missed-counter boundary behavior | OOB | initialize a 1000 ms entry 500 ms below `UINT64_MAX`; separately initialize 1500 ms below the maximum, poll at its first deadline then at the maximum; initialize exactly one period below the maximum and poll just before and exactly at the maximum; finally poll from a zero epoch at `UINT64_MAX` | an unrepresentable initial deadline disables the entry and increments `time_exhaustions` exactly once; an entry whose next target overflows dispatches only its due release and does not dispatch again; a deadline exactly equal to `UINT64_MAX` remains valid; the 32-bit `missed` counter saturates at `UINT32_MAX`, never wraps. Evidence: `tests/unit/test_sched.c::test_time_exhaustion_does_not_wrap`. **Scope limit:** provisional framework checked-arithmetic policy per ADR-0020, host-only; not an approved mission time domain, operational recovery policy, or target timing result (NC-EXT-90 remains open) | SIL | individual | covered |
 
 ## 3. Gaps (mapping to NC-EXT-47 sub-items)
 
@@ -213,11 +219,6 @@ the specific open NC where one exists. Gap rows assert **no** oracle.
   (copy count) (TBD; NC-EXT-47 §7.3).
 - `N22-TS5-28` — TBL registration with an incomplete definition (TBD;
   NC-EXT-47 §7.3).
-- `N22-TS5-45` — scheduler atomic activation: single-writer double-buffer only;
-  cross-core/interrupt memory ordering deferred to M14 (NC-EXT-47 §7.3).
-- `N22-TS5-46` — mission dispatch rates/jitter tolerances remain
-  mission-controlled TBD; host-verified dispatcher behavior is covered but no
-  target/RTEMS timing evidence exists (NC-EXT-19 / M17; NC-EXT-47 §7.3).
 - `N22-TS5-47` — scheduler heartbeat / late-missed-slot / dispatch-failure
   counters are host-verified, but the EVS-to-Health&Safety end-to-end oracle
   requires the running application set (integration/simulator smoke;
@@ -230,8 +231,26 @@ the specific open NC where one exists. Gap rows assert **no** oracle.
   delivered (registration and validator are wired; the TBL load/activate →
   dispatch path is missing) (NC-EXT-19 / M17; NC-EXT-47 §7.3).
 - `N22-TS5-70` — SB `FF_SbStats_t` counter width and unsigned wrap/saturation
+  semantics are host-tested at the wrap boundary, but the counter width for
+  mission telemetry and the reportable saturation policy remain uncontrolled
+  (TBD; NC-EXT-47 §7.3).
 - `N22-TS5-73` — SRS-REQ-011 outcome when SB overflow event cannot acquire EVS
   lock (authority policy gap; TBD; NC-EXT-47 §7.3).
+- `N22-TS5-74` — event-arrival envelope, dispatch and ground-forwarding latency
+  require an authority-approved event-rate/dispatch envelope; the host case
+  supplies only a candidate envelope (TBD; SRS-REQ-072/SSS-REQ-006;
+  NC-EXT-47 §7.3).
+
+**Residual limits attached to rows that are now `covered`.** `N22-TS5-45`/`46`
+became `covered` on their host oracles (validated-before-activation, atomic
+activation, injected-clock dispatch) in the S8-SCH/S8-VV-FU work; their
+remaining cross-core/interrupt memory-ordering question (M14) and the
+mission-controlled dispatch rates/jitter tolerances plus target/RTEMS timing
+evidence stay open but are tracked by `N22-TS5-48`, the §7.5 target row and
+NC-EXT-19 rather than by a `gap` case here. Likewise `N22-TS5-77` is `covered`
+only for the provisional ADR-0020 checked-arithmetic policy; the approved time
+domain, exhaustion/recovery action and any operational use remain authority-owned
+(NC-EXT-90).
 
 **NC-EXT-47 §7.2 — software-only robustness oracles not specified as a
 controlled, requirement-mapped set.**
@@ -292,9 +311,20 @@ automated on the baseline, so that `covered` is not read as `passing`:
   timing, the EVS-to-HS end-to-end oracle (`N22-TS5-47`) and the TBL
   load/activate→dispatch coupling (`N22-TS5-66`) remain `gap`, so NC-EXT-19 is
   **not** closed here.
-- **HS (`SSS-REQ-008`) has no dedicated automated suite** on the baseline
-  (lifecycle/HS detection is currently simulator-smoke only); rows `N22-TS5-49`
-  to `N22-TS5-51` are specified and instrumentable on the host but must be added.
+- **Scheduler activation→init contract is a documented limit (not tested).** The
+  contract in `src/core/sched/ff_sched.h` states that a new activation clears the
+  entry's release target and the target **must** be re-established via
+  `FF_SchedInit` before dispatch resumes. No host case exercises the
+  activation→`FF_SchedInit` window (every test calls `FF_SchedInit` immediately
+  after activation); this is a test-completeness limit on `N22-TS5-77`, not an
+  additional coverage claim. A bounded case asserting zero dispatch across that
+  window is deferred to the next S8-SCH increment; the limit is also reflected in
+  the `N22-TS5-77` row above.
+- **HS (`SSS-REQ-008`) host integration evidence is now present** in
+  `tests/unit/test_es_hs_lifecycle.c`: the harness asserts lifecycle states and
+  an independent EVS-listener oracle for FAILED-app detection. It does not
+  establish target behavior, detection latency, watchdog cadence, or recovery;
+  those remain gaps in TS-5/TS-6.
 - **Runner note**: `covered` requires the case to be executed in the named
   environment and its raw evidence retained (N11); this document assigns the
   oracle, not the run status.
@@ -303,22 +333,22 @@ automated on the baseline, so that `covered` is not read as `passing`:
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 76 |
-| Nominal | 48 |
-| Out-of-bound | 26 |
-| Mixed nominal + out-of-bound | 2 |
-| Individual | 66 |
+| Total cases | 77 |
+| Nominal | 47 |
+| Out-of-bound | 27 |
+| Mixed nominal + out-of-bound | 3 |
+| Individual | 67 |
 | Combined | 10 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 55 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 56 |
 | `gap` (no controlled oracle; recorded under NC-EXT-47) | 21 |
-| SIL / PIL / HIL (primary assignments; target remains gap) | 73 / 1 / 2 |
+| SIL / PIL / HIL (primary assignments; target remains gap) | 74 / 1 / 2 |
 
 Requirement coverage in this scope: `SRS-REQ-001/002/011/013/014/015/019/033/
 044/071` and `SSS-REQ-002/008/009/018/030` all have at least one case. Every
 in-scope module surface has nominal and (where a contract exists) out-of-bound
-cases; the scheduler rows are predominantly `gap` because `SRS-REQ-071` is a
-planned milestone (M17) whose implementation and numeric profile are not yet
-delivered.
+cases; the bounded scheduler implementation and its tested host behavior are
+delivered, while mission rates/tolerances, target timing, integration and
+authority policies remain gaps.
 
 ## History
 
@@ -332,4 +362,8 @@ delivered.
 | 0.6 | 2026-10-14 | frick-fsw | Specify deterministic multiple-subscriber queue-lock contention oracle, continued partial fan-out and exact return/statistics/event behavior; keep SRS-REQ-072 profile/loss-reporting gap open |
 | 0.7 | 2026-10-14 | frick-fsw | Reconcile case summary to all 75 table rows, use one primary environment token per case and retain HIL/target ground receipt as a gap |
 | 0.8 | 2026-10-16 | frick-fsw | Update scheduler rows 43–47/66 for the delivered S8-SCH dispatcher (`ff_sched` validation, atomic activation, absolute per-entry targets, bounded per-poll work, missed-slot/heartbeat counters) with host oracles in `tests/unit/test_sched.c`; retain mission-rate/tolerance, target-timing, EVS-to-HS integration and TBL load/activate coupling gaps; NC-EXT-19 remains open |
-| 0.9 | 2026-10-16 | frick-fsw | S8-VV-FU: upgrade HS rows 49/51 to a grounded host integration oracle and add `N22-TS5-76` (ES/HS lifecycle + FAILED-application detection with an independent EVS-listener oracle), closing `GAP-R3-1`'s host-integration gap; `FF_AppHsStep` extracted as a non-blocking test seam. Detection latency, watchdog cadence (TS-5/TS-6 `N22-TS5-52`/`N22-TS6-31`) and the task-return/abort restart contract (TS-6 `N22-TS6-41`) remain `gap`; no NC closed or phase approved |
+| 0.9 | 2026-10-16 | frick-fsw | S8-VV-FU: upgrade HS rows 49/51 to a grounded host integration oracle and add `N22-TS5-76` (ES/HS lifecycle + FAILED-application detection with an independent EVS-listener oracle), materially closing `GAP-R3-1`'s host-integration gap; `FF_AppHsStep` extracted as a non-blocking test seam. Detection latency, watchdog cadence (TS-5/TS-6 `N22-TS5-52`/`N22-TS6-31`) and the task-return/abort restart contract (TS-6 `N22-TS6-41`) remain `gap`; `GAP-R3-1` remains OPEN pending the independent R2/R3 delta review; no NC closed or phase approved |
+| 1.0 | 2026-10-16 | frick-fsw | Correct scheduler TS5-44/45/46 to match exact `FF_ERROR`, rejected-image preservation and dispatch-output oracles; align 4500 ms missed-slot input to the tested 1000 ms entry |
+| 1.1 | 2026-10-16 | frick-fsw | Add N22-TS5-73 for checked scheduler deadline exhaustion and document provisional ADR-0020 policy; NC-EXT-90 remains open |
+| 1.2 | 2026-10-16 | frick-fsw | Correct the case-identifier collision introduced by 1.1: the S8-SCH checked release-target/deadline-exhaustion row is renumbered from the already-used `N22-TS5-73` to `N22-TS5-77` and moved to the end of the table, the §2 range is stated as `1…77` with uniqueness, and the §3.2 summary (77 total / 56 covered / 21 gap) plus the §3 gap mapping (`N22-TS5-73` remains the SRS-REQ-011 SB/EVS case) were re-counted against the table. No oracle, status or NC disposition changed |
+| 1.3 | 2026-10-17 | frick-fsw | Close the independent review loop (R2 0370 Finding 4, R4 0372 F-0372-13): synchronize the §3 gap mapping with the case table — remove `N22-TS5-45`/`46` (both `covered`) and add the missing `N22-TS5-74` (`gap`); complete the truncated `N22-TS5-70` bullet; add a residual-limits paragraph so the still-open cross-core/ordering (M14) and mission-rate/target-timing items formerly attached to 45/46 stay visible under `N22-TS5-48`/`NC-EXT-19` and the `N22-TS5-77` provisional ADR-0020 arithmetic limit stays visible under NC-EXT-90. No status, count or oracle changed |

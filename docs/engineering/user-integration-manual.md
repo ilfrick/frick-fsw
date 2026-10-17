@@ -98,7 +98,7 @@ Register the data your application exposes to the ground:
 - Parameters: `FF_PusRegisterParamProvider` (report) and
   `FF_PusRegisterParamSetter` (set) (service 20).
 - Functions: `FF_PusRegisterFunction(id, fn)` (service 8).
-- Memory regions: `FF_PusRegisterMemoryRegion(base, size)` (service 6).
+- Memory regions: `FF_PusRegisterMemoryRegion(region_id, base, size)` (service 6; `region_id` is the wire region identifier).
 
 The reference `HK` application shows the pattern. To add a **new/standardised
 PUS service**, follow `docs/engineering/service-development.md`.

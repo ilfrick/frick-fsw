@@ -62,6 +62,7 @@ typedef struct
     uint32_t missed;              /* release slots skipped while late    */
     uint32_t late_polls;          /* polls that had to skip a slot       */
     uint32_t publish_errors;      /* FF_SbPublish() failures             */
+    uint32_t time_exhaustions;    /* entries disabled rather than wrapping a deadline */
 } FF_SchedStats_t;
 
 /*
@@ -96,6 +97,11 @@ void FF_SchedInit(uint64_t now_ns);
  * call, so a late poll cannot produce an unbounded catch-up burst: skipped
  * slots are counted in stats.missed and the next release target is advanced by
  * absolute period multiples (no cumulative relative-delay drift).
+ * If an absolute target cannot be represented in uint64_t nanoseconds, the
+ * entry is disabled until FF_SchedInit and stats.time_exhaustions increments.
+ * A new activation clears targets and must be followed by FF_SchedInit before
+ * dispatch resumes. stats.missed saturates at UINT32_MAX. These are provisional
+ * framework policies, not mission time-domain or recovery approvals.
  */
 uint16_t FF_SchedPoll(uint64_t now_ns, FF_Msg_t *out, uint16_t max_out, FF_AppId_t app);
 

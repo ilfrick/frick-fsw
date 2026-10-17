@@ -1,0 +1,19 @@
+S8-PUS-FU iteration failures and corrective actions (2026-10-16)
+
+- An auxiliary `make gsw-selfcheck` attempt failed the authored-file license
+  policy because the newly added controlled N7 adapter test and three N7 header
+  stubs lacked MPL-2.0 SPDX identifiers. Added the identifiers; the complete
+  rerun passed the Python GSW/metrics/license tests and license checker.
+- An incremental Ninja build under the unprivileged container user failed to
+  append `build/ci/.ninja_log` because an earlier `make ci-local` container run
+  had created that log as root. Retried the target build in the controlled
+  container with its default user; `test_pus_fu` passed and the subsequent full
+  `make ci-local` and ASan runs passed 42/42.
+- Earlier in this work, coverage configure failed because the cache source path
+  referred to `/workspace` while invoked from the host path; the stale cache was
+  removed and the clean-container coverage/README/metrics check passed. The
+  final refreshed coverage result and README check are in
+  `2026-10-16-s8-pus-fu-coverage.log`.
+- Initial host `make renode-image` lacked `/opt/rtems/6/bin/riscv-rtems6-gcc`; an
+  RTEMS image was subsequently built in the available `frick-rtems-toolchain:local`
+  image and the Renode functional run passed. This is emulation only.

@@ -1,0 +1,44 @@
+bash tools/scripts/fetch_third_party.sh all
+[fetch] done (all): /home/nicola/fsw/frick-fsw/third_party
+bash tools/scripts/gen_pus_asn1.sh
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:75:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:81:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:26:16: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:27:19: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/Parameter.acn:30:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+[pus-asn1] generated common ASN1SCC runtime/types into /home/nicola/fsw/frick-fsw/third_party/asn1-pusc-lib-generated/common
+bash tools/scripts/run_sim.sh
+[smoke] building
+[smoke] booting simulator (8 s window)
+[smoke] PASS (banner + 6 applications registered)

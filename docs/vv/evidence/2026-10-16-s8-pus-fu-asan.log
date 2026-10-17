@@ -1,0 +1,99 @@
+[1/2] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[2/2] Linking C executable tests/test_pus_fu
+Internal ctest changing into directory: /workspace/build/asan
+Test project /workspace/build/asan
+      Start  1: ccsds
+ 1/42 Test  #1: ccsds ............................   Passed    0.01 sec
+      Start  2: sb
+ 2/42 Test  #2: sb ...............................   Passed    0.01 sec
+      Start  3: sb_stress
+ 3/42 Test  #3: sb_stress ........................   Passed    0.01 sec
+      Start  4: sb_sweep_boundary
+ 4/42 Test  #4: sb_sweep_boundary ................   Passed    0.01 sec
+      Start  5: sb_evs_structural_sweep
+ 5/42 Test  #5: sb_evs_structural_sweep ..........   Passed   93.44 sec
+      Start  6: tbl
+ 6/42 Test  #6: tbl ..............................   Passed    0.01 sec
+      Start  7: sched
+ 7/42 Test  #7: sched ............................   Passed    0.02 sec
+      Start  8: pus
+ 8/42 Test  #8: pus ..............................   Passed    0.01 sec
+      Start  9: pus_fu
+ 9/42 Test  #9: pus_fu ...........................   Passed    0.02 sec
+      Start 10: pus_n7_adapter_contract
+10/42 Test #10: pus_n7_adapter_contract ..........   Passed    0.01 sec
+      Start 11: pusopen_adapter_contract
+11/42 Test #11: pusopen_adapter_contract .........   Passed    0.01 sec
+      Start 12: time
+12/42 Test #12: time .............................   Passed    0.01 sec
+      Start 13: r2_gap
+13/42 Test #13: r2_gap ...........................   Passed    0.02 sec
+      Start 14: r3_gap
+14/42 Test #14: r3_gap ...........................   Passed    0.02 sec
+      Start 15: es_hs_lifecycle
+15/42 Test #15: es_hs_lifecycle ..................   Passed    0.09 sec
+      Start 16: decoder_corpus
+16/42 Test #16: decoder_corpus ...................   Passed    0.04 sec
+      Start 17: link_uart
+17/42 Test #17: link_uart ........................   Passed    0.32 sec
+      Start 18: hal
+18/42 Test #18: hal ..............................   Passed    0.01 sec
+      Start 19: math
+19/42 Test #19: math .............................   Passed    0.01 sec
+      Start 20: sdls
+20/42 Test #20: sdls .............................   Passed    0.01 sec
+      Start 21: gem
+21/42 Test #21: gem ..............................   Passed    0.01 sec
+      Start 22: gem_tsn
+22/42 Test #22: gem_tsn ..........................   Passed    0.01 sec
+      Start 23: gptp
+23/42 Test #23: gptp .............................   Passed    0.01 sec
+      Start 24: netloop
+24/42 Test #24: netloop ..........................   Passed    0.04 sec
+      Start 25: gpio
+25/42 Test #25: gpio .............................   Passed    0.01 sec
+      Start 26: serial
+26/42 Test #26: serial ...........................   Passed    0.01 sec
+      Start 27: mem
+27/42 Test #27: mem ..............................   Passed    0.01 sec
+      Start 28: nvm
+28/42 Test #28: nvm ..............................   Passed    0.01 sec
+      Start 29: mtd
+29/42 Test #29: mtd ..............................   Passed    0.01 sec
+      Start 30: can
+30/42 Test #30: can ..............................   Passed    0.01 sec
+      Start 31: i2c
+31/42 Test #31: i2c ..............................   Passed    0.02 sec
+      Start 32: spi
+32/42 Test #32: spi ..............................   Passed    0.02 sec
+      Start 33: block
+33/42 Test #33: block ............................   Passed    0.01 sec
+      Start 34: pcie
+34/42 Test #34: pcie .............................   Passed    0.01 sec
+      Start 35: spacewire
+35/42 Test #35: spacewire ........................   Passed    0.01 sec
+      Start 36: fabric
+36/42 Test #36: fabric ...........................   Passed    0.01 sec
+      Start 37: canfd
+37/42 Test #37: canfd ............................   Passed    0.02 sec
+      Start 38: canopen
+38/42 Test #38: canopen ..........................   Passed    0.01 sec
+      Start 39: link_ip
+39/42 Test #39: link_ip ..........................   Passed    0.01 sec
+      Start 40: link_tsn
+40/42 Test #40: link_tsn .........................   Passed    0.01 sec
+      Start 41: lwip
+41/42 Test #41: lwip .............................   Passed    0.01 sec
+      Start 42: lwip_netif
+42/42 Test #42: lwip_netif .......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 42
+
+Label Time Summary:
+host-pty              =   0.32 sec*proc (1 test)
+link                  =   0.32 sec*proc (1 test)
+sb-evs                =  93.44 sec*proc (1 test)
+tool-qualification    =  93.44 sec*proc (1 test)
+uart                  =   0.32 sec*proc (1 test)
+
+Total Test time (real) =  94.37 sec

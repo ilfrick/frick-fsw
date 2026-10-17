@@ -27,7 +27,7 @@ fi
 echo "[rtems-cross] toolchain found: ${GCC}"
 cmake -S "${ROOT}" -B "${ROOT}/build/rtems" \
   -DCMAKE_TOOLCHAIN_FILE="${ROOT}/cmake/toolchains/rtems-riscv-mpfs.cmake" \
-  -DFF_PLATFORM=rtems
+  -DFF_PLATFORM=rtems -DFF_USE_PUS_ASN1=ON
 cmake --build "${ROOT}/build/rtems" -j"$(nproc)"
 echo "[rtems-cross] cross build: PASS"
 
@@ -41,7 +41,7 @@ echo "[rtems-cross] cross build: PASS"
 if [[ -f "${ROOT}/third_party/lwip/src/Filelists.cmake" ]]; then
   cmake -S "${ROOT}" -B "${ROOT}/build/rtems-lwip" \
     -DCMAKE_TOOLCHAIN_FILE="${ROOT}/cmake/toolchains/rtems-riscv-mpfs.cmake" \
-    -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON -DFF_USE_LWIP=ON
+    -DFF_PLATFORM=rtems -DFF_ENABLE_RENODE_TEST=ON -DFF_USE_LWIP=ON -DFF_USE_PUS_ASN1=ON
   cmake --build "${ROOT}/build/rtems-lwip" -j"$(nproc)"
   NM="${RTEMS_HOME}/6/bin/riscv-rtems6-nm"
   if [[ -x "${NM}" ]]; then

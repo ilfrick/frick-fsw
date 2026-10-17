@@ -21,7 +21,7 @@ echo "[smoke] building"
 # Unix Makefiles cache produced by `make configure` / `make build`). Forcing
 # `-G Ninja` unconditionally made `make smoke` (and therefore `make check`) fail on
 # any tree configured through the Makefile (NC-S4b-09).
-cmake -S "${ROOT}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Debug >/dev/null
+cmake -S "${ROOT}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON >/dev/null
 cmake --build "${BUILD_DIR}" >/dev/null
 
 echo "[smoke] booting simulator (8 s window)"

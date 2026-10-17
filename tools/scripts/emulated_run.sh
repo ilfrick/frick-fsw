@@ -23,7 +23,7 @@ if [[ -x "${GCC}" ]]; then
   echo "[emulated] RTEMS MPFS cross build"
   cmake -S "${ROOT}" -B "${ROOT}/build/rtems" \
     -DCMAKE_TOOLCHAIN_FILE="${ROOT}/cmake/toolchains/rtems-riscv-mpfs.cmake" \
-    -DFF_PLATFORM=rtems > /dev/null
+    -DFF_PLATFORM=rtems -DFF_USE_PUS_ASN1=ON > /dev/null
   cmake --build "${ROOT}/build/rtems" -j"$(nproc)" > /dev/null || echo "[emulated] MPFS cross build failed"
 else
   echo "[emulated] SKIP build: RTEMS toolchain absent (run tools/scripts/setup_rtems.sh)"

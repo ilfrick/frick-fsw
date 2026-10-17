@@ -1,47 +1,50 @@
 #!/usr/bin/env bash
-# frick-fsw - generate C from the N7/ESA asn1-pusc-lib ASN.1/ACN PUS-C model.
+# frick-fsw - generate the ASN1SCC common runtime/types required by the N7 PUS adapter.
 #
-# Reproducible PUS-C ASN.1 code generation (norm N19 reconciliation of the
-# PUS-C ASN.1 default): builds the pinned ASN1SCC compiler image (once), fetches
-# the pinned asn1-pusc-lib (once), and generates the C for the common, CCSDS and
-# PUS service modules into third_party/asn1-pusc-lib-generated/ (git-ignored).
-#
-# Output is consumed by the PUS-C ASN.1 default backend (FF_PusBackendN7).
+# The current adapter consumes the N7-generated BasicTypes widths plus the
+# ASN1SCC runtime; service-specific generated codecs remain outside the adapter
+# integration scope (M15). Outputs are ignored build products, never committed.
 #
 # Copyright (C) 2026 Ilfrick
 # https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
 # SPDX-License-Identifier: MPL-2.0
-set -uo pipefail
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 LIB="${ROOT}/third_party/asn1-pusc-lib"
 OUT="${ROOT}/third_party/asn1-pusc-lib-generated"
 IMG="${ASN1SCC_IMAGE:-frick-asn1scc:local}"
 
-if [[ ! -d "${LIB}" ]]; then
-  echo "[pus-asn1] fetching third-party tree"
-  bash "${ROOT}/tools/scripts/fetch_third_party.sh"
+if [[ ! -d "${LIB}/common" ]]; then
+  echo "[pus-asn1] fetching pinned N7/ESA source"
+  bash "${ROOT}/tools/scripts/fetch_third_party.sh" asn1-only
 fi
-if ! docker image inspect "${IMG}" > /dev/null 2>&1; then
-  echo "[pus-asn1] building ASN1SCC image ${IMG} (long)"
-  docker build -t "${IMG}" "${ROOT}/tools/docker/asn1scc" || exit 1
+if ! docker image inspect "${IMG}" >/dev/null 2>&1; then
+  echo "[pus-asn1] building ASN1SCC image ${IMG}"
+  docker build -t "${IMG}" "${ROOT}/tools/docker/asn1scc"
 fi
 
-mkdir -p "${OUT}"
-rc=0
-gen() { # gen <subdir>
-  local d="$1"
-  echo "[pus-asn1] $d"
-  docker run --rm -v "${LIB}:/pusclib:ro" -v "${OUT}:/out" "${IMG}" \
-    asn1scc -c -ACN -typePrefix Pusc_ -o "/out/${d}" \
-      "/pusclib/${d}"/*.asn1 "/pusclib/${d}"/*.acn || rc=1
-}
-gen common
-gen ccsds
-for d in "${LIB}"/service-*; do
-  [[ -d "${d}" ]] && gen "$(basename "${d}")"
+TMP="$(mktemp -d "${ROOT}/third_party/asn1-pusc-lib-generated.tmp.XXXXXX")"
+cleanup() { rm -rf "${TMP}"; }
+trap cleanup EXIT
+mkdir -p "${TMP}/common"
+
+# Expand input globs inside the container. Host-side expansion against the
+# container-only /pusclib mount silently passes literal wildcard paths.
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "${LIB}:/pusclib:ro" -v "${TMP}:/out" "${IMG}" \
+  bash -lc 'shopt -s nullglob; files=(/pusclib/common/*.asn1 /pusclib/common/*.acn); \
+    if ((${#files[@]} == 0)); then echo "no common ASN.1/ACN inputs" >&2; exit 2; fi; \
+    exec asn1scc -c -ACN -typePrefix Pusc_ -o /out/common "${files[@]}"'
+
+for required in BasicTypes.h BasicTypes.c asn1crt.h asn1crt.c asn1crt_encoding.c asn1crt_encoding_acn.c; do
+  if [[ ! -s "${TMP}/common/${required}" ]]; then
+    echo "[pus-asn1] required generated file missing: ${required}" >&2
+    exit 1
+  fi
 done
 
-echo "[pus-asn1] generated into ${OUT} (rc=${rc})"
-ls "${OUT}" | head
-exit "${rc}"
+rm -rf "${OUT}"
+mv "${TMP}" "${OUT}"
+trap - EXIT
+echo "[pus-asn1] generated common ASN1SCC runtime/types into ${OUT}/common"

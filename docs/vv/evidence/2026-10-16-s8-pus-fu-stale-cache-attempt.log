@@ -1,0 +1,282 @@
+bash tools/scripts/fetch_third_party.sh all
+[fetch] done (all): /home/nicola/fsw/frick-fsw/third_party
+bash tools/scripts/gen_pus_asn1.sh
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:75:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:81:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:26:16: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:27:19: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/Parameter.acn:30:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+[pus-asn1] generated common ASN1SCC runtime/types into /home/nicola/fsw/frick-fsw/third_party/asn1-pusc-lib-generated/common
+docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.47kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/ubuntu:24.04
+#4 DONE 0.0s
+
+#5 [2/4] RUN apt-get update && apt-get install -y --no-install-recommends       build-essential gcc g++ make cmake ninja-build       python3 python3-pip git curl ca-certificates       doxygen graphviz clang clang-format clang-tidy cppcheck       nodejs npm       pkg-config libc6-dev     && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [3/4] RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf       | sh -s -- -y --default-toolchain leanprover/lean4:v4.10.0
+#6 CACHED
+
+#7 [4/4] WORKDIR /workspace
+#7 CACHED
+
+#8 exporting to image
+#8 exporting layers done
+#8 writing image sha256:5cbc72aa4125cfdbd8c0baa4ac2a1cb9d1447ff3147ac0b94e2ed0d918b83e91 done
+#8 naming to docker.io/library/frick-vv:local done
+#8 DONE 0.0s
+docker run --rm -v /home/nicola/fsw/frick-fsw:/workspace -w /workspace frick-vv:local \
+  bash -lc 'cmake -S . -B /workspace/build/ci -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+    && cmake --build /workspace/build/ci \
+    && ctest --test-dir /workspace/build/ci --output-on-failure \
+    && cd /workspace/verification/lean && lake build \
+    && cd /workspace && python3 tools/scripts/trace.py docs/requirements/traceability.yaml'
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /workspace/third_party/lwip/../mbedtls
+-- Doxygen build started
+-- Configuring done (0.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/build/ci
+[1/59] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_pusopen.c.o
+[2/59] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_tm_output.c.o
+[3/59] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_open.c.o
+[4/59] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_cmd_ingest.c.o
+[5/59] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.o
+[6/59] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus_services.c.o
+[7/59] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hs.c.o
+[8/59] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hk.c.o
+[9/59] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.o
+[10/59] Building C object tests/CMakeFiles/test_pus.dir/unit/test_pus.c.o
+[11/59] Building C object tests/CMakeFiles/test_pusopen.dir/unit/test_pusopen.c.o
+[12/59] Linking C static library libfrick_fsw_core.a
+[13/59] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[14/59] Building C object tests/CMakeFiles/test_pusopen.dir/__/src/pus/adapters/pus_adapter_pusopen.c.o
+[15/59] Building C object tests/CMakeFiles/test_decoder_corpus.dir/unit/test_decoder_corpus.c.o
+[16/59] Linking C executable frick_fsw
+[17/59] Building C object tests/CMakeFiles/test_r3_gap.dir/unit/test_r3_gap.c.o
+[18/59] Linking C executable tests/test_ccsds
+[19/59] Linking C executable tests/test_sb_stress
+[20/59] Linking C executable tests/test_sb
+[21/59] Linking C executable tests/test_sb_sweep
+[22/59] Linking C executable tests/test_tbl
+[23/59] Linking C executable tests/test_sched
+[24/59] Linking C executable tests/test_time
+[25/59] Linking C executable tests/test_es_hs_lifecycle
+[26/59] Linking C executable tests/test_pus
+[27/59] Linking C executable tests/test_r3_gap
+[28/59] Linking C executable tests/test_decoder_corpus
+[29/59] Linking C executable tests/test_pus_fu
+[30/59] Building C object tests/CMakeFiles/test_r2_gap.dir/unit/test_r2_gap.c.o
+[31/59] Linking C executable tests/test_hal
+[32/59] Linking C executable tests/test_math
+[33/59] Linking C executable tests/test_sdls
+[34/59] Linking C executable tests/test_pusopen
+[35/59] Linking C executable tests/test_gem
+[36/59] Linking C executable tests/test_r2_gap
+[37/59] Linking C executable tests/test_gpio
+[38/59] Linking C executable tests/test_serial
+[39/59] Linking C executable tests/test_gem_tsn
+[40/59] Linking C executable tests/test_netloop
+[41/59] Linking C executable tests/test_gptp
+[42/59] Linking C executable tests/test_mem
+[43/59] Linking C executable tests/test_mtd
+[44/59] Linking C executable tests/test_can
+[45/59] Linking C executable tests/test_nvm
+[46/59] Linking C executable tests/test_block
+[47/59] Linking C executable tests/test_i2c
+[48/59] Linking C executable tests/test_spi
+[49/59] Linking C executable tests/test_spacewire
+[50/59] Linking C executable tests/test_canfd
+[51/59] Linking C executable tests/test_fabric
+[52/59] Linking C executable tests/test_pcie
+[53/59] Linking C executable tests/test_canopen
+[54/59] Linking C executable tests/test_lwip
+[55/59] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[56/59] Linking C executable tests/test_lwip_netif
+[57/59] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[58/59] Linking C executable tests/test_link_tsn
+[59/59] Linking C executable tests/test_link_ip
+Internal ctest changing into directory: /workspace/build/ci
+Test project /workspace/build/ci
+      Start  1: ccsds
+ 1/41 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/41 Test  #2: sb ...............................   Passed    0.00 sec
+      Start  3: sb_stress
+ 3/41 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/41 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  5: sb_evs_structural_sweep
+ 5/41 Test  #5: sb_evs_structural_sweep ..........   Passed   17.00 sec
+      Start  6: tbl
+ 6/41 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: sched
+ 7/41 Test  #7: sched ............................   Passed    0.00 sec
+      Start  8: pus
+ 8/41 Test  #8: pus ..............................   Passed    0.00 sec
+      Start  9: pus_fu
+ 9/41 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start 10: pusopen_adapter_contract
+10/41 Test #10: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 11: time
+11/41 Test #11: time .............................   Passed    0.00 sec
+      Start 12: r2_gap
+12/41 Test #12: r2_gap ...........................   Passed    0.02 sec
+      Start 13: r3_gap
+13/41 Test #13: r3_gap ...........................   Passed    0.00 sec
+      Start 14: es_hs_lifecycle
+14/41 Test #14: es_hs_lifecycle ..................   Passed    0.07 sec
+      Start 15: decoder_corpus
+15/41 Test #15: decoder_corpus ...................   Passed    0.03 sec
+      Start 16: link_uart
+16/41 Test #16: link_uart ........................   Passed    0.33 sec
+      Start 17: hal
+17/41 Test #17: hal ..............................   Passed    0.00 sec
+      Start 18: math
+18/41 Test #18: math .............................   Passed    0.00 sec
+      Start 19: sdls
+19/41 Test #19: sdls .............................   Passed    0.00 sec
+      Start 20: gem
+20/41 Test #20: gem ..............................   Passed    0.00 sec
+      Start 21: gem_tsn
+21/41 Test #21: gem_tsn ..........................   Passed    0.00 sec
+      Start 22: gptp
+22/41 Test #22: gptp .............................   Passed    0.00 sec
+      Start 23: netloop
+23/41 Test #23: netloop ..........................   Passed    0.00 sec
+      Start 24: gpio
+24/41 Test #24: gpio .............................   Passed    0.00 sec
+      Start 25: serial
+25/41 Test #25: serial ...........................   Passed    0.00 sec
+      Start 26: mem
+26/41 Test #26: mem ..............................   Passed    0.00 sec
+      Start 27: nvm
+27/41 Test #27: nvm ..............................   Passed    0.00 sec
+      Start 28: mtd
+28/41 Test #28: mtd ..............................   Passed    0.00 sec
+      Start 29: can
+29/41 Test #29: can ..............................   Passed    0.00 sec
+      Start 30: i2c
+30/41 Test #30: i2c ..............................   Passed    0.00 sec
+      Start 31: spi
+31/41 Test #31: spi ..............................   Passed    0.00 sec
+      Start 32: block
+32/41 Test #32: block ............................   Passed    0.00 sec
+      Start 33: pcie
+33/41 Test #33: pcie .............................   Passed    0.00 sec
+      Start 34: spacewire
+34/41 Test #34: spacewire ........................   Passed    0.00 sec
+      Start 35: fabric
+35/41 Test #35: fabric ...........................   Passed    0.00 sec
+      Start 36: canfd
+36/41 Test #36: canfd ............................   Passed    0.00 sec
+      Start 37: canopen
+37/41 Test #37: canopen ..........................   Passed    0.00 sec
+      Start 38: link_ip
+38/41 Test #38: link_ip ..........................   Passed    0.00 sec
+      Start 39: link_tsn
+39/41 Test #39: link_tsn .........................   Passed    0.00 sec
+      Start 40: lwip
+40/41 Test #40: lwip .............................   Passed    0.00 sec
+      Start 41: lwip_netif
+41/41 Test #41: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 41
+
+Label Time Summary:
+host-pty              =   0.33 sec*proc (1 test)
+link                  =   0.33 sec*proc (1 test)
+sb-evs                =  17.00 sec*proc (1 test)
+tool-qualification    =  17.00 sec*proc (1 test)
+uart                  =   0.33 sec*proc (1 test)
+
+Total Test time (real) =  17.55 sec
+info: downloading https://releases.lean-lang.org/lean4/v4.10.0/lean-4.10.0-linux.tar.zst
+info: installing /root/.elan/toolchains/leanprover--lean4---v4.10.0
+Build completed successfully.
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /workspace/docs/requirements/traceability.yaml
+requirements in manifest: 117
+  srs=73 sss=30 gap=14
+lean theorems found: 62
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  1 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (117 requirements, 73 srs, 30 sss, 14 gaps, 62 lean theorems checked)

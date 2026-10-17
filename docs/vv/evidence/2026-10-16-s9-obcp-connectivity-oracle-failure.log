@@ -1,0 +1,31 @@
+Development-time integration-test failure retained per N11.
+
+Configuration: build/obcp, FF_USE_N7_OBCP=ON, FF_USE_LWIP=OFF,
+FF_USE_PUS_ASN1=OFF, FF_BUILD_TESTS=ON.
+Command: ctest --test-dir build/obcp -R obcp_engine_connectivity --output-on-failure
+
+Test project /home/nicola/fsw/frick-fsw/build/obcp
+    Start 10: obcp_engine_connectivity
+1/1 Test #10: obcp_engine_connectivity .........***Failed    0.00 sec
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_obcp_integration.c:258: g_wait_until_seconds == 20u && g_wait_until_ms == 10u
+Traceback (most recent call last):
+  File "<module>", line 1, in <module>
+AssertionError:
+/home/nicola/fsw/frick-fsw/tests/unit/test_obcp_integration.c checks=20 failures=1
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+  10 - obcp_engine_connectivity (Failed)
+Errors while running CTest
+Exit code: 8
+
+Cause/correction: the script compared the byte result of
+obcppackets.receivepacket() to a Python text string (`'OK'`). The N7 module
+returns bytes, so that assertion stopped later script operations; the upstream
+execute API still returned true, confirming that its Boolean is not a reliable
+interpreter-success oracle. The integration test was corrected to compare with
+`b'OK'`, and to assert callback effects after execution. The focused test then
+passed. This is test-oracle correction evidence, not an N7 engine qualification.

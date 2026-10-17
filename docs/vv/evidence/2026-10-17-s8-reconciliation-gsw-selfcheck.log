@@ -1,0 +1,23 @@
+python3 tests/python/test_ff_gsw.py
+............
+----------------------------------------------------------------------
+Ran 12 tests in 0.006s
+
+OK
+python3 tests/python/test_metrics.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK
+python3 tests/python/test_license_check.py
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 4.159s
+
+OK
+python3 tools/scripts/license_check.py
+MPL-2.0 license identity and authored-file SPDX check: OK
+python3 tools/gsw/ff_gsw.py --ping
+TC frame (17 B): 1810c000000a2b1101010201020304f72b
+(no --connect given; frame size/CRC self-check only)

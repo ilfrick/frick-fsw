@@ -164,6 +164,11 @@ static void test_pusopen_decode(void)
                                                   &data_len) == FF_PARSE_ERROR);
     FF_TEST_ASSERT(FF_PusBackendPusopen.decode_tc(raw, 5u, &apid, &hdr, &data, &data_len) ==
                    FF_PARSE_ERROR);
+    /* Local adapter contract (docs/architecture/pus-layer.md §§6–7): the
+     * adapter rejects a non-TC packet or a mismatched APID before delegating to
+     * the vendor SDK. This asserts the guard ordering of that local contract; it
+     * is not mission/profile compliance verification and does not exercise the
+     * vendor SDK path. */
     make_tc_primary(raw, (uint16_t)(FF_APID_TC + 1u));
     {
         uint16_t calls_before = g_decode_calls;

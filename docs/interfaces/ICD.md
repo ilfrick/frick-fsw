@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 1.2 |
-| Date        | 2026-10-16 |
+| Revision    | 1.4 |
+| Date        | 2026-10-17 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -93,6 +93,11 @@ reference driver headers, and their platform addresses in
 
 ## 4. Implemented PUS services and subservices (open backend)
 
+Rows below are the services/subservices this build answers on the wire, including
+the registered Service 11 stub (which returns `FF_NOT_IMPLEMENTED`). The list is
+a framework reference profile, **not** a selected mission PUS profile: see the
+provisional-profile note at the end of this section.
+
 | Service | Subservice | Name | TC/TM | Data content |
 | ------- | ---------- | ---- | ----- | ------------ |
 | 1  | 1 | acceptance success | TM | TC type/subtype, source id, errcode 0 |
@@ -101,17 +106,37 @@ reference driver headers, and their platform addresses in
 | 1  | 4 / 6 | start / progress failure | TM | errcode |
 | 1  | 7 | completion success | TM | errcode 0 |
 | 1  | 8 | completion failure | TM | errcode |
+| 3  | 1 | create housekeeping report definition | TC | report id[1] + provider id[1] |
+| 3  | 3 | delete housekeeping report definition | TC | report id[1] |
+| 3  | 5 | set periodic-generation **state flag** to enabled | TC | report id[1] (state flag only; **no periodic emission path exists in this release** — TM[3,25] is produced only by TC[3,27]) |
+| 3  | 6 | set periodic-generation **state flag** to disabled | TC | report id[1] (state flag only; see above) |
 | 3  | 25 | housekeeping report | TM | report id + data |
-| 3  | (admin) | create/delete/enable/disable | TC | report parameters |
+| 3  | 27 | one-shot housekeeping report request | TC | count N[1] (`N >= 1`) + N report ids[1 each]; payload length must be exactly `1+N` octets; requests are processed in order, reporting the **first** error only while still serving the remaining valid ids (one-shot; no periodic arming) |
 | 5  | - | event report | TM | event id[@2], type, text |
-| 6  | 5 / 6 | memory dump (TC 6,5 -> TM 6,6) | TC/TM | addr[4, big-endian] + size[2, big-endian]; bounded to registered regions |
+| 6  | 5 / 6 | memory dump (TC 6,5 -> TM 6,6) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0` or `length == 0`; with `FF_ERROR` when the region is unknown or `offset + length` exceeds the registered region — neither cause is distinguishable on the wire (both surface as S1(1,8) `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produce no response when it is clear) |
 | 8  | - | function call | TC (dispatch) | function id |
 | 9  | 1 / 2 | time set / CUC report | TC/TM | 6-octet CUC T-field (P-field implicit; section 5) |
+| 11 | 1 / 2 | on-board control procedure (OBCP) activation — **stub** | TC | registered and answerable, but returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); no OBCP engine or script execution exists in this release (M15; NC-S9-01) |
 | 17 | 1 / 2 | test (ping / pong) | TC/TM | echo of the TC user data |
 | 20 | - | parameter report | TM | table-backed parameters |
 
 Verification error codes: `FF_PUS_FAIL_*` (unknown service/subservice,
 illegal APID, execution failure).
+
+**Provisional profile note (authority pending).** **Every** service/subservice
+row in this section is a provisional framework default recorded in
+`docs/adr/ADR-0020-provisional-pus-and-scheduler-policies.md`: the Service 3
+subservice allocation (1/3/5/6/27), the Service 6 memory-dump layout
+(`region id[1] + byte offset[4 BE] + length[2 BE]`, 7-octet TC payload), and the
+S1/S5/S8/S9/S11/S17/S20 code points. They align with the pinned
+ECSS-E-ST-70-41C (2016) service/subservice labelling where such a mapping
+exists, but they are **not** an approved mission PUS profile, an approved
+memory-access authorization model, or an approved OBCP concept. The Service 3
+codes are tracked open by NC-EXT-16 (and NC-EXT-14/15/17 for adjacent S1/S3/S8/S9
+and TM[8,2] semantics); the Service 6 region/address-width contract by
+NC-EXT-18; OBCP service use by M15/NC-S9-01. A mission profile/ICD authority
+must accept or replace these values before any operational use; this document
+remains an internal reference profile (section 6).
 
 ## 5. Time code (CUC, CCSDS 301.0-B-4)
 
@@ -187,3 +212,5 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 1.0 | 2026-10-15 | frick-fsw | Record head-of-line behavior for plausible incomplete PDL candidates and the pending authority disposition on timeout/recovery policy |
 | 1.1 | 2026-10-15 | frick-fsw | Distinguish the 1024-octet configured PUS payload maximum from the 1037-octet maximum complete TC packet capacity |
 | 1.2 | 2026-10-16 | frick-fsw | Document disconnected-UART early-zero handling and explicit malformed plausible-PDL packet-loss/recovery limitation from R1 review |
+| 1.3 | 2026-10-17 | frick-fsw | R3 0371 F-002/F-003: replace the generic S3 "(admin)" row with the implemented subservice codes (1/3/5/6/27, with payload shapes) and replace the S6 `addr[4]+size[2]` description with the implemented provisional `region id[1] + byte offset[4 BE] + length[2 BE]` profile; add the provisional-profile/authority-pending note (ADR-0020; NC-EXT-16/18). No wire behavior changed by this revision |
+| 1.4 | 2026-10-17 | frick-fsw | R3 0375 delta review (APPROVED WITH COMMENTS) F-0375-01..04/06: qualify the S3 enable/disable rows (state flag only; no periodic emission path exists), document the TM[6,6] payload shape and the S6 reject/error causes including their non-distinguishability on the wire, add the TC[3,27] `N>=1`/exact-`1+N`/first-error-continuation rules, extend the provisional note to cover every row in §4 (S1/S3/S5/S6/S8/S9/S11/S17/S20), and add the answerable Service 11 OBCP stub row. No wire behavior changed by this revision |

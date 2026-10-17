@@ -268,11 +268,14 @@ review).
   reference `FF_Dma_t` (address translation + cache-maintenance seam), validated
   by a host unit test and exercised over the emulated DDR in the Renode
   functional test. `method: Tst | Dem`. (milestone M4/M11)
-- **SRS-REQ-050** — *Optional PUS-C ASN.1 backend*: the framework shall retain an
-  optional N7 Space / ESA `asn1-pusc-lib` (ASN.1/ACN PUS-C model, compiled with
-  ESA ASN1SCC) backend behind `FF_Pus_Backend_t`. The open CCSDS codec is the
-  default; the N7 backend is opt-in with `FF_USE_PUS_ASN1=ON` when generated
-  sources are available. `method: Tst | Dem`. (ADR-0018 supersedes ADR-0016.)
+- **SRS-REQ-050** — *N7/ESA PUS-C backend selection*: the reference
+  configuration shall select the N7 Space / ESA `asn1-pusc-lib` backend behind
+  `FF_Pus_Backend_t`, with `FF_USE_PUS_ASN1=ON` by default and generated common
+  ASN1SCC inputs required. The open CCSDS backend shall remain selectable with
+  `FF_USE_PUS_ASN1=OFF`. Current N7 adapter scope uses generated type-width
+  assertions and the N7/ESA CRC routine while CCSDS framing and PUS field
+  encode/decode use the reference codec; complete service-specific ASN.1
+  mappings remain planned under M15. `method: Tst | Dem`. (ADR-0019.)
 - **SRS-REQ-051** — *Multicore / SMP*: the framework shall run on the PolarFire
   SoC 4×U54 cluster under **RTEMS SMP** (multi-core tasking, per-core interrupts,
   cache-coherent shared data, shared-memory Software Bus), validated on the
@@ -562,3 +565,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.33 | 2026-10-15 | frick-fsw  | Correct CAN-FD exact sample-point requirement; define serialized CANopen ownership; specify RS-485 post-drain hold and timeout result; align default PUS backend wording |
 | 1.34 | 2026-10-15 | frick-fsw  | Clarify SRS-REQ-029 as an interface contract and explicitly limit CANopen conformance claims to SRS-REQ-063 subset |
 | 1.35 | 2026-10-15 | frick-fsw  | Specify that the `de_assert_us` value on the RS-485 release call controls the post-drain hold; assert-call value is not cached |
+| 1.36 | 2026-10-16 | frick-fsw  | Restore owner-directed N7/ESA PUS default under ADR-0019; define explicit open-backend option and current adapter integration limits |
