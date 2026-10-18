@@ -63,7 +63,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 69/73 (94.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 36/152 (23.7%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 36/153 (23.5%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -73,7 +73,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 12879/29345 (43.9%) | gcov |
+| Code statement (line) coverage | 12901/29345 (44.0%) | gcov |
 | Code function coverage | 1455/2307 (63.1%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
