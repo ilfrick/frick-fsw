@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 3.05                                   |
-| Date                              | 2026-10-17                             |
+| Revision                          | 3.06                                   |
+| Date                              | 2026-10-18                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -95,13 +95,14 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (latest pushed baseline `b8c3aee`; candidate uncommitted)
+## 4. Current state (latest pushed baseline `1fdbb83`; S8 batch committed)
 
-- **Committed baseline:** latest pushed baseline is `b8c3aee`. S8-SCH and
-  S8-VV-FU are delivered on the pushed history. S8-PUS-FU remains uncommitted;
-  its current default-N7 build/test candidate must not be conflated with prior
-  cycle evidence. Candidate verification and generated-input identity are
-  recorded in `docs/vv/verification-results.md`.
+- **Committed baseline:** latest pushed baseline is `1fdbb83` (S8 reconciliation
+  batch: S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration), pushed to
+  `origin` and `gitea`. S8-SCH and S8-VV-FU are delivered on the pushed history.
+  The batch's cycle evidence was produced on the pre-commit working tree, so it
+  must not be conflated with prior cycle evidence; candidate verification and
+  generated-input identity are recorded in `docs/vv/verification-results.md`.
 - **S8-SCH delivered:** `ff_sched` table-driven dispatcher (`ff_sched.{c,h}`,
   `app_scheduler.c`) with validation, atomic double-buffer activation, absolute
   per-entry release targets, bounded per-poll work, missed-slot/heartbeat/
@@ -167,8 +168,8 @@ occasion; prefer Docker.
   NC-EXT-91 is closed narrowly for that delta only. Broader candidate identity,
   provenance, physical-target and hosted CI evidence remain open.
 - **Hosted GitHub CI:** last recorded run `38793643786` passed all eight jobs
-  for the earlier baseline `13ebf92`; no hosted CI run covers the latest pushed
-  S8-SCH/S8-VV-FU baseline or this uncommitted default-N7 candidate.
+  for the earlier baseline `13ebf92`; no hosted CI run covers the pushed
+  default-N7 S8 batch (`1fdbb83`).
 - **Known limits:** NC-EXT-01/02/03/04/06/07/13/19/25/47/90 and all target/authority/
   phase/safety/security/release gates remain OPEN. Renode is emulation; RTEMS
   cross-build is not target runtime evidence; no physical RTPFS160ZT evidence is
@@ -901,3 +902,4 @@ occasion; prefer Docker.
 | 3.03 | 2026-10-16 | frick-fsw | Point current-cycle summary to post-reference CI-local rerun and verification-results 2.88 |
 | 3.04 | 2026-10-16 | frick-fsw | Point current-cycle summary to post-loop-audit CI-local rerun and verification-results 2.89 |
 | 3.05 | 2026-10-17 | frick-fsw | Process the four reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA), record ICD rev 1.4 provisional S3/S6 profile, NC-EXT-93, the corrected TS-1/TS-5/TS-6 §3 lists/histories and the sprint-plan 1.69 counts, and point the current-cycle summary to the 2026-10-17 reconciliation logs, the refreshed candidate manifest and verification-results 2.90 |
+| 3.06 | 2026-10-18 | frick-fsw | Documentation-vs-implementation audit (N21 non-functional only): refresh the §4 committed-baseline fact to the pushed S8 batch `1fdbb83` and correct the flagged §4 hosted-CI wording; see `docs/reviews/2026-10-18-docs-implementation-alignment.md`. No NC closed and no gate, phase or release approval implied |

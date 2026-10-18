@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ARCH-0003 |
 | ----------- | --------------- |
-| Revision    | 0.1.7 |
-| Date        | 2026-10-16 |
+| Revision    | 0.1.8 |
+| Date        | 2026-10-18 |
 
 ## 1. Purpose
 
@@ -108,7 +108,7 @@ sequenceDiagram
 | 9  | Time: UTC correlation set, CUC time report |
 | 11 | Scheduling: registered stub; invocation returns `FF_NOT_IMPLEMENTED` and emits an EVS warning (`FF_EVS_PUS_TC_ERR`) |
 | 17 | Test: connection test (ping/pong) |
-| 20 | Parameter: report (table-backed) |
+| 20 | Parameter: set (TC[20,1], report id + value via a registered setter) and report (TC[20,3] -> TM[20,4], provider/table-backed) |
 
 The Service 3 subservice assignments and Service 6 region-ID/offset layout are
 provisional public-reference defaults recorded in ADR-0020. TC[3,27] uses the
@@ -162,3 +162,4 @@ SSS-REQ-003/004/005/006/007/014/015 and the SRS-REQ-00x links in
 | 0.1.5 | 2026-10-16 | frick-fsw | Clarify PUSopen received-APID validation and controlled-stub limits for NC-EXT-21; vendor SDK compatibility remains open |
 | 0.1.6 | 2026-10-16 | frick-fsw | Document S3 report-provider failure propagation (SRS-REQ-008 / NC-EXT-17); profile mapping and independent review remain open |
 | 0.1.7 | 2026-10-16 | frick-fsw | Record provisional ECSS-referenced S3 subservices and S6 logical region/offset profile per ADR-0020; mission profile and authority gaps remain open |
+| 0.1.8 | 2026-10-18 | frick-fsw | Correct the §6 Service 20 row to list both the registered set (TC[20,1]) and report (TC[20,3] -> TM[20,4]) subservices; no PUS-C compliance claim |

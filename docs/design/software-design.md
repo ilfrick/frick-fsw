@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SDD-001                          |
-| Revision                          | 0.9                                    |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.10                                   |
+| Date                              | 2026-10-18                             |
 | Audience                          | software engineers, reviewers, integrators |
 | References                        | ECSS-E-ST-40C (software design), `docs/requirements/SRS.md`, `docs/architecture/*`, `docs/interfaces/ICD.md` |
 
@@ -64,7 +64,9 @@ Data flow (nominal): link -> `FF_PusIngest` -> handler -> service action ->
   self-describing form and 6-octet PUS on-wire T-field. Tone state is
   mutex-protected and the hook is **task-context only** (ISRs defer to a task).
 - **CCSDS (`ccsds.c`)**: primary/secondary headers, length bounds, CRC-16.
-- **Link (`link.c` + backends)**: `FF_Link_t` vtable; loopback and UART.
+- **Link (`link.c` + backends)**: `FF_Link_t` vtable; loopback (`link_loopback.c`),
+  UART (`link_uart.c`), PUS-over-IP (`link_ip.c`), TSN (`link_tsn.c`) and
+  segmentation/reassembly (`link_seg.c`).
 - **PUS (`pus.c`/`pus_services.c`)**: dispatch table, S1 verification generated
   for every acknowledged TC, services 1/3/5/6/8/9/11(stub)/17/20; provider
   registration for HK/parameter/function/memory.
@@ -116,7 +118,7 @@ requirement->code->test trace is the manifest `docs/requirements/traceability.ya
 | Quality & process | `.clang-format`, `tools/scripts/misra.sh`, `docs/quality/` | SRS-REQ-041, SRS-REQ-042 |
 | Emulated-target V&V | `tools/scripts/emulated_run.sh`, `tools/docker/renode/`, `src/apps/app_renode_test.c` | SRS-REQ-043, SRS-REQ-044 |
 | Build / CI / configuration | `CMakeLists.txt`, `.github/workflows`, `.gitea/workflows`, `config/` | FRICK-SRS-REQ-000, SRS-REQ-020 |
-| OBCP support (M12) - planned | `src/obcp/` behind `FF_Obcp_t` (TBD) | SRS-REQ-045 |
+| OBCP adapter (M12 candidate) | `src/obcp/ff_obcp.{c,h}` behind `FF_Obcp_t` (selected N7 callback integration; default-built with `FF_USE_N7_OBCP=ON`; deferred, NC-S9-01) | SRS-REQ-045 |
 | Mission services (M13) - planned | equipment manager + fault management (TBD) | SRS-REQ-046 |
 | Multicore / SMP (M14) - planned | RTEMS SMP path (TBD) | SRS-REQ-051 |
 | PUS-C service set (M15) - planned | in-house `FF_Pus_Backend_t` (TBD) | SRS-REQ-052 |
@@ -155,3 +157,4 @@ SpaceWire, TSN) as generic fabric-device backends.
 | 0.7 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-069 (reference MSS SPI driver) in the design matrix (M4/M11) |
 | 0.8 | 2026-10-12 | frick-fsw | Allocate SRS-REQ-070 (reference MSS block-device driver) in the design matrix (M4/M11) |
 | 0.9 | 2026-10-14 | frick-fsw | Clarify that SB overflow uses explicit deferred EVS send while ordinary EVS sends remain synchronous |
+| 0.10 | 2026-10-18 | frick-fsw | Record the delivered `src/obcp/` N7 OBCP adapter candidate as implementation present (default-built `FF_USE_N7_OBCP=ON`; deferred, NC-S9-01) instead of *planned*; list the IP/TSN/segmentation link backends in §3 |

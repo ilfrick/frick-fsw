@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0014                        |
-| Revision                          | 0.2                                    |
+| Revision                          | 0.4                                    |
 | Date                              | 2026-10-11                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SSS-REQ-022, SSS-REQ-023, SSS-REQ-027, SRS-REQ-045, SRS-REQ-046, SRS-REQ-054 |

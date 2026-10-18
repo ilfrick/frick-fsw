@@ -3,7 +3,7 @@
 | Field | Value |
 | ----- | ----- |
 | Document ID | FRICK-VV-TS-9 |
-| Revision | 0.1 |
+| Revision | 0.4 |
 | Date | 2026-10-16 |
 | Status | Host connectivity test specification; limited evidence |
 | Implementation | `tests/unit/test_obcp_integration.c` |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.5                                  |
-| Date                              | 2026-10-16                             |
+| Revision                          | 0.1.7                                  |
+| Date                              | 2026-10-18                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17, N21, N22 |
 
@@ -204,10 +204,10 @@ given host is recorded as SKIP with the reason and is never counted as a pass.
 
 | # | Check | Command | Scope / limitation |
 | - | ----- | ------- | ------------------ |
-| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 40/40 CTest (incl. `test_es_hs_lifecycle`, `test_decoder_corpus`), Lean `lake build`, `trace.py`; no format/smoke/docs |
+| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 43/43 CTest (incl. `test_es_hs_lifecycle`, `test_decoder_corpus`), Lean `lake build`, `trace.py`; no format/smoke/docs |
 | S2 | Simulator smoke | `make smoke` | 6 apps registered, EVS→PUS TM on loopback |
 | S3 | GSW / metrics / license self-check | `make gsw-selfcheck` | GSW python tests, README metrics, N13 license policy |
-| S4 | Coverage metrics | `make metrics` | regenerates README panel; the S8-VV-FU coverage CTest subset passes (40/40) |
+| S4 | Coverage metrics | `make metrics` | regenerates README panel; the S8-VV-FU coverage CTest subset passes (43/43) |
 | S5 | Documentation generation | `make docs` | Doxygen; warning count is recorded, not claimed "warning-free" |
 | S6 | Format + whitespace + JSON | `clang-format --dry-run --Werror`, `git diff --check`, `python3 -m json.tool` | all managed C/H, no trailing whitespace, valid status JSON |
 | S7 | RTEMS cross-build | `make rtems-docker` | compile/link evidence only; not target runtime/timing |
@@ -231,3 +231,4 @@ of this set is itself a change and follows the same N15/N17/N20 gates.
 | 0.1.4 | 2026-10-14 | frick-fsw | Reference the N22 controlled test specification (`FRICK-VV-TSPEC-001`) and the system verification architecture (`FRICK-VV-SVA-001`) |
 | 0.1.5 | 2026-10-16 | frick-fsw | Add §9 "Sprint verification set" (owner direction): the named S1-S10 checks executed and retained at every sprint, with the physical-target exclusion disclosed |
 | 0.1.6 | 2026-10-16 | frick-fsw | S8-VV-FU: extend §9 S1 to 40/40 CTest (add `test_es_hs_lifecycle`, `test_decoder_corpus`) and S10 to include the new bounded ES/HS lifecycle and decoder fuzz/property corpus; update S4 wording to the S8-VV-FU coverage subset |
+| 0.1.7 | 2026-10-18 | frick-fsw | Correct the stale §9 S1/S4 CTest count to the current 43/43 (the 40/40 figure predates the S8-PUS-FU/S8-SCH tests added to the suite); synchronize the document header revision |

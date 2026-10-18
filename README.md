@@ -51,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-17. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-18. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -156,7 +156,7 @@ scope (implemented / interface-only / planned / user-provided):
 | ---------------- | --------------------------- | -------------- | ------- | ------------- |
 | PAL (tasks/mutex/queue/time/console) | POSIX (host + RTEMS) + RTEMS bootstrap | — | — | — |
 | Core services | SB, EVS, ES, TBL, Time (+ PPS) | — | — | — |
-| PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend open CCSDS codec**; optional N7/ESA ASN.1 | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen commercial SDK |
+| PUS-C | services 1/3/5/6/8/9/11/17/20; **default backend N7/ESA ASN.1 adapter** (`FF_USE_PUS_ASN1=ON`); open CCSDS codec alternative | `FF_Pus_Backend_t` | full fundamental set (**M15**); S20/S23 | PUSopen commercial SDK |
 | Transport | CCSDS Space Packets; link backends loopback/UART/IP/TSN (+ seg/reassembly) | `FF_Link_t` | — | radio back-ends |
 | HAL contracts | registry + `hal_*.h` | ETH, NET, TSN, CAN, SERIAL, SPI, I2C, PCIE, GPIO, SPACEWIRE, MEM, NVM, BLOCK | — | any backend |
 | Drivers | GEM Ethernet + native TSN; MSS GPIO/MMUART; RAM pool/DMA; eNVM NVM; QSPI/NOR MTD; MSS CAN/I2C/SPI/MMC-SD; PCIe; SpaceWire (contract-level); fabric; CAN-FD; CANopen subset; RS-485 DE/RE | — | — | — |
@@ -170,13 +170,14 @@ scope (implemented / interface-only / planned / user-provided):
 
 ## PUS-C services implemented
 
-PUS-C (ECSS-E-ST-70-41C) telecommand dispatch and telemetry over the open
-CCSDS backend (`src/pus/pus.c`, `src/pus/pus_services.c`):
+PUS-C (ECSS-E-ST-70-41C) telecommand dispatch and telemetry over the configured
+PUS-C backend (`src/pus/pus.c`, `src/pus/pus_services.c`; the default backend is
+the N7/ESA ASN.1 adapter, with the open CCSDS codec as the built-in alternative):
 
 | Service | Name | Implemented subservices |
 | ------- | ---- | ----------------------- |
 | 1 | Request verification | 1,2,4,8 acceptance/start/progress/completion (framework-generated) |
-| 3 | Housekeeping | 1 create, 2 delete, 3 enable, 4 disable, 27 report (provider-registered) |
+| 3 | Housekeeping | 1 create, 3 delete, 5 enable, 6 disable, 27 report (provider-registered; 5/6 set only the periodic state flag — no periodic emission path exists) |
 | 5 | Event reporting | 1-3 event messages (via EVS listener) |
 | 6 | Memory management | 5 dump (region-bounded, registered regions only) |
 | 8 | Function management | 1 function invocation (provider-registered) |

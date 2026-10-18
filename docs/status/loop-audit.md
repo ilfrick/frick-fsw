@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 10.7                                   |
-| Date                              | 2026-10-17                             |
-| Baseline commit                   | `b8c3aee` (S8-SCH/S8-VV-FU baseline pushed to both remotes; current audit assesses uncommitted S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration candidate) |
+| Revision                          | 10.8                                   |
+| Date                              | 2026-10-18                             |
+| Baseline commit                   | `1fdbb83` (S8 batch — S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration — committed and pushed to both remotes; the audited increment was produced on the pre-commit working tree) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -456,3 +456,4 @@ NC-EXT-75 remains open and NC-EXT-47 is not closed.
 | 10.5 | 2026-10-16 | frick-fsw | Refresh current working-tree scope boundary to post-R4 CI result and narrow NC-EXT-91 closure |
 | 10.6 | 2026-10-16 | frick-fsw | Reconcile N9/N12/N19/N20 and the C-07/C-15/C-16 finding rows with the completed independent R1 0355 / R2 0356 delta re-reviews: NC-EXT-88/89 and the bounded NC-EXT-23/24 defects closed narrowly (bounded NC-EXT-17 part recorded under NC-EXT-88), NC-EXT-92 registered for the pre-existing TS-4 coverage-count inconsistency, TS-1 §3 gap list corrected (removed N22-TS1-47/49 which are covered), and TS-1/TS-5 case-table counts reconciled; authority, target, hosted, provenance and release gates unchanged |
 | 10.7 | 2026-10-17 | frick-fsw | Record and process the four independent reconciliation reviews: R2 0370 (V&V delta, approved with comments) §3 gap-list synchronization and oracle-independence wording, R3 0371 (requirement grounding) ICD rev 1.3 for the provisional S3 subservice codes and S6 profile, R4 0372 (documentation) TS-1/TS-5/TS-6 history and list corrections, PA 0373 (no approval) stale candidate identity and the missing `N22-TS5-77` oracle review; register NC-EXT-93 for the review-log ID collision with a bounded mitigation and statement of the narrow-closure vs PA-acceptance taxonomy; refresh the current-tree evidence (ci-local 43/43 + Lean/trace, pinned format, docs, GSW, smoke) and candidate manifest; authority/target/provenance/release gates remain open |
+| 10.8 | 2026-10-18 | frick-fsw | Refresh the baseline-commit row to the pushed S8 batch `1fdbb83` (S8-SCH/S8-VV-FU/S8-PUS-FU + selected N7 OBCP integration) after the documentation-vs-implementation audit `docs/reviews/2026-10-18-docs-implementation-alignment.md`; no objective/norm disposition changed and no gate approval implied |
