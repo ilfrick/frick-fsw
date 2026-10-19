@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 3.07                                   |
+| Revision                          | 3.08                                   |
 | Date                              | 2026-10-19                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -95,18 +95,20 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (latest pushed baseline `e7e48ee`; S8 batch + follow-ups committed)
+## 4. Current state (latest pushed baseline `318f49b`; easy-fixes batch + follow-ups committed)
 
-- **Committed baseline:** the latest pushed baseline is `e7e48ee` (bounded PA
-  manifest review), on this chain: `b8c3aee` → `1fdbb83` (S8 reconciliation batch:
+- **Committed baseline:** the latest pushed baseline is `318f49b` (2026-10-19
+  easy-fixes batch), on this chain: `b8c3aee` → `1fdbb83` (S8 reconciliation batch:
   S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration) → `2111968`
   (documentation alignment + NC-EXT-94/95/96) → `5be0e8c` (metrics refresh) →
-  `e7e48ee`, pushed to `origin` and `gitea`. S8-SCH and S8-VV-FU are delivered on
-  the pushed history. The 2026-10-19 easy-fixes batch sits on top of `e7e48ee` in
-  the working tree; its cycle evidence is produced on that pre-commit tree, so it
-  must not be conflated with prior cycle evidence. Candidate verification and
-  generated-input identity are recorded in `docs/vv/verification-results.md`.
-- **2026-10-19 easy-fixes batch (committed on top of `e7e48ee`):**
+  `e7e48ee` (bounded PA manifest review) → `318f49b` (easy-fixes batch), pushed to
+  `origin` and `gitea`. S8-SCH and S8-VV-FU are delivered on the pushed history.
+  The easy-fixes batch cycle evidence is produced on the pre-commit working tree,
+  so it must not be conflated with prior cycle evidence. Candidate verification and
+  generated-input identity are recorded in `docs/vv/verification-results.md`, and
+  the batch delta identity in the addendum of
+  `docs/vv/evidence/2026-10-17-s8-reconciliation-candidate-manifest.md`.
+- **2026-10-19 easy-fixes batch (committed as `318f49b`, pushed to both remotes):**
   corrected the masked `N22-TS6-57` minimum-PDL sub-case in `test_decoder_corpus.c`
   (a real test defect: the old vector was rejected by an earlier guard, so the
   minimum-length rule was never exercised — the discriminating mutant now kills
@@ -189,10 +191,15 @@ occasion; prefer Docker.
   while output generation succeeded. PA independently verified the supplemental
   19-file PUS/Scheduler delta identity and cited log/cache/executable hashes;
   NC-EXT-91 is closed narrowly for that delta only. Broader candidate identity,
-  provenance, physical-target and hosted CI evidence remain open.
-- **Hosted GitHub CI:** last recorded run `38793643786` passed all eight jobs
-  for the earlier baseline `13ebf92`; no hosted CI run covers the pushed
-  default-N7 S8 batch (`1fdbb83`).
+  provenance and physical-target evidence remain open, and no hosted CI run covers
+  that batch commit `1fdbb83` itself (later chain commits do have hosted runs — see
+  below).
+- **Hosted GitHub CI:** run `39218060325` passed all eight jobs (documentation
+  set, Lean, simulator smoke, traceability gate, RTEMS cross build, host
+  Debug+Release build/unit tests, static analysis, pipeline summary) for the
+  pushed baseline `318f49b`; the earlier recorded run `38793643786` passed for
+  `13ebf92`. No hosted CI run has head `1fdbb83` itself (the pushed default-N7
+  S8 batch), though later chain commits are covered.
 - **Known limits:** NC-EXT-01/02/03/04/06/07/13/19/25/47/90 and all target/authority/
   phase/safety/security/release gates remain OPEN. Renode is emulation; RTEMS
   cross-build is not target runtime evidence; no physical RTPFS160ZT evidence is
@@ -927,3 +934,4 @@ occasion; prefer Docker.
 | 3.05 | 2026-10-17 | frick-fsw | Process the four reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA), record ICD rev 1.4 provisional S3/S6 profile, NC-EXT-93, the corrected TS-1/TS-5/TS-6 §3 lists/histories and the sprint-plan 1.69 counts, and point the current-cycle summary to the 2026-10-17 reconciliation logs, the refreshed candidate manifest and verification-results 2.90 |
 | 3.06 | 2026-10-18 | frick-fsw | Documentation-vs-implementation audit (N21 non-functional only): refresh the §4 committed-baseline fact to the pushed S8 batch `1fdbb83` and correct the flagged §4 hosted-CI wording; see `docs/reviews/2026-10-18-docs-implementation-alignment.md`. No NC closed and no gate, phase or release approval implied |
 | 3.07 | 2026-10-19 | frick-fsw | Easy-fixes batch (N21): refresh the §4 committed baseline to the pushed `e7e48ee` chain and record the 2026-10-19 batch (corrected masked `N22-TS6-57` minimum-PDL sub-case, corpus anomaly context, CTest time budget, TS-5/TS-6 oracle wording, Service-1 emitted set `{1,2,3,5,7,8}` with NC-EXT-94 widened) plus the completed independent R2/R3 delta review (`FRICK-REVIEW-0379/0380`) and the R4 `NC-EXT-96` confirmation; register NC-EXT-97 (requirements authority), NC-EXT-98 (residual S8-VV-FU test evidence) and NC-EXT-99 (this batch's own N17/N20 and V&V-confirmation reviews deferred by explicit owner disposition to the next cycle). `GAP-R3-1` and `NC-EXT-25` remain OPEN; no NC closed and no gate, phase, qualification or release approval implied |
+| 3.08 | 2026-10-19 | frick-fsw | Post-commit baseline refresh: repoint §4 from the pre-commit `e7e48ee` baseline to the pushed `318f49b` (easy-fixes batch committed and pushed to `origin` and `gitea`), identify the batch commit explicitly, and record hosted GitHub CI run `39218060325` (all eight jobs green for `318f49b`); no NC closed and no gate, phase or release approval implied |
