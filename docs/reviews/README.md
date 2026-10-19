@@ -2,6 +2,9 @@
 
 | Date       | Scope                          | Profile | Conclusion                | Report |
 | ---------- | ------------------------------ | ------- | ------------------------- | ------ |
+| 2026-10-19 | Easy-fixes batch post-publication independent reviews (committed as 318f49b, reviewed at 7e93325; no NC/gate/release closed; corrections marked "delta re-review pending" per N12) | R4 / N17 | APPROVED WITH COMMENTS — 0 Major, 4 Minor, 2 Comment; found two facts also flagged independently by PA (unsupported ASan duration 166.36 s vs retained 94.02 s; stale "uncommitted" label) and the ICD-vs-README divergence; ICD/SRS left unedited as authority items (NC-EXT-94/97) | 2026-10-19-easy-fixes-documentation-r4-0381.md |
+| 2026-10-19 | Easy-fixes batch post-publication independent reviews (committed as 318f49b, reviewed at 7e93325) | R2 (core) + R3 annex / N22/N10 | APPROVED WITH COMMENTS — 0 Major: 3 Minor (F-0382-01 residual oracle caveat, F-0382-02 false lwIP/ASan statement, F-0382-03 unsupported ASan duration) + 1 Comment (F-0382-04 ICD-vs-README divergence). Independently reproduced the min-PDL mutation kill (14941 checks, 15 failures), confirmed 43/43 ctest (41 without lwIP), re-derived emitted set {1,2,3,5,7,8}, confirmed no `FF_PalPanic` seam in tests/ (F-0379-03 residual). No NC/gap/gate closed | 2026-10-19-easy-fixes-vv-confirmation-r2r3-0382.md |
+| 2026-10-19 | Easy-fixes batch post-publication independent PA review (committed as 318f49b, reviewed at 7e93325; NC-EXT-99 stays OPEN) | PA / N20 | APPROVED WITH COMMENTS — 0 Major, 3 Minor, 2 Comment. Independently recomputed all 7 evidence-log hashes (match) and reproduced the manifest addendum digest (8f7bbb3f..., 27 paths, 27/27 rows match 318f49b blobs); verified hosted CI run 39218060325 (8/8 jobs, head 318f49b) via GitHub API; no NC closed; no phase/release/qualification approval | 2026-10-19-easy-fixes-product-assurance-pa-0383.md |
 | 2026-10-17 | S8 reconciliation V&V/test-evidence delta | R2 | APPROVED WITH COMMENTS; 1 Medium (TS-1/TS-5/TS-6 §3 gap-list vs table) and 5 Minor findings; counts recomputed (TS-1 103/77/26, TS-2 81/48/32, TS-5 77/56/21, TS-6 58/30/27+1); no qualification/target/closure approval | 2026-10-17-s8-vv-pus-delta-0370.md |
 | 2026-10-17 | Requirement grounding of provisional PUS/S6/scheduler policy | R3 | CHANGES REQUIRED for interface consistency; F-002/F-003 (ICD S6 profile and S3 subservice codes) corrected by ICD rev 1.3; all authority-owned policy items remain OPEN | 2026-10-17-s8-requirement-grounding-r3-0371.md |
 | 2026-10-17 | S8 reconciliation documentation delta | R4 | CHANGES REQUIRED in the reviewed revision; bounded findings corrected (TS-1 §3 list, TS-1 history, TS-5 §3, NC-EXT-92 section reference, S8-VV-FU leg count, S8-PUS-FU wording); delta re-review pending; no aggregate N17 approval | 2026-10-17-s8-current-docs-r4-0372.md |
@@ -385,7 +388,11 @@ This directory stores every review report produced for frick-fsw, including
 development/verification cycle and are committed/pushed only after the full
 applicable verification and independent-review gates pass (norms N7/N11/N15).
 
-> **Current status:** FRICK-REVIEW-0167/0168/0169 remain APPROVED WITH COMMENTS;
+> **Current status (historical narrative, as of 2026-10-19; superseded by the
+> per-row register above and the active NC list in `docs/planning/sprint-plan.md`).
+> The paragraph below is retained verbatim as a point-in-time register of the
+> state narrated through FRICK-REVIEW-0326; it was **not** extended for the
+> 0380..0383 reviews now indexed above. FRICK-REVIEW-0167/0168/0169 remain APPROVED WITH COMMENTS;
 > their corrective actions are not closed until required delta reports are
 > recorded. The S8-FU assessments above found additional items; their reports
 > are recorded as FRICK-REVIEW-0170/0171/0172. Follow-up reviews

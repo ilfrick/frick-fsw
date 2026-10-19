@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS6                     |
-| Revision                         | 1.6                                    |
+| Revision                         | 1.7                                    |
 | Date                             | 2026-10-19                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001), §6 |
@@ -299,9 +299,14 @@ and this increment's execution, so that `covered` is not read as `passing`:
   `docs/vv/verification-results.md` states "ASan+UBSan 27/27"; that UBSan
   configuration is not present in the committed workflows/presets, so
   `N22-TS6-6` is recorded as a gap rather than credited.
-- **Unsanitized build paths**: the two lwIP targets are behind
-  `FF_USE_LWIP=ON` and are not built by the default (sanitizer) configuration,
-  so `test_lwip`/`test_lwip_netif` are outside the current ASan evidence.
+- **Sanitized build paths**: the lwIP pair (`test_lwip`, `test_lwip_netif`) is
+  behind `FF_USE_LWIP=ON`; the host sanitizer configuration (`build/asan`,
+  `-fsanitize=address`, `FF_USE_LWIP=ON`) does build and execute them, and the
+  retained `2026-10-19-easy-fixes-asan.log` records them passing within the 43/43
+  result (cache confirms `FF_USE_LWIP:BOOL=ON`). They are therefore inside the
+  ASan evidence, not outside it; the earlier "outside the current ASan evidence"
+  wording was corrected in revision 1.7 (finding F-0382-02). The sanitizer result
+  is host-only; the target/silicon lwIP behaviour remains a HIL/TBD gap.
 - Coverage under this baseline is qualified accordingly: `covered` rows
   (`N22-TS6-1/2/3/5/7/11/12/13/14/15/16/18/20/24/26/27/40/43/44/45`) have a
   grounded oracle and an executable environment, but the runner must confirm
@@ -383,3 +388,4 @@ does not establish a time-based arrival envelope, WCET, or ground forwarding.
 | 1.4 | 2026-10-16 | frick-fsw | Align scheduler missed-slot vector to the tested 1000 ms period and require explicit dispatched message ID/payload/time oracles; correct CRC oracle description: corpus check shares `FF_CcsdsCrc16` with decoder and is internal consistency only, not independent. Target timing and NC-EXT-25 remain open |
 | 1.5 | 2026-10-17 | frick-fsw | Close the independent review loop (R2 0370 Finding 4, R4 0372 F-0372-13): synchronize the §3 gap mapping with the case table — remove `N22-TS6-33`/`35` (both `covered`) and add the missing `N22-TS6-52` (`gap`); add the shared `FF_CcsdsCrc16` common-mode oracle limit note and a residual-limits paragraph so the still-open mission-rate/target-timing (NC-EXT-19) and independent-corpus-review (NC-EXT-25) items formerly attached to 33/35 stay visible. No status, count or oracle changed |
 | 1.6 | 2026-10-19 | frick-fsw | Easy-fixes batch (N21): correct the §3.1 registered-suite count to the actual 43 ctest tests (14 unconditional + 29 option-guarded; 41 without lwIP) and the `make test` figures to 43/43; qualify the `N22-TS6-41/55` oracle claims with the disclosed `app_hs.c` constant coupling; widen `N22-TS6-58`'s expected status set to the documented `{FF_PARSE_ERROR, FF_ERROR, FF_NOT_FOUND, FF_NOT_READY}` the harness asserts. No case ID or §3.2 count changed (58/30/27+1); record the enforced CTest wall-clock budget (TIMEOUT 60, `n22;s8-vv-fu` labels) on the two S8-VV-FU targets in §3.1 |
+| 1.7 | 2026-10-19 | frick-fsw | Post-publication review correction (F-0382-02): the §3.1 "Unsanitized build paths" bullet falsely stated that `test_lwip`/`test_lwip_netif` are outside the ASan evidence; correct it to state that the sanitizer configuration (`FF_USE_LWIP=ON`) builds and runs them and they pass within the 43/43 asan leg, with the retained `asan.log` and `CMakeCache.txt` corroborating. No status, count or oracle changed |

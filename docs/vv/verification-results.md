@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.91                                   |
+| Revision                          | 2.92                                   |
 | Date                              | 2026-10-19                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
@@ -22,10 +22,11 @@ toolchain images; they must not be attributed to the committed baseline. The
 exact mutable candidate and tool inputs are not fully captured by the recorded
 hashes.
 
-## Easy-fixes batch: masked decoder sub-case + documentation accuracy (2026-10-19; uncommitted)
+## Easy-fixes batch: masked decoder sub-case + documentation accuracy (2026-10-19; published as `318f49b`)
 
-- **Scope of this cycle.** Working-tree-only batch on top of the pushed baseline
-  `e7e48ee`: one functional test defect corrected (`test_decoder_corpus.c`), an
+- **Scope of this cycle.** Batch produced on the working tree on top of the pushed
+  baseline `e7e48ee` and published as `318f49b` (post-publication review dispositions
+  are appended in revision 2.92): one functional test defect corrected (`test_decoder_corpus.c`), an
   enforced CTest wall-clock budget on the two S8-VV-FU targets, and bounded
   document/test-spec accuracy corrections (README, TS-5, TS-6, the user-integration
   manual, the sprint-plan NC register and five document headers). **No requirement,
@@ -56,7 +57,7 @@ hashes.
   subsequently modified by the F-0379-01/-02/-04/-06 corrections (and by the pinned
   clang-format pass) and re-verified in the cycle listed below. The review's verdict
   and findings are unchanged by that; no hash in the review report was rewritten.
-- **Cycle evidence (this batch, uncommitted tree):**
+- **Cycle evidence (this batch; captured on the working tree, published as `318f49b`):**
   - `make ci-local` (N6/N8; docker `frick-vv:local`, Ninja Debug, `FF_USE_PUS_ASN1=ON`):
     configure + build + **43/43 ctest** + Lean 62 theorems + `trace.py` PASS —
     `docs/vv/evidence/2026-10-19-easy-fixes-ci-local.log`
@@ -74,7 +75,10 @@ hashes.
     `docs/vv/evidence/2026-10-19-easy-fixes-docs.log`
     (sha256 `c7d1f9a5a8343199ee3ccaab25a107d6e6fdbcc53c6dc28badda6e8e8a6c019a`).
   - ASan leg (host `build/asan`, `-DCMAKE_C_FLAGS=-fsanitize=address -fno-omit-frame-pointer`):
-    **43/43 PASS** (166.36 s) — `docs/vv/evidence/2026-10-19-easy-fixes-asan.log`
+    **43/43 PASS** (94.02 s — the value recorded in the retained log; the figure
+    "166.36 s" that originally appeared here was taken from an earlier run and is
+    corrected in revision 2.92 under findings F-0381-01/F-0382-03/F-0383-01) —
+    `docs/vv/evidence/2026-10-19-easy-fixes-asan.log`
     (sha256 `4e32e21463a363772bbdee364079afbdf60ade155d23516bf46322aea404a054`).
   - Host `build/native` ctest: **43/43**; `decoder_corpus` 14941 checks / 0 failures.
 
@@ -103,6 +107,40 @@ hashes.
   phase, qualification, tool-qualification or release approval is implied, and no
   target/HIL evidence is added. Gitea Actions remains unverified.
 
+### Post-publication independent reviews of this batch (2026-10-19)
+
+The batch was committed and pushed as `318f49b` (with two status-only follow-ups
+at `7e93325`) **without** its own batch-scoped independent reviews, by explicit
+owner disposition recorded as `NC-EXT-99` (in `docs/planning/sprint-plan.md`).
+The three deferred legs were performed afterwards in this same cycle against the
+published tree (`7e93325`) and are indexed in `docs/reviews/README.md`:
+
+| Review id | Profile | Report | Verdict | Disposition |
+| --------- | ------- | ------ | ------- | ----------- |
+| `FRICK-REVIEW-0381` | R4 (documentation, N17) | `docs/reviews/2026-10-19-easy-fixes-documentation-r4-0381.md` | APPROVED WITH COMMENTS — 0 Major, 4 Minor, 2 Comment | findings corrected/registered below |
+| `FRICK-REVIEW-0382` (R2 core; `0382A` annex) | R2/R3 V&V (N22/N10) | `docs/reviews/2026-10-19-easy-fixes-vv-confirmation-r2r3-0382.md` | APPROVED WITH COMMENTS — 0 Major, 3 Minor (F-0382-01/-02/-03), 1 Comment (F-0382-04) | findings corrected/registered below |
+| `FRICK-REVIEW-0383` | PA (N20) | `docs/reviews/2026-10-19-easy-fixes-product-assurance-pa-0383.md` | APPROVED WITH COMMENTS — 0 Major, 3 Minor, 2 Comment | findings corrected/registered below |
+
+The reviews approve nothing and close nothing (`NC-EXT-99` remains OPEN pending
+finding processing under N12). Findings carried from the earlier
+`FRICK-REVIEW-0379/0380` and `0378` reviews were reconciled as follows:
+
+| Raising review | Finding | Resolution by this delta |
+| -------------- | ------- | ------------------------ |
+| F-0381-01 / F-0382-03 / F-0383-01 (one defect, three confirmations) | Unsupported ASan duration "166.36 s" in this record (retained log: 94.02 s) | **Corrected** in revision 2.92 (this record); the correction is recorded in the history row. No behaviour/evidence change. |
+| F-0381-02 / F-0383-02 | this section still labelled the published batch "uncommitted"/"working-tree-only" | **Corrected** in revision 2.92 (this record). |
+| F-0382-02 | `ts-6-sw-robustness.md §3.1 "Unsanitized build paths"` falsely states the lwIP targets are outside the ASan evidence (they are built and pass under the default `FF_USE_LWIP=ON` asan leg) | **Corrected** in TS-6 rev 1.7. |
+| F-0382-01 | residual uncaveated "independent EVS-listener oracle" claim at the HS host-integration paragraph (F-0379-02 residual) | **Corrected** in TS-5 rev 1.5 + traceability.yaml `lean_note` caveats. |
+| F-0381-03 / F-0382-04 | `FRICK-ICD-001` §4 still overstates Service-1 wire behaviour (emitted set {1,2,3,5,7,8}); README/assessment corrected but ICD unchanged | **Not corrected** — interface-authority item, disposition owned by `NC-EXT-94`; the README-vs-ICD divergence is appended to that NC text below. |
+| F-0381-04 | `SRS-REQ-018` vs `SRS-REQ-050` backend-default contradiction | **Not corrected** — requirement-authority item, disposition owned by `NC-EXT-97`. |
+| F-0381-05 | stale "Current status" prose in `docs/reviews/README.md` | **Corrected** (date-stamped historical) at rev 1.7 of that index. |
+| F-0381-06 | evidence manifests lack a History/Revision table | **Recorded as NC-EXT-101** (process note; non-functional, N16 interpretation). |
+| F-0383-03 | §9 S7/S8 every-sprint set not fully accounted (no RTEMS/Renode record for the batch, no non-application rationale) | **Corrected** in `verification-plan` rev 0.1.8 (rationale stated; S7 satisfied by hosted CI for this commit, S8 N22 not applicable: 0 `src/` changes). |
+| F-0383-04 | candidate-manifest addendum does not name the commit the digest binds to | **Corrected** in the addendum (binds to `318f49b`). |
+| F-0383-05 | format-check/docs logs attribute PASS from absence of output | **Recorded as NC-EXT-102** (tooling evidence record; non-functional). |
+
+Each corrected finding is marked "delta re-review pending" (N12): the same profile is
+expected to confirm closure before the NC is retired.
 
 ## S8 reconciliation cycle: independent-review closure of the PUS/SCH/VV delta (2026-10-17; uncommitted)
 
@@ -1627,4 +1665,5 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.88 | 2026-10-16 | frick-fsw | Record fresh post-R4-reference CI-local 43/43/Lean/trace pass and retained log; no aggregate N17 approval |
 | 2.89 | 2026-10-16 | frick-fsw | Record fresh post-loop-audit CI-local 43/43/Lean/trace pass, retained log and bounded R4 review; no aggregate N17 approval |
 | 2.90 | 2026-10-17 | frick-fsw | Record the four independent reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA) and their bounded corrections: TS-1/TS-5/TS-6 §3 gap-list synchronization, oracle-independence wording, `FRICK-ICD-001` rev 1.4 (R3 0371 published rev 1.3; R3 0375 corrected the ICD to rev 1.4; provisional S3 subservice codes and S6 profile), TS-1 rev 1.9 / TS-5 rev 1.3 / TS-6 rev 1.5 histories, sprint-plan rev 1.70 with NC-EXT-93, review-log ledger/closure-taxonomy note; R2 0374 and R3 0375 follow-up closure; fresh ci-local 43/43 + Lean 62 + trace PASS with retained logs and the refreshed candidate identity manifest. No phase/release/N20 approval; authority and target gates remain open |
-| 2.91 | 2026-10-19 | frick-fsw | Easy-fixes batch (N11/N16): annotate the historical S8-VV-FU `76 total / 55 covered` TS-5 §3.2 statement as superseded by the recomputed 77/56/21 (preserving the point-in-time record), and record the 2026-10-19 batch cycle with its evidence hashes: `make ci-local` 43/43 ctest + Lean + trace PASS, pinned clang-format 18 format-check PASS, native smoke PASS, GSW/license self-check OK, docker Doxygen PASS, host ASan leg 43/43 PASS (166.36 s), and the mutant-m3 minimum-PDL discrimination probe (15/15 failures on the mutant; source restored). No NC closed; GAP-R3-1/NC-EXT-25 remain OPEN |
+| 2.91 | 2026-10-19 | frick-fsw | Easy-fixes batch (N11/N16): annotate the historical S8-VV-FU `76 total / 55 covered` TS-5 §3.2 statement as superseded by the recomputed 77/56/21 (preserving the point-in-time record), and record the 2026-10-19 batch cycle with its evidence hashes: `make ci-local` 43/43 ctest + Lean + trace PASS, pinned clang-format 18 format-check PASS, native smoke PASS, GSW/license self-check OK, docker Doxygen PASS, host ASan leg 43/43 PASS (166.36 s), and the mutant-m3 minimum-PDL discrimination probe (15/15 failures on the mutant; source restored). No NC closed; GAP-R3-1/NC-EXT-25 remain OPEN. [Superseded by 2.92: the ASan duration was corrected to 94.02 s per the retained log (findings F-0381-01/F-0382-03/F-0383-01) and the post-publication labels corrected since this batch was published as `318f49b` (F-0381-02/F-0383-02); 43/43 result itself is unaffected] |
+| 2.92 | 2026-10-19 | frick-fsw | Integrate the post-publication independent reviews of the committed batch (FRICK-REVIEW-0381 R4, 0382 R2/R3, 0383 PA; all APPROVED WITH COMMENTS, 0 Major, findings reconciled): correct the unsupported ASan duration in this record (166.36 s → 94.02 s per the retained log, corroborated independently by all three profiles), re-point the batch description from "uncommitted" to "published as 318f49b"; and append a reconciliation/disposition table. Corresponding corrections were applied to TS-5 rev 1.5 (oracle caveat), TS-6 rev 1.7 (lwIP/ASan evidence), traceability.yaml (lean_note caveats), verification-plan rev 0.1.8 (§9 S7/S8 rationale), the candidate-manifest addendum (digest-binding commit), and docs/reviews/README.md rev 1.7 (index + stale-status prose). NC-EXT-94 extended with the README-vs-ICD divergence (not edited — interface authority); NC-EXT-97/98/99 left OPEN. No NC closed and no delta re-review (N12) or gate/phase/qualification/release approval implied; corrections are marked "delta re-review pending" |

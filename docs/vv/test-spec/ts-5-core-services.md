@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS5                     |
-| Revision                         | 1.4                                    |
+| Revision                         | 1.5                                    |
 | Date                             | 2026-10-19                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
@@ -324,7 +324,14 @@ automated on the baseline, so that `covered` is not read as `passing`:
   `tests/unit/test_es_hs_lifecycle.c`: the harness asserts lifecycle states and
   an independent EVS-listener oracle for FAILED-app detection. It does not
   establish target behavior, detection latency, watchdog cadence, or recovery;
-  those remain gaps in TS-5/TS-6.
+  those remain gaps in TS-5/TS-6. **Caveat (revision 1.5, F-0382-01):** the oracle
+  the harness asserts against (`FF_EVS_APP_ERROR`/`CRITICAL` and the `0x0502`
+  heartbeat id) is the `app_hs.c` literal disclosed in the harness header, so —
+  like the `N22-TS5-49/51/76` cases above — these checks are coupled to the
+  application's own constants and are not ICD-derived; the EVS-listener is
+  independent as a *harness* component but not as a *reference model* of the ICD.
+  Detection latency/recovery budget is not asserted here and remains a gap
+  (N22-TS6-41/N22-TS6-31).
 - **Runner note**: `covered` requires the case to be executed in the named
   environment and its raw evidence retained (N11); this document assigns the
   oracle, not the run status.
@@ -368,3 +375,4 @@ authority policies remain gaps.
 | 1.2 | 2026-10-16 | frick-fsw | Correct the case-identifier collision introduced by 1.1: the S8-SCH checked release-target/deadline-exhaustion row is renumbered from the already-used `N22-TS5-73` to `N22-TS5-77` and moved to the end of the table, the §2 range is stated as `1…77` with uniqueness, and the §3.2 summary (77 total / 56 covered / 21 gap) plus the §3 gap mapping (`N22-TS5-73` remains the SRS-REQ-011 SB/EVS case) were re-counted against the table. No oracle, status or NC disposition changed |
 | 1.3 | 2026-10-17 | frick-fsw | Close the independent review loop (R2 0370 Finding 4, R4 0372 F-0372-13): synchronize the §3 gap mapping with the case table — remove `N22-TS5-45`/`46` (both `covered`) and add the missing `N22-TS5-74` (`gap`); complete the truncated `N22-TS5-70` bullet; add a residual-limits paragraph so the still-open cross-core/ordering (M14) and mission-rate/target-timing items formerly attached to 45/46 stay visible under `N22-TS5-48`/`NC-EXT-19` and the `N22-TS5-77` provisional ADR-0020 arithmetic limit stays visible under NC-EXT-90. No status, count or oracle changed |
 | 1.4 | 2026-10-19 | frick-fsw | Easy-fixes batch (N21): qualify the `N22-TS5-49/51/76` oracle claims with the disclosed `app_hs.c` constant coupling (heartbeat id `0x0502`, `FF_EVS_APP_ERROR`/CRITICAL severity) and record that the independent R2/R3 delta review is complete (`FRICK-REVIEW-0379/0380`) with `GAP-R3-1` still OPEN. No case ID, coverage status or §3.2 count changed (77/56/21) |
+| 1.5 | 2026-10-19 | frick-fsw | Post-publication review correction (F-0382-01, F-0379-02 residual): extend the HS host-integration coupling caveat from the `N22-TS5-49/51/76` cases to the summary paragraph, stating that the asserted EVS-listener oracle targets the `app_hs.c` literals (`FF_EVS_APP_ERROR`/CRITICAL, `0x0502`) and is independent as a harness component but not as an ICD reference model. No case ID, coverage status or §3.2 count changed |

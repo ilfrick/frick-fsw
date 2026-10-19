@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                          | 10.11                                  |
+| Revision                         | 10.12                                  |
 | Date                              | 2026-10-19                             |
 | Baseline commit                   | `318f49b` (2026-10-19 easy-fixes batch) — chain `b8c3aee` → `1fdbb83` (S8 batch: S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration) → `2111968` (docs alignment + NC-EXT-94/95/96) → `5be0e8c` (metrics refresh) → `e7e48ee` (bounded PA manifest review) → `318f49b`; committed and pushed to both remotes. The easy-fixes batch was produced on the working tree on top of `e7e48ee`. Status-only commits that change no code, test, requirement or retained-evidence content do not advance this baseline (e.g. `b6e1f61`, the post-commit status refresh) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
@@ -73,6 +73,27 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | PA 0354 accepts bounded PUS corrections conditionally; PA 0360 accepts bounded scheduler oracles conditionally; PA 0361/0364 verify selected-file and post-run hash-record consistency only; PA 0373 accepts the bounded narrow closures but identified stale candidate inventories and the missing independent review of the `N22-TS5-77` oracle, both queued as bounded follow-ups, and granted no approval. NC-EXT-19/90 remain open; prior PA 0345/0346 conclusions remain narrow | NC-EXT-84 provenance, NC-EXT-90 and NC-EXT-92 remain open; no N20 phase/release pass | Preserve phase/release authority and do not infer N20 completion **2026-10-19 easy-fixes batch:** the batch-scoped PA review was **not** obtained before commit — recorded as **NC-EXT-99** (owner disposition: obtain in the next cycle); the PA manifest review covers the earlier tree only, and every other applicable gate was green at commit |
 
 ## 3. PUS and lwIP default configuration reconciliation
+
+> **2026-10-19 review-integration note (post-NC-EXT-99 remediation).** The batch-scoped
+> reviews that NC-EXT-99 records as deferred by owner disposition were performed
+> **after** publication at HEAD `7e93325`: `FRICK-REVIEW-0381` (R4, N17),
+> `FRICK-REVIEW-0382` (R2 core + R3 annex, N22/N10) and `FRICK-REVIEW-0383`
+> (PA, N20), all APPROVED WITH COMMENTS with **0 Major**. The bounded corrections they
+> implied (ASan duration 166.36 s to 94.02 s per the retained log; the "uncommitted"
+> label re-pointed to "published as 318f49b"; the TS-6 3.1 lwIP/ASan evidence bullet
+> (F-0382-02); the TS-5 HS oracle caveat plus traceability.yaml `lean_note` caveats
+> (F-0382-01); the manifest addendum digest-binding commit named as 318f49b (F-0383-04);
+> the VP 9 S7/S8 per-delta rationale (F-0383-03); the reviews/README "Current status"
+> block dated historical (F-0381-05)) were applied in this cycle and each is marked
+> "delta re-review pending" (N12). Authority-owned findings were **not** corrected but
+> disposition-registered: the ICD-vs-README divergence was appended to NC-EXT-94 and the
+> SRS-REQ-018/050 contradiction remains tracked by NC-EXT-97. New process NC-EXT-100
+> (evidence manifests lack revision/history per N16) and NC-EXT-101 (format/docs logs
+> attribute PASS from absence of output) were registered. **NC-EXT-99 remains OPEN**:
+> closure requires the independent profiles to confirm the corrections (delta re-review,
+> N12). No NC, gate, phase, qualification, PUS-C compliance or release approval is
+> established by this note; the rows above continue to record that those reviews were
+> not obtained before the push.
 
 ADR-0018 temporarily selected the open PUS backend while enabling lwIP by
 default. The owner has now clarified that N7/ESA is the intended PUS default;
@@ -460,3 +481,4 @@ NC-EXT-75 remains open and NC-EXT-47 is not closed.
 | 10.9 | 2026-10-19 | frick-fsw | Easy-fixes batch (N19): refresh the working-tree scope-boundary and N19 rows from the stale `b8c3aee`/`1fdbb83` state to the pushed baseline `e7e48ee` plus the 2026-10-19 batch, record the completed R2/R3 delta review (`FRICK-REVIEW-0379/0380`) and R4 `NC-EXT-96` confirmation, and register NC-EXT-97/98. No objective disposition changed and no gate approval implied; register NC-EXT-99 recording that this batch's own batch-scoped R4 (N17), R2/R3 (V&V confirmation) and PA (N20) reviews are deferred by explicit owner disposition to the next cycle, while every other applicable gate passed at commit |
 | 10.10 | 2026-10-19 | frick-fsw | Post-commit baseline refresh: the 2026-10-19 easy-fixes batch was committed and pushed to both remotes as `318f49b`, so the header `Baseline commit`, the working-tree scope-boundary row and the N19 row are repointed from `e7e48ee` to `318f49b` (the batch is no longer a working-tree delta); hosted GitHub CI run `39218060325` (all eight jobs green for `318f49b`) is recorded, and the N7 row now states that the batch-scoped N17/N20 reviews are deferred as NC-EXT-99. No NC closed and no gate, phase, qualification or release approval implied |
 | 10.11 | 2026-10-19 | frick-fsw | Declare that status-only commits (no code/test/requirement/evidence content) do not advance the engineering baseline, so the header baseline stays `318f49b` with `b6e1f61` as a status-only follow-up; record hosted CI run `39219583424` (all eight jobs green for `b6e1f61`) in the N7 evidence column. No NC closed and no gate, phase, qualification or release approval implied |
+| 10.12 | 2026-10-19 | frick-fsw | Record the 2026-10-19 post-publication review-integration: the deferred batch-scoped N17/N20/N12 reviews were performed at HEAD 7e93325 (FRICK-REVIEW-0381 R4, 0382 R2/R3, 0383 PA; all APPROVED WITH COMMENTS, 0 Major), the bounded corrections they implied were applied (ASan duration, uncommitted label, TS-6 3.1 lwIP/ASan bullet, TS-5/traceability oracle caveat, VP 9 S7/S8 rationale, manifest addendum binding-commit, reviews/README dated historical), and the affected NC rows (NC-EXT-94, NC-EXT-99) were disposition-registered. The N7/N17/N20 rows still record these reviews as 'not obtained before commit', NC-EXT-99 remains OPEN pending N12 confirmation, and the new NC-EXT-100/101 (evidence-manifest revision/history; logs PASS-by-absence evidence record) were registered. No NC closed and no gate, phase, qualification or release approval implied |

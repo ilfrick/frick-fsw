@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                          | 0.1.7                                  |
+| Revision                         | 0.1.8                                  |
 | Date                              | 2026-10-18                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17, N21, N22 |
@@ -220,6 +220,19 @@ decision of 2026-10-16 (postponed); their absence is disclosed on the README
 homepage and does not close target-dependent NCs. Adding or removing a member
 of this set is itself a change and follows the same N15/N17/N20 gates.
 
+> **Per-sprint membership by evidence class.** For a delta that changes **no
+> source/configuration/script content** (e.g. the 2026-10-19 easy-fixes
+> documentation/test-spec delta), S7 (RTEMS cross-build) and S8 (Renode
+> emulated-target functional validation) are recorded as **not applicable to
+> that delta** rather than as passes: S7's `make rtems-docker` compile/link
+> evidence is regenerated on demand and was satisfied for the `318f49b` commit
+> by hosted CI run `39218060325` (job "RTEMS 6.2 cross build (riscv/mpfs64imafdc)" = success);
+> S8/N18 Renode functional validation is not re-run because the change cannot
+> regress target behaviour, and its absence is disclosed rather than counted.
+> This per-delta rationale is recorded here so the N18 gate is visibly honored,
+> not elided; it does not close the target-dependent NCs tracked in NC-EXT-31
+> and the GAP-A5 row.
+
 ## History
 
 | Rev | Date       | Author    | Reason |
@@ -232,3 +245,4 @@ of this set is itself a change and follows the same N15/N17/N20 gates.
 | 0.1.5 | 2026-10-16 | frick-fsw | Add §9 "Sprint verification set" (owner direction): the named S1-S10 checks executed and retained at every sprint, with the physical-target exclusion disclosed |
 | 0.1.6 | 2026-10-16 | frick-fsw | S8-VV-FU: extend §9 S1 to 40/40 CTest (add `test_es_hs_lifecycle`, `test_decoder_corpus`) and S10 to include the new bounded ES/HS lifecycle and decoder fuzz/property corpus; update S4 wording to the S8-VV-FU coverage subset |
 | 0.1.7 | 2026-10-18 | frick-fsw | Correct the stale §9 S1/S4 CTest count to the current 43/43 (the 40/40 figure predates the S8-PUS-FU/S8-SCH tests added to the suite); synchronize the document header revision |
+| 0.1.8 | 2026-10-19 | frick-fsw | Add a per-delta accountability note for §9 S7/S8 (F-0383-03): for a no-source/test-spec-only delta such as the 2026-10-19 easy-fixes batch, S7 is satisfied-by-hosted-CI (run 39218060325, RTEMS cross-build success) and S8/N18 Renode is a recorded non-application, not a pass; this honors the N18 gate rather than eliding it and closes no target NC (NC-EXT-31, GAP-A5) |

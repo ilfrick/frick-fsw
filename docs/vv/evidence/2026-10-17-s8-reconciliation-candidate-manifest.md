@@ -251,6 +251,17 @@ below is the follow-on batch delta and is **not** independently PA-verified.
 
 - Baseline for this addendum: `e7e48ee` (pushed to `origin` and `gitea`); the delta was
   uncommitted when this addendum was generated.
+- **Discriminator / stability note (added 2026-10-19 review cycle, F-0383-04):** the
+  combined digest above is computed over the delta's **working-tree content as it
+  existed immediately before this review cycle's disposition edits**, i.e. the content
+  committed as **`318f49b`** ("easy-fixes batch"). It is **not stable at later HEAD**:
+  edits made to `docs/vv/verification-results.md`, `docs/vv/test-spec/ts-6-sw-robustness.md`,
+  `docs/vv/test-spec/ts-5-core-services.md`, `docs/requirements/traceability.yaml`,
+  `docs/vv/verification-plan.md`, `docs/vv/evidence/...manifest.md` (this note),
+  `docs/reviews/README.md`, and `docs/planning/sprint-plan.md` during the
+  post-publication review-integration delta change those paths' hashes. A third party
+  can reproduce the digest exactly by checking out `318f49b` and re-running the Method;
+  the post-review-integration delta carries its own identity in Addendum 2 below.
 - Method: sorted union of `git diff --name-only e7e48ee` and
   `git ls-files --others --exclude-standard`; SHA-256 + byte size recorded per path;
   no ignored `build/` artifact is counted.
@@ -294,3 +305,51 @@ below is the follow-on batch delta and is **not** independently PA-verified.
 | `7feb003a6c7f9639498942925609d13f1c5a021f6f156edf6f546edf742e100e` | 197726 | `docs/vv/verification-results.md` |
 | `0215d919c3590e50d1fcd72cc6ccd3b388e1c8cc29ace354bd411d5695b4dc08` | 8824 | `tests/CMakeLists.txt` |
 | `c789942e83c974aba30e8717c0e1fa909e6601453d5067641f05ca9a90be0a6e` | 27157 | `tests/unit/test_decoder_corpus.c` |
+
+## Addendum 2 — 2026-10-19 review-integration delta identity
+
+The addendum above binds the *easy-fixes batch* delta (`e7e48ee` → 27 paths, digest
+`8f7bbb3f...`, committed as **`318f49b`**). This addendum is a separate identity for the
+**subsequent, separate** review-integration delta produced in the 2026-10-19 cycle on
+top of that baseline. The two inventories are disjoint in purpose: the table above is
+the PA-facing easy-fixes batch candidate; the table below is the follow-on
+review-integration delta (the bounded corrections from reviews `FRICK-REVIEW-0381` /
+`0382` / `0383`), and is **not** a re-baselining of `318f49b`.
+
+- Baseline for this addendum: HEAD `7e93325` (pushed to `origin` and `gitea`); the delta
+  is the uncommitted working-tree changes since that baseline (modified tracked files
+  plus the three newly-untracked review reports). This manifest's own row is included
+  by the bootstrap convention (empty-file hash, size 0), so the digest is stable to
+  further edits made to this addendum.
+- Method: sorted union of `git diff --name-only 7e93325` and
+  `git ls-files --others --exclude-standard`; SHA-256 + byte size recorded per path;
+  no ignored `build/` or `build/ci/` cache/executable artifacts are counted.
+- Delta paths: 15 (14 content paths + this manifest by bootstrap); combined digest over
+  the sorted `<sha256>  <path>` lines:
+  `8de335a0fa6324ce245a43182c8813e8bf947eef6c619deba38232bb6abbea0f`
+
+| SHA-256 | Bytes | Path |
+| ------- | ----: | ---- |
+| `1bc761e231912e7ce6631a33e4feedacb6e66008a9b79242bace96072f80eea5` | 111501 | `CHANGELOG.md` |
+| `6100026fd2453f38ac4f73dec91c40ec4dc82d97889da1ee787d93a2f5650069` | 32084 | `README.md` |
+| `0a53b397bca3ddce1fbee336014fb794f5dad93641f6f3e0c25423b4afb6cc02` | 130838 | `docs/planning/sprint-plan.md` |
+| `bc683bde292d38baa81a1ea4a5d8e6e092cdad9ec8066a5ae79b63bfec98ac62` | 57308 | `docs/requirements/traceability.yaml` |
+| `aace5ef72e14a494974befe163165311505c003740eb8df382b89f73fcc22725` | 24586 | `docs/reviews/2026-10-19-easy-fixes-documentation-r4-0381.md` |
+| `22127f414c9a8c44ff3ec44415a5e18b2065076e6cd13aafee512228034af1e3` | 33350 | `docs/reviews/2026-10-19-easy-fixes-product-assurance-pa-0383.md` |
+| `2abf2783463dcae423679dbbbabbc1e3d262b5bf883daf5c5286ada22d4f6a48` | 36058 | `docs/reviews/2026-10-19-easy-fixes-vv-confirmation-r2r3-0382.md` |
+| `99d7c16faa4c410eed336643faeb7ac097f834cd43da97b403a4d4621bec5e3c` | 91604 | `docs/reviews/README.md` |
+| `597c2d4e1a4524c05180f6c43206550d6e5fa96ad9fc73aae9421efdff0e9cb4` | 91007 | `docs/status/handover.md` |
+| `b7a395033109c5bb5e5a4942f49abae5abe28aeb58c860c74ee51062e557e966` | 84675 | `docs/status/loop-audit.md` |
+| `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | 0 | `docs/vv/evidence/2026-10-17-s8-reconciliation-candidate-manifest.md` |
+| `bd81bbfe52dcbe9628b975aa29d6a8fcd4242a8e142a21c2f682ddd9fd9f7f52` | 67478 | `docs/vv/test-spec/ts-5-core-services.md` |
+| `9790c0b3f970ef353a162860dca2aa937029af4ba8ca902c3fb8d892dcd51d0b` | 62518 | `docs/vv/test-spec/ts-6-sw-robustness.md` |
+| `e7446eb884aa8bef0c35049536339259b6707515e2fda45baf01dbe8f017ffa8` | 14404 | `docs/vv/verification-plan.md` |
+| `eb7af8be543159f2c2100622f7a66927135a0ab62b93b8d5a67ebff526c8b51a` | 203375 | `docs/vv/verification-results.md` |
+
+A third party can reproduce this digest by restoring baseline `7e93325`, applying the
+working-tree delta shown in this addendum, and re-running the Method; the manifest row
+is bootstrap and therefore does not self-reference. This review-integration layer does
+not advance the engineering baseline (`318f49b`); it is a status/review-integration
+delta on top of it, committed only after the bounded corrections above were applied and
+the applicable native gates (trace PASS, metrics current, document-id uniqueness,
+licence check, `git diff --check`) green.

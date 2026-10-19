@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 3.09                                   |
+| Revision                         | 3.10                                   |
 | Date                              | 2026-10-19                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -127,9 +127,19 @@ occasion; prefer Docker.
   subservice 4 is mapped but unreachable and 6 is unmapped — NC-EXT-94 widened), and
   resolved a review-ID collision by renumbering the S8-VV-FU V&V delta review to
   `FRICK-REVIEW-0379/0380`.
-  **Resume point:** the next cycle should request the batch-scoped R4 (N17) /
-  R2-R3 (V&V confirmation) / PA (N20) reviews of this batch under NC-EXT-99, then
-  process their findings under N12.
+  **Resume point (post-publication reviews available):** the batch-scoped reviews
+   deferred under NC-EXT-99 were performed in cycle 2026-10-19 at HEAD 7e93325 -
+   FRICK-REVIEW-0381 (R4), 0382 (R2/R3) and 0383 (PA), all APPROVED WITH COMMENTS
+   with 0 Major findings (reports under `docs/reviews/2026-10-19-*.md`; reconciliation
+   in `docs/vv/verification-results.md` rev 2.92). The bounded corrections they
+   implied were applied to this tree and are marked "delta re-review pending" (N12);
+   authority-owned items were disposition-registered (ICD-vs-README divergence
+   appended to NC-EXT-94; the SRS-REQ-018/050 contradiction stays under NC-EXT-97).
+   NC-EXT-99 therefore stays OPEN pending N12 confirmation, and NC-EXT-100/101 were
+   registered for the remaining process-level items. The outstanding work below is
+   otherwise unchanged in kind: close NC-EXT-98 / F-0379-03 (the reset path) by
+   adding the PAL panic seam/stub that `tests/` currently lacks, then re-run the
+   0370..0373 delta re-reviews and the 0381/0382/0383 delta re-confirmations.
 - **S8-SCH delivered:** `ff_sched` table-driven dispatcher (`ff_sched.{c,h}`,
   `app_scheduler.c`) with validation, atomic double-buffer activation, absolute
   per-entry release targets, bounded per-poll work, missed-slot/heartbeat/
@@ -942,3 +952,4 @@ occasion; prefer Docker.
 | 3.07 | 2026-10-19 | frick-fsw | Easy-fixes batch (N21): refresh the §4 committed baseline to the pushed `e7e48ee` chain and record the 2026-10-19 batch (corrected masked `N22-TS6-57` minimum-PDL sub-case, corpus anomaly context, CTest time budget, TS-5/TS-6 oracle wording, Service-1 emitted set `{1,2,3,5,7,8}` with NC-EXT-94 widened) plus the completed independent R2/R3 delta review (`FRICK-REVIEW-0379/0380`) and the R4 `NC-EXT-96` confirmation; register NC-EXT-97 (requirements authority), NC-EXT-98 (residual S8-VV-FU test evidence) and NC-EXT-99 (this batch's own N17/N20 and V&V-confirmation reviews deferred by explicit owner disposition to the next cycle). `GAP-R3-1` and `NC-EXT-25` remain OPEN; no NC closed and no gate, phase, qualification or release approval implied |
 | 3.08 | 2026-10-19 | frick-fsw | Post-commit baseline refresh: repoint §4 from the pre-commit `e7e48ee` baseline to the pushed `318f49b` (easy-fixes batch committed and pushed to `origin` and `gitea`), identify the batch commit explicitly, and record hosted GitHub CI run `39218060325` (all eight jobs green for `318f49b`); no NC closed and no gate, phase or release approval implied |
 | 3.09 | 2026-10-19 | frick-fsw | Declare the engineering-baseline convention (status-only commits do not advance it), rename the §4 record to the engineering baseline `318f49b` with `b6e1f61` as a status-only follow-up, and record hosted CI run `39219583424` (all eight jobs green for `b6e1f61`) alongside run `39218060325`; no NC closed and no gate, phase or release approval implied |
+| 3.10 | 2026-10-19 | frick-fsw | Post-publication review integration (N12): the deferred batch-scoped N17/N20/N12 reviews were performed at HEAD 7e93325 (FRICK-REVIEW-0381 R4, 0382 R2/R3, 0383 PA; all APPROVED WITH COMMENTS, 0 Major); the bounded corrections were applied and each is marked delta-re-review pending (ASan duration, uncommitted label, TS-6 3.1 lwIP/ASan bullet, TS-5 oracle caveat, VP 9 S7/S8 rationale, manifest binding-commit, reviews/README status dated historical); NC-EXT-94 extended with the README-vs-ICD divergence and NC-EXT-99 updated to record the three performed legs; NC-EXT-100/101 registered. No NC closed and no gate, phase, qualification or release approval implied |

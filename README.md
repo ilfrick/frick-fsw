@@ -63,7 +63,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 69/73 (94.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 36/156 (23.1%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 37/157 (23.6%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 

@@ -80,6 +80,40 @@ rest; it closes no NC and carries no gate, phase, qualification or release claim
   closed and no gate, phase, qualification or release approval is implied by this
   entry.
 
+### Post-publication review integration of the easy-fixes batch (2026-10-19)
+
+The batch-scoped reviews deferred under NC-EXT-99 were performed after
+publication at HEAD `7e93325`, in the same cycle:
+
+- `FRICK-REVIEW-0381` (R4, N17) documentation review - APPROVED WITH COMMENTS,
+  0 Major, 4 Minor, 2 Comment. Independently re-derived the emitted Service-1 set
+  `{1,2,3,5,7,8}` from `src/pus/pus.c`, recomputed all 7 evidence-log sha256 and
+  confirmed all 14 changed docs carry a revision/history row.
+- `FRICK-REVIEW-0382` (R2 core + R3 annex, N22/N10) V&V confirmation - APPROVED
+  WITH COMMENTS, 0 Major. Independently reproduced the min-PDL mutation kill
+  (14941 checks, 15 failures on the mutant), confirmed 43/43 ctest (41 without
+  lwIP), re-derived the emitted set, and confirmed no `FF_PalPanic` seam exists
+  in `tests/` (the residual F-0379-03/NC-EXT-98).
+- `FRICK-REVIEW-0383` (PA, N20) - APPROVED WITH COMMENTS, 0 Major, 3 Minor,
+  2 Comment. Independently recomputed all 7 evidence hashes (match), reproduced the
+  manifest addendum digest (`8f7bbb3f...`, 27 paths, 27/27 rows match 318f49b)
+  and verified hosted CI run `39218060325` (8/8 jobs) via the GitHub API.
+
+Bounded corrections were applied and each is marked "delta re-review pending"
+(N12): ASan duration `166.36 s` to `94.02 s` (retained log); the "uncommitted"
+label repointed to "published as 318f49b"; the TS-6 3.1 lwIP/ASan evidence bullet
+corrected (F-0382-02); the TS-5 HS oracle caveat and two `traceability.yaml`
+`lean_note` caveats added (F-0382-01); the manifest addendum digest-binding
+commit named as `318f49b`; the VP 9 S7/S8 per-delta rationale added
+(F-0383-03); the reviews/README "Current status" block dated historical
+(F-0381-05). Authority-owned items were disposition-registered, not edited: the
+ICD-vs-README divergence was appended to NC-EXT-94 and the
+`SRS-REQ-018`/`SRS-REQ-050` contradiction stays under NC-EXT-97. New NC-EXT-100
+(evidence-manifest revision/history, N16) and NC-EXT-101 (format/docs logs
+attribute PASS from absence of output) were registered. NC-EXT-99 remains OPEN
+pending N12 confirmation of the corrections. No NC closed and no gate, phase,
+qualification, PUS-C compliance or release approval is implied.
+
 ### S8 reconciliation: independent-review closure of the PUS/SCH/VV delta (2026-10-17)
 
 - Processed the four independent reconciliation reviews and closed their
