@@ -63,7 +63,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 69/73 (94.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 36/153 (23.5%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 36/156 (23.1%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -73,7 +73,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 12901/29345 (44.0%) | gcov |
+| Code statement (line) coverage | 12909/29354 (44.0%) | gcov |
 | Code function coverage | 1455/2307 (63.1%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
@@ -176,7 +176,7 @@ the N7/ESA ASN.1 adapter, with the open CCSDS codec as the built-in alternative)
 
 | Service | Name | Implemented subservices |
 | ------- | ---- | ----------------------- |
-| 1 | Request verification | 1,2,4,8 acceptance/start/progress/completion (framework-generated) |
+| 1 | Request verification | 1,2,3,5,7,8 acceptance success/failure, start success, progress success, completion success/failure (framework-generated). The stage→subservice map also defines start failure (4), but no command path emits it, and progress failure (6) is not mapped at all, so the `FRICK-ICD-001` §4 row "4 / 6 start / progress failure" is not answerable on the wire in this implementation (see NC-EXT-94) |
 | 3 | Housekeeping | 1 create, 3 delete, 5 enable, 6 disable, 27 report (provider-registered; 5/6 set only the periodic state flag — no periodic emission path exists) |
 | 5 | Event reporting | 1-3 event messages (via EVS listener) |
 | 6 | Memory management | 5 dump (region-bounded, registered regions only) |
@@ -465,11 +465,12 @@ program inputs (norm N5). Tooling is open-source/free where practicable.
 | M12, M13, M14, M15, M16, M17 | ⬜ planned |
 
 The green `ci github` semaphore below refers to run `38793643786` on committed
-baseline `13ebf92`; it does not cover this uncommitted documentation delta. The
-other semaphore entries reflect their current recorded registry state and do
+baseline `13ebf92`; it does not by itself cover later commits (see
+`docs/status/handover.md` for the current pushed baseline and hosted-CI state).
+The other semaphore entries reflect their current recorded registry state and do
 not imply a blanket pass for this working tree.
 
-Current execution scope: S4c/S4d/defaults are committed at `13ebf92`; GitHub Actions run `38793643786` passed all eight jobs. Gitea Actions status remains unverified, and this result is not qualification or release evidence. Per the owner decision dated 2026-10-16, **physical-target testing is postponed**; see the prominent disclaimer above. The owner also directed: postpone NC-EXT-03/06/07/29/43/47 and NC-S4c-04 to the last sprint (M15/S18-25); defer all other open NCs indefinitely (§3.2 of `docs/planning/sprint-plan.md`). Dispositions do not close NCs or waive gates. A named sprint verification set (S1–S10) is recorded in `docs/vv/verification-plan.md` §9 and was executed/retained for this change (logs in `docs/vv/evidence/2026-10-16-s8-fu-nc-disposition-*.log`, hashes recorded in `docs/vv/verification-results.md`). Independent N17/N20 reviews 0338/0339 are recorded: PA review 0339 is **NOT PASSED** for this delta; N21 does not unblock N20 phase assurance. No phase/release approval or NC closure is claimed. See the cited documents for details. PUSopen remains end-user-supplied; vendor SDK compatibility is not claimed. The plan interprets the owner's general instruction as selecting **S8-FU** next; bounded R4 0311 accepted that interpretation and closed NC-EXT-30/65 for that wording only. Other NCs and applicable T21, safety, security, assurance and release gates remain open.
+Current execution scope: `docs/status/handover.md` §4 records the current pushed baseline. The S4c/S4d/defaults increment was committed at `13ebf92`, for which GitHub Actions run `38793643786` passed all eight jobs. Gitea Actions status remains unverified, and this result is not qualification or release evidence. Per the owner decision dated 2026-10-16, **physical-target testing is postponed**; see the prominent disclaimer above. The owner also directed: postpone NC-EXT-03/06/07/29/43/47 and NC-S4c-04 to the last sprint (M15/S18-25); defer all other open NCs indefinitely (§3.2 of `docs/planning/sprint-plan.md`). Dispositions do not close NCs or waive gates. A named sprint verification set (S1–S10) is recorded in `docs/vv/verification-plan.md` §9 and was executed/retained for that change (logs in `docs/vv/evidence/2026-10-16-s8-fu-nc-disposition-*.log`, hashes recorded in `docs/vv/verification-results.md`). Independent N17/N20 reviews 0338/0339 are recorded: PA review 0339 is **NOT PASSED** for that delta; N21 does not unblock N20 phase assurance. No phase/release approval or NC closure is claimed. See the cited documents for details. PUSopen remains end-user-supplied; vendor SDK compatibility is not claimed. The plan interprets the owner's general instruction as selecting **S8-FU** next; bounded R4 0311 accepted that interpretation and closed NC-EXT-30/65 for that wording only. Other NCs and applicable T21, safety, security, assurance and release gates remain open.
 
 ## Contributing
 

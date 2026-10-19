@@ -1,24 +1,12 @@
-# S8 reconciliation candidate identity manifest (2026-10-17)
+# S8 reconciliation candidate identity manifest (2026-10-18)
 
-Supersedes the stale 49-file (PA 0361) and 19-file (PA 0364) candidate inventories for
-the current working tree. Generated on the authoring host from the working tree itself.
+Refreshes the 2026-10-17 candidate inventory after the 2026-10-18 docs-alignment delta and bounded PA review. This identifies the committed candidate snapshot at HEAD `e7e48ee` before this manifest-only refresh.
 
-- Pushed baseline HEAD: `b8c3aeec5484476407367024f3ce25c5af2bd30e` (uncommitted candidate: 212 differing files)
-- Method: enumerate every file differing from baseline `b8c3aee` as the union of
-  (1) `git diff --name-only b8c3aee` (modified/added/renamed tracked files) plus
-  (2) `git ls-files --others --exclude-standard` (untracked files, recursed),
-  then SHA-256 + size per file, sorted by path, plus a combined digest over the
-  sorted `<sha256>  <path>` lines. Build-tree artifacts (`build/ci/`, gitignored)
-  are referenced explicitly rather than via `git status`. Combined digest: `c6e5304e9ee3b25f4ad4837594a4c3424eb315a8fe3059ac31deb1baa62fed82`.
+- Pushed baseline HEAD: `b8c3aeec5484476407367024f3ce25c5af2bd30e`; candidate snapshot HEAD: `e7e48ee` (on `main`, synchronized to `origin/main` and `gitea/main`); 213 differing paths.
+- Method: sorted union of `git diff --name-only <baseline> HEAD` and `git ls-files --others --exclude-standard`; no non-ignored untracked files were present. SHA-256 + byte size are recorded per path. Ignored `build/ci/` cache/executable artifacts remain separately linked below and are not counted in the 213-path Git delta.
+- Combined digest over the sorted actual `<sha256>  <path>\n` lines for the pre-refresh snapshot: `434260016bae257da8ea25cb5add3292058d6ea6194d4d13aa24d44001f7d2b6`. The pre-refresh on-disk manifest hash used in that digest was `42374fbff510a611d569c4f5a2ab9c8335db5a9921fbf3d1c305995d03d4bf94`. The inventory row below uses the empty-file hash and size 0 by bootstrap convention; this is not a self-hash of the refreshed file.
 
-Recomputed 2026-10-17 after `make metrics` refreshed `README.md` (review-stream
-counter 36/152; byte size unchanged at 31378). The 10 verification-run linkage
-hashes (§Verification-run linkage) are byte-identical to PA-0377, and `build/ci/`
-is unmodified by `make metrics`. Per the generation-time bootstrap the
-manifest's own inventory row is recorded as the empty-file hash (captured before
-the file is written); it therefore does not equal its on-disk hash by
-construction — the same convention PA-0377 verified against `dc399d48`.
-
+Refreshed 2026-10-18 to satisfy action A-PA-2026-10-18-01. The earlier bounded PA result at HEAD `5be0e8c` verified 212 paths and digest `4e0f2544856beb0fdb7c59aebc73678f346a0ac0c03062342004d31f6317075e`; the only subsequent committed path is the PA report itself, giving the current 213-path snapshot. The 10 verification-run linkage hashes are preserved unchanged; `build/ci/` remains separately linked.
 ## Verification-run linkage
 
 - Cycle log (build + 43/43 ctest + Lean 62 + trace PASS): `4cecaa75b86fa54236af6cb7bc32e37243b4976569ce2bc198e88401cb5d53f3`  (`docs/vv/evidence/2026-10-17-s8-reconciliation-ci-local.log`)
@@ -44,28 +32,27 @@ construction — the same convention PA-0377 verified against `dc399d48`.
 | `80e4e7ef5e671caf44672125bd77b897ef91eebe694f16c1b8cec75e94c3aa35` | 103946 | `CHANGELOG.md` |
 | `db0dc51813920bab13ca55a870fb885155fb6edf63112d02ba2d1ad593596c2e` | 15498 | `CMakeLists.txt` |
 | `1c4a0501cdb23539906a04534b0fab8b2bafeafecc3add01ea6c8d1086ceee0f` | 8646 | `Makefile` |
-| `a2d4c59c0028a3a0504a60e0270a62675a264715c595f41d47346166e4b664b2` | 31378 | `README.md` |
-| `7f865d42506bf513a1057ceb4f57aafb2e7d87a61c5d58676f71f5cad49da7f6` | 15282 | `build/ci/CMakeCache.txt` |
-| `7ee78ef375b21cbae7355439679247a4eaa533368491a3cc8eaa82e267256f3d` | 152992 | `build/ci/frick_fsw` |
+| `59179111644f1f6513fcef7de8af1874bc47a870637a7c3500e390a3e25a9044` | 31597 | `README.md` |
 | `7671cc408cfb2c2541cc4a39827b90d87736653bd63459fdb324b06237aae379` | 2981 | `docs/adr/ADR-0016-pus-c-asn1-default.md` |
 | `c0517e893e2c1f435f606ebacfb09b0ff677a9bbe9835015435a771bf562d0af` | 1908 | `docs/adr/ADR-0018-open-pus-and-lwip-defaults.md` |
 | `700d3df2e533b88dcc5efc9f8849f4037f5e5f300fc1e7c11d772581beb9564a` | 2255 | `docs/adr/ADR-0019-n7-pus-backend-default.md` |
 | `76615ce9cae0c88ffa7cf4ac7a4879ed1ca0801f14e5eae5bbd35dc9a23cc1b3` | 5974 | `docs/adr/ADR-0020-provisional-pus-and-scheduler-policies.md` |
-| `e8e2559234e3c04b4d66f6496d54ce1cada58a01d4bddd564b84a201b242aec5` | 8877 | `docs/architecture/component-gap-analysis.md` |
+| `05ca7708dde299e71099ad69da5fcaf1cf3effb590d68db9ee979919e1343829` | 8877 | `docs/architecture/component-gap-analysis.md` |
 | `7cc340bfb5218550528fe33c4b2a06f40cc0e078c4a4f135072d5cf27c3bfd6b` | 8469 | `docs/architecture/obcp-integration-assessment.md` |
 | `deb2cd6b27f5ed0bc1018283c88eb3dc191b028d7abec68a1fa923bfbdf5dd28` | 6329 | `docs/architecture/overview.md` |
-| `981ae54b0701bfe1831602a706f736f5fe1c5fe4bca29f856f817118fc138371` | 8403 | `docs/architecture/pus-layer.md` |
+| `64630c933f13c0c2c09182a42586463a625e81c0d06dccc663c55e4910af9656` | 8680 | `docs/architecture/pus-layer.md` |
 | `4c6b3e9dbcc58786f91175f5d5f4bab9df185ce7bb75fdeca362448d3007b4bd` | 5909 | `docs/architecture/rtems-integration.md` |
 | `b28c58711d18062f40d563b8acbf6f0a93e1476a94df0829ca2a2d6d50f8bf34` | 14474 | `docs/architecture/scheduling.md` |
+| `a8a55d1f43ebe1d90391355a9439c1a6b24b9f2f3cc9650b70e3f06fb24ec659` | 10971 | `docs/design/software-design.md` |
 | `eb18e4ec87aa2db926dd446ca4a9205b1de2e4bbdf36c8f71e456344cca693df` | 8464 | `docs/engineering/service-development.md` |
 | `86bc82c216a8bdff86a9f07d41745f56871e329ab96ccde929197d2c88023a32` | 41982 | `docs/engineering/software-description.md` |
 | `23de5b185d8a06421b7146e982b3330895853c3927a817f39d117745b09ac808` | 27162 | `docs/engineering/user-integration-manual.md` |
 | `aff8b36dc2ca1013fcb549f751f0d45a14fafb85e3395d0a4888e375a3057d68` | 15338 | `docs/interfaces/ICD.md` |
-| `ba8e4bb152d9d423731bf4d43bc6631987de22d53007b8360d77833b60f672b2` | 117967 | `docs/planning/sprint-plan.md` |
+| `a6627fcbccd8ca326e78e34c1c990c1b92d840cdf63d36bdc46461388d8a646e` | 120757 | `docs/planning/sprint-plan.md` |
 | `1a7e2d8ffd7357fb6fe4692e7fe3e00b18a75a61a6be06c7d4fe751eecff7378` | 13883 | `docs/quality/class-a-gaps.md` |
-| `8c746ca34cc32d814eb2d41e0a737b264de678ead7a4c4a91a605164ffdf3e54` | 11583 | `docs/quality/licensing.md` |
-| `18cdf4e81a3d07e96453fcba4c7bce836c4c6b812609e207533af9ab9f897070` | 42678 | `docs/requirements/SRS.md` |
-| `0dfc06481450a5d7aaea66bc19126266cfbe483dc82ed840e9759377361deb55` | 15347 | `docs/requirements/SSS.md` |
+| `71518f7b5cc8607953dee9b0ef5376ea1d32bdbc36b80f89a024d764117bbef4` | 11583 | `docs/quality/licensing.md` |
+| `3f457592b866a10a5107e0355f52b8f141ca01114957403ff03efa3af41ea31c` | 42678 | `docs/requirements/SRS.md` |
+| `4341a69a148b7f03b55480ce1e322e55b9d86bdc9a0407d1a7fe268c93b1d3cd` | 15347 | `docs/requirements/SSS.md` |
 | `9faf4bda73be2dbae10b073f1b3923cab406441cd2eada6edd973b159b146a44` | 31304 | `docs/requirements/traceability.md` |
 | `e692848b2a7ac818f2ac708557bac70b7036af6a021921760a812160d0ea1742` | 56896 | `docs/requirements/traceability.yaml` |
 | `487062d408d03c52191db2445d2a1feb826f1640e62cd190855ebb899943f416` | 1084 | `docs/reviews/2026-10-16-n7-generated-tree-pa-verification-0346.md` |
@@ -112,10 +99,12 @@ construction — the same convention PA-0377 verified against `dc399d48`.
 | `65aa8af25ff72120f61b41db26ed99b1d5da464c20753f7af32cee5b489f7721` | 15282 | `docs/reviews/2026-10-17-s8-requirement-grounding-r3-0371.md` |
 | `28a4f859c520e8aa3cdeb5f771bcd956efdea6e47c0fe055ee8f5669ab343810` | 30536 | `docs/reviews/2026-10-17-s8-ts5-77-oracle-r2-0374.md` |
 | `daa46319766a299dc022627ed1a860aa621ac0175f4b8f9ba177a435359ff4ed` | 18118 | `docs/reviews/2026-10-17-s8-vv-pus-delta-0370.md` |
-| `9c62b512b843539b97da600bd2eb36a2f044571aa7dc4af33988946217377cb5` | 86669 | `docs/reviews/README.md` |
-| `167d1bd83a4cf94539b22e94d06a072ee65d58cf5934a7e6b7e9f01f9c5d3c22` | 84699 | `docs/status/handover.md` |
-| `8c41506c13ec48eaebf329a7ca801b9b21ed38ab5d0dfc13413ef5057ed8bb2f` | 77838 | `docs/status/loop-audit.md` |
-| `23b9876d7060ba8ba0b48264619f0fe779f1209f73eba2ada38d4e71f4aabc36` | 4183 | `docs/status/status.json` |
+| `6c69b60b0642b5fe2f9347a026c6cb29cb7761281f23db92c4b8090905bd8b44` | 12450 | `docs/reviews/2026-10-18-docs-implementation-alignment.md` |
+| `34f211789d893305498d73e102bb9bf64b3a4a8ceb5c857982763b9077700d6d` | 2104 | `docs/reviews/2026-10-18-post-docs-alignment-manifest-pa.md` |
+| `36fbe7de212b956589609b1dc444f539fe118fe6725f75139f15fe55f98d7ec6` | 87055 | `docs/reviews/README.md` |
+| `e0e4ac3fde0eeced7db0a5ce03bb0cf8a0eaf1a21706adb1bb32eddf3ea64dc7` | 85125 | `docs/status/handover.md` |
+| `aa5e2f168b355ba776d3b8b7e7fc4938ab4e7e263cd097b133b938a7dd3fae8d` | 78200 | `docs/status/loop-audit.md` |
+| `e80a31abe5342b45b8a1e466b2bd09812dcd328ad518a61f03746ce78dd66459` | 4191 | `docs/status/status.json` |
 | `dd9666ad5cb09a9ffd71e7f3d17a86122f1dcc0211a53de9264d2ab9d9a8e822` | 22180 | `docs/vv/evidence/2026-10-16-n7-generated-flat-file-hashes.txt` |
 | `dc6092966cbeb76e3738c4c1824f7a0f8741510df3e8a91b9c96855b79b04bd9` | 7449 | `docs/vv/evidence/2026-10-16-s8-batch-candidate-manifest.md` |
 | `41f95e7a1e9118c3e10cd15513358af1a31b7c9692dfced8c38260ca031fc60e` | 26085 | `docs/vv/evidence/2026-10-16-s8-batch-reviewed-ci-local.log` |
@@ -217,9 +206,9 @@ construction — the same convention PA-0377 verified against `dc399d48`.
 | `c21979e28430ea3a8e87b157592e17ee59a2c2b7e594ee9c621c39bbbf450d44` | 61668 | `docs/vv/test-spec/ts-1-protocol-core.md` |
 | `b95d5730730b1e2bbe5bec3163354d07823d075160bfe9199e516b4dffcd9941` | 65297 | `docs/vv/test-spec/ts-5-core-services.md` |
 | `d3e897cd5def7ed3e3fbf28003de8117c394edcf8c1382c461fe1fcf2626258f` | 59559 | `docs/vv/test-spec/ts-6-sw-robustness.md` |
-| `5bd02e7dff01ecda44fb8685073a9c82e40fe4fc961c9544e0acb1d495a8428e` | 4200 | `docs/vv/test-spec/ts-9-obcp-integration.md` |
+| `3850b2a4f6045273497931536c38bb91ab60bd5a660f48113df4a5cc07427dd7` | 4200 | `docs/vv/test-spec/ts-9-obcp-integration.md` |
 | `6872f88e79609acdbfd1dc88ba0058b9208706e170e9b9841ad65b72fb9100e7` | 36978 | `docs/vv/tool-qualification.md` |
-| `95d9332478fea0f58ec99579feabdf0f8749c3641b8d9fd42461180ee8607ab5` | 12901 | `docs/vv/verification-plan.md` |
+| `32cd5646bdd7db6b590e82186f9b98760dd3939a64188cd1112bf5bfc24d1529` | 13115 | `docs/vv/verification-plan.md` |
 | `8c4ad335e357c0e3086f6e890cd60db0bcca75c899dc356431a2de8b807e4988` | 190751 | `docs/vv/verification-results.md` |
 | `e68e37772258cabc025156decb77c6509110bd34cdc37fe1d6da16b07cf3b860` | 6306 | `src/core/sched/ff_sched.c` |
 | `2cae84b0bb0050a855023f1c5caae341a4d2279ffcd4ab5add33736cfa93cd6c` | 4737 | `src/core/sched/ff_sched.h` |
@@ -248,6 +237,60 @@ construction — the same convention PA-0377 verified against `dc399d48`.
 | `b1fe665e5af3b1b9b8e6518fe5e413726d5ce2d156f1b3d0620f045550637cef` | 2053 | `tools/scripts/gen_pus_asn1.sh` |
 | `b1bf2ac5e424973a7a9acbcdfa48e5768f26fa71c3eca64807437446c74e4463` | 1489 | `tools/scripts/run_sim.sh` |
 | `48c1e6d126645d97c8437e1c7f708ef4bc79a20a6951093d12f4b94a04225201` | 2416 | `verification/lean/Frick/S4c.lean` |
-
 > This manifest is a working-tree artifact (norm N11). It is not a signed run attestation
 > or a release manifest. Generated-source/tool/dependency provenance (ND-EXT-84) is not established here.
+
+## Addendum — 2026-10-19 easy-fixes batch candidate identity
+
+The inventory above identifies the **S8 reconciliation candidate snapshot at HEAD
+`e7e48ee`** (PA action A-PA-2026-10-18-01). This addendum records the identity of the
+**subsequent, separate** delta carried by the 2026-10-19 easy-fixes batch, which was
+produced on the working tree on top of that pushed baseline. The two inventories are
+disjoint in purpose: the section above is the PA-facing candidate snapshot; the table
+below is the follow-on batch delta and is **not** independently PA-verified.
+
+- Baseline for this addendum: `e7e48ee` (pushed to `origin` and `gitea`); the delta was
+  uncommitted when this addendum was generated.
+- Method: sorted union of `git diff --name-only e7e48ee` and
+  `git ls-files --others --exclude-standard`; SHA-256 + byte size recorded per path;
+  no ignored `build/` artifact is counted.
+- Delta paths: 27; combined digest over the sorted `<sha256>  <path>` lines:
+  `8f7bbb3ffbeb584877b8f1ff44548057f62f9a62af4194ab2516882a5629425c`
+- Bootstrap convention: this manifest file is itself part of the delta, so its own row
+  uses the empty-file hash and size 0 (as in the inventory above); the addendum text
+  and header are therefore not represented by a self-referential hash.
+- Cycle evidence for this delta is retained under
+  `docs/vv/evidence/2026-10-19-easy-fixes-*.log`, the mutant-m3 discrimination probe
+  under `docs/vv/evidence/2026-10-19-s8-vv-fu-mutant-m3-discrimination.log`, and both
+  are referenced from `docs/vv/verification-results.md`. The batch's own batch-scoped
+  independent reviews are deferred as NC-EXT-99 (see `docs/planning/sprint-plan.md`).
+
+| SHA-256 | Bytes | Path |
+| ------- | ----: | ---- |
+| `7bdbbe34ab24f1e034b4da22282322b59a1f947ca73bd0e325a38f11399737b0` | 109269 | `CHANGELOG.md` |
+| `dfe155454062ac505f70f539fcb7522fcd668fd61ee04047c8243a6a1036db40` | 32084 | `README.md` |
+| `2d84df7af23527a3651fb25946aba93bd7fcaf8e7dcba08b6f4719205dd21ab9` | 9136 | `docs/architecture/component-gap-analysis.md` |
+| `97871d11089379921f5c21fe79699f42b1171d2966cacac632ee9c1c9616a43a` | 18952 | `docs/architecture/pus-c-from-scratch-assessment.md` |
+| `b09ad64ab55b0a3b8f7ccf5de8bda768de208cf8d5eeca442e275b1c1cd990b6` | 27587 | `docs/engineering/user-integration-manual.md` |
+| `f86404c00ffe8c1975f858504e539566f44e66251b9e132e490f95e38600c4de` | 126986 | `docs/planning/sprint-plan.md` |
+| `fbbab0535061680460101988f3a53d665ed0ee14d0eab5455223ac50f0fea9b2` | 11841 | `docs/quality/licensing.md` |
+| `73761651468a8372ff968a1e732aff168278bf479d97f032204380be01f4d073` | 43093 | `docs/requirements/SRS.md` |
+| `190a10eb1ecadccb3d9c9dd3a6c8d16f74cac7733106975a90bc8af5d656fb08` | 15638 | `docs/requirements/SSS.md` |
+| `a4e720e4b32370e605dc5cfd2f8e1163c1cdfae2ea65301cdd84bdf68d268340` | 27620 | `docs/reviews/2026-10-18-docs-alignment-r4-confirmation.md` |
+| `4d9c1c1815718e8df532735b7a1737c7d08cccad5e3f0e2b4e317ea85977b156` | 39879 | `docs/reviews/2026-10-18-s8-vv-fu-delta-vv-review.md` |
+| `daaf6f32c907c7ecc1807f240454f75abcc6017711363ff356d9f27498277f17` | 89531 | `docs/reviews/README.md` |
+| `426d8218c2a23ca0389e71061dd3bcd8fe12113820f1bc4500c5cb152bd86efd` | 87664 | `docs/status/handover.md` |
+| `a68d9a655a38698355cb7ac4b49e3731b663e5c02338a9ac1087d970a6cb6200` | 80514 | `docs/status/loop-audit.md` |
+| `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` | 0 | `docs/vv/evidence/2026-10-17-s8-reconciliation-candidate-manifest.md` |
+| `4e32e21463a363772bbdee364079afbdf60ade155d23516bf46322aea404a054` | 7714 | `docs/vv/evidence/2026-10-19-easy-fixes-asan.log` |
+| `92c19b3e756e1d5660a23608da5b59121702cf0157f2e1b8c8b16aa6180d4c35` | 26366 | `docs/vv/evidence/2026-10-19-easy-fixes-ci-local.log` |
+| `c7d1f9a5a8343199ee3ccaab25a107d6e6fdbcc53c6dc28badda6e8e8a6c019a` | 183821 | `docs/vv/evidence/2026-10-19-easy-fixes-docs.log` |
+| `da69e9e40937c195c997c92ad9a509240654dbf08859746b565d84a24de6c83e` | 252 | `docs/vv/evidence/2026-10-19-easy-fixes-format-check.log` |
+| `d1223ce32dafa765463f60b1390e3c6ff181479e62dd9603f9f77b61c03e74f1` | 768 | `docs/vv/evidence/2026-10-19-easy-fixes-gsw-selfcheck.log` |
+| `6e4327b56f09fb19532988b7c96d6f259063d377c35bec58723a0e2c2e343043` | 2664 | `docs/vv/evidence/2026-10-19-easy-fixes-smoke.log` |
+| `70948df006385a0e79f4a00b100d042f8492c3338564cee9f5f31df9085089cb` | 3915 | `docs/vv/evidence/2026-10-19-s8-vv-fu-mutant-m3-discrimination.log` |
+| `28b08620839a437169953ef9cda478f3b4cfeeaee4916bfe6c4ebd69f0ac5028` | 66476 | `docs/vv/test-spec/ts-5-core-services.md` |
+| `8b8ee288a78ac0f6b0202f68b83fed94d1d8e31b4bf375e68a1dbac4d65be231` | 61663 | `docs/vv/test-spec/ts-6-sw-robustness.md` |
+| `7feb003a6c7f9639498942925609d13f1c5a021f6f156edf6f546edf742e100e` | 197726 | `docs/vv/verification-results.md` |
+| `0215d919c3590e50d1fcd72cc6ccd3b388e1c8cc29ace354bd411d5695b4dc08` | 8824 | `tests/CMakeLists.txt` |
+| `c789942e83c974aba30e8717c0e1fa909e6601453d5067641f05ca9a90be0a6e` | 27157 | `tests/unit/test_decoder_corpus.c` |

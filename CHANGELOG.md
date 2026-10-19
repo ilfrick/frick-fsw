@@ -7,6 +7,79 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Easy fixes: masked decoder sub-case + documentation accuracy (2026-10-19)
+
+Independent R2/R3 delta review of the S8-VV-FU increment
+(`docs/reviews/2026-10-18-s8-vv-fu-delta-vv-review.md`, **FRICK-REVIEW-0379** R2
+core + **0380** R3 annex, APPROVED WITH COMMENTS, no Major findings) plus the R4
+`NC-EXT-96` confirmation (`docs/reviews/2026-10-18-docs-alignment-r4-confirmation.md`,
+**FRICK-REVIEW-0378**). This batch applies the bounded corrections and records the
+rest; it closes no NC and carries no gate, phase, qualification or release claim.
+
+- **Functional test defect corrected (real, not cosmetic).** The `N22-TS6-57`
+  minimum-Packet-Data-Length sub-case in `tests/unit/test_decoder_corpus.c`
+  supplied only `FF_CCSDS_HDR_LEN + 1` octets, so the decoder rejected the frame on
+  its earlier "shorter than the secondary header" guard and the minimum-length rule
+  was **never exercised** (review finding F-0379-01). The vector now sizes the frame
+  to exactly the declared length, type-aware, so the minimum-length rule is the only
+  failing condition. Discriminating power is demonstrated: with the rule removed the
+  suite fails 15/15 at the corrected sub-case
+  (`docs/vv/evidence/2026-10-19-s8-vv-fu-mutant-m3-discrimination.log`).
+- **Anomaly context completed (F-0379-04).** The corpus anomaly report now names the
+  template index as well as the iteration, and the previously stale sub-cases set the
+  iteration explicitly.
+- **Enforced time budget (F-0379-05).** `es_hs_lifecycle` and `decoder_corpus` now
+  carry `TIMEOUT 60` in `tests/CMakeLists.txt`, so a hang is a failure rather than a
+  silent pass (observed runtimes ~0.1 s / ~0.05 s).
+- **Test-spec accuracy (F-0379-02, F-0379-06, F-0379-07).** TS-5/TS-6 rows now
+  disclose the `app_hs.c` constant coupling in the ES/HS oracle instead of calling it
+  unqualified "independent"; `N22-TS6-58` states the documented status set the harness
+  actually accepts (`FF_PARSE_ERROR`/`FF_ERROR`/`FF_NOT_FOUND`/`FF_NOT_READY`); the
+  historical `76 total / 55 covered` TS-5 §3.2 sentence in
+  `docs/vv/verification-results.md` is annotated as superseded by the recomputed
+  77/56/21 (the point-in-time record is preserved).
+- **Documentation drift corrected.** TS-6 §3.1 now states the actual 43 registered
+  ctest tests (14 unconditional + 29 option-guarded; 41 without lwIP) and 43/43
+  `make test`; the `user-integration-manual` §7 backend note now matches
+  `SRS-REQ-050`/`ADR-0019` (N7/ESA is the default, open CCSDS opt-in); README's
+  Service-1 subservice list, stale-prose and semaphore wording are corrected; five
+  document headers whose `Date` lagged their own last history row are synchronized
+  (component-gap-analysis, licensing, SSS, SRS, pus-c-from-scratch-assessment).
+- **Service-1 truth corrected (F-0378-03 / NC-EXT-94).** The README Service-1 row
+  and `docs/architecture/pus-c-from-scratch-assessment.md` claimed subservice 4 was
+  implemented; the code emits **{1,2,3,5,7,8}** — `START`→{3,4} is mapped but the
+  only `STAGE_START` call passes `success=1`, so **TM[1,4] is unreachable**, and 6 is
+  not mapped. Both documents now state {1,2,3,5,7,8} and the ICD's bundled
+  "4 / 6 start / progress failure" row is correctly described as not answerable on
+  the wire. NC-EXT-94 was widened to cover both codes.
+- **NCs.** Registered **NC-EXT-97** (`SRS-REQ-018` vs `SRS-REQ-050` backend-default
+  contradiction — requirement semantics, needs the requirements authority R3/N14; not
+  edited) and **NC-EXT-98** (residual S8-VV-FU reset-path `N22-TS5-50` and ES/HS
+  anomaly-context testimony). Updated NC-EXT-94 (widened: **neither** subservice 4
+  nor 6 has an emission path) and NC-EXT-96 (independent R4 confirmation
+  complete; narrow closure recommended).
+- **Review-ID collision resolved.** The S8-VV-FU R2/R3 report was first drafted as
+  `0378`/`0379`, colliding with the concurrently produced R4 confirmation `0378`
+  (also colliding in its `F-0378-nn` finding prefix). As neither report was committed,
+  the later allocation was renumbered to **`FRICK-REVIEW-0379`/`0380`** with findings
+  `F-0379-nn` before publication — metadata only, verdicts unchanged; recorded in
+  `docs/reviews/README.md`.
+- **Unchanged/OPEN:** `GAP-R3-1` and `NC-EXT-25` remain OPEN (the review cleared
+  neither; closure is an owner disposition). No requirement ID or semantics,
+  traceability link, ICD, safety, security or authority item was changed.
+- **Recorded deviation — NC-EXT-99.** This batch is committed and pushed with its
+  **own** batch-scoped independent reviews not yet obtained: the `N17` R4
+  documentation review of the changed documents, the `N22`/`N10` R2/R3 V&V
+  confirmation of the corrected `test_decoder_corpus.c` / TS-5 / TS-6 artifacts, and
+  the `N20` PA review of the batch and its evidence (owner disposition: commit now,
+  obtain them next cycle). The reviews *carried* in this batch
+  (`FRICK-REVIEW-0378`; `FRICK-REVIEW-0379`/`0380`) were performed against the
+  pre-correction tree — this batch implements the corrections they prescribed, and
+  the corrected artifacts were re-verified by the FSW engineer with retained cycle
+  evidence. All other applicable gates were green at commit. NC-EXT-99 is **not**
+  closed and no gate, phase, qualification or release approval is implied by this
+  entry.
+
 ### S8 reconciliation: independent-review closure of the PUS/SCH/VV delta (2026-10-17)
 
 - Processed the four independent reconciliation reviews and closed their

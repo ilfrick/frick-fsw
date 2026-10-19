@@ -1,0 +1,157 @@
+# ASan leg log: 2026-10-19 easy-fixes batch
+# Tool: host Ninja Debug, -fsanitize=address -fno-omit-frame-pointer (build/asan)
+# Command: cmake --build build/asan && ctest --test-dir build/asan --output-on-failure
+
+[0/2] Re-checking globbed directories...
+[1/51] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_n7.c.o
+[2/51] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt.c.o
+[3/51] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding_acn.c.o
+[4/51] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/ccsds/ccsds.c.o
+[5/51] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding.c.o
+[6/51] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/BasicTypes.c.o
+[7/51] Linking C static library libfrick_pus_asn1.a
+[8/51] Linking C static library libfrick_fsw_core.a
+[9/51] Linking C executable tests/test_ccsds
+[10/51] Linking C executable tests/test_tbl
+[11/51] Linking C executable tests/test_sb_stress
+[12/51] Linking C executable tests/test_sb
+[13/51] Linking C executable tests/test_sb_sweep
+[14/51] Linking C executable frick_fsw
+[15/51] Linking C executable tests/test_sched
+[16/51] Linking C executable tests/test_time
+[17/51] Linking C executable tests/test_pus
+[18/51] Linking C executable tests/test_es_hs_lifecycle
+[19/51] Linking C executable tests/test_pus_fu
+[20/51] Linking C executable tests/test_r3_gap
+[21/51] Linking C executable tests/test_r2_gap
+[22/51] Linking C executable tests/test_decoder_corpus
+[23/51] Linking C executable tests/test_pus_n7_adapter
+[24/51] Linking C executable tests/test_obcp_integration
+[25/51] Linking C executable tests/test_pusopen
+[26/51] Linking C executable tests/test_math
+[27/51] Linking C executable tests/test_gem
+[28/51] Linking C executable tests/test_hal
+[29/51] Linking C executable tests/test_sdls
+[30/51] Linking C executable tests/test_gem_tsn
+[31/51] Linking C executable tests/test_gptp
+[32/51] Linking C executable tests/test_gpio
+[33/51] Linking C executable tests/test_netloop
+[34/51] Linking C executable tests/test_serial
+[35/51] Linking C executable tests/test_mem
+[36/51] Linking C executable tests/test_nvm
+[37/51] Linking C executable tests/test_mtd
+[38/51] Linking C executable tests/test_can
+[39/51] Linking C executable tests/test_spi
+[40/51] Linking C executable tests/test_fabric
+[41/51] Linking C executable tests/test_i2c
+[42/51] Linking C executable tests/test_block
+[43/51] Linking C executable tests/test_pcie
+[44/51] Linking C executable tests/test_spacewire
+[45/51] Linking C executable tests/test_link_ip
+[46/51] Linking C executable tests/test_canfd
+[47/51] Linking C executable tests/test_canopen
+[48/51] Linking C executable tests/test_link_tsn
+[49/51] Linking C executable tests/test_lwip
+[50/51] Linking C executable tests/test_lwip_netif
+Test project /home/nicola/fsw/frick-fsw/build/asan
+      Start  1: ccsds
+ 1/43 Test  #1: ccsds ............................   Passed    0.01 sec
+      Start  2: sb
+ 2/43 Test  #2: sb ...............................   Passed    0.01 sec
+      Start  3: sb_stress
+ 3/43 Test  #3: sb_stress ........................   Passed    0.01 sec
+      Start  4: sb_sweep_boundary
+ 4/43 Test  #4: sb_sweep_boundary ................   Passed    0.01 sec
+      Start  5: sb_evs_structural_sweep
+ 5/43 Test  #5: sb_evs_structural_sweep ..........   Passed   93.10 sec
+      Start  6: tbl
+ 6/43 Test  #6: tbl ..............................   Passed    0.01 sec
+      Start  7: sched
+ 7/43 Test  #7: sched ............................   Passed    0.01 sec
+      Start  8: pus
+ 8/43 Test  #8: pus ..............................   Passed    0.01 sec
+      Start  9: pus_fu
+ 9/43 Test  #9: pus_fu ...........................   Passed    0.01 sec
+      Start 10: obcp_engine_connectivity
+10/43 Test #10: obcp_engine_connectivity .........   Passed    0.01 sec
+      Start 11: pus_n7_adapter_contract
+11/43 Test #11: pus_n7_adapter_contract ..........   Passed    0.01 sec
+      Start 12: pusopen_adapter_contract
+12/43 Test #12: pusopen_adapter_contract .........   Passed    0.01 sec
+      Start 13: time
+13/43 Test #13: time .............................   Passed    0.01 sec
+      Start 14: r2_gap
+14/43 Test #14: r2_gap ...........................   Passed    0.02 sec
+      Start 15: r3_gap
+15/43 Test #15: r3_gap ...........................   Passed    0.01 sec
+      Start 16: es_hs_lifecycle
+16/43 Test #16: es_hs_lifecycle ..................   Passed    0.08 sec
+      Start 17: decoder_corpus
+17/43 Test #17: decoder_corpus ...................   Passed    0.04 sec
+      Start 18: link_uart
+18/43 Test #18: link_uart ........................   Passed    0.34 sec
+      Start 19: hal
+19/43 Test #19: hal ..............................   Passed    0.01 sec
+      Start 20: math
+20/43 Test #20: math .............................   Passed    0.01 sec
+      Start 21: sdls
+21/43 Test #21: sdls .............................   Passed    0.01 sec
+      Start 22: gem
+22/43 Test #22: gem ..............................   Passed    0.01 sec
+      Start 23: gem_tsn
+23/43 Test #23: gem_tsn ..........................   Passed    0.01 sec
+      Start 24: gptp
+24/43 Test #24: gptp .............................   Passed    0.01 sec
+      Start 25: netloop
+25/43 Test #25: netloop ..........................   Passed    0.01 sec
+      Start 26: gpio
+26/43 Test #26: gpio .............................   Passed    0.01 sec
+      Start 27: serial
+27/43 Test #27: serial ...........................   Passed    0.01 sec
+      Start 28: mem
+28/43 Test #28: mem ..............................   Passed    0.01 sec
+      Start 29: nvm
+29/43 Test #29: nvm ..............................   Passed    0.01 sec
+      Start 30: mtd
+30/43 Test #30: mtd ..............................   Passed    0.01 sec
+      Start 31: can
+31/43 Test #31: can ..............................   Passed    0.01 sec
+      Start 32: i2c
+32/43 Test #32: i2c ..............................   Passed    0.01 sec
+      Start 33: spi
+33/43 Test #33: spi ..............................   Passed    0.01 sec
+      Start 34: block
+34/43 Test #34: block ............................   Passed    0.01 sec
+      Start 35: pcie
+35/43 Test #35: pcie .............................   Passed    0.01 sec
+      Start 36: spacewire
+36/43 Test #36: spacewire ........................   Passed    0.01 sec
+      Start 37: fabric
+37/43 Test #37: fabric ...........................   Passed    0.01 sec
+      Start 38: canfd
+38/43 Test #38: canfd ............................   Passed    0.02 sec
+      Start 39: canopen
+39/43 Test #39: canopen ..........................   Passed    0.01 sec
+      Start 40: link_ip
+40/43 Test #40: link_ip ..........................   Passed    0.01 sec
+      Start 41: link_tsn
+41/43 Test #41: link_tsn .........................   Passed    0.01 sec
+      Start 42: lwip
+42/43 Test #42: lwip .............................   Passed    0.01 sec
+      Start 43: lwip_netif
+43/43 Test #43: lwip_netif .......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 43
+
+Label Time Summary:
+decoder-corpus        =   0.04 sec*proc (1 test)
+es-hs-lifecycle       =   0.08 sec*proc (1 test)
+host-pty              =   0.34 sec*proc (1 test)
+link                  =   0.34 sec*proc (1 test)
+n22                   =   0.11 sec*proc (2 tests)
+s8-vv-fu              =   0.11 sec*proc (2 tests)
+sb-evs                =  93.10 sec*proc (1 test)
+tool-qualification    =  93.10 sec*proc (1 test)
+uart                  =   0.34 sec*proc (1 test)
+
+Total Test time (real) =  94.02 sec

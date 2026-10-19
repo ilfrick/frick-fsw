@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SSS-001                          |
-| Revision                          | 0.20                                   |
-| Date                              | 2026-10-15                             |
+| Revision                          | 0.21                                   |
+| Date                              | 2026-10-19                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Target platform                   | Microchip RT PolarFire SoC RTPFS160ZT (FCVG784), RISC-V RV64GC |
 | RTOS baseline                     | RTEMS 6.2 (open-source RTEMS project) |
@@ -213,3 +213,4 @@ deviations are resolved before every commit (norm N4).
 | 0.18 | 2026-10-15 | frick-fsw | S4c/S4d scope: CANopen specified as a documented subset; open PUS backend made default, optional N7 backend retained per ADR-0018 |
 | 0.19 | 2026-10-15 | frick-fsw | Align SSS PUS default data-model selection to ADR-0018; open CCSDS default and optional explicit N7/ESA ASN.1 backend |
 | 0.20 | 2026-10-16 | frick-fsw | Restore the owner-directed N7/ESA PUS backend default under ADR-0019; retain open CCSDS as explicit alternative and preserve service-codec integration limits |
+| 0.21 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-15 while rev 0.20 was recorded on 2026-10-16); no requirement added, removed or reworded (N14/R3 authority untouched) |

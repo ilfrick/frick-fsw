@@ -1,0 +1,4 @@
+# Format-check log: 2026-10-19 easy-fixes batch — pinned clang-format 18 (norm N10/N15)
+# Tool: docker image frick-vv:local (clang-format 18.x pinned major)
+
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror

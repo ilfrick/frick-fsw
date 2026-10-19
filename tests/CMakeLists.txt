@@ -162,6 +162,10 @@ add_test(NAME r2_gap COMMAND test_r2_gap)
 add_test(NAME r3_gap COMMAND test_r3_gap)
 add_test(NAME es_hs_lifecycle COMMAND test_es_hs_lifecycle)
 add_test(NAME decoder_corpus COMMAND test_decoder_corpus)
+# Enforced wall-clock budget (N22): a hang is a failure, not a silent pass.
+# Observed runtimes are ~0.1 s / ~0.05 s, so 60 s is a large but bounded margin.
+set_tests_properties(es_hs_lifecycle PROPERTIES TIMEOUT 60 LABELS "n22;s8-vv-fu;es-hs-lifecycle")
+set_tests_properties(decoder_corpus PROPERTIES TIMEOUT 60 LABELS "n22;s8-vv-fu;decoder-corpus")
 if(TARGET test_link_uart)
   add_test(NAME link_uart COMMAND test_link_uart)
   set_tests_properties(link_uart PROPERTIES TIMEOUT 5 LABELS "link;uart;host-pty")

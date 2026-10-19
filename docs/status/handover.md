@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                          | 3.06                                   |
-| Date                              | 2026-10-18                             |
+| Revision                          | 3.07                                   |
+| Date                              | 2026-10-19                             |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -95,14 +95,34 @@ image `antmicro/renode@sha256:7905c3…`. Container runs as root → after mount
 edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake on
 occasion; prefer Docker.
 
-## 4. Current state (latest pushed baseline `1fdbb83`; S8 batch committed)
+## 4. Current state (latest pushed baseline `e7e48ee`; S8 batch + follow-ups committed)
 
-- **Committed baseline:** latest pushed baseline is `1fdbb83` (S8 reconciliation
-  batch: S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration), pushed to
-  `origin` and `gitea`. S8-SCH and S8-VV-FU are delivered on the pushed history.
-  The batch's cycle evidence was produced on the pre-commit working tree, so it
-  must not be conflated with prior cycle evidence; candidate verification and
+- **Committed baseline:** the latest pushed baseline is `e7e48ee` (bounded PA
+  manifest review), on this chain: `b8c3aee` → `1fdbb83` (S8 reconciliation batch:
+  S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration) → `2111968`
+  (documentation alignment + NC-EXT-94/95/96) → `5be0e8c` (metrics refresh) →
+  `e7e48ee`, pushed to `origin` and `gitea`. S8-SCH and S8-VV-FU are delivered on
+  the pushed history. The 2026-10-19 easy-fixes batch sits on top of `e7e48ee` in
+  the working tree; its cycle evidence is produced on that pre-commit tree, so it
+  must not be conflated with prior cycle evidence. Candidate verification and
   generated-input identity are recorded in `docs/vv/verification-results.md`.
+- **2026-10-19 easy-fixes batch (committed on top of `e7e48ee`):**
+  corrected the masked `N22-TS6-57` minimum-PDL sub-case in `test_decoder_corpus.c`
+  (a real test defect: the old vector was rejected by an earlier guard, so the
+  minimum-length rule was never exercised — the discriminating mutant now kills
+  it), added template/iteration context to the corpus anomaly report, added an
+  enforced CTest wall-clock budget (`TIMEOUT 60`) to the two S8-VV-FU targets, and
+  aligned the TS-5/TS-6 N22 rows with what the oracles actually assert. It also
+  registered NC-EXT-97 (requirements-authority contradiction), NC-EXT-98
+  (residual S8-VV-FU test evidence) and **NC-EXT-99** (this batch's own N17/N20 and
+  V&V-confirmation reviews deferred by explicit owner disposition to the next
+  cycle), corrected the Service-1 subservice claim (emitted set `{1,2,3,5,7,8}`:
+  subservice 4 is mapped but unreachable and 6 is unmapped — NC-EXT-94 widened), and
+  resolved a review-ID collision by renumbering the S8-VV-FU V&V delta review to
+  `FRICK-REVIEW-0379/0380`.
+  **Resume point:** the next cycle should request the batch-scoped R4 (N17) /
+  R2-R3 (V&V confirmation) / PA (N20) reviews of this batch under NC-EXT-99, then
+  process their findings under N12.
 - **S8-SCH delivered:** `ff_sched` table-driven dispatcher (`ff_sched.{c,h}`,
   `app_scheduler.c`) with validation, atomic double-buffer activation, absolute
   per-entry release targets, bounded per-poll work, missed-slot/heartbeat/
@@ -112,8 +132,11 @@ occasion; prefer Docker.
   FAILED-application detection host integration with an EVS-listener oracle) and
   `test_decoder_corpus.c` (bounded random-byte/length-boundary/single-bit-
   mutation/cross-type/round-trip/`FF_PusIngest` corpus with requirement-grounded
-  oracles). GAP-R3-1 and NC-EXT-25 materially closed; both remain OPEN pending the
-  independent R2/R3 delta review (owner disposition §3.2 is tracking only).
+  oracles). GAP-R3-1 and NC-EXT-25 materially closed and now independently
+  reviewed (`FRICK-REVIEW-0379/0380`, APPROVED WITH COMMENTS, no Major findings);
+  both **remain OPEN** — the residual is the review's `F-0379-03` reset-path case
+  (NC-EXT-98), and `NC-EXT-25`'s external/reference-oracle independence is not
+  discharged. Closure is an owner disposition (§3.2 is tracking only).
 - **Batch reviews 0341–0343 completed; delta closure is in progress.** They
   covered S8-SCH + S8-VV-FU + S8-PUS-FU + selected N7 OBCP integration. Remaining
   controlled-profile/interface work and focused delta reviews mean the sprint is
@@ -903,3 +926,4 @@ occasion; prefer Docker.
 | 3.04 | 2026-10-16 | frick-fsw | Point current-cycle summary to post-loop-audit CI-local rerun and verification-results 2.89 |
 | 3.05 | 2026-10-17 | frick-fsw | Process the four reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA), record ICD rev 1.4 provisional S3/S6 profile, NC-EXT-93, the corrected TS-1/TS-5/TS-6 §3 lists/histories and the sprint-plan 1.69 counts, and point the current-cycle summary to the 2026-10-17 reconciliation logs, the refreshed candidate manifest and verification-results 2.90 |
 | 3.06 | 2026-10-18 | frick-fsw | Documentation-vs-implementation audit (N21 non-functional only): refresh the §4 committed-baseline fact to the pushed S8 batch `1fdbb83` and correct the flagged §4 hosted-CI wording; see `docs/reviews/2026-10-18-docs-implementation-alignment.md`. No NC closed and no gate, phase or release approval implied |
+| 3.07 | 2026-10-19 | frick-fsw | Easy-fixes batch (N21): refresh the §4 committed baseline to the pushed `e7e48ee` chain and record the 2026-10-19 batch (corrected masked `N22-TS6-57` minimum-PDL sub-case, corpus anomaly context, CTest time budget, TS-5/TS-6 oracle wording, Service-1 emitted set `{1,2,3,5,7,8}` with NC-EXT-94 widened) plus the completed independent R2/R3 delta review (`FRICK-REVIEW-0379/0380`) and the R4 `NC-EXT-96` confirmation; register NC-EXT-97 (requirements authority), NC-EXT-98 (residual S8-VV-FU test evidence) and NC-EXT-99 (this batch's own N17/N20 and V&V-confirmation reviews deferred by explicit owner disposition to the next cycle). `GAP-R3-1` and `NC-EXT-25` remain OPEN; no NC closed and no gate, phase, qualification or release approval implied |

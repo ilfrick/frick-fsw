@@ -1,0 +1,41 @@
+# Evidence: N22-TS6-57 minimum-PDL rule discrimination probe (mutant m3)
+# Date: 2026-10-19 | Tool: host build/native (Debug, gcc) | Norms: N10/N11
+# Review finding: FRICK-REVIEW-0379 F-0379-01 (min-PDL sub-case was masked by the
+#   preceding 'len < HDR+sec_len' guard, so mutant m3 survived with 0 failures).
+# Probe: remove the 'declared_data_len < minimum_data_len' check in
+#   ff_ccsds_packet_data_length() (src/transport/ccsds/ccsds.c), rebuild,
+#   run test_decoder_corpus. Expected: the corrected sub-case fails.
+# Result: exit=1, checks=14941 failures=15 -> mutant KILLED (discriminating).
+# Run against the final (post-format) tree; source restored immediately after.
+
+CORPUS ANOMALY seed=0x5EEDF00D template=0 iter=0: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=1 iter=1: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=2 iter=2: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=3 iter=3: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=4 iter=4: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=5 iter=5: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=6 iter=6: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=7 iter=7: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=8 iter=8: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=0 iter=0: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=1 iter=1: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=2 iter=2: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=3 iter=3: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=4 iter=4: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+CORPUS ANOMALY seed=0x5EEDF00D template=5 iter=5: declared data length below the secondary-header+CRC minimum accepted
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c:316: rc == FF_PARSE_ERROR
+/home/nicola/fsw/frick-fsw/tests/unit/test_decoder_corpus.c checks=14941 failures=15

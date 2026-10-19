@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                         | 1.36                                  |
-| Date                              | 2026-10-15                             |
+| Revision                         | 1.37                                  |
+| Date                              | 2026-10-19                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |
@@ -566,3 +566,4 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.34 | 2026-10-15 | frick-fsw  | Clarify SRS-REQ-029 as an interface contract and explicitly limit CANopen conformance claims to SRS-REQ-063 subset |
 | 1.35 | 2026-10-15 | frick-fsw  | Specify that the `de_assert_us` value on the RS-485 release call controls the post-drain hold; assert-call value is not cached |
 | 1.36 | 2026-10-16 | frick-fsw  | Restore owner-directed N7/ESA PUS default under ADR-0019; define explicit open-backend option and current adapter integration limits |
+| 1.37 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-15 while rev 1.36 was recorded on 2026-10-16). The internal `SRS-REQ-018` vs `SRS-REQ-050` backend-default contradiction was NOT edited and is registered as NC-EXT-97 for the requirements authority; no requirement semantics/IDs/links changed |

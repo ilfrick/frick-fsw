@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 1.7                                    |
-| Date                              | 2026-10-14                             |
+| Revision                          | 1.8                                    |
+| Date                              | 2026-10-19                             |
 | License                           | MPL-2.0 (Mozilla Public License 2.0)   |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
 | Norm                              | N13 (open source; license documented, reviewed and updated) |
@@ -149,3 +149,4 @@ J. R. R. Tolkien's legendarium.
 | 1.5 | 2026-10-14 | frick-fsw | Reconcile authorization to original project code and materials; exclude generated/external material and correct over-narrow code-only interpretation |
 | 1.6 | 2026-10-14 | frick-fsw | Restore the omitted 1.4 history event as a superseded interim correction; make revision chronology continuous |
 | 1.7 | 2026-10-16 | frick-fsw | Record pinned N7 OBCP/MicroPython candidate and defer combined-distribution/legal compatibility to independent/legal review |
+| 1.8 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-14 while rev 1.7 was recorded on 2026-10-16); no licensing-boundary or content change |

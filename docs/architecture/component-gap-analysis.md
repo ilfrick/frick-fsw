@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0014                        |
-| Revision                          | 0.4                                    |
-| Date                              | 2026-10-11                             |
+| Revision                          | 0.5                                    |
+| Date                              | 2026-10-19                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SSS-REQ-022, SSS-REQ-023, SSS-REQ-027, SRS-REQ-045, SRS-REQ-046, SRS-REQ-054 |
 
@@ -138,3 +138,4 @@ SRS-REQ-045/046; the **in-house OBCP engine** is milestone **M16**
 | 0.2 | 2026-10-11 | frick-fsw | M16: M12 integrates / M16 develops the in-house OBCP engine; requirements SSS-REQ-027 / SRS-REQ-054 |
 | 0.3 | 2026-10-16 | frick-fsw | Record S9-S10 pinned n7s-obcp/MicroPython acquisition and explicitly bound the claim to dependency identity only |
 | 0.4 | 2026-10-16 | frick-fsw | Record default-build engine integration, test-double connectivity evidence and remaining deferred assurance gaps |
+| 0.5 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-11 while rev 0.4 was recorded on 2026-10-16); no content, requirement or design change |

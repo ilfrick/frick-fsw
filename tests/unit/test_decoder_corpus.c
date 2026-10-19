@@ -52,6 +52,7 @@
 
 static uint32_t g_rng;
 static uint32_t g_iter; /* iteration of the running sub-test (anomaly context) */
+static uint16_t g_tmpl; /* template index in the running sub-test (anomaly context) */
 
 static uint32_t rnd(void)
 {
@@ -65,8 +66,8 @@ static uint32_t rnd(void)
 
 static void anomaly(const char *what)
 {
-    (void)fprintf(stderr, "CORPUS ANOMALY seed=0x%08X iter=%u: %s\n", (unsigned)CORPUS_SEED,
-                  (unsigned)g_iter, what);
+    (void)fprintf(stderr, "CORPUS ANOMALY seed=0x%08X template=%u iter=%u: %s\n",
+                  (unsigned)CORPUS_SEED, (unsigned)g_tmpl, (unsigned)g_iter, what);
 }
 
 /* ---- template packets -------------------------------------------- */
@@ -232,6 +233,7 @@ static void test_length_boundary_exact(const pkt_t *pkts, uint16_t n, bool is_tc
 {
     for (uint16_t t = 0u; t < n; t++) {
         const pkt_t *pkt = &pkts[t];
+        g_tmpl = t;
 
         /* Truncation at every length 0 .. total-1. */
         for (g_iter = 0u; g_iter < pkt->len; g_iter++) {
@@ -254,6 +256,7 @@ static void test_length_boundary_exact(const pkt_t *pkts, uint16_t n, bool is_tc
             uint8_t extra;
 
             for (extra = 1u; extra <= 4u; extra++) {
+                g_iter = extra;
                 FF_Pus_TcHdr_t tc;
                 FF_Pus_TmHdr_t tm;
                 const uint8_t *data = NULL;
@@ -272,25 +275,43 @@ static void test_length_boundary_exact(const pkt_t *pkts, uint16_t n, bool is_tc
             }
         }
 
-        /* Packet Data Length field that cannot hold the configured secondary
-         * header + CRC trailer must be rejected before any CRC access. */
-        if (pkt->len >= 7u) {
+        /* Packet Data Length field that declares less than one secondary
+         * header plus CRC trailer must be rejected by the minimum-length rule
+         * itself. The frame is sized to exactly the declared length so that the
+         * minimum-length rule (not the preceding "frame shorter than the
+         * secondary header" guard and not the "declared length must equal the
+         * supplied length" rule) is the only failing condition. Before this
+         * correction the vector supplied only `FF_CCSDS_HDR_LEN + 1` octets, so
+         * the decoder rejected it on the short-frame guard and the
+         * minimum-length rule was never exercised (FRICK-REVIEW-0379
+         * F-0379-01). */
+        if (pkt->len >= FF_CCSDS_HDR_LEN) {
+            g_iter = t;
             FF_Pus_TcHdr_t tc;
             FF_Pus_TmHdr_t tm;
             const uint8_t *data = NULL;
             uint16_t data_len = 0u;
             static uint8_t small[CORPUS_MAX_LEN];
             FF_Status_t rc;
-            uint16_t supplied = (uint16_t)(FF_CCSDS_HDR_LEN + 1u); /* declared data = 1 byte */
+            uint16_t sec_len =
+                is_tc ? (uint16_t)FF_PUS_TC_SEC_HDR_LEN : (uint16_t)FF_PUS_TM_SEC_HDR_LEN;
+            uint16_t minimum = (uint16_t)(sec_len + (FF_FRAME_WITH_CRC ? 2u : 0u));
+            uint16_t declared = (uint16_t)(minimum - 1u); /* one byte below minimum */
+            uint16_t supplied = (uint16_t)(FF_CCSDS_HDR_LEN + declared);
+            uint16_t pdl = (uint16_t)(declared - 1u);
 
-            (void)memcpy(small, pkt->bytes, supplied);
-            small[4] = 0x00u; /* PDL - 1 = 0 -> declared data length 1 */
-            small[5] = 0x00u;
-            /* Keep the original packet-type bit so the length check is reached. */
+            FF_TEST_ASSERT(supplied <= CORPUS_MAX_LEN);
+            /* Copy only the primary header from a real frame (preserving the
+             * packet-type and version bits) and synthesise the rest, so the
+             * sub-case is independent of the template's own length. */
+            (void)memcpy(small, pkt->bytes, FF_CCSDS_HDR_LEN);
+            (void)memset(&small[FF_CCSDS_HDR_LEN], 0, (size_t)(supplied - FF_CCSDS_HDR_LEN));
+            small[4] = (uint8_t)(pdl >> 8);
+            small[5] = (uint8_t)(pdl & 0xFFu);
             rc = is_tc ? FF_CcsdsDecodeTc(small, supplied, NULL, &tc, &data, &data_len)
                        : FF_CcsdsDecodeTm(small, supplied, NULL, &tm, &data, &data_len);
             if (rc != FF_PARSE_ERROR) {
-                anomaly("undersized Packet Data Length accepted");
+                anomaly("declared data length below the secondary-header+CRC minimum accepted");
             }
             FF_TEST_ASSERT(rc == FF_PARSE_ERROR);
         }

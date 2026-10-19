@@ -11,6 +11,9 @@
 | 2026-10-17 | S8 reconciliation documentation re-review (independent re-verification) | R4 | CORRECTED APPROVED WITH COMMENTS; 4 Major citation errors and 2 Comment errors in the original self-authored 0376 placeholder corrected (pus.h:66→:69, status.json revision-key misclaim, loop-audit ICD-1.4 parenthetical mis-attribution, phantom N11 'through 0364'); N9 independence noted as self-contextual; PA 0377 re-verification remains required; no N17/N20/phase approval | 2026-10-17-s8-reconciliation-docs-r4-rereview-0376.md |
 | 2026-10-17 | S8 reconciliation PA final re-verification (211-file manifest, 7/8 gates green, QEMU SKIP, checklist item-2 discrepancies) | PA | Bounded PA re-verification only — manifest identity verified (211 files, digest c50798b5), all 10 evidence-log/build hashes independently recomputed and match, NC/authority status confirmed, no overstating claims, ICD rev 1.4 provisional; checklist item 2 corrected (code delta includes PUS behavioral changes; FF_USE_N7_OBCP=ON and ff_obcp.c compiled; src/obcp/ new vs b8c3aee); F-0377-01 (README index gap), F-0377-02 (code-delta scope), F-0377-03 (OBCP default/compiled), F-0377-04 (0376 CHANGELOG characterization) recorded; no N20 phase/release approval | 2026-10-17-s8-reconciliation-pa-final-0377.md |
 | 2026-10-18 | Docs-vs-implementation alignment (R4) | R4 | REVIEWED (factual alignment; NCs registered) — cross-file factual alignment vs commit 1fdbb83; fixed README/PUS default+S3, SDD OBCP/link, pus-layer S20, VP CTest 43/43, header/metadata sync (6), status/handover/loop-audit baseline; registered NC-EXT-94/95/96; ICD not edited | 2026-10-18-docs-implementation-alignment.md |
+| 2026-10-18 | S8-VV-FU delta independent V&V review (ES/HS host-integration oracle; bounded decoder corpus) | R2 (with R3 requirements/interface annex) | APPROVED WITH COMMENTS (no Major; 3 Minor F-0379-01/-02/-03 + 4 Comment F-0379-04..-07); TS-5 §3.2 and TS-6 §3.2 counts independently recomputed and CONFIRMED (77/56/21 and 58/30/27+1); `GAP-R3-1` and `NC-EXT-25` **NOT cleared — remain OPEN**; no qualification/target/phase approval; report renumbered from the colliding 0378/0379 to **0379/0380** before publication (metadata only) | 2026-10-18-s8-vv-fu-delta-vv-review.md (FRICK-REVIEW-0379/0380) |
+| 2026-10-18 | `NC-EXT-96` documentation-correction confirmation | R4 | APPROVED WITH COMMENTS (bounded scope); the enumerated corrections CONFIRMED; no Major findings; recommends narrow closure of NC-EXT-96 plus a bounded editorial delta for the residual accuracy items (carried by NC-EXT-98) | 2026-10-18-docs-alignment-r4-confirmation.md (FRICK-REVIEW-0378) |
+| 2026-10-18 | Post-docs-alignment candidate manifest identity | PA | Bounded PA re-verification only; no phase/release/qualification approval; required the candidate-manifest refresh against the then-current baseline (now recorded in the regenerated manifest) | 2026-10-18-post-docs-alignment-manifest-pa.md |
 | 2026-10-16 | Loop-audit working-tree scope boundary | R4 | Confirms current CI status and narrow NC-EXT-91 disposition; broader candidate and release gates remain open | 2026-10-16-s8-loop-audit-r4-rereview.md |
 | 2026-10-16 | Handover results pointer and review-index PA status | R4 | Confirms revision 2.87 pointer and NC-EXT-91 narrow closure status; no aggregate N17 approval | 2026-10-16-s8-final-reference-r4-rereview.md |
 | 2026-10-16 | PUS/Scheduler delta inventory identity | PA | Independently verified 19-file hashes/digest and cited log/cache/executable references; NC-EXT-91 closed narrowly for this delta only | 2026-10-16-s8-pus-scheduler-delta-pa-identity.md |
@@ -484,6 +487,23 @@ mean the S8-PUS/OBCP PA report. No evidence file was renamed in this cycle
 because citations in sprint-plan/loop-audit/handover/verification-results refer
 to both series and a rename requires a bounded, individually reviewed cleanup
 (tracked as NC-EXT-93, owner FSW, not blocking unrelated work under N21).
+
+**Review-ID collision at 0378 (recorded 2026-10-19; renumbered, not deferred).** The
+sequential ID `0378` was claimed by two concurrently produced, still-uncommitted
+2026-10-18 reports: the R4 documentation-confirmation
+(`docs/reviews/2026-10-18-docs-alignment-r4-confirmation.md`, first allocation
+after `0377`) and the S8-VV-FU R2/R3 delta review
+(`docs/reviews/2026-10-18-s8-vv-fu-delta-vv-review.md`). Both also used the
+finding prefix `F-0378-nn`. Unlike the 0338/0339 collision (whose reports were
+already committed and cited from two series, so it was recorded and tracked as
+NC-EXT-93 instead of renamed), **neither report here was committed**, so the
+collision was resolved before publication by renumbering the later allocation:
+the R2 core became `FRICK-REVIEW-0379`, the R3 annex `FRICK-REVIEW-0380`, and
+the findings `F-0379-nn`; the R4 confirmation keeps `FRICK-REVIEW-0378` and
+`F-0378-nn`. The renumbering is metadata only — no verdict, finding or citation
+changed — and a note inside the V&V report records it. This follows the earlier
+`FRICK-REVIEW-0261` precedent, where a PA report was renumbered to resolve a
+duplicate ID (see the note on reviews 0252..0261 above).
 
 **Closure taxonomy (recorded 2026-10-17; PA 0373 F-0373-01).** A finding in this
 log such as "CLOSED narrowly by R1/R2 review NNNN" means the *raising profile*

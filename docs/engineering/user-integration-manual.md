@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.11                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.12                                   |
+| Date                              | 2026-10-19                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
 This manual explains how to use frick-fsw as a **middleware**: you write your
@@ -157,11 +157,12 @@ are in `src/transport/link/link_loopback.c`, `link_uart.c`, `link_ip.c` and
 the backend's `init`. The default is the platform default (loopback on host /
 UART on RTEMS); select another backend at start-up with `FF_LinkSelect()`.
 
-> **Backend note (PUS-C).** The open CCSDS backend (`FF_PusBackendOpen`) is the
-> default. The N7/ESA ASN.1 backend (`FF_PusBackendN7`) is optional; generate its
-> sources with `make pus-asn1` and configure with `FF_USE_PUS_ASN1=ON`. The PUS
-> backend can also be selected at run time with `FF_PusSetBackend()` where the
-> selected backend is compiled into the image (see `ADR-0018`).
+> **Backend note (PUS-C).** The N7/ESA ASN.1 backend (`FF_PusBackendN7`) is the
+> default (`FF_USE_PUS_ASN1=ON`, `ADR-0019`); its sources are generated with
+> `make pus-asn1`. The open CCSDS backend (`FF_PusBackendOpen`) remains available
+> and is selected explicitly with `FF_USE_PUS_ASN1=OFF`. The PUS backend can also
+> be selected at run time with `FF_PusSetBackend()` where the selected backend is
+> compiled into the image (see `ADR-0018`/`ADR-0019`).
 
 ## 8. TCP/IP over PUS-C — status
 
@@ -425,3 +426,4 @@ without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
 | 0.9 | 2026-10-13 | frick-fsw | **S4b delta re-review (N12 closure)**: all findings from FRICK-REVIEW-0165 (R1+R2, REJECTED) and FRICK-REVIEW-0166 (PA, REJECTED) resolved; test counts corrected (test_link_ip 19 funcs, test_link_tsn 14 funcs); `-Wall -Wextra -Werror` clean; R1+R2 delta (FRICK-REVIEW-0165-D1) and PA delta (FRICK-REVIEW-0166-D1) both APPROVED; commit/push unblocked |
 | 0.10 | 2026-10-13 | frick-fsw | §8 status counts updated for the S4b follow-up (FRICK-REVIEW-0168 DOC-R4-030): `test_link_ip` 20 test functions (10 seg + 9 IP + 1 `test_pus_ip_roundtrip`) and `test_link_tsn` 15 test functions (incl. `test_pus_tsn_roundtrip`); header Revision aligned with the History |
 | 0.11 | 2026-10-13 | frick-fsw | Bound `make ci-local` to configure/build/test/Lean/trace, list separate smoke/docs commands, and state the mutable image-input limitation (NC-EXT-35). |
+| 0.12 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): correct the §7 backend note, which stated that the open CCSDS backend is the default; the default is the N7/ESA ASN.1 backend (`FF_USE_PUS_ASN1=ON`, `ADR-0019`) with the open backend selectable via `FF_USE_PUS_ASN1=OFF`, matching `SRS-REQ-050` and the implementation |

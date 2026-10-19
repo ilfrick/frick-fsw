@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.90                                   |
-| Date                              | 2026-10-17                             |
+| Revision                          | 2.91                                   |
+| Date                              | 2026-10-19                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
 
@@ -21,6 +21,88 @@ They came from the uncommitted candidate worktree with the observed local
 toolchain images; they must not be attributed to the committed baseline. The
 exact mutable candidate and tool inputs are not fully captured by the recorded
 hashes.
+
+## Easy-fixes batch: masked decoder sub-case + documentation accuracy (2026-10-19; uncommitted)
+
+- **Scope of this cycle.** Working-tree-only batch on top of the pushed baseline
+  `e7e48ee`: one functional test defect corrected (`test_decoder_corpus.c`), an
+  enforced CTest wall-clock budget on the two S8-VV-FU targets, and bounded
+  document/test-spec accuracy corrections (README, TS-5, TS-6, the user-integration
+  manual, the sprint-plan NC register and five document headers). **No requirement,
+  ICD, architecture, behaviour or traceability-link change is part of this cycle**;
+  the only source change is inside `tests/unit/test_decoder_corpus.c`.
+- **Independent reviews integrated.** R2/R3 S8-VV-FU delta review
+  `docs/reviews/2026-10-18-s8-vv-fu-delta-vv-review.md` (**FRICK-REVIEW-0379** core +
+  **0380** requirements/interface annex; APPROVED WITH COMMENTS, no Major finding;
+  3 Minor + 4 Comment) and the R4 `NC-EXT-96` confirmation
+  `docs/reviews/2026-10-18-docs-alignment-r4-confirmation.md` (**FRICK-REVIEW-0378**;
+  APPROVED WITH COMMENTS). The V&V report was renumbered from a colliding
+  `0378`/`0379` before publication; the renumbering is metadata only and is recorded
+  in `docs/reviews/README.md` and inside the report.
+- **Functional correction (F-0379-01/F-0379-04).** The `N22-TS6-57` minimum-PDL
+  sub-case supplied only `FF_CCSDS_HDR_LEN + 1` octets, so the decoder rejected the
+  frame on its earlier short-frame guard and the minimum-length rule was never
+  exercised. The vector is now type-aware and sized to exactly the declared length,
+  making the minimum-length rule the only failing condition, and the corpus anomaly
+  report names the template index. **Discrimination evidence (retained):**
+  `docs/vv/evidence/2026-10-19-s8-vv-fu-mutant-m3-discrimination.log` (sha256
+  `70948df006385a0e79f4a00b100d042f8492c3338564cee9f5f31df9085089cb`) — removing the
+  `declared_data_len < minimum_data_len` rule fails the suite **15/15** at the
+  corrected sub-case with context `template=5 iter=5`; the source was restored
+  (`git diff` clean) and the unmutated suite passes 14941 checks / 0 failures.
+- **Artifact-hash note.** The reviewed artifacts' hashes recorded inside the V&V
+  report (`test_es_hs_lifecycle.c`, `test_decoder_corpus.c`, TS-5, TS-6) are
+  point-in-time values from the review; `test_decoder_corpus.c`, TS-5 and TS-6 were
+  subsequently modified by the F-0379-01/-02/-04/-06 corrections (and by the pinned
+  clang-format pass) and re-verified in the cycle listed below. The review's verdict
+  and findings are unchanged by that; no hash in the review report was rewritten.
+- **Cycle evidence (this batch, uncommitted tree):**
+  - `make ci-local` (N6/N8; docker `frick-vv:local`, Ninja Debug, `FF_USE_PUS_ASN1=ON`):
+    configure + build + **43/43 ctest** + Lean 62 theorems + `trace.py` PASS —
+    `docs/vv/evidence/2026-10-19-easy-fixes-ci-local.log`
+    (sha256 `92c19b3e756e1d5660a23608da5b59121702cf0157f2e1b8c8b16aa6180d4c35`).
+  - Pinned clang-format 18 `make format-check` (docker): **PASS** —
+    `docs/vv/evidence/2026-10-19-easy-fixes-format-check.log`
+    (sha256 `da69e9e40937c195c997c92ad9a509240654dbf08859746b565d84a24de6c83e`).
+  - `make smoke` (native simulator, banner + 6 applications): **PASS** —
+    `docs/vv/evidence/2026-10-19-easy-fixes-smoke.log`
+    (sha256 `6e4327b56f09fb19532988b7c96d6f259063d377c35bec58723a0e2c2e343043`).
+  - `make gsw-selfcheck` (GSW frame/CRC, metrics, MPL-2.0 license identity): **OK** —
+    `docs/vv/evidence/2026-10-19-easy-fixes-gsw-selfcheck.log`
+    (sha256 `d1223ce32dafa765463f60b1390e3c6ff181479e62dd9603f9f77b61c03e74f1`).
+  - `make docs` (docker Doxygen, output-existence guard): **PASS** —
+    `docs/vv/evidence/2026-10-19-easy-fixes-docs.log`
+    (sha256 `c7d1f9a5a8343199ee3ccaab25a107d6e6fdbcc53c6dc28badda6e8e8a6c019a`).
+  - ASan leg (host `build/asan`, `-DCMAKE_C_FLAGS=-fsanitize=address -fno-omit-frame-pointer`):
+    **43/43 PASS** (166.36 s) — `docs/vv/evidence/2026-10-19-easy-fixes-asan.log`
+    (sha256 `4e32e21463a363772bbdee364079afbdf60ade155d23516bf46322aea404a054`).
+  - Host `build/native` ctest: **43/43**; `decoder_corpus` 14941 checks / 0 failures.
+
+- **NCs.** Registered **NC-EXT-97** (`SRS-REQ-018` vs `SRS-REQ-050` backend-default
+  contradiction — requirement semantics; needs the requirements authority R3/N14, not
+  edited here) and **NC-EXT-98** (residual S8-VV-FU reset-path `N22-TS5-50` and ES/HS
+  anomaly-context evidence). Widened **NC-EXT-94** to record that **neither** Service-1
+  subservice 4 nor 6 has an emission path (corrected set {1,2,3,5,7,8}) and updated
+  **NC-EXT-96** (independent R4 confirmation complete; narrow closure recommended).
+  The R4 finding F-0378-03's sub-item (b) — a separate documentation NC for the README
+  Service-1 row — was **not** taken up as an NC because the row was corrected in this
+  batch instead.
+- **Recorded review-coverage deviation (NC-EXT-99).** This batch is committed and
+  pushed with its **own** batch-scoped independent reviews not yet obtained: the N17
+  R4 documentation review of the changed documents, the N22/N10 R2/R3 V&V
+  confirmation of the corrected `test_decoder_corpus.c`/TS-5/TS-6 artifacts, and the
+  N20 PA review of the batch and its evidence. The reviews *carried* in this batch
+  (0378, 0379/0380) were made against the pre-correction tree; the corrections they
+  prescribed are what this batch implements, and the corrected artifacts were
+  re-verified by the FSW engineer (cycle evidence above). The deferral is an explicit
+  owner disposition, is **not** a closure of NC-EXT-99, and implies no gate, phase,
+  qualification or release approval. The next cycle must request those reviews and
+  process their findings under N12.
+- **Boundaries.** `GAP-R3-1` and `NC-EXT-25` remain **OPEN** (the review cleared
+  neither; closure is an owner/authority disposition). No NC was closed, no gate,
+  phase, qualification, tool-qualification or release approval is implied, and no
+  target/HIL evidence is added. Gitea Actions remains unverified.
+
 
 ## S8 reconciliation cycle: independent-review closure of the PUS/SCH/VV delta (2026-10-17; uncommitted)
 
@@ -422,7 +504,10 @@ hashes.
   `docs/vv/evidence/2026-10-16-s8-vv-fu-asan.log`.
 - **Test-spec impact:** TS-5 §3.2 moves to 76 total / 55 covered / 21 gap
   (new `N22-TS5-76` integration row; HS rows 49/51 upgraded to a grounded host
-  oracle). TS-6 §3.2 moves to 58 total / 30 covered / 27 gap / 1 exploratory
+  oracle). **(Superseded as a current count:** the later 2026-10-17 reconciliation
+  reproduced exactly 77 total / 56 covered / 21 gap — see TS-5 §3.2 and
+  sprint-plan history 1.68; the 76/55 figures are preserved here as the
+  point-in-time record of this increment.**)** TS-6 §3.2 moves to 58 total / 30 covered / 27 gap / 1 exploratory
   (rows 55–58 added; `N22-TS6-35` flipped gap→covered; `N22-TS6-41` narrowed).
 - **NC disposition:** GAP-R3-1 and NC-EXT-25 are materially closed (host
   integration harness and bounded decoder corpus exist with controlled oracles)
@@ -1542,3 +1627,4 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.88 | 2026-10-16 | frick-fsw | Record fresh post-R4-reference CI-local 43/43/Lean/trace pass and retained log; no aggregate N17 approval |
 | 2.89 | 2026-10-16 | frick-fsw | Record fresh post-loop-audit CI-local 43/43/Lean/trace pass, retained log and bounded R4 review; no aggregate N17 approval |
 | 2.90 | 2026-10-17 | frick-fsw | Record the four independent reconciliation reviews (0370 R2, 0371 R3, 0372 R4, 0373 PA) and their bounded corrections: TS-1/TS-5/TS-6 §3 gap-list synchronization, oracle-independence wording, `FRICK-ICD-001` rev 1.4 (R3 0371 published rev 1.3; R3 0375 corrected the ICD to rev 1.4; provisional S3 subservice codes and S6 profile), TS-1 rev 1.9 / TS-5 rev 1.3 / TS-6 rev 1.5 histories, sprint-plan rev 1.70 with NC-EXT-93, review-log ledger/closure-taxonomy note; R2 0374 and R3 0375 follow-up closure; fresh ci-local 43/43 + Lean 62 + trace PASS with retained logs and the refreshed candidate identity manifest. No phase/release/N20 approval; authority and target gates remain open |
+| 2.91 | 2026-10-19 | frick-fsw | Easy-fixes batch (N11/N16): annotate the historical S8-VV-FU `76 total / 55 covered` TS-5 §3.2 statement as superseded by the recomputed 77/56/21 (preserving the point-in-time record), and record the 2026-10-19 batch cycle with its evidence hashes: `make ci-local` 43/43 ctest + Lean + trace PASS, pinned clang-format 18 format-check PASS, native smoke PASS, GSW/license self-check OK, docker Doxygen PASS, host ASan leg 43/43 PASS (166.36 s), and the mutant-m3 minimum-PDL discrimination probe (15/15 failures on the mutant; source restored). No NC closed; GAP-R3-1/NC-EXT-25 remain OPEN |
