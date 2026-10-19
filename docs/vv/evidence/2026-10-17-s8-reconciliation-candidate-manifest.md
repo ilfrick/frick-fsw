@@ -326,7 +326,7 @@ review-integration delta (the bounded corrections from reviews `FRICK-REVIEW-038
   no ignored `build/` or `build/ci/` cache/executable artifacts are counted.
 - Delta paths: 15 (14 content paths + this manifest by bootstrap); combined digest over
   the sorted `<sha256>  <path>` lines:
-  `8de335a0fa6324ce245a43182c8813e8bf947eef6c619deba38232bb6abbea0f`
+  `11e3ef6a895d1628e61d290252acc90763847e6d6f6fe1177b91e76c96bba86c`
 
 | SHA-256 | Bytes | Path |
 | ------- | ----: | ---- |
@@ -344,7 +344,7 @@ review-integration delta (the bounded corrections from reviews `FRICK-REVIEW-038
 | `bd81bbfe52dcbe9628b975aa29d6a8fcd4242a8e142a21c2f682ddd9fd9f7f52` | 67478 | `docs/vv/test-spec/ts-5-core-services.md` |
 | `9790c0b3f970ef353a162860dca2aa937029af4ba8ca902c3fb8d892dcd51d0b` | 62518 | `docs/vv/test-spec/ts-6-sw-robustness.md` |
 | `e7446eb884aa8bef0c35049536339259b6707515e2fda45baf01dbe8f017ffa8` | 14404 | `docs/vv/verification-plan.md` |
-| `eb7af8be543159f2c2100622f7a66927135a0ab62b93b8d5a67ebff526c8b51a` | 203375 | `docs/vv/verification-results.md` |
+| `66b2b5badb8f382cc2e2f0f3db60841d728cf3079e72ad2820a6cb33787af907` | 204297 | `docs/vv/verification-results.md` |
 
 A third party can reproduce this digest by restoring baseline `7e93325`, applying the
 working-tree delta shown in this addendum, and re-running the Method; the manifest row
