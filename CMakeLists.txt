@@ -120,6 +120,7 @@ endif()
 set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/core/pal/pal_posix.c
   ${FF_SRC_DIR}/core/pal/pal_rtems.c
+  ${FF_SRC_DIR}/core/pal/pal_watchdog.c
   ${FF_SRC_DIR}/core/sb/sb.c
   ${FF_SRC_DIR}/core/evs/evs.c
   ${FF_SRC_DIR}/core/es/es.c
@@ -144,6 +145,7 @@ set(FF_CORE_SOURCES
   ${FF_SRC_DIR}/apps/app_scheduler.c
   ${FF_SRC_DIR}/apps/app_hk.c
   ${FF_SRC_DIR}/apps/app_hs.c
+  ${FF_SRC_DIR}/apps/app_wd.c
   ${FF_SRC_DIR}/apps/app_sample.c
   ${CMAKE_CURRENT_SOURCE_DIR}/config/tables/fsw_tables.c
 )
@@ -155,7 +157,8 @@ if(FF_USE_N7_OBCP)
 endif()
 
 # Renode functional test application (norm N18): compiled and registered only
-# when enabled, so the default/flight reference set stays at six applications.
+# when enabled; the default reference set has seven applications, while the
+# optional RENODE_TEST application is added only with FF_ENABLE_RENODE_TEST.
 if(FF_ENABLE_RENODE_TEST)
   add_compile_definitions(FF_ENABLE_RENODE_TEST=1)
   list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/apps/app_renode_test.c)
@@ -210,7 +213,7 @@ if(FF_USE_N7_OBCP)
   target_include_directories(frick_fsw_core PUBLIC ${FF_N7_OBCP_DIR}/src/obcp_engine
     ${FF_N7_OBCP_DIR}/src)
 endif()
-if(FF_BUILD_TESTS)
+if(FF_BUILD_TESTS AND NOT FF_PLATFORM MATCHES "^rtems")
   target_compile_definitions(frick_fsw_core PUBLIC FF_TEST_HOOKS)
 endif()
 

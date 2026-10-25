@@ -47,6 +47,26 @@ static FF_Status_t loop_send(const uint8_t *data, uint16_t len)
     return FF_SUCCESS;
 }
 
+static FF_Status_t loop_send_until(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
+{
+    /* The loopback buffer is in-memory and never blocks, so the deadline only
+     * has to be honoured on entry and re-checked after the copy: an
+     * already-expired budget must not report success. This keeps the host
+     * simulator on the same production reporter path as the target
+     * (FF_LinkSendUntil) instead of dropping the frame. */
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    FF_Status_t st = loop_send(data, len);
+    if (st != FF_SUCCESS) {
+        return st;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    return FF_SUCCESS;
+}
+
 static FF_Status_t loop_recv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
 {
     (void)timeout_ms;
@@ -65,6 +85,7 @@ const FF_Link_t FF_LinkLoopbackBackend = {
     .name = "loopback",
     .init = loop_init,
     .send = loop_send,
+    .send_until = loop_send_until,
     .recv = loop_recv,
 };
 
@@ -87,6 +108,10 @@ FF_Status_t FF_LinkLoopbackPush(const uint8_t *data, uint16_t len)
 FF_Status_t FF_LinkLoopbackPop(uint8_t *data, uint16_t cap, uint16_t *len)
 {
     uint16_t n = 0u;
+    if ((data == NULL) || (len == NULL)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    *len = 0u;
     FF_PalMutexLock(g_lock, FF_PAL_WAIT_FOREVER);
     while ((g_tx_head != g_tx_tail) && (n < cap)) {
         data[n++] = g_tx[g_tx_tail];

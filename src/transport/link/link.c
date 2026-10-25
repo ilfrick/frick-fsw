@@ -45,6 +45,14 @@ FF_Status_t FF_LinkSend(const uint8_t *data, uint16_t len)
     return g_link->send(data, len);
 }
 
+FF_Status_t FF_LinkSendUntil(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
+{
+    if ((g_link == NULL) || (g_link->send_until == NULL)) {
+        return FF_NOT_IMPLEMENTED;
+    }
+    return g_link->send_until(data, len, deadline_ns);
+}
+
 FF_Status_t FF_LinkRecv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
 {
     if ((g_link == NULL) || (g_link->recv == NULL)) {

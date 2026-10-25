@@ -1,0 +1,253 @@
+=== MPFS_Watchdog model probe — pinned Renode image ===
+run (UTC): 2026-10-21T22:18:10Z .. 22:18:13Z   (retained file written 2026-10-22 local)
+image: antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061 (cached; --pull=never)
+renode: Renode v1.16.1.16973
+platform digests (computed in the pinned image):
+2b664d86b821ae17c776784d42690f0aaf9fa878b9b65d5e2a8f0442df0f349e  /opt/renode/platforms/cpus/polarfire-soc.repl
+2bdf20e9924e8ef3630fb3520123cc1b9b0b6dcba7a4ae13548a66bd2bf4c182  /opt/renode/platforms/boards/beaglev-fire.repl
+
+model under test: wdog1 (Timers.MPFS_Watchdog @ 0x20101000) — the model SOURCE IS NOT SHIPPED in the image and no
+  version-bound upstream source is obtainable (renode-infrastructure exposes no release ref for build
+  d66b0c2a-202602160923), so every model statement is a MEASURED observation.
+
+REGISTER MAP (from the cited public header, mss_watchdog.h: WATCHDOG_TypeDef):
+  0x00 REFRESH | 0x04 CONTROL | 0x08 STATUS | 0x0c TIME | 0x10 MSVP | 0x14 TRIGGER | 0x18 FORCE
+  -> the probe script's LABELS for 0x08 ('TIME') and 0x04 ('STATUS') were WRONG: 0x08 is STATUS and
+     0x04 is CONTROL; the TIME register (0x0c) was never probed. See the correction note at the end.
+
+scope of this probe (important):
+  - monitor-driven register writes; NO SUT ELF loaded; the machine was NOT started;
+  - the counter was therefore not running and the read-backs are register-level, not timing;
+  - REFRESH (0x00) was written but never read back, so no counter value was observed.
+
+--- probe script (exact, as executed) ---
+mach create "wdprobe"
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
+echo "=== A. initial register state (wdog1 @ 0x20101000) ==="
+echo "TIME(0x08):"
+sysbus ReadDoubleWord 0x20101008
+echo "STATUS(0x04):"
+sysbus ReadDoubleWord 0x20101004
+echo "=== B. configure in the documented order: TRIGGER, MSVP, TIME ==="
+sysbus WriteDoubleWord 0x20101014 0x64
+sysbus WriteDoubleWord 0x20101010 0x32
+sysbus WriteDoubleWord 0x20101008 0xC8
+echo "TIME readback after configure:"
+sysbus ReadDoubleWord 0x20101008
+echo "STATUS readback after configure:"
+sysbus ReadDoubleWord 0x20101004
+echo "=== C. REFRESH with a WRONG key (0x1) ==="
+sysbus WriteDoubleWord 0x20101000 0x1
+echo "TIME readback after wrong-key refresh:"
+sysbus ReadDoubleWord 0x20101008
+echo "STATUS readback after wrong-key refresh:"
+sysbus ReadDoubleWord 0x20101004
+echo "=== D. REFRESH with the documented key (0xDEADC0DE) ==="
+sysbus WriteDoubleWord 0x20101000 0xDEADC0DE
+echo "TIME readback after correct-key refresh:"
+sysbus ReadDoubleWord 0x20101008
+echo "STATUS readback after correct-key refresh:"
+sysbus ReadDoubleWord 0x20101004
+echo "=== E. lock probe: re-write TIME and TRIGGER after configuration ==="
+sysbus WriteDoubleWord 0x20101008 0x3C
+sysbus WriteDoubleWord 0x20101014 0x0A
+echo "TIME readback after re-write:"
+sysbus ReadDoubleWord 0x20101008
+echo "TRIGGER readback after re-write:"
+sysbus ReadDoubleWord 0x20101014
+echo "=== F. bound probe: write TIME=0x1000000 (24-bit field) and TRIGGER=0x1000 (12-bit) ==="
+sysbus WriteDoubleWord 0x20101008 0x1000000
+sysbus WriteDoubleWord 0x20101014 0x1000
+echo "TIME readback:"
+sysbus ReadDoubleWord 0x20101008
+echo "TRIGGER readback:"
+sysbus ReadDoubleWord 0x20101014
+echo "=== G. reset macro / machine reset availability ==="
+echo "sysbus machine list:"
+machine
+echo "=== end of probe ==="
+quit
+
+--- probe output (ANSI stripped, verbatim) ---
+=== A. initial register state (wdog1 @ 0x20101000) ===
+TIME(0x08):
+0x00000000
+STATUS(0x04):
+0x00000002
+=== B. configure in the documented order: TRIGGER, MSVP, TIME ===
+TIME readback after configure:
+22:18:13.3781 [WARNING] wdog1: Unhandled write to offset 0x8. Unhandled bits: [6-7] when writing value 0xC8.
+0x00000010
+STATUS readback after configure:
+0x00000002
+=== C. REFRESH with a WRONG key (0x1) ===
+TIME readback after wrong-key refresh:
+0x00000010
+STATUS readback after wrong-key refresh:
+0x00000002
+=== D. REFRESH with the documented key (0xDEADC0DE) ===
+TIME readback after correct-key refresh:
+0x00000010
+STATUS readback after correct-key refresh:
+0x00000002
+=== E. lock probe: re-write TIME and TRIGGER after configuration ===
+TIME readback after re-write:
+0x022:18:13.4383 [WARNING] wdog1: Unhandled write to offset 0x8. Unhandled bits: [5] when writing value 0x3C. Tags: DEVRST (0x1).
+0000010
+TRIGGER readback after re-write:
+0x0000000A
+=== F. bound probe: write TIME=0x1000000 (24-bit field) and TRIGGER=0x1000 (12-bit) ===
+TIME readback:
+0x00000010
+TRIGGER readback:
+0x00000000
+=== G. reset macro / machine reset availability ===
+sysbus machine list:
+22:18:13.4833 [WARNING] wdog1: Unhandled write to offset 0x8. Unhandled bits: [24] when writing value 0x1000000.
+22:18:13.4834 [WARNING] wdog1: Unhandled write to offset 0x14. Unhandled bits: [12] when writing value 0x1000.
+The following methods are available:
+ - Void AddUserStateHook (String stateName, String pythonScript)
+ - Void AppendDirtyAddresses (ICPU cpu, Int64[] addresses)
+ - Void AttachGPIO (IPeripheral source, Int32 sourceNumber, IGPIOReceiver destination, Int32 destinationNumber, Int32? localReceiverNumber = null)
+ - Void AttachGPIO (IPeripheral source, IGPIOReceiver destination, Int32 destinationNumber, Int32? localReceiverNumber = null)
+ - Void AttachGPIO (IPeripheral source, String connectorName, IGPIOReceiver destination, Int32 destinationNumber, Int32? localReceiverNumber = null)
+ - Void CFIFlashFromFile (String fileName, UInt64 whereToRegister, String name, SysbusAccessWidth busWidth = DoubleWord, Boolean nonPersistent = False, Int32? size = null)
+ - Void CheckRecorderPlayer ()
+ - Void CreateSocketCANBridge (String name, String canInterfaceName = "vcan0", Boolean ensureFdFrames = False, Boolean ensureXlFrames = False)
+ - Void CreateSysbusTester (String name)
+ - Void CreateUARTRESDFeeder (String name)
+ - Void CreateVirtualConsole (String name)
+ - Void DebugLog (String message)
+ - Void Dispose ()
+ - Void EmptySdCard (IRegisterablePeripheral<ISPIPeripheral,NumberRegistrationPoint<Int32>> attachTo, Int32 port, Int64 size, String name = null)
+ - Void EnableGdbLogging (Int32 port, Boolean enabled)
+ - Void EnableProfiler (String outputPath = null)
+ - Void ErrorLog (String message)
+ - Void ExecutePython (String script)
+ - Void ExecutePythonEvery (String name, Int32 milliseconds, String script)
+ - Void ExecutePythonEveryFromFile (String name, Int32 milliseconds, ReadFilePath filePath)
+ - Void ExecutePythonFromFile (ReadFilePath filePath)
+ - Object ExtractPreservedState ()
+ - IEnumerable<String> GetAllNames ()
+ - String GetAnyNameOrTypeName (IPeripheral peripheral)
+ - IEnumerable<IPeripheral> GetChildrenPeripherals (IPeripheral peripheral)
+ - String[,] GetClockSourceInfo ()
+ - String GetLocalName (IPeripheral peripheral)
+ - Int64[] GetNewDirtyAddressesForCore (ICPU cpu)
+ - IEnumerable<IPeripheral> GetParentPeripherals (IPeripheral peripheral)
+ - IEnumerable<IRegistrationPoint> GetPeripheralRegistrationPoints (IPeripheral parentPeripheral, IPeripheral childPeripheral)
+ - Dictionary<PeripheralTreeEntry,IEnumerable<IRegistrationPoint>> GetPeripheralsWithAllRegistrationPoints ()
+ - IEnumerable<PeripheralTreeEntry> GetRegisteredPeripherals ()
+ - IBusController GetSystemBus (IBusPeripheral peripheral)
+ - String GetTimeSourceInfo ()
+ - Void HandleTimeProgress (TimeInterval diff)
+ - Void InfoLog (String message)
+ - Boolean IsGdbConnectedToServer (Int32 port)
+ - Boolean IsRegistered (IPeripheral peripheral)
+ - Void LoadPeripheralsFromJSONFile (String fileName)
+ - Void LoadPeripheralsFromJSONString (String text)
+ - Void LoadPlatformDescription (String platformDescriptionFile)
+ - Void LoadPlatformDescriptionFromString (String platformDescription)
+ - Void Log (LogLevel type, String message)
+ - Void NoisyLog (String message)
+ - IDisposable ObtainPausedState (Boolean internalPause = False)
+ - Void Pause ()
+ - Void PauseAndRequestEmulationPause (Boolean precise = False)
+ - Void PendriveFromFile (String file, String name, IRegisterablePeripheral<IUSBPeripheral,USBRegistrationPoint> attachTo, Byte port, Boolean persistent = True)
+ - Void PendriveFromFile (String file, String name, IRegisterablePeripheral<IUSBDevice,NumberRegistrationPoint<Int32>> attachTo, Int32 port, Boolean persistent = True, CompressionType compression = None)
+ - Void PlayFrom (ReadFilePath fileName)
+ - Void PostCreationActions ()
+ - Void PyDevFromFile (ReadFilePath path, UInt64 address, Int32 size, Boolean initable = False, String name = null, UInt64 offset = 0)
+ - Void PyDevFromString (String script, UInt64 address, Int32 size, Boolean initable = False, String name = null, UInt64 offset = 0)
+ - Void RecordTo (String fileName, RecordingBehaviour recordingBehaviour)
+ - IBusController RegisterBusController (IBusPeripheral peripheral, IBusController controller)
+ - Void RequestReset ()
+ - Void RequestResetInSafeState (Action postReset = null, ICollection<IPeripheral> unresetable = null)
+ - Void Reset ()
+ - Void SamsungK9NANDFlashFromFile (String fileName, UInt64 busAddress, String name, Boolean nonPersistent = False, Byte? partId = null, Byte? manufacturerId = null, CompressionType compression = None)
+ - Void SdCardFromFile (String file, IRegisterablePeripheral<DeprecatedSDCard,NullRegistrationPoint> attachTo, Int64 size, Boolean persistent = True, String name = null)
+ - Void SdCardFromFile (String file, IRegisterablePeripheral<SDCard,NullRegistrationPoint> attachTo, Int64 size, Boolean persistent = True, String name = null)
+ - Void SdCardFromFile (String file, IRegisterablePeripheral<ISPIPeripheral,NullRegistrationPoint> attachTo, Int64 size, Boolean persistent = True, String name = null)
+ - Void SdCardFromFile (String file, IRegisterablePeripheral<ISPIPeripheral,NumberRegistrationPoint<Int32>> attachTo, Int32 port, Int64 size, Boolean persistent = True, String name = null)
+ - Void SetAdvanceImmediately (Boolean val)
+ - Void SetEnvironment (EmulationEnvironment targetEnvironment)
+ - Void SetLocalName (IPeripheral peripheral, String name)
+ - Void SetQuantum (TimeInterval interval)
+ - Boolean SetSerialExecution (Boolean val)
+ - Void Start ()
+ - Void StartGdbServer (Int32 port, Boolean autostartEmulation = True, String cpuCluster = "")
+ - Void StartGdbServer (Int32 port, Boolean autostartEmulation, ICluster<ICpuSupportingGdb> cpu)
+ - Void StopGdbServer (Int32? port = null)
+ - Void StopPythonExecution (String name)
+ - String ToString ()
+ - Boolean TryRemoveBusController (IBusPeripheral peripheral)
+ - Boolean TryRestartTranslationBlockOnCurrentCpu (Boolean quiet = False)
+ - Void UnregisterAsAChildOf (IPeripheral peripheralParent, IPeripheral peripheralChild)
+ - Void UnregisterFromParent (IPeripheral peripheral)
+ - Void WarningLog (String message)
+Usage:
+ machine MethodName param1 param2 ...
+The following properties are available:
+ - IClockSource ClockSource
+     available for 'get'
+ - TimeStamp ElapsedVirtualTime
+     available for 'get'
+ - Boolean HasPlayer
+     available for 'get'
+ - Boolean HasRecorder
+     available for 'get'
+ - Boolean IgnorePeripheralRegistrationConditions
+     available for 'get' and 'set'
+ - Boolean InternalPause
+     available for 'get'
+ - Boolean IsPaused
+     available for 'get'
+ - String PreservableName
+     available for 'get'
+ - DateTime RealTimeClockDateTime
+     available for 'get'
+ - RealTimeClockMode RealTimeClockMode
+     available for 'get' and 'set'
+ - DateTime RealTimeClockStart
+     available for 'get'
+ - Int32 StoreTableBits
+     available for 'get'
+ - IBusController SystemBus
+     available for 'get'
+ - String UserState
+     available for 'get' and 'set'
+Usage:
+ - get: machine PropertyName
+ - set: machine PropertyName Value
+The following indexers are available:
+ - IPeripheral Item[String name]     available for 'get'
+Usage:
+ - get: machine IndexerName [param1 param2 ...]
+ - set: machine IndexerName [param1 param2 ...] Value
+   IndexerName is optional if every indexer has the same name.
+The following fields are available:
+ - String MachineKeyword (read only)
+ - Char PathSeparator (read only)
+ - String SystemBusName (read only)
+ - String UnnamedPeripheral (read only)
+Usage:
+ - get: machine fieldName
+ - set: machine fieldName Value
+=== end of probe ===
+
+--- CORRECTION NOTE (added 2026-10-22 after FRICK-REVIEW-0426/0427) ---
+  The script above labels offset 0x08 as 'TIME' and 0x04 as 'STATUS'. Per the cited public
+  register map these are STATUS (0x08) and CONTROL (0x04); TIME is 0x0c and was never probed. The
+  observations must therefore be read as:
+    - 0x08 (STATUS): 0x00000000 initially, 0x00000010 after the first write to 0x08
+      (bit 4 = LOCKED per the header's MSS_WDOG_LOCKED), constant 0x00000010 afterwards;
+    - 0x04 (CONTROL): constant 0x00000002 (never written by the probe);
+    - 0x14 (TRIGGER): re-write after configuration read back 0x0000000A (the re-write took effect);
+      writing 0x1000 gave 'Unhandled bits: [12]' and read back 0x00000000 (12-bit field);
+    - the 'Unhandled bits' warnings on offset 0x8 are STATUS-register warnings (bits 5-7 are
+      unimplemented in the model; one carries 'Tags: DEVRST (0x1)'), NOT TIME-width evidence;
+    - the TIME register (0x0c) was never read: no statement about the model's TIME width is
+      established by this probe;
+    - the wrong-key and correct-key REFRESH writes were not in the same model state (the counter
+      was not running and REFRESH was never read back), so the probe does NOT establish that the
+      model lacks a key-sensitive observable.

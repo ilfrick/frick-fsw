@@ -65,14 +65,16 @@
 # containerized configure/build/test/Lean/trace cycle from a fresh clone:
 make ci-local            # configure/build/test/Lean/trace only; no format, smoke, GSW, RTEMS, or docs
 make smoke               # native simulator smoke test (separate)
-make docs                # Doxygen generation (separate)
+make docs                # Doxygen generation (separate; needs a host doxygen)
+make docs-container      # same `docs` recipe inside frick-vv:local, writing as your UID
+                         # (use it when the host has no doxygen; local-only, not in CI)
 make gsw-selfcheck        # GSW, metrics, and N13 license-policy Python checks
 
 # or without docker:
 make configure           # fetch pinned dependencies, then cmake -S . -B build/native
 make build               # native simulator + core library
 make test                # ctest unit tests
-make run                 # boot the native simulator (6 apps)
+make run                 # boot the native simulator (7 apps)
 make verify-lean         # lake build in verification/lean
 make trace               # python3 tools/scripts/trace.py docs/requirements/traceability.yaml
 make coverage            # gcov line/function coverage -> build/coverage/coverage.json

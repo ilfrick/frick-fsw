@@ -93,6 +93,9 @@ int ff_fsw_main(void)
 
     /* Forward every on-board event to ground as PUS service 5 telemetry. */
     FF_EvsSetListener(ff_event_listener);
+    /* Pre-reset event report for the reset path (ADR-0021): PUS service 5
+     * event report written directly to the link, before the reset is enforced. */
+    FF_PusInstallPanicReporter(FF_LinkSendUntil);
     (void)FF_AppTmOutputInit();
     (void)FF_AppHkRegister();
 
@@ -105,6 +108,8 @@ int ff_fsw_main(void)
                            NULL);
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"HK", FF_AppHkMain, 16 * 1024, 50, 4}, NULL);
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"HS", FF_AppHsMain, 16 * 1024, 35, 4}, NULL);
+    /* Lowest priority: it must be schedulable, not dominant. */
+    (void)FF_EsRegisterApp(&(FF_AppConfig_t){"WD", FF_AppWdMain, 8 * 1024, 70, 2}, NULL);
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"SAMPLE", FF_AppSampleMain, 16 * 1024, 60, 8}, NULL);
 #if FF_ENABLE_RENODE_TEST
     (void)FF_EsRegisterApp(&(FF_AppConfig_t){"RENODE_TEST", FF_AppRenodeTestMain, 16 * 1024, 45, 4},

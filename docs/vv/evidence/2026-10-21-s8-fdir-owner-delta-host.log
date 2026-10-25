@@ -1,0 +1,519 @@
+bash tools/scripts/fetch_third_party.sh all
+[fetch] done (all): /home/nicola/fsw/frick-fsw/third_party
+bash tools/scripts/gen_pus_asn1.sh
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:75:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:81:8: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:35:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/BasicTypes.acn:56:10: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:26:16: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/MessageType.acn:27:19: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+/pusclib/common/Parameter.acn:30:11: warning: endianness property has no effect here.
+Little/big endian can be applied only for fixed size encodings and size must be 16 or 32 or 64
+
+[pus-asn1] generated common ASN1SCC runtime/types into /home/nicola/fsw/frick-fsw/third_party/asn1-pusc-lib-generated/common
+cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON
+-- Default PUS-C backend: N7/ESA ASN.1 enabled
+FOLLOW-UP: direct build/test after make build timed out during configure/dependency preparation
+[  0%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/BasicTypes.c.o
+[ 22%] Built target frick_lwip
+[ 24%] Building C object tests/CMakeFiles/test_link_uart.dir/unit/test_link_uart.c.o
+[ 24%] Linking C executable test_link_uart
+[ 25%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt.c.o
+[ 25%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding.c.o
+[ 25%] Built target test_link_uart
+[ 25%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding_acn.c.o
+[ 25%] Built target frick_net_lwip
+[ 26%] Linking C static library libfrick_pus_asn1.a
+[ 26%] Built target frick_pus_asn1
+[ 28%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_n7.c.o
+[ 28%] Linking C static library libfrick_fsw_core.a
+[ 77%] Built target frick_fsw_core
+[ 77%] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.o
+[ 77%] Linking C executable test_ccsds
+[ 77%] Linking C executable frick_fsw
+[ 77%] Built target test_ccsds
+[ 78%] Building C object tests/CMakeFiles/test_sb.dir/unit/test_sb.c.o
+[ 78%] Built target frick_fsw
+[ 78%] Building C object tests/CMakeFiles/test_sb_stress.dir/unit/test_sb_stress.c.o
+[ 78%] Linking C executable test_sb_stress
+[ 78%] Linking C executable test_sb
+[ 78%] Built target test_sb_stress
+[ 78%] Building C object tests/CMakeFiles/test_sb_sweep.dir/unit/test_sb_sweep.c.o
+[ 78%] Built target test_sb
+[ 78%] Building C object tests/CMakeFiles/test_tbl.dir/unit/test_tbl.c.o
+[ 80%] Linking C executable test_sb_sweep
+[ 80%] Linking C executable test_tbl
+[ 80%] Built target test_sb_sweep
+[ 80%] Built target test_tbl
+[ 80%] Building C object tests/CMakeFiles/test_sched.dir/unit/test_sched.c.o
+[ 80%] Building C object tests/CMakeFiles/test_pus.dir/unit/test_pus.c.o
+[ 80%] Linking C executable test_pus
+[ 80%] Linking C executable test_sched
+[ 80%] Built target test_pus
+[ 80%] Built target test_sched
+[ 80%] Building C object tests/CMakeFiles/test_time.dir/unit/test_time.c.o
+[ 80%] Building C object tests/CMakeFiles/test_r2_gap.dir/unit/test_r2_gap.c.o
+[ 81%] Linking C executable test_time
+[ 81%] Built target test_time
+[ 81%] Building C object tests/CMakeFiles/test_r3_gap.dir/unit/test_r3_gap.c.o
+[ 81%] Linking C executable test_r2_gap
+[ 81%] Linking C executable test_r3_gap
+[ 81%] Built target test_r2_gap
+[ 81%] Linking C executable test_es_hs_lifecycle
+[ 81%] Built target test_r3_gap
+[ 81%] Building C object tests/CMakeFiles/test_pal_watchdog.dir/unit/test_pal_watchdog.c.o
+[ 82%] Built target test_es_hs_lifecycle
+[ 82%] Building C object tests/CMakeFiles/test_decoder_corpus.dir/unit/test_decoder_corpus.c.o
+[ 82%] Linking C executable test_pal_watchdog
+[ 82%] Built target test_pal_watchdog
+[ 82%] Linking C executable test_decoder_corpus
+[ 82%] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[ 82%] Built target test_decoder_corpus
+[ 82%] Building C object tests/CMakeFiles/test_obcp_integration.dir/unit/test_obcp_integration.c.o
+[ 84%] Linking C executable test_pus_fu
+[ 84%] Linking C executable test_obcp_integration
+[ 84%] Built target test_pus_fu
+[ 84%] Building C object tests/CMakeFiles/test_pus_n7_adapter.dir/unit/test_pus_n7_adapter.c.o
+[ 84%] Built target test_obcp_integration
+[ 84%] Linking C executable test_pus_n7_adapter
+[ 85%] Linking C executable test_pusopen
+[ 85%] Built target test_pusopen
+[ 85%] Built target test_pus_n7_adapter
+[ 85%] Linking C executable test_hal
+[ 85%] Linking C executable test_math
+[ 85%] Built target test_hal
+[ 85%] Built target test_math
+[ 86%] Linking C executable test_sdls
+[ 88%] Linking C executable test_gem
+[ 88%] Built target test_sdls
+[ 88%] Built target test_gem
+[ 88%] Linking C executable test_gem_tsn
+[ 88%] Linking C executable test_gptp
+[ 88%] Built target test_gem_tsn
+[ 89%] Built target test_gptp
+[ 89%] Linking C executable test_gpio
+[ 89%] Linking C executable test_netloop
+[ 89%] Built target test_gpio
+[ 89%] Built target test_netloop
+[ 90%] Linking C executable test_serial
+[ 90%] Linking C executable test_mem
+[ 90%] Built target test_mem
+[ 90%] Built target test_serial
+[ 90%] Linking C executable test_nvm
+[ 90%] Linking C executable test_mtd
+[ 92%] Built target test_nvm
+[ 92%] Built target test_mtd
+[ 92%] Linking C executable test_can
+[ 93%] Linking C executable test_i2c
+[ 93%] Built target test_i2c
+[ 93%] Built target test_can
+[ 93%] Linking C executable test_spi
+[ 94%] Linking C executable test_block
+[ 94%] Built target test_block
+[ 96%] Built target test_spi
+[ 96%] Linking C executable test_spacewire
+[ 96%] Linking C executable test_pcie
+[ 97%] Built target test_spacewire
+[ 97%] Built target test_pcie
+[ 97%] Linking C executable test_fabric
+[ 97%] Linking C executable test_canfd
+[ 97%] Built target test_fabric
+[ 97%] Built target test_canfd
+[ 97%] Linking C executable test_canopen
+[ 97%] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[ 98%] Built target test_canopen
+[ 98%] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[ 98%] Linking C executable test_link_ip
+[ 98%] Linking C executable test_link_tsn
+[ 98%] Built target test_link_ip
+[ 98%] Linking C executable test_lwip
+[ 98%] Built target test_link_tsn
+[ 98%] Linking C executable test_lwip_netif
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+Test project /home/nicola/fsw/frick-fsw/build/native
+      Start  1: ccsds
+ 1/44 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/44 Test  #2: sb ...............................   Passed    0.00 sec
+      Start  3: sb_stress
+ 3/44 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/44 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  5: sb_evs_structural_sweep
+ 5/44 Test  #5: sb_evs_structural_sweep ..........   Passed  100.34 sec
+      Start  6: tbl
+ 6/44 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: sched
+ 7/44 Test  #7: sched ............................   Passed    0.00 sec
+      Start  8: pus
+ 8/44 Test  #8: pus ..............................   Passed    0.00 sec
+      Start  9: pus_fu
+ 9/44 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start 10: obcp_engine_connectivity
+10/44 Test #10: obcp_engine_connectivity .........   Passed    0.01 sec
+      Start 11: pus_n7_adapter_contract
+11/44 Test #11: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 12: pusopen_adapter_contract
+12/44 Test #12: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 13: time
+13/44 Test #13: time .............................   Passed    0.00 sec
+      Start 14: r2_gap
+14/44 Test #14: r2_gap ...........................   Passed    0.01 sec
+      Start 15: r3_gap
+15/44 Test #15: r3_gap ...........................   Passed    0.01 sec
+      Start 16: es_hs_lifecycle
+16/44 Test #16: es_hs_lifecycle ..................   Passed    0.07 sec
+      Start 17: pal_watchdog
+17/44 Test #17: pal_watchdog .....................   Passed    0.01 sec
+      Start 18: decoder_corpus
+18/44 Test #18: decoder_corpus ...................   Passed    0.03 sec
+      Start 19: link_uart
+19/44 Test #19: link_uart ........................   Passed    0.32 sec
+      Start 20: hal
+20/44 Test #20: hal ..............................   Passed    0.00 sec
+      Start 21: math
+21/44 Test #21: math .............................   Passed    0.00 sec
+      Start 22: sdls
+22/44 Test #22: sdls .............................   Passed    0.00 sec
+      Start 23: gem
+23/44 Test #23: gem ..............................   Passed    0.00 sec
+      Start 24: gem_tsn
+24/44 Test #24: gem_tsn ..........................   Passed    0.00 sec
+      Start 25: gptp
+25/44 Test #25: gptp .............................   Passed    0.00 sec
+      Start 26: netloop
+26/44 Test #26: netloop ..........................   Passed    0.00 sec
+      Start 27: gpio
+27/44 Test #27: gpio .............................   Passed    0.00 sec
+      Start 28: serial
+28/44 Test #28: serial ...........................   Passed    0.00 sec
+      Start 29: mem
+29/44 Test #29: mem ..............................   Passed    0.00 sec
+      Start 30: nvm
+30/44 Test #30: nvm ..............................   Passed    0.00 sec
+      Start 31: mtd
+31/44 Test #31: mtd ..............................   Passed    0.00 sec
+      Start 32: can
+32/44 Test #32: can ..............................   Passed    0.00 sec
+      Start 33: i2c
+33/44 Test #33: i2c ..............................   Passed    0.00 sec
+      Start 34: spi
+34/44 Test #34: spi ..............................   Passed    0.01 sec
+      Start 35: block
+35/44 Test #35: block ............................   Passed    0.00 sec
+      Start 36: pcie
+36/44 Test #36: pcie .............................   Passed    0.00 sec
+      Start 37: spacewire
+37/44 Test #37: spacewire ........................   Passed    0.00 sec
+      Start 38: fabric
+38/44 Test #38: fabric ...........................   Passed    0.00 sec
+      Start 39: canfd
+39/44 Test #39: canfd ............................   Passed    0.01 sec
+      Start 40: canopen
+40/44 Test #40: canopen ..........................   Passed    0.00 sec
+      Start 41: link_ip
+41/44 Test #41: link_ip ..........................   Passed    0.00 sec
+      Start 42: link_tsn
+42/44 Test #42: link_tsn .........................   Passed    0.00 sec
+      Start 43: lwip
+43/44 Test #43: lwip .............................   Passed    0.00 sec
+      Start 44: lwip_netif
+44/44 Test #44: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 44
+
+Label Time Summary:
+decoder-corpus        =   0.03 sec*proc (1 test)
+es-hs-lifecycle       =   0.07 sec*proc (1 test)
+fdir                  =   0.01 sec*proc (1 test)
+host-pty              =   0.32 sec*proc (1 test)
+link                  =   0.32 sec*proc (1 test)
+n22                   =   0.10 sec*proc (3 tests)
+s8-vv-fu              =   0.10 sec*proc (2 tests)
+sb-evs                = 100.34 sec*proc (1 test)
+tool-qualification    = 100.34 sec*proc (1 test)
+uart                  =   0.32 sec*proc (1 test)
+watchdog              =   0.01 sec*proc (1 test)
+
+Total Test time (real) = 100.93 sec
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /home/nicola/fsw/frick-fsw/docs/requirements/traceability.yaml
+requirements in manifest: 120
+  srs=76 sss=30 gap=14
+lean theorems found: 68
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  4 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+error: clang-format 23 != pinned major 18 (CI runner uses 18.x)
+       use the V&V image (docker run --rm -v $PWD:/workspace -w /workspace frick-vv:local make format)
+       or set FF_CLANG_FORMAT_ALLOW_UNPINNED=1 to override
+make: *** [Makefile:178: format-check] Errore 1
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+tests/unit/test_link_uart.c:180:28: error: code should be clang-formatted [-Wclang-format-violations]
+        uint64_t deadline = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec +
+                           ^
+tests/unit/test_link_uart.c:180:91: error: code should be clang-formatted [-Wclang-format-violations]
+        uint64_t deadline = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec +
+                                                                                          ^
+tests/unit/test_link_uart.c:196:28: error: code should be clang-formatted [-Wclang-format-violations]
+        uint64_t deadline = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec +
+                           ^
+tests/unit/test_link_uart.c:196:91: error: code should be clang-formatted [-Wclang-format-violations]
+        uint64_t deadline = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec +
+                                                                                          ^
+tests/unit/test_pal_watchdog.c:219:70: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(test_monotonic_absolute_wait, test_watchdog_before_init, test_watchdog_init_rejects_zero,
+                                                                     ^
+tests/unit/test_pal_watchdog.c:219:103: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(test_monotonic_absolute_wait, test_watchdog_before_init, test_watchdog_init_rejects_zero,
+                                                                                                      ^
+tests/unit/test_pal_watchdog.c:220:54: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_hardware_errors_propagate, test_watchdog_nominal,
+                                                     ^
+tests/unit/test_pal_watchdog.c:220:77: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_hardware_errors_propagate, test_watchdog_nominal,
+                                                                            ^
+tests/unit/test_pal_watchdog.c:221:49: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_expiry_then_recovery, test_watchdog_expiry_boundary,
+                                                ^
+tests/unit/test_pal_watchdog.c:221:80: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_expiry_then_recovery, test_watchdog_expiry_boundary,
+                                                                               ^
+tests/unit/test_pal_watchdog.c:222:39: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_reset_path, test_watchdog_plan_from_mission_table,
+                                      ^
+tests/unit/test_pal_watchdog.c:222:78: error: code should be clang-formatted [-Wclang-format-violations]
+             test_watchdog_reset_path, test_watchdog_plan_from_mission_table,
+                                                                             ^
+make: *** [Makefile:179: format-check] Error 123
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+cd verification/lean && lake build
+/bin/sh: 1: lake: not found
+make: *** [Makefile:55: verify-lean] Errore 127
+bash tools/scripts/fetch_third_party.sh all
+[fetch] error: n7s-obcp checkout is modified: /home/nicola/fsw/frick-fsw/third_party/n7s-obcp
+!! src/build-embed/
+!! src/micropython_clone/
+!! src/micropython_embed/
+make: *** [Makefile:25: fetch-third-party] Errore 1
+Test project /home/nicola/fsw/frick-fsw/build/native
+      Start  5: sb_evs_structural_sweep
+      Start 19: link_uart
+ 1/44 Test #19: link_uart ........................   Passed    0.32 sec
+      Start 16: es_hs_lifecycle
+ 2/44 Test #16: es_hs_lifecycle ..................   Passed    0.06 sec
+      Start 18: decoder_corpus
+ 3/44 Test #18: decoder_corpus ...................   Passed    0.03 sec
+      Start 14: r2_gap
+ 4/44 Test #14: r2_gap ...........................   Passed    0.01 sec
+      Start 10: obcp_engine_connectivity
+ 5/44 Test #10: obcp_engine_connectivity .........   Passed    0.00 sec
+      Start 17: pal_watchdog
+ 6/44 Test #17: pal_watchdog .....................   Passed    0.00 sec
+      Start 15: r3_gap
+ 7/44 Test #15: r3_gap ...........................   Passed    0.00 sec
+      Start 39: canfd
+ 8/44 Test #39: canfd ............................   Passed    0.01 sec
+      Start 34: spi
+ 9/44 Test #34: spi ..............................   Passed    0.00 sec
+      Start 35: block
+10/44 Test #35: block ............................   Passed    0.00 sec
+      Start 33: i2c
+11/44 Test #33: i2c ..............................   Passed    0.00 sec
+      Start 26: netloop
+12/44 Test #26: netloop ..........................   Passed    0.00 sec
+      Start 44: lwip_netif
+13/44 Test #44: lwip_netif .......................   Passed    0.00 sec
+      Start 43: lwip
+14/44 Test #43: lwip .............................   Passed    0.00 sec
+      Start 36: pcie
+15/44 Test #36: pcie .............................   Passed    0.00 sec
+      Start  8: pus
+16/44 Test  #8: pus ..............................   Passed    0.00 sec
+      Start 13: time
+17/44 Test #13: time .............................   Passed    0.01 sec
+      Start  6: tbl
+18/44 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  9: pus_fu
+19/44 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start 42: link_tsn
+20/44 Test #42: link_tsn .........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+21/44 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start 20: hal
+22/44 Test #20: hal ..............................   Passed    0.00 sec
+      Start 21: math
+23/44 Test #21: math .............................   Passed    0.00 sec
+      Start 40: canopen
+24/44 Test #40: canopen ..........................   Passed    0.00 sec
+      Start 41: link_ip
+25/44 Test #41: link_ip ..........................   Passed    0.01 sec
+      Start  2: sb
+26/44 Test  #2: sb ...............................   Passed    0.03 sec
+      Start 29: mem
+27/44 Test #29: mem ..............................   Passed    0.00 sec
+      Start 31: mtd
+28/44 Test #31: mtd ..............................   Passed    0.00 sec
+      Start  3: sb_stress
+29/44 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  7: sched
+30/44 Test  #7: sched ............................   Passed    0.00 sec
+      Start 12: pusopen_adapter_contract
+31/44 Test #12: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 27: gpio
+32/44 Test #27: gpio .............................   Passed    0.01 sec
+      Start 32: can
+33/44 Test #32: can ..............................   Passed    0.01 sec
+      Start 30: nvm
+34/44 Test #30: nvm ..............................   Passed    0.00 sec
+      Start 11: pus_n7_adapter_contract
+35/44 Test #11: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 28: serial
+36/44 Test #28: serial ...........................   Passed    0.00 sec
+      Start 37: spacewire
+37/44 Test #37: spacewire ........................   Passed    0.00 sec
+      Start  1: ccsds
+38/44 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start 38: fabric
+39/44 Test #38: fabric ...........................   Passed    0.01 sec
+      Start 22: sdls
+40/44 Test #22: sdls .............................   Passed    0.00 sec
+      Start 25: gptp
+41/44 Test #25: gptp .............................   Passed    0.00 sec
+      Start 23: gem
+42/44 Test #23: gem ..............................   Passed    0.01 sec
+      Start 24: gem_tsn
+43/44 Test #24: gem_tsn ..........................   Passed    0.00 sec
+44/44 Test  #5: sb_evs_structural_sweep ..........   Passed   15.51 sec
+
+100% tests passed, 0 tests failed out of 44
+
+Label Time Summary:
+decoder-corpus        =   0.03 sec*proc (1 test)
+es-hs-lifecycle       =   0.06 sec*proc (1 test)
+fdir                  =   0.00 sec*proc (1 test)
+host-pty              =   0.32 sec*proc (1 test)
+link                  =   0.32 sec*proc (1 test)
+n22                   =   0.09 sec*proc (3 tests)
+s8-vv-fu              =   0.09 sec*proc (2 tests)
+sb-evs                =  15.51 sec*proc (1 test)
+tool-qualification    =  15.51 sec*proc (1 test)
+uart                  =   0.32 sec*proc (1 test)
+watchdog              =   0.00 sec*proc (1 test)
+
+Total Test time (real) =  15.51 sec
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /home/nicola/fsw/frick-fsw/docs/requirements/traceability.yaml
+requirements in manifest: 120
+  srs=76 sss=30 gap=14
+lean theorems found: 68
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  4 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+
+FOLLOW-UP REVIEW TRIAGE / VENDOR REFERENCE AUDIT — 2026-10-21
+Trace command exit=0 (see output above).
+Fresh-context draft review reports retained: R1 0409, R2 0410, R3 0411, R4 0412.
+R1: bounded output does not bound vsnprintf scan; overlength reason suppresses notification.
+R2: no end-to-end timing or target WCET; fault/boundary coverage remains incomplete.
+R3: exactly-one/report-failure semantics and mandatory text envelope need authority clarification; actual feed period and monotonic/PPS policy remain open; no safe cadence without refresh-window/configuration evidence.
+R4: corrected stale SRS date, handover Renode-model claim and historical TS-5 count context. No aggregate N17 closure.
+Fresh PA/N20 review invocation interrupted; FRICK-REVIEW-0406 addresses an earlier tree only. N20 for this delta remains pending.
+Owner-supplied Microchip mss_watchdog.h URL retrieved 2026-10-21; mutable main branch. It documents five instances, optional MVRP forbidden refresh window (disabled by default), counter>MVRP forbidden behavior, illustrative AXI/256 timing and IRQ/NMI before zero-counter reset. Audit lead only; no exact RTPFS160ZT register/configuration/clock/reset mapping or binding verified. Microchip RTPFS160ZT product URL returned HTTP 403 from webfetch; owner stated it explicitly names RTPFS160ZT. No datasheet claim inferred.
+No feeder cadence change: relative FF_AppWdMain delay remains. Hardware window, approved execution/jitter margin and actual feed-to-feed limit basis are unresolved; silently choosing a phase/margin would be a flight behavior decision.

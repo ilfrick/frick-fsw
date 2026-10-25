@@ -18,6 +18,7 @@
 #include "core/time/pps.h"
 #include "core/pal/pal.h"
 #include <string.h>
+#include <time.h>
 
 /* Freshly sample a monotonic timestamp strictly later than *prev. Never
  * future-dates: the exported TONE-mode UTC reads (now - epoch) against the
@@ -169,6 +170,50 @@ static void test_tone_discipline(void)
     FF_TEST_ASSERT(coarse == 2u);
 }
 
+/* With no subsequent PPS edge, tone time remains in bounded holdover by
+ * advancing from the last correlated monotonic timestamp. Duplicate and
+ * backwards edge stamps are already rejected by test_tone_discipline. */
+static void test_tone_missing_edge_holdover(void)
+{
+    uint64_t edge;
+    uint64_t utc_before;
+    uint64_t utc_after;
+    uint32_t coarse;
+    struct timespec delay = {.tv_sec = 0, .tv_nsec = 3000000L};
+
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    edge = FF_PalGetMonotonicNs();
+    FF_TEST_ASSERT(FF_TimeToneSignal(edge) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeSetSource(FF_TIME_SRC_TONE) == FF_SUCCESS);
+    utc_before = FF_TimeGetUtcNs();
+    (void)nanosleep(&delay, NULL);
+    utc_after = FF_TimeGetUtcNs();
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, NULL) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 1u);
+    FF_TEST_ASSERT(utc_after > utc_before);
+}
+
+/* Stepping mission UTC forward/backward must not change the PAL monotonic
+ * clock used for deadlines. */
+static void test_utc_step_does_not_step_monotonic_deadline_base(void)
+{
+    uint32_t coarse;
+    uint16_t fine;
+    uint64_t before;
+    uint64_t after;
+
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    before = FF_PalGetMonotonicNs();
+    FF_TEST_ASSERT(FF_TimeSetUtcNs(10ULL * FF_TIME_TONE_NS) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 10u);
+    FF_TEST_ASSERT(FF_TimeSetUtcNs(3ULL * FF_TIME_TONE_NS) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 3u);
+    after = FF_PalGetMonotonicNs();
+    FF_TEST_ASSERT(after >= before);
+}
+
 static void test_leap_at_tone_boundary(void)
 {
     uint64_t now;
@@ -286,6 +331,7 @@ static void test_pps_backend(void)
 }
 
 FF_TEST_MAIN(test_init_and_basic_cuc, test_utc_and_leap_correlation, test_cuc_bytes,
-             test_source_selection, test_tone_discipline, test_leap_at_tone_boundary,
+             test_source_selection, test_tone_discipline, test_tone_missing_edge_holdover,
+             test_utc_step_does_not_step_monotonic_deadline_base, test_leap_at_tone_boundary,
              test_leap_pending_without_tone, test_leap_non_regression_at_boundary,
              test_leap_negative_skipped_second, test_pps_backend)

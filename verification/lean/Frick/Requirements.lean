@@ -18,6 +18,7 @@ import Frick.Time
 import Frick.Hal
 import Frick.Sdls
 import Frick.S4c
+import Frick.Watchdog
 
 namespace Frick.Requirements
 

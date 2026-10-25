@@ -48,6 +48,7 @@
 #define FF_EVS_APP_STARTED 0x0101u
 #define FF_EVS_APP_EXIT 0x0102u
 #define FF_EVS_APP_ERROR 0x0103u
+#define FF_EVS_PANIC_RESET 0x0104u
 #define FF_EVS_STARTUP_ERR 0x0201u
 #define FF_EVS_SB_ERR 0x0301u
 #define FF_EVS_PUS_TC_ERR 0x0401u
@@ -80,6 +81,7 @@
 /* ------------------------------------------------------------------ */
 #define FF_PUS_MAX_SERVICES 32u
 #define FF_PUS_MAX_TM_FRAME 1024u
+#define FF_PANIC_REPORT_BUDGET_MS 250u
 #define FF_PUS_MAX_TC_FRAME 1024u
 
 /* PUS version implemented (ECSS-E-ST-70-41C is PUS-C, version 2) */

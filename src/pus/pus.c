@@ -137,7 +137,6 @@ FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *dat
     if (len > FF_PUS_MAX_TM_FRAME) {
         return FF_BAD_SIZE;
     }
-
     (void)FF_TimeGetCuc(&coarse, &fine);
     memset(&hdr, 0, sizeof(hdr));
     hdr.version = FF_PUS_VERSION;
@@ -157,6 +156,92 @@ FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *dat
     return FF_SUCCESS;
 }
 
+/* Reset-path telemetry (see ADR-0021). Not re-entrant by design: it uses a
+ * static frame buffer because it runs on the panic path, where a ~1 KiB stack
+ * scratch is undesirable. It is called at most once per reset. */
+static uint8_t g_direct_frame[FF_PUS_TM_SCRATCH];
+
+FF_Status_t FF_PusSendTmDirect(uint8_t service, uint8_t subservice, const uint8_t *data,
+                               uint16_t len, uint64_t deadline_ns, FF_Pus_DirectWriter_t writer)
+{
+    FF_Pus_TmHdr_t hdr;
+    uint16_t out_len = 0u;
+    uint64_t ns;
+    uint64_t frac;
+
+    if ((writer == NULL) || (g_backend == NULL) || (g_backend->encode_tm == NULL)) {
+        return FF_NOT_READY;
+    }
+    if ((data == NULL) && (len != 0u)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    if (len > FF_PUS_MAX_TM_FRAME) {
+        return FF_BAD_SIZE;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+
+    /* Degraded, lock-free time base: FF_TimeGetCuc() takes the time mutex,
+     * which may be held by the failing context. */
+    ns = FF_PalGetMonotonicNs();
+    frac = ns % 1000000000ULL;
+
+    memset(&hdr, 0, sizeof(hdr));
+    hdr.version = FF_PUS_VERSION;
+    hdr.service = service;
+    hdr.subservice = subservice;
+    hdr.counter = FF_PusNextTmCounter();
+    hdr.destination_id = FF_MISSION_ID;
+    hdr.time_coarse_s = (uint32_t)(ns / 1000000000ULL);
+    hdr.time_fine = (uint16_t)((frac * 65536ULL) / 1000000000ULL);
+
+    if (g_backend->encode_tm(&hdr, data, len, g_direct_frame, sizeof(g_direct_frame), &out_len) !=
+        FF_SUCCESS) {
+        return FF_ERROR;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    return writer(g_direct_frame, out_len, deadline_ns);
+}
+
+/* ---- Pre-reset event report (ADR-0021) --------------------------- */
+
+FF_Status_t FF_PusEmitPanicEvent(const char *reason, uint64_t deadline_ns,
+                                 FF_Pus_DirectWriter_t writer)
+{
+    uint8_t payload[FF_EVS_TEXT_LEN + 3u];
+    uint16_t text_len = 0u;
+
+    if (reason == NULL) {
+        reason = "panic";
+    }
+    while ((text_len < FF_EVS_TEXT_LEN) && (reason[text_len] != '\0')) {
+        text_len++;
+    }
+    payload[0] = (uint8_t)(FF_EVS_PANIC_RESET >> 8);
+    payload[1] = (uint8_t)(FF_EVS_PANIC_RESET & 0xFFu);
+    payload[2] = FF_EVS_CRITICAL;
+    memcpy(&payload[3], reason, text_len);
+
+    return FF_PusSendTmDirect(FF_PUS_SERVICE_EVENT, 3u, payload, (uint16_t)(text_len + 3u),
+                              deadline_ns, writer);
+}
+
+static FF_Pus_DirectWriter_t g_panic_writer;
+
+static FF_Status_t ff_panic_reporter(const char *reason, uint64_t deadline_ns)
+{
+    return FF_PusEmitPanicEvent(reason, deadline_ns, g_panic_writer);
+}
+
+void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
+{
+    g_panic_writer = writer;
+    FF_PalSetPanicNotifier(ff_panic_reporter);
+}
+
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code)
 {
@@ -167,7 +252,7 @@ FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stag
         return FF_INVALID_ARGUMENT;
     }
     /* Service 1 subservice: 1 accept. ok, 2 accept fail, 3 start ok, 4 start fail,
-     * 5 progress, 7 completion ok, 8 completion fail. */
+     * 5 progress ok, 6 progress fail, 7 completion ok, 8 completion fail. */
     switch (stage) {
     case FF_PUS_STAGE_ACCEPTANCE:
         subservice = success ? 1u : 2u;
@@ -176,7 +261,7 @@ FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stag
         subservice = success ? 3u : 4u;
         break;
     case FF_PUS_STAGE_PROGRESS:
-        subservice = 5u;
+        subservice = success ? 5u : 6u;
         break;
     case FF_PUS_STAGE_COMPLETION:
         subservice = success ? 7u : 8u;

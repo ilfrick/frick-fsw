@@ -1,0 +1,44 @@
+# frick-fsw - retained Lean build evidence (norm N1/N11)
+# Increment: S8-FDIR-01 (watchdog reset recovery) after NC-EXT-120 correction
+# Regenerated: 2026-10-21T09:58:19Z (UTC) after the NC-EXT-167 docstring correction
+# Environment: frick-vv:local container, invoking uid, staged elan toolchain,
+#              incremental build of the current tree (clean build recorded in the
+#              first revision of this file; the module set is unchanged)
+
+=== identity ===
+Lake version 5.0.0-c375e19 (Lean version 4.10.0)
+lean-toolchain: leanprover/lean4:v4.10.0
+
+=== source hashes (sha256) ===
+dc498a0e129f9412238d6a68d4a32108f7cbf268993193d73ad69606f95f2329  Frick/Ccsds.lean
+0da813a1ccff228af7aa9b85309d0077c115be84a7248396b6e24c0bc13fb6c1  Frick/Common.lean
+6eed8ac4900df24a6790fa3b731e00783b4ef8b04188467960c37b1ef391fe49  Frick/Hal.lean
+572ef06065b16be7c267d3937a0a1cfb0878f128c616a21fd48ec6233c063e52  Frick/LeanOmega.lean
+0d89c7cc33e6d28f28ef95bdc9f9b72de8534b504012a96af3e9de3fe65ad132  Frick/Pus.lean
+d0279808b33baafcb74b763831599eeeb267c7a334877945024dbfcd023efc7b  Frick/Requirements.lean
+48c1e6d126645d97c8437e1c7f708ef4bc79a20a6951093d12f4b94a04225201  Frick/S4c.lean
+bf5d1aa8e594bdce7d6330285c76284be8a24bcd433c75441c00ba330594a72c  Frick/Sdls.lean
+bde0878eece84b7c55ccbf16406c4bef2a80c3e5471bcebf3800d24ee252a0b2  Frick/SoftwareBus.lean
+fb485b5544c2a153cfc9170d883c88352fa9bf9dafd9b90faeddedc377022a8d  Frick/Time.lean
+d1c6dbcfa93b58f5ce40d5ba8cd1fc9e324f470dcdce89271055fcd8e7838120  Frick/Watchdog.lean
+00cca9bf2aa1a95a7ef7b8195043864d5386f68da80652e9f987380cafbc1cd9  Main.lean
+018333f87fe1e8c782012598f62d06fd801593a53545a1e9998facbe10fe82fa  lakefile.lean
+f3ea78fdd417d39483583b721709727c225eeea0c0e9d29283de43f577411095  lean-toolchain
+
+=== lake build (current tree) ===
+✔ [19/25] Built Frick.Watchdog
+✔ [21/25] Built Frick.Requirements
+✔ [23/25] Built Main
+Build completed successfully.  (exit=0)
+
+=== olean artefacts ===
+-rw-r--r-- 1 nicola nicola 144088 Oct 21 11:50 verification/lean/.lake/build/lib/Frick/Requirements.olean
+-rw-r--r-- 1 nicola nicola 217856 Oct 21 11:50 verification/lean/.lake/build/lib/Frick/Watchdog.olean
+
+=== olean sha256 ===
+48d79cecfd1635aebbbcf222451207d8ba45af4f33409ddf82cead81d823ed02  verification/lean/.lake/build/lib/Frick/Watchdog.olean
+
+=== note ===
+The Watchdog.olean digest changes whenever the module's docstrings change; the
+theorem statements and names are unchanged by the NC-EXT-167 comment correction.
+=== end ===

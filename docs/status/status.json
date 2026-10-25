@@ -1,9 +1,8 @@
 {
   "meta": {
-    "updated": "2026-10-18",
+    "updated": "2026-10-21",
     "source": "tools/scripts/metrics.py + docs/status/status.json",
-    "note": "The S8-SCH/S8-VV-FU/S8-PUS-FU/selected-N7-OBCP batch was committed as `1fdbb83` and pushed to origin and gitea (prior pushed baseline `b8c3aee`); its cycle evidence was produced on the pre-commit working tree. The 2026-10-17 reconciliation cycle passes make ci-local 43/43 with Lean (62 theorems) and trace (log SHA-256 4cecaa75b86fa54236af6cb7bc32e37243b4976569ce2bc198e88401cb5d53f3; verification-results 2.90); pinned format-check, containerized docs, gsw-selfcheck and smoke also pass. The four independent reconciliation reviews 0370 R2 / 0371 R3 / 0372 R4 / 0373 PA were processed: TS-1/TS-5/TS-6 §3 gap lists and histories synchronized, oracle-independence wording corrected (shared FF_CcsdsCrc16 consistency check is not independent), sprint-plan 1.70 counts corrected, and FRICK-ICD-001 rev 1.4 published the implemented S3 subservice codes and the S6 region-id/byte-offset/length profile as provisional per ADR-0020 (R3 0371 published rev 1.3; R3 0375 corrected the ICD to rev 1.4). The refreshed manifest 2026-10-17-s8-reconciliation-candidate-manifest.md supersedes the stale 49-file/19-file inventories; PA re-verification of it and an independent review of the N22-TS5-77 scheduler oracle are queued, and NC-EXT-93 records the review-log ID collision. Doxygen emits unresolved-reference/list/entity warnings; Renode/RTEMS/QEMU legs must be re-recorded for this tree. NC-EXT-14..18/19/20/21/22/84/90 open; NC-EXT-88/89/23/24 and NC-EXT-91 remain narrow closures only, not PA acceptance. No aggregate N17/N20 approval. OBCP evidence is host callback connectivity only; production bindings, arbitrary-script termination/resource bounds and mission use are not established. Physical-target evidence, hosted CI, full sprint and release gates remain open. Reviews through 0377 are indexed in docs/reviews/README.md.",
-
+    "note": "Engineering baseline: 318f49b; status-only HEAD follow-up 44d2af2. The working tree contains uncommitted S8-FDIR-01 plus the 2026-10-21 owner-directed delta and its post-review remediation. Independent reviews retained for this increment: R2 FRICK-REVIEW-0405 (NC-EXT-120 Lean defect), 0407, R4 0408, then fresh R1 0409, R2 0410, R3 0411, R4 0412 for the owner-directed delta, R1 0414, R2 0415 and N20 PA 0413 (NOT APPROVED) for the post-review remediation, and R1 0416, R2 0417 and N20 PA 0418 (NOT APPROVED) for the final delta. The 0409-0418 findings are registered as NC-EXT-184..190 and all remain OPEN. All review findings NC-EXT-120..183 and the new 0409-0413 findings remain OPEN. On the current tree: direct native build + full CTest 44/44 PASS (targeted 320/180/72/113), make trace PASS, pinned format-check PASS, and an RTEMS 6.2 flight-target cross-build that configures, links and produces frick_fsw with no exported test seam (the increment had broken that link by using poll(), which RTEMS 6.2 does not implement; corrected and re-verified); the owner-authorized Lean toolchain install makes the prescribed lake build PASS on this tree, and the owner-authorized N18 Renode run is a FAIL (marker absent: the target panics at start-up because the approved arm-error propagation treats the unwired MPFS binding as fatal, NC-EXT-198; the runner's PASS verdict was a false PASS from a stale log, NC-EXT-199); make build timed out during configure/dependency preparation, make verify-lean failed (cached V&V image has the lake executable but no toolchain), make smoke stopped on pre-existing ignored generated third_party/n7s-obcp directories, and N18 was NOT rerun for this tree (NC-EXT-165). Host evidence only: no target WCET, no target/HIL, no hardware-watchdog claim. The MPFS watchdog binding is unwired (NC-PAL-01) and the exactly-one/mandatory-text/formatting policy plus the controlled MSS refresh window and approved jitter margin remain with the authorized human authorities. No safety, phase, qualification or release approval; every gate stays yellow; no commit/push (N7).",
     "ci_gitea_verification": "act_runner deployed on the Gitea mirror (frick-act-runner, norm N6); runner log shows jobs executed for ilfrick/frick-fsw on 2026-10-10 (verified; README panel reflects an operational pipeline).",
     "semaphore_semantics": "green = the latest recorded evidence for the gate is current for the delivered scope. A gate a host-only increment cannot re-run keeps the last REAL run: `renode_functional_validation` green = the last REAL Renode PASS is still valid because the RTEMS image and the already-validated artifacts are unchanged (norm N18 proxy for a host-only change); `lean_verification` green = the last REAL `lake build` is still valid because no Lean source/theorem changed (the CI `verify-lean` leg re-runs it). The review gates (`documentation_review`, `product_assurance_review`, `reviews`, `vv_records`) are set green only once the review loop of the current increment is closed (every finding corrected and the delta review passed); until then they stay at the pre-review state. Norms N8/N11: this file and the generated metrics panel are refreshed every cycle."
   },
@@ -48,6 +47,27 @@
     "done": 10,
     "in_progress": 1
   },
-  "deferred": [],
+  "deferred": [
+    {
+      "id": "NC-EXT-112",
+      "title": "host-gate environment (Git ownership, absent host doxygen/tools) — deferred"
+    },
+    {
+      "id": "NC-EXT-139",
+      "title": "oracle/testability precision (frame counting, clock injection) — deferred"
+    },
+    {
+      "id": "NC-EXT-160",
+      "title": "R2 re-review report front-matter row — deferred (cosmetic)"
+    },
+    {
+      "id": "NC-EXT-164",
+      "title": "review-index date ordering — deferred (cosmetic)"
+    },
+    {
+      "id": "NC-EXT-183",
+      "title": "docs-container help text and ignored feed result — deferred"
+    }
+  ],
   "note": ""
 }

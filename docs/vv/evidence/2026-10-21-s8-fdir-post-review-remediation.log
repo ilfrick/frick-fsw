@@ -1,0 +1,571 @@
+POST-REVIEW REMEDIATION build
+[  3%] Built target frick_pus_asn1
+[ 33%] Built target frick_lwip
+[ 33%] Built target frick_net_lwip
+[100%] Built target frick_fsw_core
+[100%] Built target test_pal_watchdog
+[  3%] Built target frick_pus_asn1
+[ 32%] Built target frick_lwip
+[ 32%] Built target frick_net_lwip
+[ 98%] Built target frick_fsw_core
+[100%] Built target test_es_hs_lifecycle
+[100%] Built target test_link_uart
+[  3%] Built target frick_pus_asn1
+[ 32%] Built target frick_lwip
+[ 32%] Built target frick_net_lwip
+[ 98%] Built target frick_fsw_core
+[ 98%] Building C object tests/CMakeFiles/test_time.dir/unit/test_time.c.o
+[100%] Linking C executable test_time
+[100%] Built target test_time
+POST-REVIEW REMEDIATION focused CTest
+Test project /home/nicola/fsw/frick-fsw/build/native
+    Start 13: time
+1/4 Test #13: time .............................   Passed    0.01 sec
+    Start 16: es_hs_lifecycle
+2/4 Test #16: es_hs_lifecycle ..................   Passed    0.32 sec
+    Start 17: pal_watchdog
+3/4 Test #17: pal_watchdog .....................   Passed    0.01 sec
+    Start 19: link_uart
+4/4 Test #19: link_uart ........................   Passed    0.36 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Label Time Summary:
+es-hs-lifecycle    =   0.32 sec*proc (1 test)
+fdir               =   0.01 sec*proc (1 test)
+host-pty           =   0.36 sec*proc (1 test)
+link               =   0.36 sec*proc (1 test)
+n22                =   0.32 sec*proc (2 tests)
+s8-vv-fu           =   0.32 sec*proc (1 test)
+uart               =   0.36 sec*proc (1 test)
+watchdog           =   0.01 sec*proc (1 test)
+
+Total Test time (real) =   0.70 sec
+[  2%] Built target frick_pus_asn1
+[  4%] Building C object tests/CMakeFiles/test_link_uart.dir/unit/test_link_uart.c.o
+[ 26%] Built target frick_lwip
+[ 26%] Built target frick_net_lwip
+[ 26%] Linking C executable test_link_uart
+[ 77%] Built target frick_fsw_core
+[ 77%] Built target test_link_uart
+[ 77%] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.o
+[ 77%] Linking C executable test_ccsds
+[ 77%] Linking C executable frick_fsw
+[ 77%] Built target test_ccsds
+[ 78%] Building C object tests/CMakeFiles/test_sb.dir/unit/test_sb.c.o
+[ 78%] Built target frick_fsw
+[ 78%] Linking C executable test_sb
+[ 78%] Building C object tests/CMakeFiles/test_sb_stress.dir/unit/test_sb_stress.c.o
+[ 78%] Built target test_sb
+[ 78%] Building C object tests/CMakeFiles/test_sb_sweep.dir/unit/test_sb_sweep.c.o
+[ 78%] Linking C executable test_sb_stress
+[ 80%] Linking C executable test_sb_sweep
+[ 80%] Built target test_sb_stress
+[ 80%] Built target test_sb_sweep
+[ 80%] Building C object tests/CMakeFiles/test_tbl.dir/unit/test_tbl.c.o
+[ 80%] Linking C executable test_tbl
+[ 80%] Building C object tests/CMakeFiles/test_sched.dir/unit/test_sched.c.o
+[ 80%] Built target test_tbl
+[ 80%] Building C object tests/CMakeFiles/test_pus.dir/unit/test_pus.c.o
+[ 80%] Linking C executable test_sched
+[ 80%] Linking C executable test_pus
+[ 80%] Built target test_sched
+[ 80%] Built target test_pus
+[ 81%] Built target test_time
+[ 81%] Building C object tests/CMakeFiles/test_r2_gap.dir/unit/test_r2_gap.c.o
+[ 81%] Building C object tests/CMakeFiles/test_r3_gap.dir/unit/test_r3_gap.c.o
+[ 81%] Linking C executable test_r3_gap
+[ 81%] Built target test_r3_gap
+[ 81%] Linking C executable test_r2_gap
+[ 82%] Building C object tests/CMakeFiles/test_es_hs_lifecycle.dir/unit/test_es_hs_lifecycle.c.o
+[ 82%] Built target test_r2_gap
+[ 82%] Built target test_pal_watchdog
+[ 82%] Linking C executable test_es_hs_lifecycle
+[ 82%] Building C object tests/CMakeFiles/test_decoder_corpus.dir/unit/test_decoder_corpus.c.o
+[ 82%] Built target test_es_hs_lifecycle
+[ 82%] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[ 82%] Linking C executable test_decoder_corpus
+[ 82%] Built target test_decoder_corpus
+[ 84%] Linking C executable test_pus_fu
+[ 84%] Building C object tests/CMakeFiles/test_obcp_integration.dir/unit/test_obcp_integration.c.o
+[ 84%] Built target test_pus_fu
+[ 84%] Linking C executable test_obcp_integration
+[ 84%] Building C object tests/CMakeFiles/test_pus_n7_adapter.dir/unit/test_pus_n7_adapter.c.o
+[ 84%] Linking C executable test_pus_n7_adapter
+[ 84%] Built target test_obcp_integration
+[ 84%] Built target test_pus_n7_adapter
+[ 84%] Linking C executable test_hal
+[ 85%] Linking C executable test_pusopen
+[ 85%] Built target test_hal
+[ 85%] Built target test_pusopen
+[ 86%] Linking C executable test_sdls
+[ 86%] Linking C executable test_math
+[ 86%] Built target test_sdls
+[ 88%] Linking C executable test_gem
+[ 88%] Built target test_math
+[ 88%] Built target test_gem
+[ 88%] Linking C executable test_gptp
+[ 88%] Linking C executable test_gem_tsn
+[ 88%] Built target test_gem_tsn
+[ 89%] Built target test_gptp
+[ 89%] Linking C executable test_netloop
+[ 89%] Linking C executable test_gpio
+[ 89%] Built target test_gpio
+[ 89%] Linking C executable test_serial
+[ 89%] Built target test_netloop
+[ 90%] Linking C executable test_mem
+[ 90%] Built target test_serial
+[ 90%] Built target test_mem
+[ 90%] Linking C executable test_nvm
+[ 90%] Linking C executable test_mtd
+[ 90%] Built target test_mtd
+[ 92%] Built target test_nvm
+[ 93%] Linking C executable test_i2c
+[ 93%] Linking C executable test_can
+[ 93%] Built target test_i2c
+[ 93%] Built target test_can
+[ 93%] Linking C executable test_spi
+[ 94%] Linking C executable test_block
+[ 96%] Built target test_spi
+[ 96%] Built target test_block
+[ 96%] Linking C executable test_pcie
+[ 96%] Linking C executable test_spacewire
+[ 97%] Built target test_pcie
+[ 97%] Linking C executable test_fabric
+[ 97%] Built target test_spacewire
+[ 97%] Built target test_fabric
+[ 97%] Linking C executable test_canopen
+[ 97%] Linking C executable test_canfd
+[ 98%] Built target test_canopen
+[ 98%] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[ 98%] Built target test_canfd
+[ 98%] Linking C executable test_link_ip
+[ 98%] Built target test_link_ip
+[ 98%] Linking C executable test_lwip
+[ 98%] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[ 98%] Built target test_lwip
+[ 98%] Linking C executable test_link_tsn
+[ 98%] Linking C executable test_lwip_netif
+[ 98%] Built target test_link_tsn
+[100%] Built target test_lwip_netif
+Test project /home/nicola/fsw/frick-fsw/build/native
+      Start  5: sb_evs_structural_sweep
+      Start 19: link_uart
+ 1/44 Test #19: link_uart ........................   Passed    0.36 sec
+      Start 16: es_hs_lifecycle
+ 2/44 Test #16: es_hs_lifecycle ..................   Passed    0.34 sec
+      Start 18: decoder_corpus
+ 3/44 Test #18: decoder_corpus ...................   Passed    0.10 sec
+      Start  2: sb
+ 4/44 Test  #2: sb ...............................   Passed    0.01 sec
+      Start 14: r2_gap
+ 5/44 Test #14: r2_gap ...........................   Passed    0.03 sec
+      Start 27: gpio
+ 6/44 Test #27: gpio .............................   Passed    0.00 sec
+      Start 32: can
+ 7/44 Test #32: can ..............................   Passed    0.00 sec
+      Start 41: link_ip
+ 8/44 Test #41: link_ip ..........................   Passed    0.00 sec
+      Start 23: gem
+ 9/44 Test #23: gem ..............................   Passed    0.00 sec
+      Start 38: fabric
+10/44 Test #38: fabric ...........................   Passed    0.00 sec
+      Start 39: canfd
+11/44 Test #39: canfd ............................   Passed    0.01 sec
+      Start 10: obcp_engine_connectivity
+12/44 Test #10: obcp_engine_connectivity .........   Passed    0.01 sec
+      Start 34: spi
+13/44 Test #34: spi ..............................   Passed    0.01 sec
+      Start 35: block
+14/44 Test #35: block ............................   Passed    0.01 sec
+      Start 15: r3_gap
+15/44 Test #15: r3_gap ...........................   Passed    0.01 sec
+      Start 33: i2c
+16/44 Test #33: i2c ..............................   Passed    0.01 sec
+      Start 42: link_tsn
+17/44 Test #42: link_tsn .........................   Passed    0.01 sec
+      Start 17: pal_watchdog
+18/44 Test #17: pal_watchdog .....................   Passed    0.01 sec
+      Start 26: netloop
+19/44 Test #26: netloop ..........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+20/44 Test  #4: sb_sweep_boundary ................   Passed    0.01 sec
+      Start 12: pusopen_adapter_contract
+21/44 Test #12: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start  6: tbl
+22/44 Test  #6: tbl ..............................   Passed    0.01 sec
+      Start 44: lwip_netif
+23/44 Test #44: lwip_netif .......................   Passed    0.00 sec
+      Start 40: canopen
+24/44 Test #40: canopen ..........................   Passed    0.00 sec
+      Start 22: sdls
+25/44 Test #22: sdls .............................   Passed    0.00 sec
+      Start 31: mtd
+26/44 Test #31: mtd ..............................   Passed    0.00 sec
+      Start 25: gptp
+27/44 Test #25: gptp .............................   Passed    0.00 sec
+      Start 30: nvm
+28/44 Test #30: nvm ..............................   Passed    0.01 sec
+      Start 28: serial
+29/44 Test #28: serial ...........................   Passed    0.00 sec
+      Start 13: time
+30/44 Test #13: time .............................   Passed    0.01 sec
+      Start 11: pus_n7_adapter_contract
+31/44 Test #11: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 43: lwip
+32/44 Test #43: lwip .............................   Passed    0.01 sec
+      Start 21: math
+33/44 Test #21: math .............................   Passed    0.00 sec
+      Start  3: sb_stress
+34/44 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  9: pus_fu
+35/44 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start  8: pus
+36/44 Test  #8: pus ..............................   Passed    0.00 sec
+      Start 36: pcie
+37/44 Test #36: pcie .............................   Passed    0.00 sec
+      Start 29: mem
+38/44 Test #29: mem ..............................   Passed    0.00 sec
+      Start  1: ccsds
+39/44 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start 20: hal
+40/44 Test #20: hal ..............................   Passed    0.00 sec
+      Start 37: spacewire
+41/44 Test #37: spacewire ........................   Passed    0.00 sec
+      Start  7: sched
+42/44 Test  #7: sched ............................   Passed    0.01 sec
+      Start 24: gem_tsn
+43/44 Test #24: gem_tsn ..........................   Passed    0.00 sec
+44/44 Test  #5: sb_evs_structural_sweep ..........   Passed   26.33 sec
+
+100% tests passed, 0 tests failed out of 44
+
+Label Time Summary:
+decoder-corpus        =   0.10 sec*proc (1 test)
+es-hs-lifecycle       =   0.34 sec*proc (1 test)
+fdir                  =   0.01 sec*proc (1 test)
+host-pty              =   0.36 sec*proc (1 test)
+link                  =   0.36 sec*proc (1 test)
+n22                   =   0.45 sec*proc (3 tests)
+s8-vv-fu              =   0.44 sec*proc (2 tests)
+sb-evs                =  26.33 sec*proc (1 test)
+tool-qualification    =  26.33 sec*proc (1 test)
+uart                  =   0.36 sec*proc (1 test)
+watchdog              =   0.01 sec*proc (1 test)
+
+Total Test time (real) =  26.33 sec
+==============================================================================
+frick-fsw traceability convergence (tools/scripts/trace.py)
+==============================================================================
+manifest: /home/nicola/fsw/frick-fsw/docs/requirements/traceability.yaml
+requirements in manifest: 120
+  srs=76 sss=30 gap=14
+lean theorems found: 68
+CI evidence claims: 12
+
+Hierarchy (bottom-up summary):
+  SSS-REQ-001              <-  2 srs children
+  SSS-REQ-002              <-  2 srs children
+  SSS-REQ-003              <-  3 srs children
+  SSS-REQ-004              <-  3 srs children
+  SSS-REQ-005              <-  1 srs children
+  SSS-REQ-006              <-  2 srs children
+  SSS-REQ-007              <-  1 srs children
+  SSS-REQ-008              <-  4 srs children
+  SSS-REQ-009              <-  2 srs children
+  SSS-REQ-010              <-  1 srs children
+  SSS-REQ-011              <-  1 srs children
+  SSS-REQ-012              <-  1 srs children
+  SSS-REQ-013              <-  3 srs children
+  SSS-REQ-014              <-  1 srs children
+  SSS-REQ-015              <-  2 srs children
+  SSS-REQ-016              <-  4 srs children
+  SSS-REQ-017              <-  9 srs children
+  SSS-REQ-018              <-  1 srs children
+  SSS-REQ-019              <-  2 srs children
+  SSS-REQ-020              <- 15 srs children
+  SSS-REQ-021              <-  2 srs children
+  SSS-REQ-022              <-  1 srs children
+  SSS-REQ-023              <-  1 srs children
+  SSS-REQ-024              <-  1 srs children
+  SSS-REQ-025              <-  1 srs children
+  SSS-REQ-026              <-  1 srs children
+  SSS-REQ-027              <-  1 srs children
+  SSS-REQ-028              <-  3 srs children
+  SSS-REQ-029              <-  4 srs children
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+
+TRACE exit=0
+=== POST-REVIEW REMEDIATION round 2: full build + full CTest ===
+[ 98%] Linking C executable test_lwip_netif
+[100%] Built target test_lwip_netif
+[100%] Built target test_lwip
+Test project /home/nicola/fsw/frick-fsw/build/native
+      Start  5: sb_evs_structural_sweep
+      Start 19: link_uart
+ 1/44 Test #19: link_uart ........................   Passed    0.36 sec
+      Start 16: es_hs_lifecycle
+ 2/44 Test #16: es_hs_lifecycle ..................   Passed    0.32 sec
+      Start 18: decoder_corpus
+ 3/44 Test #18: decoder_corpus ...................   Passed    0.04 sec
+      Start 14: r2_gap
+ 4/44 Test #14: r2_gap ...........................   Passed    0.02 sec
+      Start  2: sb
+ 5/44 Test  #2: sb ...............................   Passed    0.00 sec
+      Start 39: canfd
+ 6/44 Test #39: canfd ............................   Passed    0.01 sec
+      Start 27: gpio
+ 7/44 Test #27: gpio .............................   Passed    0.00 sec
+      Start 34: spi
+ 8/44 Test #34: spi ..............................   Passed    0.01 sec
+      Start 32: can
+ 9/44 Test #32: can ..............................   Passed    0.00 sec
+      Start 35: block
+10/44 Test #35: block ............................   Passed    0.01 sec
+      Start 17: pal_watchdog
+11/44 Test #17: pal_watchdog .....................   Passed    0.01 sec
+      Start 42: link_tsn
+12/44 Test #42: link_tsn .........................   Passed    0.00 sec
+      Start 10: obcp_engine_connectivity
+13/44 Test #10: obcp_engine_connectivity .........   Passed    0.00 sec
+      Start 13: time
+14/44 Test #13: time .............................   Passed    0.01 sec
+      Start 41: link_ip
+15/44 Test #41: link_ip ..........................   Passed    0.00 sec
+      Start 15: r3_gap
+16/44 Test #15: r3_gap ...........................   Passed    0.00 sec
+      Start 38: fabric
+17/44 Test #38: fabric ...........................   Passed    0.00 sec
+      Start 33: i2c
+18/44 Test #33: i2c ..............................   Passed    0.01 sec
+      Start 23: gem
+19/44 Test #23: gem ..............................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+20/44 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+      Start  6: tbl
+21/44 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start 43: lwip
+22/44 Test #43: lwip .............................   Passed    0.01 sec
+      Start 30: nvm
+23/44 Test #30: nvm ..............................   Passed    0.00 sec
+      Start 12: pusopen_adapter_contract
+24/44 Test #12: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 22: sdls
+25/44 Test #22: sdls .............................   Passed    0.00 sec
+      Start 26: netloop
+26/44 Test #26: netloop ..........................   Passed    0.01 sec
+      Start 21: math
+27/44 Test #21: math .............................   Passed    0.00 sec
+      Start 37: spacewire
+28/44 Test #37: spacewire ........................   Passed    0.01 sec
+      Start 31: mtd
+29/44 Test #31: mtd ..............................   Passed    0.00 sec
+      Start 44: lwip_netif
+30/44 Test #44: lwip_netif .......................   Passed    0.00 sec
+      Start 28: serial
+31/44 Test #28: serial ...........................   Passed    0.00 sec
+      Start 25: gptp
+32/44 Test #25: gptp .............................   Passed    0.00 sec
+      Start  9: pus_fu
+33/44 Test  #9: pus_fu ...........................   Passed    0.00 sec
+      Start  7: sched
+34/44 Test  #7: sched ............................   Passed    0.01 sec
+      Start  3: sb_stress
+35/44 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start 40: canopen
+36/44 Test #40: canopen ..........................   Passed    0.00 sec
+      Start  8: pus
+37/44 Test  #8: pus ..............................   Passed    0.01 sec
+      Start 36: pcie
+38/44 Test #36: pcie .............................   Passed    0.00 sec
+      Start 11: pus_n7_adapter_contract
+39/44 Test #11: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start  1: ccsds
+40/44 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start 20: hal
+41/44 Test #20: hal ..............................   Passed    0.00 sec
+      Start 29: mem
+42/44 Test #29: mem ..............................   Passed    0.00 sec
+      Start 24: gem_tsn
+43/44 Test #24: gem_tsn ..........................   Passed    0.00 sec
+44/44 Test  #5: sb_evs_structural_sweep ..........   Passed   20.91 sec
+
+100% tests passed, 0 tests failed out of 44
+
+Label Time Summary:
+decoder-corpus        =   0.04 sec*proc (1 test)
+es-hs-lifecycle       =   0.32 sec*proc (1 test)
+fdir                  =   0.01 sec*proc (1 test)
+host-pty              =   0.36 sec*proc (1 test)
+link                  =   0.36 sec*proc (1 test)
+n22                   =   0.36 sec*proc (3 tests)
+s8-vv-fu              =   0.35 sec*proc (2 tests)
+sb-evs                =  20.91 sec*proc (1 test)
+tool-qualification    =  20.91 sec*proc (1 test)
+uart                  =   0.36 sec*proc (1 test)
+watchdog              =   0.01 sec*proc (1 test)
+
+Total Test time (real) =  20.92 sec
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+n22                   =   0.38 sec*proc (3 tests)
+s8-vv-fu              =   0.38 sec*proc (2 tests)
+sb-evs                =  16.75 sec*proc (1 test)
+tool-qualification    =  16.75 sec*proc (1 test)
+uart                  =   0.36 sec*proc (1 test)
+watchdog              =   0.01 sec*proc (1 test)
+
+Total Test time (real) =  16.75 sec
+  SSS-REQ-030              <-  1 srs children
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+=== FINAL VERIFICATION (post-review remediation, current tree) ===
+2026-10-21T18:24:21Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+106
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=157 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=68 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+=== RTEMS flight-target cross-build (cached toolchain image, --pull=never, read-only source mount) ===
+configure exit=0; build exit=0; frick_fsw produced; no poll/select symbol; no FF_TEST_HOOKS seam exported
+=== FINAL VERIFICATION (post-review remediation, final tree) ===
+2026-10-21T19:09:01Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+changed entries: 109
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=172 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=68 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+--- trace:
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+format-check exit=0
+Ubuntu clang-format version 18.1.3 (1ubuntu1)
+configure exit=0
+build exit=0
+3125408 /work/build/rtems/frick_fsw
+poll/select refs:
+(none above = clean)
+test seam refs:
+(none above = clean)
+=== FINAL VERIFICATION (post-review remediation, corrected tree) ===
+2026-10-21T19:28:36Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+changed entries: 109
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=180 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=71 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+--- trace:
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+--- manifest:
+31
+configure exit=0
+build exit=0
+1e2c6f2692905db45561d48658cb75d74280f785d0d13adccc755b18a2025ef7  /work/build/rtems/frick_fsw
+3125408
+--- POSIX poll/select symbol check (exact):
+(no lines above = no POSIX poll/select)
+--- test seam check (exact):
+(no lines above = no test seam)
+=== FINAL VERIFICATION (correction round, current tree) ===
+2026-10-21T19:30:55Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+changed entries: 111
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=180 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=71 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+--- trace:
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+--- manifest verify:
+31
+--- git diff check:
+diff-check exit=0
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+format-check exit=0
+Ubuntu clang-format version 18.1.3 (1ubuntu1)
+=== RTEMS 6.2 flight-target cross-build — acceptance transcript (2026-10-21) ===
+invocation: docker run --pull=never --rm -v $PWD:/src:ro frick-rtems-toolchain:local bash -lc '<cmake configure + build + nm checks>'
+source mount: read-only at /src; the build runs on a container-local copy at /work (the OBCP generator writes into the pinned checkout, so the copy is required)
+toolchain image: frick-rtems-toolchain:local (already cached; --pull=never)
+riscv-rtems6-gcc (GCC) 13.3.0 20240521 (RTEMS 6, RSB 3814cb0e7f86cca2be403eac831f9bf571984659-modified, Newlib 1b3dcfd)
+RTEMS_HOME=/opt/rtems
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc
+
+=== exactly-one-frame oracle discrimination — retained mutation evidence (2026-10-21, acceptance) ===
+purpose: prove the strengthened oracle in tests/unit/test_es_hs_lifecycle.c fails when the
+         production direct writer (FF_LinkSendUntil path) emits the pre-reset report twice.
+method: out-of-tree copy of the tree at 2026-10-21T19:46:49Z; the repository was not modified.
+mutation: src/pus/pus.c FF_PusSendTmDirect -> the direct writer is invoked twice
+build:   cmake -S . -B build/mut -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=OFF; cmake --build build/mut --target test_es_hs_lifecycle
+result:  the corrected oracle FAILS on the production wiring path:
+FAIL tests/unit/test_es_hs_lifecycle.c:466: g_reset_report_count == 1u
+FAIL tests/unit/test_es_hs_lifecycle.c:603: FF_CcsdsDecodeTm(frame, frame_len, &apid, &hdr, &payload, &payload_len) == FF_SUCCESS
+FAIL tests/unit/test_es_hs_lifecycle.c:605: hdr.service == 5u
+FAIL tests/unit/test_es_hs_lifecycle.c:606: hdr.subservice == 3u
+FAIL tests/unit/test_es_hs_lifecycle.c:607: payload != NULL
+FAIL tests/unit/test_es_hs_lifecycle.c:608: payload_len > 0u
+FAIL tests/unit/test_es_hs_lifecycle.c:622: expected_total == frame_len
+tests/unit/test_es_hs_lifecycle.c checks=180 failures=7
+note:    :603..:622 are the production-wiring case (test_panic_production_link_wiring_delivers_one_frame);
+         :466 belongs to the separate stub-writer case (test_hs_reset_single_path).
+
+=== ACCEPTANCE VERIFICATION (post-review corrections, current tree) ===
+2026-10-21T19:47:43Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+changed entries: 111
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=180 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=72 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+--- trace:
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+configure exit=0
+build exit=0
+1e2c6f2692905db45561d48658cb75d74280f785d0d13adccc755b18a2025ef7  /work/build/rtems/frick_fsw
+3125408
+--- exact symbol-check expression 1: nm ART | grep -E " U (poll|select|ppoll|pselect)$| T (poll|select|ppoll|pselect)$"
+(exit=1 ; 1 = no match = clean)
+--- exact symbol-check expression 2: nm ART | grep -E "TestLock|TestUnlock|TestStarve|TestSetHardwareResults|SetPanicHandler"
+(exit=1 ; 1 = no match = clean)
+
+=== FINAL ACCEPTANCE VERIFICATION (current tree) ===
+2026-10-21T19:49:39Z
+44d2af224675cd65a66d2870eb0fc9553952799c
+changed entries: 112
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+100% tests passed, 0 tests failed out of 44
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=320 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=180 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_uart.c checks=72 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_time.c checks=113 failures=0
+--- trace:
+
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)

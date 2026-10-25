@@ -7,7 +7,8 @@
  * publish/subscribe, Event Services, Time Services) and, on the target platform,
  * a HAL self-check (MSS GPIO MMIO round trip, milestone M11), then prints
  * "RENODE_TEST: PASS" or "RENODE_TEST: FAIL". Registered only when
- * FF_ENABLE_RENODE_TEST=ON (so the default reference set stays at six apps).
+ * FF_ENABLE_RENODE_TEST=ON; the default reference set has seven apps, and this
+ * optional test app is registered only when the option is enabled.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw

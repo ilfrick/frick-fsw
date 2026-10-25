@@ -415,7 +415,7 @@ requirements:
     implementation: ["tools/scripts/emulated_run.sh", "tools/scripts/qemu_vv.sh", "cmake/toolchains/rtems-riscv-generic.cmake", "docs/vv/emulated-target.md"]
     tests: ["ci:emulated-run"]
     lean: []
-    lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU). Renode runs the MPFS image (functional validation, norm N18). QEMU (`make qemu`, tool T20) builds and runs the generic riscv/rv64imafdc RTEMS image on `qemu-system-riscv64 -M virt` and checks the boot banner + 6 applications registered; the tools are qualified (N10), SKIP is recorded when an image/tool is absent, and the real-silicon residual is GAP-A5. Parent SSS-REQ-013 (continuous verification) is justified: the capability feeds the pipeline; peripheral/driver-level verification lives with the reference-driver requirements (SSS-REQ-020)."
+    lean_note: "Emulated-target execution (Renode PolarFire SoC / QEMU). Renode runs the MPFS image (functional validation, norm N18). QEMU (`make qemu`, tool T20) builds and runs the generic riscv/rv64imafdc RTEMS image on `qemu-system-riscv64 -M virt` and checks the boot banner + 7 applications registered; the tools are qualified (N10), SKIP is recorded when an image/tool is absent, and the real-silicon residual is GAP-A5. Parent SSS-REQ-013 (continuous verification) is justified: the capability feeds the pipeline; peripheral/driver-level verification lives with the reference-driver requirements (SSS-REQ-020)."
 
   - id: SRS-REQ-044
     level: srs
@@ -677,6 +677,33 @@ requirements:
     tests: ["tests/unit/test_sb.c", "tests/unit/test_sb_stress.c", "tests/unit/test_sb_sweep.c", "tools/scripts/sb_evs_structural_sweep.py", "tests/unit/test_r2_gap.c", "ci:simulator-smoke"]
     lean: []
     lean_note: "Candidate queue/dispatch/contention behavior and exhaustive configured host structural sweep are characterization only; approved Bmax/Rmax/Dmin/Lmax, link-availability envelope, ground boundary, post-acceptance loss detection/counter semantics and loss-reporting behavior remain TBD under NC-EXT-75/76. No compliance claim."
+
+  - id: SRS-REQ-073
+    level: srs
+    parent_sss: SSS-REQ-008
+    derived: false
+    implementation: ["src/core/pal/pal.h", "src/core/pal/pal_watchdog.c", "src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "src/apps/app_wd.c", "src/apps/app.h", "src/main/fsw_main.c", "config/tables/fsw_tables.c"]
+    tests: ["tests/unit/test_pal_watchdog.c"]
+    lean: ["req_srs073_not_armed_never_expires", "req_srs073_feed_clears_expiry", "req_srs073_feed_within_period_not_expired"]
+    lean_note: "Lean models the software-visible arm/feed/expiry state machine and proves that a period no larger than the timeout never expires. The hardware binding (MPFS MSS watchdog MMIO, independent clock, reset assertion) is not modelled and is NOT wired (NC-PAL-01); the host backend is simulated, so no target watchdog behaviour is claimed and Renode has no watchdog model (GAP-A5). Host coverage of the derivation clauses (timeout taken from the mission table field, feed period no greater than one quarter of it) is provided by test_pal_watchdog.c cases 7-8, which exercise the same FF_AppWdPlan arithmetic FF_AppWdMain uses; the target arming order and the hardware reset reaction remain HIL scope (N22-TS5-82)."
+
+  - id: SRS-REQ-074
+    level: srs
+    parent_sss: SSS-REQ-008
+    derived: false
+    implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal.h", "src/transport/link/link.c", "src/transport/link/link.h", "src/transport/link/link_uart.c", "src/transport/link/link_loopback.c", "src/pus/pus.c", "src/pus/pus.h", "src/main/fsw_main.c", "config/fsw_config.h"]
+    tests: ["tests/unit/test_es_hs_lifecycle.c", "tests/unit/test_link_uart.c"]
+    lean: ["req_srs074_report_precedes_reset"]
+    lean_note: "Lean models action ordering only (report before reset). The owner decision received 2026-10-21 (Telegram 1317/1318; escalation record ESC-1/ESC-5) sets an initial 250 ms single absolute-monotonic deadline for formatting, console/UART wait or timeout, and all retries; it is a local attempt bound, not remote delivery. Mandatory S5 content must not be truncated. The shared deadline is now threaded through the PAL panic path, the console writer, the PUS direct writer and the link backends (FF_Pal_PanicNotifier_t, FF_Pus_DirectWriter_t and FF_Link_t::send_until carry an absolute deadline); the console and UART writes are non-blocking and bounded by that deadline, and no poll()/select() is used because RTEMS 6.2 provides neither (the flight-target link was verified with the cached RTEMS 6.2 toolchain). Mandatory-content handling is still unresolved: an over-length reason suppresses the notification, and the formatting work itself is not deadline-enforced, so the requirement-level exactly-one obligation, the mandatory-text envelope and the bounded-formatting strategy remain authority decisions (FRICK-REVIEW-0411/0413/0414). N22-TS5-50 covers emission count/content and report-failure independence; N22-TS5-83..87 add the host deadline, fault-path, UART partial/stall, over-length characterization and production-wiring cases, all recorded as gaps because host evidence does not establish the 250 ms target on the target. The direct sender takes no EVS/SB/PUS/queue/time lock, allocates nothing and uses a static frame buffer; current reason text is bounded to FF_EVS_TEXT_LEN. Report-before-reset ordering remains established by inspection and the Lean theorem req_srs074_report_precedes_reset, not the simulated backend (NC-EXT-132). The degraded monotonic timestamp and ICD event-catalogue confirmation limit (NC-EXT-102) remain."
+
+  - id: SRS-REQ-075
+    level: srs
+    parent_sss: SSS-REQ-008
+    derived: false
+    implementation: ["src/core/pal/pal_watchdog.c", "src/core/pal/pal_posix.c", "src/apps/app_hs.c"]
+    tests: ["tests/unit/test_es_hs_lifecycle.c", "tests/unit/test_pal_watchdog.c"]
+    lean: ["req_srs075_single_reset_path", "req_srs075_one_reset_action"]
+    lean_note: "Lean models the shared recovery sequence (one definition, exactly one reset action). The C realises it as a single reset entry point (FF_PalWatchdogReset) reached from FF_PalPanic; the rejection cases (truncated service 8 command, unknown function id) are verified by N22-TS5-50 out-of-bound cases. Known weakness (NC-EXT-125): req_srs075_single_reset_path is discharged by rfl between two aliases of the same list, so its assurance content is weaker than its name suggests; the runtime 'at most once per occurrence' obligation rests on the reset-counter assertions, not on the theorem."
 
   # ------------------------------------------------------------------ SSS
   - id: SSS-REQ-001

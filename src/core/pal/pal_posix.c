@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define FF_PAL_MAX_TASKS 32u
 #define FF_PAL_MAX_MUTEXES 32u
@@ -189,6 +191,24 @@ void FF_PalTaskDelayMs(uint32_t ms)
     ts.tv_sec = (time_t)(ms / 1000u);
     ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
     nanosleep(&ts, NULL);
+}
+
+FF_Status_t FF_PalTaskDelayUntilNs(uint64_t deadline_ns)
+{
+    for (;;) {
+        uint64_t now = FF_PalGetMonotonicNs();
+        if (now >= deadline_ns) {
+            return FF_SUCCESS;
+        }
+        uint64_t remaining = deadline_ns - now;
+        struct timespec req = {(time_t)(remaining / 1000000000ULL),
+                               (long)(remaining % 1000000000ULL)};
+        while (nanosleep(&req, &req) != 0) {
+            if (errno != EINTR) {
+                return FF_ERROR;
+            }
+        }
+    }
 }
 
 void FF_PalTaskDelayTicks(uint32_t ticks)
@@ -487,6 +507,118 @@ uint32_t FF_PalGetCpuLoadPpt(void)
     return 0u;
 }
 
+/* ---- Watchdog hardware binding (host simulator / generic build) -----
+ * Simulated backend: it records the arm/feed/reset requests and performs no
+ * hardware action, so the FDIR mechanism can be stimulated deterministically
+ * in tests. The RTEMS/MPFS hardware binding is provided by pal_rtems.c and is
+ * not wired yet (NC-PAL-01). */
+#if !defined(FRICK_PLATFORM_MPFS) && !defined(FRICK_PLATFORM_QEMU)
+#ifdef FF_TEST_HOOKS
+static FF_Status_t g_wd_test_arm_status = FF_SUCCESS;
+static FF_Status_t g_wd_test_feed_status = FF_SUCCESS;
+static FF_Status_t g_wd_test_reset_status = FF_SUCCESS;
+
+void FF_PalWatchdogTestSetHardwareResults(FF_Status_t arm_status, FF_Status_t feed_status,
+                                          FF_Status_t reset_status)
+{
+    g_wd_test_arm_status = arm_status;
+    g_wd_test_feed_status = feed_status;
+    g_wd_test_reset_status = reset_status;
+}
+#endif
+
+FF_Status_t ff_pal_wd_hw_arm(uint32_t timeout_ms)
+{
+    FF_PalLog("watchdog: simulated backend armed (%u ms); no hardware reset "
+              "(NC-PAL-01)\n",
+              (unsigned)timeout_ms);
+#ifdef FF_TEST_HOOKS
+    return g_wd_test_arm_status;
+#else
+    return FF_SUCCESS;
+#endif
+}
+
+FF_Status_t ff_pal_wd_hw_feed(void)
+{
+#ifdef FF_TEST_HOOKS
+    return g_wd_test_feed_status;
+#else
+    return FF_SUCCESS;
+#endif
+}
+
+FF_Status_t ff_pal_wd_hw_reset(void)
+{
+#ifdef FF_TEST_HOOKS
+    return g_wd_test_reset_status;
+#else
+    FF_PalLog("watchdog: reset requested (simulated backend; no hardware "
+              "reset, NC-PAL-01)\n");
+    return FF_SUCCESS;
+#endif
+}
+#endif
+
+/* ---- Pre-reset notification -------------------------------------- */
+
+static FF_Pal_PanicNotifier_t g_panic_notifier = NULL;
+
+/* Bounded console write used by the panic path.
+ *
+ * The descriptor is switched to non-blocking mode so that a stalled console
+ * cannot trap the panic context inside write(), and the descriptor mode is
+ * restored before returning so later diagnostics keep the normal semantics.
+ *
+ * No poll()/select() is used: RTEMS 6.2 provides neither, and a target build
+ * that referenced them would not link. A temporarily full descriptor is
+ * therefore handled by a short back-off and a retry against the shared
+ * deadline, which is bounded by construction.
+ */
+static void ff_panic_console_write_until(const char *text, size_t length, uint64_t deadline_ns)
+{
+    int flags = fcntl(STDERR_FILENO, F_GETFL, 0);
+    if ((flags < 0) || (fcntl(STDERR_FILENO, F_SETFL, flags | O_NONBLOCK) != 0)) {
+        return;
+    }
+    size_t written = 0u;
+    while (written < length) {
+        uint64_t now = FF_PalGetMonotonicNs();
+        if (now >= deadline_ns) {
+            break;
+        }
+        ssize_t n = write(STDERR_FILENO, text + written, length - written);
+        if (n > 0) {
+            written += (size_t)n;
+            continue;
+        }
+        if ((n < 0) && (errno == EINTR)) {
+            continue;
+        }
+        if ((n < 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+            struct timespec pause = {.tv_sec = 0, .tv_nsec = 1000000L};
+            (void)nanosleep(&pause, NULL);
+            continue;
+        }
+        break; /* hard error: the reset must not be blocked by the console */
+    }
+    (void)fcntl(STDERR_FILENO, F_SETFL, flags);
+}
+
+void FF_PalSetPanicNotifier(FF_Pal_PanicNotifier_t notifier)
+{
+    g_panic_notifier = notifier;
+}
+
+#ifdef FF_TEST_HOOKS
+static FF_Pal_PanicHandler_t g_panic_handler = NULL;
+
+void FF_PalSetPanicHandler(FF_Pal_PanicHandler_t handler)
+{
+    g_panic_handler = handler;
+}
+#endif
+
 /* ---- Console ----------------------------------------------------- */
 
 void FF_PalLog(const char *fmt, ...)
@@ -498,14 +630,64 @@ void FF_PalLog(const char *fmt, ...)
     va_end(ap);
 }
 
+/*
+ * Panic / reset-request path (ECSS-E-ST-70-11 5.7.5.2).
+ *
+ * Order is significant: (1) log, (2) generate the pre-reset event report so
+ * that ground is notified BEFORE the reset is enforced, (3) request the single
+ * watchdog reset path, (4) the test seam (test builds only), (5) abort.
+ *
+ * The notifier and the reset request are deliberately unconditional and their
+ * failures are ignored: a failed notification must never prevent the reset.
+ * Everything here is bounded and lock-free: no EVS/SB/PUS/queue/time mutex is
+ * taken, because FF_PalPanic can be entered from any context, including while
+ * holding one of those locks.
+ */
 void FF_PalPanic(const char *fmt, ...)
 {
+    char msg[FF_EVS_TEXT_LEN + 1u];
+    char console_msg[FF_EVS_TEXT_LEN + 16u];
+    uint64_t start_ns = FF_PalGetMonotonicNs();
+    uint64_t deadline_ns = start_ns + ((uint64_t)FF_PANIC_REPORT_BUDGET_MS * 1000000ULL);
+    bool message_complete;
+    int message_len;
     va_list ap;
+
     va_start(ap, fmt);
-    (void)fprintf(stderr, "\n[FF-PANIC] ");
-    (void)vfprintf(stderr, fmt, ap);
-    (void)fprintf(stderr, "\n");
-    (void)fflush(stderr);
+    message_len = vsnprintf(msg, sizeof(msg), fmt, ap);
     va_end(ap);
+    if (message_len < 0) {
+        /* Encoding error: the buffer contents are unspecified. Do not use
+         * them; report an empty reason instead of undefined text. */
+        msg[0] = '\0';
+        message_complete = false;
+    }
+    else {
+        message_complete = ((size_t)message_len < sizeof(msg));
+    }
+
+    int console_len = snprintf(console_msg, sizeof(console_msg), "\n[FF-PANIC] %s\n", msg);
+    if (console_len > 0) {
+        size_t bounded_len = (size_t)console_len;
+        if (bounded_len >= sizeof(console_msg)) {
+            bounded_len = sizeof(console_msg) - 1u;
+        }
+        ff_panic_console_write_until(console_msg, bounded_len, deadline_ns);
+    }
+
+    if (message_complete && (g_panic_notifier != NULL)) {
+        (void)g_panic_notifier(msg, deadline_ns);
+    }
+
+    (void)FF_PalWatchdogReset();
+
+#ifdef FF_TEST_HOOKS
+    if (g_panic_handler != NULL) {
+        g_panic_handler(msg);
+    }
+#endif
+
+    /* The platform did not perform a reset (simulated or unwired binding):
+     * never continue silently. */
     abort();
 }

@@ -16,7 +16,7 @@ BUILD_DIR ?= build/native
 CMAKE ?= cmake
 
 .PHONY: all fetch-third-party configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
-        trace format format-check docs doxygen rtems docker-image clean smoke gsw-selfcheck \
+        trace format format-check docs docs-container doxygen rtems docker-image clean smoke gsw-selfcheck \
         coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
@@ -183,6 +183,16 @@ docs:
 	mkdir -p build/doxygen
 	doxygen Doxyfile
 	test -s build/doxygen/html/index.html || { echo "error: 'make docs' produced no build/doxygen/html/index.html (silent doxygen failure)"; exit 1; }
+
+# Developer convenience: run the existing `docs` recipe inside the controlled
+# V&V image on the same bind-mounted repo, as the invoking host UID:GID, so the
+# generated `build/doxygen` tree is owned/writable by the caller instead of
+# root (host `make docs` needs a host doxygen; the container writes as root by
+# default and leaves root-owned output that blocks a later host `rm -rf`).
+# CI keeps using the host `docs` target unchanged; this target is local-only.
+docs-container: docker-image
+	docker run --rm --user "$$(id -u):$$(id -g)" -v "$(CURDIR)":/workspace -w /workspace frick-vv:local \
+	  make docs
 
 coverage-configure: pus-asn1
 	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON -DFF_USE_PUS_ASN1=ON

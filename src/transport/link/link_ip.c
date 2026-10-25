@@ -242,5 +242,6 @@ const FF_Link_t FF_LinkIpBackend = {
     .name = "ip_link", /* mode-agnostic: UDP or TCP at init time */
     .init = ip_init,
     .send = ip_send,
+    .send_until = NULL,
     .recv = ip_recv,
 };

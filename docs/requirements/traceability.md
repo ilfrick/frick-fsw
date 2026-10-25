@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.50                                   |
-| Date                              | 2026-10-16                             |
+| Revision                          | 0.52                                   |
+| Date                              | 2026-10-21                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 73, SSS = 30, GAP = 14, Lean theorems = 62, CI evidence
+Counts (current): SRS = 76, SSS = 30, GAP = 14, Lean theorems = 68, CI evidence
 claims = 12 unique workflow claim names (11 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). M12 OBCP
 (SRS-REQ-045 / SSS-REQ-022) now has a partial adapter and host callback-connectivity
@@ -42,7 +42,7 @@ compliance (NC-EXT-75/76).
 | SSS-REQ-005 (housekeeping) | SRS-REQ-008 |
 | SSS-REQ-006 (bounded event reporting and overload observability) | SRS-REQ-011, SRS-REQ-072 |
 | SSS-REQ-007 (time) | SRS-REQ-010 |
-| SSS-REQ-008 (health & safety) | SRS-REQ-014 |
+| SSS-REQ-008 (health & safety) | SRS-REQ-014, SRS-REQ-073, SRS-REQ-074, SRS-REQ-075 |
 | SSS-REQ-009 (tables) | SRS-REQ-013, SRS-REQ-019 |
 | SSS-REQ-010 (determinism) | SRS-REQ-015 |
 | SSS-REQ-011 (multi-target build) | SRS-REQ-016 |
@@ -143,6 +143,9 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-070 | drivers/block/mpfs/ff_block_mpfs.c/h, config/platform/platform_mpfs.h | test_block.c, ci:renode | - | Reference MSS block-device backend (M4/M11; polled SDHCI-style MMC/SD, buffer mode) |
 | SRS-REQ-071 | core/sched/ff_sched.{c,h}, apps/app_scheduler.c, core/tbl/tbl.c | test_sched.c, ci:host-build | - | Bounded, allocation-free table-driven dispatch (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets (no shared-timestamp starvation, NC-EXT-19), bounded per-poll work with missed-slot/heartbeat/dispatch-failure evidence; host-verified with an injected clock. Mission rates, jitter limits, late-slot policy and recovery authority remain TBD, so no schedulability, jitter, WCET or target-evidence claim is made |
 | SRS-REQ-072 | evs.c, sb.c, app_tm_output.c, fsw_main.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, ci:simulator-smoke | - | Dispatch-rate/latency guarantee applies only within approved arrival/link performance envelopes; exactly-once loss accounting applies independently. Candidate tests and the 9,984-profile host sweep characterize configured local structure only; mission envelope, ground boundary, post-acceptance loss detection/counter/reset semantics and overload-loss reporting remain TBD (NC-EXT-75/76) |
+| SRS-REQ-073 | src/core/pal/pal.h, src/core/pal/pal_watchdog.c, src/core/pal/pal_posix.c, src/core/pal/pal_rtems.c, src/apps/app_wd.c, src/apps/app.h, src/main/fsw_main.c, config/tables/fsw_tables.c | tests/unit/test_pal_watchdog.c | req_srs073_not_armed_never_expires, req_srs073_feed_clears_expiry, req_srs073_feed_within_period_not_expired | Watchdog arm/feed harness and host-simulated backend; MPFS MSS watchdog binding is not wired (NC-PAL-01), so no target reset protection is claimed. The timeout-source and quarter-period derivation clauses are covered on the host by `test_pal_watchdog.c` cases 7-8 through the same `FF_AppWdPlan()` arithmetic the feeder uses; the target arming order and hardware reaction remain HIL scope (NC-EXT-122) |
+| SRS-REQ-074 | src/core/pal/pal_posix.c, src/pus/pus.c, src/pus/pus.h, src/main/fsw_main.c, config/fsw_config.h | tests/unit/test_es_hs_lifecycle.c | req_srs074_report_precedes_reset | Pre-reset PUS S5 event report is ordered before reset (established by inspection of `pal_posix.c` and by the Lean theorem, **not** test-observable: the simulated reset returns, NC-EXT-132); lock-free construction is inspection-level, backend worst-case time is not established, timestamp is monotonic/non-UTC, and event catalogue allocation remains authority-pending (NC-EXT-102). `test_pal_watchdog.c` was removed from the evidence list: it installs no panic reporter and cannot observe the report (NC-EXT-124) |
+| SRS-REQ-075 | src/core/pal/pal_watchdog.c, src/core/pal/pal_posix.c, src/apps/app_hs.c | tests/unit/test_es_hs_lifecycle.c, tests/unit/test_pal_watchdog.c | req_srs075_single_reset_path, req_srs075_one_reset_action | Single reset entry point; invalid/truncated reset requests are rejected by bounded host tests; no target/HIL validation is claimed. `req_srs075_single_reset_path` is an alias lemma (`rfl`), so "at most once per occurrence" rests on the reset-counter assertions (NC-EXT-125) |
 
 Verification method mapping: **Tst** unit/integration tests, **Anl** analysis /
 Lean proofs, **Inp** inspection/static analysis, **Dem** demonstration
@@ -160,7 +163,7 @@ with the methods exercised by its Tests/CI evidence plus its Lean links (Anl).
 | SSS-REQ-005 | pus_services.c, app_hk.c | ci:simulator-smoke | - |
 | SSS-REQ-006 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c, `docs/architecture/sb-evs-characterization.md` | test_sb.c, test_pus.c, test_sb_stress.c, test_sb_sweep.c, `tools/scripts/sb_evs_structural_sweep.py`, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Envelope performance values, ground-receipt boundary, and post-acceptance loss-detection/counter/reporting semantics are authority-owned TBDs; host structural sweep is not requirement compliance evidence |
 | SSS-REQ-007 | time.c, pps.c, pus_services.c | test_ccsds.c, test_time.c | req_srs024_cuc_field_roundtrip |
-| SSS-REQ-008 | app_hs.c, es.c | ci:simulator-smoke, test_es_hs_lifecycle.c | - | HS host integration harness with EVS-listener oracle added in S8-VV-FU (watchdog window stays TBD) |
+| SSS-REQ-008 | app_hs.c, es.c, src/core/pal/pal_watchdog.c, src/pus/pus.c, src/apps/app_wd.c, src/main/fsw_main.c | ci:simulator-smoke, tests/unit/test_es_hs_lifecycle.c, tests/unit/test_pal_watchdog.c | req_srs073_not_armed_never_expires, req_srs073_feed_clears_expiry, req_srs073_feed_within_period_not_expired, req_srs074_report_precedes_reset, req_srs075_single_reset_path, req_srs075_one_reset_action | S8-FDIR-01 adds the host watchdog/reset harness; the MPFS hardware binding and watchdog window remain open (NC-PAL-01; target/HIL evidence not established) |
 | SSS-REQ-009 | tbl.c, fsw_tables.c | test_tbl.c | - |
 | SSS-REQ-010 | pal, fsw_config.h | ci:static-analysis | - |
 | SSS-REQ-011 | CMake, presets, toolchain | ci:dual-build | - |
@@ -266,3 +269,5 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 | 0.48 | 2026-10-16 | frick-fsw | Map partial selected-N7 OBCP adapter/test evidence to SRS-REQ-045 and SSS-REQ-022 without claiming M12 or requirement completion |
 | 0.49 | 2026-10-16 | frick-fsw | Update SRS-REQ-050 and SSS-REQ-015 mirror for ADR-0019 default-N7 selection, generated-source test paths, and explicit full service-codec mapping limits |
 | 0.50 | 2026-10-16 | frick-fsw | Reconcile partial OBCP mappings and revision history with manifest; no SRS-REQ-045 closure claim |
+| 0.51 | 2026-10-20 | frick-fsw | Regenerate the human-readable mirror for manifest additions SRS-REQ-073/074/075: update counts to 76 SRS / 30 SSS / 14 GAP / 68 Lean, add SSS-REQ-008 parent mapping and SRS/test/Lean rows, and preserve the unwired-target and authority limits; trace gate still required |
+| 0.52 | 2026-10-21 | frick-fsw | Mirror the SRS-REQ-073/074/075 evidence-attribution corrections from R2 FRICK-REVIEW-0405 (M-04) and the PA review (M-1): remove `tests/unit/test_pal_watchdog.c` from the SRS-REQ-074 evidence list (it installs no panic reporter and cannot observe the report) and record the new `test_pal_watchdog.c` cases 7-8 covering the SRS-REQ-073 timeout-source and quarter-period derivation; requirements, parents and counts unchanged |

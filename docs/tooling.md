@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TOOLING-001                      |
-| Revision                          | 0.11                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.12                                   |
+| Date                              | 2026-10-21                             |
 
 This document describes the engineering approach and every tool used for
 development and for Software V&V (norm N8: approach and tools are documented and
@@ -58,7 +58,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | ---- | ---- | ----------------- | ----------------- |
 | CTest | Unit test execution | `tests/unit/*.c` results | `docs/vv/tool-qualification.md` T3 |
 | ff_test.h harness | Minimal assertion harness for unit tests | PASS/FAIL summary | T2 |
-| Native simulator (`frick_fsw`) | Integration/smoke: 6 apps, SB topics, EVS -> PUS S5 TM on loopback | `run_sim.sh` output | T4 |
+| Native simulator (`frick_fsw`) | Integration/smoke: 7 apps, SB topics, EVS -> PUS S5 TM on loopback | `run_sim.sh` output | T4 |
 | Lean 4 + lake | Formal verification of requirement theorems (norm N1) | `verification/lean/**`, `lake build` | T5 |
 | `tools/scripts/trace.py` | Traceability convergence gate (norm N4) | `make trace` report | T6 |
 | `tools/gsw/ff_gsw.py` | Ground station: TC injection + TM decode over UART/loopback | operator/automation logs | T7 |
@@ -71,7 +71,7 @@ Decisions are recorded as ADRs in `docs/adr/`.
 | `tools/scripts/renode_env_selftest.sh` | Renode V&V environment self-test (Renode runs + PolarFire SoC board platform loads) | `make renode-env` PASS | T17 |
 | `tools/scripts/renode_vv.sh` | Renode functional validation (`RENODE_TEST: PASS`, norm N18) | emulated run log; `make renode` | T17 |
 | `tools/docker/rtems/Dockerfile` | Open-source RTEMS 6.2 toolchain + BSPs (`mpfs64imafdc`, `rv64imafdc`) + QEMU image; clean image build via `make rtems-toolchain`, but mutable base/apt/RSB inputs do not establish bit-for-bit reproducibility (NC-EXT-40) | `make rtems-toolchain` / `make rtems-docker` | T18 |
-| `tools/scripts/qemu_vv.sh` | QEMU `virt` generic-BSP functional check (M10; banner + 6 applications registered) | `make qemu` PASS | T20 |
+| `tools/scripts/qemu_vv.sh` | QEMU `virt` generic-BSP functional check (M10; banner + 7 applications registered) | `make qemu` PASS | T20 |
 | `tools/scripts/gen_pus_asn1.sh` | Generate C from the N7/ESA `asn1-pusc-lib` ASN.1/ACN PUS-C model with ASN1SCC | `make pus-asn1` -> `third_party/asn1-pusc-lib-generated/` | T19 |
 
 ## 4. CI/CD tools
@@ -110,6 +110,19 @@ smoke, RTEMS cross-build, or Doxygen. `make check` also runs smoke and GSW
 self-check; formatting and `make docs` are separate commands. NC-EXT-38 tracks
 the prior scope-description mismatch.
 
+`make docs` requires a host `doxygen` and is what CI runs (on the runner, as the
+runner user). For local developer use, `make docs-container` runs the same `docs`
+recipe inside the controlled V&V image on the same bind-mounted repo as the
+invoking host UID:GID (`--user "$$(id -u):$$(id -g)"`), so `build/doxygen` is
+owned/writable by the caller. A container run whose UID is not the caller's
+(the default root, or any other image user) instead leaves output the caller
+cannot rewrite or remove, so the later `rm -rf build/doxygen` in the `docs`
+recipe fails; the observed instances in this workspace are recorded under
+NC-EXT-112. The `docs-container` target is local-only and is not part of
+`ci-local`, `check`, or any CI job; the generated-docs evidence it can produce
+is mapped to tool T1 (shared V&V image) and T24 (dry-run wrappers) in
+`docs/vv/tool-qualification.md`.
+
 ### CI evidence markers (norm N4/N6)
 
 Each CI job carries a comment that `tools/scripts/trace.py` consumes to prove
@@ -146,3 +159,4 @@ exist.
 | 0.9 | 2026-10-13 | frick-fsw | Bound T18 reproducibility statement to mutable apt/RSB inputs and track NC-EXT-40. |
 | 0.10 | 2026-10-13 | frick-fsw | Distinguish cross-forge CI stage list from local `ci-local` and `check` scopes; track NC-EXT-38. |
 | 0.11 | 2026-10-13 | frick-fsw | Qualify T18 clean-build/reproducibility claims against mutable inputs; track NC-EXT-40. |
+| 0.12 | 2026-10-21 | frick-fsw | Correct the reference-application count to seven (S8-FDIR-01 WD feeder) in the local and QEMU/emulated tables; document the local-only `make docs-container` target, generalize its ownership rationale to any non-caller UID, and record its tool-register mapping. Findings F-06/F-16/F-17 of FRICK-REVIEW-0408 |

@@ -1,0 +1,3 @@
+riscv-rtems6
+riscv-rtems6-gcc (GCC) 13.3.0 20240521 (RTEMS 6, RSB 3814cb0e7f86cca2be403eac831f9bf571984659-modified, Newlib 1b3dcfd)
+3006f1b8a1fe1e42f6fd7d6180da30cbabdaca2d52408bbe3f3bd934e045a293  /workspace/build/renode/frick_fsw_renode.elf

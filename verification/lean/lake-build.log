@@ -1,24 +1,36 @@
-info: downloading https://releases.lean-lang.org/lean4/v4.10.0/lean-4.10.0-linux.tar.zst
-info: installing /root/.elan/toolchains/leanprover--lean4---v4.10.0
-✔ [1/21] Built Frick.Common
-✔ [2/21] Built Frick.LeanOmega
-✔ [3/21] Built Frick.Hal
-✔ [4/21] Built Frick.Sdls
-✔ [5/21] Built Frick.Common:c.o
-✔ [6/21] Built Frick.SoftwareBus
-✔ [7/21] Built Frick.LeanOmega:c.o
-✔ [8/21] Built Frick.Pus
-✔ [9/21] Built Frick.Sdls:c.o
-✔ [10/21] Built Frick.Hal:c.o
-✔ [11/21] Built Frick.Pus:c.o
-✔ [12/21] Built Frick.SoftwareBus:c.o
-✔ [13/21] Built Frick.Ccsds
-✔ [14/21] Built Frick.Time
-✔ [15/21] Built Frick.Ccsds:c.o
-✔ [16/21] Built Frick.Time:c.o
-✔ [17/21] Built Frick.Requirements
-✔ [18/21] Built Main
-✔ [19/21] Built Frick.Requirements:c.o
-✔ [20/21] Built Main:c.o
-✔ [21/21] Built frick_verify_checks
+# --- operator annotation (NOT tool output) ---------------------------------
+# Project: frick-fsw   Increment: S8-FDIR-01 after the NC-EXT-120 correction
+# Date: 2026-10-21     Environment: frick-vv:local container, invoking uid,
+#                      staged elan toolchain, .lake removed before the run.
+# Tool identity below was printed by `lake --version`; the lines after the
+# "lake build output" marker are verbatim Lake output.
+# ---------------------------------------------------------------------------
+Lake version 5.0.0-c375e19 (Lean version 4.10.0)
+lean-toolchain: leanprover/lean4:v4.10.0
+# --- lake build output (verbatim) ------------------------------------------
+✔ [1/25] Built Frick.Common
+✔ [2/25] Built Frick.LeanOmega
+✔ [3/25] Built Frick.LeanOmega:c.o
+✔ [4/25] Built Frick.Sdls
+✔ [5/25] Built Frick.Hal
+✔ [6/25] Built Frick.S4c
+✔ [7/25] Built Frick.SoftwareBus
+✔ [8/25] Built Frick.Watchdog
+✔ [9/25] Built Frick.Common:c.o
+✔ [10/25] Built Frick.Sdls:c.o
+✔ [11/25] Built Frick.Pus
+✔ [12/25] Built Frick.Hal:c.o
+✔ [13/25] Built Frick.S4c:c.o
+✔ [14/25] Built Frick.Ccsds
+✔ [15/25] Built Frick.SoftwareBus:c.o
+✔ [16/25] Built Frick.Time
+✔ [17/25] Built Frick.Watchdog:c.o
+✔ [18/25] Built Frick.Ccsds:c.o
+✔ [19/25] Built Frick.Pus:c.o
+✔ [20/25] Built Frick.Time:c.o
+✔ [21/25] Built Frick.Requirements
+✔ [22/25] Built Frick.Requirements:c.o
+✔ [23/25] Built Main
+✔ [24/25] Built Main:c.o
+✔ [25/25] Built frick_verify_checks
 Build completed successfully.

@@ -1,0 +1,90 @@
+=== Final read-only acceptance checkpoint — MPFS/MSS watchdog specification phase (2026-10-22) ===
+scope: READ-ONLY. No implementation, no register or hardware access, no probe, no build, no
+model or configuration change, no mission parameter adopted, no NC or gate closed, no commit
+or push. The three frozen bodies below were NOT modified during the checkpoint; the checkpoint
+added only separate review files, an index update, NC entries, this log and a handover update.
+
+--- 1. the frozen bodies, verified before and after the checkpoint ---
+spec      docs/architecture/mpfs-mss-watchdog-integration-spec.md            FRICK-ARCH-0024 rev 1.5
+          sha256 9b09605cc706b2f60fd81d27503d27750f8d9dec21cc9f9972e96d4701673d40
+proposal  docs/architecture/n18-watchdog-integration-proposal.md             FRICK-ARCH-0023 rev 1.5
+          sha256 749ecafc046a25c286c48a6948f6d5f2e58e3333e4b1a0e8551514cc7b9f35e5
+retrieval docs/vv/evidence/2026-10-22-s8-fdir-wd-official-docs-retrieval.log
+          sha256 54a449648e5465dd4d4df5b0cf8c6ad1d68e9ee1d6c133089cfae7a4e98e36ed
+probe     docs/vv/evidence/2026-10-22-s8-fdir-wd-model-probe.log
+          sha256 641395663479ef72284bfb987cf6bfecaf5baf75fac000969d2297eeb476c9bc
+all four hashes were verified independently by both checkpoint reviewers and by the parent; the
+same four values were re-verified after the checkpoint was filed (the bodies are unchanged).
+
+--- 2. commands and exits (executed during the checkpoint) ---
+sha256sum <the four bodies>                                              exit 0  4/4 match
+sha256sum -c docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256   exit 0  19/19 OK (before the
+                                                                                 new metadata files)
+sha256sum -c docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256
+                                                                            exit 0  34/34 OK
+git diff --check                                                          exit 0
+git rev-parse HEAD                                                        44d2af224675cd65a66d2870eb0fc9553952799c
+no build, no emulator execution, no probe re-run, no target/HIL, no new research, no prototype
+
+--- 3. the two independent acceptance addenda (both read-only, fresh contexts) ---
+FRICK-REVIEW-0430  embedded safety  docs/reviews/2026-10-22-s8-fdir-embedded-safety-0430.md
+FRICK-REVIEW-0431  V&V              docs/reviews/2026-10-22-s8-fdir-vv-0431.md
+scope of both: the 1.4 -> 1.5 delta plus the integrity and evidence binding of the frozen bodies.
+Both record explicitly that they do NOT extend, re-open or restate FRICK-REVIEW-0428/0429,
+which confirmed rev 1.4 only.
+confirmed items (both reviewers): the NC-1 oracle now detects on the positive case HS-P2 with
+  HS-P1 as the non-discriminating negative case and the healthy control stated; the §5.2 host
+  preamble declares the key-checked reload semantics and the reload / feed-outcome observables
+  as a precondition of the host suite; HS-P1 pins a non-zero wrong key and HS-P2 a periodic
+  feed; HS-P5 uses a relative-order (subsequence) oracle with the stimulus's delivery mechanism
+  stated, and NC-3 remains discriminating; the proposal withdraws the wdog1 instance and quotes
+  the issuer fact "Only watchdog_0 can reset the MSS"; the official-fact scope F-18..F-24 is
+  supported by the retained log and NO clock, timeout, instance or reset policy is adopted; the
+  §1 status bullet is intact and the review-coverage attribution distinguishes the rev 1.0, rev
+  1.2 and rev 1.4 review layers; the quoted RESET_SR and DEVRST_N passages are present and
+  match; the three §5.1 host cells remain marked open under NC-EXT-205; the retained records
+  still state N18 = FAIL (not re-run), Lean = PASS (not re-run), the 8 s placeholder, the 250 ms
+  upper-bound target, path A as procedural only, the second owner message as a model request,
+  and no NC or gate closed.
+no design defect was found by either reviewer.
+
+--- 4. arithmetic observation (editorial, recorded as an OPEN/deferred NC; not a design issue) ---
+the retrieval log's labelled inference states the design-time default load assumption as
+"16 777 200 (0xFFF3D8)"; the correct hexadecimal for 16 777 200 is 0xFFFFF0 (0xFFF3D8 = 16 774 104).
+Effect on conclusions: NONE. The inference is a labelled hypothetical resting on two unconfirmed
+assumptions (default load = the cited driver's maximum; prescaler = 256); the implied counter
+clock is ~1.6026 MHz versus ~1.6021 MHz and the reaction-window ceiling ~2.555 ms versus
+~2.556 ms, i.e. the same "~1.6 MHz" and "~2.6 ms" figures. The value is NOT adopted anywhere:
+it appears only in the log's labelled-inference block and in the body as "a labelled inference,
+not a value". The specification body itself uses the correct form (decimal 16 777 200; 0xFFFFF0
+in F-16). Registered as NC-EXT-206 (OPEN, deferred). The frozen retrieval log was NOT edited.
+
+--- 5. residual observations recorded as OPEN/deferred (not refactored) ---
+NC-EXT-206 (editorial/structural, OPEN, deferred): the 0xFFF3D8 hex annotation above; the NC-1
+  row's empty fourth column; HS-P5 not being a table row; the §5.4 RP-1 row's duplicated cells;
+  the duplicated §9 BSP-inventory row; §9's stale proposal revision; the §1 change-paragraph
+  label still reading "rev 1.4"; the header's absent "Reviews of rev 1.2" row; the retained
+  probe log's "not in the same model state" wording.
+NC-EXT-205 (OPEN): the three §5.1 host cases (lock enforcement, forbidden window, gating) are
+  still not written, and the wrong key is pinned by class only, so a mutation reloading on
+  everything except one specific wrong value would pass HS-P1 and HS-P2.
+No refactoring, wording revision, new test plan or design change was made in response to these
+observations; per the owner's direction they are recorded for later disposition.
+
+--- 6. what this checkpoint does NOT establish ---
+It does not approve the design, the gates, or any parameter, clock, timeout, instance or reset
+policy. It does not close any NC. The original increment remains OPEN and blocked on:
+  - the controlled device documentation: the "PolarFire SoC Device Register Map" and the RT
+    "PolarFire SoC MS Description" (M-1), the authoritative lock rule (M-11) and the timeout
+    unit (M-12) — the issuer's host is edge-blocked from this environment (HTTP 403);
+  - the board clock and boot configuration: the counter clock and prescaler (M-2), the gating
+    and peripheral soft-reset state (M-8, F-23), the design-time default load and boot lock
+    state (M-15);
+  - the mission reset assignment: the instance and hart (M-3), the board-level reset scope
+    (M-7, M-14) and the permitted software reset sequence (M-14) — owner decisions, agenda C;
+  - the HIL thresholds and acceptance criteria (M-10, M-13) and the report-path budget (RP-1);
+  - the owner's decisions A, B1/B2, C, D, E and F, all OPEN.
+N18 remains FAIL per the retained evidence and Lean remains PASS per the retained evidence;
+neither was re-run in this phase. The documentation-phase identity manifest was regenerated
+after the checkpoint's new metadata files were added, and the three frozen body hashes were
+re-verified as unchanged after that regeneration.

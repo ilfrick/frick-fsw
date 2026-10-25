@@ -55,9 +55,32 @@ void FF_PusSetTmSink(FF_Pus_TmSink_t sink);
 /* ---- Telecommand ingestion and telemetry emission ---------------- */
 FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len);
 FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *data, uint16_t len);
+/* Reset-path telemetry: builds one telemetry frame and hands it to `writer`
+ * instead of the configured TM sink. Bounded and lock-free: it does not take
+ * the EVS/SB/PUS/queue/time mutexes and does not allocate, because it is
+ * called from FF_PalPanic, which may be entered while any of them is held.
+ * The timestamp is degraded (lock-free monotonic time since boot, not the
+ * disciplined UTC time base); see ADR-0021. */
+typedef FF_Status_t (*FF_Pus_DirectWriter_t)(const uint8_t *frame, uint16_t len,
+                                             uint64_t deadline_ns);
+FF_Status_t FF_PusSendTmDirect(uint8_t service, uint8_t subservice, const uint8_t *data,
+                               uint16_t len, uint64_t deadline_ns, FF_Pus_DirectWriter_t writer);
+/* Pre-reset event report (ADR-0021): emits the mission panic/reset event as a
+ * PUS service 5 event report through `writer`, with the degraded lock-free
+ * time base. Bounded, no allocation, no locks. */
+FF_Status_t FF_PusEmitPanicEvent(const char *reason, uint64_t deadline_ns,
+                                 FF_Pus_DirectWriter_t writer);
+/* Installs the pre-reset reporter used by FF_PalPanic (wiring seam so the
+ * flight wiring is the same code path the host tests exercise). */
+void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer);
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code);
 FF_Status_t FF_PusEmitEvent(uint16_t event_id, uint8_t evs_type, const uint8_t *data, uint16_t len);
+
+/* ---- Periodic housekeeping ---------------------------------------- */
+/* Emits periodic housekeeping reports for all enabled reports whose
+ * period has elapsed. Intended to be called from a timer or scheduler. */
+FF_Status_t FF_PusEmitPeriodicHk(void);
 
 /* ---- Registration ------------------------------------------------- */
 FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Handler_t handler);

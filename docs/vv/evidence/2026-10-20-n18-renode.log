@@ -1,0 +1,4 @@
+bash tools/scripts/renode_vv.sh
+[renode] PASS (RENODE_TEST: PASS)
+RENODE_COMMAND=make renode
+RENODE_EXIT_STATUS=0

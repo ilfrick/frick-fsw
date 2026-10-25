@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.40                                   |
-| Date                              | 2026-10-15                             |
+| Revision                          | 0.44                                   |
+| Date                              | 2026-10-20                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
 
@@ -17,7 +17,7 @@ Bus, Event Services, Executive Services, Table Services, Time Services, CCSDS
 codec, link layer, PUS-C services — and the **interfaces** through which users
 integrate their own:
 
-- **mission applications** (the six `src/apps/*` are *reference* applications
+- **mission applications** (the seven `src/apps/*` are *reference* applications
   used for demonstration and V&V, not mission software), and
 - **low-level drivers / board support** for their hardware, and
 - **third-party stacks** (e.g. TCP/IP, CANopen, TSN) via pluggable backends.
@@ -118,7 +118,10 @@ remotes (N7).
 
 cFS-inspired core, PUS-C services 1/3/5/6/8/9/11/17/20, CCSDS codec, link
 layer, six reference applications, Lean models, CI/CD on GitHub and Gitea.
-Released as v0.1.0.
+Released as v0.1.0. The watchdog feeder (WD) was added after that baseline in
+the S8-FDIR-01 increment; the current default registration is seven applications
+(including WD), with the Renode test application conditional on
+`FF_ENABLE_RENODE_TEST` (default OFF).
 
 ### M2 — Time base: PPS capture and CUC timecode (done)
 
@@ -298,7 +301,7 @@ Full detail in `docs/vv/verification-plan.md` and
 - **Lean 4 core** (no Mathlib; integer arithmetic only, no math library) proves
   the requirement-level properties of the model (method Anl), linked in the
   traceability manifest;
-- **integration/smoke** boots six reference applications and exercises the link;
+- **integration/smoke** boots seven reference applications and exercises the link;
 - **cross-compilation** to RTEMS 6.2 `riscv/mpfs64imafdc` proves portability;
 - **independent reviews** (R1/R2/R3/R4) + **product-assurance review** (PA, N20)
   and NC closure per norm N12/N17/N20.
@@ -386,3 +389,7 @@ in `docs/status/status.json`; the live resume point is
 | 0.38 | 2026-10-15 | frick-fsw | Extend the M4 review pointer through final bounded report 0303; keep all integration and authority limits explicit |
 | 0.39 | 2026-10-15 | frick-fsw | Record R4/PA latest-cycle chronology reviews 0304/0305 and retain bounded M4 claims |
 | 0.40 | 2026-10-15 | frick-fsw | Record R4/PA timing text follow-ups 0306/0307 and retain remaining M4 authority/target/vendor gates |
+| 0.41 | 2026-10-20 | frick-fsw | Align reference application count to seven following the S8-FDIR-01 WD feeder registration; no claim of target watchdog operation or mission qualification |
+| 0.42 | 2026-10-20 | frick-fsw | Correct the M1 v0.1.0 historical baseline to six reference apps; explicitly date WD's later addition in S8-FDIR-01 and distinguish current seven-default count from the conditional Renode app |
+| 0.43 | 2026-10-20 | frick-fsw | Correct the conditional Renode application option name to `FF_ENABLE_RENODE_TEST` (default OFF) per CMake/source; bounded R4 recheck also identified stale source comments claiming six default apps, pending safe reconciliation |
+| 0.44 | 2026-10-20 | frick-fsw | Correct CMake and app_renode_test source comments to state seven default apps and the optional Renode test app; comment-only, no behavior change |

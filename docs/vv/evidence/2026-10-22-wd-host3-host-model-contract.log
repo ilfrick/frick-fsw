@@ -1,0 +1,366 @@
+=== WD-HOST3 — host watchdog model/contract cases: evidence record (final) ===
+date            : 2026-10-22
+project         : frick-fsw
+phase authority : owner approval Telegram1447 (2026-10-22 10:28), narrow B1/F(a) slice
+scope           : the three missing HOST watchdog cases (lock enforcement, forbidden refresh
+                  window, clock/gating) + the corresponding stateful mock/key semantics,
+                  implemented and verified as HOST MODEL / PORTABLE-CONTRACT cases
+addendum        : docs/vv/host-wd-model-contract-addendum-2026-10-22.md
+evidence class  : HOST-MODEL + HOST-CONTRACT (production PAL). NOT binding, NOT emulator,
+                  NOT target/HIL, NOT register-level, NOT requirement-coverage evidence.
+final revision  : incorporates the required changes of FRICK-REVIEW-0433 (embedded safety)
+                  and FRICK-REVIEW-0434 (senior SW V&V), both post-implementation, and the
+                  required record-only corrections of their DELTA re-reviews
+                  (0433-DELTA embedded safety, 0435 senior SW V&V): DELTA ACCEPTED WITH
+                  RESIDUAL FINDINGS, no blocker. The corrections below are RECORD-ONLY:
+                  no source, test or build artefact is touched, so the retained results
+                  (46/46, 129 checks, nine mutants) remain bound to the digests verified
+                  by the delta re-reviews.
+
+--- 0. files created and changed by this phase -------------------------------------
+created (test-side):
+  fbfa92516aa0b9b2db9bbd5d3b2f5b9b3d84453aaa36abb3ca430e59ea2d7d77  tests/stubs/ff_test_wd_model.h
+  b07163c3226a79715430062aa4c1d91e0352a976751238cfa62c32a80b1da384  tests/stubs/ff_test_wd_model.c
+  bfa1e02007b4e062a697142f9290a6ac6719e883ea7e9c51efb84d80125b23dc  tests/unit/test_wd_host_contract.c
+created (records):
+  docs/vv/host-wd-model-contract-addendum-2026-10-22.md
+  docs/vv/evidence/2026-10-22-wd-host3-host-model-contract.log
+  docs/vv/evidence/2026-10-22-wd-host3-identities.sha256
+  docs/reviews/2026-10-22-wd-host3-embedded-safety-0433.md
+  docs/reviews/2026-10-22-wd-host3-vv-0434.md
+  docs/reviews/2026-10-22-wd-host3-preflight-embedded-safety.md
+  docs/reviews/2026-10-22-wd-host3-preflight-vv.md
+  docs/reviews/2026-10-22-wd-host3-embedded-safety-0433-delta.md
+  docs/reviews/2026-10-22-wd-host3-vv-delta-0435.md
+changed:
+  51f525b599a52d7119f37ce10df46765ba8a02023816b1614c863cd2631e5707  tests/CMakeLists.txt   (minimal registration/build wiring:
+                          one executable, one ctest entry, three --wrap link options for
+                          THIS target only, the FF_TEST_TARGETS append and the include path)
+NOT changed: any file under src/, config/, verification/, tools/, board/; any requirement
+             or traceability file; any configuration or mission table; the frozen spec,
+             proposal, retrieval log and probe log; the two original manifests.
+
+--- 1. environment (tool identities, run-local build tree) --------------------------
+host cmake/ninja/cc:
+  cmake version 4.2.3
+  1.13.2
+  cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+V&V image (frick-vv:local, cached, --pull=never, no pull, no build):
+  Ubuntu clang-format version 18.1.3 (1ubuntu1)
+  cmake version 3.28.3
+  Python 3.12.3
+build tree   : build/wd-host3 (fresh, run-local; git-ignored via .gitignore:2 'build/')
+configure    : cmake -S . -B build/wd-host3 -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON
+               (the in-tree generated ASN.1 tree is used AS IS: it was neither regenerated
+                nor removed; `make configure`/`make pus-asn1` were deliberately NOT run
+                because they replace that generated tree)
+generated ASN.1 tree identity, 36 files; command:
+  cd third_party/asn1-pusc-lib-generated && find . -type f | sort | xargs sha256sum | sha256sum
+  -> d1c6de79f56a9883af2052ae6ba44951f868056d9e5df75ae7bcfe76f4ac2244  -
+pinned ASN.1 input checkout: third_party/asn1-pusc-lib @ 2126df11cfe664b9f6f9d7d7a49312bb70768e75
+
+--- 2. frozen-body and manifest verification (measured, not asserted) ---------------
+PRE-PHASE (before any edit, read-only per-entry digest comparison, 2026-10-22):
+  sha256sum -c docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256        exit 0, 22/22 OK
+  sha256sum -c docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256  exit 0, 34/34 OK
+  four frozen bodies: all digests matched
+POST-PHASE (after this phase's changes; the manifest FILES were neither edited nor
+re-baselined - they remain the historical immutable proof of the reviewed inputs):
+  sha256sum -c .../2026-10-22-s8-fdir-wd-spec-docs.sha256        exit 0, 22 OK, 0 FAILED
+  sha256sum -c .../2026-10-21-s8-fdir-post-review-source.sha256  exit 1, 33 OK, 1 FAILED
+    deviating entry: tests/CMakeLists.txt: FAILED
+  DEVIATION ANALYSIS (one entry, unavoidable):
+    tests/CMakeLists.txt is ENTRY 22 of the 34-entry code manifest (entry 21 is
+    src/transport/link/link_uart.c). This phase adds the new host case to the
+    prescribed harness, which REQUIRES the registration and build wiring in that file
+    (owner approval Telegram1447: 'minimal test registration/build wiring'; norms N8
+    completeness, N22 executable test). Its digest moved from
+    aa11c7be15c6faef1617696a3e548bef4faac5df12ab50bfe9d2a97d6507e5a2 (pre-phase) to
+    51f525b599a52d7119f37ce10df46765ba8a02023816b1614c863cd2631e5707 (post-phase).
+    The manifest is NOT re-baselined and NOT regenerated: the failing entry is recorded
+    here as the honest consequence, with the norm that required the change.
+  The 22-entry documentation manifest still verifies 22/22 because no entry of it was
+  modified: every record of this phase lives in NEW files. The deferred global-metadata
+  updates are listed in section 11.
+four frozen bodies after the phase:
+  9b09605cc706b2f60fd81d27503d27750f8d9dec21cc9f9972e96d4701673d40  docs/architecture/mpfs-mss-watchdog-integration-spec.md
+  749ecafc046a25c286c48a6948f6d5f2e58e3333e4b1a0e8551514cc7b9f35e5  docs/architecture/n18-watchdog-integration-proposal.md
+  54a449648e5465dd4d4df5b0cf8c6ad1d68e9ee1d6c133089cfae7a4e98e36ed  docs/vv/evidence/2026-10-22-s8-fdir-wd-official-docs-retrieval.log
+  641395663479ef72284bfb987cf6bfecaf5baf75fac000969d2297eeb476c9bc  docs/vv/evidence/2026-10-22-s8-fdir-wd-model-probe.log
+  expected: 9b09605c..73d40 / 749ecafc..f35e5 / 54a44964..e36ed / 64139566..6c9bc -> all unchanged
+
+--- 3. nominal run of the new case set --------------------------------------------
+  ./build/wd-host3/tests/test_wd_host_contract   exit 0
+    EVIDENCE CLASS: HOST MODEL / PORTABLE-CONTRACT (not binding, not emulator, not target, not hardware)
+    /home/nicola/fsw/frick-fsw/tests/unit/test_wd_host_contract.c checks=129 failures=0
+  cases: HM-P1 lock enforcement (both lock-rule variants, with a variant-discriminating
+          leg), HM-P2 forbidden refresh window (including the MSVP+1 / MSVP boundary and
+          the maximum-value crossing), HM-P3 peripheral gating and clock, HM-P4
+          refresh-key class (three distinct wrong keys), HM-P5 refresh with the
+          documented key, HM-P6 write-observer relative-order self-check
+
+--- 4. seam proofs (link level and run time) ----------------------------------------
+  production PAL object (the three hooks are undefined references):
+    U ff_pal_wd_hw_arm
+    U ff_pal_wd_hw_feed
+    U ff_pal_wd_hw_reset
+  test object (the wrappers are defined):
+    0000000000000000 T __wrap_ff_pal_wd_hw_arm
+    0000000000000085 T __wrap_ff_pal_wd_hw_feed
+    00000000000000e7 T __wrap_ff_pal_wd_hw_reset
+  linked binary (both the wrapper and the unreferenced real symbol):
+    0000000000006d18 T ff_pal_wd_hw_arm
+    0000000000006d48 T ff_pal_wd_hw_feed
+    0000000000006d58 T ff_pal_wd_hw_reset
+    0000000000002629 T __wrap_ff_pal_wd_hw_arm
+    00000000000026ae T __wrap_ff_pal_wd_hw_feed
+    0000000000002710 T __wrap_ff_pal_wd_hw_reset
+  run-time proof: every case asserts the double's call counters
+  (g_double_arm_calls == 1, g_double_feed_calls == n); a case that never reached the
+  double cannot pass. The FF_TEST_HOOKS status-injection seam is deliberately not used
+  (the link-time wrap bypasses it).
+
+--- 5. ctest inventory delta --------------------------------------------------------
+  before: 45 tests   after: 46 tests
+  added   : ['wd_host_model_contract']
+  removed : none
+  -> exactly +1 (wd_host_model_contract); none removed, renamed, skipped or disabled.
+  DISCLOSURE: the run-local build tree still carries build/wd-host3/Testing/Temporary/
+  LastTestsFailed.log with '18:wd_host_model_contract' - a residue of the mutation
+  campaign's own ctest invocations, which legitimately failed there. The authoritative
+  result of this phase is the retained regression log build/wd-host3-ctest-full.log:
+  '100% tests passed, 0 tests failed out of 46'. The residue is disclosed, not removed.
+
+--- 6. mutation records (NOMINAL verdicts and MUTATED verdicts, separately) ----------
+  protocol: temporary source mutation of the fixture or of the link-time double; rebuild
+            of the single new target; execution of the new test; then a digest-verified
+            restore, rebuild and re-run. No production file is mutated at any point.
+            A build failure is NOT a kill.
+  harness: build/wd-host3-mutations/run_mutations.sh (run-local, git-ignored; sha256
+           ec465e5a8ead5ac2f832ad0d5eda5f3b8fa246b135a1759e5c4d4411b86b4050). It is NOT retained in the
+           repository: the owner authorisation covers the test wiring and the mock
+           fixtures, and adding a tool under tools/scripts/ would extend that scope.
+           Its retention is DEFERRED with the N10 tool record; its digest is recorded in
+           the phase identity manifest so the exact harness stays identifiable.
+
+  NOMINAL (no mutation): test_wd_host_contract exit 0, 129 checks, 0 failures;
+  ctest -R wd_host_model_contract exit 0.
+
+  MUTATED:
+  MUT-1 (model: the locked branch is disabled)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P1 (lock) must fail
+    failing assertions (file:line: condition):
+      224: ff_test_wd_model_read(FF_TEST_WD_REG_TIME) == 1000u
+      225: ff_test_wd_model_read(FF_TEST_WD_REG_TRIGGER) == 10u
+      226: ff_test_wd_model_write_disposition(5u) == FF_TEST_WD_DISP_IGNORED_LOCKED
+      227: ff_test_wd_model_write_disposition(6u) == FF_TEST_WD_DISP_IGNORED_LOCKED
+      229: ff_test_wd_model_write_state_after(5u) == 1000u
+      231: ff_test_wd_model_write_state_after(6u) == 10u
+
+  MUT-2 (model: the window check is dropped)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P2 (window) must fail
+    failing assertions (file:line: condition):
+      266: FF_PalWatchdogFeed() == FF_ERROR
+      268: ff_test_wd_model_counter() == 950u
+      269: FF_PalWatchdogGetFeeds() == 0u
+      270: ff_test_wd_model_forbidden_status()
+      271: ff_test_wd_model_timeout_interrupt()
+      272: ff_test_wd_model_write_disposition(5u) == FF_TEST_WD_DISP_REFUSED_WINDOW
+      279: ff_test_wd_model_counter() == 901u
+      280: FF_PalWatchdogFeed() == FF_ERROR
+      281: ff_test_wd_model_counter() == 901u
+      282: FF_PalWatchdogGetFeeds() == 0u
+      283: ff_test_wd_model_write_disposition(6u) == FF_TEST_WD_DISP_REFUSED_WINDOW
+      286: ff_test_wd_model_counter() == 900u
+      287: ff_test_wd_model_mvrp_interrupt()
+      291: FF_PalWatchdogGetFeeds() == 1u
+      300: FF_PalWatchdogGetFeeds() == 2u
+
+  MUT-3a (model: a gated access is accepted)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P3 (gating) must fail
+    failing assertions (file:line: condition):
+      341: FF_PalWatchdogFeed() == FF_ERROR
+      343: ff_test_wd_model_counter() == 950u
+      344: FF_PalWatchdogGetFeeds() == 0u
+      345: ff_test_wd_model_write_disposition(5u) == FF_TEST_WD_DISP_REFUSED_GATED
+      352: ff_test_wd_model_counter() == 940u
+      356: FF_PalWatchdogGetFeeds() == 1u
+
+  MUT-3b (model: the counter advances while gated)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P3 (clock while gated) must fail
+    failing assertions (file:line: condition):
+      338: ff_test_wd_model_counter() == 950u
+      343: ff_test_wd_model_counter() == 950u
+      352: ff_test_wd_model_counter() == 940u
+
+  MUT-4 (double: the refresh key is omitted on the nominal feed path)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P5 (key positive) must fail; HM-P4 (key negative) must still PASS
+    failing assertions (file:line: condition):
+      288: FF_PalWatchdogFeed() == FF_SUCCESS
+      290: ff_test_wd_model_counter() == 1000u
+      291: FF_PalWatchdogGetFeeds() == 1u
+      296: ff_test_wd_model_counter() == 890u
+      297: FF_PalWatchdogFeed() == FF_SUCCESS
+      299: ff_test_wd_model_counter() == 1000u
+      300: FF_PalWatchdogGetFeeds() == 2u
+      308: FF_PalWatchdogFeed() == FF_SUCCESS
+      309: ff_test_wd_model_counter() == 1000u
+      310: FF_PalWatchdogGetFeeds() == 1u
+      353: FF_PalWatchdogFeed() == FF_SUCCESS
+      355: ff_test_wd_model_counter() == 1000u
+      356: FF_PalWatchdogGetFeeds() == 1u
+      413: FF_PalWatchdogFeed() == FF_SUCCESS
+      415: ff_test_wd_model_counter() == 1000u
+      416: FF_PalWatchdogGetFeeds() == 1u
+      417: ff_test_wd_model_write_disposition(5u) == FF_TEST_WD_DISP_APPLIED
+
+  MUT-4b (model: a reload on any non-zero key)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P4 (key negative) must fail
+    failing assertions (file:line: condition):
+      383: FF_PalWatchdogFeed() == FF_ERROR
+      384: ff_test_wd_model_counter() == 950u
+      385: FF_PalWatchdogGetFeeds() == 0u
+      386: ff_test_wd_model_write_disposition(5u + i) == FF_TEST_WD_DISP_REFUSED_KEY
+
+  MUT-4c (model: a reload on every key except one specific wrong value)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P4 (key negative) must fail
+    failing assertions (file:line: condition):
+      383: FF_PalWatchdogFeed() == FF_ERROR
+      384: ff_test_wd_model_counter() == 950u
+      385: FF_PalWatchdogGetFeeds() == 0u
+      386: ff_test_wd_model_write_disposition(5u + i) == FF_TEST_WD_DISP_REFUSED_KEY
+
+  MUT-5 (double: the configuration writes are issued in the swapped order)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P6 (observer order self-check) must fail
+    failing assertions (file:line: condition):
+      214: ff_test_wd_model_read(FF_TEST_WD_REG_MSVP) == 900u
+      217: ff_test_wd_model_write_disposition(2u) == FF_TEST_WD_DISP_APPLIED
+      287: ff_test_wd_model_mvrp_interrupt()
+      288: FF_PalWatchdogFeed() == FF_SUCCESS
+      290: ff_test_wd_model_counter() == 1000u
+      291: FF_PalWatchdogGetFeeds() == 1u
+      296: ff_test_wd_model_counter() == 890u
+      297: FF_PalWatchdogFeed() == FF_SUCCESS
+      299: ff_test_wd_model_counter() == 1000u
+      300: FF_PalWatchdogGetFeeds() == 2u
+      441: ff_test_wd_model_write_value(2u) == 1000u
+      448: next == 4u
+
+  MUT-6 (model: the TIME-variant lock branch is removed)
+    build exit 0 | mutated run exit 1 | mutated ctest exit 8 | restore digest match | re-run exit 0 | re-run ctest exit 0
+    designated kill: HM-P1 must fail (lock observables under the TIME variant: the healthy-control lock assertion and the negative-lock legs). The variant-discriminating leg does NOT fail under this mutation: with the TIME-variant branch unreachable, the control-register write leaves the model unlocked under the TIME variant, which is exactly what that leg asserts (see addendum R24).
+    failing assertions (file:line: condition):
+      218: ff_test_wd_model_locked()
+      224: ff_test_wd_model_read(FF_TEST_WD_REG_TIME) == 1000u
+      225: ff_test_wd_model_read(FF_TEST_WD_REG_TRIGGER) == 10u
+      226: ff_test_wd_model_write_disposition(5u) == FF_TEST_WD_DISP_IGNORED_LOCKED
+      227: ff_test_wd_model_write_disposition(6u) == FF_TEST_WD_DISP_IGNORED_LOCKED
+      229: ff_test_wd_model_write_state_after(5u) == 1000u
+      231: ff_test_wd_model_write_state_after(6u) == 10u
+
+  verdict per mutation: every mutation was killed by an ASSERTION FAILURE with a build
+  exit of 0 (not a build/link failure, not a crash, not a timeout), and every restore was
+  digest-verified against the pristine copy with a passing re-run. MUT-4 kills the key
+  POSITIVE case (HM-P5) while the key NEGATIVE case (HM-P4) still passes - the frozen
+  NC-1 discrimination structure. MUT-4b/MUT-4c kill HM-P4, which is why three distinct
+  wrong-key values are exercised. MUT-6 kills HM-P1's lock observables under the TIME variant (the healthy-control lock assertion and the negative-lock legs); the variant-discriminating leg of HM-P1 passes under MUT-6 and is not killed by any of the nine mutations.
+  MUT-4, MUT-5 and MUT-6 additionally affect other cases (recorded above, not hidden).
+
+--- 7. gates executed (exact commands and exits) -----------------------------------
+  cmake -S . -B build/wd-host3 -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON   exit 0
+  cmake --build build/wd-host3 -j$(nproc)                                              exit 0
+  ctest --test-dir build/wd-host3 --output-on-failure                                   exit 0  (46/46 passed)
+  ctest --test-dir build/wd-host3 -R wd_host_model_contract --output-on-failure        exit 0  (129 checks, 0 failures)
+  ctest --test-dir build/wd-host3 -R pal_watchdog --output-on-failure                  exit 0
+  docker run --rm --pull=never -v $PWD:/workspace -w /workspace frick-vv:local \
+      make format-check                                                               exit 0  (clang-format 18.1.3, pinned)
+  make trace                                                                         exit 0  (PASS: 120 requirements, 68 Lean theorems)
+  python3 tools/scripts/license_check.py                                              exit 0
+  python3 tests/python/test_license_check.py                                          exit 0  (14 tests OK)
+  bash build/wd-host3-mutations/run_mutations.sh                                       exit 0  (9 mutations, all killed, all restored)
+
+  upstream-identifier guard (defined in the addendum section 1):
+    grep -nE 'MSS_WDOG|mss_peripherals|MSS_WDOG_|mss_watchdog|MICROCHIP|mss_config' \
+      tests/stubs/ff_test_wd_model.c tests/stubs/ff_test_wd_model.h \
+      tests/unit/test_wd_host_contract.c                              -> exit 1 (no match)
+
+  NOT executed and why: Lean (no Lean input changed - the retained PASS stands, it is
+  not re-run and is not cited as a result of this phase); N18/Renode (no target input
+  changed - the retained FAIL stands); target/HIL/QEMU and the RTEMS cross build (out of
+  scope, not permitted); `make smoke` (unrelated; the pre-existing third-party blocker is
+  untouched); MISRA (advisory scan, unchanged scope).
+
+--- 8. per-case record -------------------------------------------------------------
+  case   | class                     | evidence class | healthy control | fault/negative | killed by
+  HM-P1  | nominal + OOB (2 variants)| HOST-MODEL     | yes (applied)   | yes (ignored)  | MUT-1, MUT-6
+  HM-P2  | nominal + OOB + boundary  | HOST-MODEL     | yes (permitted) | yes (refused)  | MUT-2
+  HM-P3  | nominal + OOB             | HOST-MODEL     | yes (accepted)  | yes (refused)  | MUT-3a, MUT-3b
+  HM-P4  | OOB                       | HOST-MODEL     | n/a (negative)  | 3 wrong keys   | MUT-4b, MUT-4c
+  HM-P5  | nominal                   | HOST-MODEL     | n/a (positive)  | key omission   | MUT-4
+  HM-P6  | self-check                | HOST-MODEL     | n/a             | order swap     | MUT-5
+  production PAL contract (HOST-CONTRACT): the refused feed is propagated and does not
+  advance the feed counter - already established by tests/unit/test_pal_watchdog.c
+  (preserved unchanged); the new cases re-demonstrate it against a stateful backend.
+
+--- 9. what this record does NOT claim -----------------------------------------------
+- No MPFS/MSS register behaviour, read-back or timing is claimed.
+- No reset independence, reset scope or reset coverage is claimed; the model does not
+  even represent F-4's reset-at-zero clause (C8/R21).
+- No hardware or board fidelity is claimed.
+- No clock, prescaler, timeout, cadence, margin, instance, window value, gating value
+  or lock rule is claimed as a device or mission fact; the model's values are synthetic
+  test parameters.
+- No binding behaviour is claimed: HS-P1..HS-P8 (frozen, binding-scoped) remain NOT RUN;
+  NC-1..NC-4 remain NOT RUN; MUT-1..MUT-6 are MODEL-LEVEL fixture-sensitivity evidence,
+  not the frozen negative controls, and they do not show sensitivity to a defect in
+  pal_watchdog.c (no production file is ever mutated).
+- No emulator, target, HIL or board evidence is produced or implied.
+- N18 is not re-run and remains FAIL; Lean is not re-run and remains PASS by retention.
+- No NC is closed or reassigned (NC-EXT-205 stays OPEN); no gate, agenda item, parameter
+  or design is approved; no requirement coverage delta is created; no commit or push.
+- The model qualification is bound to the fixture digests in the phase manifest; any
+  fixture change invalidates it and requires re-qualification. The fixture is NOT
+  N10-qualified by this phase.
+
+--- 10. NOT RUN register (summary; the full table is in the addendum section 5) -------
+  HS-P1..HS-P8 (binding) | NC-1..NC-4 | EM-P1/EM-P2 | TG-P1..TG-P5 | HL-1..HL-9 |
+  WC-1/LC-1/JT-1/IF-1/RP-1 | R-6 'armed but inert' (OPEN) | NC-PAL-01 (OPEN).
+
+--- 11. residuals and deferred metadata ---------------------------------------------
+  residuals: NC-EXT-205 OPEN (model-level substitute only); M-1, M-2, M-8, M-11, M-12,
+  M-6, M-7, M-14, M-4, M-5, M-10, M-16 unresolved; R-6 'armed but inert' NOT closed; the
+  wrong-key-class residual closed in the model scope only; R20 (the F-4 TRIGGER crossing
+  is not exercised); R21 (F-4's zero-reset clause is not modelled); R22 (the mutation
+  harness is not retained in the repository); R23 (the window boundary is pinned behaviourally but the comparison is not covered by a
+  mutation); R24 (the variant-discriminating leg of HM-P1 is not killed by any retained
+  mutation; MUT-6 is killed by HM-P1's lock observables instead).
+  DEFERRED (collision disclosed, not silently resolved): CHANGELOG.md (N16),
+  docs/status/handover.md (N8), docs/status/loop-audit.md (N19),
+  docs/vv/verification-results.md (N11), docs/vv/tool-qualification.md (N10),
+  docs/planning/sprint-plan.md (the NC-EXT-205 proposed partial disposition, N12),
+  docs/status/escalations.md (the Telegram1447 approval record),
+  docs/reviews/README.md (the review index, N17), tools/scripts/ (the mutation harness
+  retention).
+  docs/requirements/traceability.yaml is deliberately NOT updated (digest
+  7e902db1128a44a77a43e9c3f93cdc3a5dfbe8da7b7921c57fe4bed21fd248ec, unchanged): the new cases qualify a
+  fixture against a specification, not a controlled requirement, so linking them to a
+  requirement would inflate requirement coverage. `make trace` passes.
+
+--- 12. reproduction commands --------------------------------------------------------
+  cmake -S . -B build/wd-host3 -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON
+  cmake --build build/wd-host3 -j$(nproc)
+  ctest --test-dir build/wd-host3 --output-on-failure
+  ctest --test-dir build/wd-host3 -R wd_host_model_contract --output-on-failure
+  ./build/wd-host3/tests/test_wd_host_contract
+  bash build/wd-host3-mutations/run_mutations.sh     (mutation protocol, section 6)
+  sha256sum -c docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256
+  sha256sum -c docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256
+  sha256sum -c docs/vv/evidence/2026-10-22-wd-host3-identities.sha256

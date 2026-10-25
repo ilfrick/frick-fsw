@@ -328,7 +328,7 @@ static FF_Status_t send_hk_report_list_tc(uint8_t count, const uint8_t *report_i
 static FF_Status_t create_hk_report_tc(uint8_t report_id, uint8_t provider_id)
 {
     FF_Pus_TcHdr_t tc;
-    uint8_t payload[3] = {report_id, provider_id, 0u};
+    uint8_t payload[6] = {report_id, provider_id, 0u, 0u, 0u, 0u};
     uint8_t frame[128];
     uint16_t frame_len = 0u;
 
@@ -431,7 +431,7 @@ static void test_ncext_24_provider_length_bounded(void)
      * create.) */
     {
         FF_Pus_TcHdr_t tc;
-        uint8_t payload[3] = {1u, 1u, 0u}; /* report_id=1, provider=1 */
+        uint8_t payload[6] = {1u, 1u, 0u, 0u, 0u, 0u}; /* report_id=1, provider=1, period_s=0 */
         uint8_t frame[128];
         uint16_t frame_len = 0u;
         memset(&tc, 0, sizeof(tc));
@@ -462,7 +462,7 @@ static void test_ncext_24_provider_length_bounded(void)
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(2u, full_report_provider) == FF_SUCCESS);
     {
         FF_Pus_TcHdr_t tc;
-        uint8_t payload[3] = {2u, 2u, 0u};
+        uint8_t payload[6] = {2u, 2u, 0u, 0u, 0u, 0u}; /* report_id=2, provider=2, period_s=0 */
         uint8_t frame[128];
         uint16_t frame_len = 0u;
         memset(&tc, 0, sizeof(tc));
@@ -486,7 +486,7 @@ static void test_ncext_24_provider_length_bounded(void)
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(3u, empty_provider) == FF_SUCCESS);
     {
         FF_Pus_TcHdr_t tc;
-        uint8_t payload[3] = {3u, 3u, 0u};
+        uint8_t payload[6] = {3u, 3u, 0u, 0u, 0u, 0u}; /* report_id=3, provider=3, period_s=0 */
         uint8_t frame[128];
         uint16_t frame_len = 0u;
         memset(&tc, 0, sizeof(tc));
@@ -551,7 +551,7 @@ static void test_ncext_24_provider_length_bounded(void)
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(5u, failed_provider) == FF_SUCCESS);
     {
         FF_Pus_TcHdr_t tc;
-        uint8_t payload[2] = {5u, 5u}; /* report id, provider id */
+        uint8_t payload[6] = {5u, 5u, 0u, 0u, 0u, 0u}; /* report id, provider id, period_s=0 */
         uint8_t frame[128];
         uint16_t frame_len = 0u;
         memset(&tc, 0, sizeof(tc));
@@ -574,7 +574,7 @@ static void test_ncext_24_provider_length_bounded(void)
                    FF_SUCCESS);
     {
         FF_Pus_TcHdr_t tc;
-        uint8_t payload[2] = {6u, 6u};
+        uint8_t payload[6] = {6u, 6u, 0u, 0u, 0u, 0u};
         uint8_t frame[128];
         uint16_t frame_len = 0u;
         memset(&tc, 0, sizeof(tc));

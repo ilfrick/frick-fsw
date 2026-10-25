@@ -880,9 +880,9 @@ static void test_pus_core_gaps(void)
 
 static void test_pus_service3_hk(void)
 {
-    const uint8_t create_ok[2] = {3u, 9u};
-    const uint8_t create_bad_prov[2] = {4u, 99u};
-    const uint8_t bad_size[1] = {3u};
+    const uint8_t create_ok[6] = {3u, 9u, 0u, 0u, 0u, 0u};
+    const uint8_t create_bad_prov[6] = {4u, 99u, 0u, 0u, 0u, 0u};
+    const uint8_t bad_size[1] = {3u}; /* too short for 6-byte payload */
     const uint8_t sel3[1] = {3u};
     const uint8_t report3[2] = {1u, 3u}; /* N=1, report-structure ID */
     const uint8_t report4[2] = {1u, 4u};

@@ -52,6 +52,9 @@ typedef struct
     uint8_t report_id;
     uint8_t provider_id;
     bool enabled;
+    uint32_t period_s; /* 0 = one-shot only (TC[3,27] only), >0 = periodic */
+    uint32_t last_emission_coarse;
+    uint16_t last_emission_fine;
 } ff_hk_report_t;
 typedef struct
 {
@@ -208,11 +211,15 @@ FF_Status_t FF_PusRegisterMemoryRegion(uint8_t region_id, const void *base, uint
 static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    if (len < 2u) {
+    /* Provisional TC[3,1] payload: 6 bytes (report_id, provider_id, period_s[4]).
+     * ICD §4 defines 2 bytes; this 6-byte form is an authority-pending extension
+     * tracked under NC-EXT-17. Do not claim ECSS compliance for this wire format. */
+    if (len < 6u) {
         return FF_BAD_SIZE;
     }
     uint8_t report_id = d[0];
     uint8_t provider = d[1];
+    uint32_t period_s = rd_u32(&d[2]);
     for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
         if (g_hk_reports[i].used && (g_hk_reports[i].report_id == report_id)) {
             return FF_ALREADY_EXISTS;
@@ -224,6 +231,11 @@ static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
             g_hk_reports[i].report_id = report_id;
             g_hk_reports[i].provider_id = provider;
             g_hk_reports[i].enabled = true;
+            g_hk_reports[i].period_s = period_s;
+            /* Initialize last emission time to current time so the first
+             * periodic emission occurs after one full period (matches svc3_enable). */
+            (void)FF_TimeGetCuc(&g_hk_reports[i].last_emission_coarse,
+                                &g_hk_reports[i].last_emission_fine);
             return FF_SUCCESS;
         }
     }
@@ -254,6 +266,10 @@ static FF_Status_t svc3_enable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
     for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
         if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0])) {
             g_hk_reports[i].enabled = true;
+            /* Initialize last emission time to current time so the first
+             * periodic emission occurs after one full period. */
+            (void)FF_TimeGetCuc(&g_hk_reports[i].last_emission_coarse,
+                                &g_hk_reports[i].last_emission_fine);
             return FF_SUCCESS;
         }
     }
@@ -338,6 +354,145 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
     return rc;
 }
 
+/* ---- Service 3 : periodic housekeeping emission ------------------ */
+
+/* NC-EXT-207 (V&V-FINAL-001 / PA-HK-F01) corrected periodic due test.
+ *
+ * The previous formulation computed the absolute due instant
+ * `due = last + period_s` in the 32-bit coarse field with a carry-corrected
+ * fine addition and then compared instants with a raw coarse comparison.
+ * The addition is exact in modular arithmetic, but the raw instant
+ * comparison is not wrap-safe: whenever `last + period_s` crosses the
+ * 32-bit coarse wrap, `due` becomes numerically smaller than `now`, the
+ * report is treated as immediately due, and it re-emits on every call until
+ * the pre-wrap window passes. Because `period_s` is an unvalidated 32-bit
+ * ground-commandable field (NC-EXT-208), one valid-format command can force
+ * that wrap at any epoch (period_s >= 2^32 - now), turning the bounded
+ * burst into a persistent emit-on-every-call TM flood.
+ *
+ * Corrected formulation, following the independent V&V and PA final delta
+ * reviews of 2026-10-24 (PA Annex A.2 `safe_signed`): compare the *signed
+ * modular difference* between now and the last emission against the period
+ * directly, instead of forming and comparing absolute due instants:
+ *
+ *   u = (now_coarse - last_coarse) mod 2^32
+ *   u >= 2^31  : the elapsed value is indistinguishable from a backward
+ *                time step of (2^32 - u) seconds. Not decidable with this
+ *                32-bit field alone; resolved conservatively as "wait"
+ *                (the same resolution a backward step receives), so the
+ *                interval evidences neither premature emission nor flood.
+ *   u >  period: interval elapsed - due (late caller emits once).
+ *   u == period: due iff now_fine >= last_fine, preserving the sub-second
+ *                tie-break of the previous (coarse, fine) comparison; with
+ *                whole-second periods the due instant carries the same fine
+ *                value as the last emission, so this reproduces the
+ *                previous boundary exactly.
+ *   u <  period: not yet due.
+ *
+ * Except inside the wrap window (and its undecided band) this is
+ * observationally identical to the previous comparison, so the frames and
+ * cadence seen on the wire do not change in the non-wrap regime.
+ *
+ * Consequence recorded in ADR-0020: for `period_s >= 2^31` the test never
+ * fires (u is capped below 2^31), so such a report holds unserved rather
+ * than flooding. This is a property of the modular formulation, NOT a
+ * maximum-period mission limit: no TC[3,1] range validation is added here;
+ * the maximum permissible period and the coarse wrap policy remain
+ * authority-owned (NC-EXT-208, ESC-HK-06, both OPEN).
+ *
+ * The comparison uses only defined unsigned modular arithmetic and integer
+ * comparisons, so it is identical on RV32 and RV64, and the previous
+ * helpers (`time_ge`, `time_add_period`) are superseded and removed. */
+static bool time_period_due(uint32_t now_coarse, uint16_t now_fine, uint32_t last_coarse,
+                            uint16_t last_fine, uint32_t period_s)
+{
+    uint32_t u = now_coarse - last_coarse; /* defined unsigned modular difference */
+    if (u >= 0x80000000u) {
+        return false; /* undecided band: backward step or >= 2^31 s -> wait */
+    }
+    if (u > period_s) {
+        return true; /* interval elapsed (late caller emits once) */
+    }
+    if (u < period_s) {
+        return false; /* not yet due */
+    }
+    return now_fine >= last_fine; /* u == period: sub-second tie-break */
+}
+
+/* Emit periodic housekeeping reports for all enabled reports whose period
+ * has elapsed since the last emission. This function should be called
+ * periodically (e.g., from a timer or scheduler) to generate periodic HK TM.
+ * Returns FF_SUCCESS if at least one report was emitted, FF_ERROR if none
+ * were due/emitted, or a specific error code if a send failed. */
+FF_Status_t FF_PusEmitPeriodicHk(void)
+{
+    uint32_t now_coarse = 0u;
+    uint16_t now_fine = 0u;
+    FF_Status_t rc = FF_ERROR; /* default: no reports emitted */
+    FF_Status_t last_send_st = FF_SUCCESS;
+
+    (void)FF_TimeGetCuc(&now_coarse, &now_fine);
+
+    for (uint16_t i = 0u; i < FF_PUS_MAX_HK_REPORTS; i++) {
+        ff_hk_report_t *report = &g_hk_reports[i];
+        if (!report->used || !report->enabled || (report->period_s == 0u)) {
+            continue;
+        }
+
+        /* Check if the period has elapsed since the last emission
+         * (wrap-safe formulation, NC-EXT-207). */
+        if (!time_period_due(now_coarse, now_fine, report->last_emission_coarse,
+                             report->last_emission_fine, report->period_s)) {
+            continue; /* not yet due (or interval outside the decidable band: wait) */
+        }
+
+        /* Emit the periodic report */
+        FF_Pus_DataProvider_t prov = find_provider(g_hk_providers, report->provider_id);
+        if (prov == NULL) {
+            if (rc == FF_ERROR) {
+                rc = FF_NOT_FOUND;
+            }
+            continue;
+        }
+
+        uint8_t payload[FF_PUS_MAX_TM_FRAME];
+        uint16_t cap = (uint16_t)(sizeof(payload) - 1u);
+        uint16_t plen = cap;
+        payload[0] = report->report_id;
+
+        FF_Status_t provider_st = prov(report->report_id, &payload[1], &plen);
+        if (provider_st != FF_SUCCESS) {
+            if (rc == FF_ERROR) {
+                rc = provider_st;
+            }
+            continue;
+        }
+
+        /* Validate the provider-reported length */
+        if (plen > cap) {
+            if (rc == FF_ERROR) {
+                rc = FF_BAD_SIZE;
+            }
+            continue;
+        }
+
+        last_send_st = FF_PusSendTm(FF_PUS_SERVICE_HK, 25u, payload, (uint16_t)(plen + 1u));
+        if (last_send_st != FF_SUCCESS) {
+            if (rc == FF_ERROR) {
+                rc = last_send_st;
+            }
+            continue;
+        }
+
+        /* Update last emission time */
+        report->last_emission_coarse = now_coarse;
+        report->last_emission_fine = now_fine;
+        rc = FF_SUCCESS; /* at least one report emitted successfully */
+    }
+
+    return rc;
+}
+
 /* ---- Service 6 : memory management (region bounded dump) --------- */
 
 static FF_Status_t svc6_dump(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
@@ -353,20 +508,35 @@ static FF_Status_t svc6_dump(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_
         return FF_BAD_SIZE;
     }
 
+    /* Resolve the region identifier first so the two refusal causes stay
+     * distinguishable to the caller (NC-EXT-18):
+     *   FF_NOT_FOUND      - no registered region carries this identifier;
+     *   FF_INVALID_ARGUMENT - the region exists but offset+length is outside it.
+     * The on-wire failure code is unchanged by design: both causes still
+     * surface as S1(1,8) with FF_PUS_FAIL_EXECUTION (ICD §4), because the
+     * PUS-C failure-code allocation is a controlled-interface decision. */
+    const ff_mem_region_t *region = NULL;
     for (uint16_t i = 0; i < FF_PUS_MAX_MEM_REGIONS; i++) {
-        if (!g_mem_regions[i].used || (g_mem_regions[i].id != region_id)) {
-            continue;
-        }
-        /* Provisional profile: region ID plus a 32-bit byte offset. The wire
-         * value is never a host/target pointer; subtraction-based checks avoid
-         * overflow at the region boundary. */
-        if ((offset <= g_mem_regions[i].size) &&
-            ((uint32_t)size <= (g_mem_regions[i].size - offset))) {
-            const uint8_t *src = g_mem_regions[i].base + (ptrdiff_t)offset;
-            return FF_PusSendTm(FF_PUS_SERVICE_MEMORY, 6u, src, size);
+        if (g_mem_regions[i].used && (g_mem_regions[i].id == region_id)) {
+            region = &g_mem_regions[i];
+            break;
         }
     }
-    return FF_ERROR; /* address outside any registered region */
+    if (region == NULL) {
+        return FF_NOT_FOUND;
+    }
+
+    /* Provisional profile: region ID plus a 32-bit byte offset. The wire value
+     * is never a host/target pointer. The bound is checked by subtraction in the
+     * region's own width so that neither `offset + length` nor `size - offset`
+     * can wrap: the ordered operands short-circuit before the subtraction, and
+     * the comparison is evaluable identically on 32-bit and 64-bit targets
+     * (RV32/RV64) because both operands are uint32_t. */
+    if ((offset <= region->size) && ((uint32_t)size <= (region->size - offset))) {
+        const uint8_t *src = region->base + (ptrdiff_t)offset;
+        return FF_PusSendTm(FF_PUS_SERVICE_MEMORY, 6u, src, size);
+    }
+    return FF_INVALID_ARGUMENT;
 }
 
 /* ---- Service 8 : function management ----------------------------- */

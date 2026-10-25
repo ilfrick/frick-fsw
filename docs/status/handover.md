@@ -4,14 +4,431 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.10                                   |
-| Date                              | 2026-10-19                             |
+| Revision                         | 3.54                                   |
+| Date                              | 2026-10-24                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
 work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
+
+## NC-EXT-18 S6 refusal-cause addendum — 2026-10-24 (S8-PUS-FU)
+
+**Status: bounded software-only increment ACCEPTED by FRICK-REVIEW-0437 and its delta
+review; in-tree only, not committed.**
+
+- What changed: `svc6_dump()` resolved the region and the range in one loop and returned
+  a single `FF_ERROR` for both an unregistered region identifier and an out-of-region
+  `offset`+`length`, so the two refusals were indistinguishable to any caller. Region
+  resolution is now separated: `FF_NOT_FOUND` for an unknown identifier,
+  `FF_INVALID_ARGUMENT` for an out-of-range request within a known region, and
+  `FF_BAD_SIZE` unchanged for malformed requests. Files: `src/pus/pus_services.c`
+  (`05508611…8dcebb`), `tests/unit/test_pus.c` (`ac688974…4f1d71`),
+  `docs/interfaces/ICD.md` rev 1.6 (`67ae7584…52643ad`),
+  `docs/adr/ADR-0020…` rev 0.2 (`b7e33e1a…0bcb29`).
+- Reproduced before fixing: the extended test suite failed 10 of 134 checks against the
+  pre-fix handler (`49bc86db…`), and the *old* suite had encoded the defect by asserting
+  `FF_ERROR` for both causes.
+- Test oracle strengthened after review: the region is now filled with an
+  index-dependent pattern, so the content oracle discriminates; the offset-dropping
+  mutant that previously survived `134/0` now fails 3 checks.
+- Gates: `make build` PASS; `make test` PASS 46/46 (`test_pus` 134/0); `make
+  format-check` PASS in `frick-vv:local`; `make trace` PASS (120/76/30/14/68); `make
+  verify-lean` PASS; `make gsw-selfcheck` PASS. **N18 Renode FAIL (NC-EXT-198), NOT
+  RUN. NC-PAL-01 OPEN.**
+- Evidence: `docs/vv/evidence/2026-10-24-ncext18-s6-refusal-causes-evidence.md` rev 0.2.
+  Reviews: `docs/reviews/2026-10-24-ncext18-s6-vv-review.md` (FRICK-REVIEW-0437) and
+  `…-vv-delta-review.md`.
+- **Still authority-owned (not done here):** separating the refusal causes **on the
+  wire** requires the PUS-C failure-code allocation; the `TC[6,5]` field widths/profile
+  and the memory-access authorization model remain provisional (ADR-0020). New NCs
+  NC-EXT-214..219 registered; NC-EXT-18 remains OPEN.
+
+## NC-EXT-207 S3 periodic due-test wrap/TM-flood addendum — 2026-10-25 (S8-PUS-FU)
+
+**Status: software-separable correction IMPLEMENTED and independently reviewed; in-tree only, not committed.**
+
+- What changed: the periodic due test was replaced by a wrap-safe signed-modular
+  formulation (`time_period_due`): `u = now_coarse - last_coarse` (mod 2^32);
+  `u >= 2^31` → wait (undecided band); `u > period` → due; `u < period` → not
+  due; `u == period` → due iff `now_fine >= last_fine` (sub-second tie-break
+  preserved). Files: `src/pus/pus_services.c` (`915b62e7…31e6de3`),
+  `tests/unit/test_pus.c` (`c42b1250…041b61`).
+- Reproduced before fixing: pre-fix `time_ge`/`time_add_period` produced
+  premature emission + re-emit burst at epoch wrap (R-1) and forced-wrap TM flood
+  from a single `period_s >= 2^32 - now` command (R-2). Extended test suite
+  failed 10 of 225 checks against pre-fix source.
+- Tests added: three new tests (`test_hk_coarse_wrap_due`,
+  `test_hk_large_period_held_unserved`, `test_hk_backward_step_no_emission`)
+  covering nominal, wrap-straddle, forced-wrap-flood, backstep, and
+  undecided-band classes with exact-count oracles.
+- Mutation discrimination: three critical mutants (wait-band removal, tie-break
+  `>=`→`>`, `u>period`→`u>=period`) built and **killed** at expected sites.
+- Gates: `make build` PASS; `make test` PASS 46/46 (`test_pus` 225/0);
+  `make format-check` PASS; `make trace` PASS (120/76/30/14/68); `make
+  verify-lean` PASS; `make gsw-selfcheck` PASS. **N18 Renode FAIL (NC-EXT-198),
+  NOT RUN. NC-PAL-01 OPEN.**
+- Evidence: `docs/vv/evidence/2026-10-25-ncext207-wrap-due-evidence.md`.
+  Reviews: `docs/reviews/2026-10-25-ncext207-wrap-due-vv-review.md` (V&V
+  exact-candidate), `…-pa-review.md` (PA exact-candidate) — both ACCEPT narrow
+  claim.
+- **Still authority-owned (not done here):** `u >= 2^31` undecided band causes
+  `period_s >= 2^31` reports to hold unserved — formulation property, NOT a
+  validation/limit. ESC-HK-06 must dispose max-period/undecided-band policy
+  before activation; ESC-HK-03 must add held-unserved hazard; NC-EXT-208
+  (period validation) untouched. No caller added (ESC-HK-02 pending).
+
+## HK periodic-emission addendum — 2026-10-24 (S8-PUS-FU, NC-EXT-17)
+
+**Status: bounded increment accepted narrowly by both final delta reviews; NOT committed,
+NOT activated, NOT release-ready.**
+
+- What changed: PUS service 3 housekeeping reports gained an optional periodic period
+  (`period_s` in the create payload), a per-report last-emission timestamp, and a new
+  `FF_PusEmitPeriodicHk()` entry point that emits every enabled report whose period has
+  elapsed. Files: `src/pus/pus_services.c` (SHA-256 `49bc86db…6cc3cf`),
+  `src/pus/pus.h` (`e520bb33…7345fd`), `tests/unit/test_pus.c` (`57db92de…eb5789`),
+  plus payload-width alignment in `test_pus_fu.c`, `test_r2_gap.c`, `test_r3_gap.c`.
+- Defect found and fixed during acceptance: `time_add_period()` double-counted the
+  period (a 10 s period behaved as 20 s — a sustained 50 % HK sample-rate loss). A
+  positive time-due test reproduced it; the fix removes the duplicate coarse addition.
+  Evidence: `docs/vv/evidence/2026-10-24-hk-periodic-ncext17-evidence.md`.
+- Gates on the final candidate: `make build` PASS; `make test` PASS 46/46
+  (`test_pus` 108 checks / `test_pus_fu` 159 / `test_r2_gap` 615 / `test_r3_gap` 201,
+  0 failures); `make format-check` PASS in the pinned image; `make trace` PASS
+  (120/76/30/14/68); `make verify-lean` PASS; `make gsw-selfcheck` PASS. **N18 Renode
+  remains FAIL (NC-EXT-198) and NC-PAL-01 remains OPEN — neither was re-run.**
+- Reviews retained (5): `2026-10-24-hk-periodic-vv-review.md`,
+  `…-safety-review.md`, `…-vv-delta-review.md`, `…-safety-delta-review.md`,
+  `…-vv-final-delta-review.md`, `…-pa-final-delta-review.md`.
+- **Do not activate.** `FF_PusEmitPeriodicHk()` has no caller (ESC-HK-02). The
+  `time_ge()` comparison is not wrap-exact and the wrap is forceable with a large
+  `period_s` (NC-EXT-207, activation blocker); `period_s` is unvalidated (NC-EXT-208).
+  The 6-octet `TC[3,1]` payload is an authority-pending private extension against
+  ICD §4's 2 octets (NC-EXT-17 / ESC-HK-01) — **no ECSS compliance is claimed**.
+- New NCs registered in `docs/planning/sprint-plan.md`: NC-EXT-207..213. New
+  escalations in `docs/status/escalations.md` rev 1.7: ESC-HK-01..06, all
+  `AWAITING OWNER`.
+
+## Current continuation addendum — 2026-10-21 (owner-directed delta)
+
+- Owner decisions 1317/1318 are recorded in `docs/status/escalations.md` and
+  ADR-0021. The source delta threads an absolute monotonic 250 ms deadline
+  through panic console/PUS/UART paths and propagates watchdog arm/feed errors;
+  this is a design target with partial host evidence, **not** an end-to-end
+  verified bound or target WCET.
+- Fresh-context R1/R2/R3/R4 draft reports 0409–0412 are retained in
+  `docs/reviews/`; see the index. R1/R3 identify unresolved requirement/source
+  mismatches on overlong panic text, exact-one report semantics, and formatting
+  bound.
+- Feed cadence is deliberately **not** changed: `FF_AppWdMain` still uses
+  relative delay. Choosing absolute phase/margin now would silently select
+  feed behavior without an established earliest valid MSS refresh time or
+  approved execution/jitter margin. Public Microchip HAL header is only an
+  audit lead; exact RTPFS160ZT datasheet, selected instance/configuration,
+  clock/reset dependencies, RTEMS binding and target/HIL evidence remain open.
+  See ADR-0021 and TS-5 `N22-TS5-82/83`.
+- The earlier Renode command pulled the absent pinned image; this side effect is
+  retained in prior evidence. Subsequent inspections used `--pull=never`; do
+  not repeat a pull. Host checks are not target WCET evidence.
+
+## Post-review remediation addendum — 2026-10-21 (same increment, bounded)
+
+**Changed files (all uncommitted):**
+
+| Area | Files | Change |
+| --- | --- | --- |
+| PAL host-only seam | `src/core/pal/pal.h`, `src/core/pal/pal_posix.c` | Reset-hook status injection added to the existing `FF_TEST_HOOKS` fault-injection API (host test builds only; no flight hook, no degraded mode) |
+| Link backend | `src/transport/link/link_loopback.c` | **Functional defect corrected:** the loopback backend had no deadline-aware writer, so the production reporter `FF_LinkSendUntil` silently dropped the pre-reset report on the host simulator. It now implements `send_until` and honours an already-expired deadline. The target UART backend was unaffected |
+| Link/console writers | `src/core/pal/pal_posix.c`, `src/transport/link/link_uart.c` | **Flight-target link defect corrected:** the owner-directed delta had introduced `poll()` into these RTEMS-compiled sources, and RTEMS 6.2 provides the `poll.h` types but no `poll()` implementation, so the flight target did not link (reproduced: the project cross-build failed with `undefined reference to 'poll'`). The bounded console and UART writers now use a non-blocking descriptor with a short back-off and a retry against the shared deadline, and restore the descriptor mode afterwards |
+| Link backend | `src/transport/link/link_loopback.c` | Deadline re-checked after the copy (not only on entry); `FF_LinkLoopbackPop` validates its output pointers |
+| Tests | `tests/unit/test_pal_watchdog.c`, `tests/unit/test_es_hs_lifecycle.c`, `tests/unit/test_link_uart.c`, `tests/CMakeLists.txt` | External link-time harnesses only, now guarded by the same condition as the linker option: `nanosleep` wrapper (EINTR retry, non-EINTR EIO) for the PAL wait; `write` wrapper forcing deterministic short writes on the UART slave descriptor. New cases: failed-feed expiry/count preservation, reset-hook error, saturated-stderr whole-path shared-deadline oracle (notifier observes the expired deadline and the pre-reset reset counter), production reporter wiring with an exactly-one-frame assertion, link deadline-writer semantics, UART partial-progress/stall with a bounded drain, exact 96/97/256-character panic-reason counterexample |
+| V&V records | `docs/vv/test-spec/ts-5-core-services.md` (rev 1.12), `docs/vv/tool-qualification.md` (rev 0.3.94), `docs/vv/verification-results.md` (rev 3.04) | Cases `N22-TS5-84/85/86/87` added and re-counted (87 total / 48 nominal / 29 OOB / 10 mixed; 59 covered / 28 gap); §3 now maps every gap row (80, 84, 85, 86, 87 included); requirement-level gaps kept explicit |
+| Status/reviews | `docs/status/loop-audit.md` (rev 10.36), `docs/status/status.json`, `docs/planning/sprint-plan.md` (rev 1.99), `docs/reviews/README.md`, `docs/reviews/2026-10-21-s8-fdir-remediation-{r1-0414,r2-0415,pa-0413}.md`, `docs/reviews/2026-10-21-s8-fdir-final-delta-{r1-0416,r2-0417,pa-0418}.md`, `docs/reviews/2026-10-21-s8-fdir-correction-{r2-0420,pa-0419}.md` | Current-state records, the NC register entries NC-EXT-184..192 for the 0409-0419 findings, and the eight fresh delta reviews retained |
+| Evidence | `docs/vv/evidence/2026-10-21-s8-fdir-post-review-remediation.log`, `docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256` | Raw transcript of the host build/test/trace runs, the pinned formatter run (version and exit code) and the RTEMS 6.2 cross-build (configure/link exit codes, artifact, symbol check); the source manifest covers all 31 changed files in `src/`, `config/`, `tests/`, `verification/lean/` and `tools/` plus the build control files and verifies OK |
+
+**Fresh build/test and source identity (this tree):** direct
+`cmake --build build/native -j2` + `ctest --test-dir build/native -j2
+--output-on-failure` → **44/44 PASS** (repeated after the final formatting
+pass). Executed targeted counts: `test_pal_watchdog` 320, `test_es_hs_lifecycle`
+180, `test_link_uart` 72, `test_time` 113, all zero failures. `make trace` PASS
+(120 requirements, 68 theorem symbols). Pinned `frick-vv:local make
+format-check` PASS (formatter identity and exit code retained in the
+transcript). **RTEMS 6.2 flight-target cross-build: configure PASS, link PASS,
+`frick_fsw` produced** with the cached `frick-rtems-toolchain:local` image
+(`--pull=never`, read-only source mount); the artifact exports no
+`poll`/`select` symbol and none of the `FF_TEST_HOOKS` test seams. Source
+identity: the sha256 manifest above, covering every changed file in `src/`,
+`config/`, `tests/` and `verification/lean/` plus the build control files.
+`make build` still times out in dependency/configure preparation; no Lean build
+was run in this cycle (the cached V&V image has the `lake` executable but **no**
+`/root/.elan/toolchains`; a `lake --version` probe inside a disposable `--rm`
+container attempted a toolchain download and was not repeated) — the retained
+Lean evidence of 2026-10-21T09:58Z remains valid for the current tree because
+its 14 Lean source hashes re-verify against the current files and no Lean
+source has changed since, and it is not a Lean run of this cycle; `make smoke`
+is still blocked by pre-existing ignored generated `third_party/n7s-obcp`
+directories — nothing was removed, refetched or re-permissioned. N18 was not
+rerun on this tree, and no target execution, target timing or HIL result is
+claimed.
+
+**Review outcomes (final, retained):**
+
+| Review | Profile | Outcome |
+| --- | --- | --- |
+| FRICK-REVIEW-0409 | R1 | 2 Major: over-length policy, unbounded formatting work |
+| FRICK-REVIEW-0410 | R2 | 2 Major + 3 Minor: no end-to-end timing oracle; host ≠ target WCET; narrow error/wait/time coverage |
+| FRICK-REVIEW-0411 | R3 | 7 Major: exactly-one applicability, mandatory-text envelope, 250 ms not demonstrated, reset-path liveness, actual inter-feed timing, monotonic/PPS policy, missing refresh-window authority |
+| FRICK-REVIEW-0412 | R4 | 5 findings: SRS date, handover watchdog-model claim, historical TS-5 totals (corrections applied) |
+| FRICK-REVIEW-0413 | PA / N20 | **NOT APPROVED**: F-01 Blocker (reset-path liveness), F-02 requirement semantics, F-03 target timing, F-04 cadence, F-05 unwired binding, F-06/F-07 evidence currency, F-08 authority record, F-09 scope |
+| FRICK-REVIEW-0414 | R1 (delta) | **REJECTED for closure of 0409** — both Majors still open; no production bypass introduced |
+| FRICK-REVIEW-0415 | R2 (delta) | Host evidence only; target 250 ms/WCET open; UART retry now observed rather than assumed; record binding flagged |
+| FRICK-REVIEW-0416 | R1 (final delta) | **REJECTED for closure of 0409/0414** — both Majors still open; 9 Minor items corrected in the follow-up round (NC-EXT-190) |
+| FRICK-REVIEW-0417 | R2 (final delta) | 250 ms target and WCET still undemonstrated; 4 Major and 8 Minor record/provenance findings corrected in the follow-up round |
+| FRICK-REVIEW-0418 | PA / N20 (final delta) | **NOT APPROVED** — **B-01 Blocker: the increment had introduced `poll()` into RTEMS-compiled sources, so the flight target did not link** (RTEMS 6.2 implements no `poll()`). Corrected and re-verified by a fresh RTEMS 6.2 cross-build. 5 Major record/evidence findings corrected; the authority set remains open |
+| FRICK-REVIEW-0419 | PA / N20 (correction round) | **NOT APPROVED** — the product corrections independently verified; 4 Major and 8 Minor record-currency findings corrected in the follow-up round; the authority set remains open |
+| FRICK-REVIEW-0420 | R2 / N22 (correction round) | The previously non-discriminating exactly-one-frame oracle is now shown to fail on a duplicate-emission mutation; descriptor-mode restore, PUS subservice and partial-frame emission are asserted; record corrections applied. Host evidence only |
+
+**Precise external blockers (unchanged, not decided here; registered as
+NC-EXT-184..188 and NC-EXT-191..192):**
+
+1. **Report obligation and mandatory-text envelope (requirements + safety).**
+   SRS-REQ-074's "exactly one" does not state whether it means attempted,
+   generated or successfully written, and does not define the mandatory text,
+   the maximum reason length or the over-length behavior. The implementation
+   currently suppresses the notifier when formatting is incomplete (96
+   characters report, 97 and 256 do not) and the reset is still requested.
+2. **Bounded formatting work (design + safety).** `vsnprintf` runs before any
+   deadline check and may scan an unbounded caller `%s`; a bounded output
+   buffer does not bound the work. The owner-approved 250 ms target therefore
+   does not yet cover all pre-reset work.
+3. **Controlled watchdog configuration, refresh window and margin (systems +
+   avionics).** The 8 s value stays an arbitrary placeholder; the actual
+   feed-to-feed interval, the earliest permitted MSS refresh and the approved
+   execution/jitter margin are unestablished, so the feeder cadence is
+   deliberately unchanged and relative.
+4. **Target protection and timing evidence (HIL).** The MPFS binding is
+   unwired (NC-PAL-01); no target/HIL watchdog, reset or 250 ms timing evidence
+   exists; the Renode models are generic and not RTPFS160ZT evidence.
+
+**Policy options for the owner (recommendation in bold):**
+
+- *Report obligation.* (a) One **attempted** report always, with the mandatory
+  fields preserved and the reason text bounded to a defined maximum;
+  (b) one report only when the content is complete, otherwise no report and a
+  separate diagnostic; (c) one report with a fixed-length truncation marker.
+  **Recommendation: (a) with a bounded, explicitly truncated reason and a
+  defined maximum length**, because it keeps the ground-visible event
+  deterministic while the requirement is still being interpreted; (b) and (c)
+  both leave the ground without the reset cause.
+- *Over-length handling and formatting bound.* (a) Define a maximum reason
+  length and format with a bounded, length-limited formatter so the whole
+  attempt stays inside one budget; (b) keep the variadic API and accept that
+  the formatting work is unbounded by the deadline; (c) restrict the panic
+  reason to a fixed-size, non-variadic payload.
+  **Recommendation: (a)**, because it is the only option that makes the
+  owner-approved single budget provable without changing the call sites.
+- *Feed cadence.* (a) Keep the current relative delay and document the
+  resulting inter-feed interval as unverified; (b) switch to an absolute
+  monotonic schedule once the refresh window and margin are authorized;
+  (c) adopt the 8 s / 2 s placeholder as a flight value.
+  **Recommendation: (b) with (a) until the authority inputs exist** — (c) would
+  ratify an unjustified number, and (a) alone leaves the SRS-REQ-073
+  inter-feed clause unverified.
+
+**Correction round (2026-10-21, after FRICK-REVIEW-0419/0420):** the
+record-currency findings are applied — executed counts 320/180/71/113, the
+flight-target Blocker attributed to FRICK-REVIEW-0418 (the PA report that
+raised it), TS-5 rev 1.12 with the strengthened exactly-one oracle, ADR-0021
+rev 1.2, NC-EXT-191/192 registered, the source-identity manifest extended to
+the changed V&V scripts, and the cross-build transcript now recording the exact
+invocation, exit codes, artifact identity and symbol checks. The corrected
+exactly-one oracle was verified by a duplicate-emission mutation: it now fails
+on the production wiring path, which the previous assertion did not. The duplicate-emission mutation is retained as evidence in `docs/vv/evidence/2026-10-21-s8-fdir-post-review-remediation.log`; the corrected product was independently reviewed once more in the 2026-10-21 acceptance review. The
+descriptor-mode restore, the PUS service/subservice of the pre-reset frame and
+the partial-frame emission of a stalled send are now asserted.
+
+**Handover acceptance verification (2026-10-21, FRICK-REVIEW-0421):** the
+review chronology was reconciled against the file timestamps. The production
+sources are unchanged since the 0419/0420 reviews, but the strengthened
+exactly-one-frame oracle and the descriptor-restore/partial-frame assertions
+were edited afterwards and had **not** been independently reviewed; a fresh
+narrow N20 review (0421) was therefore obtained on exactly those corrections.
+It confirms them: the writers are poll-free, deadline-bounded and
+mode-restoring with an unconditional reset request; the exactly-one-frame
+oracle is shown to fail on a **duplicate-emission mutation of the production
+`FF_LinkSendUntil` path**, with a control run proving the pre-correction oracle
+did not; the UART observation and restore assertions are real and the drain
+thread cannot hang; and the 31-entry manifest verifies 31/31 with exact
+coverage while the RTEMS flight link was independently reproduced clean of
+`poll`/`select` and of any test seam. The mutation has been re-executed and
+**retained** in the evidence log, so the claim is re-verifiable from the tree.
+0421's one Major and six Minor record/oracle findings were corrected in the
+acceptance round and registered as NC-EXT-193..196. The authority set is
+unchanged and open.
+
+**Compact gate result (2026-10-21, gate-verification phase):**
+
+| Gate | Result | Reason / evidence |
+| --- | --- | --- |
+| `make build` (canonical, isolated `build/acceptance`) | **PASS** | Pinned third-party checkouts clean at their pinned commits; `frick-asn1scc:local` cached; exit 0; checkouts re-verified clean afterwards |
+| `make test` (canonical, same isolated dir) | **PASS** | 44/44 CTest; exit 0 |
+| `make smoke` | **PASS** | Banner + 7 applications registered; exit 0 (the earlier ignored-generated-directory blocker no longer exists) |
+| `make trace` | **PASS** | 120 requirements, 68 theorem symbols |
+| pinned `format-check` (`frick-vv:local`) | **PASS** | clang-format 18.1.3, exit 0 |
+| RTEMS 6.2 cross-build (`frick-rtems-toolchain:local`, `--pull=never`) | **PASS** | configure/build exit 0; artifact exports no POSIX `poll`/`select` and no `FF_TEST_HOOKS` seam |
+| **Lean** (`lake build`) | **PASS** | The project-pinned toolchain `leanprover/lean4:v4.10.0` (Lean 4.10.0, commit `c375e19f6b65`, Release; Lake 5.0.0-c375e19) was downloaded through elan in `frick-vv:local` into the **dedicated** cache `~/.cache/frick-fsw/elan` (ELAN_HOME; no global default change, host ownership of the new files restored). The prescribed check `cd verification/lean && lake build` (Makefile `verify-lean`) was executed in the controlled image and reported `Build completed successfully.` with exit 0 |
+| **N18 Renode** (`make renode`, corrected runner) | **FAIL** | Image downloaded and digest-verified against the prescribed pin (`antmicro/renode@sha256:7905c32…`, 908 MB); current-tree ELF rebuilt (`build/renode/frick_fsw_renode.elf`, sha256 `23a4c8da…`, 4 114 616 B). The run **exits with the RTEMS fatal error before the test application can emit its marker**: the RTEMS feeder panics at start-up (`[FF-PANIC] watchdog: init failed` → `watchdog: reset requested but MPFS binding NOT WIRED - NC-PAL-01` → `*** EXIT STATUS NOT ZERO ***`, RTEMS fatal exit 5), because the owner-approved arm-error propagation treats the unwired MPFS binding's `FF_NOT_IMPLEMENTED` as a fatal arm failure. The marker is absent from this run's process log **and** UART console → **FAIL, not PASS and not SKIP**. Root cause registered as **NC-EXT-198** (owner decision). The runner's own `PASS` verdict was a **false PASS from a stale 2026-10-20 log** (its fixed `/tmp` log paths are not writable here) — registered as **NC-EXT-199**, since corrected and retested (fresh per-run log directory, fail-closed verdict unit, mutation-verified regression suite, independent review FRICK-REVIEW-0423); the corrected runner now reports the truthful verdict above |
+| Hosted CI (GitHub/Gitea) | **NOT RUN** | Separate gate; `ci_github` remains green from an earlier, unrelated run and is not evidence for this tree |
+| Target / HIL / QEMU | **NOT RUN** | Separate gate; no target execution, timing, watchdog or flight-readiness evidence exists |
+| UART drain-stop flag | **OPEN finding** | ThreadSanitizer-confirmed C11 data race; registered **NC-EXT-197** (OPEN/deferred for owner triage); the earlier "cannot hang" wording is superseded |
+
+**Watchdog specification phase — retained summary (2026-10-22):** paths:
+`docs/architecture/mpfs-mss-watchdog-integration-spec.md` (FRICK-ARCH-0024
+**rev 1.5**), `docs/architecture/n18-watchdog-integration-proposal.md`
+(FRICK-ARCH-0023 rev 1.5), the retained reviews
+`docs/reviews/2026-10-21-s8-fdir-embedded-safety-0424.md` and
+`…-vv-0425.md` (rev 1.0), `docs/reviews/2026-10-22-s8-fdir-embedded-safety-0426.md`
+and `…-vv-0427.md` (final delta), `docs/reviews/2026-10-22-s8-fdir-embedded-safety-0428.md`
+and `…-vv-0429.md` (the confirmation addenda of rev 1.4), the retained evidence
+`docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-bsp-inventory.log`,
+`…-wd-model-probe.log` and `…-wd-official-docs-retrieval.log`, the documentation manifest
+`docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256` (19 entries; regenerated
+after the final text freeze) and the **unchanged** code manifest
+`docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256` (34 entries,
+re-verified 34/34, not re-derived here). Genuinely unresolved and **for the
+owner**: the six grouped input registers **G-A** (controlled device
+documentation, lock rule, timeout unit, design-time configuration), **G-B**
+(clock source, gating, sleep/low-power timebase), **G-C** (mission hart,
+instance, reset coverage, reset scope), **G-D** (mission timeout, reaction
+window, cadence/margins, false-reset tolerance, `MSVP`), **G-E** (HIL plan and
+thresholds, the watchdog-timeout report path) and **G-F** (documentation
+basis) — with the decisions **A** (basis), **B1** (structure/inventory),
+**B2** (content), **C** (instance/hart/reset coverage and the boot-lock
+contingency), **D** (timing values), **E** (interrupt policy and false-reset
+tolerance) and **F** (verification, the N18 gate and the emulator-leg scope),
+all OPEN. **B2, D, E and F cannot be taken before the corresponding group
+closes; no implementation, register write, production change, policy decision,
+NC closure or gate approval has occurred.** Since rev 1.3 the **issuer's own
+documents** have been retrieved (MSS TRM rev S, Power-Up/Resets UG rev M, data
+sheet rev E, RT product overview rev C, the RTPFS160ZT-applicable errata rev
+A, AN4903 — hashes and quoted extracts retained), and they **change the
+instance and reset-scope facts**: only `WDOG0` (E51) can reset the MSS, a U54
+watchdog can only interrupt the E51, the power-up default timeout is ≈10.47 s,
+and the watchdog reset reason is `WDOG_RESET` (bit 5) with an **MSS**-scope
+reset. The rev 1.3 instance recommendation is therefore **withdrawn** and
+agenda item C is reframed. The **"PolarFire SoC Device Register Map"** and the
+RT "MS Description" are **not retrievable** from this environment and remain
+the outstanding controlled input M-1.
+
+**Final read-only acceptance checkpoint (2026-10-22):** the frozen rev 1.5
+bodies were verified by SHA-256 (spec `9b09605c…`, proposal `749ecafc…`, the
+official-document retrieval log `54a44964…`, the model probe log `64139566…`)
+and confirmed by two short independent read-only addenda —
+**FRICK-REVIEW-0430** (embedded safety) and **FRICK-REVIEW-0431** (V&V), both
+scoped to the 1.4→1.5 delta and both stating that they do not extend the
+rev 1.4 confirmation addenda. **No design defect was found.** The arithmetic
+annotation slip in the retrieval log's *labelled inference* and nine
+structural/metadata observations are recorded as **OPEN/deferred**
+(NC-EXT-206, and a residual added to NC-EXT-205); the frozen bodies were **not**
+modified, per the owner's direction not to refactor for minor findings. The
+checkpoint record is retained at
+`docs/vv/evidence/2026-10-22-s8-fdir-wd-final-readonly-acceptance.log`.
+
+**Watchdog specification phase (2026-10-22, owner path A — ESC-9/ESC-10):**
+the controlled **MPFS/MSS watchdog integration specification** is produced at
+`docs/architecture/mpfs-mss-watchdog-integration-spec.md` (FRICK-ARCH-0024
+**rev 1.3**) and independently reviewed (**FRICK-REVIEW-0424**/**0425** for rev 1.0,
+**FRICK-REVIEW-0426** embedded safety and **FRICK-REVIEW-0427** V&V for the final
+delta); all four reports are retained, indexed, and their findings are itemised
+against the corrections in the specification's §10. It contains the reference
+inventory (public files pinned by upstream commit `5a890a5b…` and SHA-256, not
+retained in the tree per the N13 boundary; the installed RTEMS BSP inventory
+transcript is retained as evidence and confirms **no MSS register map and no
+MSS watchdog driver** in the BSP), the verified facts with their source class,
+the recommendations, the **grouped owner input register G-A..G-F**, the corrected
+emulator/host/target case sets with a negative control, the target/HIL legs
+including the two **NC-PAL-01 closure conditions**, and the **owner decision
+agenda A, B1/B2, C, D, E, F — all OPEN**. The owner's rejection of operating without a watchdog
+(ESC-10) is applied: the proposal's "capability absent ⇒ non-fatal" variant is
+**withdrawn**, and the alternative is keeping the N18 gate blocked and FAIL.
+Documentation only — **no binding, no register write, no production change, no
+policy decision, no NC or gate closed**; N18 remains FAIL and Lean remains PASS
+per the retained evidence, neither re-run.
+
+**Runner correction and integration proposal (2026-10-21):** NC-EXT-199 is
+**corrected and retested** — the N18 runner now writes into a fresh per-run
+directory, the verdict is taken only from that directory, a missing/unreadable/
+empty capture fails closed, the container status/exit code and the bounded-wait
+outcome are kept and reported, and a marker-absent run is distinguished as a
+target startup fatal exit or a timeout. The regression suite uses only genuine
+recorded runs (stale PASS copy + marker-less run → FAIL; invalid captures →
+FAIL; the recorded 2026-10-20 success → PASS; the recorded current-tree
+startup-fatal run → FAIL) and is mutation-verified; independent review
+FRICK-REVIEW-0423 confirmed it. The **actual N18 run on the current tree is
+still FAIL** — the target panics at start-up because the owner-approved
+arm-error propagation treats the unwired MPFS binding as fatal (NC-EXT-198).
+A **bounded integration proposal** (two options, recommendation, evidence,
+required owner decisions and explicit limits) is recorded in
+`docs/architecture/n18-watchdog-integration-proposal.md` (FRICK-ARCH-0023);
+**nothing was implemented**, no policy was decided, and the report-envelope,
+250 ms, refresh-window and margin questions stay open.
+
+**Renode/Lean phase (2026-10-21, owner-authorized Telegram 1397):** the
+project-pinned Lean toolchain was installed into a dedicated cache and the
+prescribed Lean check now **PASSES** on the current tree. The digest-pinned
+Renode image was downloaded and its digest verified against the prescribed pin,
+the current-tree Renode ELF was rebuilt, and the N18 functional validation
+**FAILS**: the target panics at start-up because the owner-approved arm-error
+propagation treats the unwired MPFS binding as a fatal arm failure, so the
+`RENODE_TEST: PASS` marker is absent from this run's process log and UART
+console. That is recorded as **FAIL** (not PASS, not SKIP) and registered as
+**NC-EXT-198** for owner decision; the runner's own PASS verdict was a false
+PASS from a stale log, registered as **NC-EXT-199**. No watchdog policy,
+cadence, binding or requirement wording was changed.
+
+**NC-EXT-197 correction phase (2026-10-21, owner-authorized):** the UART
+drain-stop flag is now protected by a POSIX `pthread_mutex_t` in the same stack
+object — the project requires C99 (`CMAKE_C_STANDARD 99`, required), so C11
+atomics are not used — with the mutex initialized before `pthread_create` and
+destroyed after `pthread_join`. The stack-object lifetime, the bounded drain
+shutdown and the forced send-failure semantics are unchanged, and no production
+source, coverage, expected result or sanitizer setting was touched (the UART
+check count went 72 → 74, two assertions added). The **identical** forced-failure
+ThreadSanitizer reproducer now reports **zero** races (before: 1), and the
+before/after pair, the exact pre-fix source (`sha256 b6227e69…`, retained
+verbatim as `docs/vv/evidence/2026-10-21-s8-fdir-uart-drain-stop-prefix.c`) and
+the post-fix source (`sha256 e5c85c4a…`) are recorded in
+`docs/vv/evidence/2026-10-21-s8-fdir-gate-verification.log` and in the refreshed
+31-entry source manifest. Independent review **FRICK-REVIEW-0422** confirms the
+race is resolved and that no new defect was introduced; its four residual Low
+items are registered for owner triage. **NC-EXT-197 stays OPEN** pending the
+owner's disposition; no gate approval is claimed.
+
+**Gate-verification phase (2026-10-21):** the canonical gates were reconciled
+against the approved sequence and executed with the existing pinned tools and
+isolated output directories; the compact per-gate result is recorded in
+`docs/vv/evidence/2026-10-21-s8-fdir-gate-verification.log` and in
+`docs/status/loop-audit.md`. The previously recorded `make build` / `make smoke`
+blocker no longer exists: the pinned third-party checkouts are clean at their
+pinned commits and the `frick-asn1scc:local` image is cached, so `make build`
+and `make smoke` now pass. The drain thread's stop flag was shown by
+ThreadSanitizer to be a genuine C11 data race (`volatile` is not a
+synchronization primitive); it is registered **OPEN/deferred** as NC-EXT-197 and
+the earlier "the drain thread cannot hang" wording is superseded.
+
+**Resume point:** the in-scope functional and record defects that the
+independent reviews found in this increment are corrected (the flight-target
+link defect among them) and the results are re-verified; what remains is
+outside the increment's authority. Complete the authorized input for items 1-3
+above, then re-run the applicable cycle (Lean with a toolchain, N18 on a
+freshly linked ELF, smoke after the third-party checkout is clean, target/HIL)
+and re-review the delta. Until then: no NC closure, no gate pass, no
+commit/push (N7), and no target WCET, hardware-protection or flight-readiness
+claim. The MPFS hardware watchdog binding stays unwired and the 8 s timeout
+stays an arbitrary placeholder.
+
 
 ## 0. How to resume in a new session
 
@@ -96,6 +513,118 @@ edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake o
 occasion; prefer Docker.
 
 ## 4. Current state (engineering baseline `318f49b`; status-only follow-ups committed)
+
+- **Working-tree increment `S8-FDIR-01` (uncommitted, 2026-10-20):** the first
+  **real code change since `318f49b`** — panic/reset-recovery. It addresses the
+  outstanding `NC-EXT-98`/`F-0379-03` reset-path work flagged in the previous
+  cycle by adding the PAL panic seam. Contents: the PAL hardware-watchdog
+  abstraction (`src/core/pal/pal_watchdog.c` + `pal.h` contract; simulated host
+  backend in `pal_posix.c`; **deliberately unwired** RTEMS binding in
+  `pal_rtems.c` → NC-PAL-01); the reworked `FF_PalPanic` (log → lock-free PUS S5
+  pre-reset report → single `FF_PalWatchdogReset` path → test seam → `abort()`);
+  the dedicated lowest-priority feeder app `src/apps/app_wd.c`; the now-live
+  `watchdog_timeout_s` (30 s → 8 s, owner-authorised, fed every 2 s); new event
+  `FF_EVS_PANIC_RESET` (`0x0104`); SRS-REQ-073/074/075 + Lean
+  `Frick/Watchdog.lean` (6 theorems); `test_pal_watchdog.c` (298 executed checks) + 5
+  reset-path cases in `test_es_hs_lifecycle.c` (109 executed checks); ADR-0021. Gates:
+  build/test **44/44**, smoke (7 apps), Lean, trace all PASS. **Not sprint
+   complete and not safety-approved:** the MPFS hardware binding is unwired
+   (NC-PAL-01); the pinned Renode BeagleV-Fire platform imports the PolarFire SoC
+   description and instantiates five generic MPFS watchdog models, but this is
+   not evidence of RTPFS160ZT fidelity, RTEMS binding, timing or reset behavior
+   (GAP-A5 / TS-5 `N22-TS5-82`); the new
+  ground-visible event id is not yet in the ICD event catalogue (NC-EXT-102).
+  **Independent reviews (2026-10-21):** R2 V&V `FRICK-REVIEW-0405` and its
+  bounded N12 re-review `FRICK-REVIEW-0407` are retained in `docs/reviews/`; the
+  R4 documentation review is `FRICK-REVIEW-0408`. R2's Blocker was a **real
+  defect** — `Frick/Watchdog.lean` was not in the build graph and did not
+  compile, so the six SRS-REQ-073/074/075 theorems had never been elaborated;
+  it is corrected (`Frick/Requirements.lean` imports the module; two theorems
+  re-expressed with core Lean 4.10 `List` operations) and registered as
+  NC-EXT-120. The review findings are NC-EXT-120..183 and remain **OPEN**; the
+  R3 (requirements/system) and PA (N20) report legs are **not yet retained**
+  (NC-EXT-141), so they are recorded as pending, not satisfied. The N17 R4
+  documentation review `FRICK-REVIEW-0386` (2026-10-20) is **REJECTED**
+  (1 Major, 4 Minor, 4 Comments); findings are registered as NC-EXT-103..111.
+  The Major traceability-mirror correction is in the working tree and `make trace`
+   passes, but R4 delta re-review is pending; other findings remain open. Nothing
+   is committed until the full
+   sprint scope and all applicable gates close (N7).
+   **Later host-gate reconciliation (2026-10-20):** the ordered host sweep is
+   2 PASS / 5 FAIL; `make trace` and GSW/license pass, while smoke/metrics stop on
+   Git ownership, host Lean/format tools are absent, and host Doxygen cleanup is
+   denied. The separate pinned T24 clang-format dry-run passes in `frick-vv:local`.
+   Evidence and open/deferred environmental NC-EXT-112 are recorded in sprint-plan
+   rev 1.77 and verification-results rev 2.96; NC-EXT-35 carries the Lean image
+    observation. N15 remains incomplete; no gate or NC is closed.
+   **R4 delta review record:** `FRICK-REVIEW-0387` found four Minor evidence/status
+   findings. They are tracked under existing NC-EXT-28/35/112 and new NC-EXT-113;
+   all remain OPEN/deferred. The review report is
+   `docs/reviews/2026-10-20-s8-fdir-host-gates-r4-delta-0387.md`. The report does
+    not correct the §5 resume wording, close NCs/gates, or grant approval; at
+    that review point N15 and the independent R2/R3/PA, Renode N18, target and HIL
+    gates remained open. The current N18 follow-up below records the later bounded
+    Renode PASS.
+    **N18 status for this tree (2026-10-21):** the 2026-10-20 cross-build and
+   Renode PASS describe the 2026-10-20 tree state; after the 2026-10-21
+   corrections to `src/apps/app_wd.c` and `tests/unit/test_pal_watchdog.c` they
+   have **not** been re-run, so N18 is **pending for the current tree**
+   (NC-EXT-165) and no PASS is claimed for it.
+   **N18 follow-up (2026-10-20 — SUPERSEDED for the current tree by NC-EXT-165):** the existing local RTEMS 6.2 toolchain image
+    was used for a fresh cross-build in a new temporary build tree; `make renode`
+    returned PASS on the newly linked ELF, with source/artifact identities and
+    full logs retained in `docs/vv/evidence/2026-10-20-n18-*`. This is emulator
+    evidence only. NC-TS-01 remains OPEN because `renode_vv.sh` still gates on ELF
+    existence rather than freshness; NC-EXT-40 provenance limits, N15, independent
+     reviews, hardware watchdog and target/HIL gates remain open. See verification
+        results rev 3.00 and loop-audit rev 10.29. Independent R2 review
+      FRICK-REVIEW-0390 is APPROVED WITH COMMENTS (two Minor findings): the
+      console and process UART captures disagree (NC-EXT-115 OPEN), and the SB
+      receive-success check lacks expected-message-field comparison (mapped to
+      existing NC-EXT-47, OPEN). The process log contains the WD-enabled startup
+      and PASS marker; the inconsistent console capture is not attributed to the
+      same run. N18 prescribed execution remains PASS, but gate acceptance remains
+      open pending applicable review and evidence disposition. No repeat run was
+      made. The N18 R2 report is indexed in `docs/reviews/README.md`.
+      The bounded R4/PA review of the resulting documentation delta (FRICK-REVIEW-
+      0391/0392) found two Minor currentness issues in the sprint plan: the NC-TS-01
+      result pointer was stale and the sequence note ended at 113. Corrections are
+      recorded in sprint-plan rev 1.83; NC-EXT-116/117 remain OPEN pending bounded
+       R4/PA confirmation. R4 delta re-review FRICK-REVIEW-0393 confirmed both
+       fixes but found NC-EXT-116/117 dispositions still instructing the owner to
+       make already-applied corrections. The wording is corrected in sprint-plan
+       rev 1.84 and tracked as NC-EXT-118 OPEN pending bounded R4/PA confirmation;
+        all three NCs remain OPEN. R4 FRICK-REVIEW-0394 then identified stale
+        active N18 pointers in the sprint-plan S8-FDIR-01 row and this handover
+         (§4/§5); at that point they pointed to verification-results rev 3.00
+         and loop-audit rev 10.22 in sprint-plan rev 1.85 / handover rev 3.27.
+         Later R4/PA reviews corrected the current handover pointers to
+         verification-results rev 3.00 and loop-audit rev 10.27 in handover rev
+         3.31. PA FRICK-REVIEW-0402 identified the earlier attribution as
+         inaccurate; this historical record now distinguishes the point-in-time
+         references from the later correction (NC-EXT-119 OPEN).
+         These current-pointer issues are mapped to
+         NC-EXT-116 OPEN pending bounded R4/PA confirmation. R4 FRICK-REVIEW-0395
+         then found the §5 current N18 pointer still at rev 2.99; it now points to
+         rev 3.00 in this rev 3.28. All current-pointer observations map to
+        NC-EXT-116 OPEN pending bounded R4/PA confirmation. R4/PA reviews
+        FRICK-REVIEW-0396/0397 then found the NC-EXT-116 disposition still
+        referenced handover rev 3.27; it now correctly references rev 3.28 in
+         sprint-plan rev 1.87. Bounded R4/PA reviews FRICK-REVIEW-0398/0399
+         confirmed that correction. NC-EXT-116 remains OPEN pending authorized
+          NC-owner disposition. R4/PA FRICK-REVIEW-0400/0401 identified the
+           stale audit and verification-results pointers in this current-status
+           section and §5; the active pointers now use audit rev 10.29 and results
+           rev 3.00. PA FRICK-REVIEW-0402 found a separate historical-attribution
+           discrepancy, corrected above and registered as NC-EXT-119 OPEN pending
+           bounded R4/PA confirmation. FRICK-REVIEW-0403/0404 confirmed the
+           bounded NC-EXT-119 history correction; NC-EXT-119 remains OPEN pending
+           authorized NC-owner disposition. The documentation
+         review cycle is not complete.
+     PA review also identified an unsupported on-target PCIe enumeration/DMA claim
+     in `docs/vv/renode-environment.md` §5 that conflicts with the current absence
+     of physical RTPFS160ZT evidence. It is tracked OPEN as NC-EXT-114; no target
+     evidence is inferred and it is unrelated to the bounded N18 PASS.
 
 - **Engineering baseline:** the latest **engineering** baseline is `318f49b`
   (2026-10-19 easy-fixes batch), on this chain: `b8c3aee` → `1fdbb83` (S8 reconciliation batch:
@@ -238,9 +767,12 @@ occasion; prefer Docker.
 - **M10 done (emulated-target verification, OBJ-18):** Renode real run PASS plus a
   **QEMU run** of the generic `riscv/rv64imafdc` RTEMS image
   (`make qemu-image` + `make qemu`; tool T20 `tools/scripts/qemu_vv.sh`; console
-  `build/rtems-generic/qemu-console.log`) — banner + 6 applications registered on
-  `qemu-system-riscv64 -M virt`. The toolchain image (`tools/docker/rtems`, T18)
-  now also builds the `rv64imafdc` BSP and carries QEMU.
+  `build/rtems-generic/qemu-console.log`) — banner + applications registered on
+  `qemu-system-riscv64 -M virt` (recorded then as 6; **now expected to be 7** after
+  the S8-FDIR-01 WD feeder app, so the historical 6-app QEMU/Renode logs are stale
+  and must be rebuilt before the count claim is re-made — NC-TS-01). The toolchain
+  image (`tools/docker/rtems`, T18) now also builds the `rv64imafdc` BSP and carries
+  QEMU.
 - **PUS backend decision:** ADR-0019 records the owner clarification that
   `FF_USE_PUS_ASN1=ON` is the default. ADR-0018 remains applicable to lwIP only.
   Current N7 integration uses generated common type-width definitions and the
@@ -351,10 +883,9 @@ occasion; prefer Docker.
 
 ## 5. Historical next-step ledger and current resume actions
 
-> Items 1–14 below preserve prior handover decisions and snapshots; items 1–12
-> are superseded historical records, not current instructions. For present
-> priorities, use item 15 and the live state in §4 plus
-> `docs/planning/sprint-plan.md`.
+> Items 1–15 below preserve prior handover decisions and snapshots; they are
+> historical, not current instructions. For present priorities, use item 16 and
+> the live state in §4 plus `docs/planning/sprint-plan.md`.
 
 1. The current S4c/S4d/defaults code is committed and pushed; GitHub CI is green
    for `13ebf92`. Gitea Actions status remains unverified, and no release,
@@ -472,7 +1003,7 @@ occasion; prefer Docker.
      independent review/disposition. No commit/push is eligible
      until the sprint scope, applicable gates and batch R4+PA+V&V review pass.
 
-15. **Current resume actions (2026-10-17):**
+15. **Historical resume actions (2026-10-17; superseded by item 16):**
      - Preserve verified local-cycle evidence. R4 0357–0369 covered earlier
        deltas and do not establish aggregate N17 or phase approval. The four
        reconciliation reviews 0370 (R2 V&V delta), 0371 (R3 requirement
@@ -510,6 +1041,49 @@ occasion; prefer Docker.
        supersedes the stale 49/19-file inventories (verification-results 2.90,
        loop-audit 10.7, sprint-plan 1.69). Renode/RTEMS/QEMU legs must be
        re-recorded for this tree before any claim cites them.
+
+16. **Current resume actions (2026-10-20):**
+    - The repository is on `main` at HEAD `44d2af2`, a status-only follow-up
+      over engineering baseline `318f49b`. The working tree contains the
+      uncommitted S8-FDIR-01 increment; preserve attribution and do not commit
+      or push until N7 gates and the full sprint scope pass.
+    - Reconcile the independent R4 documentation review
+      `FRICK-REVIEW-0386` (N17): it was performed on 2026-10-20 and **REJECTED**
+      with 1 Major, 4 Minor and 4 Comments. F-0386-01 identifies the stale
+      human-readable `docs/requirements/traceability.md` mirror for
+      SRS-REQ-073/074/075. This Major correction is now present in the working
+      tree (`traceability.md` rev 0.51; `make trace` PASS), but NC-EXT-103 stays
+      OPEN until R4 delta re-review under N12. Bounded corrections for
+      NC-EXT-104..107 and NC-EXT-110 are now in the working tree; delta review
+      remains pending. NC-EXT-108/109/111 remain open for clarity or authority
+      disposition. Do not infer approval from the review's confirmed claims or
+      earlier cycle.
+    - R2, R3 and PA independent reviews for S8-FDIR-01 remain pending.
+      Requirements-authority questions and the ICD event catalogue are not to be
+      guessed or unilaterally resolved.
+    - **Historical N18 state at the host-gate sweep:** true **SKIP/gap** because
+      no current RTEMS toolchain image was available then; the stale ELF had been
+      removed after producing a misleading PASS (NC-TS-01). **Current follow-up:**
+      a fresh RTEMS cross-build and prescribed `make renode` PASS are recorded in
+       verification-results rev 3.00. This is emulator evidence only; the RTEMS
+      watchdog binding is deliberately unwired (NC-PAL-01), and target/HIL
+      evidence and authorized-human sign-off remain open.
+     - **Current host-gate reconciliation:** the ordered host run is **2 PASS / 5
+       FAIL**, not a green local cycle. `make trace` and `make gsw-selfcheck` passed;
+       `make smoke`, `make verify-lean`, `make format-check`, `make metrics` and
+       `make docs` failed for the recorded environment/tooling reasons. In
+       particular, a generated metrics panel or successful metrics/status check
+       must not be read as a passing `make metrics` gate. The separate T24
+       container format dry-run passed, but its run identity remains qualified
+       under OPEN NC-EXT-113. Exact results and retained evidence are in
+       `docs/vv/verification-results.md` §S8-FDIR-01 (rev 3.00) and
+       `docs/vv/evidence/2026-10-20-s8-fdir-host-gates.log`. R4 review
+       `FRICK-REVIEW-0387` recorded four Minor findings; NC-EXT-28/35/112/113
+       remain OPEN/deferred. N15 remains incomplete. The earlier 43/44 CTest and
+       manual sweep results are historical and do not replace this later host run.
+       The later bounded N18 emulator run passed as recorded in §4 and verification
+       results rev 3.00; it does not close target/HIL or watchdog evidence. R2/R3/PA,
+       target/HIL and NC-EXT-108/109/111 authority dispositions remain open.
 
 ### Historical 2026-10-14 status narrative (superseded for current actions by §4/§5)
 
@@ -953,3 +1527,47 @@ occasion; prefer Docker.
 | 3.08 | 2026-10-19 | frick-fsw | Post-commit baseline refresh: repoint §4 from the pre-commit `e7e48ee` baseline to the pushed `318f49b` (easy-fixes batch committed and pushed to `origin` and `gitea`), identify the batch commit explicitly, and record hosted GitHub CI run `39218060325` (all eight jobs green for `318f49b`); no NC closed and no gate, phase or release approval implied |
 | 3.09 | 2026-10-19 | frick-fsw | Declare the engineering-baseline convention (status-only commits do not advance it), rename the §4 record to the engineering baseline `318f49b` with `b6e1f61` as a status-only follow-up, and record hosted CI run `39219583424` (all eight jobs green for `b6e1f61`) alongside run `39218060325`; no NC closed and no gate, phase or release approval implied |
 | 3.10 | 2026-10-19 | frick-fsw | Post-publication review integration (N12): the deferred batch-scoped N17/N20/N12 reviews were performed at HEAD 7e93325 (FRICK-REVIEW-0381 R4, 0382 R2/R3, 0383 PA; all APPROVED WITH COMMENTS, 0 Major); the bounded corrections were applied and each is marked delta-re-review pending (ASan duration, uncommitted label, TS-6 3.1 lwIP/ASan bullet, TS-5 oracle caveat, VP 9 S7/S8 rationale, manifest binding-commit, reviews/README status dated historical); NC-EXT-94 extended with the README-vs-ICD divergence and NC-EXT-99 updated to record the three performed legs; NC-EXT-100/101 registered. No NC closed and no gate, phase, qualification or release approval implied |
+| 3.11 | 2026-10-20 | frick-fsw | Record the S8-FDIR-01 working-tree increment (panic/reset-recovery) as the current resume point: it addresses the outstanding NC-EXT-98/F-0379-03 reset-path work by adding the PAL panic seam and hardware-watchdog abstraction, the pre-reset PUS S5 report and the single reset path; registers NC-PAL-01 (unwired MPFS binding) and NC-EXT-102 (event-id catalogue); notes 7 reference apps (WD feeder) and the open gates/reviews. No NC closed and no gate, phase, qualification or release approval implied |
+| 3.12 | 2026-10-20 | frick-fsw | Reconcile §5 with the live S8-FDIR-01 state: supersede the 2026-10-17 current-resume instructions, record HEAD `44d2af2`/engineering baseline `318f49b`, the R4 N17 review `FRICK-REVIEW-0386` REJECTED (1 Major, 4 Minor, 4 Comments), its still-open findings and the pending R2/R3/PA and N18/target gates; no finding or NC is closed and no approval inferred |
+| 3.13 | 2026-10-20 | frick-fsw | Process the review-0386 state update: register findings as NC-EXT-103..111 in sprint-plan rev 1.75; correct the Major human traceability mirror (rev 0.51; `make trace` PASS), index FRICK-REVIEW-0386 in the review log, and record R4 delta re-review, R2/R3/PA, N18 and target/HIL as still open. No finding/NC closed and no approval inferred |
+| 3.14 | 2026-10-20 | frick-fsw | Record bounded corrections for NC-EXT-104..107 and NC-EXT-110 across requirement/software-description histories, application-count docs and status.json; delta re-review and full local cycle remain pending, no NC closed or approval inferred |
+| 3.15 | 2026-10-20 | frick-fsw | Record the actual partial N15 checks (trace/metrics/JSON/diff/GSW pass; 43/44 CTest plus a manual 9,984-profile sweep pass), the missing CTest Python path, Docker socket denial and restricted generated ASN.1 directory; controlled full-cycle rerun and all independent review/target gates remain open |
+| 3.16 | 2026-10-20 | frick-fsw | Record R4 delta-review result and correction of M1 v0.1.0 app-count claim in development-plan.md; bounded recheck pending; all NCs, N15 and approval gates remain open |
+| 3.17 | 2026-10-20 | frick-fsw | Record bounded recheck: historical M1 count correction confirmed, but exact flag spelling was corrected and stale CMake/app_renode_test comments still claim six current default apps; source-comment reconciliation must wait until OpenCode is paused; other gates remain open |
+| 3.18 | 2026-10-20 | frick-fsw | Record source-comment-only correction after owner confirmed OpenCode idle: current seven default apps and optional FF_ENABLE_RENODE_TEST registration; diff check clean, no behavior or approvals changed |
+| 3.19 | 2026-10-20 | frick-fsw | Refresh the S8-FDIR-01 resume point from the ordered host-gates log and T24 container dry-run; record NC-EXT-112 and the new NC-EXT-35 Lean-image evidence, with N15/reviews/target gates still open and no NC or gate closure |
+| 3.20 | 2026-10-20 | frick-fsw | Index bounded independent R4 review FRICK-REVIEW-0387 and its four OPEN/deferred Minor findings under NC-EXT-28/35/112/113; do not apply the reviewed corrections or imply closure/approval |
+| 3.21 | 2026-10-20 | frick-fsw | Record fresh current-tree RTEMS cross-build and prescribed N18 Renode PASS with evidence links; keep NC-TS-01, tool-provenance, N15, independent review, hardware and target/HIL gates OPEN |
+| 3.22 | 2026-10-20 | frick-fsw | Correct the §5 resume summary per bounded R4 finding F-0387-01: reconcile the later ordered host run (2 PASS/5 FAIL), distinguish `make metrics` FAIL from metrics-panel/status checks, qualify the separate T24 PASS under open NC-EXT-113, and retain open N15/review/target gates; no NC or gate closed and no approval inferred |
+| 3.23 | 2026-10-20 | frick-fsw | Record bounded N18 PASS and PA-identified unsupported PCIe target claim as NC-EXT-114 OPEN; retain emulator/physical-target boundary and all open approval gates |
+| 3.24 | 2026-10-20 | frick-fsw | Triage independent R2 FRICK-REVIEW-0390: record NC-EXT-115 OPEN for inconsistent N18 UART captures, map SB oracle limitation to existing NC-EXT-47, update verification-results pointer to rev 3.00 and loop-audit to rev 10.20; keep N18 acceptance and all NC/release/target gates open |
+| 3.25 | 2026-10-20 | frick-fsw | Record bounded R4/PA reviews FRICK-REVIEW-0391/0392 and their Minor currentness findings NC-EXT-116/117; note corrections in sprint-plan rev 1.83 with delta confirmation pending, and keep N18 acceptance and N15 gates open |
+| 3.26 | 2026-10-20 | frick-fsw | Record R4 delta re-review FRICK-REVIEW-0393: confirm NC-EXT-116/117 currentness fixes, register NC-EXT-118 OPEN for stale correction instructions, and update sprint-plan pointer to rev 1.84; NCs, N18 acceptance and N15 remain open |
+| 3.27 | 2026-10-20 | frick-fsw | Record R4 FRICK-REVIEW-0394 stale-pointer finding mapped to NC-EXT-116 OPEN; correct current N18 pointers to verification-results rev 3.00 and loop-audit rev 10.22 in handover and sprint-plan rev 1.85, with bounded R4/PA confirmation pending |
+| 3.28 | 2026-10-20 | frick-fsw | Record R4 FRICK-REVIEW-0395 partial confirmation and correction of remaining §5 N18 pointer to verification-results rev 3.00; NC-EXT-116 remains OPEN pending bounded R4/PA confirmation |
+| 3.29 | 2026-10-20 | frick-fsw | Triage R4/PA FRICK-REVIEW-0396/0397 and correct NC-EXT-116's handover revision reference to rev 3.28 in sprint-plan rev 1.87; NC-EXT-116 and N18/N15 gates remain open |
+| 3.30 | 2026-10-20 | frick-fsw | Record bounded R4/PA confirmations FRICK-REVIEW-0398/0399 of NC-EXT-116's revision-reference correction; NC-EXT-116 remains OPEN pending authorized NC-owner disposition, with all gates open |
+| 3.31 | 2026-10-20 | frick-fsw | Triage R4/PA FRICK-REVIEW-0400/0401 stale N18 pointers; update handover references to verification-results rev 3.00 and loop-audit rev 10.27, keeping NC-EXT-116 and all gates open pending confirmation |
+| 3.32 | 2026-10-20 | frick-fsw | Record PA FRICK-REVIEW-0402 chronology finding as NC-EXT-119 OPEN; restore point-in-time loop-audit rev 10.22 for the rev 1.85/rev 3.27 state and distinguish the later current pointer rev 10.27; keep N18/N15 and all other gates open |
+| 3.33 | 2026-10-20 | frick-fsw | Update current loop-audit pointer to rev 10.28 following audit refresh; record NC-EXT-119 pending R4/PA confirmation and retain N18/N15/open-gate boundaries |
+| 3.34 | 2026-10-20 | frick-fsw | Record bounded R4/PA confirmations FRICK-REVIEW-0403/0404 of NC-EXT-119 history correction; retain NC-EXT-119 OPEN pending authorized owner disposition and all gates open |
+| 3.35 | 2026-10-20 | frick-fsw | Refresh the active handover loop-audit pointer to rev 10.29; retain historical 10.22/10.27 references as point-in-time records and keep all NC/gate statuses open |
+| 3.36 | 2026-10-21 | frick-fsw | Record the 2026-10-21 independent-review cycle for S8-FDIR-01: R2 `FRICK-REVIEW-0405` and re-review `0407`, R4 `FRICK-REVIEW-0408`, review findings NC-EXT-120..183 all OPEN, the R3/PA report publication gap (NC-EXT-141), the corrected Lean module (NC-EXT-120), the executed check counts with their basis, and N18 as **pending for the current tree** (NC-EXT-165); nothing committed, all gates open |
+| 3.37 | 2026-10-21 | frick-fsw | Record owner-directed PAL/UART/deadline delta, fresh R1/R2/R3/R4 draft reviews 0409–0412, explicitly pending PA/N20 review, corrected Renode model inventory and public vendor-reference audit lead, exact verification outcomes and unresolved reporter/text/formatting and watchdog cadence/configuration blockers; no gate or NC closure |
+| 3.38 | 2026-10-21 | frick-fsw | Final handover for this bounded increment: report review and test outcomes, external requirement/refresh-window blockers, uncommitted state and pending PA/N20/N18/Lean/smoke gates; no commit, NC closure, safety approval or release authorization |
+| 3.39 | 2026-10-21 | frick-fsw | Post-review remediation handover for the same owner-approved increment: changed-file list, host build/test results and source identity (full CTest 44/44; targeted 320/157/68/113; trace and pinned format PASS), the retained R1 0414 / R2 0415 / N20 PA 0413 (not approved) outcomes, the four precise external blockers and two-to-three policy options with a recommendation for each. Loopback deadline-aware writer defect corrected; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.40 | 2026-10-21 | frick-fsw | Final remediation handover for the same increment: the flight-target link defect found by PA FRICK-REVIEW-0418 (the increment's `poll()` usage, unsupported by RTEMS 6.2) corrected and re-verified by a fresh RTEMS 6.2 cross-build; the in-scope oracle and record corrections applied; the retained reviews 0416/0417/0418 and the NC register entries NC-EXT-184..190 added; host CTest 44/44 with targeted 320/172/68/113, trace and pinned format PASS, and the source-identity manifest extended to every changed file. The authority set remains open; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.41 | 2026-10-21 | frick-fsw | Correction-round handover: the record-currency findings of FRICK-REVIEW-0419/0420 are applied (executed counts, Blocker attribution, TS-5 rev 1.12 with the strengthened exactly-one oracle, ADR-0021 rev 1.2, NC register NC-EXT-191/192, the 31-entry source manifest including the changed V&V scripts, and the cross-build transcript with the exact invocation and symbol checks). Host CTest 44/44 with targeted 320/180/71/113 and the RTEMS 6.2 cross-build linking cleanly. The authority set remains open; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.42 | 2026-10-21 | frick-fsw | Handover acceptance verification: review chronology reconciled against the file timestamps, the post-0419/0420 corrections independently reviewed by a fresh narrow N20 review (FRICK-REVIEW-0421) and confirmed, the duplicate-emission mutation re-executed and retained as evidence, the exact RTEMS symbol-check expressions and the container invocation recorded, and the 0421 Major/Minor record findings corrected and registered as NC-EXT-193..196. Host CTest 44/44 with targeted 320/180/72/113, trace PASS, pinned format PASS, RTEMS link clean, manifest 31/31. The authority set remains open; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.43 | 2026-10-21 | frick-fsw | Gate-verification phase: the canonical `make build` and `make smoke` gates executed and PASS with the existing pinned tools and an isolated build directory (the earlier third-party blocker no longer exists), the current-tree Renode ELF rebuilt for the N18 prerequisite, the Lean evidence re-verified source-identical and labelled this-cycle NOT RUN, and the UART drain-stop flag shown by ThreadSanitizer to be a C11 data race (registered OPEN/deferred as NC-EXT-197). N18 remains NOT RUN: the digest-pinned Renode image is absent from the local store and the prescribed runner would pull it. No commit, NC closure, gate pass, safety approval or release authorization |
+| 3.44 | 2026-10-21 | frick-fsw | NC-EXT-197 correction phase: the UART drain-stop flag is now protected by a POSIX pthread mutex (the project requires C99, so C11 atomics are not used) with the mutex initialized before `pthread_create` and destroyed after `pthread_join`; the identical forced-failure ThreadSanitizer reproducer now reports zero races (before: 1), the exact pre-fix source is retained verbatim (sha256 `b6227e69…`) beside the post-fix source (`e5c85c4a…`), and independent review FRICK-REVIEW-0422 confirms the fix with no production, coverage, expected-result or sanitizer change. NC-EXT-197 remains OPEN for owner disposition; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.45 | 2026-10-21 | frick-fsw | Renode/Lean phase after the owner authorization (Telegram 1397): the project-pinned Lean toolchain (`leanprover/lean4:v4.10.0`, Lean 4.10.0 commit c375e19f6b65) was installed into the dedicated cache `~/.cache/frick-fsw/elan` and the prescribed `lake build` now **PASSES** on the current tree; the digest-pinned Renode image was downloaded and digest-verified, the current-tree Renode ELF was rebuilt (sha256 `23a4c8da…`), and the N18 functional validation **FAILS** — the target panics at start-up (`watchdog: init failed`, RTEMS fatal exit 5) because the owner-approved arm-error propagation treats the unwired MPFS binding as fatal, so the `RENODE_TEST: PASS` marker is absent from this run's process log and UART console. The runner's own PASS verdict was a false PASS from a stale 2026-10-20 log (its `/tmp` log paths are not writable here). Registered as NC-EXT-198 (owner decision) and NC-EXT-199 (runner evidence integrity). No policy, cadence, binding or requirement change; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.46 | 2026-10-21 | frick-fsw | NC-EXT-199 corrected and retested: the N18 runner uses a fresh per-run log directory and a fail-closed verdict unit (missing/unreadable/empty capture and failed directory/container/capture steps → FAIL), keeps the container status/exit code and the bounded-wait outcome visible, and distinguishes a target startup fatal exit from a timeout; the regression suite uses only genuine recorded runs, is registered with CTest and is mutation-verified (17 checks, 0 failures), and independent review FRICK-REVIEW-0423 confirmed the correction and its negative controls. The actual N18 run on the current tree remains **FAIL** (the target panics at start-up — NC-EXT-198), and the bounded integration proposal with two options is recorded in `docs/architecture/n18-watchdog-integration-proposal.md`. NC-EXT-198/199 remain OPEN; no commit, NC closure, gate pass, safety approval or release authorization |
+| 3.47 | 2026-10-22 | frick-fsw | Watchdog specification phase (owner path A, ESC-9/ESC-10): FRICK-ARCH-0024 rev 1.1 produced with the reference inventory, the retained BSP inventory transcript, the verified facts/recommendations/missing-inputs separation, the corrected emulator and host test sets, the target/HIL legs including the NC-PAL-01 closure conditions, and the owner decision table D-01..D-15 (all OPEN); independently reviewed by FRICK-REVIEW-0424 (embedded safety) and FRICK-REVIEW-0425 (V&V) with their findings applied; the proposal's non-fatal variant withdrawn per the owner's rejection. Documentation only: no binding, register write, production change, policy decision, NC closure, gate pass, commit or push |
+| 3.48 | 2026-10-22 | frick-fsw | Final-delta acceptance correction: the retained pinned-image model probe was re-attributed (0x08 = STATUS, 0x04 = CONTROL, `TIME` 0x0c unprobed — the TIME-width claim withdrawn, the key-sensitivity claim downgraded to "not established by the retained probe"), the case-placement reasons were made probe-accurate, the 250 ms restatement was re-attached to the report-path duration (new §5.4 item RP-1), the read-back ordering / `MSVP` wording / bound value / independence wording / current-vs-history wording were reconciled with the cited sources, the owner agenda was consolidated to A, B1/B2, C, D, E, F, and the §10 finding→correction itemisation was reinstated. Independent final-delta reviews FRICK-REVIEW-0426 (embedded safety) and 0427 (V&V) retained and indexed; the documentation identity manifest regenerated after the text freeze; the 34-entry code manifest verified, not re-derived. No implementation, register write, production change, policy decision, NC closure, gate approval, commit or push |
+| 3.49 | 2026-10-22 | frick-fsw | Acceptance round 2: the NC-1 negative-control oracle was corrected to detect on the positive case HS-P2 (healthy control stated), HS-P5 was defined against the mock model's ordered write observer, and the §5.4 heading, the evidence index's proposal revision and a dangling §7.5 pointer were corrected. Official Microchip documents were retrieved from the issuer's public download path (MSS TRM rev S, Power-Up/Resets UG rev M, data sheet rev E, RT product overview rev C, the RTPFS160ZT-applicable errata rev A, AN4903) with URLs, HTTP status and SHA-256 retained; the new facts F-18..F-24 supersede the rev 1.3 instance recommendation (only WDOG0/E51 can reset the MSS; a U54 watchdog only interrupts the E51), add the ≈10.47 s power-up default timeout, the debug-halt/WFI behaviour, the 26-bit load field, the MSS reset scope and the WDOG_RESET reason bit, and record the absence of a published watchdog erratum. R-1 withdrawn; agenda C/D/E/F reframed; G-A narrowed; HL-8/HL-9 added. No parameter adopted, no implementation, register write, production change, NC closure, gate approval, commit or push |
+| 3.50 | 2026-10-22 | frick-fsw | Acceptance round 2 corrections and the two **confirmation addenda** of rev 1.4 (FRICK-REVIEW-0428 embedded safety, FRICK-REVIEW-0429 V&V, both verifying the reviewed body identity by SHA-256 and retained/indexed): the corrupted §1 status bullet repaired; the review-coverage attribution corrected (rev 1.2 reviews and rev 1.4 confirmations distinguished); the companion proposal aligned to rev 1.5 (the superseded instance selection withdrawn — only `WDOG0`/E51 can reset the MSS); the host mock's key-checked reload semantics and observables declared as a precondition of the host suite; the HS-P5 oracle relaxed to a relative-order requirement with its stimulus's delivery mechanism stated; the §5.1 emulator row split (sequence vs order) and the three host cells without a host case marked; `RESET_SR`/`DEVRST_N` added to the retained retrieval record; the §5.4 leg↔quantity mapping added; the HS-P1/HS-P2 inputs pinned; the target-only heading scoped; the §2.3/F-21/F-24 wordings and the labelled inference's assumptions corrected; the editorial defects corrected (§2.4 order, history order, §9 duplicate row, stray table row, the stale manifest entry count). The documentation identity manifest is regenerated after the text freeze; the 34-entry code manifest is verified, not re-derived. New NC-EXT-205 records the three host cases still to be written. No parameter adopted, no implementation, register write, production change, NC closure, gate approval, commit or push |
+| 3.51 | 2026-10-22 | frick-fsw | Final **read-only acceptance checkpoint** of the frozen rev 1.5 bodies: the three frozen artefacts were verified by SHA-256 and confirmed by two short independent addenda (FRICK-REVIEW-0430 embedded safety, FRICK-REVIEW-0431 V&V), each scoped to the 1.4→1.5 delta and each stating that it does not extend the rev 1.4 addenda; no design defect was found. The arithmetic annotation slip in the retrieval log's labelled inference (16 777 200 = 0xFFFFF0, not 0xFFF3D8) and the structural/metadata observations are recorded as OPEN/deferred (NC-EXT-206; a wrong-key-class residual added to NC-EXT-205) and the **frozen bodies were not modified**. The checkpoint record is retained. No production, source, register, probe, build, model, configuration or mission change; no parameter, clock, timeout, instance or reset policy adopted; no NC or gate closed; no commit or push |\n
+| 3.52 | 2026-10-24 | frick-fsw | Add the S8-PUS-FU HK periodic-emission addendum (NC-EXT-17): bounded increment, reproduced-and-fixed `time_add_period` double-count defect, final candidate hashes, gate results with N18 still FAIL, five retained review reports, and the do-not-activate conditions (NC-EXT-207/208, ESC-HK-01/02/06) |
+| 3.53 | 2026-10-24 | frick-fsw | Add the NC-EXT-18 S6 refusal-cause addendum: reproduced defect, minimal resolution/range split, strengthened content oracle with mutation proof, final hashes, gate results with N18 still FAIL, and the authority-owned residuals (wire failure codes, TC[6,5] profile, authorization model) |
+| 3.54 | 2026-10-25 | frick-fsw | Add the NC-EXT-207 S3 periodic due-test wrap/TM-flood addendum: software-separable correction implemented (`time_period_due` signed-modular formulation), reproduced defect (10 failures), three new tests with exact oracles + mutation discrimination, all gates PASS (build/test/trace/Lean/format/GSW), N18 FAIL preserved, authority half (ESC-HK-06/03, NC-EXT-208) remains OPEN, no commit/push |

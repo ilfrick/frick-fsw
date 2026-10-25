@@ -1,0 +1,82 @@
+# frick-fsw - retained gate transcripts for the corrected S8-FDIR-01 tree (norm N11)
+# Generated: 2026-10-21T10:01:04Z  (UTC)
+# Tree: uncommitted working tree (HEAD 44d2af2); engineering baseline 318f49b; no commit (N7)
+# Configuration: native simulator host build (build/native), FF_USE_PUS_ASN1=ON;
+#                pinned clang-format 18 and Doxygen inside frick-vv:local
+#
+# NOTE: this file is produced as a single run so that every section, its exit code
+#       and the hash manifest below describe ONE tree state.
+
+########## 0. tree identity ##########
+--- git rev-parse HEAD ---
+44d2af224675cd65a66d2870eb0fc9553952799c
+--- git status --porcelain entry count ---
+88
+--- hash manifest over src/ config/ tests/ and the Lean sources (sha256 of a sorted sha256sum) ---
+254993326c9f4f7e4ed7fca45f6b485d97fe0406543e5f51a883505c39a89237  -
+
+########## 1. make build ##########
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif
+gmake[1]: uscita dalla directory «/home/nicola/fsw/frick-fsw/build/native»
+exit=0
+
+########## 2. make test ##########
+100% tests passed, 0 tests failed out of 44
+exit=0
+
+########## 3. per-suite executed check counts ##########
+exit=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=298 failures=0
+exit=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=109 failures=0
+
+########## 4. make trace ##########
+traceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)
+exit=0
+
+########## 5. pinned format-check (frick-vv:local, clang-format 18) ##########
+Ubuntu clang-format version 18.1.3 (1ubuntu1)
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+exit=0
+
+########## 6. make smoke ##########
+[smoke] building
+[smoke] booting simulator (8 s window)
+[smoke] PASS (banner + 7 applications registered)
+exit=0
+
+########## 7. make gsw-selfcheck ##########
+Ran 12 tests in 0.006s
+OK
+Ran 9 tests in 0.002s
+OK
+Ran 14 tests in 4.547s
+OK
+MPL-2.0 license identity and authored-file SPDX check: OK
+exit=0
+
+########## 8. make metrics (implies make coverage: gcov build + ctest + coverage.py) ##########
+100% tests passed, 0 tests failed out of 44
+exit=0
+--- coverage.json written by this run ---
+{
+  "lines_total": 29736,
+  "lines_covered": 13165,
+  "funcs_total": 2350,
+  "funcs_covered": 1499,
+  "source": "gcov (make coverage)"
+}--- sha256(coverage.json) ---
+6861cb6d637c4b8e49716092f8e1bba93f73b8e996920fb21247286257b9f331  build/coverage/coverage.json
+
+########## 9. make docs-container (Doxygen via frick-vv:local) ##########
+symbol lookup cache used 5901/65536 hits=11802 misses=5901
+finished...
+test -s build/doxygen/html/index.html || { echo "error: 'make docs' produced no build/doxygen/html/index.html (silent doxygen failure)"; exit 1; }
+exit=0
+-rw-r--r-- 1 nicola nicola 60085 Oct 21 12:03 build/doxygen/html/index.html
+
+########## 10. ASN.1 generated set used by this run ##########
+cf2fa9f405e66b555212b5bbd2b70ec78a2d1bd98996fe0bcf72e3e87172fb4c  -
+
+########## end (2026-10-21T10:04:05Z) ##########

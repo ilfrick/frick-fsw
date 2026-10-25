@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-SRS-001                          |
-| Revision                         | 1.37                                  |
-| Date                              | 2026-10-19                             |
+| Revision                         | 1.39                                  |
+| Date                              | 2026-10-21                             |
 | Applicable standards              | ECSS-E-ST-40C, ECSS-Q-ST-80C, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
 | Software criticality (target)     | ECSS Category B                        |
 | Non-derogable norms               | N1 (Lean), N2 (English), N3 (SRS/SSS traced), N4 (traceability convergence), N5 (class B + A gaps), N6 (V&V), N7 (dual push) |
@@ -419,6 +419,35 @@ review).
   queue, dispatch batch and task-delay values are candidates only.
   `method: Tst | Anl | Dem`.
 
+### Fault detection, isolation and recovery: reset path (sprint S8-FDIR-01)
+
+- **SRS-REQ-073** — *Watchdog arming and feeding*: after framework
+  initialisation the flight software shall arm an independent hardware watchdog
+  with a timeout taken from the mission configuration table
+  (`watchdog_timeout_s`) and shall feed it from a dedicated task at a period no
+  greater than one quarter of that timeout. A missing feed (hung scheduler,
+  dead task, stuck interrupt path) shall cause a hardware-generated reset that
+  is independent of the software it resets; the flight software shall not rely
+  on the monitored software to perform that reset. The initialisation order
+  shall be: complete framework initialisation and install the pre-reset
+  reporter, then arm the watchdog. `method: Tst | Anl`.
+- **SRS-REQ-074** — *Pre-reset event report*: before the reset is enforced the
+  flight software shall emit exactly one PUS-C service 5 event report carrying
+  the mission panic/reset event identifier with `CRITICAL` severity, through a
+  bounded, lock-free path that does not depend on the EVS, SB, PUS, queue or
+  time locks, without dynamic allocation, and shall complete the local report
+  generation and bounded console/UART write attempt (including formatting,
+  waiting for write completion or timeout, and all retries) within one absolute
+  monotonic deadline of 250 ms from panic entry. The report's mandatory S5
+  fields and text shall not be truncated. This is a local attempt bound, not a
+  remote-delivery guarantee. Failure or absence of that notification shall not
+  prevent the reset from being enforced. `method: Tst | Anl`.
+- **SRS-REQ-075** — *Single reset path*: an explicit software reset request and
+  a watchdog expiry shall use the same reset mechanism, and the reset shall be
+  requested at most once per occurrence. A reset command shall be rejected
+  without resets when the service 8 telecommand is truncated or names an
+  unregistered function. `method: Tst | Anl`.
+
 ### Extended transport and fieldbus (milestone M4-residual / M8)
 
 - **SRS-REQ-059** — *PUS-C link segmentation and reassembly*: the framework
@@ -567,3 +596,5 @@ traceability manifest (`derived: true`), per norm N4.
 | 1.35 | 2026-10-15 | frick-fsw  | Specify that the `de_assert_us` value on the RS-485 release call controls the post-drain hold; assert-call value is not cached |
 | 1.36 | 2026-10-16 | frick-fsw  | Restore owner-directed N7/ESA PUS default under ADR-0019; define explicit open-backend option and current adapter integration limits |
 | 1.37 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-15 while rev 1.36 was recorded on 2026-10-16). The internal `SRS-REQ-018` vs `SRS-REQ-050` backend-default contradiction was NOT edited and is registered as NC-EXT-97 for the requirements authority; no requirement semantics/IDs/links changed |
+| 1.38 | 2026-10-20 | frick-fsw | Add owner-authorized S8-FDIR-01 requirements SRS-REQ-073/074/075 for watchdog arm/feed, pre-reset report and single reset path; requirement semantics preserved, and hardware/target/timing limits remain explicit pending authority and verification |
+| 1.39 | 2026-10-21 | frick-fsw | Record owner-approved SRS-REQ-074 initial 250 ms single absolute-monotonic local report-attempt bound; no remote delivery guarantee or requirement weakening; validation and reviews remain pending |

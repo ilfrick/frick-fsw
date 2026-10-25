@@ -1,0 +1,5 @@
+COMMAND: docker run --rm -v "$PWD:/workspace" -w /workspace frick-vv:local bash -lc 'find src config tests -name "*.[ch]" -print0 | xargs -0 -n1 clang-format --dry-run --Werror'
+START: 2026-10-20T22:23:07+02:00
+RESULT: PASS
+EXIT_CODE: 0
+END: 2026-10-20T22:23:14+02:00

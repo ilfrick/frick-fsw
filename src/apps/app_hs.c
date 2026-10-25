@@ -23,7 +23,7 @@
 
 static void ff_hs_reset(void)
 {
-    /* Ground requested software reset -> jump to the reset handler. */
+    /* Ground requested software reset -> single watchdog reset path. */
     FF_PalPanic("HS: on-board software reset requested");
 }
 
@@ -34,6 +34,19 @@ static FF_Status_t ff_hs_fn_reset(const uint8_t *args, uint16_t len)
     (void)len;
     ff_hs_reset();
     return FF_SUCCESS; /* not reached */
+}
+
+/* Registration seam: keeps the flight registration identical and lets the host
+ * integration test drive the real service 8 function 1 (N22-TS5-50). */
+void FF_AppHsRegister(void)
+{
+    (void)FF_PusRegisterFunction(1u, ff_hs_fn_reset);
+}
+
+/* Reset-action seam used by the PUS service 8 function and by the host test. */
+void FF_AppHsReset(void)
+{
+    ff_hs_reset();
 }
 
 /* One monitoring pass: report every FAILED application, then raise the
@@ -58,7 +71,7 @@ void FF_AppHsStep(FF_AppId_t app)
 void FF_AppHsMain(void *arg)
 {
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
-    (void)FF_PusRegisterFunction(1u, ff_hs_fn_reset);
+    FF_AppHsRegister();
 
     (void)FF_EvsSend(FF_EVS_APP_STARTED, FF_EVS_INFO, app, "HS app monitoring");
 

@@ -113,6 +113,60 @@ static FF_Status_t uart_send(const uint8_t *data, uint16_t len)
     return (w == (ssize_t)len) ? FF_SUCCESS : FF_ERROR;
 }
 
+/* Deadline-bounded send.
+ *
+ * The descriptor is switched to non-blocking mode so a stalled UART cannot
+ * trap the panic context inside write(), and the original mode is restored
+ * afterwards so the normal (blocking) send path keeps its semantics.
+ *
+ * No poll()/select() is used: RTEMS 6.2 provides neither, and a target build
+ * that referenced them would not link. A temporarily full transmit buffer is
+ * handled by a short back-off and a retry against the shared deadline, which
+ * is bounded by construction. The wait is a busy retry, not a readiness wait:
+ * the target driver's readiness semantics are unverified (see ADR-0021).
+ */
+static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
+{
+    if ((g_fd < 0) || ((data == NULL) && (len != 0u))) {
+        return (g_fd < 0) ? FF_NOT_READY : FF_INVALID_ARGUMENT;
+    }
+    int flags = fcntl(g_fd, F_GETFL, 0);
+    if ((flags < 0) || (fcntl(g_fd, F_SETFL, flags | O_NONBLOCK) != 0)) {
+        return FF_ERROR;
+    }
+    FF_Status_t result = FF_SUCCESS;
+    uint16_t sent = 0u;
+    while (sent < len) {
+        struct timespec now_ts;
+        if (clock_gettime(CLOCK_MONOTONIC, &now_ts) != 0) {
+            result = FF_ERROR;
+            break;
+        }
+        uint64_t now_ns = (uint64_t)now_ts.tv_sec * 1000000000ULL + (uint64_t)now_ts.tv_nsec;
+        if (now_ns >= deadline_ns) {
+            result = FF_TIMEOUT;
+            break;
+        }
+        ssize_t w = write(g_fd, data + sent, (size_t)(len - sent));
+        if (w > 0) {
+            sent = (uint16_t)(sent + (uint16_t)w);
+            continue;
+        }
+        if ((w < 0) && (errno == EINTR)) {
+            continue;
+        }
+        if ((w < 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+            struct timespec pause = {.tv_sec = 0, .tv_nsec = 1000000L};
+            (void)nanosleep(&pause, NULL);
+            continue;
+        }
+        result = FF_ERROR;
+        break;
+    }
+    (void)fcntl(g_fd, F_SETFL, flags);
+    return result;
+}
+
 static FF_Status_t uart_recv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
 {
     uint64_t now;
@@ -207,5 +261,6 @@ const FF_Link_t FF_LinkUartBackend = {
     .name = "uart",
     .init = uart_init,
     .send = uart_send,
+    .send_until = uart_send_until,
     .recv = uart_recv,
 };

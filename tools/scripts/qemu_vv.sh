@@ -26,7 +26,7 @@ IMG="frick-rtems-toolchain:local"
 ELF="${ROOT}/build/rtems-generic/frick_fsw"
 LOG="/tmp/frick-qemu.log"
 CONSOLE="${ROOT}/build/rtems-generic/qemu-console.log"
-APPS_EXPECTED="6 applications registered"
+APPS_EXPECTED="7 applications registered"
 
 if [[ ! -f "${ELF}" ]]; then
   echo "[qemu] SKIP: generic-BSP ELF absent (${ELF}); build with 'make qemu-image'"

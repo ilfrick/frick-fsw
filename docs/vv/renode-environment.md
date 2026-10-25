@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.21                                   |
-| Date                              | 2026-10-12                             |
+| Revision                          | 0.23                                   |
+| Date                              | 2026-10-20                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
 
@@ -51,8 +51,9 @@ RENODE_TEST: PASS
 ```
 
 It is registered **only** when `FF_ENABLE_RENODE_TEST=1` (CMake option
-`FF_ENABLE_RENODE_TEST=ON`), so the default reference set remains six
-applications and the host smoke is unchanged.
+`FF_ENABLE_RENODE_TEST=ON`), so the default reference set is seven applications
+(including the S8-FDIR-01 watchdog feeder) and the host smoke asserts seven; the
+Renode functional-test application is additional to that set.
 
 ## 4. Running
 
@@ -73,13 +74,23 @@ make renode            # tools/scripts/renode_vv.sh
 
 `renode-image` configures an RTEMS cross build with `FF_ENABLE_RENODE_TEST=ON`
 (the CMake option that compiles and registers the test application; the default
-build keeps six applications). `renode_vv.sh` runs the pinned Renode image
+build keeps seven applications). `renode_vv.sh` runs the pinned Renode image
 headless on the PolarFire SoC board platform (`beaglev-fire`), loads the image,
 captures the UART and
 greps for `RENODE_TEST: PASS`. See also `make renode-env`
 (`tools/docker/renode/renode_env.resc`), the platform-load self-test.
 
 ## 5. Validation status (verified)
+
+- **Current S8-FDIR-01 run (2026-10-20):** a fresh RTEMS 6.2
+  `riscv/mpfs64imafdc` ELF was built in a new temporary build tree using the
+  existing local toolchain image; prescribed `make renode` returned **PASS**
+  (`RENODE_TEST: PASS`), including `hal_net_lwip=PASS`. The artifact and source
+  identities plus full logs are recorded in
+  `docs/vv/verification-results.md` rev 2.99 and
+  `docs/vv/evidence/2026-10-20-n18-record.md`. This does not establish a
+  reproducible toolchain (NC-EXT-40), repair the runner freshness weakness
+  (NC-TS-01 remains OPEN), or qualify hardware/watchdog behavior.
 
 - **Environment** (`make renode-env`, tool T17): the pinned Renode image runs,
   the PolarFire SoC board platform (`beaglev-fire`) loads and exits cleanly
@@ -193,3 +204,5 @@ stays open (GAP-A4/A6).
 | 0.19 | 2026-10-12 | frick-fsw | M11/S6b-2: `hal_net_lwip` delivered on the lwIP-enabled image (lwIP netif bound to the emulated GEM, MAC config asserted); packet round-trip + emulated GEM DMA deferred (NC-S6-01/NC-S6-03); SpaceWire remains contract-level (NC-S7-01) |
 | 0.20 | 2026-10-12 | frick-fsw | M11/S7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded (SpaceWire no emulated peripheral) |
 | 0.21 | 2026-10-12 | frick-fsw | NET follow-up: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing in the driver; on-Renode GEM DMA round-trip remains GAP-A5: register-only CadenceGEM model, no descriptor engine); NC-154-01 closed (host `test_lwip_netif` 26/26, mock-MAC loopback); NC-S6-01 wording clarified (mock-MAC host test = TX/RX data-path evidence) |
+| 0.22 | 2026-10-20 | frick-fsw | Correct the default registered-application count from six to seven after unconditional WD-feeder registration; the conditional RENODE_TEST variant remains separate |
+| 0.23 | 2026-10-20 | frick-fsw | Record current S8-FDIR-01 fresh-build N18 Renode PASS and point to retained artifact/toolchain evidence; preserve NC-TS-01 and hardware/provenance limits |

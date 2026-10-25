@@ -1,0 +1,70 @@
+# frick-fsw - retained CTest evidence (norm N11)
+# Increment: S8-FDIR-01 after the NC-EXT-120 Lean correction and the V&V
+#            test-oracle corrections required by FRICK-REVIEW-0405
+#            (M-01, m-01, m-02, M-06) and the PA review (M-1, NC-EXT-124)
+# Date: 2026-10-21 (11:24 UTC)
+# Command: make test  (native simulator configuration, build/native)
+
+#
+# ############################################################################
+# SUPERSEDED TRANSCRIPT (PA review F-04 / NC-EXT-143):
+#   This run was made BEFORE the NC-EXT-138 test case was added to
+#   test_pal_watchdog.c, so it reports checks=294 and does not describe the
+#   current tree. The authoritative single-run transcript for the current tree
+#   is docs/vv/evidence/2026-10-21-s8-fdir-gates.log (sections 2, 3, 8:
+#   44/44, checks=298, checks=109). This file is retained as the earlier
+#   same-day record only and must not be cited as current.
+# ############################################################################
+
+=== ctest ===
+      Start 31: mtd
+31/44 Test #31: mtd ..............................   Passed    0.00 sec
+      Start 32: can
+32/44 Test #32: can ..............................   Passed    0.00 sec
+      Start 33: i2c
+33/44 Test #33: i2c ..............................   Passed    0.00 sec
+      Start 34: spi
+34/44 Test #34: spi ..............................   Passed    0.00 sec
+      Start 35: block
+35/44 Test #35: block ............................   Passed    0.00 sec
+      Start 36: pcie
+36/44 Test #36: pcie .............................   Passed    0.00 sec
+      Start 37: spacewire
+37/44 Test #37: spacewire ........................   Passed    0.00 sec
+      Start 38: fabric
+38/44 Test #38: fabric ...........................   Passed    0.00 sec
+      Start 39: canfd
+39/44 Test #39: canfd ............................   Passed    0.00 sec
+      Start 40: canopen
+40/44 Test #40: canopen ..........................   Passed    0.00 sec
+      Start 41: link_ip
+41/44 Test #41: link_ip ..........................   Passed    0.00 sec
+      Start 42: link_tsn
+42/44 Test #42: link_tsn .........................   Passed    0.00 sec
+      Start 43: lwip
+43/44 Test #43: lwip .............................   Passed    0.00 sec
+      Start 44: lwip_netif
+44/44 Test #44: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 44
+
+Label Time Summary:
+decoder-corpus        =   0.03 sec*proc (1 test)
+es-hs-lifecycle       =   0.06 sec*proc (1 test)
+fdir                  =   0.00 sec*proc (1 test)
+host-pty              =   0.32 sec*proc (1 test)
+link                  =   0.32 sec*proc (1 test)
+n22                   =   0.09 sec*proc (3 tests)
+s8-vv-fu              =   0.09 sec*proc (2 tests)
+sb-evs                =  17.42 sec*proc (1 test)
+tool-qualification    =  17.42 sec*proc (1 test)
+uart                  =   0.32 sec*proc (1 test)
+watchdog              =   0.00 sec*proc (1 test)
+
+Total Test time (real) =  17.96 sec
+
+=== per-suite executed check counts ===
+/home/nicola/fsw/frick-fsw/tests/unit/test_pal_watchdog.c checks=294 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_es_hs_lifecycle.c checks=109 failures=0
+
+=== end ===

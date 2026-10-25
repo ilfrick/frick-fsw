@@ -413,16 +413,22 @@ static void test_pus_hk_s3_lifecycle(void)
     uint16_t flen;
     const uint8_t *d = NULL;
     uint16_t dl = 0u;
-    uint8_t create_payload[2];
+    uint8_t create_payload[6];
     uint8_t one[1];
     uint8_t report_request[2];
 
     r3_push_setup();
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(provider_id, r3_hk_provider) == FF_SUCCESS);
 
-    /* Create the report (3,1). */
+    /* Create the report (3,1).
+     * Provisional 6-byte payload: report_id, provider_id, period_s[4] (big-endian).
+     * ICD §4 defines 2 bytes; this is an authority-pending extension (NC-EXT-17). */
     create_payload[0] = report_id;
     create_payload[1] = provider_id;
+    create_payload[2] = 0u;
+    create_payload[3] = 0u;
+    create_payload[4] = 0u;
+    create_payload[5] = 0u; /* period_s = 0 (one-shot only) */
     flen = encode_tc(FF_PUS_SERVICE_HK, 1u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      create_payload, sizeof(create_payload), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);

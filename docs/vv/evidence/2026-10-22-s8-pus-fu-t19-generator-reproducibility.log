@@ -1,0 +1,202 @@
+=== T19 (ASN1SCC PUS-C code generation) — generator identity and byte-reproducibility evidence ===
+date: 2026-10-22   project: frick-fsw   scope: EVIDENCE GENERATION ONLY (no code, no requirement,
+no configuration, no NC closure, no gate, no parameter, no commit/push)
+
+--- 0. task title and scope boundary (as reviewed independently before the action) ---
+This record discharges the *generator/tool-version + reproducible-generation* part of the PUS-C
+code-generation provenance question, filed under the tool record **T19** (ASN1SCC PUS-C code
+generation, tools/scripts/gen_pus_asn1.sh + tools/docker/asn1scc/).
+It is **NOT** a discharge of **NC-EXT-84**, whose registered subject is the **N7 OBCP generated
+flat tree** (221 files, produced by the upstream `make flat` target, not by asn1scc). NC-EXT-84
+stays **OPEN** for its registered subject; the retitle/registration of this ASN1SCC-tree subject
+is a scope decision for the NC owner and the PA (verifier: PA) and is **not** taken here.
+
+--- 1. generator identity ---
+docker image inspect frick-asn1scc:local --format '{{.Id}}'          -> sha256:3efa44d08125efd576b1b00756daca6653bd4460601c07b4475c9d386ff1f028
+docker image inspect frick-asn1scc:local --format '{{.Created}}'       -> 2026-10-20T07:34:49.499151898+02:00
+docker image inspect frick-asn1scc:local --format '{{join .RepoDigests ","}}' -> (empty: no repo digest)
+docker image inspect frick-asn1scc:local --format 'Os={{.Os}} Arch={{.Architecture}}' -> Os=linux Arch=amd64
+declared build input (tools/docker/asn1scc/Dockerfile:17)              -> ARG ASN1SCC_REF=3124590a1d57d7d7db97b8850a5e2687ef46d0c2
+   (declared build input only; the image base (ubuntu:22.04), the apt packages and the .NET 10
+    channel in the same Dockerfile are mutable -> see NC-EXT-35; the image is therefore NOT
+    claimed reproducible, only *identified*)
+docker run --rm --pull=never frick-asn1scc:local asn1scc --version    -> exit=0, stdout: asn1scc version 4.9.13.0
+docker run --rm --pull=never frick-asn1scc:local asn1scc --help        -> exit=1 (usage banner; no further version string)
+the generator was executed from the **pre-existing cached image only**: no image was built, no
+package was installed, no registry pull was attempted (--pull=never), and no dependency,
+trust or configuration change was made.
+
+--- 2. input identity (the pinned ASN.1/ACN model checkout) ---
+git -C third_party/asn1-pusc-lib rev-parse HEAD   -> 2126df11cfe664b9f6f9d7d7a49312bb70768e75
+git -C third_party/asn1-pusc-lib log -1 --format='%H %cI %s'
+    -> 2126df11cfe664b9f6f9d7d7a49312bb70768e75 2024-01-24T17:33:21+01:00 Merge pull request #55 from n7space/fix-typo-darta
+git -C third_party/asn1-pusc-lib status --porcelain --untracked-files=all --ignored=matching -> empty (clean)
+inputs used by the prescribed invocation: third_party/asn1-pusc-lib/common/*.asn1 and *.acn = 28 files
+re-verification against the RETAINED list docs/vv/evidence/2026-10-20-n18-build-input-hashes.sha256:
+   28/28 input digests identical to the retained 2026-10-20 list (list total 3601 entries;
+   689 of them asn1-pusc-lib related).
+   The retained list is REFERENCED here; it is not re-presented as new evidence.
+
+--- 3. generation command (replication of tools/scripts/gen_pus_asn1.sh:34-38 with ONLY the /out mount changed) ---
+docker run --rm --pull=never --user "$(id -u):$(id -g)" -v "/home/nicola/fsw/frick-fsw/third_party/asn1-pusc-lib:/pusclib:ro" -v "/home/nicola/fsw/frick-fsw/build/t19-repro-20261022/gen:/out" frick-asn1scc:local bash -lc 'shopt -s nullglob; files=(/pusclib/common/*.asn1 /pusclib/common/*.acn); if ((${#files[@]} == 0)); then echo "no common ASN.1/ACN inputs" >&2; exit 2; fi; exec asn1scc -c -ACN -typePrefix Pusc_ -o /out/common "${files[@]}"'
+   the script itself was NOT executed: it would `rm -rf` and replace the in-tree generated tree
+   (script lines 47-48). The invocation above is byte-identical to the script's docker invocation
+   except that the output is mounted into the run-local directory below.
+exit=0   stdout: (empty)   stderr: 12 generator warnings, all of the form
+   '/pusclib/common/BasicTypes.acn:<line>:<col>: warning: endianness property has no effect here.'
+   (no error output; the warnings are generator diagnostics on the pinned input model)
+required-file presence check (script lines 40-45 equivalent), all present and non-empty:
+   OK  BasicTypes.h (47259 B)
+   OK  BasicTypes.c (68692 B)
+   OK  asn1crt.h (6762 B)
+   OK  asn1crt.c (2430 B)
+   OK  asn1crt_encoding.c (29508 B)
+   OK  asn1crt_encoding_acn.c (16599 B)
+   -> exit=0
+files produced: 36
+
+--- 4. comparison statement ---
+Regeneration into /home/nicola/fsw/frick-fsw/build/t19-repro-20261022/gen produced 36 files; 36/36 SHA-256 identical to the
+in-tree third_party/asn1-pusc-lib-generated/common set (byte-reproducible **for this cached image**
+and **this input checkout**). No file is only-in-run-local, only-in-tree or differing.
+
+--- 5. non-mutation proof of the in-tree generated tree ---
+in-tree digests captured BEFORE the run and AFTER the run: 36/36 equal (the in-tree tree is
+unchanged by this exercise).
+git status --porcelain third_party/ -> 0 entries; files under third_party/ modified during the
+run: 0. The only host-side writes of this exercise are inside the run-local directory
+/home/nicola/fsw/frick-fsw/build/t19-repro-20261022/gen (git-ignored build tree, .gitignore:2 `build/`), which holds the regenerated files
+and the digest lists referenced by this record. It is a transient local artefact, not repository
+content, and it is left in place for this phase's re-verifiability.
+
+--- 6. per-file SHA-256, run-local regeneration (36) ---
+761dadd0994208d32f8eb98806911cc07680c54e3a0dd753a073683a5ee262a6  ApplicationProcess.c
+d6f8639b09977ce83c1aae3033398f385103936e34db0c1d25eed96f5fab6567  ApplicationProcess.h
+5d7de20cb1b2bf1c8b70b9ceda92c58e597ce844d7ef3dd8cd15041903de3b1a  ApplicationProcessUser.c
+843ce0a55ee7e9adac7959eb2d089d721cb605973e17e22907f53aa4f1e6a952  ApplicationProcessUser.h
+187db966fe7135d54f60f8902c00f983cb518df2216a0ac3f96e856577e72cd7  BasicTypes.c
+d69b3a4d343615091377a9fa96b84117918dc36f2ccc3049a259c39f042af6d6  BasicTypes.h
+2532b66c11c4788c96c83532a5a9f7560c59df4d56addde1f51f75eb2788f043  DiagnosticParameterReportStructure.c
+b423266f68de33485eec7e67b175ee6e8b4277830db53ea8f314b48b4937df41  DiagnosticParameterReportStructure.h
+5b237584928e6cf98f17c8a2d8d955e14eca010217893425772f57cad92b9402  Dummy.c
+9e2b49fe2c8c41b390f71abb4230b880147f6efffc9964992917c00ab89dc0b2  Dummy.h
+03219d058f00c030a736c196b3b146101606ecdef948d320ca7879028b99779c  EventDefinition.c
+f956de0e9a5a18ed7c6bd2f8736996693c30cd67ec21ca183c1ee33217f30a99  EventDefinition.h
+1b46fef54bea9a8b0b3e4f1b3d10617ddf3763d99ae470774151feee571bc26b  ExecutionStep.c
+f13a42b0f0b4085982b724776f295e141c3878c9b5d49c6b49736d67fe8f5eb1  ExecutionStep.h
+1fe9367ba44b5379cdeddbb5720dee9034dea1ac4ab68496a08edb716e437bdb  FilePath.c
+4a3cdd1e5fc125f8d3f1bcb99f27145abe0155964ed929684a8de574e286f680  FilePath.h
+53d835a9262e237d1e7c2d6ffc751c6b8ec625e5f697766ef112dcae54e6efcd  HousekeepingParameterReportStructure.c
+e4922b2b5302a2c09c93101f15c2acfdd1ff9a007b2173252e0dc749e5b8b2e2  HousekeepingParameterReportStructure.h
+9d356fa4a1e2c0af0b493a84f9c5bb10ae4b8c5a235faf4da34d8cc9b2945fb7  MessageType.c
+58bf0a66fbbdda324c2e3913e2943ec15c8f6c4380c738aeb00ee57fc3d10115  MessageType.h
+ed2cc4d06891ba4f218b73136576c032b870d05722dad51769197be7afa7b322  Parameter.c
+bdf432814fdad9cba9cdb122dd41e736ee4eaa405778f1533a60ea1b5f5e780b  Parameter.h
+63869900cad30b2047df4de42c98f38c9ef6bf8c0ae9a6346b2d8a18d6f2b4c9  Request.c
+9fe901d2629a20afbee9b74e8d578add97994e31d7447718f0d714191a555ce5  Request.h
+e88c9f7d56160211438be6ad0a16015fa41abf41bfe8acb0d6b6f5fc82ac93f3  SpacecraftTimeReferenceStatus.c
+5070e47f70aece397ea56b1be2673e99485b3330a048848c0c63d8ad8e705e4d  SpacecraftTimeReferenceStatus.h
+0dff140a23e7ef0589a1d35640885b3d53f394be5077810c6589cad1c39c2116  TimeWindow.c
+52cb516be1cae8e66d5baf158180795f65d2785b2304ec9fa9b72ecdfc81e30f  TimeWindow.h
+2b85ebf89eeed50f2d947b3a0e5f8bebd4a09afa0f132e6708c81e3b08b5e8cd  asn1crt.c
+20a6f55aec51c163612a8f01fb53ee3773403bf015063457e2ab9d02416ed61a  asn1crt.h
+c6697601c50b6314bb9ae6376ba20d9069a1ac63cd17874cd8f92ae3931b3009  asn1crt_encoding.c
+33076f26b6334174f1c89e830a6a0e6d92979896d48f5a955d3b272692fe3b70  asn1crt_encoding.h
+532b58e95e7f4826691fc3bdf783e0bd0b6626534738e416a13dbffc6c133235  asn1crt_encoding_acn.c
+4eace0e96ac78365906e24de5a70f6e6fc3088575c4ef17a069061819945aa8b  asn1crt_encoding_acn.h
+9138a3ac428b3647453b6e70928787917a13ad1125681d739abfe3928a36a7cf  asn1crt_encoding_uper.c
+1667034d1f84bcf66eb4f72aa9baee44cd9aa1f535db874d05f862f93295abf3  asn1crt_encoding_uper.h
+
+--- 7. per-file SHA-256, in-tree generated tree (36) ---
+761dadd0994208d32f8eb98806911cc07680c54e3a0dd753a073683a5ee262a6  ApplicationProcess.c
+d6f8639b09977ce83c1aae3033398f385103936e34db0c1d25eed96f5fab6567  ApplicationProcess.h
+5d7de20cb1b2bf1c8b70b9ceda92c58e597ce844d7ef3dd8cd15041903de3b1a  ApplicationProcessUser.c
+843ce0a55ee7e9adac7959eb2d089d721cb605973e17e22907f53aa4f1e6a952  ApplicationProcessUser.h
+187db966fe7135d54f60f8902c00f983cb518df2216a0ac3f96e856577e72cd7  BasicTypes.c
+d69b3a4d343615091377a9fa96b84117918dc36f2ccc3049a259c39f042af6d6  BasicTypes.h
+2532b66c11c4788c96c83532a5a9f7560c59df4d56addde1f51f75eb2788f043  DiagnosticParameterReportStructure.c
+b423266f68de33485eec7e67b175ee6e8b4277830db53ea8f314b48b4937df41  DiagnosticParameterReportStructure.h
+5b237584928e6cf98f17c8a2d8d955e14eca010217893425772f57cad92b9402  Dummy.c
+9e2b49fe2c8c41b390f71abb4230b880147f6efffc9964992917c00ab89dc0b2  Dummy.h
+03219d058f00c030a736c196b3b146101606ecdef948d320ca7879028b99779c  EventDefinition.c
+f956de0e9a5a18ed7c6bd2f8736996693c30cd67ec21ca183c1ee33217f30a99  EventDefinition.h
+1b46fef54bea9a8b0b3e4f1b3d10617ddf3763d99ae470774151feee571bc26b  ExecutionStep.c
+f13a42b0f0b4085982b724776f295e141c3878c9b5d49c6b49736d67fe8f5eb1  ExecutionStep.h
+1fe9367ba44b5379cdeddbb5720dee9034dea1ac4ab68496a08edb716e437bdb  FilePath.c
+4a3cdd1e5fc125f8d3f1bcb99f27145abe0155964ed929684a8de574e286f680  FilePath.h
+53d835a9262e237d1e7c2d6ffc751c6b8ec625e5f697766ef112dcae54e6efcd  HousekeepingParameterReportStructure.c
+e4922b2b5302a2c09c93101f15c2acfdd1ff9a007b2173252e0dc749e5b8b2e2  HousekeepingParameterReportStructure.h
+9d356fa4a1e2c0af0b493a84f9c5bb10ae4b8c5a235faf4da34d8cc9b2945fb7  MessageType.c
+58bf0a66fbbdda324c2e3913e2943ec15c8f6c4380c738aeb00ee57fc3d10115  MessageType.h
+ed2cc4d06891ba4f218b73136576c032b870d05722dad51769197be7afa7b322  Parameter.c
+bdf432814fdad9cba9cdb122dd41e736ee4eaa405778f1533a60ea1b5f5e780b  Parameter.h
+63869900cad30b2047df4de42c98f38c9ef6bf8c0ae9a6346b2d8a18d6f2b4c9  Request.c
+9fe901d2629a20afbee9b74e8d578add97994e31d7447718f0d714191a555ce5  Request.h
+e88c9f7d56160211438be6ad0a16015fa41abf41bfe8acb0d6b6f5fc82ac93f3  SpacecraftTimeReferenceStatus.c
+5070e47f70aece397ea56b1be2673e99485b3330a048848c0c63d8ad8e705e4d  SpacecraftTimeReferenceStatus.h
+0dff140a23e7ef0589a1d35640885b3d53f394be5077810c6589cad1c39c2116  TimeWindow.c
+52cb516be1cae8e66d5baf158180795f65d2785b2304ec9fa9b72ecdfc81e30f  TimeWindow.h
+2b85ebf89eeed50f2d947b3a0e5f8bebd4a09afa0f132e6708c81e3b08b5e8cd  asn1crt.c
+20a6f55aec51c163612a8f01fb53ee3773403bf015063457e2ab9d02416ed61a  asn1crt.h
+c6697601c50b6314bb9ae6376ba20d9069a1ac63cd17874cd8f92ae3931b3009  asn1crt_encoding.c
+33076f26b6334174f1c89e830a6a0e6d92979896d48f5a955d3b272692fe3b70  asn1crt_encoding.h
+532b58e95e7f4826691fc3bdf783e0bd0b6626534738e416a13dbffc6c133235  asn1crt_encoding_acn.c
+4eace0e96ac78365906e24de5a70f6e6fc3088575c4ef17a069061819945aa8b  asn1crt_encoding_acn.h
+9138a3ac428b3647453b6e70928787917a13ad1125681d739abfe3928a36a7cf  asn1crt_encoding_uper.c
+1667034d1f84bcf66eb4f72aa9baee44cd9aa1f535db874d05f862f93295abf3  asn1crt_encoding_uper.h
+
+--- 8. what this record does NOT claim ---
+- T19 is **NOT** requalified or qualified: its row states 'NOT FULLY REQUALIFIED — generation
+  scope/script changed in S8-PUS-FU; retain new logs and obtain applicable independent delta
+  review before qualification claim' (docs/vv/tool-qualification.md:42). An independent delta
+  review is still required; this record is evidence for it, not the review itself.
+- **NC-EXT-84 is NOT closed and NOT partially discharged**: its registered subject is the N7 OBCP
+  generated flat tree, not this ASN1SCC tree.
+- The **generator image is NOT claimed reproducible** (mutable base/apt/.NET inputs; NC-EXT-35).
+- The **project/RTEMS build is NOT claimed reproducible** (NC-EXT-40; NC-EXT-29 is deferred to the
+  last sprint).
+- **No signed run attestation exists or is claimed** (PA 0364:10).
+- **No** PUS-C compliance, mission-profile, S1/S3/S6 baseline, qualification, acceptance or
+  release approval is claimed. **No** gate is closed, **no** NC is closed, **no** parameter, clock,
+  timeout, instance, cadence or reset policy is adopted. Nothing is committed or pushed.
+- No prior result was re-labelled: the 2026-10-20 digest lists are referenced and re-verified,
+  not re-presented; the retained N18 FAIL and Lean PASS evidence is untouched and not re-run.
+
+--- 9. manifest collision disclosure (reported, not hidden) ---
+The watchdog phase's frozen documentation manifest
+docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256 (22 entries) was frozen for this phase by
+owner instruction. The manifest-listed files that would normally carry this phase's records were
+therefore left byte-identical and NOT modified: docs/planning/sprint-plan.md (NC register),
+docs/vv/verification-results.md (V&V records), docs/vv/tool-qualification.md (T19 row),
+docs/status/handover.md (resume point), docs/status/escalations.md, docs/status/loop-audit.md,
+CHANGELOG.md (revision history) and docs/reviews/README.md (review index). **The manifest was not
+regenerated.** Consequently the following are explicitly DEFERRED, not silently skipped:
+  (i)   N8 currency of the NC register, T19 tool record, V&V records, handover, loop-audit and
+        CHANGELOG for this phase;
+  (ii)  N16 revision-history rows in those same files (the new files carry their own history);
+  (iii) the N17 review index entry and the review-loop closure (the phase stays not commit-eligible);
+  (iv)  the N20 index/record entry (no N20 approval is claimed);
+  (v)   registration of any NC raised in this phase — to be registered as NC-EXT-207 (next free
+        id) in the next authorised revision of the NC register;
+  (vi)  the pre-existing staleness at docs/vv/verification-results.md:114, which states the
+        documentation manifest has '19 entries' while the manifest now holds 22 (the manifest was
+        regenerated after the final acceptance checkpoint added 0430, 0431 and its acceptance log;
+        verification-results.md is itself a manifest entry, so it cannot be corrected here).
+The files added in this phase are NOT listed in the manifest and are identified by their own
+SHA-256 in the phase report. The manifest was re-verified after the additions:
+`sha256sum -c docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256` -> exit 0, 22/22 OK.
+
+--- 10. reproduction commands (this phase, in order) ---
+docker image inspect frick-asn1scc:local --format '{{.Id}}'
+docker run --rm --pull=never frick-asn1scc:local asn1scc --version
+git -C third_party/asn1-pusc-lib rev-parse HEAD
+(cd third_party/asn1-pusc-lib-generated && find . -type f | sort | xargs sha256sum)   # before
+docker run --rm --pull=never --user "$(id -u):$(id -g)" \
+  -v "$PWD/third_party/asn1-pusc-lib:/pusclib:ro" -v "$PWD/build/t19-repro-20261022/gen:/out" \
+  frick-asn1scc:local bash -lc 'shopt -s nullglob; files=(/pusclib/common/*.asn1 /pusclib/common/*.acn);
+    if ((${#files[@]} == 0)); then echo "no common ASN.1/ACN inputs" >&2; exit 2; fi;
+    exec asn1scc -c -ACN -typePrefix Pusc_ -o /out/common "${files[@]}"'
+(cd build/t19-repro-20261022/gen/common && find . -type f | sort | xargs sha256sum)
+(cd third_party/asn1-pusc-lib-generated && find . -type f | sort | xargs sha256sum)   # after
+sha256sum -c docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256
+sha256sum -c docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256

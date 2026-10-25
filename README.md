@@ -6,7 +6,7 @@
 
 cFS-inspired flight software framework: PUS-C TM/TC over CCSDS Space Packets
 for a small/medium spacecraft OBC built on the **Microchip RT PolarFire SoC
-RTPFS160ZT** (RISC-V) under **RTEMS 6.2** (open-source RTEMS project), target
+RTPFS160ZT-FCVG784** (RISC-V) under **RTEMS 6.2** (open-source RTEMS project), target
 ECSS criticality **B**.
 
 **This is a middleware (framework), not a mission application.** It provides the
@@ -19,7 +19,7 @@ and the milestone/objective plan.
 > **Physical-target verification disclaimer (2026-10-16):** Per the project
 > owner's decision, physical-target tests are postponed. This repository's
 > current evidence does **not** establish RTEMS runtime behavior, timing, or
-> physical UART/peripheral behavior on RTPFS160ZT hardware. Renode is emulation
+> physical UART/peripheral behavior on **RTPFS160ZT-FCVG784** hardware. Renode is emulation
 > and the RTEMS cross-build is compile/link evidence only. Postponement is not
 > qualification, acceptance, or closure of target-dependent non-conformances.
 
@@ -51,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-18. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-10-21. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -61,20 +61,20 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | ------ | ----- | ---------- |
 | Sprints completed | 10/33 (30.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
-| SRS requirements delivered | 69/73 (94.5%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 61/73 (83.6%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 37/157 (23.6%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| SRS requirements delivered | 72/76 (94.7%) | implemented (non-doc) + verified (non-`ci:docs`) |
+| Design traceability | 61/76 (80.3%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
+| Review streams (affirmative latest verdict) | 37/164 (22.6%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
 | Metric | Value | Definition |
 | ------ | ----- | ---------- |
-| Requirements in manifest | 117 (srs=73, sss=30, gap=14) | `traceability.yaml` |
-| Requirements with implementation | 117/117 (100%) | manifest implementation list non-empty (incl. `docs/`) |
-| Requirements with test/CI evidence | 103/117 (88.0%) | manifest tests list non-empty (incl. planned `ci:docs`) |
-| Formal verification coverage (Lean) | 25/117 (21.4%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 12909/29354 (44.0%) | gcov |
-| Code function coverage | 1455/2307 (63.1%) | gcov |
+| Requirements in manifest | 120 (srs=76, sss=30, gap=14) | `traceability.yaml` |
+| Requirements with implementation | 120/120 (100%) | manifest implementation list non-empty (incl. `docs/`) |
+| Requirements with test/CI evidence | 106/120 (88.3%) | manifest tests list non-empty (incl. planned `ci:docs`) |
+| Formal verification coverage (Lean) | 28/120 (23.3%) | manifest Lean link non-empty (norm N1) |
+| Code statement (line) coverage | 13165/29736 (44.3%) | gcov |
+| Code function coverage | 1499/2350 (63.8%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -98,7 +98,12 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 
 **Overall: 🟡 (YELLOW)**
 
-Issues explicitly deferred in the status registry: none. Open/pending gates are listed above; product-scope deferrals are documented separately.
+Issues explicitly deferred in the status registry:
+- NC-EXT-112 - host-gate environment (Git ownership, absent host doxygen/tools) — deferred
+- NC-EXT-139 - oracle/testability precision (frame counting, clock injection) — deferred
+- NC-EXT-160 - R2 re-review report front-matter row — deferred (cosmetic)
+- NC-EXT-164 - review-index date ordering — deferred (cosmetic)
+- NC-EXT-183 - docs-container help text and ignored feed result — deferred
 
 > **Metrics note.** These are project-selected completion/coverage indicators; they are not ECSS thresholds and do not imply an approved mission criticality assignment. Values are computed by `tools/scripts/metrics.py` (T13). *Requirements traceability* is mandated by ECSS-E-ST-40C 5.8.3.x as a **matrix** (Annex R applies it at criticality B; in-source requirement tagging is a permitted means, not a requirement). *Design traceability* follows the SDD DRD (Annex F <6>); the SDD carries the requirements->design matrices (SDD section 6). Project guidance targets **100% statement + branch/decision coverage with justified exceptions**; this target is not a mission-approved criticality assignment. The measured statement coverage (see the Coverage table above) and the absent branch/MC-DC and WCET results are tracked as **GAP-A4**. *Review streams* and *sprint* figures are process indicators, and the completion percentages are **indicators, not claims of ECSS compliance or qualification**.
 
@@ -125,7 +130,7 @@ Issues explicitly deferred in the status registry: none. Open/pending gates are 
 - **cFS-style core**: PAL, Software Bus, Event Services, Executive Services,
   Table Services, Time Services; six reference applications.
 - **Same sources** for the native simulator and the RTEMS 6 target
-  (`riscv/mpfs64imafdc`, Microchip RTPFS160ZT).
+  (`riscv/mpfs64imafdc`, Microchip RTPFS160ZT-FCVG784).
 - **Formal verification with Lean 4** (norm N1): CRC, Software Bus, PUS
   counters, CCSDS length bounds — requirement theorems linked from the
   traceability manifest.
@@ -205,7 +210,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 | Link UART | `src/transport/link/link_uart.c` | serial link (host `/dev/ttyUSB0` or RTEMS console) |
 | Link IP (PUS-C) | `src/transport/link/link_ip.c` | IP `FF_Link_t` backend, UDP default + TCP with the seg framing layer, over any `FF_NetStack_t` (S4b; SRS-REQ-060); host test `test_link_ip` |
 | Link TSN (PUS-C) | `src/transport/link/link_tsn.c` | TSN-scheduled Ethernet `FF_Link_t` backend (EtherType 0x88F5, callback-driven RX ring) over `FF_EthMac_t + FF_TsnBackend_t` (S4b; SRS-REQ-061); host test `test_link_tsn` |
-| Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up placeholder behind `FF_BoardInit` |
+| Board (MPFS) | `src/bsp/mpfs/board.c` | RTPFS160ZT-FCVG784 bring-up placeholder behind `FF_BoardInit` |
 | Ethernet (GEM) | `src/drivers/eth/gem/` | Cadence GEM MAC driver behind `FF_EthMac_t` (M4, host-testable; on-target PHY = GAP-A5) |
 | TSN (GEM) | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN backend behind `FF_TsnBackend_t` (802.1Q/Qbv + an 802.1AS time-read seam) |
 | Net stack (loopback) | `src/drivers/net/ff_net_loopback.c` | reference `FF_NetStack_t`; third-party stacks (lwIP) plug into the same vtable |
@@ -225,8 +230,7 @@ The framework hides the hardware behind the PAL, the transport link(s) and the
 GPIO: `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` implements the `FF_Gpio_t` contract
 (bus-injected MMIO, allocation-free, single instance), validated by the host unit
 test `test_gpio` (mock MMIO) and by an emulated-MMIO round trip on the Renode
-PolarFire SoC board platform (`beaglev-fire`, which includes the SoC; milestone
-M11; SRS-REQ-047).
+PolarFire SoC board platform (milestone M11; SRS-REQ-047).
 
 The table above is the delivered reference set. Items still open are tracked, not
 deferred silently: the SpaceWire contract-level limit and its absent emulated
@@ -263,7 +267,7 @@ flowchart TB
     PL1["PAL - OS abstraction (POSIX / RTEMS)"]:::impl
     H1["HAL registry + contracts (M3): Eth/Net/TSN, CAN, serial, SPI/I2C/PCIe/GPIO, SpaceWire, memory"]:::iface
     B1["BSP + drivers (M4): MPFS peripherals, 1 Gb/s GEM Ethernet"]:::m4
-    HW["Microchip RT PolarFire SoC RTPFS160ZT: MSS peripherals + FPGA fabric"]:::hw
+    HW["Microchip RT PolarFire SoC RTPFS160ZT-FCVG784: MSS peripherals + FPGA fabric"]:::hw
 
     MISSION --> A1
     GSW <-->|"TC / TM frames"| T2
@@ -373,7 +377,7 @@ make rtems
 | `tools/` | scripts, ground station, Docker V&V environment |
 | `assets/` | project marks (logo) for codename "Eärendil" |
 | `docs/` | rules, requirements, architecture, ADRs, ICD, quality, V&V, reviews |
-| `board/` | device-tree template for the RTPFS160ZT |
+| `board/` | device-tree template for the RTPFS160ZT-FCVG784 |
 | `.github/`, `.gitea/` | CI/CD pipelines |
 
 ## Documentation index

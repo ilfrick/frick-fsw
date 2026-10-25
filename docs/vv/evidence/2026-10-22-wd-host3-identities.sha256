@@ -1,0 +1,66 @@
+# frick-fsw - WD-HOST3 phase identity manifest (new, phase-specific)
+# Created 2026-10-22 under owner approval Telegram1447 (narrow B1/F(a) slice).
+# This manifest is the authoritative identity record for THIS phase's own files.
+# Revision 2 (2026-10-22): the addendum and the evidence log were updated with the
+# required RECORD-ONLY corrections of the delta re-reviews FRICK-REVIEW-0433-DELTA
+# (embedded safety) and FRICK-REVIEW-0435 (senior SW V&V), both DELTA ACCEPTED WITH
+# RESIDUAL FINDINGS with no blocker; the two delta review records were added. NO
+# source, test or build artefact was touched by those corrections, so the model
+# qualification anchor below is unchanged and the retained results (46/46, 129
+# checks, nine mutants) remain bound to the digests the delta reviews verified.
+# It does NOT replace, re-baseline or modify the two original manifests:
+#   docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256            (22 entries, unedited)
+#   docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256      (34 entries, unedited)
+# Those remain the historical immutable proof of the reviewed inputs.
+# Verify with:  sha256sum -c docs/vv/evidence/2026-10-22-wd-host3-identities.sha256
+#
+# --- phase files (created or changed by this phase) -------------------------------
+fbfa92516aa0b9b2db9bbd5d3b2f5b9b3d84453aaa36abb3ca430e59ea2d7d77  tests/stubs/ff_test_wd_model.h
+b07163c3226a79715430062aa4c1d91e0352a976751238cfa62c32a80b1da384  tests/stubs/ff_test_wd_model.c
+bfa1e02007b4e062a697142f9290a6ac6719e883ea7e9c51efb84d80125b23dc  tests/unit/test_wd_host_contract.c
+51f525b599a52d7119f37ce10df46765ba8a02023816b1614c863cd2631e5707  tests/CMakeLists.txt
+4810d1eecebc40805a17421a5edf38e5c465227e0d1c62ff5dfb1ad56d047e55  docs/vv/host-wd-model-contract-addendum-2026-10-22.md
+2c7174348607ef6a5509f55fc886f085b20d55990a353bc014e2ac3464573dc4  docs/vv/evidence/2026-10-22-wd-host3-host-model-contract.log
+dbf92d2c5da373b2355d217c0e73f78967970ac6937c440bb29c8e5e2d801a9c  docs/reviews/2026-10-22-wd-host3-embedded-safety-0433.md
+b3cbc527811be829e798ddbdca39a33cabcffd4e885cfe18e6efb51ea143aae6  docs/reviews/2026-10-22-wd-host3-vv-0434.md
+409b2f18af8bc0a1e535234d697a4350ec73faa955bf4da05be9f476cc3fa34e  docs/reviews/2026-10-22-wd-host3-preflight-embedded-safety.md
+f7bfeee30db3fc8cd5a038853e6ce8e73bbfec77281fad39468401ec6b66837b  docs/reviews/2026-10-22-wd-host3-preflight-vv.md
+d5ae1f018ffd896f8809625d79fca5a22b0e0dbbb65460dc08e5b4cc9b4f2318  docs/reviews/2026-10-22-wd-host3-embedded-safety-0433-delta.md
+087662445687f4339ecf4710d1c4a0f01682448885111e937875e8ca4f7c28a7  docs/reviews/2026-10-22-wd-host3-vv-delta-0435.md
+#
+# --- unchanged control entries (digest recorded for auditability) ------------------
+7e902db1128a44a77a43e9c3f93cdc3a5dfbe8da7b7921c57fe4bed21fd248ec  docs/requirements/traceability.yaml
+aff74d1398eaecff07a2c4463f30e092f5fbcb3f0aa6fd14b5b7298e91fca918  docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256
+366de5dc302e5053110cad05cc6b84210a776030cb4f9a6ac3d1486de03f798a  docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256
+9b09605cc706b2f60fd81d27503d27750f8d9dec21cc9f9972e96d4701673d40  docs/architecture/mpfs-mss-watchdog-integration-spec.md
+749ecafc046a25c286c48a6948f6d5f2e58e3333e4b1a0e8551514cc7b9f35e5  docs/architecture/n18-watchdog-integration-proposal.md
+54a449648e5465dd4d4df5b0cf8c6ad1d68e9ee1d6c133089cfae7a4e98e36ed  docs/vv/evidence/2026-10-22-s8-fdir-wd-official-docs-retrieval.log
+641395663479ef72284bfb987cf6bfecaf5baf75fac000969d2297eeb476c9bc  docs/vv/evidence/2026-10-22-s8-fdir-wd-model-probe.log
+#
+# --- pre/post digests of the pinned entry that this phase necessarily changed --------
+# tests/CMakeLists.txt is ENTRY 22 of the 34-entry code manifest (entry 21 is
+# src/transport/link/link_uart.c). The change is the registration and build wiring the
+# owner authorised ('minimal test registration/build wiring'), required for the new case
+# to be executable (N8 completeness, N22 executable test). The manifest file itself is
+# NOT edited and NOT re-baselined; its post-phase verification result is 33/34 (exit 1).
+# pre-phase  aa11c7be15c6faef1617696a3e548bef4faac5df12ab50bfe9d2a97d6507e5a2  tests/CMakeLists.txt
+# post-phase 51f525b599a52d7119f37ce10df46765ba8a02023816b1614c863cd2631e5707  tests/CMakeLists.txt
+#
+# --- deferred global-metadata entries (frozen; left byte-identical) ------------------
+# 7820ab2c81b6dc33eaa39dcc38fbbbc4879f338e1f3d2a3e7edb449ab3bbf848  CHANGELOG.md   (unchanged; its update is deferred, not skipped)
+# 5b457f239f32aab5608000ac9669b5164a0d2997182c4607bac5b8bf5c7a7aad  docs/planning/sprint-plan.md   (unchanged; its update is deferred, not skipped)
+# 46069074a0430141965ae2e195dbe271ea5ce0a45552a4218a9bafdf91bf02b1  docs/status/handover.md   (unchanged; its update is deferred, not skipped)
+# 6d10a92bc630b7c27bd62ba68ef5f9a5b5d36c306f6e743e3cce69bbf798f182  docs/status/loop-audit.md   (unchanged; its update is deferred, not skipped)
+# 64b35cb303d95e8e8ba6b7192c232bf953c3028eee66cbff893f308ac4985798  docs/status/escalations.md   (unchanged; its update is deferred, not skipped)
+# 03826c77b221bc0582a497bc626e13c0be96320f658f7b7693a98a537de72560  docs/vv/verification-results.md   (unchanged; its update is deferred, not skipped)
+# 263662621c7c9f4701a1010ac8e7b79030fab44a5697a07db86fd2f316624b43  docs/vv/tool-qualification.md   (unchanged; its update is deferred, not skipped)
+# d1f32532d923d8f308ad6768319df4c9ca5194fae7d13486f223d6405afd1e4f  docs/reviews/README.md   (unchanged; its update is deferred, not skipped)
+#
+# --- run-local tool (NOT repository content; retention deferred with the N10 record) --
+# ec465e5a8ead5ac2f832ad0d5eda5f3b8fa246b135a1759e5c4d4411b86b4050  build/wd-host3-mutations/run_mutations.sh
+#   (run-local mutation harness; git-ignored; retention deferred with the tool record)
+#
+# --- model qualification anchor ---------------------------------------------------
+# The model qualification is bound to the digests of the three fixture/test files
+# above. ANY change to them invalidates the qualification and requires re-qualification.
+# The mutation protocol's restore digest is the re-qualification anchor.

@@ -1,0 +1,18 @@
+=== RTEMS 6.x mpfs64imafdc BSP inventory (retained transcript) ===
+2026-10-21T22:08:25Z
+image: frick-rtems-toolchain:local (cached; --pull=never)
+--- include files: 519
+--- files matching mpfs|mss_:
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/bspopts.h
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/bsp/riscv.h
+--- watchdog-related headers:
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/rtems/watchdogdrv.h
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/rtems/score/watchdogimpl.h
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/rtems/score/watchdog.h
+/opt/rtems/6/riscv-rtems6/mpfs64imafdc/lib/include/rtems/score/watchdogticks.h
+--- linkcmds MEMORY:
+MEMORY {
+  RAM : ORIGIN = 68719476736, LENGTH = 268435456
+}
+--- BSP/libchip MPFS entries:
+(none)

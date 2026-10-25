@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0011                        |
-| Revision                          | 0.2                                    |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.3                                    |
+| Date                              | 2026-10-20                             |
 | Norms                             | N3, N4, N8                             |
 | Requirements                      | SSS-REQ-001, SRS-REQ-037               |
 
@@ -19,12 +19,37 @@ ISR/task rules and how the integration is verified.
 ## 2. Interface: the PAL
 
 All OS access goes through the **Portable Abstraction Layer** (`src/core/pal/pal.h`):
-tasks, mutexes, message queues, time, console, log, panic. Two backends exist:
+tasks, mutexes, message queues, time, console, log, panic, **hardware watchdog**.
+Two backends exist:
 
 | File | Role |
 | ---- | ---- |
-| `src/core/pal/pal_posix.c` | reference implementation over the POSIX API (used on the host and on RTEMS, which provides POSIX threads/mutexes/mqueues/semaphores/time) |
+| `src/core/pal/pal_posix.c` | reference implementation over the POSIX API (used on the host and on RTEMS, which provides POSIX threads/mutexes/mqueues/semaphores/time) plus the **simulated host watchdog backend** |
 | `src/core/pal/pal_rtems.c` | RTEMS-specific glue: POSIX API configuration check and the `POSIX_Init()` application entry point |
+
+### 2.1 Hardware watchdog binding — deliberately unwired (NC-PAL-01)
+
+The watchdog is split so that the **independent hardware** action (arm/feed/reset)
+lives behind the PAL platform hooks `ff_pal_wd_hw_arm/_feed/_reset`
+(`src/core/pal/pal_watchdog.c` is the portable harness: deadlines, counters,
+expiry detection). Behaviour by build:
+
+- **Host (`pal_posix.c`)** — the hooks are a **simulated backend** so the harness,
+  the pre-reset report and the reset path are exercisable in unit/integration
+  tests. No real reset occurs; this is emulation, not target evidence.
+- **RTEMS (`pal_rtems.c`)** — the hooks are **NOT WIRED**: they log and return
+  `FF_NOT_IMPLEMENTED` (see the header comment). Consequently `FF_PalPanic` on
+  target falls through to `abort()` with no hardware-dependent reset **until an
+  integrator/mission wires the MPFS MSS watchdog** (register/sequence, clock
+  source, worst-case feed interval and target/HIL reset demonstration are all
+  required). This is tracked as **NC-PAL-01** and is a Major FDIR-completeness
+  gap, not a waiver; closure needs authorised-human sign-off.
+
+The configured timeout is `watchdog_timeout_s` (mission table, default 8 s),
+fed every timeout/4 by the lowest-priority `FF_AppWdMain` app. The pre-reset
+notification is a lock-free PUS-C **Service 5 subservice 3 (CRITICAL)** TM
+(`FF_EVS_PANIC_RESET`, `0x0104`) sent over the direct link write before the
+reset (see `docs/adr/ADR-0021-watchdog-reset-recovery.md`).
 
 On RTEMS, `POSIX_Init()` calls the shared bring-up `ff_fsw_main()`
 (`src/main/fsw_main.c`) and then `rtems_fatal(EXIT)`. The host uses `main()`
@@ -117,3 +142,4 @@ recommended for a release.
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-10 | frick-fsw | Initial RTEMS integration guide (config table, entry point, build, verification) |
 | 0.2 | 2026-10-13 | frick-fsw | Disclose mutable apt/RSB inputs and remove unsubstantiated reproducibility claim (NC-EXT-40). |
+| 0.3 | 2026-10-20 | frick-fsw | S8-FDIR-01: document the PAL hardware-watchdog seam and the deliberately unwired RTEMS binding (`ff_pal_wd_hw_arm/_feed/_reset` → `FF_NOT_IMPLEMENTED`; NC-PAL-01), the simulated host backend, the 8 s mission-table timeout fed by the lowest-priority WD app, and the lock-free PUS S5 pre-reset report |

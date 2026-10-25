@@ -3,7 +3,7 @@
 #
 # Boots the native simulator and asserts:
 #   * the banner prints,
-#   * the framework reports 6 registered applications,
+#   * the framework reports 7 registered applications,
 #   * telemetry is produced on the loopback link (EVS -> PUS service 5).
 #
 # Exit code 0 = PASS, 1 = FAIL.
@@ -31,9 +31,9 @@ if ! grep -q "frick-fsw" "${LOG}"; then
   echo "[smoke] FAIL: banner not found"; cat "${LOG}"; exit 1
 fi
 
-if ! grep -q "6 applications registered" "${LOG}"; then
+if ! grep -q "7 applications registered" "${LOG}"; then
   echo "[smoke] FAIL: application count mismatch"; cat "${LOG}"; exit 1
 fi
 
-echo "[smoke] PASS (banner + 6 applications registered)"
+echo "[smoke] PASS (banner + 7 applications registered)"
 rm -f "${LOG}"

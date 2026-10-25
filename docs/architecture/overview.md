@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ARCH-0001 |
 | ----------- | --------------- |
-| Revision    | 0.1.2 |
-| Date        | 2026-10-10 |
+| Revision    | 0.1.3 |
+| Date        | 2026-10-20 |
 
 ## 1. System context
 
@@ -108,7 +108,7 @@ software runs on the host simulator and on the MPFS target (see
    board init -> mission tables init (fsw_main.c).
 2. PUS init with the configured N7/ESA backend by default (ADR-0019; open CCSDS selected with `FF_USE_PUS_ASN1=OFF`); link init (loopback/UART).
 3. EVS listener forwards every event to PUS service 5 telemetry.
-4. Six applications are registered with ES and started as tasks.
+4. Seven applications are registered with ES and started as tasks.
 
 ## 5. Threading and determinism
 
@@ -130,3 +130,4 @@ software runs on the host simulator and on the MPFS target (see
 | 0.1   | 2026-10-10 | frick-fsw | Initial architecture overview |
 | 0.1.1 | 2026-10-10 | frick-fsw | Added the Mermaid component architecture diagram (norm N8) |
 | 0.1.2 | 2026-10-10 | frick-fsw | M3: layer-focused diagram on the MPFS (implemented vs interface vs user vs HW) and HAL component row |
+| 0.1.3 | 2026-10-20 | frick-fsw | Update the registered-application count to seven after adding the S8-FDIR-01 watchdog feeder |

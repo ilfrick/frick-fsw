@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0007                         |
-| Revision                          | 0.18                                   |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.19                                   |
+| Date                              | 2026-10-20                             |
 | Audience                          | humans and agents using or evaluating the framework and the accessory repository elements |
 | Norms                             | N2 (English), N8 (current documentation), N16 (per-document revision history) |
 | Requirements                      | none introduced by this document; it describes the implemented baseline traced in `docs/requirements/SRS.md` and `docs/requirements/traceability.yaml` |
@@ -71,7 +71,7 @@ planned / user-provided) is kept in `README.md` ("Project scope"); the product
 boundary and milestone plan are in `docs/development-plan.md`
 (FRICK-PLAN-0001) and the roadmap in `docs/roadmap.md` (FRICK-RM-0001).
 
-The six applications under `src/apps/` are **reference applications**
+The seven applications under `src/apps/` are **reference applications**
 (demonstration and V&V), **not** part of the middleware contract:
 `docs/architecture/applications.md` (FRICK-ARCH-0005), and the
 `src/apps/app_renode_test.c` functional-test app is registered only when
@@ -81,8 +81,10 @@ The six applications under `src/apps/` are **reference applications**
 
 To prevent over-reading the scope, the framework is explicitly **not**:
 
-- **a mission application** — the six `src/apps/*` are reference/demo and V&V
+- **a mission application** — the seven `src/apps/*` are reference/demo and V&V
   apps; mission software is written by users on the SB/PUS/HAL seams;
+  (reset-recovery is only structurally present: the PAL watchdog binding is
+  unwired on target — NC-PAL-01);
 - **a TCP/IP stack** — it owns the `FF_NetStack_t` contract and ships an opt-in
   lwIP adapter only; it carries PUS-C over IP through the `FF_Link_t` IP backend
   (UDP/TCP) over a separately supplied stack, but that is a link backend, not a
@@ -197,12 +199,13 @@ is also in `README.md` ("Low-level drivers") and `docs/vv/tool-qualification.md`
 
 ### 3.4 Reference applications (not the framework)
 
-Six reference apps register with ES: **CMD_INGEST** (TC ingest →
-`FF_PusIngest`), **TM_OUTPUT** (PUS TM sink → link), **SCHEDULER**, **HK**
-(housekeeping via providers), **HS** (health & safety heartbeat), **SAMPLE**
-(telemetry generator); plus the conditional **RENODE_TEST** app for norm N18
-(`src/apps/app.h`, `src/apps/app_*.c`, `src/main/fsw_main.c`,
-`docs/architecture/applications.md`). These are **examples**; mission software
+Seven applications register with ES in the default configuration: **CMD_INGEST**
+(TC ingest → `FF_PusIngest`), **TM_OUTPUT** (PUS TM sink → link), **SCHEDULER**,
+**HK** (housekeeping via providers), **HS** (health & safety heartbeat), **WD**
+(watchdog feeder) and **SAMPLE** (telemetry generator). The conditional
+**RENODE_TEST** V&V app is additionally registered only when
+`FF_ENABLE_RENODE_TEST` is enabled (`src/apps/app.h`, `src/apps/app_*.c`,
+`src/main/fsw_main.c`, `docs/architecture/applications.md`). These are **examples**; mission software
 is written by users on the SB/PUS/HAL seams
 (`docs/engineering/user-integration-manual.md`).
 
@@ -343,7 +346,7 @@ What surrounds the framework sources, and why:
 | ------- | ------- | ------- |
 | `config/` | single configuration point `fsw_config.h`; platform headers `config/platform/` (`platform_native.h`, `platform_mpfs.h`, `platform_qemu.h`); RTEMS application configuration `config/rtems/rtems_config.c`; mission tables `config/tables/` (`fsw_tables.{c,h}`) | one place to tailor sizes, APIDs, link device, platform specifics (norm N8) |
 | `tests/` | C unit tests `tests/unit/*.c` on the minimal assertion harness `tests/ff_test.h`; registered in `tests/CMakeLists.txt`; executed by ctest (V&V tool T3) | requirement-level unit verification on the host (norm N11) |
-| `verification/lean/` | Lean 4 project: `verification/lean/Frick/` modules (`Ccsds`, `Common`, `Hal`, `LeanOmega`, `Pus`, `Requirements`, `Sdls`, `SoftwareBus`, `Time`), `Main.lean`, `lakefile.lean`, pinned `lean-toolchain` | formal verification of requirement theorems (norm N1) |
+| `verification/lean/` | Lean 4 project: `verification/lean/Frick/` modules (`Ccsds`, `Common`, `Hal`, `LeanOmega`, `Pus`, `Requirements`, `S4c`, `Sdls`, `SoftwareBus`, `Time`, `Watchdog`), `Main.lean`, `lakefile.lean`, pinned `lean-toolchain` | formal verification of requirement theorems (norm N1) |
 | `tools/scripts/` | V&V tools: `trace.py` (traceability gate T6), `coverage.py` (T12), `metrics.py` (status panel T13), `run_sim.sh` (T4/T9), `setup_rtems.sh` (T10), `renode_env_selftest.sh` / `renode_vv.sh` (T17), `emulated_run.sh` (T15/T16), `qemu_vv.sh` (T20), `gen_pus_asn1.sh` (T19), `misra.sh` (T14), `fetch_third_party.sh`, `ci_rtems_cross_build.sh` | qualification status and pending independent reviews are tracked in `docs/vv/tool-qualification.md` (N10) |
 | `tools/gsw/` | ground station `ff_gsw.py` (T7): PUS-C TC injection and TM decode **over serial only**; bounded packet checks exist, independent qualification review is pending | operator/automation interaction with the flight software |
 | `tools/docker/` | V&V image `Dockerfile` (T1); Renode environment `renode/` (T17); open RTEMS toolchain image `rtems/` (T18); ASN1SCC generator image `asn1scc/` (T19); Gitea `act_runner/` deployment | common controlled V&V/CI environments; mutable T1 inputs do not establish reproducibility (NC-EXT-35) |
@@ -389,7 +392,7 @@ of the `make` shortcuts (wired in `Makefile`):
 | Command | Effect |
 | ------- | ------ |
 | `make configure build test` | host simulator + unit tests (ctest) |
-| `make run` | boot the native simulator (six reference apps) |
+| `make run` | boot the native simulator (seven reference apps) |
 | `make verify-lean` | Lean 4 formal verification (norm N1) |
 | `make trace` | traceability convergence gate (norm N4) |
 | `make coverage metrics` | gcov coverage + README status panel |
@@ -495,3 +498,4 @@ does not create new product requirements or certification claims.
 | 0.16 | 2026-10-14 | frick-fsw | Record owner authorization for original project content and update remaining NC-EXT-43 external-component scope |
 | 0.17 | 2026-10-14 | frick-fsw | Bound MPL authorization to software code, restore AGPL scope for docs/artwork, and track scope correction in NC-EXT-43 |
 | 0.18 | 2026-10-14 | frick-fsw | Correct license scope to owner-authorized original code/materials; generated outputs remain excluded |
+| 0.19 | 2026-10-20 | frick-fsw | S8-FDIR-01: align the documented application count to seven and describe the watchdog reset-recovery boundary without claiming the unwired RTEMS hardware binding as operational |

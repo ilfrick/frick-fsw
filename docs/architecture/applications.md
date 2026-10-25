@@ -2,10 +2,10 @@
 
 | Document id | FRICK-ARCH-0005 |
 | ----------- | --------------- |
-| Revision    | 0.4 |
-| Date        | 2026-10-16 |
+| Revision    | 0.5 |
+| Date        | 2026-10-20 |
 
-The framework ships six reference applications registered by Executive
+The framework ships seven reference applications registered by Executive
 Services in `fsw_main.c`. They demonstrate the architecture and provide the
 V&V exerciser (simulator smoke).
 
@@ -17,6 +17,7 @@ V&V exerciser (simulator smoke).
 | HK         | `FF_AppHkMain`        | periodic housekeeping via Table/ps platform data |
 | HS         | `FF_AppHsMain`, `FF_AppHsStep` | health & safety heartbeat monitoring; `FF_AppHsStep` is one monitoring pass (FAILED-application scan + `0x0502` heartbeat), exposed as a non-blocking test seam used by the S8-VV-FU host integration harness |
 | SAMPLE     | `FF_AppSampleMain`    | sample telemetry generator (bus subscriber/publisher) |
+| WD         | `FF_AppWdMain`        | watchdog feeder: arms the PAL hardware watchdog at boot and feeds it every `watchdog_timeout_s`/4 (default 8 s → 2 s); lowest priority so it is starved if higher-priority work hangs, letting the independent hardware watchdog reset the processor (S8-FDIR-01); on host the binding is simulated and on RTEMS it is deliberately unwired (NC-PAL-01) |
 
 Each application is an independent task (fixed stack, priority, pipe depth,
 see `src/apps/app.h` and `fsw_main.c`).
@@ -42,3 +43,4 @@ section 5.1 and sprint S8-SCH.
 | 0.2 | 2026-10-13 | frick-fsw | Clarify current scheduler stub limitations and link M17/S8-SCH replacement plan |
 | 0.3 | 2026-10-16 | frick-fsw | Update the SCHEDULER row to the delivered ff_sched dispatcher and retain the explicit mission-input/target-evidence limits |
 | 0.4 | 2026-10-16 | frick-fsw | S8-VV-FU: note the extracted `FF_AppHsStep` monitoring pass in the HS row (a non-blocking test seam; `FF_AppHsMain` behavior is unchanged in flight) |
+| 0.5 | 2026-10-20 | frick-fsw | S8-FDIR-01: six → seven reference apps (add the WD watchdog-feeder row); retain the unwired-binding/simulated-host limits |

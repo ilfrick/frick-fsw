@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ENG-0005                         |
-| Revision                          | 0.12                                   |
-| Date                              | 2026-10-19                             |
+| Revision                          | 0.13                                   |
+| Date                              | 2026-10-20                             |
 | Audience                          | humans and agents integrating applications, drivers and stacks on the frick-fsw middleware |
 
 This manual explains how to use frick-fsw as a **middleware**: you write your
@@ -14,7 +14,7 @@ optionally plug third-party stacks. Read first `AGENTS.md`, `README.md`,
 `docs/development-plan.md` (product boundary and milestones) and
 `docs/rules.md` (norms N1-N21).
 
-> **frick-fsw is a framework, not an application.** The six `src/apps/*` are
+> **frick-fsw is a framework, not an application.** The seven `src/apps/*` are
 > reference applications (demonstration and V&V), not mission software.
 
 ## 1. The application model
@@ -24,7 +24,7 @@ communicating over the Software Bus (SB). An application:
 
 1. has an entry point `void AppMain(void *arg)` (`FF_PalTaskFunc_t`
    compatible, declared in `src/core/pal/pal.h`; see `src/apps/app.h` for the
-   six reference entry-point pattern);
+   seven reference entry-point pattern);
 2. is described by an `FF_AppConfig_t` (name, entry, **`stack_bytes`**,
    priority, queue depth; `src/core/es/es.h`);
 3. is registered at start-up with `FF_EsRegisterApp(&cfg, &id)`, optionally
@@ -365,6 +365,32 @@ dynamic allocation, bounded latency) and the partition/CMake options that let
 you include only the drivers you need are in
 `docs/engineering/driver-development.md` and `docs/development-plan.md`.
 
+### 11.1 Wiring the hardware watchdog (reset recovery)
+
+The PAL owns the watchdog contract (`FF_PalWatchdogInit/Feed/Check/Reset` and
+`FF_PalSetPanicNotifier` in `src/core/pal/pal.h`); the portable harness is
+`src/core/pal/pal_watchdog.c`. **You must wire the platform hooks yourself** —
+they are intentionally not implemented for the reference target:
+
+- **Host** (`pal_posix.c`): a *simulated* backend; no real reset (test use only).
+- **RTEMS** (`pal_rtems.c`): returns `FF_NOT_IMPLEMENTED` (logged). This is
+  **NC-PAL-01** — on the flight target **there is currently no real reset
+  protection**. To enable it, implement `ff_pal_wd_hw_arm(timeout_ms)`,
+  `ff_pal_wd_hw_feed()` and `ff_pal_wd_hw_reset()` for your SoC watchdog
+  (register/sequence from the verified SoC reference; clock source; verify the
+  worst-case feed interval against `watchdog_timeout_s`), then demonstrate on
+  target/HIL that a stopped feed resets the processor and that the pre-reset
+  report reaches the ground interface first.
+
+Integration notes: keep exactly one feeder (the reference lowest-priority
+`FF_AppWdMain`, `src/apps/app_wd.c`, feeds at `watchdog_timeout_s`/4); the
+timeout is mission-table configuration; and install your ground-report sink with
+`FF_PusInstallPanicReporter(...)` in `ff_fsw_main()`. The pre-reset report is a
+lock-free PUS-C S5/3 TM (event `0x0104`, `FF_EVS_PANIC_RESET`, emitted by `FF_PusEmitPanicEvent`); its timestamp is a
+degraded monotonic (non-UTC) value, and on the reference build it is wired to
+`FF_LinkSend`. See `docs/adr/ADR-0021-watchdog-reset-recovery.md` and
+`docs/architecture/rtems-integration.md` §2.1.
+
 ## 12. Integrating a third-party stack (pluggable)
 
 Network stacks are pluggable by design: the middleware talks to a
@@ -427,3 +453,4 @@ without a WCET/stack analysis. See `docs/architecture/numerics.md` and ADR-0012.
 | 0.10 | 2026-10-13 | frick-fsw | §8 status counts updated for the S4b follow-up (FRICK-REVIEW-0168 DOC-R4-030): `test_link_ip` 20 test functions (10 seg + 9 IP + 1 `test_pus_ip_roundtrip`) and `test_link_tsn` 15 test functions (incl. `test_pus_tsn_roundtrip`); header Revision aligned with the History |
 | 0.11 | 2026-10-13 | frick-fsw | Bound `make ci-local` to configure/build/test/Lean/trace, list separate smoke/docs commands, and state the mutable image-input limitation (NC-EXT-35). |
 | 0.12 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): correct the §7 backend note, which stated that the open CCSDS backend is the default; the default is the N7/ESA ASN.1 backend (`FF_USE_PUS_ASN1=ON`, `ADR-0019`) with the open backend selectable via `FF_USE_PUS_ASN1=OFF`, matching `SRS-REQ-050` and the implementation |
+| 0.13 | 2026-10-20 | frick-fsw | S8-FDIR-01: six → seven reference apps; add §11.1 "Wiring the hardware watchdog (reset recovery)" documenting the PAL watchdog contract, the deliberately unwired RTEMS binding (NC-PAL-01, no real reset on target), the simulated host backend, the single feeder at timeout/4, the mission-table timeout and the lock-free PUS S5 pre-reset report |

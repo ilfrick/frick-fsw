@@ -2,8 +2,8 @@
 
 | Document id | FRICK-FV-001 |
 | ----------- | ------------ |
-| Revision    | 0.3 |
-| Date        | 2026-10-10 |
+| Revision    | 0.4 |
+| Date        | 2026-10-21 |
 
 ## 1. Goal
 
@@ -25,7 +25,10 @@ supports, and `tools/scripts/trace.py` validates the links (norm N4).
 | `Frick/Pus.lean`                   | verification-count and TM counter monotonicity (mod 16384) |
 | `Frick/Time.lean`                  | M2 time base: source-set disjointness, tone discipline, leap-at-boundary, CUC round-trip/fine bound/coarse decomposition |
 | `Frick/Hal.lean`                   | M3 HAL registry: bounded count, duplicate registration unchanged |
-| `Frick/Requirements.lean`          | `req_*` theorems discharging SRS/SSS/GAP ids |
+| `Frick/Sdls.lean`                  | SDLS/security model: anti-replay window and sequence discipline |
+| `Frick/S4c.lean`                   | S4c parameter/statistics model |
+| `Frick/Watchdog.lean`              | FDIR reset recovery (S8-FDIR-01): arm/feed/expiry state machine, report-before-reset ordering, single reset path (SRS-REQ-073/074/075) |
+| `Frick/Requirements.lean`          | `req_*` theorems discharging SRS/SSS/GAP ids (imports every module above, so `lake build` elaborates all of them) |
 | `Main.lean`                        | closed-form runtime checks for CI |
 
 ## 3. Proof discipline
@@ -73,3 +76,4 @@ only).
 | 0.1 | 2026-10-10 | frick-fsw | Initial formal verification document |
 | 0.2 | 2026-10-10 | frick-fsw | M2: add `Frick.Time` (and `Frick.LeanOmega`) to layout/scope; note Lean 4 core / no Mathlib / no math library |
 | 0.3 | 2026-10-10 | frick-fsw | M3: add `Frick.Hal` (HAL registry bound) to layout/scope |
+| 0.4 | 2026-10-21 | frick-fsw | Register `Frick.Watchdog` (FDIR reset recovery, SRS-REQ-073/074/075) and the previously omitted `Frick.Sdls`/`Frick.S4c` in the module table; state that `Frick.Requirements` imports every module so the default `lake build` elaborates all of them (the gate blind spot that hid the unimported Watchdog module is NC-EXT-120/174). FRICK-REVIEW-0406 F-10 |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RES-001                       |
-| Revision                          | 2.93                                   |
-| Date                              | 2026-10-19                             |
+| Revision                          | 3.15                                   |
+| Date                              | 2026-10-21                             |
 | Baseline cycle                    | v0.1.0 initial release                 |
 | Norms                             | N6, N11 (records retained each cycle; publication after gates pass) |
 
@@ -14,6 +14,151 @@ cycle appends a row with the evidence produced and identifies the configuration
 and artifact state. The local S4c/S4d/defaults cycle below records its original
 pre-commit mutable-tree state; the committed baseline and subsequent hosted CI
 result are recorded in the current-status addendum.
+
+## S8-FDIR-01 owner-directed delta (2026-10-21)
+
+- **Source identity/status:** uncommitted working tree; the change set includes
+  substantial pre-existing dirty work, so this record is not a clean-baseline
+  attribution. Do not infer binary provenance beyond the retained command
+  output. Source and test changes remain uncommitted.
+- **Host build/tests:** `make build` timed out in dependency/configure
+  preparation. Subsequent direct `cmake --build build/native -j2` completed,
+  and full `ctest --test-dir build/native -j2 --output-on-failure` passed
+  **44/44**. Targeted totals recorded by the test executables: PAL watchdog
+  307, ES/HS lifecycle 111, UART 58, time 113, all zero failures. These are
+  host functional observations, not timing qualification or target WCET.
+- **Other checks:** `make trace` PASS (120 requirements, 68 theorem symbols
+  discovered, as trace script reports; does not establish Lean compilation).
+  Pinned `frick-vv:local make format-check` PASS after formatting corrections.
+  Host `make format-check` first failed because installed clang-format major 23
+  differs from pinned 18. `make verify-lean` failed: no `lake` in PATH or the
+  checked `~/.elan/bin/lake` locations. `make smoke` failed before execution
+  because fetch guard found pre-existing ignored generated directories in
+  `third_party/n7s-obcp/src/{build-embed,micropython_clone,micropython_embed}`;
+  none were removed/refetched. N18 was not rerun for this tree.
+- **Model/reference audit:** pinned Renode board description has five generic
+  MPFS watchdog devices; it does not prove target mapping/fidelity. The owner
+  supplied a mutable public Microchip HAL header describing five instances,
+  optional MVRP forbidden window, and illustrative AXI/256 timing. The
+  RTPFS160ZT product page URL was supplied; HTTP 403 here. Neither is controlled
+  target datasheet/BSP/configuration evidence. No PAL binding or cadence
+  mapping was made.
+- **Independent reviews:** fresh-context draft reviews 0409 (R1), 0410 (R2),
+  0411 (R3), and 0412 (R4) are retained. R1/R3 identify unresolved
+  report-content/formatting-deadline semantics; R2 confirms end-to-end timing
+  and target gaps; R4 identified stale documentation claims corrected in this
+  cycle. Fresh PA/N20 review attempt was interrupted; previous 0406 does not
+  review this later delta. No review gate passes or NC closures are claimed.
+- **Outstanding:** end-to-end 250 ms nominal/boundary/stall/partial/retry fault
+  matrix; requirements authority decision on one report attempt versus
+  successful local emission under failure; mandatory reason-text envelope and
+  bounded formatting; monotonic feeder plus approved jitter/execution margin;
+  controlled MSS refresh-window and target configuration; target/HIL
+  watchdog/reset evidence; N18, Lean, smoke and required fresh PA review.
+  `FF_AppWdMain` remains relative-delay; no new cadence was selected because
+  earliest permitted hardware refresh and margin remain unknown.
+- **Side effect:** an earlier Renode image inspection pulled the missing pinned
+  image automatically. This is recorded as an environment effect; no cleanup
+  was done, subsequent image inspections used `--pull=never`, and no further
+  pull/install/global configuration changes were made.
+- Raw run outcomes are retained in
+  `docs/vv/evidence/2026-10-21-s8-fdir-owner-delta-host.log`.
+
+## S8-FDIR-01 post-review remediation (2026-10-21, continued increment)
+
+- **Scope:** bounded remediation of the fresh R1/R2/R3/R4 findings 0409–0412 and
+  the interrupted N20 leg. No requirement wording, hardware cadence, watchdog
+  configuration or release decision was changed. All work stays uncommitted.
+- **Source delta:** PAL host-only reset-result injection (arm/feed/reset) behind
+  `FF_TEST_HOOKS`; link-time `nanosleep` wrapper in the PAL watchdog test and
+  link-time `write` wrapper in the UART test (external test harnesses, no
+  production hook and no flight/degraded mode); loopback backend now implements
+  the deadline-aware writer, so the pre-reset report is **enqueued** on the host
+  path instead of being rejected with `FF_NOT_IMPLEMENTED` (the host simulator
+  still does not render the frame to an operator — the loopback transmit ring is
+  only drained by the test harness); new host cases for the blocked-console
+  whole path, the production reporter wiring, UART partial-progress/stall, PAL
+  wait EINTR/EIO, failed-feed state preservation, reset-hook error and the exact
+  96/97/256-character panic-reason boundary.
+- **Flight-target link defect found and corrected in this delta.** The
+  owner-directed delta had introduced `poll()` into `pal_posix.c` and
+  `link_uart.c`. RTEMS 6.2 provides the `poll.h` types but **no `poll()`
+  implementation** (verified by symbol scan of the pinned toolchain and by the
+  project cross-build, which failed with `undefined reference to 'poll'`), so
+  the flight target did not link. The bounded console and UART writers now use
+  a non-blocking descriptor with a short back-off and a retry against the
+  shared deadline instead of a readiness wait, and the descriptor mode is
+  restored afterwards. **A fresh RTEMS 6.2 cross-build with the cached
+  `frick-rtems-toolchain:local` image (`--pull=never`, read-only source mount)
+  now configures and links successfully and produces `frick_fsw`; the artifact
+  exports no `poll`/`select` symbol and none of the `FF_TEST_HOOKS` test
+  seams.** This is a build/link result only: it is not a target execution,
+  timing or watchdog result.
+- **Results on this tree:** direct `cmake --build build/native -j2` plus
+  `ctest --test-dir build/native -j2 --output-on-failure` → **44/44 passed**
+  (repeated after the final formatting pass). Executed targeted counts:
+  `test_pal_watchdog` **320**, `test_es_hs_lifecycle` **180**, `test_link_uart`
+  **72**, `test_time` **113**; all zero failures. `make trace` → PASS
+  (120 requirements, 68 theorem symbols). Pinned `frick-vv:local make
+  format-check` → PASS after the local formatting correction. Raw transcript:
+  `docs/vv/evidence/2026-10-21-s8-fdir-post-review-remediation.log`; source
+  identity: `docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256`
+  (31 entries: every changed file in `src/`, `config/`, `tests/`,
+  `verification/lean/` and `tools/` plus `CMakeLists.txt` and `Makefile`; recomputed over the
+  current files after the final edit and re-verified OK).
+- **Source identity (this phase):** the code-scope manifest
+  `docs/vv/evidence/2026-10-21-s8-fdir-post-review-source.sha256` (34 entries:
+  every changed file in `src/`, `config/`, `tests/`, `verification/lean/` and
+  `tools/` plus `CMakeLists.txt` and `Makefile`) verifies 34/34; the
+  documentation phase additionally has its own manifest
+  `docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256` (19 entries: the
+  specification, the proposal, the four retained reviews of rev 1.0/rev 1.2, the
+  two confirmation addenda of rev 1.4, the BSP inventory transcript, the
+  retained model probe, the official-document retrieval record, the
+  escalation/status/V&V records and the changelog). The manifest is regenerated
+  after the final text freeze; the code manifest is **verified, not re-derived**.
+- **Final read-only acceptance checkpoint (2026-10-22):** the frozen FRICK-ARCH-0024 rev 1.5,
+  FRICK-ARCH-0023 rev 1.5 and retrieval-log bodies were verified by SHA-256 and confirmed by two
+  independent read-only addenda (FRICK-REVIEW-0430 embedded safety, FRICK-REVIEW-0431 V&V); no
+  design defect was found; the residual editorial and structural observations are recorded as
+  OPEN/deferred (NC-EXT-206, NC-EXT-205) and the frozen bodies were not modified. The checkpoint
+  record is retained at
+  `docs/vv/evidence/2026-10-22-s8-fdir-wd-final-readonly-acceptance.log`. No build, emulator,
+  probe, target or HIL execution was performed for the checkpoint.
+- **Not run / not claimed on this tree:** N18 Renode rerun; a Lean build in
+  this cycle; smoke; target execution; target/HIL; hardware watchdog. The
+  cached `frick-vv:local` image contains `/root/.elan/bin/lake` but **no**
+  `/root/.elan/toolchains`; a `lake --version` probe inside a disposable `--rm`
+  container attempted a toolchain download and was not repeated, so no Lean
+  build was run in this cycle. The retained Lean evidence
+  (`docs/vv/evidence/2026-10-21-s8-fdir-lean-build.log`, 2026-10-21T09:58Z)
+  remains valid for the current tree: its 14 Lean source hashes were
+  re-verified against the current files (all match) and the recorded
+  `Watchdog.olean` digest still matches the artefact in the tree, and no Lean
+  source has changed since; it is **not** a Lean run of this cycle. `make
+  smoke` remains blocked by pre-existing ignored generated
+  `third_party/n7s-obcp` directories; no artifact was removed, refetched or
+  re-permissioned.
+- **Independent reviews of this delta:** R1 FRICK-REVIEW-0414 (rejected for
+  closure of 0409: the over-length policy and the unbounded formatting work
+  remain open), R2 FRICK-REVIEW-0415 (host evidence only; target 250 ms and
+  WCET remain open), PA/N20 FRICK-REVIEW-0413 (**not approved**; F-01 reset-path
+  liveness Blocker, F-02 requirement semantics, F-03 target timing, F-04/F-05
+  cadence and unwired binding, F-06/F-07 evidence currency, F-08 authority
+  record, F-09 scope). No gate passes, no NC closures, no release approval.
+- **Functional defect found and corrected in this delta:** with the flight
+  wiring `FF_PusInstallPanicReporter(FF_LinkSendUntil)`, the host simulator
+  selected the loopback backend, which had no deadline-aware writer, so the
+  pre-reset report was silently dropped on the host path. The loopback backend
+  now implements `send_until` and honors an already-expired deadline; the new
+  production-wiring case asserts that exactly one frame with the panic event id,
+  severity and reason text reaches the link. The target UART backend was
+  unaffected.
+- **Open authority items unchanged:** SRS-REQ-074 exactly-one applicability and
+  the mandatory-text/input envelope (with the overlength strategy), the
+  bounded-formatting design, the controlled MSS refresh window and the approved
+  execution/jitter margin. These are recorded in `docs/status/escalations.md`
+  and are not decided here.
 Emulator console captures under `build/` are regenerable build outputs. The
 final-cycle Renode UART/process and QEMU console logs were copied into
 `docs/vv/evidence/2026-10-15-{renode-console,renode-process,qemu-console}.log`.
@@ -21,6 +166,107 @@ They came from the uncommitted candidate worktree with the observed local
 toolchain images; they must not be attributed to the committed baseline. The
 exact mutable candidate and tool inputs are not fully captured by the recorded
 hashes.
+
+## S8-FDIR-01 N18 execution record (2026-10-20)
+
+- **Build:** fresh container build with RTEMS 6.2 `riscv/mpfs64imafdc`, using
+  `frick-rtems-toolchain:local` image ID
+  `sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896`.
+  GCC was 13.3.0 20240521; RSB metadata reported
+  `3814cb0e7f86cca2be403eac831f9bf571984659-modified`. The local image was used
+  as found; Dockerfile apt/RSB inputs remain mutable (NC-EXT-40), so this is not
+  reproducibility or tool requalification evidence.
+- **Freshness:** compilation used `/tmp/frick-renode-n18-fresh`, explicitly reset
+  before configure so no prior cache/artifacts were reused, with
+  `FF_ENABLE_RENODE_TEST=ON`, `FF_PLATFORM=rtems`,
+  `FF_USE_PUS_ASN1=ON`; lwIP remained enabled. The current `src`/`config` hash
+  manifests before and after the build matched; both are retained as
+  `2026-10-20-n18-src-config-{before,after}.sha256`. The selected source/generator and
+  build-control identity list is
+  `docs/vv/evidence/2026-10-20-n18-build-input-hashes.sha256` (manifest SHA-256
+  `23b513cd454fa4ec80e41ee8180d0286ada3797cc1813a761fc96b75c93ffee2`). It
+  includes the RTEMS toolchain file and Dockerfile, CMake/Make entry points, and
+  Renode runner inputs; it is an identity aid, not a complete immutable build
+  attestation. Build
+  completed 293 Ninja steps, exit 0. ELF SHA-256:
+  `3006f1b8a1fe1e42f6fd7d6180da30cbabdaca2d52408bbe3f3bd934e045a293`.
+- **Prescribed test:** `make renode` exit 0, **PASS** (`RENODE_TEST: PASS`). The
+  current process log's appended UART includes `hal_net_lwip=PASS` and
+  `sb_roundtrip=PASS`. **Evidence anomaly:** the separately retained console log
+  reports seven registered applications and no WD startup, while the process
+  log's appended UART reports eight and includes the WD app. The console artifact
+  is therefore inconsistent with the current WD-enabled run and is not attributed
+  to that run; NC-EXT-115 is OPEN. The process log retains the current marker.
+  Full build/run outputs,
+  toolchain identity, console and process logs are retained under
+  `docs/vv/evidence/2026-10-20-n18-*`; log hashes are listed in the evidence
+  record. The toolchain-identity log SHA-256 is
+  `4a810f3f515acd28dcc479b63f59ca58d75e2bf501410a428d05792630233de1`.
+- This is Renode emulator evidence only, not hardware/watchdog qualification.
+  **NC-TS-01 remains OPEN:** the runner still gates on ELF existence rather than
+  freshness; this run used an explicitly fresh build and retained hashes but did
+  not change or independently qualify the runner. The prescribed test execution
+  passed; overall N18 gate acceptance/closure remains pending its applicable
+  independent reviews. No NC or approval gate closed.
+- **Independent review follow-up:** bounded R4/PA review reconciled the historical
+  SKIP/current PASS wording and manifest scope. PA identified an unrelated
+  unsupported on-target PCIe enumeration/DMA claim in `renode-environment.md` §5,
+  conflicting with the current absence of physical RTPFS160ZT evidence; this is
+  registered as **NC-EXT-114 OPEN** in sprint-plan rev 1.80. No hardware evidence
+  is inferred, and the PCIe claim was not used for the N18 result. PA report
+  `FRICK-REVIEW-0388` is retained at
+  `docs/reviews/2026-10-20-n18-current-tree-pa-review-0388.md`.
+- **R2 review:** `FRICK-REVIEW-0390` assessed the current N18 result and identified
+  two Minor findings. Finding 1 is registered as **NC-EXT-115 OPEN** for the
+  inconsistent UART artifacts. Finding 2, the SB receive-only oracle with no
+  expected-field comparison, is mapped to existing **NC-EXT-47** (no duplicate
+  NC allocated). The current test run remains a recorded process-log/emulator
+  PASS, but N18 acceptance remains pending evidence reconciliation and applicable
+  reviews. No repeat Renode run or test/source correction was made in this cycle.
+
+## S8-FDIR-01 host-gate execution record (2026-10-20; N15 incomplete)
+
+- **Retained evidence.** The complete ordered host-gate output is
+  `docs/vv/evidence/2026-10-20-s8-fdir-host-gates.log` (SHA-256
+  `c442a1f672631687a73273ab40a237efc802cd0754dba8985e97b192efa5ab30`). The
+  separate T24 container format dry-run is
+  `docs/vv/evidence/2026-10-20-s8-fdir-format-container.log` (SHA-256
+  `51cba277f2196ec4d1c991460532a07bd93efe6697d0711936378c6d42506f91`).
+- **Ordered host-gate results:** `make smoke` FAIL (exit 2; Git `dubious ownership`
+  for `third_party/lwip` in `fetch_third_party.sh`); `make verify-lean` FAIL (exit 2;
+  host `lake` absent); `make trace` PASS (exit 0; 120 requirements, 76 SRS, 30 SSS,
+  14 gaps, 68 Lean links checked); `make format-check` FAIL on host (exit 2;
+  `clang-format` absent); `make gsw-selfcheck` PASS (exit 0; GSW, metrics and
+  license checks); `make metrics` FAIL (exit 2; same `fetch_third_party.sh` Git
+  ownership failure); `make docs` FAIL (exit 2; host `rm -rf build/doxygen` could
+  not remove entries owned by `nobody:nogroup`, so Doxygen was not run). Total:
+  **2 PASS / 5 FAIL**. This records execution availability, not a source failure
+  or gate closure.
+- **T24 supplemental check:** the documented pinned dry-run over C/H under
+  `src config tests` passed in `frick-vv:local` using clang-format 18.1.3
+  (exit 0; no diagnostics). It is a separate container result and does not rewrite
+  the host-gate log's format-check FAIL.
+- **Environment observations:** host UID 994 encountered `third_party/lwip` and
+  `build/doxygen` owned by `nobody:nogroup`. The local V&V image is
+  `sha256:4ed3c0ab580e3c9303cfd442169e7014b745a0ea3e2eba0ebf26d592258ca27e`;
+  it contains the `lake` shim but `elan toolchain list` reports no installed
+  toolchains; a `lake --version` probe timed out. No host trust setting, permission,
+  tool installation or source change was made. `make docs`' cleanup attempt reported
+  permission errors; the existing `build/doxygen/html/index.html` remained present
+  afterward, but no docs gate pass is claimed.
+- **NC disposition:** the Lean-image observation was added as evidence under open
+  NC-EXT-35 (T1); mixed-owner failures affecting smoke/metrics/docs were registered
+  as open/deferred NC-EXT-112. The host format tool absence has a passing pinned T24
+  container dry-run and is not opened as a separate NC. No NC or gate was closed.
+  The full N15 cycle, independent review legs, Renode/target and HIL gates remain
+  open. NC-EXT-103..111 and the authority-owned S8-FDIR-01 items are unaffected.
+- **Independent R4 delta review:** `FRICK-REVIEW-0387` (2026-10-20, bounded
+  host-gate documentation/evidence scope) found four Minor non-functional issues:
+  F-0387-01 is cross-referenced under existing NC-EXT-28; F-0387-02 is registered
+  as NC-EXT-113; F-0387-03 and F-0387-04 are cross-referenced under existing
+  NC-EXT-35 and NC-EXT-112. All remain OPEN/deferred under N21. See
+  `docs/reviews/2026-10-20-s8-fdir-host-gates-r4-delta-0387.md`. No correction,
+  closure, re-assignment, or approval was made or inferred.
 
 ## Easy-fixes batch: masked decoder sub-case + documentation accuracy (2026-10-19; published as `318f49b`)
 
@@ -1668,3 +1914,22 @@ re-reviewed (norm N12) before commit/push. Reports are stored in `docs/reviews/`
 | 2.91 | 2026-10-19 | frick-fsw | Easy-fixes batch (N11/N16): annotate the historical S8-VV-FU `76 total / 55 covered` TS-5 §3.2 statement as superseded by the recomputed 77/56/21 (preserving the point-in-time record), and record the 2026-10-19 batch cycle with its evidence hashes: `make ci-local` 43/43 ctest + Lean + trace PASS, pinned clang-format 18 format-check PASS, native smoke PASS, GSW/license self-check OK, docker Doxygen PASS, host ASan leg 43/43 PASS (166.36 s), and the mutant-m3 minimum-PDL discrimination probe (15/15 failures on the mutant; source restored). No NC closed; GAP-R3-1/NC-EXT-25 remain OPEN. [Superseded by 2.92: the ASan duration was corrected to 94.02 s per the retained log (findings F-0381-01/F-0382-03/F-0383-01) and the post-publication labels corrected since this batch was published as `318f49b` (F-0381-02/F-0383-02); 43/43 result itself is unaffected] |
 | 2.92 | 2026-10-19 | frick-fsw | Integrate the post-publication independent reviews of the committed batch (FRICK-REVIEW-0381 R4, 0382 R2/R3, 0383 PA; all APPROVED WITH COMMENTS, 0 Major, findings reconciled): correct the unsupported ASan duration in this record (166.36 s → 94.02 s per the retained log, corroborated independently by all three profiles), re-point the batch description from "uncommitted" to "published as 318f49b"; and append a reconciliation/disposition table. Corresponding corrections were applied to TS-5 rev 1.5 (oracle caveat), TS-6 rev 1.7 (lwIP/ASan evidence), traceability.yaml (lean_note caveats), verification-plan rev 0.1.8 (§9 S7/S8 rationale), the candidate-manifest addendum (digest-binding commit), and docs/reviews/README.md (index rows added + stale-status prose dated historical). NC-EXT-94 extended with the README-vs-ICD divergence (not edited — interface authority); NC-EXT-97/98/99 left OPEN. No NC closed and no delta re-review (N12) or gate/phase/qualification/release approval implied; corrections are marked "delta re-review pending" |
 | 2.93 | 2026-10-19 | frick-fsw | Reviewer-register cross-reference consistency fix (N12/N4): correct the section 3.3 finding-to-NC table so each finding cites the NC actually registered in the sprint-plan register - F-0381-06 manifests to NC-EXT-100, F-0383-05 logs to NC-EXT-101 (not 101/102), and drop the implicit NC-EXT-102. F-0381-05 (stale reviews/README status narrative) is recorded as corrected, and its text is corrected to note docs/reviews/README.md has no revision header so the date-stamp is attributed via commit/changelog history. No evidence, requirement ID or behavior changed; gates re-run in the next cycle remain trace PASS / metrics current / git-diff-check clean / Addendum-2 digest 8de335a0 reproducible. |
+| 2.94 | 2026-10-20 | frick-fsw | **S8-FDIR-01** working-tree increment (panic/reset-recovery) evidence, produced on the pre-commit tree on top of `318f49b` (no commit; N7). **Gates PASS:** `make build`; `make test` **44/44 CTest**; `make smoke` `PASS (banner + 7 applications registered)`; `make trace` PASS (120 reqs / 76 SRS / 30 SSS / 14 gaps / 68 Lean theorems); `lake build` PASS in pinned Lean 4.10.0 (Docker `frick-vv:local`); pinned `clang-format --dry-run --Werror` PASS across `src config tests`; `make gsw-selfcheck` (MPL-2.0 license/SPDX) OK; `make metrics` current; `make docs` PASS (Doxygen index produced); `make renode-env` PASS; `git diff --check` clean. **Focused checks:** `test_pal_watchdog.c` 32 checks / 0 failures; `test_es_hs_lifecycle.c` 94 checks / 0 failures (4 new reset-path cases: nominal + unregistered-S8-id OOB + malformed/truncated-S8 OOB + notifier-unavailable). **Two real defects were found and corrected in this cycle:** (a) a clang-format violation in the new code (blocking the format gate) and (b) a trailing blank line at EOF in `pal_posix.c`; both fixed. **Gaps recorded honestly, not waived:** (1) `make renode` in this environment cannot rebuild the RTEMS image (no `frick-rtems-toolchain:local` image / no `/opt/rtems`), so the increment's N18 validation is a **recorded gap** — the gate now reports a true `SKIP` after the stale 2026-10-16 pre-change ELF was removed (that stale ELF previously produced a misleading `RENODE_TEST: PASS`; registered as **NC-TS-01**); (2) `make qemu` reports `SKIP` (generic-BSP ELF absent, same missing toolchain); (3) the MPFS hardware watchdog binding is unwired (**NC-PAL-01**); (4) the new ground-visible event id is not in the ICD event catalogue (**NC-EXT-102**); (5) TS-5 `N22-TS5-82` (hardware reset) is a `gap` (GAP-A5). Tool-qualification rev 0.3.87 registers the T3/T4 evidence. **No NC closed; no gate, phase, qualification, safety or release approval implied; the increment's independent R2/R3/R4/PA reviews are pending.** |
+| 2.95 | 2026-10-20 | frick-fsw | Post-FRICK-REVIEW-0386 correction evidence only: corrected `traceability.md` rev 0.51 and SSS-REQ-008 mapping; `make trace` PASS (120 requirements, 76 SRS/30 SSS/14 GAP, 68 Lean). `metrics.py --readme` and `--check` current; JSON, `git diff --check`, GSW self-check (12 Python tests + metrics/license Python checks 9/9 and 14/14) pass. Existing native CTest binaries: 43/44 passed; `sb_evs_structural_sweep` was NOT RUN because its registered shebang points to unavailable `/home/.../.local/bin/python3.11`; the same sweep was run directly via system `python3` and PASSed 9,984 profiles. `make metrics` could not run because Docker socket access is denied; native rebuild could not access restricted `third_party/asn1-pusc-lib-generated` files. Therefore the full N15 cycle is **not complete** and this is not a substitute for the controlled Docker build/test/Lean/format/docs gates. R4 0386 is REJECTED; NC-EXT-103..111 remain OPEN pending delta review; R2/R3/PA pending; N18 is SKIP, target/HIL and NC-PAL-01 open. No NC, gate or approval closed |
+| 2.96 | 2026-10-20 | frick-fsw | Retain the ordered host-gate run and separate pinned T24 dry-run, with hashes; record 2 PASS/5 FAIL (smoke/metrics Git ownership, host Lean and formatter unavailable, docs cleanup denied), append the observed missing Lean toolchain in the local image to NC-EXT-35, and register workspace-ownership NC-EXT-112 OPEN/deferred. No source or host configuration changed; N15, independent reviews and target/HIL gates remain open; no NC or gate closed |
+| 2.97 | 2026-10-20 | frick-fsw | Record bounded independent R4 delta review FRICK-REVIEW-0387 and disposition mapping: F-0387-01/03/04 under existing NC-EXT-28/35/112, uncovered F-0387-02 as NC-EXT-113 OPEN/deferred; preserve all host/T24 results and keep corrections, closures and approvals out of scope |
+| 2.98 | 2026-10-20 | frick-fsw | Record fresh RTEMS 6.2 cross-build and prescribed `make renode` PASS for current S8-FDIR-01 sources with compiler/image/source/ELF identities and retained logs; N18 is bounded emulator evidence only, NC-TS-01 and all other gates remain open |
+| 2.99 | 2026-10-20 | frick-fsw | Reconcile bounded N17/PA findings: update current N18 pointers, clarify T17 scope, and register unsupported PCIe on-target claim as NC-EXT-114 OPEN pending evidence reconciliation; preserve N15, N18/tooling, target/HIL and qualification gates |
+| 3.00 | 2026-10-20 | frick-fsw | Triage independent R2 FRICK-REVIEW-0390: record UART evidence mismatch as NC-EXT-115 OPEN, map SB oracle gap to NC-EXT-47, and distinguish process-log PASS from inconsistent console artifact; N18 gate remains open |
+| 3.01 | 2026-10-21 | frick-fsw | Triage of the independent reviews obtained for the S8-FDIR-01 increment on this date (R2 `FRICK-REVIEW-0405` and its bounded N12 re-review `FRICK-REVIEW-0407`; R4 `FRICK-REVIEW-0408`; the R3 and PA legs are recorded as pending, see NC-EXT-141) **and** re-run of the affected gates on the corrected working tree. **Corrections (N21):** `Frick/Watchdog.lean` made import-reachable and re-expressed with core Lean 4.10 `List` operations (NC-EXT-120); report-emission counter asserted `==1` nominal / `==0` rejected (NC-EXT-121); pure `FF_AppWdPlan()` derivation extracted from `FF_AppWdMain` with `test_pal_watchdog.c` cases 7-8 (NC-EXT-122); SRS-REQ-074 test attribution removed `test_pal_watchdog.c` (NC-EXT-124); boundary margin widened 1 ms -> 100 ms (NC-EXT-126); "no report" assertions on the truncated-command case (NC-EXT-127); new `test_hs_reset_survives_missing_notifier` NULL-notifier case (NC-EXT-128). **Results (this tree, this configuration):** `make build` PASS; `make test` 44/44 PASS (`docs/vv/evidence/2026-10-21-s8-fdir-gates.log` section 2, one run over this tree; the earlier `2026-10-21-s8-fdir-ctest.log` is retained with an explicit SUPERSEDED banner because it predates the NC-EXT-138 case and reports 294), `test_pal_watchdog` 298 executed checks / 0 failures, `test_es_hs_lifecycle` 109 executed checks / 0 failures; `lake build` clean 25/25 with `Frick.Watchdog` and `Watchdog.olean` sha256 `7d2ebd65…d61b5b` (`docs/vv/evidence/2026-10-21-s8-fdir-lean-build.log`, tracked `verification/lean/lake-build.log` refreshed); `make trace` PASS (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems); pinned `format-check` in `frick-vv:local` PASS; `make smoke` PASS (banner + 7 applications registered); `make gsw-selfcheck` PASS (12 + 9 + 14 tests, license check OK); `make metrics` PASS including `make coverage` (gcov 44/44 ctest, `coverage.json` sha256 `6861cb6d...b9f331`, statement 13165/29736, function 1499/2350); `make docs-container` PASS (index.html produced, output owned by the invoking uid). **Transcripts for all of the above are retained in `docs/vv/evidence/2026-10-21-s8-fdir-gates.log`**, produced as a single run over one tree state with a per-section `exit=` code, a `git rev-parse` identity, a hash manifest over `src/`, `config/`, `tests/` and the Lean sources (section 0), the `clang-format --version` identity (section 5), the `coverage.json` written by that run (section 8) and the regenerated ASN.1 set hash (section 10); the two earlier, separately retained artifacts are the CTest run and the Lean build. **Superseded claims:** the previously published "32 checks"/"94 checks" figures and the rev 2.94/2.95/2.96 evidence conflict are recorded as NC-EXT-130 OPEN rather than reconciled retroactively; only executed counts with a stated basis are published from this revision onward. **Known limits (do not read as evidence):** no target, HIL, radiation or RTEMS cross-build result is recorded here for this tree; the pre-reset ordering claim (report before reset) is established by inspection and by the Lean model, **not** by a C test (no test can observe the ordering because the simulated reset returns); the pinned `format-check` transcript is the docker-run output of section 5 of the gates log and the docs gate is re-run, not qualified. No NC, gate, phase, qualification, safety or release status is closed; no target/HIL/radiation evidence is claimed |
+| 3.02 | 2026-10-21 | frick-fsw | Record owner-directed PAL/UART/deadline delta and fresh-context R1/R2/R3/R4 reports 0409–0412; direct CMake + full CTest 44/44, trace and pinned format pass, alongside make-build timeout, missing lake, ignored generated third-party smoke blocker and N18-not-run. Public HAL/product references remain leads only; PA/N20, end-to-end timing, watchdog refresh-window, target binding and HIL evidence remain open |
+| 3.03 | 2026-10-21 | frick-fsw | Record the bounded post-review remediation of the owner-directed increment: host fault-injection harnesses (external nanosleep and write link-time wrappers), the direct whole-path console/deadline oracle, the production reporter wiring case, the UART partial/stall cases and the overlength characterization; full CTest 44/44, trace and pinned format PASS on the current tree with a recomputed source-hash file. Record R1 0414, R2 0415 and the N20 PA 0413 (not approved) outcomes; the exactly-one/mandatory-text policy, the bounded-formatting design, the controlled MSS refresh window and the approved jitter margin remain authority items. N18, current-tree Lean, smoke and target/HIL evidence remain open |
+| 3.04 | 2026-10-21 | frick-fsw | Record the final remediation round for the owner-directed increment: the flight-target link defect (the increment's `poll()` usage, which RTEMS 6.2 does not implement) corrected and re-verified by a fresh RTEMS 6.2 cross-build with the cached toolchain image; the in-scope oracle and record corrections applied (loopback deadline case, exactly-one-frame assertion, guarded link-time wrappers, bounded UART drain, `vsnprintf` error guard, descriptor-mode restore, extended source-identity manifest, TS-5 gap mapping, traceability note, live sprint row, NC register NC-EXT-184..190). Host CTest 44/44 with targeted 320/172/68/113; the requirement-semantics, reset-path-liveness, target-timing, cadence and unwired-binding items remain authority decisions, and no gate or NC is closed |
+| 3.05 | 2026-10-21 | frick-fsw | Record the correction round for the owner-directed increment: the record-currency findings of FRICK-REVIEW-0419/0420 applied (executed counts 320/180/71/113, the Blocker attribution, TS-5 rev 1.12, ADR-0021 rev 1.2, NC-EXT-191/192, the 31-entry source manifest including the changed V&V scripts, and the cross-build transcript with the exact invocation, exit codes, artifact identity and symbol checks). The corrected exactly-one oracle is shown by a duplicate-emission mutation to fail on the production wiring path; The duplicate-emission mutation is retained as evidence in `docs/vv/evidence/2026-10-21-s8-fdir-post-review-remediation.log`; the corrected product was independently reviewed once more in the 2026-10-21 acceptance review. Host CTest 44/44; the authority items remain open and no gate or NC is closed |
+| 3.06 | 2026-10-21 | frick-fsw | Record the handover-acceptance verification: review chronology reconciled against the file timestamps, a fresh narrow N20 review (FRICK-REVIEW-0421) obtained on the post-0419/0420 corrections and its findings applied (NC-EXT-193..196), the duplicate-emission mutation re-executed and retained, and the RTEMS invocation, toolchain identity and exact symbol-check expressions recorded. Host CTest 44/44 with targeted 320/180/72/113, trace PASS, pinned format PASS, RTEMS link clean, source manifest 31/31. The authority set remains open and no gate or NC is closed |
+| 3.07 | 2026-10-21 | frick-fsw | Record the gate-verification phase: canonical `make build`, `make test` and `make smoke` PASS with the existing pinned tools and an isolated build directory, the pinned third-party checkouts re-verified clean afterwards, Lean NOT RUN this cycle (retained source-identical evidence reused), N18 NOT RUN (the digest-pinned Renode image is absent from the local store and the prescribed runner would pull it) with the current-tree Renode ELF rebuilt at the prescribed path, and the UART drain-stop flag recorded as a ThreadSanitizer-confirmed C11 data race (NC-EXT-197, OPEN/deferred). Hosted CI and target/HIL remain separate. No gate or NC is closed |
+| 3.08 | 2026-10-21 | frick-fsw | Record the NC-EXT-197 correction and retest: the UART drain-stop flag is now protected by a POSIX pthread mutex (the project requires C99), the identical forced-failure ThreadSanitizer reproducer reports 0 races after the correction versus 1 before, the exact pre-fix source is retained verbatim beside the post-fix source, and independent review FRICK-REVIEW-0422 verified the fix. Nominal UART 74 checks, full CTest 44/44, trace PASS, pinned format PASS, canonical `make build`/`make test`/`make smoke` PASS; the source manifest (31 entries) was refreshed only after the before/after identity and final results were retained. NC-EXT-197 remains OPEN for owner disposition; no gate or NC closed |
+| 3.09 | 2026-10-21 | frick-fsw | Record the owner-authorized Renode/Lean phase: the project-pinned Lean toolchain was installed into the dedicated cache and the prescribed `lake build` **PASSES** on the current tree (Lean 4.10.0, Lake 5.0.0-c375e19); the digest-pinned Renode image was downloaded and digest-verified, the current-tree Renode ELF was rebuilt, and the N18 functional validation **FAILS** with the marker absent (the target panics at start-up because the owner-approved arm-error propagation treats the unwired MPFS binding as fatal). The runner's PASS verdict was a false PASS from a stale log. Registered as NC-EXT-198/199; the emulator result stays separate from hardware/HIL/WCET qualification. No gate or NC closed |
+| 3.10 | 2026-10-21 | frick-fsw | Record the NC-EXT-199 correction: the N18 runner now uses a fresh per-run log directory with a fail-closed verdict unit and a mutation-verified regression suite (17 checks, 0 failures) registered with CTest; the actual N18 run on the current tree still reports **FAIL** with the distinct startup-fatal reason, and the false-PASS transcript, the truthful re-execution and the before/after regression evidence are retained. Independent review FRICK-REVIEW-0423 confirmed the correction and its negative controls; its Major/Minor findings were corrected in the follow-up round. NC-EXT-198/199 remain OPEN; no gate or NC closed |
+| 3.11 | 2026-10-22 | frick-fsw | Record the watchdog specification phase: FRICK-ARCH-0024 rev 1.5 with its reference inventory, the retained BSP inventory transcript, the retained pinned-image model probe, the retained official-document retrieval record and the two confirmation addenda (FRICK-REVIEW-0428/0429) transcript, the two independent reviews (FRICK-REVIEW-0424/0425 for rev 1.0;
+FRICK-REVIEW-0426 embedded safety and FRICK-REVIEW-0427 V&V for the final delta) and their applied corrections, the escalation record of the owner's path-A authorization and the rejection of operating without a watchdog (ESC-9/ESC-10), and the NC register entries NC-EXT-200/201. No product build, test or emulator run was performed for this documentation-only phase; N18 remains FAIL and Lean remains PASS per the retained evidence |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-PLAN-001                      |
-| Revision                         | 0.1.8                                  |
-| Date                              | 2026-10-18                             |
+| Revision                         | 0.1.9                                  |
+| Date                              | 2026-10-20                             |
 | Target criticality                | ECSS B (norm N5); class-A gaps tracked |
 | Applicable norms                  | N1, N3, N4, N6, N8, N9, N10, N11, N12, N14, N16, N17, N21, N22 |
 
@@ -150,7 +150,7 @@ All test scripts are versioned in the repository (norm N11) and qualified
 - `make renode` runs the MPFS RTEMS image on the emulated PolarFire SoC
   (norm N18, tool T17) and checks `RENODE_TEST: PASS` plus the HAL checks.
 - `make qemu` runs the generic `riscv/rv64imafdc` RTEMS image on
-  `qemu-system-riscv64 -M virt` (tool T20) and checks the boot banner + the six
+  `qemu-system-riscv64 -M virt` (tool T20) and checks the boot banner + the seven
   registered applications. Tools qualified per N10; the real-silicon residual is
   GAP-A5. See `docs/vv/emulated-target.md`.
 
@@ -172,7 +172,7 @@ All test scripts are versioned in the repository (norm N11) and qualified
 | Build | host Debug+Release and RTEMS cross build succeed with no errors |
 | Unit | every `tests/unit/*.c` test passes in `ctest` |
 | Formal | `lake build` succeeds; requirement-theorem links resolve |
-| Smoke | simulator boots, 6 apps registered, TM produced |
+| Smoke | simulator boots, 7 apps registered, TM produced |
 | Static | clang-tidy clean for the configured checks; no heap-after-init |
 | Traceability | `make trace` exits 0 (no gaps, no dangling ids) |
 | Qualification | every V&V tool used has a QUALIFIED entry in the register |
@@ -204,10 +204,10 @@ given host is recorded as SKIP with the reason and is never counted as a pass.
 
 | # | Check | Command | Scope / limitation |
 | - | ----- | ------- | ------------------ |
-| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 43/43 CTest (incl. `test_es_hs_lifecycle`, `test_decoder_corpus`), Lean `lake build`, `trace.py`; no format/smoke/docs |
-| S2 | Simulator smoke | `make smoke` | 6 apps registered, EVS→PUS TM on loopback |
+| S1 | Host build + unit tests + Lean + trace | `make ci-local` | 44/44 CTest (incl. `test_es_hs_lifecycle`, `test_pal_watchdog`, `test_decoder_corpus`), Lean `lake build`, `trace.py`; no format/smoke/docs |
+| S2 | Simulator smoke | `make smoke` | 7 apps registered, EVS→PUS TM on loopback |
 | S3 | GSW / metrics / license self-check | `make gsw-selfcheck` | GSW python tests, README metrics, N13 license policy |
-| S4 | Coverage metrics | `make metrics` | regenerates README panel; the S8-VV-FU coverage CTest subset passes (43/43) |
+| S4 | Coverage metrics | `make metrics` | regenerates README panel; the S8-VV-FU coverage CTest subset passes (44/44) |
 | S5 | Documentation generation | `make docs` | Doxygen; warning count is recorded, not claimed "warning-free" |
 | S6 | Format + whitespace + JSON | `clang-format --dry-run --Werror`, `git diff --check`, `python3 -m json.tool` | all managed C/H, no trailing whitespace, valid status JSON |
 | S7 | RTEMS cross-build | `make rtems-docker` | compile/link evidence only; not target runtime/timing |
@@ -246,3 +246,4 @@ of this set is itself a change and follows the same N15/N17/N20 gates.
 | 0.1.6 | 2026-10-16 | frick-fsw | S8-VV-FU: extend §9 S1 to 40/40 CTest (add `test_es_hs_lifecycle`, `test_decoder_corpus`) and S10 to include the new bounded ES/HS lifecycle and decoder fuzz/property corpus; update S4 wording to the S8-VV-FU coverage subset |
 | 0.1.7 | 2026-10-18 | frick-fsw | Correct the stale §9 S1/S4 CTest count to the current 43/43 (the 40/40 figure predates the S8-PUS-FU/S8-SCH tests added to the suite); synchronize the document header revision |
 | 0.1.8 | 2026-10-19 | frick-fsw | Add a per-delta accountability note for §9 S7/S8 (F-0383-03): for a no-source/test-spec-only delta such as the 2026-10-19 easy-fixes batch, S7 is satisfied-by-hosted-CI (run 39218060325, RTEMS cross-build success) and S8/N18 Renode is a recorded non-application, not a pass; this honors the N18 gate rather than eliding it and closes no target NC (NC-EXT-31, GAP-A5) |
+| 0.1.9 | 2026-10-20 | frick-fsw | Correct the default registered-application count to seven in smoke and QEMU environments after S8-FDIR-01; no change to target-coverage claims |

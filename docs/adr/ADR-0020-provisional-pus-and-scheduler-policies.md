@@ -2,7 +2,7 @@
 
 | Status | Accepted as a framework engineering reference; not a mission baseline |
 | ------ | --------------------------------------------------------------- |
-| Date   | 2026-10-16 |
+| Date   | 2026-10-25 |
 
 ## Context
 
@@ -34,7 +34,14 @@ a mission authority decision.
   profile of `region_id:u8` (zero reserved), `byte_offset:u32` big-endian, and
   `length:u16` big-endian. Map the ID to a configured logical memory region;
   validate `offset <= region_size` and `length <= region_size - offset` before
-  access. The host/target pointer is never placed on the wire. This explicit
+  access. Refusal causes are distinct in software - an unregistered region
+  identifier returns `FF_NOT_FOUND`, an out-of-region `offset`/`length` returns
+  `FF_INVALID_ARGUMENT`, and region resolution precedes the range check - while
+  remaining indistinguishable on the wire until an interface authority allocates
+  separate PUS-C failure codes (NC-EXT-18). The bound is checked by ordered
+  operands and subtraction in the region width, so neither `offset + length` nor
+  `region_size - offset` can wrap on a 32-bit or 64-bit target. The host/target
+  pointer is never placed on the wire. This explicit
   project choice follows the public ECSS logical-memory-ID/byte-address model
   and the public PUSopen logical-memory example, but the field widths/layout
   remain a **provisional project profile**, not a claim that ECSS mandates them
@@ -100,3 +107,5 @@ not be enabled from this ADR alone.
 | Revision | Date | Author | Change |
 | -------- | ---- | ------ | ------ |
 | 0.1 | 2026-10-16 | frick-fsw | Record owner-directed provisional public references and explicit mission-authority disclaimer |
+| 0.2 | 2026-10-24 | frick-fsw | Record the S6 refusal-cause distinction (unregistered region `FF_NOT_FOUND` vs out-of-region `FF_INVALID_ARGUMENT`, region resolution first), the ordered/subtractive bound check that cannot wrap on RV32/RV64, and that the on-wire failure codes remain an interface-authority decision (NC-EXT-18). Provisional profile values unchanged |
+| 0.3 | 2026-10-25 | frick-fsw | Record the S3 periodic due-test correction (NC-EXT-207): replaced raw coarse comparison with signed-modular `time_period_due` (elapsed vs period); `u >= 2^31` undecided band resolves to wait, removing premature-emit/burst and forced-wrap TM-flood regimes. `period_s >= 2^31` holds unserved — formulation property, NOT a max-period validation/limit (NC-EXT-208, ESC-HK-06 remain authority-owned). Wire behavior unchanged outside previously defective regimes; no caller added. |

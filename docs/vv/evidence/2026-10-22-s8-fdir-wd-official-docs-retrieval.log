@@ -1,0 +1,143 @@
+=== Official public document retrieval — RTPFS160ZT / PolarFire SoC MSS watchdog (2026-10-22) ===
+scope: documentation/research only. No login, no NDA, no credential, no paid access, no install,
+no access-control bypass, no register or hardware access. The issuer's public download path
+(ww1.microchip.com/downloads/aemDocuments/...) was used; the product-page and /downloads/en/DeviceDoc/
+paths are edge-blocked from this environment (HTTP 403, Akamai "Access Denied") and were NOT circumvented.
+RETENTION (N13 boundary): the issuer's PDFs are third-party content and are NOT copied into this
+repository. What is retained here is the retrieval record (URL, HTTP status, size, SHA-256), the
+document identity (issuer, docid, revision, device applicability) and short quoted extracts with
+section references. Reproduction commands are at the end.
+
+--- 1. retrieval attempts that FAILED (recorded as inaccessible, not as missing) ---
+microchip.com/en-us/product/RTPFS160ZT                                   HTTP 403  407 B  (Akamai Access Denied)
+microchip.com/en-us/products/.../rt-polarfire-soc                          HTTP 403  486 B
+ww1.microchip.com/downloads/en/DeviceDoc/                                  HTTP 403  400 B
+ww1.microchip.com/downloads/en/DeviceDoc/PolarFire-SoC-Product-Summary-20002537E.pdf   HTTP 301 -> 403
+web.pa.msu.edu/.../pfsoc_regmap.htm (third-party mirror of the issuer's
+  "PolarFire SoC Device Register Map" HTML)                               HTTP 200   964 B  (Incapsula
+  interstitial: content not served; third-party host, non-authoritative in any case)
+=> The "PolarFire SoC Device Register Map" (watchdog register descriptions, reset values,
+   design-time MSS configuration) remains NOT RETRIEVED: its issuer host is edge-blocked here and
+   the only alternate found is a third-party, bot-protected mirror. It is the outstanding controlled input.
+
+--- 2. documents RETRIEVED (issuer: Microchip Technology; all 2026 revisions unless noted) ---
+(A) PolarFire SoC FPGA MSS Technical Reference Manual, rev S (06/2026), docid DS60001702S
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments/ReferenceManuals/PolarFire_SoC_FPGA_MSS_Technical_Reference_Manual_VC.pdf
+    HTTP 200  2667094 B   sha256 871c237d2586285fff2b43042ccb240486178b5e0070cdcc925d8b08272c7b9d
+    applicability: the PolarFire SoC (non-RT) MSS; the RT device shares this MSS. The errata (E) points to
+    the RT "MS Description" for MS device descriptions => the RT-specific document remains an owner input.
+(B) PolarFire SoC and RT PolarFire SoC FPGA Power-Up and Resets User Guide, rev M, docid DS60001676M
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments/UserGuides/Microchip_PolarFire_FPGA_and_PolarFire_SoC_FPGA_Power_Up_and_Reset_User_Guide_VC.pdf
+    HTTP 200  2951891 B   sha256 4be8cbb7f770b0565e8b583d071a2a701f6e9985729daf01882c3fc8ddd73bc0
+    applicability: title states "PolarFire SoC and RT PolarFire SoC" => applies to the RT family.
+(C) PolarFire SoC FPGA Data Sheet, rev E, docid DS00004248E
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments/DataSheets/PolarFire-SoC-Datasheet-DS00004248.pdf
+    HTTP 200  2588192 B   sha256 b051c48253ccccc7df208f7281692c1859e6a8e964a9c7d4ecdf918e0cef0721
+    applicability: the PolarFire SoC (non-RT) device data sheet.
+(D) Radiation-Tolerant PolarFire SoC FPGA Product Overview, rev C, docid DS00005395C
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments/ProductBrief/Radiation-Tolerant-PolarFire-SoC-FPGA-Product-Overview-DS00005395.pdf
+    HTTP 200  1012437 B   sha256 64359906edef23b91f5c25a9ce9e622642afbcd2fd49b9e772b8c856d37f6639
+    applicability: the RT (radiation-tolerant) PolarFire SoC family => applies to the flight target.
+(E) RT PolarFire FPGA and SoC FPGA Devices Errata, rev A, docid DS00006185A
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments/Errata/RT_PolarFire_FPGA_and_SoC_FPGA_Devices_Errata_DS00006185.pdf
+    HTTP 200   132762 B   sha256 657467639e4ca2d422f0869ef36472e4a02dec5860514e52a861041b8aa82977
+    applicability: "This errata applies to part number prefixes RTPF500T, RTPF500ZT, RTPFS460ZT and
+    RTPFS160ZT." => THE FLIGHT DEVICE IS COVERED.
+(F) AN4903 Differences Between RTPF500T and RTPF500ZT
+    URL   https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ApplicationNotes/ApplicationNotes/Differences_Between_RTPF500T_and_RTPF500ZT_AN4903.pdf
+    HTTP 200   642314 B   sha256 76f85dfea823a034098c0103353fa6b20e5037496081d35ee5ca34e72251e387
+
+--- 3. quoted extracts (verbatim, with document/section) ---
+(A) TRM DS60001702S, section 3.12.12 "Watchdog":
+    "Watchdog_0 is associated with the E51 core and is the only one out of the five MSS watchdogs
+     capable of resetting the MSS when it triggers. Each of the other four watchdogs is maintained by
+     a dedicated U54 core and is only capable of interrupting the E51 upon triggering."
+(A) TRM DS60001702S, section 3.12.12.1 "Features":
+    "A 32-bit timer counts down from a preset value to zero, then performs one of the following
+     user-configurable operations: If the counter is not refreshed, it times out and either causes a
+     system reset or generates an interrupt to the processor."
+    "The watchdog timer counter is halted when the processor enters the Debug state."
+    "The watchdog timer can be configured to generate a wake-up interrupt when the processor is in WFI mode."
+(A) TRM DS60001702S, section 3.12.12.2.2 "32-Bit Counter":
+    "The MSS watchdogs are not enabled initially when the MSS comes out of Reset. When the device is
+     powered up, the watchdog timer is enabled with the timeout period set to approximately 10.47
+     seconds (if VDD = 1.2 V)."
+(A) TRM DS60001702S, section 3.12.12.2.3 "Timeout Detection":
+    "The MSS watchdog timeout is implemented as a locked down-counter configuration. The software loads
+     a start value into the WDOG_TIME register, programs the trigger threshold and periodically refreshes
+     the counter before the trigger level is crossed. If the counter crosses the trigger value, a
+     non-maskable timeout interrupt is asserted; if it continues to zero, a reset is generated.
+     Note: Only watchdog_0 can reset the MSS. The other watchdogs can only generate interrupts to the
+     E51 core."
+(A) TRM DS60001702S, Figure 3-36 "WatchDog Block Diagram" signal labels: WDOGLOAD[25:0], WDOGMVRP[31:0],
+    WDOGENABLE, WDOGTIMEOUT, WDOGTIMEOUTINT, WDOGWAKEUPINT, PROGRAMMING, PCLK, PORESETN, RCOSCRESETN.
+(A) TRM DS60001702S, MSS peripheral address table: WDOG0 20001000, WDOG1 20101000, WDOG2 20103000,
+    WDOG3 20105000, WDOG4 20107000 (each 0x1000 bytes).
+(B) PU/Reset UG DS60001676M, section 4.2.2.3 "MSS E51 Processor Watchdog Timeout Reset":
+    "The MSS can be configured such that the E51 processor's watchdog timer causes a reset of the MSS when
+     the timer runs out."
+(B) PU/Reset UG DS60001676M, section 4.2.2.3 (the reset-reason register):
+    "The user can access the 32-bit register RESET_SR to know which reset caused the MSS to be reset."
+(B) PU/Reset UG DS60001676M, section 4.2.1 (the external device-reset path, distinct from a watchdog reset):
+    "The DEVRST_N may be pulled low by an external source in order to schedule a full device reset and reboot. This is not an asynchronous reset, but asserts a
+     Non-Maskable Interrupt (NMI) to the processor in the system controller, which then starts the watchdog timer to schedule an unstoppable device reset, to be
+     asserted after the firmware has disabled I/Os and fully executed a safe power-down of the fabric."
+    and the associated sequence: "1. The reset signal propagates as a non-maskable interrupt to the System Controller, which first disables all the I/Os.
+     2. Starts the Watchdog timer to schedule a device reset. 3. Powers down the Fabric."
+(B) PU/Reset UG DS60001676M, Table 4-2 "MSS Reset Reasons":
+    "WDOG_RESET  5  Watchdog  This indicates that the watchdog reset has been activated."
+    (other reasons: SCB_PERIPH_RESET 0, SCB_MSS_RESET 1, SCB_CPU_RESET 2, DEBUGGER_RESET 3,
+     FABRIC_RESET 4, GPIO_RESET 6, SCB_BUS_RESET 7, CPU_SOFT_RESET 8, Reserved 31:9)
+(B) PU/Reset UG DS60001676M, section 4.2.2.4 "MSS Peripheral Soft Resets":
+    "Each MSS peripheral has a soft reset register (SOFT_RESET_CR) bit associated with it in the MSS
+     system registers and this bit must be written to "1" and then "0" to allow the peripheral to be used."
+(D) Product Overview DS00005395C, section 4.5.11 "Watchdog Timer":
+    "There are five watchdogs in the MSS, one per CPU. The watchdog guards against system crashes by
+     requiring that it is regularly serviced by the assigned processor. The watchdog is not enabled at
+     reset and generates a NMI upon reaching the trigger value. Once enabled, the watchdog cannot be
+     [disabled]."
+(E) Errata DS00006185A, section 1:
+    "This errata applies to part number prefixes RTPF500T, RTPF500ZT, RTPFS460ZT and RTPFS160ZT."
+(E) Errata DS00006185A, section 1 (device descriptions):
+    "Refer to the following documents for descriptions of ES and MS devices:
+     - RT PolarFire(R) RTPF500T MS Description
+     - RT PolarFire(R) RTPF500ZT MS Description
+     - RT PolarFire(R) SoC MS Description"
+(E) Errata DS00006185A, three items only: (1) Deprecated feature - use of external VERIFY_DIGEST with
+    the POR digest check for fabric components; (2) the SCSM re-entry restriction for RTPF500ZT, RTPFS460ZT
+    and RTPFS160ZT; (3) a pointer to the Libero SoC software errata.
+    => NO erratum concerns the MSS watchdog.
+
+--- 4. what these documents answer, and what they do not ---
+answer:   which watchdog can reset the MSS (only WDOG0/E51); the reset reason bit (WDOG_RESET, bit 5);
+           the power-up default timeout (approx. 10.47 s at VDD 1.2 V) and "not enabled initially when the
+           MSS comes out of Reset"; the counter semantics (32-bit down counter, NMI at the trigger
+           crossing, reset at zero); the debug-halt and WFI behaviours; the five instance base addresses;
+           the hardware load field width (26 bits) and MVRP width (32 bits); the peripheral soft-reset
+           release mechanism; the absence of any published watchdog erratum for the flight device.
+do NOT answer: the watchdog register map, reset values and design-time MSS configuration (the "PolarFire
+           SoC Device Register Map" document — not retrievable here); the counter clock / prescaler value
+           as a stated specification; the RT-specific "MS Description"; and every board-specific item
+           (MSS configuration flash-bit defaults, mission hart and instance assignment, the mission clock
+           assignment, the board reset scope) which is not a public document at all.
+
+--- 5. labelled INFERENCE (not a fact, not an adopted parameter) ---
+The TRM's "approx. 10.47 seconds" power-up default is consistent with the cited example driver's maximum
+load value 16 777 200 (0xFFF3D8) at a counter clock of about 1.6026 MHz, i.e. about 410 MHz / 256 -
+consistent with the header's stated prescaler of 256 but with a different AXI clock than the header's
+illustrative 25 MHz example (which yields 171 s for the same tick count). If that inference holds, the
+reaction-window ceiling (TRIGGER <= 4095 ticks) would be about 2.6 ms rather than the 41.9 ms computed at
+25 MHz. ASSUMPTIONS: the design-time default load equals the driver's maximum value, and the prescaler is
+256. NOT CONFIRMED: the counter clock and the prescaler are not stated in any retrieved document, and the
+design-time default load is in the document that could not be retrieved. No value is adopted here.
+
+--- 6. reproduction commands (no credentials, no access-control bypass) ---
+UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+B=https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ProductDocuments
+curl -sS -A "$UA" -o trm.pdf  "$B/ReferenceManuals/PolarFire_SoC_FPGA_MSS_Technical_Reference_Manual_VC.pdf" && sha256sum trm.pdf
+curl -sS -A "$UA" -o pur.pdf  "$B/UserGuides/Microchip_PolarFire_FPGA_and_PolarFire_SoC_FPGA_Power_Up_and_Reset_User_Guide_VC.pdf" && sha256sum pur.pdf
+curl -sS -A "$UA" -o ds.pdf   "$B/DataSheets/PolarFire-SoC-Datasheet-DS00004248.pdf" && sha256sum ds.pdf
+curl -sS -A "$UA" -o po.pdf   "$B/ProductBrief/Radiation-Tolerant-PolarFire-SoC-FPGA-Product-Overview-DS00005395.pdf" && sha256sum po.pdf
+curl -sS -A "$UA" -o er.pdf   "$B/Errata/RT_PolarFire_FPGA_and_SoC_FPGA_Devices_Errata_DS00006185.pdf" && sha256sum er.pdf
+curl -sS -A "$UA" -o an.pdf   "https://ww1.microchip.com/downloads/aemDocuments/documents/FPGA/ApplicationNotes/ApplicationNotes/Differences_Between_RTPF500T_and_RTPF500ZT_AN4903.pdf" && sha256sum an.pdf
+pdftotext -layout trm.pdf trm.txt ; pdftotext -layout pur.pdf pur.txt   # local text extraction only

@@ -29,7 +29,7 @@ FF_Status_t FF_MissionTablesInit(void)
     g_cfg.hk_period_ms = 1000u;
     g_cfg.telemetry_period_ms = 1000u;
     g_cfg.scheduler_tick_ms = 100u;
-    g_cfg.watchdog_timeout_s = 30u;
+    g_cfg.watchdog_timeout_s = 8u;
 
     FF_TblHandle_t h = FF_TblRegister(&(FF_Tbl_Def_t){.name = "mission_cfg",
                                                       .image = &g_cfg,

@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 1.4 |
-| Date        | 2026-10-17 |
+| Revision    | 1.6 |
+| Date        | 2026-10-24 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -113,7 +113,7 @@ provisional-profile note at the end of this section.
 | 3  | 25 | housekeeping report | TM | report id + data |
 | 3  | 27 | one-shot housekeeping report request | TC | count N[1] (`N >= 1`) + N report ids[1 each]; payload length must be exactly `1+N` octets; requests are processed in order, reporting the **first** error only while still serving the remaining valid ids (one-shot; no periodic arming) |
 | 5  | - | event report | TM | event id[@2], type, text |
-| 6  | 5 / 6 | memory dump (TC 6,5 -> TM 6,6) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0` or `length == 0`; with `FF_ERROR` when the region is unknown or `offset + length` exceeds the registered region — neither cause is distinguishable on the wire (both surface as S1(1,8) `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produce no response when it is clear) |
+| 6  | 5 / 6 | memory dump (TC 6,5 -> TM 6,6) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0`, `length == 0` or `length` exceeds `FF_PUS_MAX_TM_FRAME`; with `FF_NOT_FOUND` when no registered region carries the identifier, and with `FF_INVALID_ARGUMENT` when the region exists but `offset + length` lies outside it (region resolution precedes the range check, so an unknown region is never reported as a range refusal). These causes are **distinct in software** but **none of them is distinguishable on the wire by design**: every refusal surfaces as S1(1,8) with `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produces no response when it is clear. Validation precedence is: payload length, then `region id`/`length` range, then region resolution, then region bounds. The PUS-C failure-code allocation that would separate the causes on the wire is an interface-authority decision and is not made here (NC-EXT-18) |
 | 8  | - | function call | TC (dispatch) | function id |
 | 9  | 1 / 2 | time set / CUC report | TC/TM | 6-octet CUC T-field (P-field implicit; section 5) |
 | 11 | 1 / 2 | on-board control procedure (OBCP) activation — **stub** | TC | registered and answerable, but returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); no OBCP engine or script execution exists in this release (M15; NC-S9-01) |
@@ -122,6 +122,18 @@ provisional-profile note at the end of this section.
 
 Verification error codes: `FF_PUS_FAIL_*` (unknown service/subservice,
 illegal APID, execution failure).
+
+**Event-id catalogue note (interface-authority item, NC-EXT-102).** §4 documents
+the S5 *format* (`event id[@2], type, text`) but this ICD does **not** yet hold a
+controlled event-id *catalogue*. The framework currently emits at least
+`FF_EVS_PANIC_RESET` (`0x0104`, CRITICAL, emitted on the pre-reset panic path per
+S8-FDIR-01) and the health-monitoring heartbeat and failed-application events
+(`0x0502` and `FF_EVS_APP_ERROR` as implemented in `src/apps/app_hs.c`); the full
+set of ground-visible ids and their meanings is not yet under
+interface-authority control and is tracked by NC-EXT-102. Ground teams must not
+treat the ids emitted by this release as a controlled catalogue until the
+interface/requirements authority allocates them here and/or in the GSW event
+table.
 
 **Provisional profile note (authority pending).** **Every** service/subservice
 row in this section is a provisional framework default recorded in
@@ -214,3 +226,5 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 1.2 | 2026-10-16 | frick-fsw | Document disconnected-UART early-zero handling and explicit malformed plausible-PDL packet-loss/recovery limitation from R1 review |
 | 1.3 | 2026-10-17 | frick-fsw | R3 0371 F-002/F-003: replace the generic S3 "(admin)" row with the implemented subservice codes (1/3/5/6/27, with payload shapes) and replace the S6 `addr[4]+size[2]` description with the implemented provisional `region id[1] + byte offset[4 BE] + length[2 BE]` profile; add the provisional-profile/authority-pending note (ADR-0020; NC-EXT-16/18). No wire behavior changed by this revision |
 | 1.4 | 2026-10-17 | frick-fsw | R3 0375 delta review (APPROVED WITH COMMENTS) F-0375-01..04/06: qualify the S3 enable/disable rows (state flag only; no periodic emission path exists), document the TM[6,6] payload shape and the S6 reject/error causes including their non-distinguishability on the wire, add the TC[3,27] `N>=1`/exact-`1+N`/first-error-continuation rules, extend the provisional note to cover every row in §4 (S1/S3/S5/S6/S8/S9/S11/S17/S20), and add the answerable Service 11 OBCP stub row. No wire behavior changed by this revision |
+| 1.5 | 2026-10-20 | frick-fsw | S8-FDIR-01: add the event-id catalogue note after §4 recording that the S5 format is documented but no controlled event-id catalogue exists yet, that `FF_EVS_PANIC_RESET` (`0x0104`, CRITICAL) is now emitted on the pre-reset panic path, and that the ids are not authoritative until the interface/requirements authority allocates them (NC-EXT-102). No wire behavior changed |
+| 1.6 | 2026-10-24 | frick-fsw | S8-PUS-FU NC-EXT-18: describe the implemented S6 refusal causes as distinct software-visible statuses (`FF_NOT_FOUND` for an unregistered region identifier, `FF_INVALID_ARGUMENT` for an out-of-region offset+length, region resolution first) while restating that they remain deliberately indistinguishable on the wire pending the interface-authority failure-code allocation. No wire behavior changed by this revision |

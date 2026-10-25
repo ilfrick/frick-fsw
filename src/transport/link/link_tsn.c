@@ -263,5 +263,6 @@ const FF_Link_t FF_LinkTsnBackend = {
     .name = "tsn_eth",
     .init = tsn_link_init,
     .send = tsn_link_send,
+    .send_until = NULL,
     .recv = tsn_link_recv,
 };

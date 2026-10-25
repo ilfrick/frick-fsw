@@ -7,6 +7,370 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### S8-FDIR-01 watchdog specification acceptance round 2 and official-document retrieval (2026-10-22)
+
+Documentation, research and review only, under the owner-authorized path A
+(ESC-9: specification first, no implementation or register write). The owner's
+second message of that exchange (1407) was a review/agent-model request and is
+**not** a further watchdog approval.
+
+- **Acceptance corrections to FRICK-ARCH-0024 (rev 1.3 → rev 1.4).** The NC-1
+  negative-control oracle was not discriminating: it required the *negative*
+  case HS-P1 (wrong key ⇒ no reload) to fail, which a binding omitting the
+  refresh key entirely still satisfies. It now detects on the **positive** case
+  **HS-P2** (correct key ⇒ reload), HS-P1 remains the negative case, and the
+  **healthy control** (both cases pass with the key present) is stated
+  explicitly. HS-P5 now separates the **stimulus** from the **oracle** and is
+  defined against the mock model's ordered **write observer**. Three metadata
+  items were corrected (the §5.4 item count, the evidence index's proposal
+  revision, a dangling section pointer).
+- **Official issuer documents retrieved** through Microchip's public download
+  path (the product pages and `/downloads/en/DeviceDoc/` are edge-blocked from
+  this environment; no access control was circumvented): MSS Technical Reference
+  Manual rev S (DS60001702S), PolarFire SoC and **RT** PolarFire SoC Power-Up
+  and Resets User Guide rev M (DS60001676M), PolarFire SoC data sheet rev E
+  (DS00004248E), Radiation-Tolerant PolarFire SoC product overview rev C
+  (DS00005395C), RT PolarFire FPGA/SoC errata rev A (DS00006185A — explicitly
+  applies to RTPFS160ZT) and AN4903. URLs, HTTP status, sizes and SHA-256 are
+  retained with the quoted extracts; the issuer's PDFs are not copied into the
+  repository (N13 boundary).
+- **Facts that change the design basis.** Only `WDOG0` (the E51's watchdog) can
+  reset the MSS; each U54 watchdog can only interrupt the E51, so a U54 watchdog
+  is a hang detector, not a reset provider — the rev 1.3 instance recommendation
+  is **withdrawn** and agenda item C is reframed. The power-up default timeout
+  is ≈10.47 s. The counter halts in Debug state and can raise a wake-up
+  interrupt in WFI. The hardware load field is 26 bits. A watchdog reset is
+  observable as `WDOG_RESET` (bit 5) and resets the **MSS**, not the device.
+  Each MSS peripheral may need a soft-reset release before use. The
+  RTPFS160ZT-applicable erratum contains **no** watchdog item.
+- **Confirmation addenda of rev 1.4 (FRICK-REVIEW-0428 embedded safety, FRICK-REVIEW-0429
+  V&V) — two dated, independent confirmations of the corrected body**, each verifying
+  the reviewed body identity by SHA-256 and each distinguishing the earlier findings
+  it confirmed as corrected from the points it re-checked independently. The original
+  0424/0425/0426/0427 texts are retained unchanged. Their findings produced **rev 1.5**:
+  the corrupted §1 status bullet repaired; the review-coverage attribution corrected
+  (the rev 1.2 reviews are no longer presented as reviews of this revision); the
+  companion proposal aligned to rev 1.5 with the superseded instance selection
+  withdrawn; the host mock's key-checked reload semantics and the reload/feed-outcome
+  observables declared as a precondition of the host suite; the HS-P5 oracle relaxed
+  to a relative-order requirement (which preserves the NC-3 discrimination) with its
+  stimulus's delivery mechanism stated; the §5.1 emulator row split into "sequence"
+  and "order"; the `RESET_SR`/`DEVRST_N` quotations added to the retained retrieval
+  record; the three §5.1 host cells that have no host case marked as an open item
+  (NC-EXT-205); the §5.4 leg-to-quantity mapping added; the HS-P1/HS-P2 inputs
+  pinned; the target-only heading scoped to the current emulator scope; and the
+  editorial defects corrected.
+- **Final read-only acceptance checkpoint (2026-10-22).** The three frozen artefacts — FRICK-ARCH-0024
+  rev 1.5, FRICK-ARCH-0023 rev 1.5 and the official-document retrieval log — were verified by
+  SHA-256 (spec `9b09605c…`, proposal `749ecafc…`, retrieval log `54a44964…`) and confirmed by two
+  short independent read-only addenda, **FRICK-REVIEW-0430** (embedded safety) and
+  **FRICK-REVIEW-0431** (V&V), each scoped to the 1.4→1.5 delta and each stating explicitly that
+  it does not extend, re-open or restate the rev 1.4 confirmation addenda. **No design defect was
+  found.** The arithmetic annotation slip in the retrieval log's *labelled inference*
+  (16 777 200 = `0xFFFFF0`, not `0xFFF3D8`; no conclusion changes, the value is not adopted) and
+  the structural/metadata observations are recorded as **OPEN/deferred** (NC-EXT-206, plus a
+  wrong-key-class residual added to NC-EXT-205); per the owner's direction the **frozen bodies were
+  not modified** and no refactoring or new test plan was started. The checkpoint record is retained
+  at `docs/vv/evidence/2026-10-22-s8-fdir-wd-final-readonly-acceptance.log`. No production, source,
+  register, probe, build, model, configuration or mission change; no parameter, clock, timeout,
+  instance or reset policy adopted; no NC or gate closed; nothing committed or pushed.
+- **Still owner-supplied.** The "PolarFire SoC Device Register Map" (register
+  descriptions, reset values, design-time configuration) and the RT "MS
+  Description" are **not retrievable** here and remain the outstanding
+  controlled input; the board-specific MSS configuration, mission hart,
+  instance and clock assignment are not public at all. **No parameter, clock,
+  timeout, instance or reset policy was adopted; N18 remains FAIL and Lean
+  PASS per the retained evidence (neither re-run); no NC or gate was closed;
+  nothing was committed or pushed.**
+
+### S8-FDIR-01 owner-directed delta and post-review remediation (2026-10-21)
+
+Continuation of the same owner-approved increment (Telegram 1317/1318). The
+owner directed: bound the console/UART panic reporting to one absolute
+monotonic 250 ms attempt deadline, propagate real watchdog arm/feed errors
+without any degraded flight mode or interlock, keep `FF_PalWatchdogCheck`
+diagnostic-only, audit and reuse the existing pinned Renode model rather than
+starting a new emulator project, and treat 8 s as an arbitrary placeholder.
+No requirement wording, hardware cadence, watchdog configuration, gate, NC,
+safety or release decision was changed, and nothing is committed (N7).
+
+- **Single shared deadline through the pre-reset path.** `FF_PalPanic` now
+  computes one absolute monotonic deadline (`FF_PANIC_REPORT_BUDGET_MS`, 250 ms)
+  and passes it to the console writer, the PUS direct writer and the link
+  backend. The console write is bounded by a non-blocking writer that retries
+  against the shared deadline; the UART backend gained a deadline-aware
+  `send_until` that never blocks in `write()`. (The first implementation used a
+  poll-driven wait; it was replaced because RTEMS 6.2 implements no `poll()` —
+  see the flight-target link defect below.) The reset request remains
+  unconditional: a failed or absent notification cannot prevent the reset.
+- **Watchdog error propagation.** `FF_PalWatchdogInit/Feed` now surface the
+  backend result instead of discarding it, and the feeder turns a failed arm or
+  feed into the single reset path. The RTEMS/MPFS binding stays deliberately
+  unwired (NC-PAL-01).
+- **Functional defect corrected (host path).** The flight wiring installs
+  `FF_LinkSendUntil` as the panic reporter, but the loopback backend — the
+  default on the host simulator — had no deadline-aware writer, so the
+  pre-reset report was silently dropped there. The loopback backend now
+  implements `send_until` and honours an already-expired deadline; the target
+  UART backend was unaffected.
+- **Host fault-path evidence.** External link-time harnesses only (no flight
+  hook, no degraded mode, no bypass): a `nanosleep` wrapper injecting EINTR
+  and a non-EINTR error into the PAL absolute wait, and a `write` wrapper
+  forcing deterministic short writes on the UART slave descriptor. New cases
+  cover the failed-feed state, the reset-hook error, a saturated console that
+  consumes the shared budget before the notification runs, the production
+  reporter wiring delivering exactly one frame, UART partial-progress and stall
+  timeouts, and the exact 96/97/256-character panic-reason boundary. The
+  over-length cases **characterize** the current behavior (a reason longer than
+  the event-text capacity suppresses the report) and are explicitly not a
+  passing requirement oracle.
+- **Evidence on the current tree.** Direct native build and full CTest 44/44
+  PASS; executed targeted counts `test_pal_watchdog` 320, `test_es_hs_lifecycle`
+  180, `test_link_uart` 71, `test_time` 113, all zero failures; `make trace`
+  PASS; pinned `frick-vv:local make format-check` PASS. Raw transcript and a
+  recomputed source-hash manifest are retained under
+  `docs/vv/evidence/2026-10-21-s8-fdir-post-review-*`. **Host evidence only:**
+  no target WCET, no target/HIL, no hardware-watchdog or flight-readiness
+  claim. `make build` still times out in dependency preparation, the current
+  tree has no Lean run (the cached V&V image provides the `lake` executable but
+  no toolchain), `make smoke` is still blocked by pre-existing ignored
+  generated third-party directories, and N18 was not rerun.
+- **Flight-target link defect found and corrected.** The owner-directed delta
+  had introduced `poll()` into the RTEMS-compiled console and UART writers.
+  RTEMS 6.2 provides the `poll.h` types but implements **no** `poll()`, so the
+  flight target did not link (reproduced: the project cross-build failed with
+  `undefined reference to 'poll'`). The bounded writers now use a non-blocking
+  descriptor with a short back-off and a retry against the shared deadline, and
+  restore the descriptor mode afterwards. A fresh RTEMS 6.2 cross-build with
+  the cached toolchain image now configures, links and produces `frick_fsw`,
+  exporting no `poll` symbol and none of the `FF_TEST_HOOKS` test seams. This
+  is a build/link result only — no target execution, timing or watchdog result
+  is claimed.
+- **Independent reviews retained.** R1 `FRICK-REVIEW-0409`, R2 `0410`, R3
+  `0411` and R4 `0412` for the owner-directed delta, then R1 `0414`
+  (**rejected for closure of 0409**: the over-length text policy and the
+  unbounded formatting work remain open), R2 `0415` and N20 PA `0413`
+  (**not approved**: reset-path liveness Blocker plus requirement-semantics,
+  target-timing, cadence, unwired-binding, evidence-currency and authority
+  findings), and finally R1 `0416`, R2 `0417` and N20 PA `0418`
+  (**not approved**: the flight-target link Blocker above, plus evidence-identity
+  and record-currency findings). The 0409-0418 findings are registered as
+  **NC-EXT-184..190**, all OPEN. No gate passes and no NC closures.
+- **Watchdog integration specification (owner path A, 2026-10-22).** The owner authorized wiring the MPFS/MSS watchdog **starting from a controlled specification for approval before any implementation or register write**, and rejected operating without a watchdog. The specification is produced at `docs/architecture/mpfs-mss-watchdog-integration-spec.md` (FRICK-ARCH-0024 rev 1.1) and independently reviewed (FRICK-REVIEW-0424 embedded safety, FRICK-REVIEW-0425 V&V; both retained, findings applied). It pins the public Microchip reference set by commit and SHA-256 (not retained in the tree per the N13 boundary), records that the installed RTEMS BSP contains **no MSS register map and no MSS watchdog driver** (inventory transcript retained), separates verified facts from recommendations and from **M-1..M-16 missing owner inputs**, corrects the emulator/host test sets and adds the missing cases with a negative control, adds the target/HIL legs including the two NC-PAL-01 closure conditions, and presents the **owner decision table D-01..D-15, all OPEN**. The proposal's "capability absent ⇒ non-fatal" variant is **withdrawn**; the alternative is keeping the N18 gate blocked and FAIL. **Documentation only** — no binding, no register write, no production change, no policy decision, no NC or gate closed, no commit or push; N18 remains FAIL and Lean remains PASS per the retained evidence.
+- **N18 runner corrected (NC-EXT-199, 2026-10-21).** The prescribed runner wrote its log to fixed `/tmp` paths that were not writable in this environment, so the redirections failed silently and the verdict was taken from a **stale 2026-10-20 log**: the runner printed `PASS (RENODE_TEST: PASS)` although the current run had no marker. The runner now writes into a fresh per-run directory, the verdict is taken only from it, a missing/unreadable/empty capture fails closed, the container status/exit code and the bounded-wait outcome are preserved, and a marker-absent run is distinguished as a target startup fatal exit or a timeout. A regression suite (genuine recorded runs only, registered with CTest) covers the stale-PASS, invalid-capture, recorded-success and recorded-startup-fatal cases and is mutation-verified; independent review FRICK-REVIEW-0423 confirmed it. **The N18 result on the current tree is unchanged: FAIL**, because the target panics at start-up (NC-EXT-198). A bounded integration proposal for that failure — two options, recommendation, evidence, required owner decisions and limits — is recorded in `docs/architecture/n18-watchdog-integration-proposal.md`; nothing was implemented.
+- **Owner-authorized Lean and Renode gates (2026-10-21, Telegram 1397).** The project-pinned Lean toolchain (`leanprover/lean4:v4.10.0`, Lean 4.10.0 commit `c375e19f6b65`) was installed through elan in the controlled V&V image into a dedicated cache (`~/.cache/frick-fsw/elan`, no global default change) and the prescribed `lake build` now **passes** on the current tree. The digest-pinned Renode image was downloaded and its digest verified against the prescribed pin, the current-tree Renode ELF was rebuilt, and the N18 functional validation **fails**: the target panics at start-up (`[FF-PANIC] watchdog: init failed` → RTEMS fatal exit 5) because the owner-approved arm-error propagation treats the unwired MPFS binding's `FF_NOT_IMPLEMENTED` as a fatal arm failure, so the `RENODE_TEST: PASS` marker is absent from this run's process log and UART console — recorded as **FAIL**, not PASS and not SKIP (**NC-EXT-198**, owner decision required). The prescribed runner's own `PASS` verdict was a **false PASS** from a stale 2026-10-20 log, because its fixed `/tmp` log paths are not writable in this environment (**NC-EXT-199**). No watchdog policy, cadence, binding or requirement wording was changed, and the emulator result stays separate from hardware/HIL/WCET qualification.
+- **NC-EXT-197 corrected (2026-10-21, owner-authorized).** The UART test
+  drain thread's stop flag was a `volatile bool` field of a main-thread stack
+  object shared with the drain thread; `volatile` provides no inter-thread
+  synchronization, and ThreadSanitizer reproduced the resulting C11 data race
+  (read at `test_link_uart.c:97` versus write at `:304`) on the send-failure
+  path. The flag is now protected by a POSIX `pthread_mutex_t` in the same
+  object — the project requires C99, so C11 atomics are not used — initialized
+  before `pthread_create` and destroyed after `pthread_join`; the stack-object
+  lifetime, the bounded drain shutdown and the forced send-failure semantics are
+  unchanged, and no production source, coverage, expected result or sanitizer
+  setting was touched (UART checks 72 → 74, two assertions added). The identical
+  forced-failure reproducer now reports **zero** races; the before/after pair
+  and the exact pre-fix source are retained as evidence, and independent review
+  FRICK-REVIEW-0422 verified the fix. NC-EXT-197 remains **OPEN** for owner
+  disposition.
+- **Handover acceptance verification (2026-10-21).** The review chronology was
+  reconciled against the file timestamps: the production sources were unchanged
+  since FRICK-REVIEW-0419/0420, but the strengthened exactly-one-frame oracle
+  and the descriptor-restore/partial-frame assertions were edited afterwards
+  and had not been independently reviewed. A fresh narrow N20 review
+  (**FRICK-REVIEW-0421**) verified them — the exactly-one-frame oracle fails on
+  a **duplicate-emission mutation of the production `FF_LinkSendUntil` path**,
+  with a control run proving the pre-correction oracle did not — and the
+  mutation is now **retained** in the evidence log. The review's one Major and
+  six Minor record/oracle findings were corrected in the acceptance round and
+  registered as **NC-EXT-193..196**, all OPEN. The authority set (report
+  obligation and mandatory-text envelope, bounded formatting, the 250 ms
+  target, the watchdog cadence/refresh window/margin, and the unwired target
+  watchdog) remains undecided and with the named human authorities.
+- **Open authority items (unchanged, not decided here).** The exactly-one
+  applicability and the mandatory-text/input envelope of SRS-REQ-074, the
+  bounded-formatting design, the controlled MSS refresh window and the
+  approved execution/jitter margin, and the target/HIL evidence. The feeder
+  cadence is deliberately left unchanged for that reason.
+
+### S8-FDIR-01: panic / reset-recovery (PAL watchdog + PUS S5 pre-reset report) (2026-10-20, reviewed 2026-10-21)
+
+Owner-authorised FDIR increment implementing ECSS/SAVOIR/industry watchdog
+best practice. This batch advances the engineering baseline (first real code
+change since `318f49b`); it closes no NC and carries no gate, phase,
+qualification, safety or release claim. Nothing is committed until all
+applicable gates/norms and the sprint scope close (N7).
+
+- **PAL hardware-watchdog abstraction (new).** `src/core/pal/pal_watchdog.c`
+  implements the portable arm/feed/expiry state machine and counters; the
+  contract is declared in `src/core/pal/pal.h`
+  (`FF_PalWatchdogInit/Feed/Check/Reset` + `Get*`). The platform hooks
+  `ff_pal_wd_hw_arm/_feed/_reset` are bound in `pal_posix.c` to a **simulated
+  host backend** so the harness is exercisable on the host.
+- **Single reset path for hang and commanded reset.** `FF_PalPanic` is reworked
+  to the deliberate order: console log → pre-reset ground report →
+  `FF_PalWatchdogReset` (the one reset path) → test handler → `abort()` (never
+  silently continue). Both a starved watchdog and an explicit software reset
+  reach the same path.
+- **Pre-reset ground report (D3).** Per owner decision the reset notification is
+  a TM sent over PUS, using **PUS-C Service 5 (Event Reporting) subservice 3
+  (CRITICAL)**. To be usable on the panic path it was made lock-free by
+  construction: `FF_PusSendTmDirect` + `FF_PusEmitPanicEvent` +
+  `FF_PusInstallPanicReporter`, a static frame buffer, pure encoders, and a
+  bounded text length; it bypasses the EVS/SB/PUS/queue/time locks (the time
+  mutex is unusable here, so the timestamp is a **degraded monotonic, non-UTC**
+  value). `fsw_main.c` wires the reporter to `FF_LinkSend`.
+- **Dedicated feeder app (new).** `src/apps/app_wd.c` (`FF_AppWdMain`) is the
+  **lowest-priority** app: it arms the watchdog at boot and feeds it every
+  `watchdog_timeout_s`/4. If higher-priority work hangs, the feeder is starved
+  and the independent hardware watchdog is intended to reset the processor (binding **not wired** on the MPFS target, NC-PAL-01).
+- **Mission-table timeout.** `watchdog_timeout_s` in
+  `config/tables/fsw_tables.c` is now live configuration (it was dead before);
+  the default changed **30 s → 8 s** under owner authorisation, fed every 2 s.
+  New event `FF_EVS_PANIC_RESET` (`0x0104`, CRITICAL) in `config/fsw_config.h`.
+- **RTEMS binding deliberately NOT WIRED.** `src/core/pal/pal_rtems.c` returns
+  `FF_NOT_IMPLEMENTED` (with a clear log) for the MPFS MSS watchdog hooks, so
+  the binding is not fabricated. Consequence: **no real reset protection exists
+  on the flight target** until it is wired — registered as **NC-PAL-01** (Major
+  FDIR completeness; target/HIL closure with authorised-human sign-off).
+- **RTEMS integration limits documented** in the integration and user docs (the
+  binding is unwired; it must be wired to real inputs and stimulated on target).
+- **Requirements + formal model.** SRS-REQ-073/074/075 (arm/feed, report-before-
+  reset, single-reset-path) added with traceability manifest entries and honest
+  `lean_note`s. `verification/lean/Frick/Watchdog.lean` adds 6 theorems
+  (`req_srs073_*`, `req_srs074_report_precedes_reset`, `req_srs075_*`); the
+  unmodelable hardware part is covered by a `lean_note`. **Lean defect corrected
+  under N21 (NC-EXT-120, found by R2 V&V review B-01):** the module was not
+  import-reachable (`Frick/Requirements.lean` did not import it, and the default
+  `lake build` target builds only `Main`), so the six theorems were never
+  elaborated; once made reachable the file **did not compile** (`List.idxOf` /
+  `List.count` do not exist in Lean 4.10 core). `Frick/Requirements.lean` now
+  imports `Frick.Watchdog`; the two theorems were re-expressed with core `List`
+  operations (index equality and `filter`/`length`); theorem names are unchanged.
+  A `lake build` in Lean 4.10.0 now compiles the module (`Watchdog.olean`, 25
+  steps, "Build completed successfully"). NC-EXT-120 stays OPEN pending
+  independent R2/R3 re-review under N12.
+- **Tests (N22).** `tests/unit/test_pal_watchdog.c` (new) covers the nominal
+  harness, out-of-bound feeders, and the SRS-REQ-073 mission-table derivation
+  (timeout source, `feed <= timeout/4` property over 1..60 s, 16-bit maximum,
+  and rejection of a NULL/zero-timeout table). `tests/unit/test_es_hs_lifecycle.c`
+  gains the reset-path nominal + out-of-bound cases (unregistered S8 function id
+  → rejected, no reset and no report; malformed/truncated S8 → rejected, no reset
+  and no report; failing reporter → reset still enforced; **no reporter installed
+  (notifier NULL) → reset still enforced, no report emitted**). Executed check
+  counts with a stated basis (see NC-EXT-130): `test_pal_watchdog` 298,
+  `test_es_hs_lifecycle` 109, both 0 failures; suite 44/44 CTest
+  (`docs/vv/evidence/2026-10-21-s8-fdir-gates.log` sections 2-3). The earlier "32 checks"/
+  "94 checks" figures were runtime counts that went stale when the suites
+  were extended and are superseded (NC-EXT-130).
+- **Test-oracle corrections after independent review (N21).** R2
+  `FRICK-REVIEW-0405` found that the "exactly one pre-reset report" clause was
+  only checked for presence: the writer now increments a report counter, the
+  nominal case asserts `== 1` and every rejected-command case asserts `== 0`
+  (NC-EXT-121, NC-EXT-127). The expiry boundary margin was widened from 1 ms to
+  100 ms on the same 1000 ms timeout so host jitter cannot flip the verdict
+  (NC-EXT-126), and the missing NULL-notifier case was added (NC-EXT-128). The
+  watchdog derivation was extracted as the pure, side-effect-free
+  `FF_AppWdPlan()` used unchanged by `FF_AppWdMain`, so the SRS-REQ-073
+  timeout-source and quarter-period clauses are objectively testable
+  (NC-EXT-122); the target arming order and hardware reaction remain HIL scope.
+- **Traceability attribution corrected.** `traceability.yaml` no longer lists
+  `tests/unit/test_pal_watchdog.c` as SRS-REQ-074 evidence (that suite installs
+  no panic reporter and cannot observe the PUS S5 report) — NC-EXT-124; the
+  human-readable mirror is regenerated (rev 0.52) and TS-5 is at rev 1.8.
+- **Test-seam isolation defect corrected.** `FF_TEST_HOOKS` (which exposes the
+  panic-observer and watchdog-starve seams) was defined for `frick_fsw_core`
+  whenever `FF_BUILD_TESTS` was ON, and the RTEMS/Renode build commands did not
+  pass `FF_BUILD_TESTS=OFF`, so the test-only seams could be compiled into the
+  RTEMS build. `CMakeLists.txt` now gates the define on
+  `FF_BUILD_TESTS AND NOT FF_PLATFORM MATCHES "^rtems"`, matching the test-target
+  gate, so the seams are absent from flight/RTEMS builds.
+- **Verification evidence.** `make build` PASS; `make test` **44/44 PASS**;
+  `make smoke` PASS (asserts **7 applications registered** after the WD app;
+  `run_sim.sh`/`qemu_vv.sh` app counts updated); `make trace` PASS (120 reqs, 76
+  SRS, 30 SSS, 14 gaps, 68 Lean theorems); `lake build` PASS in the pinned Lean
+  4.10 image. TS-5 rev 1.6 corrected `N22-TS5-50` (was falsely `covered`),
+  restated `N22-TS5-52`, added `N22-TS5-78`–`82`, 82 total / 60 covered / 22 gap.
+  Tool-qualification rev 0.3.90 registers the new T3/T4 evidence and downgrades
+  T20 (`qemu_vv.sh` changed, not re-run) to "current delta not requalified".
+- **Gaps carried, not waived.** Renode models no watchdog, so the hardware reset
+  is **GAP-A5 / TS-5 `N22-TS5-82`** target/HIL evidence, not a waiver. The new
+  ground-visible event id is not yet in the ICD event catalogue
+  (**NC-EXT-102**). FDIR monitor/threshold and recovery-budget FMECA linkage and
+  system/HIL validation remain open.
+- **Not safety-approved.** Independent N17 R4 documentation review
+  `FRICK-REVIEW-0386` was performed on 2026-10-20 and **REJECTED** (1 Major,
+  4 Minor, 4 Comments); findings are registered as NC-EXT-103..111. The Major
+  traceability-mirror correction is in the working tree and `make trace` passes,
+  but R4 delta re-review is pending.
+- **Independent reviews of the increment (2026-10-21), draft evidence only.**
+  R2 V&V `FRICK-REVIEW-0405` (`docs/reviews/2026-10-21-s8-fdir-01-vv-r2-0405.md`)
+  completed read-only with 1 Blocker, 6 Major/Minor and 2 Comments, each with
+  `file:line` evidence; the Blocker (B-01) was a **real defect** — the Lean module
+  was not in the build graph and did not compile — corrected under N21 and
+  registered as NC-EXT-120. The remaining findings are NC-EXT-121..129 and the
+  evidence-integrity finding is NC-EXT-130. The bounded N12 re-review of those
+  corrections, `FRICK-REVIEW-0407`
+  (`docs/reviews/2026-10-21-s8-fdir-01-vv-r2-delta-0407.md`), confirmed 5 of the
+  7 corrections, recorded one as only partially evidenced (no pre-correction
+  baseline) and raised NC-EXT-131..140. The R4 (N17) review is
+  `FRICK-REVIEW-0408` with findings NC-EXT-142..164, including its own Blocker
+  (NC-EXT-141: review reports cited but not retained) which is corrected by
+  publishing them. The R3 (requirements/system) and PA (N20) legs were performed
+  in the same session but their **reports are still not retained** in
+  `docs/reviews/`; that gap stays OPEN as NC-EXT-141 and those legs are recorded
+  as pending, not satisfied. All NCs remain **OPEN**; none of the
+  reviews approves, closes or waives anything. Findings touching safety-critical
+  FDIR/reset-recovery behaviour (NC-EXT-129, NC-PAL-01, NC-EXT-132, the
+  initialisation/arm-result handling, and the R3 system-level assumptions) are
+  **escalated to the authorized human owner** and are not dispositioned by the
+  FSW engineer.
+- **PA (N20) review and the escalation record (2026-10-21).** The independent
+  PA review is `FRICK-REVIEW-0406`
+  (`docs/reviews/2026-10-21-s8-fdir-01-pa-0406.md`), now published and indexed:
+  1 Blocker, 8 Major, 8 Minor and 2 Comments, registered as NC-EXT-166..183 and
+  all OPEN. The Blocker (**NC-EXT-168**) observes that the panic path is
+  documented as bounded and lock-free but performs stdio output and then the
+  flight-link write **before** the reset, and that the UART link's write can
+  block — so the pre-reset report can prevent the reset it is supposed to
+  precede, contrary to SRS-REQ-074. PA also found that R2's safety-relevant C-02
+  had never been registered and that the feeder emits an INFO "WD armed" event on
+  a target where nothing is armed (**NC-EXT-169**). **No safety position is taken
+  here:** the open safety and requirement questions are recorded in
+  `docs/status/escalations.md` (ESC-1..ESC-8), each **AWAITING OWNER**, and the
+  FSW engineer does not decide, accept or waive them.
+- **Evidence binding corrected.** `docs/vv/evidence/2026-10-21-s8-fdir-gates.log`
+  is now a **single run over one tree state** carrying a `git rev-parse`/status
+  identity, a hash manifest over `src/`, `config/`, `tests/` and the Lean
+  sources, a per-gate `exit=` code, the `clang-format --version` identity, the
+  `make metrics`/`make coverage` result (`coverage.json` sha256 recorded) and the
+  regenerated ASN.1 set hash. The earlier CTest transcript is retained with an
+  explicit SUPERSEDED banner because it predates the NC-EXT-138 case.
+- **Gate re-run on the corrected tree.** `make build` PASS; `make test` 44/44
+  PASS; `lake build` clean 25/25 including `Frick.Watchdog`; `make trace` PASS
+  (120/76/30/14, 68 Lean theorems); pinned `format-check` PASS in
+  `frick-vv:local`; `make smoke` PASS (7 applications); `make gsw-selfcheck`
+  PASS; `make docs-container` PASS. Transcripts are retained in
+  `docs/vv/evidence/2026-10-21-s8-fdir-{ctest,lean-build}.log` and the tracked
+  `verification/lean/lake-build.log` was refreshed to the 25-step module set.
+  These are host/emulator results — **no** target, HIL, radiation or
+  qualification evidence is claimed, and nothing here is committed (N7).
+  Safety-critical reset-recovery behaviour requires authorised-human sign-off.
+- **Bounded documentation corrections after FRICK-REVIEW-0386 (2026-10-20).**
+  The working tree corrects the human traceability mirror (NC-EXT-103, trace gate PASS), document revision/history and registered-application counts
+  (NC-EXT-104..107), and the current `status.json` note (NC-EXT-110). These
+  findings remain OPEN pending independent R4 delta re-review. `docs/vv/verification-results.md` 2.95 records only the checks actually re-run; the full N15 cycle
+  remains incomplete because Docker access is denied and the generated ASN.1
+  source tree is not readable by this process. The independent R4 delta review also identified that the M1 v0.1.0 summary
+  retroactively counted WD; `docs/development-plan.md` rev 0.42 now restores the
+  six-app historical baseline and dates WD's later S8-FDIR-01 addition. The bounded
+  recheck confirmed the baseline correction, caught the incorrect option spelling
+  (corrected to `FF_ENABLE_RENODE_TEST` in development-plan.md rev 0.43), and noted
+  stale six-app current-count comments in CMake/app_renode_test. The two stale comments were then corrected after the owner confirmed OpenCode
+  was idle; the edit is comment-only and changes no application behavior. No
+  finding, gate or approval is closed.
+
 ### Easy fixes: masked decoder sub-case + documentation accuracy (2026-10-19)
 
 Independent R2/R3 delta review of the S8-VV-FU increment
