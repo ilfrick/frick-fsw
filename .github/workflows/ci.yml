@@ -155,13 +155,43 @@ jobs:
       - name: lake build
         working-directory: verification/lean
         run: lake build
+      # NC-EXT-174: explicit elaboration of every Frick/*.lean module (not just
+      # the default build graph) with per-module source/olean/argv binding.
+      - name: Source-bound elaboration receipt (NC-EXT-174)
+        run: python3 tools/scripts/lean_elab_receipt.py
+      - name: Record receipt digest
+        run: >
+          (cd verification/lean/.lake/build &&
+          sha256sum elab_receipt.json > elab_receipt.sha256)
+      - name: Upload elaboration receipt and olean outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: nc174-elab-receipt
+          if-no-files-found: error
+          path: |
+            verification/lean/.lake/build/elab_receipt.json
+            verification/lean/.lake/build/elab_receipt.sha256
+            verification/lean/.lake/build/lib/Frick/**
 
   # evidence: ci-trace (norm N4; SRS-REQ-020, SSS-REQ-012/013)
   trace:
     name: traceability gate
+    needs: [verify-lean]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      # Explicit artifact transfer: job ordering alone does not move files.
+      - name: Download elaboration receipt and olean outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: nc174-elab-receipt
+          path: verification/lean/.lake/build
+      - name: Verify receipt digest
+        run: >
+          (cd verification/lean/.lake/build &&
+          sha256sum -c elab_receipt.sha256)
+      - name: Validate elaboration receipt binding
+        run: python3 tools/scripts/validator_checkpoint.py
       - name: Run traceability convergence gate
         run: python3 tools/scripts/trace.py docs/requirements/traceability.yaml
 

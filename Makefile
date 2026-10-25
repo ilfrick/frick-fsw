@@ -16,7 +16,7 @@ BUILD_DIR ?= build/native
 CMAKE ?= cmake
 
 .PHONY: all fetch-third-party configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
-        trace format format-check docs docs-container doxygen rtems docker-image clean smoke gsw-selfcheck \
+        trace lean-receipt lean-receipt-validate format format-check docs docs-container doxygen rtems docker-image clean smoke gsw-selfcheck \
         coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
 
 all: build
@@ -51,11 +51,29 @@ gsw-selfcheck:
 	python3 tools/gsw/ff_gsw.py --ping
 
 # Formal verification with Lean4 / lake (installed via elan).
+# `verify-lean` is the default build graph; `lean-receipt` additionally
+# elaborates *every* Frick/*.lean module explicitly (NC-EXT-174).
 verify-lean:
 	cd verification/lean && lake build
 
-# Traceability convergence check (rules N1..N4).
-trace:
+# `lean-receipt` elaborates every Frick/*.lean in dependency order after
+# clearing the enumerated outputs; it rides on `verify-lean` so it never
+# runs against a different toolchain/resolution state.
+# Source-bound elaboration receipt (NC-EXT-174): explicit per-module
+# elaboration of every Frick/*.lean plus olean/toolchain/config/dependency
+# binding. Refuses to write on any failure, skip, empty or non-regular output.
+lean-receipt: verify-lean
+	python3 tools/scripts/lean_elab_receipt.py
+
+# Strict receipt consumer: fails with a specific diagnostic on a missing,
+# malformed, stale or unbound receipt.
+lean-receipt-validate: | lean-receipt
+	python3 tools/scripts/validator_checkpoint.py
+
+# Traceability convergence check (rules N1..N4). Requires a validated
+# NC-EXT-174 elaboration receipt; it never assumes an earlier job built Lean.
+# Generate it first with `make lean-receipt` (CI transfers it as an artifact).
+trace: lean-receipt-validate
 	python3 tools/scripts/trace.py docs/requirements/traceability.yaml
 
 # MISRA C:2012 scan (open-source cppcheck addon; advisory). See docs/quality/misra-c.md.
@@ -84,7 +102,7 @@ renode-env:
 
 # Local check bundle; it is not the complete norm-N15 gate set. See the file
 # header and verification plan for separate applicable targets.
-check: build test verify-lean trace smoke gsw-selfcheck
+check: build test verify-lean lean-receipt trace smoke gsw-selfcheck
 	@echo "frick-fsw: local check bundle PASS; other N15 gates are separate"
 
 # Configure/build/test/Lean/trace subset inside controlled Docker image (norm N6/N8, T1).
@@ -95,7 +113,8 @@ ci-local: pus-asn1 docker-image
 	    && cmake --build /workspace/build/ci \
 	    && ctest --test-dir /workspace/build/ci --output-on-failure \
 	    && cd /workspace/verification/lean && lake build \
-	    && cd /workspace && python3 tools/scripts/trace.py docs/requirements/traceability.yaml'
+	    && cd /workspace && python3 tools/scripts/lean_elab_receipt.py \
+	    && python3 tools/scripts/trace.py docs/requirements/traceability.yaml'
 
 docker-image:
 	docker build -t frick-vv:local -f tools/docker/Dockerfile tools/docker

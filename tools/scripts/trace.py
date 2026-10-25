@@ -19,19 +19,30 @@ Validates docs/requirements/traceability.yaml as the single source of truth:
     `<name>`, several names per line) (norm N6/N10);
   * Lean theorem names are resolvable in verification/lean (norm N1);
   * GAP-* items appear in docs/quality/class-a-gaps.md (norm N5).
+  * Every Frick/*.lean module (theorem-bearing or not, in the build graph or
+    not) is covered by the NC-EXT-174 source-bound elaboration receipt, and
+    the receipt is bound to the current source/toolchain/config/dependencies
+    (see tools/scripts/validator_checkpoint.py for the schema).
 
 Exit code 0 = converged, 1 = gaps to resolve (blocks commit/push).
+
+Standalone contract: `make trace` requires a validated receipt.  Run
+`make lean-receipt` first (or use `make check`, which orders it explicitly);
+trace does not assume that an earlier job happened to build Lean outputs.
 
 Self-contained: parses the restricted YAML subset used by the manifest, so it
 runs without third-party packages.
 """
 from __future__ import annotations
 
-import os
 import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import validator_checkpoint as nc174  # noqa: E402  (NC-EXT-174 consumer)
 
 MANIFEST_DEFAULT = "docs/requirements/traceability.yaml"
 DOCS = {"srs": "docs/requirements/SRS.md", "sss": "docs/requirements/SSS.md"}
@@ -42,6 +53,9 @@ WORKFLOWS = [".github/workflows/ci.yml", ".gitea/workflows/ci.yml"]
 ID_RE = re.compile(r"^(?:FRICK-)?((?:SRS|SSS)-REQ-\d+|GAP-(?:REQ-\d+|A\d+))$")
 DOC_ID_RE = re.compile(r"(?:FRICK-)?((?:SRS|SSS)-REQ-\d+)")
 THEOREM_RE = re.compile(r"^theorem\s+([A-Za-z0-9_]+)", re.MULTILINE)
+
+# NC-EXT-174: receipt location/schema are centralised in validator_checkpoint.
+ELAB_RECEIPT = nc174.RECEIPT_REL
 
 
 @dataclass
@@ -64,7 +78,6 @@ def parse_flow_list(value: str) -> list:
     value = value.strip()
     if value.startswith("[") and value.endswith("]"):
         inner = value[1:-1]
-        # split on commas that are not inside quotes
         parts, buf, quote = [], [], None
         for ch in inner:
             if quote:
@@ -149,29 +162,23 @@ def doc_ids(path: Path) -> set:
     return {canonical_rid(m) for m in DOC_ID_RE.findall(text)}
 
 
-def lean_theorems(root: Path) -> set:
-    found: set = set()
-    for p in sorted(root.glob(LEAN_GLOB)):
-        try:
-            text = p.read_text(encoding="utf-8")
-        except Exception:
-            continue
-        for m in THEOREM_RE.finditer(text):
-            found.add(m.group(1))
-    return found
+def scan_lean(root: Path) -> tuple[set, list[str]]:
+    """Enumerate Frick/*.lean once and return (theorem names, diagnostics).
+
+    The single inventory is shared by theorem linking and the NC-EXT-174 gate;
+    no path is walked or read twice.  Diagnostics are the stable strings from
+    :mod:`validator_checkpoint` plus the receipt validation result.
+    """
+    modules, diagnostics = nc174.enumerate_source_modules(root)
+    theorems: set = set()
+    for module in modules:
+        theorems.update(m.group(1) for m in THEOREM_RE.finditer(module.text))
+    receipt_diagnostics, _ = nc174.validate_receipt(root, modules=modules)
+    return theorems, diagnostics + receipt_diagnostics
 
 
 def ci_evidence(root: Path) -> set:
-    """Collect CI evidence names claimed by workflow `# evidence:` comments.
-
-    A marker line lists one or more claim names, optionally followed by a
-    parenthetical reference list, e.g.
-
-        # evidence: ci-host-build, ci-dual-build (SRS-REQ-016)
-
-    Names are accepted with either the `ci-` / `ci:` prefix or bare, so the
-    manifest's `ci:<name>` items match the workflow markers.
-    """
+    """Collect CI evidence names claimed by workflow `# evidence:` comments."""
     claims: set = set()
     for wf in WORKFLOWS:
         p = root / wf
@@ -180,9 +187,6 @@ def ci_evidence(root: Path) -> set:
         text = p.read_text(encoding="utf-8", errors="replace")
         for m in re.finditer(r"#\s*evidence:\s*(.+)", text):
             for tok in re.findall(r"[A-Za-z0-9_\-]+", m.group(1)):
-                # only explicit `ci:<name>` / `ci-<name>` tokens claim evidence;
-                # requirement references in the marker comment must not count
-                # (R2 M2-03 re-qualification).
                 if tok.startswith("ci:") or tok.startswith("ci-"):
                     claims.add(tok[3:])
     return claims
@@ -203,7 +207,6 @@ def main() -> int:
         print(f"[trace] FATAL: manifest not found: {manifest}")
         return 1
     if Path.cwd() != root:
-        # caller may run from repo root; anchor root at the manifest's repo.
         root = manifest.parents[1]
 
     entries = parse_manifest(manifest.read_text(encoding="utf-8"))
@@ -213,11 +216,18 @@ def main() -> int:
 
     by_id = {e.id: e for e in entries}
     cans = {canonical_rid(e.id): e for e in entries}
-    theorems = lean_theorems(root)
+    theorems, nc174_diagnostics = scan_lean(root)
     claims = ci_evidence(root)
 
     errors: list[str] = []
     warnings: list[str] = []
+
+    # ---- source-bound elaboration gate (NC-EXT-174): every discovered
+    # Frick/*.lean module must be covered by a receipt that matches the current
+    # source bytes, toolchain, configuration and dependency graph, and the
+    # recorded compiler invocation must have exited successfully.
+    for diagnostic in nc174_diagnostics:
+        errors.append(f"NC-EXT-174: {diagnostic}")
 
     # ---- id sanity
     for e in entries:
@@ -234,12 +244,8 @@ def main() -> int:
     # ---- top-down / bottom-up document presence (norm N3/N4)
     srs_doc = doc_ids(root / DOCS["srs"])
     sss_doc = doc_ids(root / DOCS["sss"])
-    srs_manual_ids = {
-        canonical_rid(e.id) for e in entries if e.level == "srs"
-    }
-    sss_manual_ids = {
-        canonical_rid(e.id) for e in entries if e.level == "sss"
-    }
+    srs_manual_ids = {canonical_rid(e.id) for e in entries if e.level == "srs"}
+    sss_manual_ids = {canonical_rid(e.id) for e in entries if e.level == "sss"}
     gap_ids = [e.id for e in entries if e.level == "gap"]
 
     for rid in sorted(srs_manual_ids - srs_doc):
@@ -280,7 +286,6 @@ def main() -> int:
             if not e.implementation:
                 errors.append(f"{e.id}: derived entry requires implementation")
             continue
-        # non-derived
         if not e.implementation:
             errors.append(f"{e.id}: missing implementation")
         for impl in e.implementation:
