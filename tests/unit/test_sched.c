@@ -451,6 +451,6 @@ static void test_real_sb_delivery(void)
 FF_TEST_MAIN(test_validate_rejects, test_activate_atomic, test_first_release_boundary,
              test_no_starvation, test_no_cumulative_drift, test_missed_slots_bounded,
              test_max_out_bound, test_null_out_allowed, test_before_init_no_dispatch,
-             test_time_exhaustion_does_not_wrap, test_real_sb_delivery,
-             test_scheduler_zero_entries, test_scheduler_activate_zero_count,
-             test_scheduler_poll_before_activation, test_scheduler_max_out_zero)
+             test_time_exhaustion_does_not_wrap, test_real_sb_delivery, test_scheduler_zero_entries,
+             test_scheduler_activate_zero_count, test_scheduler_poll_before_activation,
+             test_scheduler_max_out_zero)
