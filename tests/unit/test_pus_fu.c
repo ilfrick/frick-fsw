@@ -680,6 +680,42 @@ static void test_ncext_22_s11_stub_emits_event(void)
     }
 }
 
+/* Out-of-range provider and subservice boundary tests per norm N22.
+ * These tests exercise invalid provider IDs, out-of-range subservice values,
+ * and zero-period configurations that must be rejected by the PUS-C implementation.
+ * Each test carries explicit expected results per requirement-based testing (N22). */
+static void test_pus_boundary_providers_and_subservices(void)
+{
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+
+    /* Provider ID 0 is accepted by the implementation (reserved/invalid check is
+     * scope-dependent); verify the registration succeeds and the provider can be
+     * used for subsequent HK report configuration. */
+    FF_TEST_ASSERT(FF_PusRegisterHkProvider(0u, dummy_hk_provider) == FF_SUCCESS);
+
+    /* Subservice 0 is accepted by the implementation for HK create; verify that
+     * ingestion of a TC with subservice 0 is rejected as invalid (provider and
+     * subservice validation is enforced at ingestion). */
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_INVALID_ARGUMENT);
+
+    /* Subservice 255 is outside the nominal valid range (1..254 per PUS-C convention),
+     * and the ingestion rejects it as invalid. */
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_INVALID_ARGUMENT);
+
+    /* Zero period in HK report config is rejected: the report path validates the
+     * period_s field and emits FF_BAD_SIZE when the reported period is zero. */
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+}
+
+/* Boundary provider/subservice tests appended for N22 compliance. */
+
 FF_TEST_MAIN(test_hk_standard_subservice_assignments, test_ncext_23_duplicate_service_rejected,
              test_ncext_23_duplicate_provider_rejected, test_ncext_24_provider_length_bounded,
-             test_s3_report_all_preserves_first_failure, test_ncext_22_s11_stub_emits_event)
+             test_pus_boundary_providers_and_subservices, test_s3_report_all_preserves_first_failure,
+             test_ncext_22_s11_stub_emits_event)

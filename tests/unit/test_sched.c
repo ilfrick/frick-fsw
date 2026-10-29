@@ -280,6 +280,89 @@ static void test_null_out_allowed(void)
     FF_TEST_ASSERT(st.missed == 10u);
 }
 
+static void test_scheduler_zero_entries(void)
+{
+    /* Scheduler with zero entries in the table: poll must return 0 and not
+     * crash or exhibit undefined behaviour. This is an out-of-bound case
+     * per N22: valid invocation with an empty table. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t;
+    memset(&t, 0, sizeof(t));
+    t.magic = FF_SCHED_MAGIC;
+    t.count = 0u;
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    uint16_t n = FF_SchedPoll(10000u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u);
+    FF_TEST_ASSERT(n == 0u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == 0u);
+    FF_TEST_ASSERT(st.activations == 1u);
+}
+
+static void test_scheduler_activate_zero_count(void)
+{
+    /* Activate a table with count == 0: the scheduler must initialise without
+     * error and poll must return 0 for any due time. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t;
+    memset(&t, 0, sizeof(t));
+    t.magic = FF_SCHED_MAGIC;
+    t.count = 0u;
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    /* Advance past the epoch */
+    uint16_t n = FF_SchedPoll(1u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u);
+    FF_TEST_ASSERT(n == 0u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == 0u);
+    FF_TEST_ASSERT(st.activations == 1u);
+}
+
+static void test_scheduler_poll_before_activation(void)
+{
+    /* Poll before any activation must return 0 regardless of the due time. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t;
+    memset(&t, 0, sizeof(t));
+    t.magic = FF_SCHED_MAGIC;
+    t.count = 0u;
+    /* Do not activate */
+
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    uint16_t n = FF_SchedPoll(1000000000000uLL, out, FF_SCHED_MAX_ENTRIES, 1u);
+    FF_TEST_ASSERT(n == 0u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == 0u);
+    FF_TEST_ASSERT(st.activations == 0u);
+}
+
+static void test_scheduler_max_out_zero(void)
+{
+    /* Poll with max_out == 0 must return 0 and not write to the output buffer. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(1u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    uint16_t n = FF_SchedPoll(10000u * FF_MS, out, 0u, 1u);
+    FF_TEST_ASSERT(n == 0u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == 0u);
+}
+
 static void test_before_init_no_dispatch(void)
 {
     FF_SchedResetStats();
@@ -368,4 +451,6 @@ static void test_real_sb_delivery(void)
 FF_TEST_MAIN(test_validate_rejects, test_activate_atomic, test_first_release_boundary,
              test_no_starvation, test_no_cumulative_drift, test_missed_slots_bounded,
              test_max_out_bound, test_null_out_allowed, test_before_init_no_dispatch,
-             test_time_exhaustion_does_not_wrap, test_real_sb_delivery)
+             test_time_exhaustion_does_not_wrap, test_real_sb_delivery,
+             test_scheduler_zero_entries, test_scheduler_activate_zero_count,
+             test_scheduler_poll_before_activation, test_scheduler_max_out_zero)
