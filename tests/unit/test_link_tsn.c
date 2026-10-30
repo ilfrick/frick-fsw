@@ -21,10 +21,7 @@
 
 /* ---- Mock MAC ---- */
 
-#define MOCK_MAC_ADDR                                                                              \
-    {                                                                                              \
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55                                                         \
-    }
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
 #define MOCK_RX_BUF 256u
 
 static uint8_t g_captured_frame[MOCK_RX_BUF];

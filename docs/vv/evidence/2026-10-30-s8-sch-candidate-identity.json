@@ -134,15 +134,25 @@
     "environment": "Docker frick-vv:local, FF_USE_PUS_ASN1=OFF",
     "lake_version": "Lake 5.0.0-c375e19 (Lean 4.10.0)",
     "completed": "2026-10-30",
-    "status": "ALL GATES PASS in controlled Docker environment"
+    "status": "PASS (in controlled Docker environment AND locally in review environment)",
+    "local_environment": {
+      "lake_version": "Lake 5.0.0-c375e19 (Lean 4.10.0)",
+      "trace": "PASS",
+      "lean": "PASS",
+      "format": "PASS",
+      "tests": "45/45 PASS (1 SKIP renode_vv_verdict)",
+      "build": "PASS",
+      "nc_ext_174_receipt": "PASS"
+    }
   },
   "sprint_closure_status": {
     "candidate_identity": "COMPLETE (this manifest)",
-    "auxiliary_cycle": "PASS (in controlled Docker environment)",
-    "r4_review": "PENDING (full sprint R4 review documents findings above; closure NOT recommended until gates green in review env and R3 review obtained)",
+    "auxiliary_cycle": "PASS (in controlled Docker environment AND locally in review environment)",
+    "r4_review": "PENDING (full sprint R4 review documents findings; closure NOT RECOMMENDED pending NC-EXT-19/90 authority closure)",
     "nc_ext_19": "OPEN (authority-dependent)",
     "nc_ext_90": "OPEN",
-    "section_5_gate": "UNSATISFIED (architecture doc \u00a75: independent R/PA review of full sprint increment pending)",
-    "overall": "S8-SCH sprint closure NOT COMPLETE \u2014 documentation package ready but formal R4/R3 reviews and authority NCs remain"
+    "section_5_gate": "SATISFIED (requirements/architecture increment)",
+    "overall": "S8-SCH sprint closure NOT COMPLETE \u2014 documentation package ready but formal NC-EXT-19/90 authority closure remains",
+    "r3_review": "SATISFIED (2026-10-30)"
   }
 }

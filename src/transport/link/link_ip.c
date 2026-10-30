@@ -15,10 +15,7 @@
 #include <string.h>
 
 /* Reference peer address (127.0.0.1) for host tests / emulator. */
-#define FF_LINK_IP_REF_PEER                                                                        \
-    {                                                                                              \
-        127u, 0u, 0u, 1u                                                                           \
-    }
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
 
 static FF_LinkIpConfig_t g_cfg;
 static FF_NetSock_t g_sock = -1;
