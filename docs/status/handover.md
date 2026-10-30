@@ -79,7 +79,22 @@ review; in-tree only, not committed.**
   before activation; ESC-HK-03 must add held-unserved hazard; NC-EXT-208
   (period validation) untouched. No caller added (ESC-HK-02 pending).
 
-## HK periodic-emission addendum — 2026-10-24 (S8-PUS-FU, NC-EXT-17)
+## NC-EXT-226 XW-3 delta R2 review (2026-10-29, FRICK-REVIEW-0436)
+
+**Review received:** R2 SW V&V review of XW-3 delta candidate implementation against v022 snapshots. Findings: (1) `atomic_publish` same-filesystem limitation (no parent-directory fsync, cleanup best-effort on replace failure) — documented for tool qualification scope, no code change in bounded delta. (2) `summary.case.json` not hash-bound to run-index, explicitly unresolved/related only to NC-EXT-230 (verdict-only hash binding). NC-EXT-226 stays OPEN/non-blocking; T35 stays NOT QUALIFIED; human qualification stays deferred per owner msg2046 (2026-10-26); NC-EXT-230 stays OPEN; atomic_publish same-filesystem limitation is a comment, not a closure. No target/hardware run; no commit/push; no NC closure.
+
+- **Review scope:** `tools/scripts/qemu_xw3_vv.sh`, `tools/scripts/xw3_verdict.py`, `tests/python/test_atomic_publish.py` against v022 snapshots.
+- **Verdict:** APPROVED WITH COMMENTS (2 Comment-severity findings).
+- **NC-EXT-226 disposition:** OPEN/non-blocking, pending authority disposition.
+- **T35 status:** NOT QUALIFIED, evidence host-native only.
+- **Human qualification:** deferred per owner msg2046 (2026-10-26).
+- **NC-EXT-230 status:** stays OPEN, mapping explicitly left unresolved/related only to the `summary.case.json` hash-binding observation.
+- **atomic_publish limitation:** same-filesystem atomicity is a comment, not a closure or gate.
+
+- **Evidence:** review file `docs/reviews/2026-10-29-nc-ext-226-xw3-delta-r2-0436.md` (FRICK-REVIEW-0436).
+- **No target/hardware execution.** No code or test changes. No commit, push, or hardware touch.
+
+HK periodic-emission addendum — 2026-10-24 (S8-PUS-FU, NC-EXT-17)
 
 **Status: bounded increment accepted narrowly by both final delta reviews; NOT committed,
 NOT activated, NOT release-ready.**

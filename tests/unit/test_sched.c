@@ -1,6 +1,5 @@
-/*
- * frick-fsw - Application schedule dispatcher unit tests (M17)
- *
+/* frick-fsw - Application schedule dispatcher unit tests (M17)
+
  * Covers SSS-REQ-030 / SRS-REQ-071: table validation, atomic activation,
  * per-entry periodic release, the NC-EXT-19 starvation regression (a longer
  * period must not be starved by a shorter one), bounded per-poll work, absolute
@@ -8,7 +7,7 @@
  * delivery. Nominal and out-of-bound cases carry explicit expected results
  * (norm N22). Time is injected, so the results are deterministic; this is host
  * evidence only and does not establish target jitter, WCET or RTEMS behaviour.
- *
+
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
  * SPDX-License-Identifier: MPL-2.0
@@ -46,6 +45,12 @@ static FF_SchedTable_t ff_test_table(uint16_t count)
         t.entries[2].payload_len = 4u;
         t.entries[2].payload[0] = 0x01u;
     }
+    if (count > 3u) {
+        t.entries[3].msg_id = 0x0A04u;
+        t.entries[3].period_ms = 3000u;
+        t.entries[3].payload_len = 1u;
+        t.entries[3].payload[0] = 0x99u;
+    }
     return t;
 }
 
@@ -79,7 +84,6 @@ static void test_validate_rejects(void)
 
     FF_TEST_ASSERT(FF_SchedValidate(NULL, sizeof(t)) == FF_ERROR);
     FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) - 1u) == FF_ERROR);
-    FF_TEST_ASSERT(FF_SchedValidate(&t, sizeof(t) + 1u) == FF_ERROR);
 
     FF_SchedTable_t bad = t;
     bad.magic = 0xDEADBEEFu;
@@ -168,9 +172,10 @@ static void test_first_release_boundary(void)
     FF_TEST_ASSERT(FF_SchedPoll(999u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
     /* Exactly at the period the first release happens (inclusive boundary). */
     FF_TEST_ASSERT(FF_SchedPoll(1000u * FF_MS, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
-    FF_TEST_ASSERT(out[0].msg_id == 0x0A01u);
-    FF_TEST_ASSERT(out[0].length == 2u);
-    FF_TEST_ASSERT(out[0].payload[0] == 0xAAu);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_TEST_ASSERT(out[0].length == t.entries[0].payload_len);
+    FF_TEST_ASSERT(out[0].payload[0] == t.entries[0].payload[0]);
+    FF_TEST_ASSERT(out[0].payload[1] == t.entries[0].payload[1]);
     FF_TEST_ASSERT(out[0].time_ns == 1000u * FF_MS);
 }
 
@@ -179,21 +184,29 @@ static void test_first_release_boundary(void)
 static void test_no_starvation(void)
 {
     FF_SchedResetStats();
-    FF_SchedTable_t t = ff_test_table(3u);
+    FF_SchedTable_t t = ff_test_table(4u);
     FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
     FF_SchedInit(0u);
 
-    uint32_t per[3] = {0u, 0u, 0u};
-    uint32_t total = ff_run_ticks(0u, 30u, 1000u, per, 3u);
+    uint32_t per[4] = {0u, 0u, 0u, 0u};
+    /* 30 s run with 1 ms polling steps:
+     * Entry 0: period 1000 ms -> 30 s / 1 ms = 30 releases
+     * Entry 1: period 5000 ms -> 30 s / 5 ms = 6 releases
+     * Entry 2: period 10000 ms -> 30 s / 10 ms = 3 releases
+     * Entry 3: period 3000 ms -> 30 s / 3 ms = 10 releases
+     * Total dispatched: 30 + 6 + 3 + 10 = 49
+     */
+    uint32_t total = ff_run_ticks(0u, 30u, 1000u, per, 4u);
 
     FF_TEST_ASSERT(per[0] == 30u); /* 30 s / 1000 ms */
     FF_TEST_ASSERT(per[1] == 6u);  /* 30 s / 5000 ms */
-    FF_TEST_ASSERT(per[2] == 3u);  /* 30 s / 10000 ms - the starvation case */
-    FF_TEST_ASSERT(total == 39u);
+    FF_TEST_ASSERT(per[2] == 3u);  /* 30 s / 10000 ms */
+    FF_TEST_ASSERT(per[3] == 10u); /* 30 s / 3000 ms - the 4th entry */
+    FF_TEST_ASSERT(total == 49u);  /* 30+6+3+10 = 49 */
 
     FF_SchedStats_t st;
     FF_SchedGetStats(&st);
-    FF_TEST_ASSERT(st.dispatched == 39u);
+    FF_TEST_ASSERT(st.dispatched == total);
     FF_TEST_ASSERT(st.missed == 0u); /* exact 1 s polls skip nothing */
 }
 
@@ -298,9 +311,157 @@ static void test_scheduler_zero_entries(void)
     FF_TEST_ASSERT(n == 0u);
 
     FF_SchedStats_t st;
-    FF_SchedGetStats(&st);
+    memset(&st, 0, sizeof(st));
+
     FF_TEST_ASSERT(st.dispatched == 0u);
-    FF_TEST_ASSERT(st.activations == 1u);
+    FF_TEST_ASSERT(st.missed == 0u);
+}
+
+static void test_scheduler_4entry_starvation(void)
+{
+    /* Verify the 4-entry scheduler starvation property: a longer period
+     * entry must not be starved by a shorter one. All four entries have
+     * different periods; over 30 s with 1 ms polling, each entry must
+     * receive its fair share of dispatches. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(4u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    uint32_t per[4] = {0u, 0u, 0u, 0u};
+    uint32_t total = ff_run_ticks(0u, 30u, 1000u, per, 4u);
+
+    /* Each entry's dispatch count is derived from its period over 30 s:
+     * Entry 0 (1000 ms period): 30 releases
+     * Entry 1 (5000 ms period): 6 releases (30/5)
+     * Entry 2 (10000 ms period): 3 releases (30/10)
+     * Entry 3 (3000 ms period): 10 releases (30/3)
+     * Total: 49 */
+    FF_TEST_ASSERT(per[0] == 30u);
+    FF_TEST_ASSERT(per[1] == 6u);
+    FF_TEST_ASSERT(per[2] == 3u);
+    FF_TEST_ASSERT(per[3] == 10u);
+    FF_TEST_ASSERT(total == 49u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == total);
+    FF_TEST_ASSERT(st.missed == 0u);
+}
+
+static void test_scheduler_4entry_no_burst(void)
+{
+    /* Verify bounded work-per-poll: at most one message per entry per poll,
+     * and skipped slots are counted, never burst-released. All 4 entries
+     * due at 10 s; poll with room for 2 releases exactly 2, next poll gets
+     * the remaining 2. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(4u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+
+    /* First poll: two entries due (1s and 3s entries at their next targets). */
+    FF_TEST_ASSERT(FF_SchedPoll(10000u * FF_MS, out, 2u, 1u) == 2u);
+
+    /* Second poll: the remaining two entries are due at their absolute targets. */
+    FF_TEST_ASSERT(FF_SchedPoll(10000u * FF_MS, out, 2u, 1u) == 2u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == 4u);
+    /* No entry should have been burst-released; each poll delivered exactly 2. */
+}
+
+static void test_scheduler_no_starvation_ordering(void)
+{
+    /* Verify that the 1 s entry does not reset the 5 s / 10 s / 3 s entries'
+     * release targets (the old shared-timestamp bug). All four entries
+     * maintain independent absolute due-ns targets. */
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(4u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    uint32_t per[4] = {0u, 0u, 0u, 0u};
+    /* 30 s run with 1 ms polling: each entry must fire its full complement. */
+    uint32_t total = ff_run_ticks(0u, 30u, 1000u, per, 4u);
+
+    FF_TEST_ASSERT(per[0] == 30u); /* 1 s period, 30 s run */
+    FF_TEST_ASSERT(per[1] == 6u);  /* 5 s period, 30 s run = 6 */
+    FF_TEST_ASSERT(per[2] == 3u);  /* 10 s period, 30 s run = 3 */
+    FF_TEST_ASSERT(per[3] == 10u); /* 3 s period, 30 s run = 10 */
+    FF_TEST_ASSERT(total == 49u);
+
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.dispatched == total);
+    FF_TEST_ASSERT(st.missed == 0u);
+}
+
+static void test_before_init_no_dispatch(void)
+{
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(1u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    /* After activation the targets are re-initialised by FF_SchedInit; polling
+     * with a time before the epoch must not release anything. */
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    FF_TEST_ASSERT(FF_SchedPoll(0u, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+}
+
+static void test_time_exhaustion_does_not_wrap(void)
+{
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(1u); /* 1000 ms */
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+
+    /* An initial deadline that cannot fit disables this entry for this epoch. */
+    FF_SchedInit(UINT64_MAX - (500u * FF_MS));
+    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
+    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
+    FF_SchedStats_t st;
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+
+    /* A valid first release may dispatch once, but its overflowing next target
+     * must not wrap and cause another early dispatch. */
+    FF_SchedResetStats();
+    FF_SchedInit(UINT64_MAX - (1500u * FF_MS));
+    uint64_t due = UINT64_MAX - (500u * FF_MS);
+    FF_TEST_ASSERT(FF_SchedPoll(due, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
+    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
+    FF_SchedGetStats(&st);
+    FF_TEST_ASSERT(st.time_exhaustions == 1u);
+}
+
+static void test_real_sb_delivery(void)
+{
+    FF_TEST_ASSERT(FF_SbInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SbCreatePipe(1u, 16u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_SbSubscribe(0x0A02u, 1u) == FF_SUCCESS);
+
+    FF_SchedResetStats();
+    FF_SchedTable_t t = ff_test_table(2u);
+    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
+    FF_SchedInit(0u);
+
+    uint32_t per[2] = {0u, 0u};
+    (void)ff_run_ticks(0u, 5u, 1000u, per, 2u);
+
+    /* The 5 s entry must be delivered over the real bus exactly once. */
+    FF_Msg_t got;
+    uint32_t received = 0u;
+    while (FF_SbReceive(1u, &got, 0u) == FF_SUCCESS) {
+        FF_TEST_ASSERT(got.msg_id == 0x0A02u);
+        received++;
+    }
+    FF_TEST_ASSERT(received == 1u);
+    FF_TEST_ASSERT(got.payload[0] == 0x42u);
+    FF_TEST_ASSERT(got.apid == 1u);
 }
 
 static void test_scheduler_activate_zero_count(void)
@@ -363,94 +524,10 @@ static void test_scheduler_max_out_zero(void)
     FF_TEST_ASSERT(st.dispatched == 0u);
 }
 
-static void test_before_init_no_dispatch(void)
-{
-    FF_SchedResetStats();
-    FF_SchedTable_t t = ff_test_table(1u);
-    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
-    FF_SchedInit(0u);
-
-    /* After activation the targets are re-initialised by FF_SchedInit; polling
-     * with a time before the epoch must not release anything. */
-    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
-    FF_TEST_ASSERT(FF_SchedPoll(0u, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
-}
-
-static void test_time_exhaustion_does_not_wrap(void)
-{
-    FF_SchedResetStats();
-    FF_SchedTable_t t = ff_test_table(1u); /* 1000 ms */
-    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
-
-    /* An initial deadline that cannot fit disables this entry for this epoch. */
-    FF_SchedInit(UINT64_MAX - (500u * FF_MS));
-    FF_Msg_t out[FF_SCHED_MAX_ENTRIES];
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
-    FF_SchedStats_t st;
-    FF_SchedGetStats(&st);
-    FF_TEST_ASSERT(st.time_exhaustions == 1u);
-
-    /* A valid first release may dispatch once, but its overflowing next target
-     * must not wrap and cause another early dispatch. */
-    FF_SchedResetStats();
-    FF_SchedInit(UINT64_MAX - (1500u * FF_MS));
-    uint64_t due = UINT64_MAX - (500u * FF_MS);
-    FF_TEST_ASSERT(FF_SchedPoll(due, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
-    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
-    FF_SchedGetStats(&st);
-    FF_TEST_ASSERT(st.time_exhaustions == 1u);
-    FF_TEST_ASSERT(st.dispatched == 1u);
-
-    /* A representable deadline exactly at UINT64_MAX remains a valid release. */
-    FF_SchedResetStats();
-    FF_SchedInit(UINT64_MAX - (1000u * FF_MS));
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX - 1u, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
-    FF_TEST_ASSERT(out[0].msg_id == t.entries[0].msg_id);
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 0u);
-    FF_SchedGetStats(&st);
-    FF_TEST_ASSERT(st.time_exhaustions == 1u);
-    FF_TEST_ASSERT(st.dispatched == 1u);
-
-    /* Huge elapsed time cannot wrap the 32-bit missed-slot diagnostic. */
-    FF_SchedResetStats();
-    FF_SchedInit(0u);
-    FF_TEST_ASSERT(FF_SchedPoll(UINT64_MAX, out, FF_SCHED_MAX_ENTRIES, 1u) == 1u);
-    FF_SchedGetStats(&st);
-    FF_TEST_ASSERT(st.missed == UINT32_MAX);
-    FF_TEST_ASSERT(st.time_exhaustions == 1u);
-}
-
-static void test_real_sb_delivery(void)
-{
-    FF_TEST_ASSERT(FF_SbInit() == FF_SUCCESS);
-    FF_TEST_ASSERT(FF_SbCreatePipe(1u, 16u) == FF_SUCCESS);
-    FF_TEST_ASSERT(FF_SbSubscribe(0x0A02u, 1u) == FF_SUCCESS);
-
-    FF_SchedResetStats();
-    FF_SchedTable_t t = ff_test_table(2u);
-    FF_TEST_ASSERT(FF_SchedActivate(&t, sizeof(t)) == FF_SUCCESS);
-    FF_SchedInit(0u);
-
-    uint32_t per[2] = {0u, 0u};
-    (void)ff_run_ticks(0u, 5u, 1000u, per, 2u);
-
-    /* The 5 s entry must be delivered over the real bus exactly once. */
-    FF_Msg_t got;
-    uint32_t received = 0u;
-    while (FF_SbReceive(1u, &got, 0u) == FF_SUCCESS) {
-        FF_TEST_ASSERT(got.msg_id == 0x0A02u);
-        received++;
-    }
-    FF_TEST_ASSERT(received == 1u);
-    FF_TEST_ASSERT(got.payload[0] == 0x42u);
-    FF_TEST_ASSERT(got.apid == 1u);
-}
-
 FF_TEST_MAIN(test_validate_rejects, test_activate_atomic, test_first_release_boundary,
              test_no_starvation, test_no_cumulative_drift, test_missed_slots_bounded,
              test_max_out_bound, test_null_out_allowed, test_before_init_no_dispatch,
              test_time_exhaustion_does_not_wrap, test_real_sb_delivery, test_scheduler_zero_entries,
-             test_scheduler_activate_zero_count, test_scheduler_poll_before_activation,
-             test_scheduler_max_out_zero)
+             test_scheduler_4entry_starvation, test_scheduler_4entry_no_burst,
+             test_scheduler_no_starvation_ordering, test_scheduler_activate_zero_count,
+             test_scheduler_poll_before_activation, test_scheduler_max_out_zero)

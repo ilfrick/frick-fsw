@@ -3,8 +3,8 @@
 | Field | Value |
 | ----- | ----- |
 | Document ID | FRICK-ARCH-OBCP-001 |
-| Revision | 0.4 |
-| Date | 2026-10-16 |
+| Revision | 0.5 |
+| Date | 2026-10-30 |
 | Status | Adapter integrated in default build; assurance and mission use remain open |
 | Requirements | SRS-REQ-045, SRS-REQ-054, SSS-REQ-022, SSS-REQ-027 |
 
@@ -131,7 +131,8 @@ handling, WCET, heap/stack bounds, arbitrary-script termination, target
 portability, or flight suitability. Build evidence is retained in
 `docs/vv/verification-results.md`.
 
-## 6. Change history
+
+| 0.5 | 2026-10-30 | frick-fsw | Updated to reflect scheduler M17 4th-entry bounded increment (count=4u, entries[3].period_ms=3000u). G1 test-assertion gap resolved per fresh V&V review (Oct 30 2026). NC-EXT-19 remains OPEN per user directive. OBCP integration assessment continues while residual arbitrary-code-execution bound is dispositioned. No mission OBCP scripts enabled. |## 6. Change history
 
 | Revision | Date | Author | Change |
 | -------- | ---- | ------ | ------ |

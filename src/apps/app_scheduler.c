@@ -48,7 +48,7 @@ static void ff_sched_entries_init(void)
     FF_SchedTable_t t;
     memset(&t, 0, sizeof(t));
     t.magic = FF_SCHED_MAGIC;
-    t.count = 3u;
+    t.count = 4u;
     t.entries[0].msg_id = 0x0A01u;
     t.entries[0].period_ms = 1000u;
     t.entries[0].payload_len = 2u;
@@ -65,6 +65,10 @@ static void ff_sched_entries_init(void)
     t.entries[2].payload[1] = 0x02u;
     t.entries[2].payload[2] = 0x03u;
     t.entries[2].payload[3] = 0x04u;
+    t.entries[3].msg_id = 0x0A04u;
+    t.entries[3].period_ms = 3000u;
+    t.entries[3].payload_len = 1u;
+    t.entries[3].payload[0] = 0x99u;
     g_sched_image = t;
 }
 
