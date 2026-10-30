@@ -843,10 +843,137 @@ static void test_hs_reset_survives_missing_notifier(void)
     FF_EvsSetListener(NULL);
 }
 
+/* ------------------------------------------------------------------ */
+/* 5. Watchdog feed-failure reset path (SRS-REQ-074, N22-TS5-82):     */
+/*    feed failure in FF_AppWdMain -> FF_PalPanic -> pre-reset report  */
+/* ------------------------------------------------------------------ */
+
+static void test_wd_feed_failure_reset_path(void)
+{
+    const uint8_t expect[4] = {(uint8_t)(FF_EVS_PANIC_RESET >> 8),
+                               (uint8_t)(FF_EVS_PANIC_RESET & 0xFFu), FF_EVS_CRITICAL, 'w'};
+    uint32_t resets_before;
+    uint64_t after_report_ns;
+
+    hs_init_modules();
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(NULL); /* the reset path must not depend on the TM sink */
+    FF_AppHsRegister();    /* register HS to get the panic reporter wired */
+
+    /* Same wiring the flight main uses, plus the test observer seam. */
+    FF_PusInstallPanicReporter(hs_reset_writer);
+    FF_PalSetPanicHandler(hs_panic_handler);
+
+    FF_TEST_ASSERT(FF_PalWatchdogInit(8000u) == FF_SUCCESS);
+    resets_before = FF_PalWatchdogGetResets();
+    g_reset_frame_len = 0u;
+    g_reset_deadline_ns = 0u;
+    g_reset_report_count = 0u;
+    g_panic_seen = false;
+    g_panic_reason[0] = '\0';
+
+    /* Simulate the watchdog feed failure path: the watchdog feeder
+     * calls FF_PalPanic("watchdog: feed failed") when FF_PalWatchdogFeed()
+     * returns an error. We exercise the same panic path by directly
+     * invoking FF_PalPanic with the same reason string. */
+    if (setjmp(g_panic_jmp) == 0) {
+        FF_PalPanic("watchdog: feed failed");
+        FF_TEST_ASSERT(false); /* the reset path must not return normally */
+    }
+
+    FF_TEST_ASSERT(g_panic_seen);
+    FF_TEST_ASSERT(strstr(g_panic_reason, "watchdog: feed failed") != NULL);
+    FF_TEST_ASSERT(FF_PalWatchdogGetResets() == (resets_before + 1u));
+    FF_TEST_ASSERT(g_reset_report_count == 1u);
+    after_report_ns = FF_PalGetMonotonicNs();
+    FF_TEST_ASSERT(g_reset_deadline_ns >= after_report_ns);
+    FF_TEST_ASSERT((g_reset_deadline_ns - after_report_ns) <= 250000000ULL);
+    FF_TEST_ASSERT(g_reset_frame_len > 0u);
+    FF_TEST_ASSERT(frame_contains(g_reset_frame, g_reset_frame_len, expect, sizeof(expect)));
+
+    FF_PalSetPanicHandler(NULL);
+    FF_EvsSetListener(NULL);
+}
+
+/* ------------------------------------------------------------------ */
+/* 6. Report-before-reset ordering sensor (NC-EXT-132):              */
+/*    Extends the nominal reset path test with a reset-counter       */
+/*    observation inside the notifier to make the ordering test-     */
+/*    observable (mirrors test_panic_console_stall_and_report_...).  */
+/* ------------------------------------------------------------------ */
+
+static uint32_t g_observed_resets_at_notifier_reset;
+
+static FF_Status_t hs_reset_writer_with_observer(const uint8_t *frame, uint16_t len,
+                                                 uint64_t deadline_ns)
+{
+    if ((frame == NULL) || (len > HS_RESET_FRAME_MAX)) {
+        return FF_BAD_SIZE;
+    }
+    (void)memcpy(g_reset_frame, frame, len);
+    g_reset_frame_len = len;
+    g_reset_deadline_ns = deadline_ns;
+    g_reset_report_count++;
+    /* Observe the reset counter *before* the reset is requested. */
+    g_observed_resets_at_notifier_reset = FF_PalWatchdogGetResets();
+    return FF_SUCCESS;
+}
+
+/* Test that the pre-reset report is emitted BEFORE the watchdog reset
+ * counter is incremented (report-before-reset ordering, SRS-REQ-074,
+ * ECSS-E-ST-70-11 5.7.5.2). This makes the ordering test-observable
+ * (NC-EXT-132) by reading the reset counter inside the notifier. */
+static void test_hs_reset_report_before_reset_ordering(void)
+{
+    const uint8_t fn_reset[1] = {1u};
+    const uint8_t expect[4] = {(uint8_t)(FF_EVS_PANIC_RESET >> 8),
+                               (uint8_t)(FF_EVS_PANIC_RESET & 0xFFu), FF_EVS_CRITICAL, 'H'};
+    uint32_t resets_before;
+
+    hs_init_modules();
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(NULL);
+    FF_AppHsRegister();
+
+    FF_PusInstallPanicReporter(hs_reset_writer_with_observer);
+    FF_PalSetPanicHandler(hs_panic_handler);
+
+    FF_TEST_ASSERT(FF_PalWatchdogInit(8000u) == FF_SUCCESS);
+    resets_before = FF_PalWatchdogGetResets();
+    g_reset_frame_len = 0u;
+    g_reset_deadline_ns = 0u;
+    g_reset_report_count = 0u;
+    g_observed_resets_at_notifier_reset = 0u;
+    g_panic_seen = false;
+    g_panic_reason[0] = '\0';
+
+    if (setjmp(g_panic_jmp) == 0) {
+        (void)hs_pus_ingest(8u, 1u, fn_reset, sizeof(fn_reset));
+        FF_TEST_ASSERT(false); /* the reset path must not return normally */
+    }
+
+    FF_TEST_ASSERT(g_panic_seen);
+    FF_TEST_ASSERT(FF_PalWatchdogGetResets() == (resets_before + 1u));
+    FF_TEST_ASSERT(g_reset_report_count == 1u);
+    FF_TEST_ASSERT(g_reset_frame_len > 0u);
+    FF_TEST_ASSERT(frame_contains(g_reset_frame, g_reset_frame_len, expect, sizeof(expect)));
+
+    /* Ordering oracle: the notifier observed the reset counter BEFORE
+     * the reset was applied. This makes the report-before-reset
+     * ordering test-observable (NC-EXT-132). */
+    FF_TEST_ASSERT(g_observed_resets_at_notifier_reset == resets_before);
+
+    FF_PalSetPanicHandler(NULL);
+    FF_EvsSetListener(NULL);
+}
+
 FF_TEST_MAIN(test_hs_heartbeat_no_fault, test_es_lifecycle_host_tasks,
              test_es_start_failure_and_hs_detection, test_hs_reset_single_path,
              test_panic_console_stall_and_report_share_one_budget,
              test_panic_production_link_wiring_delivers_one_frame,
              test_link_deadline_writer_semantics, test_panic_overlength_reason_counterexample,
              test_hs_reset_unknown_function, test_hs_reset_missing_function_id,
-             test_hs_reset_survives_report_failure, test_hs_reset_survives_missing_notifier)
+             test_hs_reset_survives_report_failure, test_hs_reset_survives_missing_notifier,
+             test_wd_feed_failure_reset_path, test_hs_reset_report_before_reset_ordering)
