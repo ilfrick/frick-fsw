@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0002                        |
-| Revision                          | 1.111                                 |
+| Revision                          | 1.112                                 |
 | Date                              | 2026-10-30                             |
 | Norms                             | N3/N4/N8/N15/N19                       |
 | Companion                         | `docs/development-plan.md` (FRICK-PLAN-0001), `docs/roadmap.md` |
@@ -680,6 +680,7 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 
 | 1.112 | 2026-10-30 | frick-fsw | S8-VV-FU residual F-0379-03/NC-EXT-98 addressed: added test_wd_feed_failure_reset_path (watchdog feed-failure reset path) and test_hs_reset_report_before_reset_ordering (report-before-reset ordering sensor for NC-EXT-132); test_es_hs_lifecycle.c 208/208 checks PASS. R2/V&V review recorded (NC-EXT-98 remains OPEN pending NC-EXT-132/167, concurrency, mandatory-text, owner disposition §3.2). S8-SCH auxiliary cycle and candidate identity manifest completed; R3 review completed, Section 5 gate SATISFIED for requirements/architecture increment. All SIL host gates PASS in Docker V&V environment. NC-EXT-19/90/198/199/197/PAL-01 OPEN. No commit/push/hardware. Model: Nemotron 3 Ultra free on OpenRouter. |
 
+| 1.113 | 2026-10-30 | frick-fsw | OBCP engine comparison study (FRICK-ARCH-OBCP-STUDY-001 Rev 0.1) completed and independently reviewed: V&V (ACCEPTABLE) and PA (NEEDS REVISION). Study evaluates 7 candidates (n7s-obcp, Spacebel/ESA OBCP Engine, Spacebel/George Robotics MicroPython VM, F Prime FpySequencer, NASA cFS Python, F Prime traditional sequencer). No candidate provides VM-level instruction quota + safe abort + fault containment + ECSS qualification for RISC-V/RTEMS. Spacebel/ESA OBCP Engine only qualified CAT-B (Euclid/LEON2) but not publicly obtainable. Current n7s-obcp baseline (C1) gaps: no VM instruction quota, no interpreter failure propagation, cooperative abort only, no VM-level fault containment. Three local options: A (upstream patch + quota), B (cooperative only, requires authority acceptance), C (in-house M16 fallback). DECISION-FOR-NICOLA required for M12 OBCP disposition. V&V review: ACCEPTABLE (editorial fixes only). PA review: NEEDS REVISION (major evidence gaps: Spacebel qualification dossiers not accessed, ESA license terms unverified, Option A re-qualification plan missing, Option B requires requirements waiver, safety analysis interface missing). NC-S9-01 remains OPEN. NC-EXT-19/90/198/199/197/PAL-01 OPEN. No commit/push/hardware. Model: Nemotron 3 Ultra free on OpenRouter. |
 ## DAILY LEDGER — 2026-10-30 (Europe/Rome)
 
 | Sprint | Status | Scope | Acceptance / Evidence | Independent Reviews | Blockers |
@@ -703,3 +704,5 @@ here). WCET on the actual target also needs target/timing evidence (**GAP-A5**).
 
 ---
 
+
+| 1.113 | 2026-10-30 | frick-fsw | OBCP engine comparison study (FRICK-ARCH-OBCP-STUDY-001 Rev 0.1) completed and independently reviewed: V&V (ACCEPTABLE) and PA (NEEDS REVISION). Study evaluates 7 candidates (n7s-obcp, Spacebel/ESA OBCP Engine, Spacebel/George Robotics MicroPython VM, F Prime FpySequencer, NASA cFS Python, F Prime traditional sequencer). No candidate provides VM-level instruction quota + safe abort + fault containment + ECSS qualification for RISC-V/RTEMS. Spacebel/ESA OBCP Engine only qualified CAT-B (Euclid/LEON2) but not publicly obtainable. Current n7s-obcp baseline (C1) gaps: no VM instruction quota, no interpreter failure propagation, cooperative abort only, no VM-level fault containment. Three local options: A (upstream patch + quota), B (cooperative only, requires authority acceptance), C (in-house M16 fallback). DECISION-FOR-NICOLA required for M12 OBCP disposition. V&V review: ACCEPTABLE (editorial fixes only). PA review: NEEDS REVISION (major evidence gaps: Spacebel qualification dossiers not accessed, ESA license terms unverified, Option A re-qualification plan missing, Option B requires requirements waiver, safety analysis interface missing). NC-S9-01 remains OPEN. NC-EXT-19/90/198/199/197/PAL-01 OPEN. No commit/push/hardware. Model: Nemotron 3 Ultra free on OpenRouter. |
