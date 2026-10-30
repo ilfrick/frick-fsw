@@ -1,0 +1,148 @@
+{
+  "commit": "5830437f2a3bbb1f779693590c99a097830ecbb3",
+  "date": "2026-10-30",
+  "sprint": "S8-SCH",
+  "milestone": "M17",
+  "objective": "OBJ-31",
+  "requirements": [
+    "SSS-REQ-030",
+    "SRS-REQ-071"
+  ],
+  "artifacts": {
+    "docs/architecture/scheduling.md": {
+      "description": "FRICK-ARCH-0018",
+      "sha256": "b28c58711d18062f40d563b8acbf6f0a93e1476a94df0829ca2a2d6d50f8bf34"
+    },
+    "docs/requirements/traceability.yaml": {
+      "description": "Traceability Manifest",
+      "sha256": "7e902db1128a44a77a43e9c3f93cdc3a5dfbe8da7b7921c57fe4bed21fd248ec"
+    },
+    "docs/planning/sprint-plan.md": {
+      "description": "Sprint Plan",
+      "sha256": "35fd2865fc49d97ee2bf82305e3be5136ea2b9a2660439f41f5f34b18853ef98"
+    },
+    "docs/requirements/SRS.md": {
+      "description": "SRS",
+      "sha256": "44aa341c588b21a3f71a708c33e75c2edc69c5136da21c745374532f4d66cfbc"
+    },
+    "docs/requirements/SSS.md": {
+      "description": "SSS",
+      "sha256": "190a10eb1ecadccb3d9c9dd3a6c8d16f74cac7733106975a90bc8af5d656fb08"
+    },
+    "src/core/sched/ff_sched.c": {
+      "description": "Core Scheduler",
+      "sha256": "e68e37772258cabc025156decb77c6509110bd34cdc37fe1d6da16b07cf3b860"
+    },
+    "src/core/sched/ff_sched.h": {
+      "description": "Core Scheduler Header",
+      "sha256": "2cae84b0bb0050a855023f1c5caae341a4d2279ffcd4ab5add33736cfa93cd6c"
+    },
+    "src/apps/app_scheduler.c": {
+      "description": "App Scheduler",
+      "sha256": "0439ec86262d34f20fbba5314a169e34de3929706bbfd52d631fb47cf16c7a95"
+    },
+    "tests/unit/test_sched.c": {
+      "description": "Scheduler Tests",
+      "sha256": "9b5a1b1a002df7199fdef5e02ae3a77288baaa1479cb090499c52f2bfb51e6b8"
+    },
+    "docs/reviews/2026-10-30-sched-bounded-increment-vv-review.md": {
+      "description": "V&V Review (4th-entry)",
+      "sha256": "11e59216db5873e3f61135cc7926f69dc4df4522d9ad6ce19a618e8ed10afbfb"
+    },
+    "docs/reviews/2026-10-30-scheduler-r4-documentation-review.md": {
+      "description": "R4 Review (Full Sprint)",
+      "sha256": "6a78269d880bab8397ba09194ce79bcbc3059f299a392dc36159e32a297cd345"
+    },
+    "docs/vv/evidence/2026-10-30-s8-sch-candidate-identity.json": {
+      "description": "Candidate Identity Manifest",
+      "sha256": "b61b10858292a69f8334048a35372bdfb481e89ab3a1ef2f3bd0ee37e64116a3"
+    },
+    "docs/vv/evidence/2026-10-30-s8-sch-auxiliary-cycle.log": {
+      "description": "Auxiliary Cycle Log",
+      "sha256": "MISSING"
+    }
+  },
+  "test_results": {
+    "test_sched": "114/114 PASS",
+    "test_pus_fu": "172/172 PASS",
+    "ctest_total": "45/45 PASS (1 SKIP renode_vv_verdict)",
+    "trace": "PASS (120 req, 76 srs, 30 sss, 14 gaps, 68 Lean theorems)",
+    "lean": "PASS (lake build in Docker)",
+    "format_check": "PASS"
+  },
+  "reviews": [
+    {
+      "type": "R1",
+      "reviewer": "FRICK-REVIEW-0351",
+      "date": "2026-10-16",
+      "finding": "Starvation defect corrected; opened NC-EXT-90"
+    },
+    {
+      "type": "R2",
+      "reviewer": "FRICK-REVIEW-0352/0353",
+      "date": "2026-10-16",
+      "finding": "Missed-slot mismatch, oracle gaps; corrections accepted in re-review"
+    },
+    {
+      "type": "PA_Delta",
+      "reviewer": "FRICK-REVIEW-0360",
+      "date": "2026-10-16",
+      "finding": "Bounded host evidence acceptable; NC-EXT-19/90 OPEN"
+    },
+    {
+      "type": "V&V",
+      "reviewer": "aeronautics-space-sw-vv-engineer",
+      "date": "2026-10-30",
+      "finding": "G1 RESOLVED (4th-entry assertions), NC-EXT-19 OPEN"
+    },
+    {
+      "type": "R4_Increment",
+      "reviewer": "aeronautics-space-sw-documentation-engineer",
+      "date": "2026-10-30",
+      "finding": "4th-entry increment docs correct; gaps: OBCP header, sprint header, standing conditions, verification-results.md, trace gate, Lean build"
+    },
+    {
+      "type": "R4_Full_Sprint",
+      "reviewer": "aeronautics-space-sw-documentation-engineer",
+      "date": "2026-10-30",
+      "finding": "Full S8-SCH sprint R4 review: candidate identity incomplete, aux cycle gates not all green (trace/Lean FAIL in review env), R3 review missing, Section 5 gate unsatisfied \u2014 CLOSURE NOT RECOMMENDED"
+    },
+    {
+      "type": "PA",
+      "reviewer": "aeronautics-space-sw-pa-engineer",
+      "date": "2026-10-30",
+      "finding": "SIL host correct; PA process gaps: NC-EXT-174, Lean build, change control, revision discrepancy, SPDX"
+    }
+  ],
+  "nc_status": {
+    "NC-EXT-19": "OPEN (mission-table/timing, Table Services, target timing/fault-policy, WCET)",
+    "NC-EXT-90": "OPEN (time arithmetic wrap near UINT64_MAX)",
+    "NC-EXT-198": "OPEN (Renode N18 FAIL, unwired MPFS binding)",
+    "NC-EXT-199": "OPEN (evidence integrity, corrected)",
+    "NC-EXT-197": "OPEN (UART race corrected)",
+    "NC-PAL-01": "OPEN (MPFS watchdog binding not wired)"
+  },
+  "gates_actual": {
+    "build": "PASS",
+    "tests": "45/45 PASS (1 SKIP renode_vv_verdict)",
+    "trace": "PASS (120 req, 76 srs, 30 sss, 14 gaps, 68 Lean theorems) - in Docker",
+    "lean": "PASS (lake build in Docker)",
+    "format": "PASS",
+    "note": "Host environment: lake not installed, trace receipt root-owned; controlled environment is Docker frick-vv:local"
+  },
+  "auxiliary_cycle": {
+    "environment": "Docker frick-vv:local, FF_USE_PUS_ASN1=OFF",
+    "lake_version": "Lake 5.0.0-c375e19 (Lean 4.10.0)",
+    "completed": "2026-10-30",
+    "status": "ALL GATES PASS in controlled Docker environment"
+  },
+  "sprint_closure_status": {
+    "candidate_identity": "COMPLETE (this manifest)",
+    "auxiliary_cycle": "PASS (in controlled Docker environment)",
+    "r4_review": "PENDING (full sprint R4 review documents findings above; closure NOT recommended until gates green in review env and R3 review obtained)",
+    "nc_ext_19": "OPEN (authority-dependent)",
+    "nc_ext_90": "OPEN",
+    "section_5_gate": "UNSATISFIED (architecture doc \u00a75: independent R/PA review of full sprint increment pending)",
+    "overall": "S8-SCH sprint closure NOT COMPLETE \u2014 documentation package ready but formal R4/R3 reviews and authority NCs remain"
+  }
+}
