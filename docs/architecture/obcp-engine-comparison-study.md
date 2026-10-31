@@ -3,7 +3,7 @@
 | Field | Value |
 | ----- | ----- |
 | Document ID | FRICK-ARCH-OBCP-STUDY-001 |
-| Revision | 0.5 |
+| Revision | 0.5.1 |
 | Date | 2026-10-31 |
 | Status | Draft — Technical Study (not architecture adoption) |
 | Requirements | SRS-REQ-045, SRS-REQ-054, SSS-REQ-022, SSS-REQ-027 |
@@ -57,8 +57,6 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 | **Preemptive Abort** | No | No | Hook mechanism can raise exception | State machine abort | Process kill (SIGKILL) |
 | **Memory/Stack Accounting** | Caller-provided heap buffer + script length limit | Caller-provided heap + script length limit | Qualified memory/stack accounting | F Prime memory allocators | OS + cFS resource mgmt |
 | **WCET Evidence** | None | None | Qualified (ECSS CAT-B) | F Prime heritage | cFS resource mgmt |
-| **License** | MPL-2.0 (adapter); n7s-obcp MIT + ESA ECL-3 | MIT + ESA ECL-3 | Spacebel IPR (engine); George Robotics MIT; ESA ECL-3 | Apache 2.0 | NASA open source (planned) |
-| **Qualification Status** | None (NC-S9-01 open) | None (NC-S9-01 open) | ECSS CAT-B qualified (Euclid) | F Prime heritage (multiple missions) | IRAD complete; open source release planned |
 | **Target Platform** | RTEMS/MPFS (RISC-V) | x86-64, ARM Cortex-M7 (SAMV71/SAMRH71) | LEON2/LEON3/LEON4 on RTEMS 4.8/5.x | Various (RTEMS, Linux, bare metal) | cFS targets (various) |
 | **RTEMS/RISC-V Portability** | Native (RTEMS POSIX mutex, RTEMS clock) | Portable (embed port) | LEON/RTEMS qualified; RISC-V unproven | RTEMS port exists | cFS RTEMS port exists |
 
@@ -77,12 +75,8 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 | **VM-Level Instruction Quota** | **None** | **Gap** |
 | **Preemptive Abort** | Cooperative only (beginstep flag) | Gap |
 | **VM-Level Fault Containment** | None (single context, no VM fault containment) | Gap |
-| **Interpreter Failure Propagation** | `obcpengine_execute_py` returns `true` without propagating failure | Gap |
 | **VM-Level Timeout/Quota** | None (250ms panic deadline only, shared with console) | Gap |
-| **VM-Level Fault Containment** | None | Gap |
 | **Memory/Stack Accounting** | Caller-provided heap + script length limit | Partial |
-| **WCET Evidence** | None | Gap |
-| **VM-Level Fault Containment (Qualified)** | None | Gap |
 
 ---
 
@@ -95,7 +89,6 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 | Interpreter Failure Propagation | ✅ Patch propagates interpreter error | ❌ Current behavior (returns true) | ✅ Designed with error propagation |
 | VM-Level Timeout/Quota | ✅ VM instruction counter + time quota | ❌ Cooperative step boundaries only | ✅ Built-in |
 | VM-Level Fault Containment | ✅ Patch can add fault containment hooks | ❌ Single context, no VM isolation | ✅ Designed with containment |
-| Interpreter Failure Propagation (exception) | ✅ Patch propagates exception | ❌ Returns `true` always | ✅ Built-in |
 | Memory/Stack Accounting | ⚠️ Patch can add heap accounting | ⚠️ Current limits only | ✅ Designed with accounting |
 | WCET Evidence | ⚠️ Requires VM timing analysis | ❌ No VM timing analysis | ✅ Designed for WCET analysis |
 | VM-Level Fault Containment (Qualified) | ❌ Requires re-qualification | ❌ Not qualified | ✅ Designed for qualification |
@@ -110,12 +103,12 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 
 | Candidate | License | Provenance | Version | Obtainable? | Notes |
 |-----------|---------|------------|---------|-------------|-------|
-| **n7s-obcp** (C1) | MIT + ESA ECL-3 | ESA contract [PHONE]/24/NL/KK | Pinned: `55d6d97e7e7ff08a130698f7a922bcf58acb3d99` + MicroPython `647c8b96cae7e202c7a020395b7cfe65e5b8ce04` | Yes (GitHub public) | Current baseline; NC-S9-01 open |
+| **n7s-obcp** (C1) | MIT + ESA ECL-3 | ESA contract [PHONE]/24/NL/KK | Pinned: `55d6d97e7e7ff08a130698f7a922bcf58acb3d99` + MicroPython `647c8b96cae7e202c7a020395b7cfe65e5b8ce04` | Yes (GitHub public) | Current baseline; NC-S9-01 open; ECL-3 terms **unverified — legal review PENDING** |
 | **Spacebel/ESA OBCP Engine** | Spacebel IPR (engine); MIT (MicroPython VM); ESA ECL-3 | Spacebel + George Robotics + ESA | Qualified on Euclid (LEON2/RTEMS) | Requires ESA/Spacebel agreement | Qualified CAT-B on Euclid; ECL-3 terms **unverified — legal review PENDING** |
 | **Spacebel/George Robotics MicroPython VM** | MIT (MicroPython) + ESA ECL-3 | George Robotics + ESA | ECSS CAT-B qualified (Euclid) | Via ESA ESSR | Qualified CAT-B on Euclid; ECL-3 terms **unverified — legal review PENDING** |
 | **F Prime FpySequencer** | Apache 2.0 | JPL/NASA | Active (F Prime v2+) | Yes (GitHub) | F Prime heritage; different paradigm (Fpy bytecode) |
 | **cFS Python** | NASA Open Source (planned) | NASA GSFC | IRAD complete | Planned release | Full Python 3; process isolation |
-| **Spacebel OBCP Engine (Qualified)** | Spacebel IPR + ESA ECL-3 | Spacebel + George Robotics + ESA | Qualified CAT-B (Euclid) | Spacechip/ESA agreement | Qualified CAT-B on Euclid |
+| **Spacebel OBCP Engine (Qualified)** | Spacebel IPR + ESA ECL-3 | Spacebel + George Robotics + ESA | Qualified CAT-B (Euclid) | Spacebel/ESA agreement | Qualified CAT-B on Euclid; ECL-3 terms **unverified — legal review PENDING** (C2/C7 sibling) |
 
 **ESA Community License Type 3 Access Status:** Full license text (ESA Community License v2.4 Type 3 / ECL-3) not publicly available on ESA ESSR; access requires ESA account and acceptance of ESA OSS policy. Legal review flag: **PENDING** — project legal review required before any commitment to Spacebel IPR components. See `docs/quality/licensing.md` for license tracking.
 
@@ -125,30 +118,14 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 
 | Finding | Description | Corrective Action | Status |
 |---------|-------------|-------------------|--------|
-| **PA-0339-01** | Candidate identity manifest does not inventory current PUS/OBCP delta | Updated `docs/vv/evidence/2026-10-30-s8-sch-candidate-identity.json` to include OBCP-related artifacts; updated `docs/architecture/obcp-integration-assessment.md` Rev 0.5 change history | **NOT DONE** — live-tree verification 2026-10-31 (PA session `ses_e6fe92fc7ffedWmclbirQ7T37S`): the manifest inventories only S8-SCH scheduler artifacts, no OBCP/third-party artifact entries; the earlier "CORRECTED" status was not supported by evidence. Actual manifest update remains to be performed (evidence-engineering work, not owner-disposition of NC-EXT-83/84) |
-| **PA-0339-02** | Generator provenance thinner than source pin provenance — CMake invokes upstream `make flat`; generation tool version/hash not captured in evidence logs | Added `generator_version` field to `lean_elab_receipt.py` schema `nc-ext-174/2`; `tools/scripts/lean_elab_receipt.py` now records `lake` and `lean` versions in receipt | **CORRECTED** — generator version now recorded in receipt schema; Lean receipt generation validated |
+| **PA-0339-01** | Candidate identity manifest does not inventory current PUS/OBCP delta | **PLANNED:** update `docs/vv/evidence/2026-10-30-s8-sch-candidate-identity.json` to include OBCP-related artifacts; update `docs/architecture/obcp-integration-assessment.md` Rev 0.5 change history | **NOT DONE** — live-tree verification 2026-10-31 (PA session `ses_e6fe92fc7ffedWmclbirQ7T37S`): the manifest inventories only S8-SCH scheduler artifacts, no OBCP/third-party artifact entries; the earlier "CORRECTED" status was not supported by evidence. Actual manifest update remains to be performed (evidence-engineering work, not owner-disposition of NC-EXT-83/84) |
+| **PA-0339-02** | Generator provenance thinner than source pin provenance — CMake invokes upstream `make flat`; generation tool version/hash not captured in evidence logs | Added `generator_version` field to `lean_elab_receipt.py` schema `nc-ext-174/2`; the receipt now records the Lean compiler version and the generator version plus lakefile/lake-manifest hashes | **CORRECTED** — receipt records Lean compiler version, generator version, and lakefile/lake-manifest SHA-256 (live: `tools/scripts/lean_elab_receipt.py` `lean_version`/`generator_version` fields; the receipt does not carry a separate lake tool version field — wording aligned to the recorded fields by PA session `ses_e6fd3f841ffe0ogCcaql4KxBLT`, R-A9); Lean receipt generation validated |
 
 **Reference Reviews:** `docs/reviews/2026-10-16-s8-pus-scheduler-delta-pa-identity.md` (PA-0339-01), `docs/reviews/2026-10-16-s8-pus-scheduler-delta-pa-identity.md` (PA-0339-02).
 
-| Criterion | Option A: Upstream Patch | Option B: Cooperative Only | Option C: In-House M16 |
-|-----------|-------------------------|---------------------------|----------------------|
-| **Execution Quota** | ✅ VM instruction counter + quota check in VM loop | ❌ Cooperative only (status quo) | ✅ Designed with quota |
-| **Preemptive Abort** | ✅ VM-level abort via quota/hook | ❌ Cooperative only (beginstep) | ✅ Designed with preemptive abort |
-| **Interpreter Failure Propagation** | ✅ Patch propagates interpreter error | ❌ Returns `true` always | ✅ Designed with error propagation |
-| **VM-Level Timeout/Quota** | ✅ VM instruction counter + time quota | ❌ Cooperative only (250ms panic deadline shared) | ✅ Built-in |
-| **VM-Level Fault Containment** | ✅ Patch can add hooks | ❌ Single context, no VM isolation | ✅ Designed with containment |
-| **Interpreter Failure Propagation** | ✅ Patch propagates exception | ❌ Returns `true` always | ✅ Built-in |
-| **Memory/Stack Accounting** | ⚠️ Patch can add heap accounting | ⚠️ Current limits only | ✅ Designed with accounting |
-| **WCET Evidence** | ⚠️ Requires VM timing analysis | ❌ No VM timing analysis | ✅ Designed for WCET analysis |
-| **VM-Level Fault Containment (Qualified)** | ❌ Requires re-qualification | ❌ Not qualified | ✅ Designed for qualification |
-| **License/Provenance** | MIT + ESA ECL-3 (existing) | MIT + ESA ECL-3 (existing) | MPL-2.0 (new code) |
-| **Upstream Acceptance** | Uncertain (MicroPython upstream may reject) | N/A | N/A (in-house) |
-| **Timeline** | Uncertain (upstream review) | Immediate (status quo) | M16 timeline (deferred) |
-| **ECSS Qualification** | Requires re-qualification | Not qualified | Designed for qualification |
-
 ---
 
-## 7. Identified Candidates Not Previously Listed
+## 7. Candidates Previously Covered in §2 (Consolidated View)
 
 | Candidate | Source | Status |
 |-----------|--------|--------|
@@ -177,8 +154,6 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 | NASA cFS Python Integration (TechPort 95917) | NASA TechPort | https://techport.nasa.gov/projects/95917 |
 | F Prime Sequencer / Sequencing | NASA JPL | https://fprime.jpl.nasa.gov/ |
 | ECSS-E-ST-70-01C | ECSS | https://ecss.nl/standard/ecss-e-st-70-01c-on-board-control-procedures/ |
-| NASA cFS Python Integration (TechPort 95917) | NASA TechPort | https://techport.nasa.gov/projects/95917 |
-| F Prime Sequencing / FpySequencer | NASA JPL | https://fprime.jpl.nasa.gov/ |
 
 ---
 
@@ -200,7 +175,7 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 
 ---
 
-## 10. PA Review Findings G1–G10 Status
+## 10. PA Review Findings G1–G13 Status
 
 | Gap | Origin | Description | Status (rev 0.5) |
 |-----|--------|-------------|-------------------|
@@ -220,7 +195,7 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 |-----|-------------|--------|
 | G11 | Conclusions 6 & 7 semantic duplication | FIXED — merged into single conclusion |
 | G12 | Document Control claims G1-G10 tracked but no gap register in body | OPEN — misleading traceability; now recorded in this table |
-| G13 | ECL-3 "permissive" claim in rows not flagged as unverified | ADDRESSED 2026-10-31 — ECL-3/legal-review PENDING flags added to all ECL-3-affected §5 rows; §2 inventory rows already flagged. Independent confirmation pending re-review |
+| G13 | ECL-3 "permissive" claim in inventory rows not flagged as unverified | PARTIALLY ADDRESSED — 2026-10-31: ECL-3/legal-review PENDING flags now present on the §5 rows Spacebel/ESA OBCP Engine, MicroPython VM, and Spacebel OBCP Engine (Qualified) and on the §5 n7s-obcp row; §2 inventory rows already flagged (C2/C7 + license column). Date/proof on request. Independent confirmation pending re-review |
 
 ---
 
@@ -240,10 +215,11 @@ The study evaluates candidates against the current `ff_obcp.c` behavior and the 
 
 ---
 
-**Document Control**
+## 12. Document Control
 
 | Rev | Date | Author | Change |
 |-----|------|--------|--------|
+| 0.5.1 | 2026-10-31 | frick-fsw | Independent PA re-review (session `ses_e6fd3f841ffe0ogCcaql4KxBLT`, Task A: PASS WITH COMMENTS) findings applied: R-A1 ECL-3 PENDING flags added to §5 n7s-obcp and Spacebel-OBCP-Engine rows (G13 → PARTIALLY ADDRESSED), R-A2 "Spacechip"→"Spacebel/ESA" typo, R-A3 verbatim duplicate rows removed from §3 (License, Qualification Status) and §4 (second Interpreter Failure Propagation, second VM-Level Fault Containment, VM-Level Fault Containment (Qualified)) and §4.1 (Interpreter Failure Propagation (exception)); near-duplicate granularity rows retained intentionally as distinct information levels (instruction-level vs general quota; exception- vs error-propagation detail), R-A4 verbatim duplicated Option-criteria table removed from §6 (§4.1 is the canonical location), R-A5 §7 retitled to "Candidates Previously Covered in §2 (Consolidated View)", R-A6 duplicate §8 source rows removed, R-A7 §10 heading widened to G1–G13, R-A8 §6 PA-0339-01 corrective action prefixed "PLANNED:", R-A9 PA-0339-02 wording aligned to the actually-recorded receipt fields (no separate lake tool version field; wording cites the live code), R-A10 Document Control numbered "## 12". R-A11 ([PHONE] contract placeholder) remains an owner-note. No candidate selected or adopted; no runtime patch; comparison-only posture unchanged. |
 | 0.5 | 2026-10-31 | frick-fsw | Findings P1, H-verify, G7, G10 of the 2026-10-31 independent PA provenance review (session `ses_e6fe92fc7ffedWmclbirQ7T37S`, `docs/reviews/2026-10-31-root-cause-audit-study-provenance-pa-review.md`) applied: removed the unsupported "PA re-review completed" claims (G1 now OPEN, awaiting genuine independent re-review), corrected G7 to NOT DONE (candidate-identity manifest does not inventory OBCP artifacts) and §6 PA-0339-01 status likewise, corrected G10 to NOT PRESENT (header does not reference NC-EXT-11), added ECL-3/legal-review PENDING flags to ECL-3-affected §5 rows (G13), fixed duplicated section numbering (§7/§8/§9/§10/§11). G4/G5 remain NOT ADDRESSED by design (owner-owned adoption-time items). No candidate selected or adopted; no runtime patch. |
 | 0.4 | 2026-10-30 | frick-fsw | PA Rev 0.3 findings addressed: fixed G9 status (RESOLVED), added ECL-3 unverified flag to C2 inventory, updated gap register. PA Rev 0.3 findings G4, G5, G10, G13 remain unresolved. G11 fixed, G12 recorded, G13 residual. |
 | 0.3 | 2026-10-30 | frick-fsw | PA Rev 0.2 findings addressed: fixed safety cross-reference (G9), merged Conclusions 6&7 (G11), added gap register table (G12), propagated ECL-3 legal flag to inventory (G13). PA Rev 0.2 findings G4, G5, G9, G10 remain unresolved. PA Rev 0.2 findings G11, G12, G13 added as open gaps. |

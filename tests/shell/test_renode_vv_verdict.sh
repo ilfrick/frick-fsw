@@ -110,24 +110,35 @@ esac
 
 # B2 unreadable capture
 #
-# Discrimination note (corrected 2026-10-31, FRICK-REVIEW-0438 follow-up gates):
-# the capture is made unreadable with chmod 000, which deliberately fails only
-# for a non-root process. When this test runs under the root identity (e.g.,
-# inside the frick-vv:local container), root bypasses DAC and the verdict would
-# instead read the valid console log and report the unrelated startup-fatal
-# reason, so B2b could never discriminate. The verdict is therefore executed
-# under the `nobody` identity (setpriv) for this case when available; when no
-# means of dropping privileges exists, the B2/B2b checks are SKIPPED with an
-# explicit visible message (not counted as checks, nothing fabricated) instead
-# of being reported as discriminating.
+# Discrimination note (corrected 2026-10-31; independent V&V review, session
+# `ses_e6fd81092ffeW105yUnRvTIVzm`, findings V1/V2 applied): the capture is made
+# unreadable with chmod 000, which deliberately fails only for a non-root
+# process. Two execution environments exist:
+#   * root (e.g. inside the frick-vv:local container): root bypasses DAC, so the
+#     unreadability condition must be reproduced by executing the verdict under
+#     an unprivileged identity (`nobody` via setpriv). setpriv *availability*
+#     is not enough: the drop must be probed for *executability* first (a
+#     non-root caller of this suite cannot setuid and would otherwise produce a
+#     spurious rc=127 false-FAIL, V1); the dropped identity is asserted to be
+#     `nobody` before any B2 verdict outcome is reported (V2).
+#   * non-root (e.g. host `make test`, GitHub runners): the invoking identity
+#     itself cannot read the 000 file, so the plain verdict run reproduces the
+#     condition directly — the historical (parent-commit) behavior, preserved.
+# When neither reproduction mechanism works (root without setpriv/nobody), the
+# B2/B2b checks are SKIPPED with an explicit visible message, not counted as
+# checks, and nothing is fabricated.
 B2="${WORK}/caseB2"
 mkdir -p "${B2}"
+chmod 711 "${B2}"
 cp "${EV}/2026-10-21-s8-fdir-n18-current-process.log" "${B2}/renode-process.log"
 cp "${EV}/2026-10-21-s8-fdir-n18-current-uart-console.log" "${B2}/uart-console.log"
 chmod 000 "${B2}/uart-console.log"
 ID_N="$(id -u nobody 2>/dev/null)"
 GID_N="$(id -g nobody 2>/dev/null)"
-if command -v setpriv >/dev/null 2>&1 && [ -n "${ID_N}" ] && [ -n "${GID_N}" ]; then
+if [ "$(id -u)" -eq 0 ] && command -v setpriv >/dev/null 2>&1 \
+   && [ -n "${ID_N}" ] && [ -n "${GID_N}" ] \
+   && DROPPED="$(setpriv --reuid="${ID_N}" --regid="${GID_N}" --clear-groups id -u 2>&1)" \
+   && [ "${DROPPED}" = "${ID_N}" ]; then
     out="$(setpriv --reuid="${ID_N}" --regid="${GID_N}" --clear-groups sh "${VERDICT}" "${B2}" 2>&1)"
     rc=$?
     chmod 644 "${B2}/uart-console.log"
@@ -136,9 +147,19 @@ if command -v setpriv >/dev/null 2>&1 && [ -n "${ID_N}" ] && [ -n "${GID_N}" ]; 
       *"run capture unreadable"*) report 0 "B2b the reason names the unreadable capture" ;;
       *) report 1 "B2b the reason names the unreadable capture" ;;
     esac
+elif [ "$(id -u)" -ne 0 ]; then
+    # Non-root caller: the invoking identity itself cannot read the 000 file,
+    # so the plain run reproduces the unreadable-capture condition directly.
+    out="$(run_verdict "${B2}")"; rc=$?
+    chmod 644 "${B2}/uart-console.log"
+    report "$([ "${rc}" -ne 0 ] && echo 0 || echo 1)" "B2 unreadable capture fails closed (rc=${rc})"
+    case "${out}" in
+      *"run capture unreadable"*) report 0 "B2b the reason names the unreadable capture" ;;
+      *) report 1 "B2b the reason names the unreadable capture" ;;
+    esac
 else
     chmod 644 "${B2}/uart-console.log"
-    echo "SKIP - B2/B2b unreadable-capture case: no privilege-dropping mechanism available (root bypasses DAC); the condition cannot be reproduced"
+    echo "SKIP - B2/B2b unreadable-capture case: root without a usable privilege-dropping mechanism (root bypasses DAC); the condition cannot be reproduced"
 fi
 
 # B3 empty capture

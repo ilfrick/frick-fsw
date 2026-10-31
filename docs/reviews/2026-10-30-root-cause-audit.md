@@ -8,10 +8,10 @@
 
 ## 1. Canonical Sprint Closure Criteria vs. Reality
 
-**Canonical Sprint Closure Criteria (per sprint plan + norms):**
-- **Scope completed**: Implemented, tested (host + simulation), traced (N3/N4), Lean-verified (N1), documented (N8)
-- **Independent review passed** (N9/N20): V&V (R2), PA (PA), Documentation (R4), Systems (R3) — all must PASS
-- **All gates green** (N7): `make build`, `make test`, `make trace`, `make verify-lean`, `make format-check` PASS
+**Canonical Sprint Closure Criteria (per norms N15/N12/N9/N20/N11 + sprint plan):**
+- **Scope completed**: Implemented, tested (host + simulator smoke), Lean-verified (N1), documented (N8); traceability bidirectional (N3/N4)
+- **All gates green** (N15): `make build`, simulator smoke, unit tests, static analysis, documentation consistency, Lean, trace; NC close-out (N12) only via disposition + re-verification
+- **Independent review passed** (N9/N20): V&V (R2), PA (PA), Documentation (R4), Systems (R3) — all must PASS; reviews repeated until pass, commit/push only after gate pass
 - **NCs resolved or properly deferred**: No open Major NCs on sprint scope; deferred NCs recorded with owner/milestone
 - **Commit/push** (N7): Only `aeronautics-space-fsw-engineer` after all gates green + full sprint scope complete
 - **Evidence retained** (N11): All review reports, test logs, traceability matrices committed with change
@@ -33,7 +33,7 @@
 
 | Sprint | Scope | Host-Testable Work Remaining? | Blocking Factor |
 |--------|-------|-------------------------------|-----------------|
-| S0 | Closure & baseline | PA review of OBCP study (G4,G5,G10,G13) | PA review process |
+| S0 | M16-review closure backlog + PA-67-01 disposition | Review backlog items (sprint-plan §2 S0 scope) | Review process |
 | S1-S7 | M4/M11 HAL classes | **Complete** — host tests PASS | — |
 | S8 | gPTP + TSN | **Delivered** | — |
 | S8-FU | P0 decoder/ingest/GSW/test-fixture corrections | Authority dispositions (NC-EXT-14..18/22) | Authority disposition |
@@ -43,7 +43,7 @@
 | S8-SCH | Scheduler (OBJ-31/M17) | Authority items (NC-EXT-19/90) | Authority |
 | S9-S10 (M12) | OBCP integration | **DECISION-FOR-NICOLA** + NC-S9-01 | Authority/DECISION |
 | S11-S12 | M16 in-house OBCP | DEFERRED | Owner |
-| S13-S14 | M13 mission services | DONE | — |
+| S13-S14 | M13 mission services | **NOT DELIVERED** — roadmap M13 status is "planned"; no delivered marker in sprint plan (finding N1, PA session `ses_e6fd3f841ffe0ogCcaql4KxBLT`) | Roadmap sequence |
 | S15+ | M9/GAP-A4 / class-A track | After M14 | — |
 | S16-S17 | M14 multicore/SMP | After all others | — |
 | S18-S25 | M15 PUS-C+CFDP | After M14 | — |
@@ -144,10 +144,10 @@
 
 | Step | Action | Owner | Gate |
 |------|--------|-------|------|
-| **1** | Fix study Rev 0.5: resolve PA G9 (RESOLVED), G11 (merge conclusions), G12 (gap register), G13 (C7 flag); update traceability.yaml if needed | FSW Engineer | PA re-review PASS |
-| **2** | Execute unblocked host-testable work: complete NC-EXT-98 (F-0379-03 + report-before-reset sensor), S8-PUS-FU bounded corrections, S8-SCH doc updates | FSW Engineer | make test / trace / lean / format PASS |
-| **3** | Run PA re-review (fresh context) on corrected study → PASS → commit/push | PA Agent + FSW Engineer | PA re-review PASS → commit/push both remotes |
-| **4** | Update sprint plan: mark S8-VV-FU NC-EXT-98 residual as "in progress", S8-PUS-FU "authority items in progress", S8-SCH "authority items in progress" | FSW Engineer | Sprint plan N8 current |
+| **1** | ~~Fix study Rev 0.5: resolve PA G9 (RESOLVED), G11 (merge conclusions), G12 (gap register), G13 (C7 flag); update traceability.yaml if needed~~ **APPLIED 2026-10-31**: G6/G9/G11/G12 verified applied; G7→NOT DONE, G10→NOT PRESENT, G1→OPEN; Rev 0.5.1 applies R-A1..R-A10 of the independent PA re-review (session `ses_e6fd3f841ffe0ogCcaql4KxBLT`: PASS WITH COMMENTS); the operative G13 residual was the §5 rows (fixed), not the C7 flag (already flagged in §2) | FSW Engineer | PA round-2 confirmation |
+| **2** | ~~Execute unblocked host-testable work~~ **PARTIALLY APPLIED 2026-10-30/31**: NC-EXT-98 reset-path test + ordering sensor added and recorded in sprint-plan 1.112 (208/208 PASS); S8-PUS-FU bounded corrections remain pending authority profile semantics (NC-EXT-14..18/22); S8-SCH docs complete except NC-EXT-19/90 authority items | FSW Engineer | make test / trace / lean / format PASS |
+| **3** | ~~Run PA re-review (fresh context) on corrected study → PASS → commit/push~~ **IN EXECUTION 2026-10-31**: genuine PA session `ses_e6fd3f841ffe0ogCcaql4KxBLT` re-review verdict = PASS WITH COMMENTS (owner-gated whether it constitutes the N20 evidence); round-2 confirmation pending after R-A corrections | PA Agent + FSW Engineer | PA re-review → commit/push both remotes |
+| **4** | ~~Update sprint plan~~ **APPLIED**: Rev 1.114 with accurate 2026-10-30/31 ledgers and zero-closure statement | FSW Engineer | Sprint plan N8 current |
 | **5** | Record DECISION-FOR-NICOLA as explicit blocker for M12; do not conflate with other sprints | Sprint Plan | — |
 
 ---
@@ -177,12 +177,11 @@
 3. PA re-review → PASS → commit/push both remotes (verified by readback)
 4. Update sprint plan ledger with true closure status; record DECISION-FOR-NICOLA as explicit M12 blocker
 
-**Genuine Sprint Closures Today: 0** — All S0-S25 blocked by DECISION-FOR-NICOLA, authority, hardware, human review, or review gates. No canonical sprint closed today.
+**Genuine Sprint Closures Today: 0** — All S0-S25 blocked by DECISION-FOR-NICOLA, authority, hardware, human review, or review gates. No canonical sprint closed today. **Note (updated 2026-10-31):** unblocked host-testable recovery work listed in §2 has been partially executed since this note was first written (NC-EXT-98 tests, sprint-plan 1.112); see §7 dispositions.
 
-**Model:** Nemotron 3 Ultra (OpenRouter) — OpenCode Nemotron 3.5 exhausted until 2026-10-31 01:54 CET.
+**Model at note-time:** Nemotron 3 Ultra (OpenRouter) — superseded 2026-10-31 by GLM-5.3-Flash Free on OpenCode (Nicola-directed; sprint-plan 1.114).
 
 ---
 
-**Independent Reviewer:** PA Agent (`aeronautics-space-sw-pa-engineer`)  
-**Verdict:** NEEDS REVISION — G4, G5, G10, G13 unresolved  
+**Document provenance (corrected 2026-10-31, finding N2):** coordinator-authored process note — NOT an independent audit. Corrections of H2–H7 applied per FRICK-REVIEW-0438; Section-5 dispositions updated 2026-10-31. **Independent review of this note:** FRICK-REVIEW-0438 (PA session `ses_e6fe92fc7ffedWmclbirQ7T37S`, verdict NEEDS REVISION, H-findings applied). **Independent re-performance of the audit itself:** PA session `ses_e6fd3f841ffe0ogCcaql4KxBLT` (2026-10-31) — its conclusions 1–5 and findings N1–N7 are the current authoritative audit product; acceptance as N9/N20 evidence is owner-gated.  
 **Sources:** `docs/reviews/2026-10-30-obcp-engine-comparison-study-pa-review.md`, `docs/planning/sprint-plan.md`, `docs/architecture/obcp-engine-comparison-study.md`, AGENTS.md, `docs/rules.md`
