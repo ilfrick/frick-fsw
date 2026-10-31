@@ -369,6 +369,21 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
             FF_TEST_ASSERT(total < sizeof(stalled));
         }
     }
+    /* send_until with deadline in the past must return FF_TIMEOUT immediately. */
+    {
+        const uint8_t tx[] = {0xA5u, 0x5Au, 0x01u};
+        struct timespec now;
+        FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
+        uint64_t deadline_past =
+            (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec;
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline_past) ==
+                       FF_TIMEOUT);
+    }
+    /* send_until with deadline = 0 must return FF_TIMEOUT immediately. */
+    {
+        const uint8_t tx[] = {0xA5u, 0x5Au, 0x01u};
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), 0u) == FF_TIMEOUT);
+    }
     /* The bounded send must restore the descriptor mode it changed, so the
      * normal send path keeps its blocking semantics. */
 #ifdef FF_TEST_HAVE_WRITE_WRAP
