@@ -24,6 +24,9 @@ EV="${ROOT}/docs/vv/evidence"
 
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/frick-renode-verdict-test.XXXXXX")"
 trap 'rm -rf "${WORK}"' EXIT
+# The unprivileged-identity case (B2) needs at least traverse/execute on the
+# work tree; 711 keeps it root-writable but traversable by `nobody`.
+chmod 711 "${WORK}"
 
 fails=0
 checks=0
@@ -106,18 +109,37 @@ case "${out}" in
 esac
 
 # B2 unreadable capture
+#
+# Discrimination note (corrected 2026-10-31, FRICK-REVIEW-0438 follow-up gates):
+# the capture is made unreadable with chmod 000, which deliberately fails only
+# for a non-root process. When this test runs under the root identity (e.g.,
+# inside the frick-vv:local container), root bypasses DAC and the verdict would
+# instead read the valid console log and report the unrelated startup-fatal
+# reason, so B2b could never discriminate. The verdict is therefore executed
+# under the `nobody` identity (setpriv) for this case when available; when no
+# means of dropping privileges exists, the B2/B2b checks are SKIPPED with an
+# explicit visible message (not counted as checks, nothing fabricated) instead
+# of being reported as discriminating.
 B2="${WORK}/caseB2"
 mkdir -p "${B2}"
 cp "${EV}/2026-10-21-s8-fdir-n18-current-process.log" "${B2}/renode-process.log"
 cp "${EV}/2026-10-21-s8-fdir-n18-current-uart-console.log" "${B2}/uart-console.log"
 chmod 000 "${B2}/uart-console.log"
-out="$(run_verdict "${B2}")"; rc=$?
-chmod 644 "${B2}/uart-console.log"
-report "$([ "${rc}" -ne 0 ] && echo 0 || echo 1)" "B2 unreadable capture fails closed (rc=${rc})"
-case "${out}" in
-  *"run capture unreadable"*) report 0 "B2b the reason names the unreadable capture" ;;
-  *) report 1 "B2b the reason names the unreadable capture" ;;
-esac
+ID_N="$(id -u nobody 2>/dev/null)"
+GID_N="$(id -g nobody 2>/dev/null)"
+if command -v setpriv >/dev/null 2>&1 && [ -n "${ID_N}" ] && [ -n "${GID_N}" ]; then
+    out="$(setpriv --reuid="${ID_N}" --regid="${GID_N}" --clear-groups sh "${VERDICT}" "${B2}" 2>&1)"
+    rc=$?
+    chmod 644 "${B2}/uart-console.log"
+    report "$([ "${rc}" -ne 0 ] && echo 0 || echo 1)" "B2 unreadable capture fails closed (rc=${rc})"
+    case "${out}" in
+      *"run capture unreadable"*) report 0 "B2b the reason names the unreadable capture" ;;
+      *) report 1 "B2b the reason names the unreadable capture" ;;
+    esac
+else
+    chmod 644 "${B2}/uart-console.log"
+    echo "SKIP - B2/B2b unreadable-capture case: no privilege-dropping mechanism available (root bypasses DAC); the condition cannot be reproduced"
+fi
 
 # B3 empty capture
 B3="${WORK}/caseB3"
