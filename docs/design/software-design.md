@@ -136,6 +136,91 @@ Design elements trace to SRS/SSS through the matrix in §6 and through
 design is deferred (on-target PPS, TAI/CCSDS epoch) are the documented gaps
 GAP-A5/A7.
 
+## 7.1 Detailed design-to-code traceability (ECSS Annex M <4.4>a.1)
+
+The following matrix maps each design element (per §3 and §5) to its implementing
+source files. This satisfies Annex M <4.4>a.1 detailed design ↔ code traceability.
+
+| Design element | Source file(s) | Notes |
+| -------------- | -------------- | ----- |
+| PAL — Portable Abstraction Layer | `src/core/pal/pal.h` | Public interface: tasks, mutexes, queues, time, console, panic |
+|  | `src/core/pal/pal_posix.c` | POSIX implementation (host + RTEMS) |
+|  | `src/core/pal/pal_rtems.c` | RTEMS bootstrap (POSIX keys, clock, panic hook) |
+|  | `src/core/pal/pal_watchdog.c` | Watchdog abstraction (independent HW backend) |
+| Software Bus | `src/core/sb/sb.h` | Public interface: publish/subscribe, pipes, wildcard |
+|  | `src/core/sb/sb.c` | Bounded ring-buffer pipes, publish fan-out, no allocation |
+| Event Services | `src/core/evs/evs.h` | Public interface: event types, formatted messages, log |
+|  | `src/core/evs/evs.c` | Event log, listeners, PUS S5 forwarding |
+| Executive Services | `src/core/es/es.h` | Public interface: app registry, lifecycle, reset counters |
+|  | `src/core/es/es.c` | App registry, start/stop, state, heartbeat |
+| Table Services | `src/core/tbl/tbl.h` | Public interface: load/validate/activate/revert/dump |
+|  | `src/core/tbl/tbl.c` | Load/validate/atomic activate/revert, mission tables |
+| Time Services | `src/core/time/time.h` | Public interface: MET/UTC, tone discipline, CUC |
+|  | `src/core/time/time.c` | MET/UTC, source selection, tone discipline, PPS |
+|  | `src/core/time/pps.c` | 1 Hz tone backend (software) |
+| CCSDS Codec | `src/transport/ccsds/ccsds.h` | Public interface: Space Packet encode/decode, CRC |
+|  | `src/transport/ccsds/ccsds.c` | Primary/secondary headers, length bounds, CRC-16 |
+| PUS-C Engine | `src/pus/pus.h` | Public interface: TC ingest, TM emission, providers |
+|  | `src/pus/pus.c` | TC ingest, S1 verification, TM emission, dispatch |
+|  | `src/pus/pus_services.c` | Services 1,3,5,6,8,9,11,17,20; provider hooks |
+|  | `src/pus/adapters/pus_adapter_open.c` | Open CCSDS backend (FF_PusBackendOpen) |
+|  | `src/pus/adapters/pus_adapter_n7.c` | N7/ESA ASN.1 backend (FF_PusBackendN7) |
+|  | `src/pus/adapters/pus_adapter_pusopen.c` | PUSopen commercial adapter (FF_PusBackendPusopen) |
+| Link Layer | `src/transport/link/link.h` | Public interface: FF_Link_t vtable, run-time selection |
+|  | `src/transport/link/link.c` | Loopback, UART, IP, TSN backends, runtime selection |
+|  | `src/transport/link/link_loopback.c` | In-memory loopback (simulator/tests) |
+|  | `src/transport/link/link_uart.c` | UART backend (host `/dev/ttyUSB0` or RTEMS console) |
+|  | `src/transport/link/link_ip.c` | IP backend (UDP default + TCP over FF_NetStack_t) |
+|  | `src/transport/link/link_tsn.c` | TSN backend (EtherType 0x88F5, GEM MAC) |
+|  | `src/transport/link/link_seg.c` | Segmentation/reassembly (SRS-REQ-059) |
+| HAL Registry + Contracts | `src/hal/hal.c` | Bounded registry (FF_HAL_MAX_BACKENDS per class) |
+|  | `src/hal/hal.h` | Public registry interface |
+|  | `src/hal/hal_eth.h` | FF_EthMac_t, FF_NetIf_t (SRS-REQ-026) |
+|  | `src/hal/hal_net.h` | FF_NetStack_t (SRS-REQ-027) |
+|  | `src/hal/hal_tsn.h` | FF_TsnBackend_t (SRS-REQ-028) |
+|  | `src/hal/hal_can.h` | FF_CanBackend_t (SRS-REQ-029) |
+|  | `src/hal/hal_serial.h` | FF_Serial_t (SRS-REQ-030) |
+|  | `src/hal/hal_spi.h` | FF_Spi_t (SRS-REQ-031) |
+|  | `src/hal/hal_mem.h` | FF_MemPool_t, FF_Dma_t, FF_Nvm_t, FF_Mtd_t, FF_BlockDev_t (SRS-REQ-032) |
+|  | `src/hal/hal_gpio.h` | FF_Gpio_t (SRS-REQ-047) |
+|  | `src/hal/hal_spacewire.h` | FF_SpaceWire_t, FF_Rmap_t (SRS-REQ-032) |
+|  | `src/hal/hal_pcie.h` | FF_Pcie_t (SRS-REQ-031/032) |
+| Reference Drivers | `src/drivers/eth/gem/ff_gem.c` | GEM Ethernet MAC (FF_EthMac_t) |
+|  | `src/drivers/eth/gem/ff_gem_tsn.c` | GEM native TSN (FF_TsnBackend_t) |
+|  | `src/drivers/eth/gptp/ff_gptp.c` | 802.1AS gPTP (SRS-REQ-068) |
+|  | `src/drivers/net/ff_net_loopback.c` | Loopback network stack (FF_NetStack_t) |
+|  | `src/hal/net/lwip/ff_net_lwip.c` | lwIP adapter (FF_NetStack_t) |
+|  | `src/drivers/gpio/mpfs/ff_gpio_mpfs.c` | MSS GPIO (FF_Gpio_t) |
+|  | `src/drivers/serial/mpfs/ff_serial_mpfs.c` | MSS MMUART (FF_Serial_t) |
+|  | `src/drivers/mem/ff_mem_static.c` | Static RAM pool + DMA (FF_MemPool_t, FF_Dma_t) |
+|  | `src/drivers/nvm/mpfs/ff_nvm_mpfs.c` | MSS eNVM (FF_Nvm_t) |
+|  | `src/drivers/mtd/mpfs/ff_mtd_mpfs.c` | MSS QSPI NOR (FF_Mtd_t) |
+|  | `src/drivers/can/mpfs/ff_can_mpfs.c` | MSS CAN (FF_CanBackend_t) |
+|  | `src/drivers/can/fabric/ff_canfd_fabric.c` | CAN-FD fabric (FF_CanBackend_t) |
+|  | `src/drivers/can/canopen/ff_canopen.c` | CANopen subset (FF_CanBackend_t) |
+|  | `src/drivers/i2c/mpfs/ff_i2c_mpfs.c` | MSS I2C (FF_I2c_t) |
+|  | `src/drivers/spi/mpfs/ff_spi_mpfs.c` | MSS SPI (FF_Spi_t) |
+|  | `src/drivers/block/mpfs/ff_block_mpfs.c` | MSS MMC/SD (FF_BlockDev_t) |
+|  | `src/drivers/pcie/mpfs/ff_pcie_mpfs.c` | MSS PCIe (FF_Pcie_t) |
+|  | `src/drivers/spacewire/mpfs/ff_spacewire_mpfs.c` | SpaceWire contract-level (FF_SpaceWire_t, FF_Rmap_t) |
+|  | `src/drivers/fabric/mpfs/ff_fabric_mpfs.c` | Generic fabric device contract |
+| BSP / RTEMS Integration | `src/bsp/mpfs/board.c` | RTPFS160ZT bring-up (FF_BoardInit) |
+|  | `config/rtems/rtems_config.c` | RTEMS application configuration table |
+| Mathematics Facade | `src/math/ff_math.h` | Public interface: portable libm facade |
+|  | `src/math/ff_math.c` | Integer arithmetic + elementary functions for apps |
+| Security (SDLS) | `src/security/ff_sdls.c` | CCSDS SDLS + key management/rotation |
+|  | `src/security/ff_crypto_test.c` | Test backend (deterministic) |
+| OBCP Adapter (M12) | `src/obcp/ff_obcp.c` | N7 Space / MicroPython callback integration |
+|  | `n7s-obcp/flat/*.c` | Pinned N7 Space / MicroPython VM (vendor source) |
+| Build / CI / Configuration | `CMakeLists.txt` | Build system (host + RTEMS cross) |
+|  | `config/fsw_config.h` | Single configuration point |
+|  | `config/tables/fsw_tables.c` | Mission tables |
+|  | `config/platform/*.h` | Platform headers (native, MPFS, QEMU) |
+|  | `.github/workflows/ci.yml` | GitHub Actions CI |
+|  | `.gitea/workflows/ci.yml` | Gitea Actions CI |
+|  | `tools/docker/Dockerfile` | V&V Docker image (frick-vv:local) |
+|  | `tools/scripts/*.sh` | V&V scripts (T1..T21) |
+
 ## 8. Hardware independence and deferred design
 
 The design above is complete and testable on the host simulator. The following

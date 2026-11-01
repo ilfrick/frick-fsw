@@ -23,7 +23,7 @@ legend: **present**, **partial**, **gap**.
 | Software System Specification (SSS) / customer baseline | end-item behaviour, top of trace | `docs/requirements/SSS.md` | present |
 | Software Requirements Specification (SRS) | software requirements, verifiable | `docs/requirements/SRS.md` | present |
 | Requirements verification matrix | SRS -> method -> evidence | `docs/requirements/traceability.yaml`/`.md` | present |
-| **Software Design Document (SDD)** | architectural + detailed design | `docs/design/software-design.md` | present (added for this matrix) |
+| **Software Design Document (SDD)** | architectural + detailed design | `docs/design/software-design.md` | present (Annex F <6>a matrix in §6; Annex M <4.4>a.1 detailed design-to-code matrix in §7.1) |
 | Interface Control Document (ICD) | TM/TC, link, time interfaces | `docs/interfaces/ICD.md` | present |
 | Hardware/OS abstraction interfaces | device/driver integration contracts | `src/hal/*.h`, `docs/architecture/hardware-abstraction.md` | present |
 | Code quality (MISRA + style) | coding standard + coding style applied codebase-wide | `docs/quality/misra-c.md`, `docs/engineering/coding-style.md`, `.clang-format` | present (certified MISRA checker = GAP-A4) |
