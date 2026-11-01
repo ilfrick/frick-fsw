@@ -355,9 +355,6 @@ FF_Status_t FF_SdlsUnprotect(const uint8_t *in, uint16_t in_len, uint8_t *out, u
     }
     if (sa->service == FF_SDLS_PLAIN) {
         uint16_t k;
-        if (in_len < 2u) {
-            return FF_BAD_SIZE;
-        }
         payload_len = (uint16_t)(in_len - 2u);
         if (payload_len > out_cap) {
             return FF_BAD_SIZE;
