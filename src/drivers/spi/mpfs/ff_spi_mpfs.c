@@ -109,7 +109,6 @@ static FF_Status_t spi_init(uint32_t clock_hz, uint8_t mode, uint8_t cs)
 static FF_Status_t spi_transfer(const uint8_t *tx, uint8_t *rx, uint16_t len)
 {
     uint16_t i;
-    uint8_t rx_byte;
     FF_Status_t rc;
 
     rc = spi_check_ready();
@@ -117,6 +116,7 @@ static FF_Status_t spi_transfer(const uint8_t *tx, uint8_t *rx, uint16_t len)
         return rc;
     }
     for (i = 0u; i < len; i++) {
+        uint8_t rx_byte;
         spi_wr(FF_SPI_REG_TXDATA, (tx != NULL) ? (uint32_t)tx[i] : 0u);
         rc = spi_wait_rx();
         if (rc != FF_SUCCESS) {
