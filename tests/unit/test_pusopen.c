@@ -133,6 +133,28 @@ static void test_pusopen_encode(void)
                                                   &out_len) == FF_BAD_SIZE);
 }
 
+/* Zero-length payload: data == NULL, data_len == 0 is a valid edge case.
+ * The stub permits pkt->data_len == 0 (out_cap < 0 is false), so encode_tm
+ * should succeed and write 0 bytes. */
+static void test_pusopen_encode_zero_payload(void)
+{
+    FF_Pus_TmHdr_t hdr = {FF_PUS_VER_2, 5u, 3u, 0x1234u, 0x5678u, 0x11223344u, 0x7788u};
+    uint8_t out[8] = {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
+    uint16_t out_len = 0u;
+
+    reset_stub();
+    g_encode_written = 0u;
+    FF_TEST_ASSERT(FF_PusBackendPusopen.encode_tm(&hdr, NULL, 0u, out, sizeof(out),
+                                                  &out_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(out_len == 0u);
+    FF_TEST_ASSERT(g_encode_packet.service == hdr.service);
+    FF_TEST_ASSERT(g_encode_packet.subservice == hdr.subservice);
+    FF_TEST_ASSERT(g_encode_packet.counter == hdr.counter);
+    FF_TEST_ASSERT(g_encode_packet.time_s == hdr.time_coarse_s);
+    FF_TEST_ASSERT(g_encode_packet.time_f == hdr.time_fine);
+    FF_TEST_ASSERT(g_encode_packet.data_len == 0u);
+}
+
 static void test_pusopen_decode(void)
 {
     uint8_t raw[8] = {0u};
@@ -195,4 +217,4 @@ static void test_pusopen_decode(void)
                                                   &data_len) == FF_BAD_SIZE);
 }
 
-FF_TEST_MAIN(test_pusopen_init, test_pusopen_encode, test_pusopen_decode)
+FF_TEST_MAIN(test_pusopen_init, test_pusopen_encode, test_pusopen_decode, test_pusopen_encode_zero_payload)

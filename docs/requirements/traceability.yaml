@@ -476,9 +476,9 @@ requirements:
     parent_sss: SSS-REQ-015
     derived: false
     implementation: ["src/pus/adapters/pus_adapter_n7.c", "src/pus/adapters/pus_adapter_open.c", "tools/scripts/gen_pus_asn1.sh", "tools/docker/asn1scc/Dockerfile"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_n7_adapter.c"]
+    tests: ["tests/unit/test_pus_n7_adapter.c"]
     lean: ["req_srs050_n7_backend_is_default", "req_srs050_default_enables_n7"]
-    lean_note: "The N7/ESA backend is selected by default with FF_USE_PUS_ASN1=ON and generated common ASN1SCC sources. The current adapter exercises generated type-width assertions and the N7/ESA CRC implementation but delegates framing and PUS field coding to the reference codec; complete service-specific ASN.1 mapping remains M15. FF_USE_PUS_ASN1=OFF selects the open CCSDS alternative."
+    lean_note: "The N7/ESA backend is selected by default with FF_USE_PUS_ASN1=ON and generated common ASN1SCC sources. The current adapter exercises generated type-width assertions and the N7/ESA CRC implementation but delegates framing and PUS field coding to the reference codec; complete service-specific ASN.1 mapping remains M15. FF_USE_PUS_ASN1=OFF selects the open CCSDS alternative. test_pus.c cross-backend framing parity (Open vs N7) is a configuration-dependent integration check that only executes under FF_USE_PUS_ASN1=ON and is not standalone evidence for SRS-REQ-050."
 
   - id: SRS-REQ-051
     level: srs

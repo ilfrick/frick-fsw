@@ -135,4 +135,35 @@ static void test_n7_tm_uses_generated_crc(void)
     FF_TEST_ASSERT(memcmp(decoded_data, payload, sizeof(payload)) == 0);
 }
 
-FF_TEST_MAIN(test_n7_tc_decode_with_generated_crc, test_n7_tm_uses_generated_crc)
+static void test_n7_tm_encode_zero_payload(void)
+{
+    FF_Pus_TmHdr_t hdr;
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    uint16_t decoded_apid = 0u;
+    FF_Pus_TmHdr_t decoded_hdr;
+    const uint8_t *decoded_data = NULL;
+    uint16_t decoded_len = 0u;
+
+    memset(&hdr, 0, sizeof(hdr));
+    hdr.version = FF_PUS_VERSION;
+    hdr.service = FF_PUS_SERVICE_HK;
+    hdr.subservice = 25u;
+    hdr.counter = 9u;
+    hdr.destination_id = 0x1234u;
+    hdr.time_coarse_s = 17u;
+    hdr.time_fine = 0x8000u;
+
+    /* Zero-length payload: data == NULL, data_len == 0 is a valid edge case. */
+    FF_TEST_ASSERT(FF_PusBackendN7.encode_tm(&hdr, NULL, 0u, frame, sizeof(frame),
+                                             &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(frame_len >= 2u);
+    FF_TEST_ASSERT(FF_CcsdsDecodeTm(frame, frame_len, &decoded_apid, &decoded_hdr, &decoded_data,
+                                    &decoded_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(decoded_apid == FF_APID_TM);
+    FF_TEST_ASSERT(decoded_hdr.service == hdr.service && decoded_hdr.subservice == hdr.subservice);
+    FF_TEST_ASSERT(decoded_len == 0u);
+    FF_TEST_ASSERT(decoded_data != NULL || decoded_len == 0u);
+}
+
+FF_TEST_MAIN(test_n7_tc_decode_with_generated_crc, test_n7_tm_uses_generated_crc, test_n7_tm_encode_zero_payload)
