@@ -142,12 +142,10 @@ static rtems_task_priority frick_lwip_task_prio(int prio)
 static rtems_name frick_lwip_task_name(const char *name)
 {
     char chars[4] = {' ', ' ', ' ', ' '};
-    size_t i = 0u;
 
     if (name != NULL) {
-        while ((i < 4u) && (name[i] != '\0')) {
+        for (size_t i = 0u; (i < 4u) && (name[i] != '\0'); i++) {
             chars[i] = name[i];
-            i++;
         }
     }
     return rtems_build_name(chars[0], chars[1], chars[2], chars[3]);
