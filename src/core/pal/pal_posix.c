@@ -342,7 +342,7 @@ FF_Status_t FF_PalQueueCreate(FF_QueueId_t *id, const char *name, uint16_t depth
 FF_Status_t FF_PalQueuePut(FF_QueueId_t id, const void *item, uint32_t timeout_ms)
 {
     ff_queue_slot_t *q;
-    int rc = 0;
+    int rc;
     if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL) {
         return FF_NOT_FOUND;
     }
@@ -366,6 +366,10 @@ FF_Status_t FF_PalQueuePut(FF_QueueId_t id, const void *item, uint32_t timeout_m
             q->dropped++;
             pthread_mutex_unlock(&q->mtx);
             return FF_TIMEOUT;
+        }
+        if (rc != 0) {
+            pthread_mutex_unlock(&q->mtx);
+            return FF_ERROR;
         }
     }
     memcpy(q->storage[q->head], item, q->item_size);
@@ -429,7 +433,7 @@ FF_Status_t FF_PalQueueTestUnlock(FF_QueueId_t id)
 FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms)
 {
     ff_queue_slot_t *q;
-    int rc = 0;
+    int rc;
     if (id >= FF_PAL_MAX_QUEUES || !g_queues[id].used || item == NULL) {
         return FF_NOT_FOUND;
     }
@@ -451,6 +455,10 @@ FF_Status_t FF_PalQueueGet(FF_QueueId_t id, void *item, uint32_t timeout_ms)
         if (rc == ETIMEDOUT) {
             pthread_mutex_unlock(&q->mtx);
             return FF_TIMEOUT;
+        }
+        if (rc != 0) {
+            pthread_mutex_unlock(&q->mtx);
+            return FF_ERROR;
         }
     }
     memcpy(item, q->storage[q->tail], q->item_size);

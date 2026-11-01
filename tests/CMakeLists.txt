@@ -60,6 +60,12 @@ if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 add_executable(test_decoder_corpus unit/test_decoder_corpus.c)
 add_executable(test_pus_fu unit/test_pus_fu.c)
+
+# test_r2_gap: pthread_cond_timedwait/wait error injection for PAL queue error paths
+if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+  target_link_options(test_r2_gap PRIVATE -Wl,--wrap=pthread_cond_timedwait -Wl,--wrap=pthread_cond_wait)
+  target_compile_definitions(test_r2_gap PRIVATE FF_TEST_HAVE_PTHREAD_COND_WRAP=1)
+endif()
 if(FF_USE_N7_OBCP)
   add_executable(test_obcp_integration unit/test_obcp_integration.c)
 endif()

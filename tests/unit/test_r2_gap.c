@@ -1134,6 +1134,111 @@ static void test_pal_queue(void)
     FF_TEST_ASSERT(FF_PalQueueDelete(id) == FF_NOT_FOUND);
 }
 
+#ifdef FF_TEST_HAVE_PTHREAD_COND_WRAP
+/* External link-time syscall wrapper for deterministic pthread_cond_timedwait/wait
+ * error injection. It does not add a callable flight-build hook. The wrapper is
+ * compiled only when the linker supports --wrap (see tests/CMakeLists.txt). */
+#include <pthread.h>
+#include <errno.h>
+
+extern int __real_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
+extern int __real_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
+
+static int g_cond_fault_mode;
+static unsigned g_cond_fault_count;
+
+int __wrap_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime)
+{
+    if (g_cond_fault_mode != 0) {
+        g_cond_fault_count++;
+        if ((g_cond_fault_mode == 1) && (g_cond_fault_count <= 1u)) {
+            return EINVAL; /* Invalid argument */
+        }
+        if (g_cond_fault_mode == 2) {
+            return EPERM; /* Operation not permitted */
+        }
+    }
+    return __real_pthread_cond_timedwait(cond, mutex, abstime);
+}
+
+int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
+{
+    if (g_cond_fault_mode != 0) {
+        g_cond_fault_count++;
+        if ((g_cond_fault_mode == 1) && (g_cond_fault_count <= 1u)) {
+            return EINVAL;
+        }
+        if (g_cond_fault_mode == 2) {
+            return EPERM;
+        }
+    }
+    return __real_pthread_cond_wait(cond, mutex);
+}
+#endif
+
+static void test_pal_queue_cond_error(void)
+{
+#ifdef FF_TEST_HAVE_PTHREAD_COND_WRAP
+    FF_QueueId_t id = 0u;
+    uint32_t value = 0u;
+    const uint32_t in_value = 0x11223344u;
+
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PalQueueCreate(&id, "q", 1u, (uint16_t)sizeof(uint32_t)) == FF_SUCCESS);
+
+    /* Fill the queue so subsequent Put will block on not_full */
+    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PalQueueCount(id) == 1u);
+
+    /* Test FF_PalQueuePut with pthread_cond_timedwait returning EINVAL */
+    g_cond_fault_mode = 1;
+    g_cond_fault_count = 0u;
+    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, 10u) == FF_ERROR); /* non-timeout error -> FF_ERROR */
+    FF_TEST_ASSERT(g_cond_fault_count == 1u);
+
+    /* Empty the queue so subsequent Get will block on not_empty */
+    FF_TEST_ASSERT(FF_PalQueueGet(id, &value, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(value == in_value);
+    FF_TEST_ASSERT(FF_PalQueueCount(id) == 0u);
+
+    /* Test FF_PalQueueGet with pthread_cond_timedwait returning EPERM */
+    g_cond_fault_mode = 2;
+    g_cond_fault_count = 0u;
+    FF_TEST_ASSERT(FF_PalQueueGet(id, &value, 10u) == FF_ERROR); /* non-timeout error -> FF_ERROR */
+    FF_TEST_ASSERT(g_cond_fault_count == 1u);
+
+    /* Refill for infinite wait tests */
+    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PalQueueCount(id) == 1u);
+
+    /* Test FF_PalQueuePut with pthread_cond_wait returning EINVAL (infinite wait) */
+    g_cond_fault_mode = 1;
+    g_cond_fault_count = 0u;
+    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, FF_PAL_WAIT_FOREVER) == FF_ERROR);
+    FF_TEST_ASSERT(g_cond_fault_count == 1u);
+
+    /* Empty again */
+    FF_TEST_ASSERT(FF_PalQueueGet(id, &value, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(value == in_value);
+    FF_TEST_ASSERT(FF_PalQueueCount(id) == 0u);
+
+    /* Test FF_PalQueueGet with pthread_cond_wait returning EPERM (infinite wait) */
+    g_cond_fault_mode = 2;
+    g_cond_fault_count = 0u;
+    FF_TEST_ASSERT(FF_PalQueueGet(id, &value, FF_PAL_WAIT_FOREVER) == FF_ERROR);
+    FF_TEST_ASSERT(g_cond_fault_count == 1u);
+
+    /* Reset fault mode for cleanup */
+    g_cond_fault_mode = 0;
+
+    FF_TEST_ASSERT(FF_PalQueueDelete(id) == FF_SUCCESS);
+#else
+    /* When linker wrap is not available, this test is a no-op placeholder.
+     * The test suite still compiles and runs without the wrap. */
+    (void)FF_PalInit;
+#endif
+}
+
 static void test_pal_task_delete(void)
 {
     FF_TaskId_t id = 0u;
@@ -1167,4 +1272,4 @@ FF_TEST_MAIN(test_evs_listener_and_ring, test_es_registry_and_lifecycle, test_sb
              test_math_nan_inf,
 #endif
              test_pal_lifecycle_and_time, test_pal_mutex_delete, test_pal_queue,
-             test_pal_task_delete)
+             test_pal_queue_cond_error, test_pal_task_delete)

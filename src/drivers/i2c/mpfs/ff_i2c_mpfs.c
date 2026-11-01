@@ -226,7 +226,7 @@ static FF_Status_t i2c_write(uint8_t addr7, const uint8_t *buf, uint16_t len)
 
     rc = i2c_start();
     if (rc == FF_SUCCESS) {
-        rc = i2c_send((uint8_t)((addr7 << 1) | 0u), FF_I2C_ST_MT_SLA_ACK);
+        rc = i2c_send((uint8_t)(addr7 << 1), FF_I2C_ST_MT_SLA_ACK);
     }
     for (i = 0u; (i < len) && (rc == FF_SUCCESS); i++) {
         rc = i2c_send(buf[i], FF_I2C_ST_MT_DATA_ACK);
@@ -285,7 +285,7 @@ static FF_Status_t i2c_write_read(uint8_t addr7, const uint8_t *w, uint16_t wlen
 
     rc = i2c_start();
     if (rc == FF_SUCCESS) {
-        rc = i2c_send((uint8_t)((addr7 << 1) | 0u), FF_I2C_ST_MT_SLA_ACK);
+        rc = i2c_send((uint8_t)(addr7 << 1), FF_I2C_ST_MT_SLA_ACK);
     }
     for (i = 0u; (i < wlen) && (rc == FF_SUCCESS); i++) {
         rc = i2c_send(w[i], FF_I2C_ST_MT_DATA_ACK);
