@@ -223,6 +223,7 @@ endif()
 add_test(NAME renode_vv_verdict
   COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/shell/test_renode_vv_verdict.sh)
 set_tests_properties(renode_vv_verdict PROPERTIES TIMEOUT 60 LABELS "n22;vv;renode;tooling")
+set_tests_properties(sched_max_entries PROPERTIES TIMEOUT 30 LABELS "n22;s8-sch;max-entries")
 if(FF_BUILD_HAL)
   add_test(NAME hal COMMAND test_hal)
 endif()

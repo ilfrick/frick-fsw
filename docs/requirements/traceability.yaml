@@ -665,9 +665,9 @@ requirements:
     parent_sss: SSS-REQ-030
     derived: false
     implementation: ["src/core/sched/ff_sched.c", "src/core/sched/ff_sched.h", "src/apps/app_scheduler.c", "docs/architecture/scheduling.md", "docs/development-plan.md", "docs/planning/sprint-plan.md"]
-    tests: ["tests/unit/test_sched.c", "ci:host-build"]
+    tests: ["tests/unit/test_sched.c", "tests/unit/test_sched_stats.c", "tests/unit/test_sched_max_entries.c", "ci:host-build"]
     lean: []
-    lean_note: "Bounded allocation-free table-driven dispatcher delivered (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets with bounded per-poll work and missed-slot accounting, host-verified with an injected clock (tests/unit/test_sched.c). RTEMS task selection/preemption remains out of scope; mission rates, jitter limits, late-slot policy and recovery authority remain TBD controlled inputs, so no schedulability, jitter or WCET claim is made and no target evidence is implied."
+    lean_note: "Bounded allocation-free table-driven dispatcher delivered (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets with bounded per-poll work and missed-slot accounting, host-verified with an injected clock (tests/unit/test_sched.c, tests/unit/test_sched_stats.c, tests/unit/test_sched_max_entries.c). RTEMS task selection/preemption remains out of scope; mission rates, jitter limits, late-slot policy and recovery authority remain TBD controlled inputs, so no schedulability, jitter or WCET claim is made and no target evidence is implied."
 
   - id: SRS-REQ-072
     level: srs
