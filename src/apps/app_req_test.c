@@ -519,7 +519,6 @@ static void ff_req_case_l4(void)
 {
     uint8_t frame[FF_CCSDS_MAX_TC_PACKET];
     uint16_t frame_len = 0u;
-    uint32_t tc_before;
     FF_Status_t st;
     uint16_t n17;
 
@@ -529,7 +528,7 @@ static void ff_req_case_l4(void)
                        sizeof(g_ping_payload), frame, &frame_len);
     if (st == FF_SUCCESS) {
         frame[FF_CCSDS_HDR_LEN + FF_PUS_TC_SEC_HDR_LEN] ^= 0x01u;
-        tc_before = FF_PusGetTcCount();
+        uint32_t tc_before = FF_PusGetTcCount();
         st = FF_PusIngest(frame, frame_len);
         if (FF_PusGetTcCount() != tc_before) {
             st = FF_ERROR; /* a handler side effect must not occur */
