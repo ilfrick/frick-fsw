@@ -340,7 +340,6 @@ FF_Status_t FF_SdlsUnprotect(const uint8_t *in, uint16_t in_len, uint8_t *out, u
     uint16_t spi;
     FF_Sa_t *sa;
     uint8_t iv[FF_SDLS_IV_MAX];
-    uint8_t mac[FF_SDLS_MAC_MAX];
     uint16_t mac_len = 0u;
     uint16_t payload_len;
     uint16_t pos;
@@ -382,6 +381,7 @@ FF_Status_t FF_SdlsUnprotect(const uint8_t *in, uint16_t in_len, uint8_t *out, u
         iv[pos] = in[2u + pos];
     }
     if (mac_len != 0u) {
+        uint8_t mac[FF_SDLS_MAC_MAX];
         if (g_crypto->mac(sa->session_key, iv, in, (uint16_t)(2u + sa->iv_len + payload_len),
                           mac) != FF_SUCCESS) {
             return FF_ERROR;
