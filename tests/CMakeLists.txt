@@ -9,6 +9,7 @@ add_executable(test_sb_stress unit/test_sb_stress.c)
 add_executable(test_sb_sweep unit/test_sb_sweep.c)
 add_executable(test_tbl   unit/test_tbl.c)
 add_executable(test_sched unit/test_sched.c)
+add_executable(test_sched_stats unit/test_sched_stats.c)
 add_executable(test_pus   unit/test_pus.c)
 add_executable(test_time  unit/test_time.c)
 add_executable(test_r2_gap unit/test_r2_gap.c)
@@ -62,7 +63,7 @@ if(FF_USE_N7_OBCP)
   add_executable(test_obcp_integration unit/test_obcp_integration.c)
 endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_pus test_pus_fu
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_pus test_pus_fu
                     test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_pal_watchdog
                     test_decoder_corpus)
 if(TARGET test_obcp_integration)
@@ -175,6 +176,7 @@ add_test(
 set_tests_properties(sb_evs_structural_sweep PROPERTIES TIMEOUT 180 LABELS "tool-qualification;sb-evs")
 add_test(NAME tbl   COMMAND test_tbl)
 add_test(NAME sched COMMAND test_sched)
+add_test(NAME sched_stats COMMAND test_sched_stats)
 add_test(NAME pus   COMMAND test_pus)
 add_test(NAME pus_fu COMMAND test_pus_fu)
 if(TARGET test_obcp_integration)
