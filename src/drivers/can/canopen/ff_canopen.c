@@ -263,7 +263,6 @@ static FF_Status_t canopen_setup_locked(FF_CanopenMpfs_t *n, FF_CanBackend_t *ca
 {
     uint8_t i;
     uint8_t j;
-    const FF_ODRecord_t *r;
 
     if ((n == NULL) || (can == NULL) || (od == NULL) || (od->count == 0u) ||
         (od->count > FF_OD_MAX_RECORDS) || (od->records == NULL) || (node_id == 0u) ||
@@ -277,7 +276,7 @@ static FF_Status_t canopen_setup_locked(FF_CanopenMpfs_t *n, FF_CanBackend_t *ca
     /* Validate the whole dictionary before binding, so a rejected Setup never
      * leaves a half-bound stack behind. */
     for (i = 0u; i < od->count; i++) {
-        r = &od->records[i];
+        const FF_ODRecord_t *r = &od->records[i];
         if ((r->len != 1u) && (r->len != 2u) && (r->len != 4u)) {
             return FF_BAD_SIZE; /* expedited SDO only supports 1/2/4-byte objects */
         }
