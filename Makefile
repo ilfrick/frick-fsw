@@ -219,8 +219,14 @@ docs:
 # default and leaves root-owned output that blocks a later host `rm -rf`).
 # CI keeps using the host `docs` target unchanged; this target is local-only.
 docs-container: docker-image
+	@echo "Running Doxygen inside frick-vv:local (local-only, not in CI)..."
 	docker run --rm --user "$$(id -u):$$(id -g)" -v "$(CURDIR)":/workspace -w /workspace frick-vv:local \
-	  make docs
+	  make docs; \
+	rc=$$?; \
+	if [ $$rc -ne 0 ]; then \
+	  echo "[docs-container] ERROR: Doxygen generation failed with exit code $$rc" >&2; \
+	fi; \
+	exit $$rc
 
 coverage-configure: pus-asn1
 	$(CMAKE) -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug -DFF_ENABLE_COVERAGE=ON -DFF_USE_PUS_ASN1=ON

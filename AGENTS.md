@@ -66,8 +66,8 @@
 make ci-local            # configure/build/test/Lean/trace only; no format, smoke, GSW, RTEMS, or docs
 make smoke               # native simulator smoke test (separate)
 make docs                # Doxygen generation (separate; needs a host doxygen)
-make docs-container      # same `docs` recipe inside frick-vv:local, writing as your UID
-                         # (use it when the host has no doxygen; local-only, not in CI)
+make docs-container      # same `docs` recipe inside frick-vv:local, writing as your UID;
+                         # exits with Doxygen exit code; use when host lacks doxygen (local-only, not in CI)
 make gsw-selfcheck        # GSW, metrics, and N13 license-policy Python checks
 
 # or without docker:
