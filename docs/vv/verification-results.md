@@ -78,15 +78,16 @@ Requirement links: `SRS-REQ-073`, `SRS-REQ-075`.
 
 - **Command:** `bash tools/scripts/qemu_xw2_vv.sh > build/gate-evidence/xw2-run.log 2>&1` (direct full-log redirection; exit captured in `build/gate-evidence/xw2-run.exit`; no `tee`/`tail` in the capture path).
 - **Exit status:** `0`.
-- **Run directory (evidence of record):** `build/xw2-run-20261101T172050Z`.
-- **Base HEAD at execution:** `65e4a91` (working tree dirty; this run matches the committed increment).
-- **ELF (positive, wrapped):** `0972d96a0e4f549ae3c956af2edb4c98c94ea03c657ef0a2c5a60fe3c710f251`
-- **ELF (no-wrap control):** `b695b1ad4c92647f28017c1e765f456a9dcae0b6bfec1d6cad7e3223d6011926`
+- **Run directory (evidence of record):** `build/xw2-run-20261102T011328Z` (archived at `docs/vv/evidence/2026-11-02-xw2-postfix/`).
+- **Commit at execution:** `ae278ef8734d12e69a20d41ba367c12c16155afe` (XW-2 commit on both remotes).
+- **ELF (positive, wrapped):** `a9dc29d4ac147bcc0c07b9d307892797f7ae7d9a7b88e052312758ab0256c920`
+- **ELF (no-wrap control):** `7f56b90e1a5716cee0c78b46ccadd26709f2edc6428734364eafb087da954a93`
 - **Backend:** `docker` (recorded in run directory `backend.txt`).
 - **Toolchain image:** `frick-rtems-toolchain:local` `sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896` (recorded in `toolchain-id.txt`).
 - **PUS ASN.1 backend:** `OFF` (contract-equivalent; recorded in `pus-asn1.txt`).
 - **QEMU timeout:** `25` s (recorded in `qemu-timeout.txt`).
-- **Positive elapsed (wall-clock):** recorded in `positive-elapsed-ns.txt`.
+- **Positive elapsed (wall-clock):** 25,360,537,941 ns (recorded in `positive-elapsed-ns.txt`).
+- **Run nonce:** `ae2cca72f04721807c0ef680df8b5111` (recorded in `run-nonce.txt`).
 
 ```
 Per requirement:
@@ -107,10 +108,11 @@ flight-shaped image) is in `nm-segregation.txt` in the run directory.
 
 ### Retained evidence archive
 
-The complete run directory (38 files, all hashes verified) is archived at
-`docs/vv/evidence/2026-11-01-xw2-target-final/` with `INDEX.md` and
-`assets.sha256`. The prior runs `20261101T170112Z` and `20261101T170759Z` are
-retained as superseded history in the same archive.
+The complete run directory (23 files, all hashes verified) is archived at
+`docs/vv/evidence/2026-11-02-xw2-postfix/` with `README.md` and `assets.sha256`.
+The pre-correction runs `20261101T170112Z`, `20261101T170759Z`, `20261101T172050Z`
+are retained as superseded history in `docs/vv/evidence/2026-11-01-xw2-target-final/`
+(whose `INDEX.md` is marked SUPERSEDED HISTORY).
 
 ### XW-1 `format` and `LastTest.log` capture (PA-08)
 

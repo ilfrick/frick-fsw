@@ -1,0 +1,18 @@
+=== XW image symbols ===
+0000000080001eb6 T POSIX_Init
+0000000080001014 T __wrap_ff_pal_wd_hw_arm
+000000008000102e T __wrap_ff_pal_wd_hw_feed
+000000008000104e T __wrap_ff_pal_wd_hw_reset
+0000000080001ec6 T ff_pal_wd_hw_arm
+0000000080001ee0 T ff_pal_wd_hw_feed
+0000000080001ee4 T ff_pal_wd_hw_reset
+=== XW image: call sites (wrappers vs real hooks) ===
+XW2_WRAP_CALL_SITES=3
+XW2_REAL_CALL_SITES=0
+=== flight-shaped image built in the same configuration ===
+0000000080001262 T POSIX_Init
+0000000080001272 T ff_pal_wd_hw_arm
+000000008000128c T ff_pal_wd_hw_feed
+0000000080001290 T ff_pal_wd_hw_reset
+FLIGHT_WRAP_DEFINED=0
+FLIGHT_REAL_CALL_SITES=3

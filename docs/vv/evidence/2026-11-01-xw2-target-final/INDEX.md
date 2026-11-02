@@ -1,4 +1,4 @@
-# Evidence archive — XW-2 target contract, final cycle (2026-11-01)
+# Evidence archive — XW-2 target contract, final cycle (2026-11-01) — **SUPERSEDED HISTORY**
 
 | Field | Value |
 | --- | --- |
@@ -8,6 +8,18 @@
 | Base HEAD at execution | `65e4a91` |
 | Scope | XW-2 target contract (SRS-REQ-073/075), test-only RTEMS/QEMU image |
 | Norms | N10/N11/N22 (retention and reproducibility) |
+| **Superseded by** | `docs/vv/evidence/2026-11-02-xw2-postfix/` (run `20261102T011328Z`, commit `ae278ef8734d12e69a20d41ba367c12c16155afe`) |
+
+> **SUPERSEDED.** The runs in this archive were produced by the **pre-correction**
+> runner (before `tools/scripts/qemu_xw2_vv.sh` was edited at 02:10 UTC to add
+> nm-segregation assertions, elapsed-time recording, `FF_USE_PUS_ASN1=OFF`
+> parameterization, and the control shape check). The authoritative evidence of
+> record for the committed XW-2 increment (commit `ae278ef`) is the post-correction
+> run `build/xw2-run-20261102T011328Z`, archived at
+> `docs/vv/evidence/2026-11-02-xw2-postfix/`. This archive is retained only as
+> superseded history; all pointers in `verification-results.md`, `sprint-plan.md`,
+> `tool-qualification.md`, and the PA review have been reconciled to the
+> post-correction run.
 
 This directory is a **byte-identical archive** of the retained gate logs and the
 per-run artifacts of the XW-2 final cycle. It exists so the evidence survives
@@ -27,7 +39,7 @@ originals (all 38 files identical at archive time).
 | `format.log` | pinned-formatter guard rejecting host clang-format 23 | 1 (expected; guard works) |
 | `format-apply.log` | `make format` inside `frick-vv:local` (pinned clang-format 18) | 0 |
 | `format-check2.log` | `clang-format --dry-run --Werror` over `src config tests` inside the pinned image | 0 |
-| `xw2-final.log` | **authoritative** XW-2 gate run (`make xw2`), run dir `…T172050Z` | 0 (`xw2-final.exit`) |
+| `xw2-final.log` | **pre-correction** XW-2 gate run (`make xw2`), run dir `…T172050Z` | 0 (`xw2-final.exit`) |
 | `xw2-run.log` / `.exit` | earlier same-day attempt, run dir `…T170112Z` (superseded) | 0 |
 | `xw2-run-2.log` / `.exit` | earlier same-day attempt, run dir `…T170759Z` (superseded) | 0 |
 | `ci-local.log` | `make ci-local` inside `frick-vv:local` failing at `pus-asn1` because that image has no `docker` CLI | 127 (environment limitation, not a gate result) |

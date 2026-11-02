@@ -115,9 +115,21 @@ not captured. Recheck after any script/manifest/test edit.
 PA-04 requires editing `qemu_xw2_vv.sh` (count assertions) and PA-03 requires
 rebuilding the image without the ASN.1 backend. Both invalidate run
 `20261101T172050Z`. A fresh run was therefore executed in the corrected
-configuration and is the evidence of record; `172050` and its predecessors are
+configuration and **is the evidence of record**: `build/xw2-run-20261102T011328Z`
+(archived at `docs/vv/evidence/2026-11-02-xw2-postfix/`, commit
+`ae278ef8734d12e69a20d41ba367c12c16155afe`). `172050` and its predecessors are
 retained as superseded history in
-`docs/vv/evidence/2026-11-01-xw2-target-final/`.
+`docs/vv/evidence/2026-11-01-xw2-target-final/` (whose `INDEX.md` is marked
+SUPERSEDED HISTORY).
+
+The post-correction run produced ELF positive
+`a9dc29d4ac147bcc0c07b9d307892797f7ae7d9a7b88e052312758ab0256c920`, control
+`7f56b90e1a5716cee0c78b46ccadd26709f2edc6428734364eafb087da954a93`, backend
+`docker`, toolchain `frick-rtems-toolchain:local` id
+`sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896`,
+`FF_USE_PUS_ASN1=OFF`, QEMU timeout 25 s, run nonce
+`ae2cca72f04721807c0ef680df8b5111`, positive elapsed 25,360,537,941 ns, and
+nm-segregation asserted (3/0 and 0/3).
 
 ## 8. Archival provenance
 
