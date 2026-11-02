@@ -1,5 +1,19 @@
 # S8 reconciliation candidate identity manifest (2026-10-18)
 
+| Field | Value |
+| --- | --- |
+| Document id | FRICK-EVID-20261018-RECON |
+| Revision | 0.1 |
+| Date | 2026-10-18 |
+| Candidate | Refreshed S8 batch candidate identity after docs-alignment delta and bounded PA review |
+| Base HEAD | `b8c3aeec5484476407367024f3ce25c5af2bd30e` (pushed S8 batch) |
+| Candidate HEAD | `e7e48ee` (on `main`, synchronized to `origin/main` and `gitea/main`) |
+| Changed paths | 213 differing paths (union of `git diff --name-only <baseline> HEAD` and `git ls-files --others --exclude-standard`) |
+| Pre-refresh manifest hash | `42374fbff510a611d569c4f5a2ab9c8335db5a9921fbf3d1c305995d03d4bf94` |
+| Post-refresh combined digest | `434260016bae257da8ea25cb5add3292058d6ea6194d4d13aa24d44001f7d2b6` |
+| Scope | Refreshed candidate snapshot before 2026-10-18 docs-alignment delta and bounded PA review |
+| Claim limit | Candidate identity aid only; not a complete immutable/reproducible build manifest, qualification, phase approval or release authorization |
+
 Refreshes the 2026-10-17 candidate inventory after the 2026-10-18 docs-alignment delta and bounded PA review. This identifies the committed candidate snapshot at HEAD `e7e48ee` before this manifest-only refresh.
 
 - Pushed baseline HEAD: `b8c3aeec5484476407367024f3ce25c5af2bd30e`; candidate snapshot HEAD: `e7e48ee` (on `main`, synchronized to `origin/main` and `gitea/main`); 213 differing paths.
@@ -353,3 +367,9 @@ not advance the engineering baseline (`318f49b`); it is a status/review-integrat
 delta on top of it, committed only after the bounded corrections above were applied and
 the applicable native gates (trace PASS, metrics current, document-id uniqueness,
 licence check, `git diff --check`) green.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-18 | frick-fsw | S8 reconciliation candidate identity manifest; refreshed candidate snapshot after docs-alignment delta and bounded PA review; 213-path delta, pre/post manifest hashes, verification run linkage hashes |

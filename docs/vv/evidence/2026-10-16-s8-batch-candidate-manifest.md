@@ -2,6 +2,9 @@
 
 | Field | Value |
 | --- | --- |
+| Document id | FRICK-EVID-20261016-BATCH |
+| Revision | 0.1 |
+| Date | 2026-10-16 |
 | Candidate base | `b8c3aeec5484476407367024f3ce25c5af2bd30e` plus current uncommitted tree |
 | Scope | S8-SCH, S8-VV-FU, S8-PUS-FU corrections and selected pinned N7 OBCP S9 build/connectivity integration; this manifest does not assert full sprint completion |
 | Candidate product-set digest | `6a94057d7f3b905f0b73fe54d6b686d3a5b3e5f7a2f972308a0f9e5d4657d035` |
@@ -86,3 +89,9 @@ listed. PA review FRICK-REVIEW-0345 accepted product-set identity for the 23
 enumerated files and listed local outputs only; this is not an N20 phase/release
 approval. NC-EXT-84 remains open for generator/tool provenance and does not imply
 that observed generated files failed their hash check.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-16 | frick-fsw | Initial S8 batch candidate evidence manifest; product-set identity for S8-SCH, S8-VV-FU, S8-PUS-FU corrections and N7 OBCP integration; 23-file product-set digest; configuration/generated-input identity; verification results |

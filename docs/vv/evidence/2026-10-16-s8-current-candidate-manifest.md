@@ -2,6 +2,9 @@
 
 | Field | Value |
 | --- | --- |
+| Document id | FRICK-EVID-20261016-CURRENT |
+| Revision | 0.1 |
+| Date | 2026-10-16 |
 | Candidate base | `b8c3aeec5484476407367024f3ce25c5af2bd30e` plus uncommitted working tree |
 | Scope | S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration only; no full sprint/mission-use claim |
 | Product-set digest | `1a844759a3857cca64ac51ddf63820887cab44881ed2e55b42cd8bb4c46fe8e4` |
@@ -90,3 +93,9 @@
 - This is a post-run correlation to the same observed working tree/product-set
   digest, not a signed build attestation, independent reproducibility result, or
   complete compiler/tool provenance record.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-16 | frick-fsw | Initial current sprint-candidate product-set identity; 49-file product-set digest; configuration and artifact hashes; PA 0361 identity verification; CI-local linkage |

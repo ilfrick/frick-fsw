@@ -2,6 +2,9 @@
 
 | Field | Value |
 | --- | --- |
+| Document id | FRICK-EVID-20261015-S8FU-MANIFEST |
+| Revision | 0.1 |
+| Date | 2026-10-15 |
 | Candidate | Source HEAD `13ebf92f46775aec5d26cc2fdc5bd47258ed4f1a` plus uncommitted working tree |
 | Scope | Software source/test/configuration delta for CCSDS ingest, GSW stream handling, UART framing and PTY coverage |
 | Software-source digest | `d5ced57ee9ed2ce85e21b99335fa33a06e08dbe3eb894ce65290bb2fe12bcf83` |
@@ -93,3 +96,9 @@ daemon, mutable package repositories, complete compiler dependencies, or every
 generated intermediate. This manifest improves candidate effectivity evidence
 but does not close NC-EXT-29, qualify T1/T18/T23, establish reproducibility, or
 authorize commit, release, or flight.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-15 | frick-fsw | Initial S8-FU candidate verification manifest; source delta, build config, artifact hashes, and verification results for CCSDS ingest, GSW, UART framing, PTY coverage |

@@ -2,6 +2,9 @@
 
 | Field | Value |
 | --- | --- |
+| Document id | FRICK-EVID-20261016-FU-R1 |
+| Revision | 0.1 |
+| Date | 2026-10-16 |
 | Candidate | Source HEAD `13ebf92f46775aec5d26cc2fdc5bd47258ed4f1a` plus current uncommitted software delta |
 | Scope | Software/test/configuration delta for CCSDS ingest, GSW stream handling, UART framing and PTY coverage |
 | Software-source digest | `8a80a8c4d05b9561ecfd525826ea6fbd213398e7305d9021fcf92d7c08f6e4af` |
@@ -111,3 +114,9 @@ qualify T1/T18/T23, establish reproducibility, or authorize commit/release.
 NC-EXT-07 also remains open: a malformed but plausible in-range PDL candidate
 can encompass a following valid TC, and no authority-approved discard/recovery
 policy is available. No guessed inner boundary is implemented.
+
+## History
+
+| Rev | Date       | Author    | Reason |
+| --- | ---------- | --------- | ------ |
+| 0.1 | 2026-10-16 | frick-fsw | S8-FU R1-corrected candidate verification manifest; source delta, build config, artifact hashes, and verification results for CCSDS ingest, GSW, UART framing, PTY coverage |
