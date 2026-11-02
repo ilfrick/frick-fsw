@@ -79,6 +79,9 @@ endif()
 add_executable(test_decoder_corpus unit/test_decoder_corpus.c)
 add_executable(test_pus_fu unit/test_pus_fu.c)
 
+# S8-PUS-FU S11 residual: S1/S3/S9/S11/S17/S20/S6 subservice dispatch validation
+add_executable(test_pus_s11_residual unit/test_pus_s11_residual.c)
+
 # test_r2_gap: pthread_cond_timedwait/wait error injection for PAL queue error paths
 if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   target_link_options(test_r2_gap PRIVATE -Wl,--wrap=pthread_cond_timedwait -Wl,--wrap=pthread_cond_wait)
@@ -88,7 +91,7 @@ if(FF_USE_N7_OBCP)
   add_executable(test_obcp_integration unit/test_obcp_integration.c)
 endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_sched_max_entries test_pus test_pus_fu
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_sched_max_entries test_pus test_pus_fu test_pus_s11_residual
                     test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_pal_watchdog
                     test_decoder_corpus)
 if(TARGET test_obcp_integration)
