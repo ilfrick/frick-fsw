@@ -57,6 +57,24 @@ if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     -Wl,--wrap=ff_pal_wd_hw_arm
     -Wl,--wrap=ff_pal_wd_hw_feed
     -Wl,--wrap=ff_pal_wd_hw_reset)
+
+  # XW-1 abstract external-watchdog contract (docs/vv/external-watchdog-test-contract.md).
+  # test_extwd_model validates the test double alone; test_extwd_middleware links the
+  # PRODUCTION pal_watchdog.c unchanged and substitutes only the three device hooks.
+  # Host contract evidence only: not a device, not binding evidence (NC-PAL-01), not
+  # N18, and not target evidence.
+  add_executable(test_extwd_model unit/test_extwd_model.c
+    stubs/ff_test_extwd_model.c)
+  add_executable(test_extwd_middleware unit/test_extwd_middleware.c
+    stubs/ff_test_extwd_model.c stubs/ff_test_extwd_pal.c)
+  target_include_directories(test_extwd_model PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/stubs)
+  target_include_directories(test_extwd_middleware PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/stubs)
+  target_link_options(test_extwd_middleware PRIVATE
+    -Wl,--wrap=ff_pal_wd_hw_arm
+    -Wl,--wrap=ff_pal_wd_hw_feed
+    -Wl,--wrap=ff_pal_wd_hw_reset)
 endif()
 add_executable(test_decoder_corpus unit/test_decoder_corpus.c)
 add_executable(test_pus_fu unit/test_pus_fu.c)
@@ -80,6 +98,9 @@ endif()
 if(TARGET test_wd_host_contract)
   list(APPEND FF_TEST_TARGETS test_wd_host_contract)
   target_include_directories(test_wd_host_contract PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/stubs)
+endif()
+if(TARGET test_extwd_middleware)
+  list(APPEND FF_TEST_TARGETS test_extwd_model test_extwd_middleware)
 endif()
 if(FF_USE_PUS_ASN1)
   # Exercise the configured default adapter against the actual generated N7
@@ -213,6 +234,16 @@ if(TARGET test_wd_host_contract)
   add_test(NAME wd_host_model_contract COMMAND test_wd_host_contract)
   set_tests_properties(wd_host_model_contract PROPERTIES TIMEOUT 60
     LABELS "fdir;watchdog;host-model")
+endif()
+if(TARGET test_extwd_middleware)
+  # XW-1 abstract external-watchdog contract. Unlike the internal-model case
+  # above, these cases ARE requirement-based: the oracles are the SRS-REQ-073
+  # and SRS-REQ-075 clauses (arm/service/expiry/reset obligations), mapped in
+  # docs/vv/test-spec/ts-7-xw2-target-contract.md and traceability.yaml.
+  add_test(NAME extwd_model_contract COMMAND test_extwd_model)
+  add_test(NAME extwd_middleware_contract COMMAND test_extwd_middleware)
+  set_tests_properties(extwd_model_contract extwd_middleware_contract
+    PROPERTIES TIMEOUT 60 LABELS "n22;fdir;watchdog;xw1")
 endif()
 add_test(NAME decoder_corpus COMMAND test_decoder_corpus)
 # Enforced wall-clock budget (N22): a hang is a failure, not a silent pass.

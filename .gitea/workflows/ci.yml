@@ -349,10 +349,66 @@ jobs:
       - name: Cross build or proxy check
         run: bash tools/scripts/ci_rtems_cross_build.sh
 
+  # evidence: ci-xw2-target (SRS-REQ-073, SRS-REQ-075)
+  #
+  # BLOCKING XW-2 target-contract gate. This is NOT norm N18: the three PAL
+  # device hooks are substituted at link time by a validated test double, so a
+  # PASS proves the middleware's obligations under the abstract contract and
+  # nothing about a device, reset scope, electrical independence or timing.
+  # N18 remains FAIL (NC-EXT-198, root cause NC-PAL-01).
+  #
+  # The job runs inside the pre-seeded `frick-rtems-toolchain:local` image
+  # (RTEMS 6.2 generic BSP + QEMU + cmake/ninja/python3), so qemu_xw2_vv.sh
+  # selects its `host` backend. A missing image/toolchain makes the step fail
+  # (exit 2), never SKIP: this gate must not report a false green.
+  #
+  # Blocking basis: this is the authoritative per-commit execution site. The
+  # required-status rule is configured in Gitea branch protection (not in the
+  # tree) and must name this job: workflow `ci`, job display name
+  # `XW-2 target contract (test-only RTEMS/QEMU; NOT N18)`. The GitHub mirror
+  # runs the same gate on a weekly schedule only (`.github/workflows/nightly.yml`)
+  # because it cannot provision the RTEMS toolchain per commit; it is not the
+  # authoritative site.
+  #
+  # Tool qualification: T25 is NOT QUALIFIED (N10). The gate consumes the
+  # runner's exit status only and is not acceptance evidence; the bounded
+  # deviation recording that use, its compensating controls and its approval
+  # owner is in `docs/vv/tool-qualification.md`.
+  xw2-target:
+    name: XW-2 target contract (test-only RTEMS/QEMU; NOT N18)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    container:
+      image: frick-rtems-toolchain:local
+    steps:
+      # Gitea is served under the /git sub-path; act_runner derives the job
+      # server URL without it, so actions/checkout cannot fetch. Clone the
+      # public mirror explicitly instead (see docs/tooling.md, norm N6).
+      - name: Checkout
+        run: |
+          git init -q .
+          git remote add origin https://www.housefz.com/git/ilfrick/frick-fsw.git
+          git fetch -q --depth=1 origin "${GITHUB_REF}"
+          git checkout -q FETCH_HEAD
+      - name: Fetch pinned third-party dependencies
+        run: bash tools/scripts/fetch_third_party.sh all
+      # PA-03: this job runs INSIDE the pre-seeded toolchain image, which has no
+      # docker CLI and mounts no socket, so `make pus-asn1` cannot run here: it
+      # performs `docker image inspect` + `docker build`/`run` and fails with
+      # "docker: command not found" (retained: build/gate-evidence/ci-local.log,
+      # exit 127). The XW-2 image links no PUS codec, so disabling the ASN.1
+      # backend for this gate is contract-equivalent and keeps the job
+      # self-contained. The effective value is recorded in the run directory as
+      # `pus-asn1.txt` and printed by the runner.
+      - name: XW-2 target contract (blocking; NOT N18)
+        env:
+          XW2_USE_PUS_ASN1: "OFF"
+        run: make xw2
+
   # evidence: ci-ci-pipeline (SSS-REQ-013, SRS-REQ-020)
   pipeline:
     name: pipeline summary
-    needs: [build, static-analysis, smoke, verify-lean, trace, docs, rtems-cross-build]
+    needs: [build, static-analysis, smoke, verify-lean, trace, docs, rtems-cross-build, xw2-target]
     runs-on: ubuntu-24.04
     steps:
       - run: echo "frick-fsw V&V pipeline complete (norm N6/N12)"

@@ -1,0 +1,89 @@
+{
+  "_comment": [
+    "XW-2 required-case manifest for tools/scripts/target_req_verify.py and",
+    "tools/scripts/target_run_verdict.py. The XW-2 image does not link the T1 app, so",
+    "the TGTREQ grammar carries only these cases. Expectations are derived in-image",
+    "from the SUT's configured timeout (test parameter); no mission value is asserted."
+  ],
+  "cases": [
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T1"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T2"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T3"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T4"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T5"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T6"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T8"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T9"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T10"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T11"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-T12"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-B1"
+    },
+    {
+      "requirement": "SRS-REQ-075",
+      "case": "XW-T7"
+    }
+  ],
+  "gaps": [
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-G1",
+      "reason": "fatal arm/feed policy on target needs a declared expected-fatal verdict mode (E8)"
+    },
+    {
+      "requirement": "SRS-REQ-074",
+      "case": "XW-G2",
+      "reason": "pre-reset report <=250 ms on the reset path: no real reset on this image"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-G3",
+      "reason": "cadence/jitter/margin are authority inputs (MDS-7 class)"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-G4",
+      "reason": "no requirement governs withholding a feed (health inhibit)"
+    },
+    {
+      "requirement": "SRS-REQ-073",
+      "case": "XW-G5",
+      "reason": "reset scope and electrical independence require a device"
+    }
+  ]
+}

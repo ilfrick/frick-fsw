@@ -22,6 +22,8 @@ option(FF_BUILD_SDLS   "Build the CCSDS SDLS security sub-layer (milestone M7)" 
 option(FF_BUILD_DRIVERS "Build the reference device drivers (milestone M4)" ON)
 option(FF_USE_LWIP    "Build the lwIP network-stack adapter (default backend; needs third_party/lwip)" ON)
 option(FF_ENABLE_RENODE_TEST "Build the Renode functional test application (norm N18)" OFF)
+option(FF_ENABLE_EXTWD_TARGET_TEST "Build the XW-2 test-only emulated-target image for the abstract external-watchdog contract (NOT N18; device seam substituted at link time)" OFF)
+option(FF_XW2_NOWRAP_CONTROL "Build the XW-2 no-wrap expected-failure control image (same sources, device seam NOT substituted)" OFF)
 option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C backend by default (generated code required; see make pus-asn1)" ON)
 option(FF_USE_N7_OBCP "Build and link the pinned N7 Space MicroPython OBCP backend" ON)
 
@@ -326,6 +328,49 @@ else()
   target_sources(frick_fsw PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/config/rtems/rtems_config.c)
 endif()
 target_link_libraries(frick_fsw PRIVATE frick_fsw_core)
+
+# ----------------------------------------------------------------------
+# XW-2 test-only emulated-target image (abstract external-watchdog contract)
+# ----------------------------------------------------------------------
+# Reproduces docs/vv/external-watchdog-test-contract.md §6.1 and the build
+# performed by tools/scripts/qemu_xw2_vv.sh. The device seam is substituted at
+# LINK time by --wrap of exactly the three PAL watchdog hooks, so the
+# production pal_watchdog.c, pal_rtems.c, app_wd.c, fsw_main.c and the mission
+# tables are unchanged and unreferenced. This is a test-only image: it is not
+# `frick_fsw`, it is not N18, and a PASS here is not device, reset-scope or
+# electrical-independence evidence.
+if(FF_ENABLE_EXTWD_TARGET_TEST)
+  if(NOT FF_PLATFORM MATCHES "^rtems")
+    message(FATAL_ERROR
+      "FF_ENABLE_EXTWD_TARGET_TEST requires an RTEMS platform "
+      "(FF_PLATFORM=rtems or rtems-generic): the image links the RTEMS BSP/PAL")
+  endif()
+  set(FF_XW2_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/target/fsw_main_xw2.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/target/app_xw2_test.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/stubs/ff_test_extwd_model.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/stubs/ff_test_extwd_pal.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/config/rtems/rtems_config.c)
+  if(FF_XW2_NOWRAP_CONTROL)
+    # Expected-failure control: identical sources, no seam substitution, so the
+    # production hooks return FF_NOT_IMPLEMENTED and the image must abort at
+    # watchdog init. The runner records it as an expected failure, never a pass.
+    add_executable(frick_fsw_xw2_nowrap ${FF_XW2_SOURCES})
+    set(FF_XW2_TARGET frick_fsw_xw2_nowrap)
+  else()
+    add_executable(frick_fsw_xw2 ${FF_XW2_SOURCES})
+    set(FF_XW2_TARGET frick_fsw_xw2)
+    target_link_options(frick_fsw_xw2 PRIVATE
+      -Wl,--wrap=ff_pal_wd_hw_arm
+      -Wl,--wrap=ff_pal_wd_hw_feed
+      -Wl,--wrap=ff_pal_wd_hw_reset)
+  endif()
+  target_include_directories(${FF_XW2_TARGET} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/target
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/stubs)
+  target_compile_definitions(${FF_XW2_TARGET} PRIVATE FF_ENABLE_EXTWD_TARGET_TEST=1)
+  target_link_libraries(${FF_XW2_TARGET} PRIVATE frick_fsw_core)
+endif()
 
 # ----------------------------------------------------------------------
 # Tests (host only)

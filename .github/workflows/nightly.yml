@@ -107,3 +107,38 @@ jobs:
         with:
           name: rtems-mpfs64imafdc-build
           path: build/rtems/frick_fsw
+
+  # XW-2 target contract on a test-only RTEMS/QEMU image (SRS-REQ-073,
+  # SRS-REQ-075; work package TS-7). This is NOT norm N18: the three PAL device
+  # hooks are substituted at link time by a validated test double. Blocking
+  # here (scheduled) because the hosted per-commit runners cannot carry the
+  # RTEMS toolchain; the per-commit blocking gate is the Gitea `xw2-target` job.
+  # `make xw2` uses the `host` backend when it finds $RTEMS_HOME plus
+  # qemu-system-riscv64, and exits non-zero (never SKIP) if they are missing.
+  xw2-target:
+    name: XW-2 target contract (test-only RTEMS/QEMU; NOT N18)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      RTEMS_HOME: /opt/rtems
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch pinned third-party dependencies
+        run: bash tools/scripts/fetch_third_party.sh all
+      - name: Generate default N7/ESA ASN.1 common sources
+        run: make pus-asn1
+
+      - name: Bootstrap RTEMS 6.2 toolchain (RSB)
+        run: |
+          sudo mkdir -p /opt/rtems && sudo chown -R runner /opt/rtems
+          bash tools/scripts/setup_rtems.sh
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-misc
+
+      - name: XW-2 target contract (13 cases + no-wrap control; NOT N18)
+        run: make xw2
+

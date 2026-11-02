@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-002                     |
-| Revision                         | 0.1                                    |
-| Date                             | 2026-10-14                             |
+| Revision                         | 0.2                                    |
+| Date                             | 2026-11-01                             |
 | Norms                            | N8, N10, N11, N21, N22                 |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
@@ -51,6 +51,7 @@ Each package file MUST use exactly this row schema for cases:
 | TS-4 | V&V | I/O group B: CAN, I2C, SPI, MTD, Block, PCIe, SpaceWire, NVM | `docs/vv/test-spec/ts-4-io-b.md` | §4 (I/O B rows) |
 | TS-5 | V&V | Core services: SB, TBL, EVS, ES, apps/scheduler, HS/FDIR, math | `docs/vv/test-spec/ts-5-core-services.md` | §4 (core rows) |
 | TS-6 | V&V | Software-only robustness: memory safety, numeric, concurrency/timing, fault injection, resources | `docs/vv/test-spec/ts-6-sw-robustness.md` | §6 |
+| TS-7 | FSW / V&V | XW-2 abstract external-watchdog contract on a test-only RTEMS/QEMU image (device seam substituted at link time; **not** N18) | `docs/vv/test-spec/ts-7-xw2-target-contract.md` | §7 (target/watchdog rows) |
 | SVA-1 | Avionics systems | Test levels, V-model, environments, acceptance criteria | `docs/vv/test-spec/sva-1-levels-vmodel.md` | system arch §1 |
 | SVA-2 | Avionics systems | ICD/interface coverage + FDIR strategy | `docs/vv/test-spec/sva-2-interfaces-fdir.md` | system arch §2–3 |
 | SVA-3 | Avionics systems | Timing/determinism + environmental + security + tool qualification | `docs/vv/test-spec/sva-3-timing-env-sec.md` | system arch §4–7 |
@@ -69,9 +70,11 @@ Each package file MUST use exactly this row schema for cases:
 | PKG | State | Notes |
 | --- | ----- | ----- |
 | TS-1..TS-6, SVA-1..SVA-3 | pending | dispatched per §3 |
+| TS-7 | issued (Rev 1.0, 2026-11-01) | 13 cases (XW-T1..T12, XW-B1) with explicit oracles; `PIL-QEMU`; covered by `make xw2` and, as host counterpart, by CTest `extwd_model_contract` / `extwd_middleware_contract`. **Not** N18. |
 
 ## History
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
 | 0.1 | 2026-10-14 | frick-fsw | Define the chunk plan and merge format for the comprehensive N22 test work; assign bounded work packages to reviewer profiles |
+| 0.2 | 2026-11-01 | frick-fsw | Add work package TS-7 (XW-2 abstract external-watchdog target contract): 13 registered cases, explicit `PIL-QEMU` environment, explicit non-claim of N18 |

@@ -190,6 +190,13 @@ include (non-exhaustive, from the current tree):
 5. **Target (HIL) evidence** for hardware-specific behavior remains GAP-A5.
 6. **Renode aggregate marker** (`RENODE_TEST: PASS`) is not a per-requirement
    oracle; per-check observables must be recorded (this doc supplies them).
+7. **External-watchdog target contract** is now registered as work package
+   **TS-7** (`docs/vv/test-spec/ts-7-xw2-target-contract.md`): 13 cases
+   (XW-T1..XW-T12, XW-B1) against `SRS-REQ-073`/`SRS-REQ-075`, run by
+   `make xw2` on a **test-only** RTEMS/QEMU image with the three PAL device
+   hooks substituted at link time. It is `PIL-QEMU` middleware-contract
+   evidence only: **not** a device, **not** HIL, **not** N18. N18 remains
+   **FAIL** (NC-EXT-198, root cause NC-PAL-01).
 
 These are recorded, not fixed, under N21; they do not stop unrelated development.
 

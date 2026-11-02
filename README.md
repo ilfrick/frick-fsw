@@ -359,6 +359,10 @@ make renode-image renode       # build the RTEMS image + emulated functional val
 make qemu-image qemu           # build the generic image + run it on qemu-system-riscv64 -M virt
 make qemu-image-docker         # same build inside the RTEMS toolchain image (no host toolchain)
 
+# XW-2 target contract (SRS-REQ-073/075; test-only image with the PAL watchdog
+# device hooks substituted at link time). NOT norm N18, not a device, not HIL:
+make xw2                       # 13 cases + no-wrap expected-failure control on QEMU virt
+
 # RTEMS 6.2 cross build (open-source RTEMS; Docker inputs are mutable, so
 # bit-for-bit reproducibility is not established, NC-EXT-40):
 make rtems-toolchain           # build the open RTEMS 6.2 toolchain image

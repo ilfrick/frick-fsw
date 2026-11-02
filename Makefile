@@ -17,7 +17,7 @@ CMAKE ?= cmake
 
 .PHONY: all fetch-third-party configure build test run check ci-local verify-rtems verify-lean sb-evs-sweep \
         trace lean-receipt lean-receipt-validate format format-check docs docs-container doxygen rtems docker-image clean smoke gsw-selfcheck \
-        coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker
+        coverage metrics coverage-configure misra misra-docker emulated renode renode-image renode-env rtems-toolchain rtems-docker pus-asn1 qemu qemu-image qemu-image-docker xw2
 
 all: build
 
@@ -168,6 +168,15 @@ qemu-image-docker: pus-asn1
 # the generic image is absent.
 qemu:
 	bash tools/scripts/qemu_vv.sh
+
+# XW-2 target contract (emulated RTEMS/QEMU, device seam substituted at link
+# time). This is NOT norm N18: the production watchdog hooks are replaced by a
+# validated test double, so a PASS proves the middleware's obligations under the
+# abstract contract (SRS-REQ-073/075) and nothing about a device, reset scope,
+# electrical independence, timing or the flight path. N18 remains FAIL
+# (NC-EXT-198/NC-PAL-01). Blocking where the RTEMS toolchain image exists.
+xw2:
+	bash tools/scripts/qemu_xw2_vv.sh
 
 clean:
 	rm -rf build
