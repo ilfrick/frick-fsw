@@ -15,7 +15,7 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 76, SSS = 30, GAP = 14, Lean theorems = 68, CI evidence
+Counts (current): SRS = 75, SSS = 30, GAP = 14, Lean theorems = 68, CI evidence
 claims = 13 unique workflow claim names (12 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). M12 OBCP
 (SRS-REQ-045 / SSS-REQ-022) now has a partial adapter and host callback-connectivity
