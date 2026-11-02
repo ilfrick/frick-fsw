@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                         | 10.45                                  |
-| Date                              | 2026-10-21                             |
+| Revision                         | 10.43                                  |
+| Date                              | 2026-10-25                             |
 | Baseline commit                   | `318f49b` (2026-10-19 easy-fixes batch) — chain `b8c3aee` → `1fdbb83` (S8 batch: S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration) → `2111968` (docs alignment + NC-EXT-94/95/96) → `5be0e8c` (metrics refresh) → `e7e48ee` (bounded PA manifest review) → `318f49b`; committed and pushed to both remotes. The easy-fixes batch was produced on the working tree on top of `e7e48ee`. Status-only commits that change no code, test, requirement or retained-evidence content do not advance this baseline (e.g. `b6e1f61`, the post-commit status refresh) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
