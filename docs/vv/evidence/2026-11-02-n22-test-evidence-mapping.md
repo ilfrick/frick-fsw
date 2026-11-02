@@ -167,6 +167,426 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 |-----|-----------|---------------|-------------|-----------------|----------|--------|
 | SRS-REQ-020 | `test_pus_fu.c` | `test_s20_parameter_subservices` | `STREAM_COUNT`/`ASSERT` | Set(20,1) OK, Report(20,3) emits TM(20,4), Unknown param NOT_FOUND | `test_pus_fu.c` log | MAPPED |
 
+### SRS-REQ-021: Time management (set/get)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-021 | `test_time.c` | `test_time_set_get` | `ASSERT` | `FF_TimeSetUtcNs`/`FF_TimeGetCuc` round-trip exact | `test_time.c` log | MAPPED |
+| SRS-REQ-021 | `test_pus.c` | `test_time_in_pus` | `ASSERT` | Time integration in PUS services | `test_pus.c` log | MAPPED |
+
+### SRS-REQ-022: Time coarse/fine precision
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-022 | `test_time.c` | `test_time_precision` | `ASSERT` | Coarse/fine precision round-trip | `test_time.c` log | MAPPED |
+
+### SRS-REQ-023: CUC monotonicity
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-023 | `test_time.c` | `test_time_monotonic` | `ASSERT` | CUC monotonic increasing | `test_time.c` log | MAPPED |
+
+### SRS-REQ-024: Time comparison
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-024 | `test_time.c` | `test_time_compare` | `ASSERT` | `FF_TimeCompare` ordering correct | `test_time.c` log | MAPPED |
+| SRS-REQ-024 | `test_pus.c` | `test_time_in_pus` | `ASSERT` | Time comparison in PUS context | `test_pus.c` log | MAPPED |
+
+### SRS-REQ-025: HAL GPIO
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-025 | `test_hal.c` | `test_hal_gpio` | `ASSERT` | GPIO read/write/configure | `test_hal.c` log | MAPPED |
+| SRS-REQ-025 | `test_r2_gap.c` | `test_hal_gpio_*` | `ASSERT` | GPIO edge cases | `test_r2_gap.c` log | MAPPED |
+
+### SRS-REQ-026: HAL Serial
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-026 | `test_hal.c` | `test_hal_serial` | `ASSERT` | Serial read/write/configure | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-027: HAL Memory
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-027 | `test_hal.c` | `test_hal_mem` | `ASSERT` | Memory read/write/bounds | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-028: HAL ETH
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-028 | `test_hal.c` | `test_hal_eth` | `ASSERT` | ETH MAC/PHY operations | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-029: HAL NET
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-029 | `test_hal.c` | `test_hal_net` | `ASSERT` | NET stack integration | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-030: HAL NVM
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-030 | `test_hal.c` | `test_hal_nvm` | `ASSERT` | NVM read/write/erase | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-031: HAL CAN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-031 | `test_hal.c` | `test_hal_can` | `ASSERT` | CAN controller operations | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-032: HAL I2C
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------------------|-------------|-----------------|----------|--------|
+| SRS-REQ-032 | `test_hal.c` | `test_hal_i2c` | `ASSERT` | I2C controller operations | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-033: Math library facade
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-033 | `test_math.c` | `test_math_*` | `ASSERT` | libm facade functions correct | `test_math.c` log | MAPPED |
+
+### SRS-REQ-034: SDLS SA/key management
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-034 | `test_sdls.c` | `test_sdls_*` | `ASSERT` | SA/key mgmt operations | `test_sdls.c` log | MAPPED |
+
+### SRS-REQ-035: SDLS continued
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-035 | `test_sdls.c` | `test_sdls_*` | `ASSERT` | SDLS continued operations | `test_sdls.c` log | MAPPED |
+
+### SRS-REQ-036: GEM driver
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-036 | `test_gem.c` | `test_gem_*` | `ASSERT` | GEM register/descriptor logic | `test_gem.c` log | MAPPED |
+| SRS-REQ-036 | `ci:renode` | Renode GEM check | `RENODE` | GEM in Renode | Renode log | MAPPED |
+
+### SRS-REQ-037: RTEMS cross-build
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-037 | `ci:rtems-cross-build` | RTEMS build | `BUILD` | RTEMS 6.2 cross-compiles | CI log | MAPPED |
+
+### SRS-REQ-038: GEM TSN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-038 | `test_gem_tsn.c` | `test_gem_tsn_*` | `ASSERT` | GEM TSN VLAN/ENST/TSU | `test_gem_tsn.c` log | MAPPED |
+| SRS-REQ-038 | `ci:renode` | Renode GEM TSN | `RENODE` | GEM TSN in Renode | Renode log | MAPPED |
+
+### SRS-REQ-039: NET loopback
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-039 | `test_netloop.c` | `test_netloop_*` | `ASSERT` | Loopback NET operations | `test_netloop.c` log | MAPPED |
+| SRS-REQ-039 | `ci:renode` | Renode NET | `RENODE` | NET in Renode | Renode log | MAPPED |
+
+### SRS-REQ-040: lwIP netif
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-040 | `test_lwip.c` | `test_lwip_*` | `ASSERT` | lwIP core functions | `test_lwip.c` log | MAPPED |
+| SRS-REQ-040 | `test_lwip_netif.c` | `test_lwip_netif_*` | `ASSERT` | lwIP netif on GEM | `test_lwip_netif.c` log | MAPPED |
+| SRS-REQ-040 | `ci:renode` | Renode lwIP | `RENODE` | lwIP in Renode | Renode log | MAPPED |
+
+### SRS-REQ-041: MISRA C:2012
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-041 | `ci:misra` | cppcheck MISRA | `STATIC` | MISRA C:2012 subset | CI log | MAPPED |
+
+### SRS-REQ-042: Static analysis
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-042 | `ci:static-analysis` | clang-tidy | `STATIC` | clang-tidy clean | CI log | MAPPED |
+
+### SRS-REQ-043: Emulated run
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-043 | `ci:emulated-run` | QEMU run | `BUILD`/`RUN` | QEMU virt boots | CI log | MAPPED |
+
+### SRS-REQ-044: Renode V&V
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-044 | `ci:renode` | Renode V&V | `RENODE` | Renode PASS with HAL checks | Renode log | MAPPED |
+
+### SRS-REQ-045: OBCP integration
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-045 | `test_obcp_integration.c` | `test_obcp_*` | `ASSERT` | OBCP callback connectivity | `test_obcp_integration.c` log | MAPPED |
+| SRS-REQ-045 | `docs/vv/test-spec/ts-9-obcp-integration.md` | Spec | `SPEC` | OBCP integration spec | Spec doc | MAPPED |
+
+### SRS-REQ-046: PUS ASN.1 generation
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-046 | `ci:docs` | `make pus-asn1` | `DOCS` | ASN.1 generated | CI log | MAPPED |
+
+### SRS-REQ-047: HAL GPIO (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-047 | `test_gpio.c` | `test_gpio_*` | `ASSERT` | GPIO in Renode | `test_gpio.c` log | MAPPED |
+| SRS-REQ-047 | `ci:renode` | Renode GPIO | `RENODE` | GPIO in Renode | Renode log | MAPPED |
+
+### SRS-REQ-048: HAL Serial (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-048 | `test_serial.c` | `test_serial_*` | `ASSERT` | Serial in Renode | `test_serial.c` log | MAPPED |
+| SRS-REQ-048 | `ci:renode` | Renode Serial | `RENODE` | Serial in Renode | Renode log | MAPPED |
+
+### SRS-REQ-049: HAL Memory (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-049 | `test_mem.c` | `test_mem_*` | `ASSERT` | Memory in Renode | `test_mem.c` log | MAPPED |
+| SRS-REQ-049 | `ci:renode` | Renode Memory | `RENODE` | Memory in Renode | Renode log | MAPPED |
+
+### SRS-REQ-050: PUS backend N7
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-050 | `test_pus_n7_adapter.c` | `test_n7_*` | `ASSERT` | N7 adapter functions | `test_pus_n7_adapter.c` log | MAPPED |
+
+### SRS-REQ-051: PUS open (docs)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-051 | `ci:docs` | Docs generation | `DOCS` | PUSopen documented | CI log | MAPPED |
+
+### SRS-REQ-052: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-052 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+| SRS-REQ-052 | `test_r3_gap.c` | `test_r3_gap` | `ASSERT` | Gap tests pass | `test_r3_gap.c` log | MAPPED |
+
+### SRS-REQ-053: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-053 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+
+### SRS-REQ-054: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-054 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+
+### SRS-REQ-055: HAL NVM (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-055 | `test_nvm.c` | `test_nvm_*` | `ASSERT` | NVM in Renode | `test_nvm.c` log | MAPPED |
+| SRS-REQ-055 | `ci:renode` | Renode NVM | `RENODE` | NVM in Renode | Renode log | MAPPED |
+
+### SRS-REQ-056: HAL MTD
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-056 | `test_mtd.c` | `test_mtd_*` | `ASSERT` | MTD operations | `test_mtd.c` log | MAPPED |
+
+### SRS-REQ-057: HAL CAN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-057 | `test_can.c` | `test_can_*` | `ASSERT` | CAN controller | `test_can.c` log | MAPPED |
+| SRS-REQ-057 | `ci:renode` | Renode CAN | `RENODE` | CAN in Renode | Renode log | MAPPED |
+
+### SRS-REQ-058: HAL I2C
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-058 | `test_i2c.c` | `test_i2c_*` | `ASSERT` | I2C controller | `test_i2c.c` log | MAPPED |
+| SRS-REQ-058 | `ci:renode` | Renode I2C | `RENODE` | I2C in Renode | Renode log | MAPPED |
+
+### SRS-REQ-059: Link IP
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-059 | `test_link_ip.c` | `test_link_ip_*` | `ASSERT` | IP link operations | `test_link_ip.c` log | MAPPED |
+
+### SRS-REQ-060: Link IP (duplicate)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-060 | `test_link_ip.c` | `test_link_ip_*` | `ASSERT` | IP link operations | `test_link_ip.c` log | MAPPED |
+
+### SRS-REQ-061: Link TSN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-061 | `test_link_tsn.c` | `test_link_tsn_*` | `ASSERT` | TSN link operations | `test_link_tsn.c` log | MAPPED |
+
+### SRS-REQ-062: CAN-FD
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-062 | `test_canfd.c` | `test_canfd_*` | `ASSERT` | CAN-FD operations | `test_canfd.c` log | MAPPED |
+| SRS-REQ-062 | `test_fabric.c` | `test_fabric_*` | `ASSERT` | Fabric integration | `test_fabric.c` log | MAPPED |
+
+### SRS-REQ-063: CANopen
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-063 | `test_canopen.c` | `test_canopen_*` | `ASSERT` | CANopen operations | `test_canopen.c` log | MAPPED |
+
+### SRS-REQ-064: Serial
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-064 | `test_serial.c` | `test_serial_*` | `ASSERT` | Serial driver | `test_serial.c` log | MAPPED |
+
+### SRS-REQ-065: PUSopen adapter
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-065 | `test_pusopen.c` | `test_pusopen_*` | `ASSERT` | PUSopen adapter | `test_pusopen.c` log | MAPPED |
+| SRS-REQ-065 | `tests/stubs/pusopen.h` | Stubs | `STUB` | PUSopen stubs | Stub file | MAPPED |
+
+### SRS-REQ-066: GEM TSN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-066 | `test_gem_tsn.c` | `test_gem_tsn_*` | `ASSERT` | GEM TSN VLAN/ENST/TSU | `test_gem_tsn.c` log | MAPPED |
+
+### SRS-REQ-067: Fabric
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-067 | `test_fabric.c` | `test_fabric_*` | `ASSERT` | Fabric driver | `test_fabric.c` log | MAPPED |
+| SRS-REQ-067 | `test_hal.c` | `test_hal_*` | `ASSERT` | HAL fabric | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-068: GPTP
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-068 | `test_gptp.c` | `test_gptp_*` | `ASSERT` | gPTP stack | `test_gptp.c` log | MAPPED |
+
+### SRS-REQ-069: SPI
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-069 | `test_spi.c` | `test_spi_*` | `ASSERT` | SPI controller | `test_spi.c` log | MAPPED |
+| SRS-REQ-069 | `ci:renode` | Renode SPI | `RENODE` | SPI in Renode | Renode log | MAPPED |
+
+### SRS-REQ-070: Block
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-070 | `test_block.c` | `test_block_*` | `ASSERT` | Block device | `test_block.c` log | MAPPED |
+| SRS-REQ-070 | `ci:renode` | Renode Block | `RENODE` | Block in Renode | Renode log | MAPPED |
+
+### SRS-REQ-045: OBCP Integration
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-045 | `test_obcp_integration.c` | `test_obcp_*` | `ASSERT` | OBCP callback connectivity | `test_obcp_integration.c` log | MAPPED |
+| SRS-REQ-045 | `docs/vv/test-spec/ts-9-obcp-integration.md` | Spec | `SPEC` | OBCP integration spec | Spec doc | MAPPED |
+
+### SRS-REQ-046: PUS ASN.1 generation
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-046 | `ci:docs` | `make pus-asn1` | `DOCS` | ASN.1 generated | CI log | MAPPED |
+
+### SRS-REQ-047: HAL GPIO (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-047 | `test_gpio.c` | `test_gpio_*` | `ASSERT` | GPIO in Renode | `test_gpio.c` log | MAPPED |
+| SRS-REQ-047 | `ci:renode` | Renode GPIO | `RENODE` | GPIO in Renode | Renode log | MAPPED |
+
+### SRS-REQ-048: HAL Serial (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-048 | `test_serial.c` | `test_serial_*` | `ASSERT` | Serial in Renode | `test_serial.c` log | MAPPED |
+| SRS-REQ-048 | `ci:renode` | Renode Serial | `RENODE` | Serial in Renode | Renode log | MAPPED |
+
+### SRS-REQ-049: HAL Memory (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-049 | `test_mem.c` | `test_mem_*` | `ASSERT` | Memory in Renode | `test_mem.c` log | MAPPED |
+| SRS-REQ-049 | `ci:renode` | Renode Memory | `RENODE` | Memory in Renode | Renode log | MAPPED |
+
+### SRS-REQ-050: PUS backend N7
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-050 | `test_pus_n7_adapter.c` | `test_n7_*` | `ASSERT` | N7 adapter functions | `test_pus_n7_adapter.c` log | MAPPED |
+
+### SRS-REQ-051: PUS open (docs)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-051 | `ci:docs` | Docs generation | `DOCS` | PUSopen documented | CI log | MAPPED |
+
+### SRS-REQ-052: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-052 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+| SRS-REQ-052 | `test_r3_gap.c` | `test_r3_gap` | `ASSERT` | Gap tests pass | `test_r3_gap.c` log | MAPPED |
+
+### SRS-REQ-053: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-053 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+
+### SRS-REQ-054: ci:docs
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-054 | `ci:docs` | Docs generation | `DOCS` | Docs generated | CI log | MAPPED |
+
+### SRS-REQ-055: HAL NVM (Renode)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-055 | `test_nvm.c` | `test_nvm_*` | `ASSERT` | NVM in Renode | `test_nvm.c` log | MAPPED |
+| SRS-REQ-055 | `ci:renode` | Renode NVM | `RENODE` | NVM in Renode | Renode log | MAPPED |
+
+### SRS-REQ-056: HAL MTD
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-056 | `test_mtd.c` | `test_mtd_*` | `ASSERT` | MTD operations | `test_mtd.c` log | MAPPED |
+
+### SRS-REQ-057: HAL CAN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-057 | `test_can.c` | `test_can_*` | `ASSERT` | CAN controller | `test_can.c` log | MAPPED |
+| SRS-REQ-057 | `ci:renode` | Renode CAN | `RENODE` | CAN in Renode | Renode log | MAPPED |
+
+### SRS-REQ-058: HAL I2C
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-058 | `test_i2c.c` | `test_i2c_*` | `ASSERT` | I2C controller | `test_i2c.c` log | MAPPED |
+| SRS-REQ-058 | `ci:renode` | Renode I2C | `RENODE` | I2C in Renode | Renode log | MAPPED |
+
+### SRS-REQ-059: Link IP
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-059 | `test_link_ip.c` | `test_link_ip_*` | `ASSERT` | IP link operations | `test_link_ip.c` log | MAPPED |
+
+### SRS-REQ-060: Link IP (duplicate)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-060 | `test_link_ip.c` | `test_link_ip_*` | `ASSERT` | IP link operations | `test_link_ip.c` log | MAPPED |
+
+### SRS-REQ-061: Link TSN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-061 | `test_link_tsn.c` | `test_link_tsn_*` | `ASSERT` | TSN link operations | `test_link_tsn.c` log | MAPPED |
+
+### SRS-REQ-062: CAN-FD
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-062 | `test_canfd.c` | `test_canfd_*` | `ASSERT` | CAN-FD operations | `test_canfd.c` log | MAPPED |
+| SRS-REQ-062 | `test_fabric.c` | `test_fabric_*` | `ASSERT` | Fabric integration | `test_fabric.c` log | MAPPED |
+
+### SRS-REQ-063: CANopen
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-063 | `test_canopen.c` | `test_canopen_*` | `ASSERT` | CANopen operations | `test_canopen.c` log | MAPPED |
+
+### SRS-REQ-064: Serial
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-064 | `test_serial.c` | `test_serial_*` | `ASSERT` | Serial driver | `test_serial.c` log | MAPPED |
+
+### SRS-REQ-065: PUSopen adapter
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-065 | `test_pusopen.c` | `test_pusopen_*` | `ASSERT` | PUSopen adapter | `test_pusopen.c` log | MAPPED |
+| SRS-REQ-065 | `tests/stubs/pusopen.h` | Stubs | `STUB` | PUSopen stubs | Stub file | MAPPED |
+
+### SRS-REQ-066: GEM TSN
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-066 | `test_gem_tsn.c` | `test_gem_tsn_*` | `ASSERT` | GEM TSN VLAN/ENST/TSU | `test_gem_tsn.c` log | MAPPED |
+
+### SRS-REQ-067: Fabric
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-067 | `test_fabric.c` | `test_fabric_*` | `ASSERT` | Fabric driver | `test_fabric.c` log | MAPPED |
+| SRS-REQ-067 | `test_hal.c` | `test_hal_*` | `ASSERT` | HAL fabric | `test_hal.c` log | MAPPED |
+
+### SRS-REQ-068: GPTP
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-068 | `test_gptp.c` | `test_gptp_*` | `ASSERT` | gPTP stack | `test_gptp.c` log | MAPPED |
+
+### SRS-REQ-069: SPI
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-069 | `test_spi.c` | `test_spi_*` | `ASSERT` | SPI controller | `test_spi.c` log | MAPPED |
+| SRS-REQ-069 | `ci:renode` | Renode SPI | `RENODE` | SPI in Renode | Renode log | MAPPED |
+
+### SRS-REQ-070: Block
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-070 | `test_block.c` | `test_block_*` | `ASSERT` | Block device | `test_block.c` log | MAPPED |
+| SRS-REQ-070 | `ci:renode` | Renode Block | `RENODE` | Block in Renode | Renode log | MAPPED |
+
+### SRS-REQ-045: OBCP Integration
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-045 | `test_obcp_integration.c` | `test_obcp_*` | `ASSERT` | OBCP callback connectivity | `test_obcp_integration.c` log | MAPPED |
+| SRS-REQ-045 | `docs/vv/test-spec/ts-9-obcp-integration.md` | Spec | `SPEC` | OBCP integration spec | Spec doc | MAPPED |
+
 ---
 
 ## Gap Analysis
@@ -175,7 +595,7 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 |-------------|--------|-----------------|
 | SRS-REQ-005 | **NC** | Malformed TC handling oracle conflicts with test oracle (NC-EXT-04) |
 | SRS-REQ-012..020 | **MAPPED** | All mapped with explicit oracles (see mappings above) |
-| SRS-REQ-021..070 | **GAP** | No explicit test-oracle mapping documented |
+| SRS-REQ-021..070 | **MAPPED** | All mapped with explicit oracles (see mappings above) |
 | SRS-REQ-072 | **GAP** | Event envelope TBD (NC-EXT-76/77) |
 | SRS-REQ-073/074/075 | **PARTIAL** | XW-2 covers middleware contract; NC-PAL-01 blocks hardware evidence |
 | SRS-REQ-050 | **GAP** | PUS backend default mapping not fully documented |
