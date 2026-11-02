@@ -26,19 +26,37 @@ static uint16_t g_tm_counter;
 static uint32_t g_tc_count;
 static bool g_ready;
 
+/* Mutex protecting all shared PUS core state (NC-EXT-05: serialization for
+ * multi-context TM calls). Created once on first FF_PusInit. */
+static FF_MutexId_t g_pus_mutex;
+static bool g_pus_mutex_created = false;
+
 FF_Status_t FF_PusInit(void)
 {
+    if (!g_pus_mutex_created) {
+        FF_Status_t st = FF_PalMutexCreate(&g_pus_mutex, "pus_mutex");
+        if (st != FF_SUCCESS) {
+            return st;
+        }
+        g_pus_mutex_created = true;
+    }
+
+    FF_PalMutexLock(g_pus_mutex, 0u);
     memset(g_svcs, 0, sizeof(g_svcs));
     g_backend = NULL;
     g_tm_sink = NULL;
     g_tm_counter = 0u;
     g_tc_count = 0u;
     g_ready = false;
+    FF_PalMutexUnlock(g_pus_mutex);
 
     if (FF_PusRegisterCoreServices() != FF_SUCCESS) {
         return FF_ERROR;
     }
+
+    FF_PalMutexLock(g_pus_mutex, 0u);
     g_ready = true;
+    FF_PalMutexUnlock(g_pus_mutex);
     return FF_SUCCESS;
 }
 
@@ -50,18 +68,25 @@ FF_Status_t FF_PusSetBackend(const FF_Pus_Backend_t *backend)
     if ((backend->init != NULL) && (backend->init() != FF_SUCCESS)) {
         return FF_ERROR;
     }
+    FF_PalMutexLock(g_pus_mutex, 0u);
     g_backend = backend;
+    FF_PalMutexUnlock(g_pus_mutex);
     return FF_SUCCESS;
 }
 
 const FF_Pus_Backend_t *FF_PusGetBackend(void)
 {
-    return g_backend;
+    FF_PalMutexLock(g_pus_mutex, 0u);
+    const FF_Pus_Backend_t *backend = g_backend;
+    FF_PalMutexUnlock(g_pus_mutex);
+    return backend;
 }
 
 void FF_PusSetTmSink(FF_Pus_TmSink_t sink)
 {
+    FF_PalMutexLock(g_pus_mutex, 0u);
     g_tm_sink = sink;
+    FF_PalMutexUnlock(g_pus_mutex);
 }
 
 /* ---- Registration ------------------------------------------------- */
@@ -71,6 +96,7 @@ FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Ha
     if (handler == NULL) {
         return FF_INVALID_ARGUMENT;
     }
+    FF_PalMutexLock(g_pus_mutex, 0u);
     /* Reject duplicate (service, subservice) registrations deterministically so a
      * later registration cannot silently shadow an earlier one (NC-EXT-23, C-15).
      * The first slot that matches service+subservice wins; a second registration of
@@ -78,6 +104,7 @@ FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Ha
     for (uint16_t i = 0; i < FF_PUS_MAX_SERVICES; i++) {
         if (g_svcs[i].used && (g_svcs[i].service == service) &&
             (g_svcs[i].subservice == subservice)) {
+            FF_PalMutexUnlock(g_pus_mutex);
             return FF_ALREADY_EXISTS;
         }
     }
@@ -87,37 +114,51 @@ FF_Status_t FF_PusRegisterService(uint8_t service, uint8_t subservice, FF_Pus_Ha
             g_svcs[i].service = service;
             g_svcs[i].subservice = subservice;
             g_svcs[i].handler = handler;
+            FF_PalMutexUnlock(g_pus_mutex);
             return FF_SUCCESS;
         }
     }
+    FF_PalMutexUnlock(g_pus_mutex);
     return FF_NO_RESOURCE;
 }
 
 static FF_Pus_Handler_t ff_pus_find(uint8_t service, uint8_t subservice)
 {
+    FF_PalMutexLock(g_pus_mutex, 0u);
     for (uint16_t i = 0; i < FF_PUS_MAX_SERVICES; i++) {
         if (g_svcs[i].used && (g_svcs[i].service == service) &&
             (g_svcs[i].subservice == subservice)) {
-            return g_svcs[i].handler;
+            FF_Pus_Handler_t h = g_svcs[i].handler;
+            FF_PalMutexUnlock(g_pus_mutex);
+            return h;
         }
     }
+    FF_PalMutexUnlock(g_pus_mutex);
     return NULL;
 }
 
 uint16_t FF_PusNextTmCounter(void)
 {
+    FF_PalMutexLock(g_pus_mutex, 0u);
     uint16_t c = g_tm_counter;
     g_tm_counter = (uint16_t)((g_tm_counter + 1u) & 0x3FFFu);
+    FF_PalMutexUnlock(g_pus_mutex);
     return c;
 }
 
 uint16_t FF_PusPeekTmCounter(void)
 {
-    return g_tm_counter;
+    FF_PalMutexLock(g_pus_mutex, 0u);
+    uint16_t c = g_tm_counter;
+    FF_PalMutexUnlock(g_pus_mutex);
+    return c;
 }
 uint32_t FF_PusGetTcCount(void)
 {
-    return g_tc_count;
+    FF_PalMutexLock(g_pus_mutex, 0u);
+    uint32_t c = g_tc_count;
+    FF_PalMutexUnlock(g_pus_mutex);
+    return c;
 }
 
 FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *data, uint16_t len)
@@ -128,13 +169,17 @@ FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *dat
     uint32_t coarse = 0u;
     uint16_t fine = 0u;
 
+    FF_PalMutexLock(g_pus_mutex, 0u);
     if (g_backend == NULL || g_backend->encode_tm == NULL) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_NOT_READY;
     }
     if ((data == NULL) && (len != 0u)) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_INVALID_ARGUMENT;
     }
     if (len > FF_PUS_MAX_TM_FRAME) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_BAD_SIZE;
     }
     (void)FF_TimeGetCuc(&coarse, &fine);
@@ -148,11 +193,13 @@ FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *dat
     hdr.time_fine = fine;
 
     if (g_backend->encode_tm(&hdr, data, len, scratch, sizeof(scratch), &out_len) != FF_SUCCESS) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_ERROR;
     }
     if (g_tm_sink != NULL) {
         g_tm_sink(scratch, out_len);
     }
+    FF_PalMutexUnlock(g_pus_mutex);
     return FF_SUCCESS;
 }
 
@@ -196,13 +243,17 @@ FF_Status_t FF_PusSendTmDirect(uint8_t service, uint8_t subservice, const uint8_
     hdr.time_coarse_s = (uint32_t)(ns / 1000000000ULL);
     hdr.time_fine = (uint16_t)((frac * 65536ULL) / 1000000000ULL);
 
+    FF_PalMutexLock(g_pus_mutex, 0u);
     if (g_backend->encode_tm(&hdr, data, len, g_direct_frame, sizeof(g_direct_frame), &out_len) !=
         FF_SUCCESS) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_ERROR;
     }
     if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_TIMEOUT;
     }
+    FF_PalMutexUnlock(g_pus_mutex);
     return writer(g_direct_frame, out_len, deadline_ns);
 }
 
@@ -238,7 +289,9 @@ static FF_Status_t ff_panic_reporter(const char *reason, uint64_t deadline_ns)
 
 void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
 {
+    FF_PalMutexLock(g_pus_mutex, 0u);
     g_panic_writer = writer;
+    FF_PalMutexUnlock(g_pus_mutex);
     FF_PalSetPanicNotifier(ff_panic_reporter);
 }
 
@@ -306,10 +359,13 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
     bool ack_complete;
     bool ack_progress;
 
+    FF_PalMutexLock(g_pus_mutex, 0u);
     if (!g_ready || (raw == NULL) || (g_backend == NULL)) {
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_NOT_READY;
     }
     if (g_backend->decode_tc(raw, len, &apid, &tc, &data, &data_len) != FF_SUCCESS) {
+        FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_EvsSend(FF_EVS_PUS_TC_ERR, FF_EVS_ERROR, 0u, "PUS decode failure");
         return FF_PARSE_ERROR;
     }
@@ -322,13 +378,18 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
 
     if (apid != FF_APID_TC) {
         if (ack_accept) {
+            FF_PalMutexUnlock(g_pus_mutex);
             (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_ACCEPTANCE, 0u,
                                          FF_PUS_FAIL_ILLEGAL_APID);
+            return FF_ERROR;
         }
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_ERROR;
     }
     if (ack_accept) {
+        FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_ACCEPTANCE, 1u, 0u);
+        FF_PalMutexLock(g_pus_mutex, 0u);
     }
 
     handler = ff_pus_find(tc.service, tc.subservice);
@@ -336,23 +397,33 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
         uint8_t code =
             (tc.service == 0u) ? FF_PUS_FAIL_UNKNOWN_SERVICE : FF_PUS_FAIL_UNKNOWN_SUBSERVICE;
         if (ack_complete) {
+            FF_PalMutexUnlock(g_pus_mutex);
             (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_COMPLETION, 0u, code);
+            return FF_NOT_FOUND;
         }
+        FF_PalMutexUnlock(g_pus_mutex);
         return FF_NOT_FOUND;
     }
 
     if (ack_start) {
+        FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_START, 1u, 0u);
+        FF_PalMutexLock(g_pus_mutex, 0u);
     }
     if (ack_progress) {
+        FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_PROGRESS, 1u, 0u);
+        FF_PalMutexLock(g_pus_mutex, 0u);
     }
 
     rc = handler(&tc, data, data_len);
 
     if (ack_complete) {
+        FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_COMPLETION, (rc == FF_SUCCESS) ? 1u : 0u,
                                      (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        return rc;
     }
+    FF_PalMutexUnlock(g_pus_mutex);
     return rc;
 }
