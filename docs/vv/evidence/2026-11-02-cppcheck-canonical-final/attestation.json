@@ -1,0 +1,15 @@
+{
+  "archive": "2026-11-02-cppcheck-canonical-final",
+  "attestation_version": 1,
+  "created_at": "2026-11-02T16:09:40.138629Z",
+  "git_commit": "1ddcab0d685800eb5064105bef91ca99f2346128",
+  "git_dirty": true,
+  "manifest": {
+    "README.md": "82cd78c913e467eaeb9b2384eac6e793a056797c570a6e604b36def06d0181f0",
+    "checker.txt": "f8048fc62627553b12ab40913ad231093b54177fde53fc01f7ff2bafe82e0458",
+    "command.txt": "212e504bce20a6b4112a17027e2a7e1243344d8462beaac3ba6bdd5fe1f0f0ce",
+    "cppcheck_report_20261102_final.txt": "4e341a72bbf0677bb34c700b4729d88ccf32e637d1ca48304caa8acacb0f0d27",
+    "cppcheck_scan.sh": "110895afcaae97cb3aa6ff3857420cf083466c7048fddaa9ca91442f93809536"
+  },
+  "manifest_hash": "8ff61a65722559b572dc611d6e4d88b51959ed580639e1a50ff9d975e4c252d6"
+}

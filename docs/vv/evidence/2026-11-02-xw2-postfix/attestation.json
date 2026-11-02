@@ -1,0 +1,32 @@
+{
+  "archive": "2026-11-02-xw2-postfix",
+  "attestation_version": 1,
+  "created_at": "2026-11-02T16:09:33.525626Z",
+  "git_commit": "1ddcab0d685800eb5064105bef91ca99f2346128",
+  "git_dirty": true,
+  "manifest": {
+    "README.md": "fb5dfe94c5f4be585d678cd313575868564ca9f5376d6617cfd2071e88cb70fe",
+    "backend.txt": "00d151e7d392e68e2c756a6fc42640006ddc0a98d37dba3f90a7b73f63188bbd",
+    "compiler-version.txt": "85dada9dc3b293b074ca9ff455546edfc350ed31fbe04c4c609d54e8dc334e52",
+    "console.log": "07797494bfbb77df76e5c18417319ab252ac35731c301523fb66d750b8c599fb",
+    "control-component-exit.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "control-console.log": "47ac946158060a57b1322857ea0948a0a1bd89c5c4669d75de29755c96cd52b4",
+    "control-elf.sha256": "6e5606a61ebde929af1581850cd7a527b3680fbae401d81713d15325349c1f87",
+    "control-exit.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "control-passing-cases.txt": "0968fd1e731661eb170b9b43a715c52de821698f532538c19e3c0acbc99f6e58",
+    "control-result.txt": "7841d36b1e9a7bfbe3fbe7c75aefe3a1e723e0a9fd0882bc7114473d66433607",
+    "control-verifier.json": "a17372663f8dac1b5283463a4c3cc87a78480f1c3dbd2103bb9276884389b5cf",
+    "control-verifier.log": "4282ac19affebca764868cc4286f7eefb2671bddd0ee40ce333b20d9b5e49927",
+    "elf.sha256": "3532534aa8445b6b4e973fffc7f724eb60a06efc36652a60da6c59ba478e4b6c",
+    "nm-segregation.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "nm-segregation.txt": "f6a9fb3ced2d7e7423742b52d2d942bd0630608079b22a5acd13e66207772e01",
+    "positive-elapsed-ns.txt": "8b727c283bba326a653025016576f78487046933b56c16d20366f2e28d78ad61",
+    "pus-asn1.txt": "0855c353c8a126265186a268bbc57583247a8d131a7e602f0e48ac6105a09c48",
+    "qemu-exit-code.txt": "ca2ebdf97d7469496b1f4b78958f9dc8447efdcb623953fee7b6996b762f6fff",
+    "qemu-timeout.txt": "64aeb9975f234becd55bb4635e6e2f2da7a6b7bf0a896f0c07763bdfbfb31420",
+    "run-nonce.txt": "545bcf895e67bd8a938319a2992eb7d8dd89d282301fefc5e7c15d9b79bf6ff5",
+    "toolchain-id.txt": "66f57e7a61abfd66fcc92597df65db972a375384dbc3793b9f786ef08eeddd08",
+    "verdict.json": "bb3285a25bd3ef35ac40bdaadd1ae0b0d08bbe592c8025d74bd10c401d416bea"
+  },
+  "manifest_hash": "83c07d80a0fd1fe085c8a2176e1fb84befb9ccb53530e9b7c57d93c6eacb6228"
+}

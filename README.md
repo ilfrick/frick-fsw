@@ -62,8 +62,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Sprints completed | 10/33 (30.3%) | `docs/status/status.json` + `docs/planning/sprint-plan.md` (FRICK-PLAN-0002) |
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 72/76 (94.7%) | implemented (non-doc) + verified (non-`ci:docs`) |
-| Design traceability | 61/76 (80.3%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 37/180 (20.6%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Design traceability | 63/76 (82.9%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
+| Review streams (affirmative latest verdict) | 38/191 (19.9%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -73,8 +73,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 120/120 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 106/120 (88.3%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 28/120 (23.3%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 13912/30863 (45.1%) | gcov |
-| Code function coverage | 1570/2420 (64.9%) | gcov |
+| Code statement (line) coverage | not measured | run `make coverage` |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
