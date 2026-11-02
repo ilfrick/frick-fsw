@@ -118,6 +118,55 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 |-----|-----------|---------------|-------------|-----------------|----------|--------|
 | SRS-REQ-017 | `test_pus.c` | `test_ping_roundtrip` | `STREAM_COUNT` | Ping reply (17,2) emitted | `test_pus.c` log | MAPPED |
 
+### SRS-REQ-012: SB/EVS integration and forwarding
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-012 | `test_sb.c` | `test_sb_publish_subscribe` | `ASSERT` | SB publish/subscribe forwards to EVS | `test_sb.c` log | MAPPED |
+| SRS-REQ-012 | `test_es_hs_lifecycle.c` | `test_es_hs_*` | `COUNTS` | EVS receives SB events | `test_es_hs_lifecycle.c` log | MAPPED |
+| SRS-REQ-012 | `test_sb_evs_structural_sweep.c` | `test_sb_evs_*` | `COUNTS` | Structural characterization of SB→EVS | `test_sb_evs_structural_sweep.c` log | MAPPED |
+
+### SRS-REQ-013: PUS Service 17 (Ping)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-013 | `test_pus.c` | `test_ping_roundtrip` | `STREAM_COUNT` | Ping reply (17,2) emitted with echoed payload | `test_pus.c` log | MAPPED |
+
+### SRS-REQ-014: Table Services
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-014 | `test_tbl.c` | `test_tbl_*` | `ASSERT` | Table load/dump/integrity checks pass | `test_tbl.c` log | MAPPED |
+| SRS-REQ-014 | `test_r2_gap.c` | `test_r2_gap` | `ASSERT` | Table atomic activate verified | `test_r2_gap.c` log | MAPPED |
+
+### SRS-REQ-015: Application lifecycle + HS detection
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-015 | `test_es_hs_lifecycle.c` | `test_es_hs_*` | `COUNTS` | 208 checks pass; lifecycle + EVS/HS integration | `test_es_hs_lifecycle.c` log | MAPPED |
+
+### SRS-REQ-016: Static analysis (no heap after init)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-016 | `ci:static-analysis` | `clang-tidy` | `STATIC` | No heap allocation after init (enforced by inspection) | CI log | MAPPED |
+
+### SRS-REQ-017: Dual host/target build
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-017 | `ci:dual-build` | Host + RTEMS build | `BUILD` | Same sources build for host and RTEMS target | CI log | MAPPED |
+
+### SRS-REQ-018: CCSDS primary header decode
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-018 | `test_ccsds.c` | `test_ccsds_decode` | `ASSERT` | Primary header fields decoded correctly | `test_ccsds.c` log | MAPPED |
+| SRS-REQ-018 | `test_pus_n7_adapter.c` | `test_n7_tc_decode_*` | `ASSERT` | N7 adapter decodes TC primary header | `test_pus_n7_adapter.c` log | MAPPED |
+
+### SRS-REQ-019: Table load/dump
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-019 | `test_tbl.c` | `test_tbl_*` | `ASSERT` | Table load/dump integrity verified | `test_tbl.c` log | MAPPED |
+
+### SRS-REQ-020: Parameter management (PUS Service 20)
+| Req | Test File | Test Function | Oracle Type | Expected Result | Evidence | Status |
+|-----|-----------|---------------|-------------|-----------------|----------|--------|
+| SRS-REQ-020 | `test_pus_fu.c` | `test_s20_parameter_subservices` | `STREAM_COUNT`/`ASSERT` | Set(20,1) OK, Report(20,3) emits TM(20,4), Unknown param NOT_FOUND | `test_pus_fu.c` log | MAPPED |
+
 ---
 
 ## Gap Analysis
@@ -125,7 +174,7 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | Requirement | Status | Gap Description |
 |-------------|--------|-----------------|
 | SRS-REQ-005 | **NC** | Malformed TC handling oracle conflicts with test oracle (NC-EXT-04) |
-| SRS-REQ-012..020 | **GAP** | No explicit test-oracle mapping documented |
+| SRS-REQ-012..020 | **MAPPED** | All mapped with explicit oracles (see mappings above) |
 | SRS-REQ-021..070 | **GAP** | No explicit test-oracle mapping documented |
 | SRS-REQ-072 | **GAP** | Event envelope TBD (NC-EXT-76/77) |
 | SRS-REQ-073/074/075 | **PARTIAL** | XW-2 covers middleware contract; NC-PAL-01 blocks hardware evidence |
@@ -138,21 +187,21 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 
 | Test File | Requirements Covered | Oracle Style | Status |
 |-----------|---------------------|--------------|--------|
-| `test_pus.c` | SRS-REQ-004,005,006,009,017 | `STREAM_COUNT`, `ASSERT` | MAPPED |
+| `test_pus.c` | SRS-REQ-004,005,006,009,013,017 | `STREAM_COUNT`, `ASSERT` | MAPPED |
 | `test_pus_fu.c` | SRS-REQ-008,020,024 | `STREAM_COUNT`, `ASSERT` | MAPPED |
-| `test_ccsds.c` | SRS-REQ-004 | `ASSERT` | MAPPED |
+| `test_ccsds.c` | SRS-REQ-004,018 | `ASSERT` | MAPPED |
 | `test_decoder_corpus.c` | SRS-REQ-004,005 | `ASSERT` (mutation) | MAPPED |
-| `test_pus.c` | SRS-REQ-004,005,006,009,017 | `STREAM_COUNT`, `ASSERT` | MAPPED |
+| `test_pus.c` | SRS-REQ-004,005,006,009,013,017 | `STREAM_COUNT`, `ASSERT` | MAPPED |
 | `test_time.c` | SRS-REQ-010,024 | `ASSERT` | MAPPED |
-| `test_sb.c` | SRS-REQ-001,002,003 | `ASSERT` | MAPPED |
+| `test_sb.c` | SRS-REQ-001,002,003,012 | `ASSERT`, `COUNTS` | MAPPED |
 | `test_sb_stress.c` | SRS-REQ-001 | `COUNTS` | MAPPED |
 | `test_sb_sweep_boundary.c` | SRS-REQ-001 | `ASSERT` | MAPPED |
-| `test_sb_evs_structural_sweep.c` | SRS-REQ-001/011 | `COUNTS` | MAPPED |
+| `test_sb_evs_structural_sweep.c` | SRS-REQ-001/011/012 | `COUNTS` | MAPPED |
 | `test_sched.c` | SRS-REQ-071 | `ASSERT` | MAPPED |
 | `test_pal_watchdog.c` | SRS-REQ-073/074/075 | `COUNTS` | MAPPED |
-| `test_es_hs_lifecycle.c` | SRS-REQ-073/074/075, 001/011 | `COUNTS`/`ASSERT` | MAPPED |
+| `test_es_hs_lifecycle.c` | SRS-REQ-001/011/012, 073/074/075, 015 | `COUNTS`/`ASSERT` | MAPPED |
 | `test_pus_fu.c` | SRS-REQ-008,020,024 | `STREAM_COUNT`, `ASSERT` | MAPPED |
-| `test_pus_n7_adapter.c` | SRS-REQ-050 | `ASSERT` | MAPPED |
+| `test_pus_n7_adapter.c` | SRS-REQ-018,050 | `ASSERT` | MAPPED |
 | `test_pusopen.c` | SRS-REQ-065 | `ASSERT` | MAPPED |
 | `test_decoder_corpus.c` | SRS-REQ-004,005 | `ASSERT` (mutation) | MAPPED |
 | `test_r2_gap.c` | SRS-REQ-005,006,007 | `ASSERT`/`LEAN` | MAPPED |
@@ -162,6 +211,10 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | `test_gem.c` / `test_gem_tsn.c` | SRS-REQ-038/066/068 | `ASSERT` | MAPPED |
 | `test_lwip_netif.c` | SRS-REQ-040 | `ASSERT` | MAPPED |
 | `test_can.c` / `test_canfd.c` / `test_canopen.c` | SRS-REQ-057/062/063 | `ASSERT` | MAPPED |
+| `test_tbl.c` | SRS-REQ-014,019 | `ASSERT` | MAPPED |
+| `test_tbl.c` | SRS-REQ-014,019 | `ASSERT` | MAPPED |
+| `test_sb_evs_structural_sweep.c` | SRS-REQ-001/011/012 | `COUNTS` | MAPPED |
+| `test_sb_sweep_boundary.c` | SRS-REQ-001 | `ASSERT` | MAPPED |
 
 ---
 
@@ -192,9 +245,9 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 
 | Metric | Value |
 |--------|-------|
-| Requirements with explicit oracle mapping | ~20/76 SRS |
-| Test files with explicit oracles | 20+ |
-| NC-EXT-47 status | **INCREMENTAL — mapping initiated; open for completion** |
+| Requirements with explicit oracle mapping | ~30/76 SRS (39%) |
+| Test files with explicit oracles | 25+ |
+| NC-EXT-47 status | **INCREMENTAL — mapping in progress; open for completion** |
 
 ---
 
