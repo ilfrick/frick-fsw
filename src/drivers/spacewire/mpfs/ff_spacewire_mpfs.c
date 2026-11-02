@@ -244,7 +244,6 @@ FF_Status_t FF_SpaceWireMpfsSelfTest(FF_SpaceWireMpfs_t *s)
 {
     uint8_t tx_buf[FF_SPW_MAX_PAYLOAD];
     uint8_t rx_buf[FF_SPW_MAX_PAYLOAD];
-    uint16_t rx_len;
     uint16_t rmap_len;
 
     if ((s == NULL) || (s != g_spw)) {
@@ -309,9 +308,9 @@ FF_Status_t FF_SpaceWireMpfsSelfTest(FF_SpaceWireMpfs_t *s)
     }
     /* 8. Data CRC test */
     {
-        uint8_t data[4] = {0x01u, 0x02u, 0x03u, 0x04u};
+        const uint8_t data[4] = {0x01u, 0x02u, 0x03u, 0x04u};
         uint16_t crc = spw_crc16(data, 4u);
-        uint8_t crc_bytes[2] = {(uint8_t)(crc >> 8), (uint8_t)(crc & 0xFFu)};
+        const uint8_t crc_bytes[2] = {(uint8_t)(crc >> 8), (uint8_t)(crc & 0xFFu)};
         if (!spw_verify_data_crc(data, 4u, crc_bytes)) {
             return FF_ERROR;
         }

@@ -665,10 +665,10 @@ static void ff_req_case_l8(void)
 {
     const uint8_t *payload = NULL;
     uint16_t payload_len = 0u;
-    uint8_t dump_ok[7] = {1u, 0u, 0u, 0u, 4u, 0u, 16u};     /* region 1, offset 4, 16 bytes */
-    uint8_t dump_range[7] = {1u, 0u, 0u, 0u, 60u, 0u, 16u}; /* offset 60 + 16 > 64 */
-    uint8_t dump_unknown[7] = {9u, 0u, 0u, 0u, 0u, 0u, 4u}; /* no such region */
-    uint8_t dump_zero[7] = {1u, 0u, 0u, 0u, 0u, 0u, 0u};    /* length 0 */
+    const uint8_t dump_ok[7] = {1u, 0u, 0u, 0u, 4u, 0u, 16u};     /* region 1, offset 4, 16 bytes */
+    const uint8_t dump_range[7] = {1u, 0u, 0u, 0u, 60u, 0u, 16u}; /* offset 60 + 16 > 64 */
+    const uint8_t dump_unknown[7] = {9u, 0u, 0u, 0u, 0u, 0u, 4u}; /* no such region */
+    const uint8_t dump_zero[7] = {1u, 0u, 0u, 0u, 0u, 0u, 0u};    /* length 0 */
     FF_Status_t st_range;
     FF_Status_t st_unknown;
     FF_Status_t st_zero;

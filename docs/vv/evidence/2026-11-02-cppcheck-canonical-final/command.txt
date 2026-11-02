@@ -1,0 +1,7 @@
+# Exact invocation (reproduce with: bash tools/scripts/cppcheck_scan.sh --out <file>)
+# host: $(uname -srm), date: 2026-11-02 UTC
+# container: docker run --rm -v $PWD:/workspace -w /workspace frick-vv:local cppcheck \
+  --enable=style,unusedFunction --std=c99 --inline-suppr \
+  --suppress=missingIncludeSystem --quiet \
+  --template='{file}:{line}:{column}: {severity}: {message} [{id}]' \
+  -I/workspace/src -I/workspace/src/core -I/workspace/config /workspace/src /workspace/config

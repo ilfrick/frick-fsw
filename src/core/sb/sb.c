@@ -152,7 +152,7 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             continue;
         }
         if ((g_subs[i].msg_id == msg->msg_id) || (g_subs[i].msg_id == FF_SB_WILDCARD)) {
-            ff_sb_pipe_t *pipe = ff_sb_find_pipe(g_subs[i].app);
+            const ff_sb_pipe_t *pipe = ff_sb_find_pipe(g_subs[i].app);
             if (pipe == NULL) {
                 continue;
             }
@@ -203,13 +203,13 @@ FF_Status_t FF_SbTestUnlock(void)
 
 FF_Status_t FF_SbTestQueueLock(FF_AppId_t app)
 {
-    ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    const ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
     return (pipe != NULL) ? FF_PalQueueTestLock(pipe->queue) : FF_NOT_FOUND;
 }
 
 FF_Status_t FF_SbTestQueueUnlock(FF_AppId_t app)
 {
-    ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    const ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
     return (pipe != NULL) ? FF_PalQueueTestUnlock(pipe->queue) : FF_NOT_FOUND;
 }
 #endif
