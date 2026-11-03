@@ -161,9 +161,7 @@ Delivered and host-verified (not an approved mission profile):
 Explicitly **not** established: mission rates/jitter/tolerances, WCET, target
 RTEMS timing, watchdog interaction, clock-discontinuity behaviour, table
 load/activate-over-SB operational flow, and recovery authority. Section 5's
-gate ("replace the stub only after requirements and review approval") is **not
-yet satisfied**: the independent R/PA review of this increment is pending, so
-NC-EXT-19 is not closed and no flight-use authorization is implied.
+gate ("replace the stub only after requirements and review approval") is **satisfied for the requirements/architecture increment**: independent R3 Systems review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-r3-review.md`) and R4 Documentation review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-full-sprint-r4-review.md`) are complete. **Full sprint closure remains NOT RECOMMENDED** (R4) pending: authority-dependent closure of NC-EXT-19/90 (mission schedule/timing/policy inputs), TBL load/activate→dispatch coupling gap (`N22-TS5-66`), EVS-to-HS integration gap (`N22-TS5-47`), and no target/HIL evidence (Renode N18 FAIL, GAP-A5). NC-EXT-19 is not closed and no flight-use authorization is implied.
 
 ## 6. Sources checked (accessed 2026-10-13)
 
