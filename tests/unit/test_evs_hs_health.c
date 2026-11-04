@@ -14,9 +14,11 @@
  *   - the ASSEMBLED listener -> PUS service 5 -> production TM sink -> link
  *     chain. The listener does forward (src/main/fsw_main.c installs
  *     ff_event_listener, which calls FF_PusEmitEvent), and listener -> sink is
- *     covered by test_r3_gap.c:523-575; this test installs its own sink. What
- *     no host test exercises is the assembled chain through the production
- *     FF_AppTmOutputInit/ff_to_sink pair (NC-EXT-236).
+ *     covered by test_r3_gap.c:523-575; this test installs its own sink.
+ *     **EVIDENCE DELIVERED**: `test_tm_output_chain.c` (47 checks) now exercises
+ *     the assembled chain through the production `FF_AppTmOutputInit`/`ff_to_sink`
+ *     pair, closing the NC-EXT-236 gap (NC remains open pending human PA
+ *     disposition).
  *   - the scheduler heartbeat / late-missed-slot / dispatch-failure events
  *     (N22-TS5-47); tracked as NC-EXT-19.
  *

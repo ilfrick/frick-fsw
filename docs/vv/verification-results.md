@@ -315,7 +315,7 @@ All exit codes are also summarised in `candidate-exits.txt`.
   (NC-EXT-198; root cause NC-PAL-01 unwired MPFS binding).
 - GAP-A4: cppcheck remains an advisory, unqualified checker.
 - NC-EXT-19 remains open (scheduler EVS end-to-end path not verified).
-- **NC-EXT-236** remains open: no test exercises the assembled listener → S5 →
+- **NC-EXT-236**: **EVIDENCE DELIVERED** — `tests/unit/test_tm_output_chain.c` (47 checks) exercises the assembled chain through the production sink `FF_AppTmOutputInit`/`ff_to_sink`. NC remains open pending human PA authority disposition; functional gap closed. |
   TM sink → link chain through the **production** sink
   (`src/apps/app_tm_output.c:14-25` `ff_to_sink`, installed by
   `FF_AppTmOutputInit`). The forwarding leg is implemented; `test_evs_hs_health.c`

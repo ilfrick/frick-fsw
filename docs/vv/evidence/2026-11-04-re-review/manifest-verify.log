@@ -44,6 +44,8 @@ docs/reviews/FRICK-REVIEW-0463-PA-20261104-DELTA.md: OK
 docs/reviews/FRICK-REVIEW-0464-VV-20261104-DELTA.md: OK
 docs/reviews/FRICK-REVIEW-0464-PA-20261104-DELTA.md: OK
 docs/reviews/FRICK-REVIEW-0465-PA-20261104-DELTA.md: OK
+docs/reviews/FRICK-REVIEW-0466-VV-20261104-DELTA.md: OK
+docs/reviews/FRICK-REVIEW-0466-PA-20261104-DELTA.md: OK
 src/main/fsw_main_reqtest.c: OK
 tests/unit/test_pus_n7_adapter.c: OK
 tests/unit/test_pusopen.c: OK
