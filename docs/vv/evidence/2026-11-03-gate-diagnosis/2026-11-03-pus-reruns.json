@@ -1,0 +1,54 @@
+{
+  "session": "ses_e76ea5f28ffeEc1Atsuw4DeZTs",
+  "note": "Pipelines with head/grep can mask executable exit; outputs and exits are verbatim.",
+  "records": [
+    {
+      "sequence": 17795,
+      "command": "cd /home/nicola/fsw/frick-fsw && docker run --rm -v \"$PWD\":/workspace -w /workspace frick-vv:local sh -c \"cd /workspace/build/ci && ./tests/test_pus 2>&1 | head -100\"",
+      "exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "FAIL /workspace/tests/unit/test_pus.c:869: FF_PusEmitPeriodicHk() == FF_SUCCESS\nFAIL /workspace/tests/unit/test_pus.c:870: stream_count(3u, 25u) == 1u\n/workspace/tests/unit/test_pus.c checks=225 failures=2\n"
+        }
+      ]
+    },
+    {
+      "sequence": 17822,
+      "command": "cd /home/nicola/fsw/frick-fsw && docker run --rm -v \"$PWD\":/workspace -w /workspace frick-vv:local sh -c \"cd /workspace/build/ci && ./tests/test_pus 2>&1 | grep -A5 'test_hk_backward_step_no_emission'\"",
+      "exit": 1,
+      "output": [
+        {
+          "type": "text",
+          "text": "(no output)"
+        },
+        {
+          "type": "text",
+          "text": "Exited with code 1"
+        }
+      ]
+    },
+    {
+      "sequence": 17831,
+      "command": "cd /home/nicola/fsw/frick-fsw && docker run --rm -v \"$PWD\":/workspace -w /workspace frick-vv:local sh -c \"cd /workspace/build/ci && ./tests/test_pus 2>&1\"",
+      "exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "/workspace/tests/unit/test_pus.c checks=225 failures=0\n"
+        }
+      ]
+    },
+    {
+      "sequence": 17840,
+      "command": "cd /home/nicola/fsw/frick-fsw && docker run --rm -v \"$PWD\":/workspace -w /workspace frick-vv:local sh -c \"cd /workspace/build/ci && ctest -R pus --output-on-failure 2>&1\"",
+      "exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "Test project /workspace/build/ci\n    Start 10: pus\n1/5 Test #10: pus ..............................   Passed    0.01 sec\n    Start 11: pus_fu\n2/5 Test #11: pus_fu ...........................   Passed    0.00 sec\n    Start 13: pus_n7_adapter_contract\n3/5 Test #13: pus_n7_adapter_contract ..........   Passed    0.01 sec\n    Start 14: pusopen_adapter_contract\n4/5 Test #14: pusopen_adapter_contract .........   Passed    0.00 sec\n    Start 23: decoder_corpus\n5/5 Test #23: decoder_corpus ...................   Passed    0.03 sec\n\n100% tests passed, 0 tests failed out of 5\n\nLabel Time Summary:\ndecoder-corpus    =   0.03 sec*proc (1 test)\nn22               =   0.03 sec*proc (1 test)\ns8-vv-fu          =   0.03 sec*proc (1 test)\n\nTotal Test time (real) =   0.07 sec\n"
+        }
+      ]
+    }
+  ]
+}

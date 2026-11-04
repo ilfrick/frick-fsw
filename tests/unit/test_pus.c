@@ -511,7 +511,10 @@ static void test_hk_periodic_emission(void)
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(1u, dummy_hk_provider) == FF_SUCCESS);
 
     /* Deterministic fixture base time so the due instant is exactly testable.
-     * Synthetic test value, not a mission time parameter. */
+     * Synthetic test value, not a mission time parameter. UTC is frozen so the
+     * boundary comparison is not perturbed by real scheduling delay
+     * (NC-EXT-235; boundary requirement NC-EXT-207). */
+    FF_PalTimeTestFreeze(0u);
     FF_TEST_ASSERT(FF_TimeSetUtcNs(1000ULL * 1000000000ULL) == FF_SUCCESS);
 
     /* Create HK report with period = 10 seconds. */
@@ -651,6 +654,7 @@ static void test_hk_periodic_emission(void)
     g_rx_count = 0u;
     FF_TEST_ASSERT(FF_PusEmitPeriodicHk() == FF_ERROR);
     FF_TEST_ASSERT(stream_count(3u, 25u) == 0u);
+    FF_PalTimeTestUnfreeze();
 }
 
 /* ---- S3 Service 3 : wrap/step regression for the periodic due test
@@ -694,6 +698,10 @@ static void hk_wrap_test_setup(void)
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(tm_sink);
     g_rx_count = 0u;
+    /* Freeze UTC so the exact coarse/fine due boundary is deterministic; the
+     * host PAL otherwise advances UTC from the monotonic clock between the set
+     * and the due read (NC-EXT-235 (boundary requirement NC-EXT-207)). */
+    FF_PalTimeTestFreeze(0u);
 }
 
 /* Coarse-wrap straddle: the due instant (last + 10) wraps below last, so a
@@ -786,6 +794,7 @@ static void test_hk_coarse_wrap_due(void)
     g_rx_count = 0u;
     FF_TEST_ASSERT(FF_PusEmitPeriodicHk() == FF_ERROR);
     FF_TEST_ASSERT(stream_count(3u, 25u) == 0u);
+    FF_PalTimeTestUnfreeze();
 }
 
 /* Large unvalidated period: period_s = 0xFFFFFFFF wraps the due instant to
@@ -826,6 +835,7 @@ static void test_hk_large_period_held_unserved(void)
         const uint8_t payload[1] = {11u};
         hk_send_tc(6u, payload, 1u);
     }
+    FF_PalTimeTestUnfreeze();
 }
 
 /* Backward time step: the due test must wait for the interval to re-elapse
@@ -891,6 +901,7 @@ static void test_hk_backward_step_no_emission(void)
         const uint8_t payload[1] = {12u};
         hk_send_tc(6u, payload, 1u);
     }
+    FF_PalTimeTestUnfreeze();
 }
 
 /* ---- HM-P2 - forbidden refresh window (host model) ---------- */

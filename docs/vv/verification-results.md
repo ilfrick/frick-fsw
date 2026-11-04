@@ -130,3 +130,207 @@ control, on the test-only emulated-target image. This is `PIL-QEMU`
 middleware-contract evidence under `SRS-REQ-073`/`SRS-REQ-075`; it is **not**
 N18, not HIL and not device evidence. The 8 s table timeout remains an ESC-7
 placeholder.
+---
+
+# Verification Results: Gate-failure diagnosis and correction (2026-11-03)
+
+| Field | Value |
+| --- | --- |
+| Document ID | FRICK-VV-GATE-20261103 |
+| Revision | 1.0 |
+| Date | 2026-11-03 |
+| Author | FSW engineer |
+| Norms | N8 (docs current), N11 (evidence), N15 (cycle), N16 (history), N21 (sequencing) |
+| Base HEAD | `41dcbe21435e14b5aaff06c63d9df6f0de04df54` |
+
+## Scope
+
+Correction of two test-harness timing defects observed on 2026-11-03 (cached sequences 17401, 17633, 17795, 17849) and withdrawal of unsupported gate claims in sprint-plan Rev 1.117/1.118.
+
+- `test_pus` HK due-boundary assertions (`test_hk_coarse_wrap_due` at `test_pus.c:754..761` and `test_hk_periodic_emission` at `:561..574`, `test_hk_backward_step_no_emission` at `:869,870`) failed because the host PAL computes UTC from a free-running monotonic clock; the CUC fine field quantizes to 15.2588 µs per LSB, and at `u == period` the tie-break `now_fine >= last_fine` can flip false between the enable read (which latches `last_emission`) and the later due read.
+- `test_link_uart` positive receive assertions failed under 4× CPU load because 20 ms / 500 ms bounds were too tight for PTY scheduling.
+
+Both are test-harness defects; production due-test logic (`src/pus/pus_services.c:406`) and UART framing logic (`src/transport/link/link_uart.c`) were not changed.
+
+## Correction
+
+- `src/core/pal/pal.h`, `pal_posix.c`: test-only frozen-UTC seam under `FF_TEST_HOOKS` (`FF_PalTimeTestFreeze`, `FF_PalTimeTestUnfreeze`), absent from flight/RTEMS builds.
+- `tests/unit/test_pus.c`: HK tests freeze UTC for their duration; unfreeze at test end.
+- `tests/unit/test_link_uart.c`: positive receive bounds raised from 20 ms / 500 ms to 2 s (bounded; a hang still fails). The 2 ms negative cases unchanged.
+- `docs/planning/sprint-plan.md`: Rev 1.119 failure record, Rev 1.120 verification record, NC-EXT-235.
+
+## Evidence (original exits, no pipelines)
+
+| Gate | Command | Exit | Result | Log |
+| --- | --- | --- | --- | --- |
+| ci-local | `make ci-local > LOG 2>&1` | **0** | 50/50, Lean, elab receipt, trace PASS (120/76/30/14/68) | `docs/vv/evidence/2026-11-03-gate-diagnosis/ci-local-final.log` |
+| native CTest | `ctest --test-dir build/native --output-on-failure > LOG 2>&1` | **0** | 50/50 | `docs/vv/evidence/2026-11-03-gate-diagnosis/ctest-native-rerun.log` |
+| xw1-host build | `cmake --build build/xw1-host -j` | **0** | 242/245 targets | `docs/vv/evidence/2026-11-03-gate-diagnosis/build-xw1-host-rerun.log` |
+| xw1-host CTest | `ctest --test-dir build/xw1-host --output-on-failure > LOG 2>&1` | **0** | 50/50 | `docs/vv/evidence/2026-11-03-gate-diagnosis/ctest-xw1-host-rerun.log` |
+| format | `docker run ... frick-vv:local make format-check` | **0** | clang-format 18 (pinned), all files clean | `docs/vv/evidence/2026-11-03-gate-diagnosis/format-check.log` |
+| cppcheck | `tools/scripts/cppcheck_scan.sh --out ...` | **0** | 163 visible findings + 2 test-only suppressed (GAP-A4 advisory) | `docs/vv/evidence/2026-11-03-gate-diagnosis/cppcheck.log`, `cppcheck.txt` |
+| stress | 100x each under 4 CPU burners | **0** | `test_pus` 0/100, `test_link_uart` 0/100 (sample; not proof of absence) | `docs/vv/evidence/2026-11-03-gate-diagnosis/stress-100-under-load.log` |
+
+## Superseded evidence (retained for audit)
+
+`ctest-native.log` (07:56), `ctest-xw1-host.log` (07:57), `build-xw1-host.log` (07:56), `build-native.log` (07:56), `ci-local-after-fix.log` (07:51) — all predate the final `pal_posix.c` edit at 08:00:27.
+
+## Failure record (cached, now copied into evidence dir)
+
+- `2026-11-03-ci-pipeline-evidence.json` — seq 17401: `tail`-masked pipeline, `24 - link_uart` FAILED
+- `2026-11-03-ci-direct-17633.json` — seq 17633: direct run, exit 2, CTest 49/50, `pus` failures at `test_pus.c:754,755,760,761`
+- `2026-11-03-pus-reruns.json` — seq 17795: pre-fix binary, `test_hk_backward_step_no_emission` at `test_pus.c:869,870`, `checks=225 failures=2`
+- `2026-11-03-ci-direct-17849.json` — seq 17849: direct run, exit 0, 50/50, candidate binding not independently established
+
+## Open findings from independent reviews
+
+- PA review FRICK-REVIEW-0440-PA-NC-EXT-235.md: 7 Major findings (PA-NC235-01..07), primarily evidence-chain completeness and stale gates. **NEEDS REVISION** — not closeable.
+- V&V review FRICK-REVIEW-0439-VV-NC-EXT-235.md: pending (free-model limit).
+- R4 review FRICK-REVIEW-0441-R4-NC-EXT-235.md: pending (free-model limit).
+
+## Residual items at FRICK-VV-GATE-20261103 (historical, superseded)
+
+> **Superseded 2026-11-04 — PA-0457-04.** Retained as history (N11). The current
+> residual list is the "Residual unproven items" section at the end of this
+> document. In particular, the RTEMS cross build **has since been run** on the
+> corrected candidate (exit 0, `docs/vv/evidence/2026-11-04-re-review/rtems-build-exit.txt`,
+> ELF sha256 `2c4934d5…8a87b`); the line below records the 2026-11-03 state only.
+
+- N18 functional validation in Renode emulated PolarFire SoC: **FAIL** (NC-EXT-198, root cause NC-PAL-01 unwired MPFS binding).
+- RTEMS cross build had not yet been run on the corrected candidate *at the time of this gate* (superseded — see the note above).
+- GAP-A4: cppcheck is an advisory, unqualified checker.
+- NC-EXT-198/199, NC-PAL-01, NC-EXT-207/208/211 remain open.
+- No NC closed, no sprint completed. S8-SCH/M17 remains **in progress**; 2026-10-30 R3/Section 5 conclusions unchanged.
+
+## Verdict
+
+**CYCLE COMPLETE WITH OPEN FINDINGS** — gates pass for the corrected candidate on the host configurations tested, but the evidence chain requires the Major PA findings to be addressed and the independent V&V/R4 reviews to complete before any commit/push (norm N7/N9/N20).
+
+---
+
+# Verification Results: Contradictory-figure reconciliation and candidate re-gate (2026-11-04)
+
+| Field | Value |
+| --- | --- |
+| Document ID | FRICK-VV-GATE-20261104 |
+| Revision | 1.0 |
+| Date | 2026-11-04 |
+| Author | FSW engineer |
+| Norms | N8, N11, N15, N16, N21 |
+| Base HEAD | `41dcbe21435e14b5aaff06c63d9df6f0de04df54` |
+| Evidence package | `docs/vv/evidence/2026-11-04-gate-reconciliation/` |
+
+## Scope
+
+1. Re-check the NC-EXT-235 figure "51/55 with exit 0" against retained artifacts.
+2. Re-check the later figure "52/52, 100% passed" for `build/gate5`.
+3. Restore a green candidate gate after an abandoned, non-building test
+   (`tests/unit/test_pus_mutation.c`) had been registered.
+4. Produce clean-room gate evidence with original exit codes, outside pipelines.
+
+## Findings
+
+- **"51/55 with exit 0" is not demonstrable.** A repository-wide search for
+  `51/55`, `51 / 55`, `55 tests`, `51 of 55` over retained `*.log`, `*.md`,
+  `*.txt` and `*.json` returns no match. No retained log records 55 registered
+  tests. The claim is withdrawn; no replacement history is invented.
+- **`build/gate5` is container-only.** `CMakeCache.txt` records
+  `CMAKE_HOME_DIRECTORY=/workspace` and `CMAKE_CACHEFILE_DIR=/workspace/build/gate5`;
+  the test commands in `tests/CTestTestfile.cmake` are absolute `/workspace/...`
+  paths and the tree is root-owned. A host-side `ctest --test-dir build/gate5`
+  cannot run it (observed exit 8, "Cannot create log file").
+- **`build/gate5` as found: 53 registered, 52 pass, 1 fail (`pus_mutation`),
+  exit 8.** The "52/52, 100%" claim is therefore not reproducible against the
+  tree as found either.
+- **`tests/unit/test_pus_mutation.c` did not compile** (8 errors under
+  `-Wall -Wextra -Werror`: implicit declarations of `hk_test_setup`/`hk_send_tc`,
+  duplicate `dummy_hk_provider`, conflicting `static` definitions) and its
+  oracles contradicted the product contract (13 failures of 1203 checks on the
+  stale binary that was actually built). It was withdrawn and preserved verbatim
+  with sha256 in the evidence package. No requirement referenced it.
+
+## Correction
+
+- `tests/CMakeLists.txt`: removed the `test_pus_mutation` target and the
+  `pus_mutation` ctest case; moved `test_frozen_utc_seam` out of
+  `if(FF_USE_LWIP)` (the test uses only `core/pal` and `core/time`;
+  `FF_TEST_HOOKS` is exported `PUBLIC` by `frick_fsw_core`).
+- `tests/unit/test_pus_mutation.c`: removed from the tree after archiving.
+
+## Evidence (clean-room `build/gate6`, original exits, no pipelines)
+
+| Gate | Exit | Result | Log |
+| --- | --- | --- | --- |
+| configure | **0** | `cmake -S . -B build/gate6 -G Ninja -DFF_BUILD_TESTS=ON` in `frick-vv:local` | `candidate-configure.log` |
+| build | **0** | 402/402 targets, 0 warnings, 0 errors | `candidate-build.log` |
+| CTest | **0** | **52/52 passed**, 0 failed | `candidate-ctest.log` |
+| format-check | **0** | clang-format 18 (pinned) | `candidate-format.log` |
+| trace | **0** | PASS (120 requirements, 76 SRS, 30 SSS, 14 gaps, 68 Lean theorems) | `candidate-trace.log` |
+| verify-lean | **0** | `lake build` completed successfully | `candidate-lean.log` |
+| cppcheck | **0** | 163 findings (GAP-A4 advisory baseline unchanged) | `candidate-cppcheck.log`, `candidate-cppcheck.txt` |
+| RTEMS cross-build | **0** | `frick_fsw` linked; `FF_PalTimeTestFreeze/Unfreeze` absent from ELF | `candidate-rtems-build.log`, `candidate-rtems-symbols.log` |
+
+All exit codes are also summarised in `candidate-exits.txt`.
+
+## Review status (supersedes the "pending" lines in FRICK-VV-GATE-20261103)
+
+- V&V FRICK-REVIEW-0450: **PASS WITH COMMENTS**.
+- PA FRICK-REVIEW-0451: **PASS WITH COMMENTS** with 0 Major *at issue time*, but its own finding table records **PA-NC235-07 as PARTIALLY RESOLVED** (effective native/RTEMS `CMakeCache` configuration not captured). Its line 89 summary "all 7 Major findings are resolved" contradicts its line 87 row; the stricter record governs. The "PA-NC235-01..07 resolved" wording used here previously is withdrawn (FRICK-REVIEW-0453 PA-02).
+- R4 FRICK-REVIEW-0441 on record. T3 FRICK-REVIEW-0443 covers `tests/unit/test_pus.c` at sha256 `6f68de14…` and `tests/unit/test_link_uart.c` only; the candidate `test_pus.c` is `4ca0e2d0…` and `test_frozen_utc_seam.c` / `test_evs_hs_health.c` have no N10 review, so **T3 is NOT FULLY QUALIFIED** for this candidate (`docs/vv/tool-qualification.md` rev 1.3, the revision of record; unchanged at rev 1.5 except for re-bound script hashes).
+- The 2026-11-04 delta reviews FRICK-REVIEW-0452 (V&V) and FRICK-REVIEW-0453 (PA) both returned **NEEDS REVISION**. Their findings were corrected and resubmitted as FRICK-REVIEW-0454/0455.
+- FRICK-REVIEW-0454 (V&V) and FRICK-REVIEW-0455 (PA) also returned **NEEDS REVISION**: both Majors were the same
+  evidence-integrity defect in `2026-11-03-gate-diagnosis/assets.sha256` (a stale `README.md` hash plus a verify
+  transcript taken from a pre-edit run). That defect is corrected in this revision by freezing the README first,
+  regenerating the manifest second over all 29 other files, and verifying third (exit 0, 29 OK,
+  `docs/vv/evidence/2026-11-04-re-review/assets-sha256-verify.log`). The remaining 0454/0455 Minors are also
+  corrected; the corrections are indexed in `docs/vv/evidence/2026-11-04-re-review/README.md` §2.
+- A third independent round returned **PASS WITH COMMENTS** for both profiles:
+  FRICK-REVIEW-0456 (V&V: 0 Blocker / 0 Major / 3 Minor / 3 Advisory) and
+  FRICK-REVIEW-0457 (PA: 0 Blocker / 0 Major / 4 Minor / 4 Observations). Their
+  findings (F-0456-01..06, PA-0457-01..08) are corrected; the corrections are
+  recorded in `sprint-plan.md` Rev 1.124, `handover.md` rev 3.63,
+  `tool-qualification.md` rev 1.4 and the evidence README §2.1–§2.2.
+- A fourth, narrow delta confirmation of those corrections returned
+  **PASS WITH COMMENTS** for both profiles, with **0 Blocker / 0 Major**:
+  FRICK-REVIEW-0458 (V&V: 2 Minor) and FRICK-REVIEW-0459 (PA: 2 Minor,
+  3 Observations). All four Minors and the three Observations are corrected in
+  this revision (`sprint-plan.md` Rev 1.125, `handover.md` rev 3.64,
+  `tool-qualification.md` rev 1.5, `ts-5-core-services.md` Rev 1.14, evidence
+  README §2.3). **No finding of any round is open at Blocker or Major severity.**
+- FRICK-REVIEW-0460 (V&V) and FRICK-REVIEW-0461 (PA) then confirmed that delta
+  with **0 Blocker / 0 Major** (0460: PASS WITH OBSERVATIONS, 2 Observations; 0461: PASS
+  WITH COMMENTS, 1 Minor + 5 Observations). The Minor and the non-functional
+  observations are documentation-only corrections, applied here and reconciled
+  in FRICK-REVIEW-0462.
+- Current-cycle evidence is `docs/vv/evidence/2026-11-04-re-review/`: clean
+  `build/gate11` configure/build/CTest/new-tests/format/cppcheck plus smoke in a
+  **separate** build directory, original exits retained (`gate11-*-exit.txt`).
+  `build/gate10` and its logs are retained as superseded history. A final narrow
+  confirmation on the regenerated manifest is the remaining independent step;
+  **this document claims no verdict for it and no release approval**.
+
+## Residual unproven items (not closed by this cycle)
+
+- N18 functional validation in Renode emulated PolarFire SoC: **FAIL**
+  (NC-EXT-198; root cause NC-PAL-01 unwired MPFS binding).
+- GAP-A4: cppcheck remains an advisory, unqualified checker.
+- NC-EXT-19 remains open (scheduler EVS end-to-end path not verified).
+- **NC-EXT-236** remains open: no test exercises the assembled listener → S5 →
+  TM sink → link chain through the **production** sink
+  (`src/apps/app_tm_output.c:14-25` `ff_to_sink`, installed by
+  `FF_AppTmOutputInit`). The forwarding leg is implemented; `test_evs_hs_health.c`
+  covers sink → loopback link with an **injected** sink, and `test_r3_gap.c:523-575`
+  covers listener → sink. Owner role: FSW engineer; acceptance authority:
+  **Nicola**; no acceptance date.
+- **NC-EXT-237** remains open: `FF_PusEmitEvent` ignores `event_id`
+  (`src/pus/pus.c`), so event identity is caller-supplied payload only.
+  Owner role: FSW engineer; acceptance authority: **Nicola**; no acceptance date.
+- NC-EXT-198/199, NC-PAL-01, NC-EXT-207/208/211 remain open.
+- No NC closed, no sprint completed.
+
+## Verdict
+
+**CANDIDATE GATES PASS** on the configurations tested (native build/test, static
+format, traceability, Lean, cppcheck baseline, RTEMS cross-build). No NC and no
+sprint is closed, no hardware or human review is claimed, and no commit/push is
+authorised by this record alone.

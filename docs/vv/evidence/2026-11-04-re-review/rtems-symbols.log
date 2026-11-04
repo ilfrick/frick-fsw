@@ -1,0 +1,90 @@
+# RTEMS seam-absence evidence (re-executed 2026-11-04 after FRICK-REVIEW-0454 F-0454-04 / 0455 PA-0455-06)
+# Every command below was run verbatim; exit codes and counts are printed beside it.
+
+## 1. Binary identity
+$ sha256sum /workspace/build/rtems-gate7/frick_fsw
+2c4934d5a8623657695ddcf77bf4fc8648ad7fba1fec8e00fc170a07ade8a87b  /workspace/build/rtems-gate7/frick_fsw
+exit=0
+$ ls -l /workspace/build/rtems-gate7/frick_fsw
+-rwxr-xr-x 1 root root 3133056 Nov  4 07:54 /workspace/build/rtems-gate7/frick_fsw
+
+## 2. Symbol-table sizes (two explicit counts; the old log only had an unreproducible total_symbols=1450)
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | wc -l
+1450
+$ /opt/rtems/6/bin/riscv-rtems6-nm -g /workspace/build/rtems-gate7/frick_fsw | wc -l
+1085
+$ /opt/rtems/6/bin/riscv-rtems6-nm --defined-only /workspace/build/rtems-gate7/frick_fsw | wc -l
+1450
+
+## 3. Negative: frozen-UTC test seam must be absent
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | grep -c FF_PalTimeTest
+0
+$ /opt/rtems/6/bin/riscv-rtems6-nm -g /workspace/build/rtems-gate7/frick_fsw | grep -c FF_PalTimeTest
+0
+$ strings /workspace/build/rtems-gate7/frick_fsw | grep -c PalTimeTest
+0
+
+## 4. Positive control: production time symbols must be present
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | grep -E " [Tt] FF_PalGetUtcNs$"
+0000001000001090 T FF_PalGetUtcNs
+exit=0
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | grep -E " [Tt] FF_PalGetMonotonicNs$"
+000000100000106c T FF_PalGetMonotonicNs
+exit=0
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | grep -E " [Tt] FF_TimeInit$"
+00000010000024d0 T FF_TimeInit
+exit=0
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/frick_fsw | grep -E " [Tt] FF_TimeGetCuc$"
+00000010000028b2 T FF_TimeGetCuc
+exit=0
+
+## 5. Negative: seam must be absent from the compiled PAL object
+$ /opt/rtems/6/bin/riscv-rtems6-nm /workspace/build/rtems-gate7/CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_posix.c.obj | grep -c FF_PalTimeTest
+0
+exit=1
+
+## 6. FF_TEST_HOOKS must not appear in any RTEMS compile command
+$ grep -c FF_TEST_HOOKS /workspace/build/rtems-gate7/compile_commands.json
+grep: /workspace/build/rtems-gate7/compile_commands.json: No such file or directory
+exit=2
+
+## 7. Follow-up: compile-flag check (replaces failed §6)
+
+§6 could not run because this RTEMS build directory was configured without
+`CMAKE_EXPORT_COMPILE_COMMANDS`, so `compile_commands.json` does not exist
+(`grep` exit 2 = file missing, **not** a seam finding). The equivalent question
+is answered from the generated build files instead:
+
+$ grep -rl FF_TEST_HOOKS /workspace/build/rtems-gate7
+(no output)
+count_files=0
+
+$ find /workspace/build/rtems-gate7 -name flags.make -path '*frick_fsw_core*' | head -1 | xargs grep -h C_DEFINES
+C_DEFINES = -DFF_USE_LWIP=1 -DFF_USE_N7_OBCP=1 -DFF_USE_PUS_ASN1=1 -DFRICK_PLATFORM_MPFS -DFRICK_USE_LIBM=1
+
+Interpretation: `FF_TEST_HOOKS` occurs in **zero** files of the RTEMS build tree
+and is absent from the effective `frick_fsw_core` compile definitions, so the
+seam is compiled out at the source level, not merely optimised away.
+
+Note on §5/§6 exit codes: `grep -c` exits 1 when it finds zero matches. In this
+log that is the **desired** result for the negative checks (0 seam symbols,
+0 seam strings), not a command failure. `RTEMS_SYMBOLS_EXIT=0` refers to the
+script's overall status, which is what is recorded in `rtems-symbols-exit.txt`.
+
+## 8. Reference binutils identification (PA-0457-05) and exit-code convention (F-0456-06)
+
+The counts in §2 are produced by the **RTEMS binutils inside
+`frick-rtems-toolchain:local`**, specifically
+`/opt/rtems/6/bin/riscv-rtems6-nm` (RTEMS 6 toolchain). They are
+**toolchain-specific**: a host GNU `nm` on the same ELF reports 2323 / 2323 /
+1085, because the GNU `nm` expands the symbol table differently. A reader who
+re-runs the obvious host `nm` command and gets 2323 has not found an error in
+this log; they have used a different binutils. Re-run inside the pinned image to
+reproduce 1450 / 1450 / 1085.
+
+Exit-code convention used above: the script's overall status is
+`RTEMS_SYMBOLS_EXIT=0` (`rtems-symbols-exit.txt`). Individual `grep -c` lines
+print `exit=1` when they find **zero** matches — the desired negative result for
+every seam check — and `grep` would print `exit=2` only for a missing file. None
+of the `exit=1`/`exit=2` values is a gate failure; they are the expected outputs
+of negative controls.

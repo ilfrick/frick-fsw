@@ -2,9 +2,9 @@
 
 | Document id | FRICK-ARCH-0006 |
 | ----------- | --------------- |
-| Revision    | 0.3 |
-| Date        | 2026-10-10 |
-| Requirements | SSS-REQ-007, SSS-REQ-016, SRS-REQ-010, SRS-REQ-021..024 |
+| Revision    | 0.5 |
+| Date        | 2026-11-04 |
+| Requirements | SSS-REQ-007, SSS-REQ-016, SRS-REQ-010, SRS-REQ-021..024, NC-EXT-235 |
 
 This document describes how frick-fsw keeps time, how the on-board time is
 encoded on the wire (CUC), and how the time base is disciplined by a
@@ -32,6 +32,21 @@ Implementation:
   offset so that UTC equals the requested value at that instant.
 - `src/core/pal/pal_rtems.c` — on RTEMS 6 the same POSIX surface is used; the
   monotonic clock is the RTEMS clock.
+- **Compile-time test-guarded frozen UTC seam (NC-EXT-235)** — when `FF_TEST_HOOKS` is defined
+  (host builds with `FF_BUILD_TESTS=ON` and `FF_PLATFORM` not RTEMS), the PAL
+  provides `FF_PalTimeTestFreeze(utc_ns)` and `FF_PalTimeTestUnfreeze()`. While
+  frozen, `FF_PalGetUtcNs` returns the last frozen value and does not consult the
+  monotonic clock; `FF_PalSetUtcNs` updates the frozen value without writing the
+  offset. The seam is **absent from flight/RTEMS builds** (the `FF_TEST_HOOKS`
+  macro is not defined there). Because `FF_BUILD_TESTS` defaults to `ON`, the
+  default host simulator executable also carries the dormant symbol; "test-only"
+  therefore means "guarded by the test build option", not "excluded from every
+  non-RTEMS binary". It exists solely to make the exact coarse/fine
+  CUC due-boundary assertions in `tests/unit/test_pus.c` and the seam-behaviour
+  checks in `tests/unit/test_frozen_utc_seam.c` deterministic, removing
+  the nondeterminism caused by the 15.2588 us fine-field quantization of a
+  free-running host UTC between the enable read (which latches `last_emission`)
+  and the later due read.
 - `src/core/time/time.c` — mission-level API above the PAL: time-source
   selection, tone discipline, leap scheduling, CUC framing (M2).
   `FF_TimeInit` correlates UTC with the mission epoch (Unix epoch 0 in the
@@ -248,3 +263,5 @@ Tunable in `config/fsw_config.h`:
 | 0.1 | 2026-10-10 | frick-fsw | Initial time/timecode/PPS note (norm N8) |
 | 0.2 | 2026-10-10 | frick-fsw | Milestone M2: time-source selection, tone discipline, leap-at-boundary, CUC P-field/T-field framing, PPS backend vtable |
 | 0.3 | 2026-10-10 | frick-fsw | Review closure: source-switch semantics, first-tone +1 s convention, CUC two exchange forms (explicit 7-octet vs PUS 6-octet T-field), leap no-tone clause, atomics, edge-qualification disposition |
+| 0.4 | 2026-11-03 | frick-fsw | NC-EXT-235 gate-failure correction: document host-test-only frozen UTC seam under `FF_TEST_HOOKS` in `pal_posix.c`; this test-only path does not exist in flight/RTEMS builds and does not alter the unconditional formula `FF_PalGetUtcNs = monotonic + g_utc_offset_ns` for production code. No production time behaviour changed. |
+| 0.5 | 2026-11-04 | frick-fsw | Scope wording corrected after FRICK-REVIEW-0452 F-11 / FRICK-REVIEW-0453 PA-O-01: the seam is **compile-time guarded**, and because `FF_BUILD_TESTS` defaults to `ON` the default host simulator binary also carries the dormant symbols; "test-only" does not mean exclusion from every non-RTEMS binary. Document that `test_frozen_utc_seam.c` is also a caller. No production timing behaviour changed. |

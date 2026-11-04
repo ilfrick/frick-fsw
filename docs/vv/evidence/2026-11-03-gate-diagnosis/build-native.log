@@ -1,0 +1,156 @@
+[  0%] Building C object tests/CMakeFiles/test_link_uart.dir/unit/test_link_uart.c.o
+[  0%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/BasicTypes.c.o
+[  0%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt.c.o
+[ 21%] Built target frick_lwip
+[ 22%] Built target frick_net_lwip
+[ 22%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding.c.o
+[ 22%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding_acn.c.o
+[ 24%] Linking C executable test_link_uart
+[ 24%] Linking C static library libfrick_pus_asn1.a
+[ 24%] Built target test_link_uart
+[ 25%] Built target frick_pus_asn1
+[ 25%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_posix.c.o
+[ 25%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/sb/sb.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_watchdog.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_rtems.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/evs/evs.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/es/es.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/tbl/tbl.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/time/time.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/time/pps.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/bsp/mpfs/board.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_loopback.c.o
+[ 26%] Building C object CMakeFiles/frick_fsw_core.dir/src/transport/link/link_tsn.c.o
+[ 28%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.o
+[ 29%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_tm_output.c.o
+[ 29%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_scheduler.c.o
+[ 29%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hk.c.o
+[ 29%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_hs.c.o
+[ 29%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_wd.c.o
+[ 30%] Building C object CMakeFiles/frick_fsw_core.dir/src/apps/app_sample.c.o
+[ 30%] Building C object CMakeFiles/frick_fsw_core.dir/src/obcp/ff_obcp.c.o
+[ 30%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_n7.c.o
+[ 32%] Linking C static library libfrick_fsw_core.a
+[ 74%] Built target frick_fsw_core
+[ 74%] Building C object CMakeFiles/frick_fsw.dir/src/main/fsw_main.c.o
+[ 76%] Linking C executable test_ccsds
+[ 76%] Building C object tests/CMakeFiles/test_sb.dir/unit/test_sb.c.o
+[ 76%] Building C object tests/CMakeFiles/test_sb_stress.dir/unit/test_sb_stress.c.o
+[ 76%] Linking C executable frick_fsw
+[ 76%] Linking C executable test_sb_stress
+[ 76%] Built target test_ccsds
+[ 76%] Built target frick_fsw
+[ 76%] Built target test_sb_stress
+[ 76%] Building C object tests/CMakeFiles/test_tbl.dir/unit/test_tbl.c.o
+[ 76%] Building C object tests/CMakeFiles/test_sb_sweep.dir/unit/test_sb_sweep.c.o
+[ 77%] Linking C executable test_sb
+[ 78%] Building C object tests/CMakeFiles/test_sched.dir/unit/test_sched.c.o
+[ 80%] Linking C executable test_tbl
+[ 80%] Built target test_sb
+[ 80%] Linking C executable test_sb_sweep
+[ 80%] Building C object tests/CMakeFiles/test_sched_stats.dir/unit/test_sched_stats.c.o
+[ 80%] Built target test_tbl
+[ 80%] Built target test_sb_sweep
+[ 80%] Linking C executable test_sched
+[ 80%] Building C object tests/CMakeFiles/test_sched_max_entries.dir/unit/test_sched_max_entries.c.o
+[ 81%] Building C object tests/CMakeFiles/test_pus.dir/unit/test_pus.c.o
+[ 81%] Linking C executable test_sched_stats
+[ 81%] Built target test_sched
+[ 81%] Linking C executable test_sched_max_entries
+[ 81%] Built target test_sched_stats
+[ 81%] Building C object tests/CMakeFiles/test_time.dir/unit/test_time.c.o
+[ 81%] Built target test_sched_max_entries
+[ 82%] Building C object tests/CMakeFiles/test_r2_gap.dir/unit/test_r2_gap.c.o
+[ 82%] Linking C executable test_pus
+[ 82%] Building C object tests/CMakeFiles/test_r3_gap.dir/unit/test_r3_gap.c.o
+[ 82%] Linking C executable test_time
+[ 82%] Built target test_pus
+[ 82%] Building C object tests/CMakeFiles/test_es_hs_lifecycle.dir/unit/test_es_hs_lifecycle.c.o
+[ 82%] Built target test_time
+[ 82%] Linking C executable test_r3_gap
+[ 82%] Building C object tests/CMakeFiles/test_pal_watchdog.dir/unit/test_pal_watchdog.c.o
+[ 82%] Linking C executable test_es_hs_lifecycle
+[ 82%] Built target test_r3_gap
+[ 82%] Building C object tests/CMakeFiles/test_wd_host_contract.dir/unit/test_wd_host_contract.c.o
+[ 82%] Built target test_es_hs_lifecycle
+[ 84%] Linking C executable test_wd_host_contract
+[ 84%] Linking C executable test_r2_gap
+[ 84%] Linking C executable test_pal_watchdog
+[ 85%] Linking C executable test_extwd_model
+[ 85%] Built target test_wd_host_contract
+[ 85%] Built target test_pal_watchdog
+[ 85%] Built target test_extwd_model
+[ 85%] Built target test_r2_gap
+[ 85%] Building C object tests/CMakeFiles/test_decoder_corpus.dir/unit/test_decoder_corpus.c.o
+[ 85%] Building C object tests/CMakeFiles/test_extwd_middleware.dir/unit/test_extwd_middleware.c.o
+[ 85%] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[ 85%] Building C object tests/CMakeFiles/test_pus_s11_residual.dir/unit/test_pus_s11_residual.c.o
+[ 85%] Linking C executable test_pus_fu
+[ 85%] Linking C executable test_decoder_corpus
+[ 85%] Linking C executable test_extwd_middleware
+[ 85%] Built target test_pus_fu
+[ 85%] Built target test_decoder_corpus
+[ 86%] Built target test_extwd_middleware
+[ 86%] Linking C executable test_pus_s11_residual
+[ 86%] Building C object tests/CMakeFiles/test_obcp_integration.dir/unit/test_obcp_integration.c.o
+[ 86%] Building C object tests/CMakeFiles/test_pus_n7_adapter.dir/unit/test_pus_n7_adapter.c.o
+[ 86%] Linking C executable test_pusopen
+[ 86%] Built target test_pus_s11_residual
+[ 88%] Linking C executable test_obcp_integration
+[ 89%] Linking C executable test_pus_n7_adapter
+[ 89%] Built target test_pusopen
+[ 89%] Linking C executable test_hal
+[ 89%] Built target test_pus_n7_adapter
+[ 89%] Linking C executable test_math
+[ 89%] Built target test_hal
+[ 89%] Linking C executable test_sdls
+[ 89%] Built target test_obcp_integration
+[ 90%] Built target test_math
+[ 92%] Built target test_sdls
+[ 92%] Linking C executable test_gem
+[ 92%] Linking C executable test_gem_tsn
+[ 92%] Linking C executable test_netloop
+[ 93%] Linking C executable test_gptp
+[ 93%] Built target test_gem
+[ 94%] Built target test_netloop
+[ 96%] Built target test_gem_tsn
+[ 96%] Linking C executable test_gpio
+[ 96%] Built target test_gptp
+[ 96%] Linking C executable test_mem
+[ 96%] Linking C executable test_serial
+[ 96%] Built target test_gpio
+[ 96%] Linking C executable test_nvm
+[ 96%] Built target test_mem
+[ 96%] Built target test_serial
+[ 96%] Linking C executable test_mtd
+[ 96%] Built target test_nvm
+[ 96%] Linking C executable test_i2c
+[ 96%] Linking C executable test_can
+[ 96%] Built target test_mtd
+[ 96%] Linking C executable test_spi
+[ 96%] Built target test_i2c
+[ 96%] Built target test_can
+[ 96%] Built target test_spi
+[ 96%] Linking C executable test_fabric
+[ 96%] Linking C executable test_pcie
+[ 96%] Linking C executable test_block
+[ 96%] Linking C executable test_spacewire
+[ 96%] Built target test_block
+[ 96%] Built target test_pcie
+[ 96%] Built target test_fabric
+[ 96%] Linking C executable test_canfd
+[ 96%] Linking C executable test_canopen
+[ 97%] Built target test_spacewire
+[ 98%] Built target test_canfd
+[ 98%] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[ 98%] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[ 98%] Linking C executable test_lwip
+[ 98%] Built target test_canopen
+[ 98%] Built target test_lwip
+[ 98%] Linking C executable test_link_tsn
+[ 98%] Linking C executable test_lwip_netif
+[100%] Linking C executable test_link_ip
+[100%] Built target test_link_tsn
+[100%] Built target test_lwip_netif
+[100%] Built target test_link_ip
+BUILD_NATIVE_EXIT=0

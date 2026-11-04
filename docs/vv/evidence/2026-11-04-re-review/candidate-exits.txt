@@ -1,0 +1,21 @@
+# Aggregate gate exit codes for the 2026-11-04 re-review candidate.
+#
+# Authoritative build/test/format/smoke/cppcheck exits are from build/gate11 on
+# the final bytes; each value was written by the command that produced it and is
+# also present in the matching *-exit.txt file. Note: smoke is run with
+# BUILD_DIR=build/gate11-smoke (a separate directory) so it never rebuilds the
+# directory whose CTest/test-execution logs are retained (F-0458-02).
+# Gates that do not consume tests/ were not re-run (SEE README §3 for why); their
+# retained exit files are named.
+GATE11_CONFIGURE_EXIT=0        # gate11-configure-exit.txt
+GATE11_BUILD_EXIT=0            # gate11-build-exit.txt (402/402, 0 warnings)
+GATE11_CTEST_EXIT=0            # gate11-ctest-exit.txt (52/52)
+GATE11_NEW_TESTS_EXIT=0        # gate11-new-tests-exit.txt (4325/0 and 110/0)
+GATE11_FORMAT_EXIT=0           # gate11-format-check-exit.txt
+GATE11_SMOKE_EXIT=0            # gate11-smoke-exit.txt (separate build dir)
+GATE11_CPPCHECK_EXIT=0         # gate11-cppcheck-exit.txt (163 findings, advisory)
+LEAN_EXIT=0                    # verify-lean-exit.txt (not re-run: no Lean input changed)
+TRACE_EXIT=0                   # trace-exit.txt (not re-run: no requirement/test-id change)
+RTEMS_BUILD_EXIT=0             # rtems-build-exit.txt (ELF predates no production edit)
+RTEMS_SYMBOLS_EXIT=0           # rtems-symbols-exit.txt
+GSW_SELFCHECK_EXIT=0           # gsw-selfcheck-exit.txt (helpers unchanged since round two)

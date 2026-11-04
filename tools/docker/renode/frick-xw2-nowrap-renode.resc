@@ -1,0 +1,24 @@
+# frick-fsw - Renode run script for the XW-2 NO-WRAP expected-failure control
+# image. Same platform/boot mechanics as frick-xw2-renode.resc; it loads the
+# un-wrapped control executable, which must abort at watchdog init
+# (production PAL behaviour preserved by not linking the test substitution).
+# It is recorded by the runner as an EXPECTED FAILURE and is never a pass.
+#
+# Copyright (C) 2026 Ilfrick
+# SPDX-License-Identifier: MPL-2.0
+
+$program ?= @/workspace/build/xw2-renode/frick_fsw_xw2_nowrap
+
+mach create "frick-xw2-nowrap"
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
+sysbus.mmuart1 CreateFileBackend @/tmp/frick-xw2-nowrap-uart.log
+sysbus LoadELF $program
+e51 IsHalted true
+u54_2 IsHalted true
+u54_3 IsHalted true
+u54_4 IsHalted true
+u54_1 PC 0x1000000000
+start
+# The panic/fatal happens early; a bounded 15 s window is ample, then quit.
+sleep 15
+quit

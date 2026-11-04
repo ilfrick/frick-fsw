@@ -1,0 +1,8 @@
+Test project /home/nicola/fsw/frick-fsw/build/gate5
+CMake Error: Cannot open file for write: /home/nicola/fsw/frick-fsw/build/gate5/Testing/Temporary/LastTest.log.tmp19a69
+CMake Error: : System Error: Permission denied
+Problem opening file: /home/nicola/fsw/frick-fsw/build/gate5/Testing/Temporary/LastTest.log
+Cannot create log file: LastTest.log
+Errors while running CTest
+Output from these tests are in: /home/nicola/fsw/frick-fsw/build/gate5/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

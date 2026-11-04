@@ -1,0 +1,43 @@
+tests/unit/test_pus_mutation.c: In function ‘test_time_period_due_boundary’:
+tests/unit/test_pus_mutation.c:53:5: error: implicit declaration of function ‘hk_test_setup’ [-Werror=implicit-function-declaration]
+   53 |     hk_test_setup();
+      |     ^~~~~~~~~~~~~
+tests/unit/test_pus_mutation.c:56:7: error: implicit declaration of function ‘hk_send_tc’ [-Werror=implicit-function-declaration]
+   56 |       hk_send_tc(1u, payload, 6u); }
+      |       ^~~~~~~~~~
+tests/unit/test_pus_mutation.c: At top level:
+tests/unit/test_pus_mutation.c:185:20: error: redefinition of ‘dummy_hk_provider’
+  185 | static FF_Status_t dummy_hk_provider(uint8_t id, uint8_t *out, uint16_t *len)
+      |                    ^~~~~~~~~~~~~~~~~
+tests/unit/test_pus_mutation.c:36:20: note: previous definition of ‘dummy_hk_provider’ with type ‘FF_Status_t(uint8_t,  uint8_t *, uint16_t *)’ {aka ‘int(unsigned char,  unsigned char *, short unsigned int *)’}
+   36 | static FF_Status_t dummy_hk_provider(uint8_t id, uint8_t *out, uint16_t *len)
+      |                    ^~~~~~~~~~~~~~~~~
+tests/unit/test_pus_mutation.c:200:13: error: conflicting types for ‘hk_send_tc’; have ‘void(uint8_t,  const uint8_t *, uint16_t)’ {aka ‘void(unsigned char,  const unsigned char *, short unsigned int)’} [-Werror]
+  200 | static void hk_send_tc(uint8_t subservice, const uint8_t *payload, uint16_t payload_len)
+      |             ^~~~~~~~~~
+tests/unit/test_pus_mutation.c:200:13: error: static declaration of ‘hk_send_tc’ follows non-static declaration
+tests/unit/test_pus_mutation.c:56:7: note: previous implicit declaration of ‘hk_send_tc’ with type ‘void(uint8_t,  const uint8_t *, uint16_t)’ {aka ‘void(unsigned char,  const unsigned char *, short unsigned int)’}
+   56 |       hk_send_tc(1u, payload, 6u); }
+      |       ^~~~~~~~~~
+tests/unit/test_pus_mutation.c:214:13: error: conflicting types for ‘hk_test_setup’; have ‘void(void)’ [-Werror]
+  214 | static void hk_test_setup(void)
+      |             ^~~~~~~~~~~~~
+tests/unit/test_pus_mutation.c:214:13: error: static declaration of ‘hk_test_setup’ follows non-static declaration
+tests/unit/test_pus_mutation.c:53:5: note: previous implicit declaration of ‘hk_test_setup’ with type ‘void(void)’
+   53 |     hk_test_setup();
+      |     ^~~~~~~~~~~~~
+In file included from tests/unit/test_pus_mutation.c:11:
+tests/unit/../ff_test.h:34:9: error: redefinition of ‘main’
+   34 |     int main(void)                                                                                 \
+      |         ^~~~
+tests/unit/test_pus_mutation.c:221:1: note: in expansion of macro ‘FF_TEST_MAIN’
+  221 | FF_TEST_MAIN(test_time_period_due_boundary, test_ccsds_encode_decode_mutation_roundtrip,
+      | ^~~~~~~~~~~~
+tests/unit/../ff_test.h:34:9: note: previous definition of ‘main’ with type ‘int(void)’
+   34 |     int main(void)                                                                                 \
+      |         ^~~~
+tests/unit/test_pus_mutation.c:196:1: note: in expansion of macro ‘FF_TEST_MAIN’
+  196 | FF_TEST_MAIN(test_time_period_due_boundary, test_ccsds_encode_decode_mutation_roundtrip,
+      | ^~~~~~~~~~~~
+cc1: all warnings being treated as errors
+SYNTAX_EXIT=1

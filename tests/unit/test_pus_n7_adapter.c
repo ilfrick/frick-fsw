@@ -155,8 +155,8 @@ static void test_n7_tm_encode_zero_payload(void)
     hdr.time_fine = 0x8000u;
 
     /* Zero-length payload: data == NULL, data_len == 0 is a valid edge case. */
-    FF_TEST_ASSERT(FF_PusBackendN7.encode_tm(&hdr, NULL, 0u, frame, sizeof(frame),
-                                             &frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusBackendN7.encode_tm(&hdr, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
     FF_TEST_ASSERT(frame_len >= 2u);
     FF_TEST_ASSERT(FF_CcsdsDecodeTm(frame, frame_len, &decoded_apid, &decoded_hdr, &decoded_data,
                                     &decoded_len) == FF_SUCCESS);
@@ -166,4 +166,5 @@ static void test_n7_tm_encode_zero_payload(void)
     FF_TEST_ASSERT(decoded_data != NULL || decoded_len == 0u);
 }
 
-FF_TEST_MAIN(test_n7_tc_decode_with_generated_crc, test_n7_tm_uses_generated_crc, test_n7_tm_encode_zero_payload)
+FF_TEST_MAIN(test_n7_tc_decode_with_generated_crc, test_n7_tm_uses_generated_crc,
+             test_n7_tm_encode_zero_payload)

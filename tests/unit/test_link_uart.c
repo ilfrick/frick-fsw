@@ -236,14 +236,19 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
     write_all(&frame_a[4], sizeof(frame_a) - 4u);
     write_all(frame_b, sizeof(frame_b));
 
+    /* Positive receive paths use a generous wall-clock bound (2 s), not 20 ms:
+     * the PTY read is scheduled by the host kernel, so tight bounds made this
+     * test timing-sensitive under loaded CI (observed 2026-11-03 gate
+     * failure). The assertions still fail on a hang; they test framing
+     * semantics, not latency. The 2 ms negative cases below are unchanged. */
     /* A too-small caller buffer does not consume the complete packet. */
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, 12u, &len, 20u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, 12u, &len, 2000u) == FF_BAD_SIZE);
     FF_TEST_ASSERT(len == 0u);
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 20u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_SUCCESS);
     FF_TEST_ASSERT(len == sizeof(frame_a));
     FF_TEST_ASSERT(memcmp(rx, frame_a, sizeof(frame_a)) == 0);
 
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 20u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_SUCCESS);
     FF_TEST_ASSERT(len == sizeof(frame_b));
     FF_TEST_ASSERT(memcmp(rx, frame_b, sizeof(frame_b)) == 0);
 
@@ -251,13 +256,13 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
      * packet is recovered without writing beyond the bounded receive buffer. */
     write_all(malformed, sizeof(malformed));
     write_all(frame_c, sizeof(frame_c));
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 20u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_SUCCESS);
     FF_TEST_ASSERT(len == sizeof(frame_c));
     FF_TEST_ASSERT(memcmp(rx, frame_c, sizeof(frame_c)) == 0);
 
     make_max_frame(max_frame);
     write_all(max_frame, sizeof(max_frame));
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 20u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_SUCCESS);
     FF_TEST_ASSERT(len == FF_CCSDS_MAX_TC_PACKET);
     FF_TEST_ASSERT(memcmp(rx, max_frame, sizeof(max_frame)) == 0);
 
@@ -286,7 +291,7 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
            sizeof(plausible_packet) - sizeof(plausible_max) - sizeof(frame_c));
     write_all(&plausible_packet[sizeof(plausible_max) + sizeof(frame_c)],
               sizeof(plausible_packet) - sizeof(plausible_max) - sizeof(frame_c));
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 20u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_SUCCESS);
     FF_TEST_ASSERT(len == FF_CCSDS_MAX_TC_PACKET);
     FF_TEST_ASSERT(memcmp(rx, plausible_packet, sizeof(plausible_packet)) == 0);
 
@@ -374,10 +379,8 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
         const uint8_t tx[] = {0xA5u, 0x5Au, 0x01u};
         struct timespec now;
         FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
-        uint64_t deadline_past =
-            (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec;
-        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline_past) ==
-                       FF_TIMEOUT);
+        uint64_t deadline_past = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec;
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline_past) == FF_TIMEOUT);
     }
     /* send_until with deadline = 0 must return FF_TIMEOUT immediately. */
     {
@@ -406,7 +409,7 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
             (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec + 50000000ULL;
         FF_TEST_ASSERT(FF_LinkUartBackend.send_until(&tx, 1u, deadline) == FF_ERROR);
     }
-    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 500u) == FF_ERROR);
+    FF_TEST_ASSERT(FF_LinkUartBackend.recv(rx, sizeof(rx), &len, 2000u) == FF_ERROR);
     FF_TEST_ASSERT(len == 0u);
     (void)unlink(g_uart_test_device);
     (void)rmdir(g_uart_temp_dir);

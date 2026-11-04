@@ -1,0 +1,112 @@
+[  0%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/BasicTypes.c.o
+[  1%] Built target test_link_uart
+[  1%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt.c.o
+[  1%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding.c.o
+[  1%] Building C object CMakeFiles/frick_pus_asn1.dir/third_party/asn1-pusc-lib-generated/common/asn1crt_encoding_acn.c.o
+[ 22%] Built target frick_lwip
+[ 24%] Built target frick_net_lwip
+[ 24%] Linking C static library libfrick_pus_asn1.a
+[ 25%] Built target frick_pus_asn1
+[ 25%] Building C object CMakeFiles/frick_fsw_core.dir/src/core/pal/pal_posix.c.o
+[ 25%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/adapters/pus_adapter_n7.c.o
+[ 26%] Linking C static library libfrick_fsw_core.a
+[ 74%] Built target frick_fsw_core
+[ 76%] Linking C executable test_ccsds
+[ 76%] Linking C executable test_sb_stress
+[ 77%] Linking C executable test_sb
+[ 77%] Linking C executable frick_fsw
+[ 77%] Built target test_sb_stress
+[ 77%] Built target test_ccsds
+[ 77%] Built target frick_fsw
+[ 77%] Built target test_sb
+[ 77%] Linking C executable test_sb_sweep
+[ 78%] Linking C executable test_tbl
+[ 78%] Linking C executable test_sched
+[ 78%] Linking C executable test_sched_stats
+[ 78%] Built target test_sb_sweep
+[ 80%] Built target test_sched
+[ 80%] Built target test_tbl
+[ 80%] Built target test_sched_stats
+[ 80%] Linking C executable test_sched_max_entries
+[ 80%] Linking C executable test_pus
+[ 80%] Linking C executable test_time
+[ 80%] Linking C executable test_r2_gap
+[ 80%] Built target test_sched_max_entries
+[ 80%] Built target test_time
+[ 81%] Built target test_pus
+[ 81%] Linking C executable test_r3_gap
+[ 81%] Linking C executable test_es_hs_lifecycle
+[ 82%] Built target test_r2_gap
+[ 82%] Linking C executable test_pal_watchdog
+[ 84%] Linking C executable test_wd_host_contract
+[ 84%] Built target test_pal_watchdog
+[ 84%] Built target test_es_hs_lifecycle
+[ 84%] Built target test_r3_gap
+[ 84%] Built target test_wd_host_contract
+[ 84%] Linking C executable test_decoder_corpus
+[ 85%] Linking C executable test_extwd_model
+[ 85%] Linking C executable test_extwd_middleware
+[ 85%] Built target test_decoder_corpus
+[ 85%] Linking C executable test_pus_fu
+[ 85%] Built target test_extwd_model
+[ 86%] Built target test_extwd_middleware
+[ 86%] Linking C executable test_pus_s11_residual
+[ 88%] Linking C executable test_obcp_integration
+[ 89%] Linking C executable test_pus_n7_adapter
+[ 89%] Built target test_pus_fu
+[ 89%] Built target test_pus_s11_residual
+[ 89%] Built target test_pus_n7_adapter
+[ 89%] Built target test_obcp_integration
+[ 89%] Linking C executable test_pusopen
+[ 89%] Linking C executable test_hal
+[ 89%] Linking C executable test_sdls
+[ 89%] Linking C executable test_math
+[ 89%] Built target test_hal
+[ 89%] Built target test_pusopen
+[ 90%] Built target test_sdls
+[ 92%] Built target test_math
+[ 92%] Linking C executable test_gem
+[ 92%] Linking C executable test_gem_tsn
+[ 93%] Linking C executable test_gptp
+[ 93%] Linking C executable test_netloop
+[ 93%] Built target test_gem
+[ 94%] Built target test_gem_tsn
+[ 96%] Built target test_netloop
+[ 96%] Built target test_gptp
+[ 96%] Linking C executable test_gpio
+[ 96%] Linking C executable test_serial
+[ 96%] Linking C executable test_mem
+[ 96%] Linking C executable test_nvm
+[ 96%] Built target test_serial
+[ 96%] Built target test_gpio
+[ 96%] Linking C executable test_mtd
+[ 96%] Built target test_mem
+[ 96%] Built target test_nvm
+[ 96%] Linking C executable test_i2c
+[ 96%] Linking C executable test_can
+[ 96%] Built target test_mtd
+[ 96%] Linking C executable test_spi
+[ 96%] Built target test_i2c
+[ 96%] Built target test_can
+[ 96%] Linking C executable test_block
+[ 96%] Built target test_spi
+[ 96%] Linking C executable test_pcie
+[ 96%] Built target test_block
+[ 96%] Linking C executable test_fabric
+[ 96%] Built target test_pcie
+[ 96%] Linking C executable test_spacewire
+[ 96%] Linking C executable test_canfd
+[ 96%] Built target test_fabric
+[ 97%] Built target test_canfd
+[ 97%] Linking C executable test_canopen
+[ 98%] Built target test_spacewire
+[100%] Linking C executable test_link_ip
+[100%] Linking C executable test_lwip
+[100%] Linking C executable test_link_tsn
+[100%] Built target test_canopen
+[100%] Built target test_link_ip
+[100%] Linking C executable test_lwip_netif
+[100%] Built target test_link_tsn
+[100%] Built target test_lwip
+[100%] Built target test_lwip_netif
+BUILD_NATIVE_EXIT=0

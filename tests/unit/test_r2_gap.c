@@ -1141,13 +1141,15 @@ static void test_pal_queue(void)
 #include <pthread.h>
 #include <errno.h>
 
-extern int __real_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
+extern int __real_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
+                                         const struct timespec *abstime);
 extern int __real_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 
 static int g_cond_fault_mode;
 static unsigned g_cond_fault_count;
 
-int __wrap_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime)
+int __wrap_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
+                                  const struct timespec *abstime)
 {
     if (g_cond_fault_mode != 0) {
         g_cond_fault_count++;
@@ -1193,7 +1195,8 @@ static void test_pal_queue_cond_error(void)
     /* Test FF_PalQueuePut with pthread_cond_timedwait returning EINVAL */
     g_cond_fault_mode = 1;
     g_cond_fault_count = 0u;
-    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, 10u) == FF_ERROR); /* non-timeout error -> FF_ERROR */
+    FF_TEST_ASSERT(FF_PalQueuePut(id, &in_value, 10u) ==
+                   FF_ERROR); /* non-timeout error -> FF_ERROR */
     FF_TEST_ASSERT(g_cond_fault_count == 1u);
 
     /* Empty the queue so subsequent Get will block on not_empty */

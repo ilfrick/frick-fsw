@@ -144,8 +144,8 @@ static void test_pusopen_encode_zero_payload(void)
 
     reset_stub();
     g_encode_written = 0u;
-    FF_TEST_ASSERT(FF_PusBackendPusopen.encode_tm(&hdr, NULL, 0u, out, sizeof(out),
-                                                  &out_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusBackendPusopen.encode_tm(&hdr, NULL, 0u, out, sizeof(out), &out_len) ==
+                   FF_SUCCESS);
     FF_TEST_ASSERT(out_len == 0u);
     FF_TEST_ASSERT(g_encode_packet.service == hdr.service);
     FF_TEST_ASSERT(g_encode_packet.subservice == hdr.subservice);
@@ -217,4 +217,5 @@ static void test_pusopen_decode(void)
                                                   &data_len) == FF_BAD_SIZE);
 }
 
-FF_TEST_MAIN(test_pusopen_init, test_pusopen_encode, test_pusopen_decode, test_pusopen_encode_zero_payload)
+FF_TEST_MAIN(test_pusopen_init, test_pusopen_encode, test_pusopen_decode,
+             test_pusopen_encode_zero_payload)

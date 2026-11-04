@@ -501,12 +501,43 @@ uint64_t FF_PalGetMonotonicNs(void)
 {
     return ff_now_ns();
 }
+#ifdef FF_TEST_HOOKS
+/* Frozen-UTC seam (host tests only): see the pal.h contract. */
+static int g_utc_test_frozen = 0;
+static uint64_t g_utc_test_frozen_ns = 0u;
+
+/* Called from the unit tests (tests/unit/test_pus.c and
+ * tests/unit/test_frozen_utc_seam.c), not from the src tree scanned by the
+ * advisory inventory. */
+// cppcheck-suppress unusedFunction
+void FF_PalTimeTestFreeze(uint64_t utc_ns)
+{
+    g_utc_test_frozen_ns = utc_ns;
+    g_utc_test_frozen = 1;
+}
+// cppcheck-suppress unusedFunction
+void FF_PalTimeTestUnfreeze(void)
+{
+    g_utc_test_frozen = 0;
+}
+#endif
 uint64_t FF_PalGetUtcNs(void)
 {
+#ifdef FF_TEST_HOOKS
+    if (g_utc_test_frozen) {
+        return g_utc_test_frozen_ns;
+    }
+#endif
     return (uint64_t)((int64_t)ff_now_ns() + g_utc_offset_ns);
 }
 FF_Status_t FF_PalSetUtcNs(uint64_t utc_ns)
 {
+#ifdef FF_TEST_HOOKS
+    if (g_utc_test_frozen) {
+        g_utc_test_frozen_ns = utc_ns;
+        return FF_SUCCESS;
+    }
+#endif
     g_utc_offset_ns = (int64_t)utc_ns - (int64_t)ff_now_ns();
     return FF_SUCCESS;
 }

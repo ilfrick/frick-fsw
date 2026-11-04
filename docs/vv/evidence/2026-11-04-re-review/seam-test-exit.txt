@@ -1,0 +1,1 @@
+SEAM_TEST_EXIT=0

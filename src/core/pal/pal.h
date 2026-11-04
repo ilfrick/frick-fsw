@@ -73,6 +73,18 @@ uint64_t FF_PalGetMonotonicNs(void);
 uint64_t FF_PalGetUtcNs(void);
 FF_Status_t FF_PalSetUtcNs(uint64_t utc_ns);
 uint32_t FF_PalGetCpuLoadPpt(void);
+#ifdef FF_TEST_HOOKS
+/* Host-test-only frozen UTC seam (absent from flight builds). The host PAL
+ * derives UTC from a free-running monotonic clock, so a UTC instant written by
+ * FF_PalSetUtcNs starts advancing immediately; the fine field then quantizes
+ * real scheduling delay into units of ~15.26 us. Tests that pin the exact
+ * (coarse, fine) due boundary (SRS-REQ-071/NC-EXT-207) need the synthetic
+ * instant to be stable, otherwise the test itself is timing-sensitive. While
+ * frozen, FF_PalGetUtcNs returns the last value written through
+ * FF_PalSetUtcNs and the monotonic clock is not consulted. */
+void FF_PalTimeTestFreeze(uint64_t utc_ns);
+void FF_PalTimeTestUnfreeze(void);
+#endif
 
 /* ---- Hardware watchdog (FDIR reset recovery) ---------------------
  * ECSS-E-ST-70-11 5.7.5.2: the recovery action that overcomes an on-board

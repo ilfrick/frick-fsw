@@ -1,0 +1,51 @@
+{
+  "source": "OpenCode session_message read-only",
+  "session": "ses_e76ea5f28ffeEc1Atsuw4DeZTs",
+  "warning": "Pipelines use tail; tool exit is pipeline status, not make status. Outputs are truncated excerpts, not full logs.",
+  "records": [
+    {
+      "sequence": 17293,
+      "command": "cd /home/nicola/fsw/frick-fsw && make ci-local 2>&1 | tail -10",
+      "tool_exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "  SSS-REQ-023              <-  1 srs children\n  SSS-REQ-024              <-  1 srs children\n  SSS-REQ-025              <-  1 srs children\n  SSS-REQ-026              <-  1 srs children\n  SSS-REQ-027              <-  1 srs children\n  SSS-REQ-028              <-  3 srs children\n  SSS-REQ-029              <-  4 srs children\n  SSS-REQ-030              <-  1 srs children\n\ntraceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)\n"
+        }
+      ]
+    },
+    {
+      "sequence": 17401,
+      "command": "cd /home/nicola/fsw/frick-fsw && make ci-local 2>&1 | tail -10",
+      "tool_exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "vv                    =   0.15 sec*proc (1 test)\nwatchdog              =   0.04 sec*proc (4 tests)\nxw1                   =   0.02 sec*proc (2 tests)\n\nTotal Test time (real) =  31.20 sec\n\nThe following tests FAILED:\n\t 24 - link_uart (Failed)\nErrors while running CTest\nmake: *** [Makefile:110: ci-local] Errore 8\n"
+        }
+      ]
+    },
+    {
+      "sequence": 17419,
+      "command": "cd /home/nicola/fsw/frick-fsw && make test 2>&1 | tail -15",
+      "tool_exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "link                  =   0.36 sec*proc (1 test)\nmax-entries           =   0.00 sec*proc (1 test)\nn22                   =   0.59 sec*proc (7 tests)\nrenode                =   0.21 sec*proc (1 test)\ns8-sch                =   0.00 sec*proc (1 test)\ns8-vv-fu              =   0.35 sec*proc (2 tests)\nsb-evs                =  37.32 sec*proc (1 test)\ntool-qualification    =  37.32 sec*proc (1 test)\ntooling               =   0.21 sec*proc (1 test)\nuart                  =   0.36 sec*proc (1 test)\nvv                    =   0.21 sec*proc (1 test)\nwatchdog              =   0.05 sec*proc (4 tests)\nxw1                   =   0.01 sec*proc (2 tests)\n\nTotal Test time (real) =  38.58 sec\n"
+        }
+      ]
+    },
+    {
+      "sequence": 17428,
+      "command": "cd /home/nicola/fsw/frick-fsw && make ci-local 2>&1 | tail -15",
+      "tool_exit": 0,
+      "output": [
+        {
+          "type": "text",
+          "text": "  SSS-REQ-018              <-  1 srs children\n  SSS-REQ-019              <-  2 srs children\n  SSS-REQ-020              <- 15 srs children\n  SSS-REQ-021              <-  2 srs children\n  SSS-REQ-022              <-  1 srs children\n  SSS-REQ-023              <-  1 srs children\n  SSS-REQ-024              <-  1 srs children\n  SSS-REQ-025              <-  1 srs children\n  SSS-REQ-026              <-  1 srs children\n  SSS-REQ-027              <-  1 srs children\n  SSS-REQ-028              <-  3 srs children\n  SSS-REQ-029              <-  4 srs children\n  SSS-REQ-030              <-  1 srs children\n\ntraceability: PASS  (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems checked)\n"
+        }
+      ]
+    }
+  ]
+}

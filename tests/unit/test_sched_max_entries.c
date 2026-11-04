@@ -248,11 +248,11 @@ static void test_scheduler_max_entries_multi_poll(void)
     FF_SchedStats_t st;
     FF_SchedGetStats(&st);
     FF_TEST_ASSERT(st.dispatched == 2u * FF_SCHED_MAX_ENTRIES); /* 8+8+16 = 32 = 2*16 */
-    FF_TEST_ASSERT(st.missed == FF_SCHED_MAX_ENTRIES); /* one missed slot per entry */
-    FF_TEST_ASSERT(st.late_polls == FF_SCHED_MAX_ENTRIES); /* one late poll per entry */
+    FF_TEST_ASSERT(st.missed == FF_SCHED_MAX_ENTRIES);          /* one missed slot per entry */
+    FF_TEST_ASSERT(st.late_polls == FF_SCHED_MAX_ENTRIES);      /* one late poll per entry */
 }
 
-FF_TEST_MAIN(test_scheduler_max_entries, test_scheduler_max_entries_activation_reject, test_scheduler_max_entries_partial_poll,
-             test_scheduler_max_entries_duplicate_msgid, test_scheduler_max_entries_zero_period,
-             test_scheduler_max_entries_payload_too_large, test_scheduler_max_entries_poll_before_init,
-             test_scheduler_max_entries_multi_poll)
+FF_TEST_MAIN(test_scheduler_max_entries, test_scheduler_max_entries_activation_reject,
+             test_scheduler_max_entries_partial_poll, test_scheduler_max_entries_duplicate_msgid,
+             test_scheduler_max_entries_zero_period, test_scheduler_max_entries_payload_too_large,
+             test_scheduler_max_entries_poll_before_init, test_scheduler_max_entries_multi_poll)
