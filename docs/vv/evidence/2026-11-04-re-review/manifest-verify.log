@@ -39,6 +39,9 @@ docs/reviews/FRICK-REVIEW-0459-PA-20261104-CONFIRM.md: OK
 docs/reviews/FRICK-REVIEW-0460-VV-20261104-CONFIRM.md: OK
 docs/reviews/FRICK-REVIEW-0461-PA-20261104-CONFIRM.md: OK
 docs/reviews/FRICK-REVIEW-0462-PA-20261104-RECONCILE.md: OK
+docs/reviews/FRICK-REVIEW-0463-PA-20261104-DELTA.md: OK
+docs/reviews/FRICK-REVIEW-0464-VV-20261104-DELTA.md: OK
+docs/reviews/FRICK-REVIEW-0464-PA-20261104-DELTA.md: OK
 src/main/fsw_main_reqtest.c: OK
 tests/unit/test_pus_n7_adapter.c: OK
 tests/unit/test_pusopen.c: OK

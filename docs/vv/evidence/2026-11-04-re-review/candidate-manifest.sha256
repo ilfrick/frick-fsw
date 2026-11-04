@@ -1,7 +1,7 @@
 01eea9de9abebce66cc24800be4a749caa3773bbe73d0a9c36728090a99a64b3  docs/architecture/time-and-timecode.md
 b24c2114d4ac8121bab9970709e83b5128d8fc9abd21bf5cb95706d88ca5130f  docs/planning/sprint-plan.md
 3ce90c43208380ac71deac43c4f939d126174c77626a4b86cb2348f88679e107  docs/requirements/traceability.yaml
-cf0c20880c7f953dac30a45079510cb18fc7046e9ec691c984edc3b6b9d91f24  docs/reviews/README.md
+efe0d8d8bc1e0c7b1b63bdb0246d86aced5cdc4a3da4636ae8dce3a5116b708e  docs/reviews/README.md
 c81d90b7fed259b575c18bacd17c740c8f428a4a4e28595779448140ca4b5fa6  docs/status/handover.md
 e34b6ba474663afbb3f9a2cf98a3f67c8056d3fc5f5712983764c77ed4620938  docs/vv/test-spec/ts-5-core-services.md
 70b3e95ae78dba08e1480982516961ba573b8310c2a656d5e86d363be346736e  docs/vv/tool-qualification.md
@@ -39,6 +39,9 @@ a11174d24a6cfb5faa2fff0cbbadc49b2936a4a35d183df92f4c32e18d06eca0  docs/reviews/F
 938209445d50cd484795d4f723edc1e773ae00c8cf8e92bb172062943d91762a  docs/reviews/FRICK-REVIEW-0460-VV-20261104-CONFIRM.md
 ae97a493660f53f5a19c2f7565157c910d1b1231e0f27902b7a3baa7c607ae18  docs/reviews/FRICK-REVIEW-0461-PA-20261104-CONFIRM.md
 9efbb12175fb405364c38c6fb2afd04657637955160b431bd06849212b39b032  docs/reviews/FRICK-REVIEW-0462-PA-20261104-RECONCILE.md
+8e8ae788e4addb6554967b92423ac5b0a67051703e9fdeae21f4e988f4743867  docs/reviews/FRICK-REVIEW-0463-PA-20261104-DELTA.md
+5547fafbce0b9f495c27a7ac9a8e0fefbbd3854a17bb48796a36265a45d8cde2  docs/reviews/FRICK-REVIEW-0464-VV-20261104-DELTA.md
+69f65f0cb2694b0f64c1569bd2d243d33f8664c07674b268fc2632e968808aff  docs/reviews/FRICK-REVIEW-0464-PA-20261104-DELTA.md
 21cfaa0efe8c500959f9d73437b428bda128461c72442c21c01168fd662b1277  src/main/fsw_main_reqtest.c
 e98ccc488b0e9f05d2b3bfefe2789e7ff742d138a4d07b9d2d619e01116f5e43  tests/unit/test_pus_n7_adapter.c
 9206a3aba2c88a11ab1431ef033bf1507db18b438dfa229bbdfd3bb99fb1a2b9  tests/unit/test_pusopen.c
@@ -110,8 +113,8 @@ d68afac66bd862692631014c4c5a0b1e5248fca7a17f679bbe16daa6bcc50f52  docs/vv/eviden
 44223ddee55097784db91cb38a575594496f7d5df9b16c8ebf87e1439403c00d  docs/vv/evidence/2026-11-04-gate-reconciliation/gate5-ctest-exit.txt
 3807f397f32e98bb2c36b30524f51c1a7f8189d1a9f54a693f3464f25e08c332  docs/vv/evidence/2026-11-04-gate-reconciliation/withdrawn/syntax-check.log
 09a7a62c086475b48ac789b97f6cf79ea2a91914badc685d2ca40f54a1231cd9  docs/vv/evidence/2026-11-04-gate-reconciliation/withdrawn/test_pus_mutation.c
-e8ad3370034c6ddf83414c66767af67534868b1d66995cc6cdc106e8db2dc562  docs/vv/evidence/2026-11-04-re-review/CANDIDATE.md
-ee42a687476e6b156911d019e54ab1f9908a5aeb538ab6842cdd6325ed1f5fb5  docs/vv/evidence/2026-11-04-re-review/README.md
+d383e71b81be7c7556bd03a5518fecd6cf57312576981c90b12c3c9fc5a057d2  docs/vv/evidence/2026-11-04-re-review/CANDIDATE.md
+1f9b025472168750cbe02801af8e4ffa1a0c0510f020f0d970aef446661e671b  docs/vv/evidence/2026-11-04-re-review/README.md
 7b9865de5290cb83691380592f7e5e5e55e8c93f5296359c268f1cd9cd2affa4  docs/vv/evidence/2026-11-04-re-review/assets-sha256-verify.log
 ce706d40b6f9b1b9add553f35b5b482d4812f773d13013fb4cd667e1d78c7ab5  docs/vv/evidence/2026-11-04-re-review/build-exit.txt
 1d99743460ffa019f2a2421c5438175254d2bc62ab42584d16f951665fdcb836  docs/vv/evidence/2026-11-04-re-review/build.log

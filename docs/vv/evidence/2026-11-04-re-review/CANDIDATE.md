@@ -79,32 +79,31 @@ Other bound but out-of-scope items:
 
 ### Single classification of the evidence-mapping document
 
-`docs/vv/evidence/2026-11-02-n22-test-evidence-mapping.md` is **excluded from
-this candidate**: it is neither bound in `candidate-manifest.sha256` nor part of
-the commit. It carries a pre-existing 28-insertion/13-deletion content
-modification (mtime `2026-11-03 07:32:15 +0100`) that pre-dates this delta and is
-unrelated to it (it is NC-EXT-47 mapping work, not NC-EXT-235/236/237). It is
-**not** formatting-only, it is **not** reviewed by any report in this bundle,
-and FRICK-REVIEW-0457 §6.9 and FRICK-REVIEW-0459 residual item 5 both require it
-to be **reviewed or reverted before any commit that includes it**. Neither has
-happened, so it is not included.
+`docs/vv/evidence/2026-11-02-n22-test-evidence-mapping.md` is **excluded from the
+manifest** (`candidate-manifest.sha256`) but **IS present in the commit** as the
+base-commit version (sha256 `9215342f…d3ba12`), unchanged from `41dcbe2`. The
+working tree carries a pre-existing 28-insertion/13-deletion content modification
+(mtime `2026-11-03 07:32:15 +0100`, sha256 `c94bca27…30fadb`) that pre-dates
+this delta, is unrelated to it (NC-EXT-47 mapping work), and is **uncommitted**.
+The working-tree modification is neither formatting-only nor reviewed by any
+report in this bundle. FRICK-REVIEW-0457 §6.9 and FRICK-REVIEW-0459 residual
+item 5 require the file to be **reviewed or reverted before any commit that
+includes it**. This commit *includes the base version* (it was already tracked);
+the requirement was not met by this commit. The disposition (review, or owner-
+authorised reversion of the working-tree change) remains open.
 
-Because the manifest must describe the committed candidate, the file is also
-removed from the reconstruction set. Its two states are recorded here instead so
-that the exclusion is auditable:
+Because the manifest must describe the committed candidate, the file is excluded
+from the reconstruction set. Its two states are recorded for auditability:
 
 | State | sha256 |
 | --- | --- |
-| base commit `41dcbe2` (tracked, the version that is committed) | `9215342f…d3ba12` |
-| working tree (pre-existing unreviewed modification, left untouched, uncommitted) | `c94bca27…30fadb` |
+| committed (base `41dcbe2`, tracked, unmodified) | `9215342f…d3ba12` |
+| working tree (pre-existing unreviewed modification, uncommitted) | `c94bca27…30fadb` |
 
-Nothing is reverted or overwritten: the working-tree modification remains in
-place. No gate consumes this file — it is a `.md` document, it is not compiled,
-it is not under `src/` (so neither `license_check.py` nor `cppcheck_scan.sh`
-reads it), and no requirement, test or telemetry claim depends on it. It affects
-no gate result and no product claim. Disposition (review, or reversion by the
-owner) remains open with the owner. This paragraph is the single classification
-of that file.
+No gate consumes this file — it is a `.md` document, not compiled, not under
+`src/` (so neither `license_check.py` nor `cppcheck_scan.sh` reads it), and no
+requirement, test or telemetry claim depends on it. It affects no gate result
+and no product claim. This paragraph is the single classification of that file.
 
 ## Explicitly out of scope (pre-existing, unrelated)
 
@@ -118,8 +117,9 @@ of that file.
   precisely so that base commit + manifest reconstructs those gate inputs; it
   cannot change a build, CTest or execution result because it is never linked;
 - `docs/vv/evidence/2026-11-02-n22-test-evidence-mapping.md` — see the single
-  classification above (excluded from both the manifest and the commit; its
-  working-tree modification is preserved but unreviewed and uncommitted);
+  classification above (excluded from the manifest; committed as base version
+  `9215342f…d3ba12`; working-tree modification `c94bca27…30fadb` preserved
+  unreviewed and uncommitted);
 - `third_party/n7s-obcp` (dirty submodule);
 - `build/`, `build2/`, `build3/`, `.opencode/`, `opencode.json`, `tests/node/`,
   other untracked helper scripts and the other untracked files not listed above.

@@ -43,7 +43,7 @@ closes no sprint, and claims no approval.
 | 0455 PA-0455-05 — manifest bound 2 of 12 untracked `.py` gate inputs | All **12** untracked `.py` files plus the 6 untracked `.sh`/`.resc` files scanned by `license_check.py` are now bound in the manifest as manifest-only inputs. |
 | 0455 PA-0455-07 — NC-EXT-236/237 had no owner and were absent from the residual list | Both rows now name an owner **role**, an acceptance authority (**Nicola**) and no acceptance date; both are listed in `verification-results.md` §Residual. |
 | 0455 PA-0455-08 — handover annotation said 4320 | Corrected to **4325**. |
-| 0455 PA-O-02 — modified out-of-scope evidence-mapping doc was unbound | Classified **once** in `CANDIDATE.md` and, in the committed candidate, **excluded from both the manifest and the commit** (§6.1). PA-0457 §6.9 and PA-0459 require that file to be reviewed or reverted before any commit that includes it; neither happened, so it is not included and its two hashes are recorded instead. |
+| 0455 PA-O-02 — modified out-of-scope evidence-mapping doc was unbound | Classified **once** in `CANDIDATE.md`. In the committed candidate the file **is excluded from the manifest but IS in the commit as the base version** (`9215342f…d3ba12`); the working-tree modification (`c94bca27…30fadb`) is uncommitted. PA-0457 §6.9 and PA-0459 required review/reversion before any commit that includes it; this commit includes the base version, so the requirement was not met. Disposition open. |
 | 0455 PA-O-03 — "14 tests" wording | Corrected: `gsw-selfcheck` runs **35** checks (12 `test_ff_gsw` + 9 `test_metrics` + 14 `test_license_check`). |
 | 0454 F-0454-05 (Advisory) — `fillers < 64` is weaker than the slot count | **Strengthened** (F-0456-03): `FF_PAL_MAX_TASKS` stays out of the test because it is a file-local `#define` in `pal_posix.c`, but after filling the table the test now asserts `FF_PalTaskCreate(...) == FF_NO_RESOURCE`. `FF_NO_RESOURCE` is produced only by the table-full branch, so the fixture demonstrates exhaustion instead of merely failing to create tasks. It does not assert *which* reservation filled the table; PAL slots are process-global and a prior sub-test may already hold some. |
 
@@ -209,16 +209,19 @@ The expected result and the actual transcript are in `manifest-verify.log`.
 
 ### 6.1 Deliberately excluded paths
 
-`docs/vv/evidence/2026-11-02-n22-test-evidence-mapping.md` is **not** in the
-manifest and **not** in the commit. It carries a pre-existing, unreviewed
-28-insertion/13-deletion content change (mtime `2026-11-03 07:32:15`) that is
-unrelated to this delta, and FRICK-REVIEW-0457 §6.9 / FRICK-REVIEW-0459 residual
-5 forbid committing it before it is reviewed or reverted. The file is left
-untouched in the working tree; only its two hashes are recorded
-(`CANDIDATE.md`, "Single classification"). Adding it to the manifest would make
-`sha256sum -c` fail against the committed tree, and committing it would
-contradict those two review records. No gate reads it (it is a `.md` outside
-`src/`), so nothing in §3 changes.
+`docs/vv/evidence/2026-11-02-n22-test-evidence-mapping.md` is **excluded from the
+manifest** but **IS in the commit** as the base version
+(`9215342f…d3ba12`, identical to `41dcbe2`). The working tree carries a
+pre-existing, unreviewed 28-insertion/13-deletion content change (mtime
+`2026-11-03 07:32:15`, sha256 `c94bca27…30fadb`) that is unrelated to this
+delta and is **uncommitted**. FRICK-REVIEW-0457 §6.9 / FRICK-REVIEW-0459 residual
+5 require the file to be reviewed or reverted before any commit that *includes*
+it; this commit includes the base version (it was already tracked), so the
+requirement was not met by this commit. Disposition remains open with the owner.
+The working-tree modification is left untouched; only its two hashes are
+recorded (`CANDIDATE.md`, "Single classification"). Adding the working-tree
+version to the manifest would make `sha256sum -c` fail against the committed
+tree. No gate reads this file (`.md` outside `src/`), so nothing in §3 changes.
 
 Also excluded, by design: the manifest's own hash (circular) and
 `manifest-verify.log` (a byproduct of verifying the manifest). Every other
