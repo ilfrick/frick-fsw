@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/2] Building C object tests/CMakeFiles/test_tm_output_chain.dir/unit/test_tm_output_chain.c.o
+[2/2] Linking C executable tests/test_tm_output_chain

@@ -1,0 +1,35 @@
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+tests/unit/test_tm_output_chain.c:65:62: error: code should be clang-formatted [-Wclang-format-violations]
+static bool find_s5_frame(const uint8_t *frame, uint16_t len,
+                                                             ^
+tests/unit/test_tm_output_chain.c:66:52: error: code should be clang-formatted [-Wclang-format-violations]
+                          uint8_t *out_event_id_hi, uint8_t *out_event_id_lo,
+                                                   ^
+tests/unit/test_tm_output_chain.c:66:78: error: code should be clang-formatted [-Wclang-format-violations]
+                          uint8_t *out_event_id_hi, uint8_t *out_event_id_lo,
+                                                                             ^
+tests/unit/test_tm_output_chain.c:67:71: error: code should be clang-formatted [-Wclang-format-violations]
+                          uint8_t *out_type, const uint8_t **out_text, uint16_t *out_text_len)
+                                                                      ^
+tests/unit/test_tm_output_chain.c:149:75: error: code should be clang-formatted [-Wclang-format-violations]
+    while (FF_LinkLoopbackPop(frame, sizeof(frame), &len) == FF_SUCCESS) {}
+                                                                          ^
+tests/unit/test_tm_output_chain.c:192:75: error: code should be clang-formatted [-Wclang-format-violations]
+    while (FF_LinkLoopbackPop(frame, sizeof(frame), &len) == FF_SUCCESS) {}
+                                                                          ^
+tests/unit/test_tm_output_chain.c:195:97: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_TEST_ASSERT(FF_EvsSend(0xABCDu, FF_EVS_ERROR, 0u, "special: %c%c%c", 0x01, 0x02, 0x03) == FF_SUCCESS);
+                                                                                                ^
+tests/unit/test_tm_output_chain.c:213:14: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(
+             ^
+tests/unit/test_tm_output_chain.c:214:32: error: code should be clang-formatted [-Wclang-format-violations]
+    test_tm_output_chain_basic,
+                               ^
+tests/unit/test_tm_output_chain.c:215:37: error: code should be clang-formatted [-Wclang-format-violations]
+    test_tm_output_chain_severities,
+                                    ^
+tests/unit/test_tm_output_chain.c:216:46: error: code should be clang-formatted [-Wclang-format-violations]
+    test_tm_output_chain_payload_transparency
+                                             ^
+make: *** [Makefile:207: format-check] Error 123

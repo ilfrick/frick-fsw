@@ -42,6 +42,7 @@ endif()
 
 add_executable(test_es_hs_lifecycle unit/test_es_hs_lifecycle.c)
 add_executable(test_evs_hs_health unit/test_evs_hs_health.c)
+add_executable(test_tm_output_chain unit/test_tm_output_chain.c)
 add_executable(test_pal_watchdog unit/test_pal_watchdog.c)
 if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   target_link_options(test_pal_watchdog PRIVATE -Wl,--wrap=nanosleep)
@@ -93,7 +94,7 @@ if(FF_USE_N7_OBCP)
   add_executable(test_obcp_integration unit/test_obcp_integration.c)
 endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_sched_max_entries test_pus test_pus_fu test_pus_s11_residual test_evs_hs_health
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_sched_max_entries test_pus test_pus_fu test_pus_s11_residual test_evs_hs_health test_tm_output_chain
                     test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_pal_watchdog
                     test_decoder_corpus test_frozen_utc_seam)
 if(TARGET test_obcp_integration)
@@ -230,6 +231,8 @@ add_test(NAME r3_gap COMMAND test_r3_gap)
 add_test(NAME es_hs_lifecycle COMMAND test_es_hs_lifecycle)
 add_test(NAME evs_hs_health COMMAND test_evs_hs_health)
 set_tests_properties(evs_hs_health PROPERTIES LABELS "n22")
+add_test(NAME tm_output_chain COMMAND test_tm_output_chain)
+set_tests_properties(tm_output_chain PROPERTIES LABELS "n22")
 add_test(NAME pal_watchdog COMMAND test_pal_watchdog)
 if(TARGET test_wd_host_contract)
   # Host watchdog model/contract cases. The label set deliberately omits
