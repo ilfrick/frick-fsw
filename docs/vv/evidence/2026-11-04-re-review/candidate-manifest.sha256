@@ -1,5 +1,5 @@
 01eea9de9abebce66cc24800be4a749caa3773bbe73d0a9c36728090a99a64b3  docs/architecture/time-and-timecode.md
-20e048c17ffd0be9f7d0f3415b83c1bab969362829d73dfaa07d0d230f5c5c3a  docs/planning/sprint-plan.md
+2406c3332ef30259bd3217c513f73572a625e83aef84251290f9d995898239f9  docs/planning/sprint-plan.md
 3ce90c43208380ac71deac43c4f939d126174c77626a4b86cb2348f88679e107  docs/requirements/traceability.yaml
 522f4309c13137ecea130c86f9246b6cdd47aa1b9aafe56323d687a7086533ef  docs/reviews/README.md
 c81d90b7fed259b575c18bacd17c740c8f428a4a4e28595779448140ca4b5fa6  docs/status/handover.md
@@ -46,6 +46,9 @@ ae97a493660f53f5a19c2f7565157c910d1b1231e0f27902b7a3baa7c607ae18  docs/reviews/F
 dee2c3b5749c84dfc0a99f5d7aa52c00dffd717d88e44dad3e7b3ef3c6d65106  docs/reviews/FRICK-REVIEW-0465-PA-20261104-DELTA.md
 071cae4136d774d58457c0effdfafa9e354cdb49e0648458c887c3b5399a9c61  docs/reviews/FRICK-REVIEW-0466-VV-20261104-DELTA.md
 6dac0e4be1a920e233679a0689f33d2c0dc4a54f35f3446dc33cc843f5dcf561  docs/reviews/FRICK-REVIEW-0466-PA-20261104-DELTA.md
+7754b66f9429d4b0c6d1ef7ca9f8686bc09fb694c1b8b5d96eb9289ee0887d36  docs/reviews/FRICK-REVIEW-0467-VV-20261105-DELTA.md
+605c77919b0af7e872734ec8ed264b66fbb362c53a63abb29ca30c89c898e00f  docs/reviews/FRICK-REVIEW-0467-PA-20261105-DELTA.md
+2dc1179bd9ec54362795282e513a1b7b9404a66eb8398f8c3cd7768ceac758fd  docs/reviews/FRICK-REVIEW-0467-R4-20261105-DELTA.md
 21cfaa0efe8c500959f9d73437b428bda128461c72442c21c01168fd662b1277  src/main/fsw_main_reqtest.c
 e98ccc488b0e9f05d2b3bfefe2789e7ff742d138a4d07b9d2d619e01116f5e43  tests/unit/test_pus_n7_adapter.c
 9206a3aba2c88a11ab1431ef033bf1507db18b438dfa229bbdfd3bb99fb1a2b9  tests/unit/test_pusopen.c
@@ -151,12 +154,15 @@ a734467bd677287762ea0c626bd1a01dfeb8ec5de9bcd5d72c06291d7738449e  docs/vv/eviden
 593d15c73d09e7dd21473f7a71e43b10596bde77b570037fbf42dddc41b6f924  docs/vv/evidence/2026-11-04-re-review/gate10-smoke-exit.txt
 f3f231901fc825e90abedd8d7868d4808d80562b82bdfae12c9673d66298c461  docs/vv/evidence/2026-11-04-re-review/gate10-smoke.log
 0dd3ad36c125d47b03903b8cf5974e33ac2fa97576101983d5eabfe6aba3e9e3  docs/vv/evidence/2026-11-04-re-review/gate11-build-exit.txt
+1d99743460ffa019f2a2421c5438175254d2bc62ab42584d16f951665fdcb836  docs/vv/evidence/2026-11-04-re-review/gate11-build-final.log
 6910b6830206595e11f5ab37aa59068d23d42ab44a398875b3ea3c06254af3a0  docs/vv/evidence/2026-11-04-re-review/gate11-build.log
 efdcd4ab9a658d57cc447e941457eef4f5fea43e88acbbfbd4d6e583717a292b  docs/vv/evidence/2026-11-04-re-review/gate11-build2.log
 4576e2216027403a26e181802483e228652fe8ec9f366799325565662824f443  docs/vv/evidence/2026-11-04-re-review/gate11-build3.log
 edd2a654cfd7e117d56d06dd3f706c109dfb60a73484b098c60682a3475a6265  docs/vv/evidence/2026-11-04-re-review/gate11-configure-exit.txt
 3226071f96b964a9fb9db3212096b5fca2a8ce586ed2df3ad3e8f312debd3252  docs/vv/evidence/2026-11-04-re-review/gate11-configure.log
 c9f2ec3a65efaa956030b5816d1649441bf93d7783984d92cefab4a76068a469  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck-exit.txt
+0a81d6c27cbf55d7e7bfad718e6279181b27081eb5eaa802640c3e166f225ba8  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck-final.log
+4fbacbb6f127cfcedaf9e167ddf41ee003b1c8c8dfc20b23961a9dba19a14444  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck-final.txt
 7c61f9a34c82860cec0bb83530e068a9d70cfdd7b9db7054a8253b384e24b515  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck.log
 4fbacbb6f127cfcedaf9e167ddf41ee003b1c8c8dfc20b23961a9dba19a14444  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck.txt
 f7f96abb126f8c76fb2adbc8efe321a966bb2ff7c006ab85389d93971eed993e  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck2.log
@@ -164,11 +170,13 @@ f7f96abb126f8c76fb2adbc8efe321a966bb2ff7c006ab85389d93971eed993e  docs/vv/eviden
 736a986c3ff40e5aa72841b016cb51bed666c7a37cedbb539514c4498f667725  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck3.log
 4fbacbb6f127cfcedaf9e167ddf41ee003b1c8c8dfc20b23961a9dba19a14444  docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck3.txt
 d6d2b30dda58e515941f5f4c5a2db71334284f3a402ad1ea0df1d81bce0ac8f8  docs/vv/evidence/2026-11-04-re-review/gate11-ctest-exit.txt
+8bcd7dc44e1714fb3f86c7112fe099aee5513bebc4f9de8a42a2f4570cb98731  docs/vv/evidence/2026-11-04-re-review/gate11-ctest-final.log
 167e1a160b6ad09efb885271f9e1f2a129f8b0064b1af63d6ede3aa533465cc0  docs/vv/evidence/2026-11-04-re-review/gate11-ctest.log
 f36abce3b66860bdd3a0d0f9ecb65282b5fcd0c6ec10c72d3c2a950edd25be31  docs/vv/evidence/2026-11-04-re-review/gate11-ctest2.log
 64b38261f38b370dcfa414a573d4a3e82008526dc2a8a7ab005f404925fd61dc  docs/vv/evidence/2026-11-04-re-review/gate11-ctest3.log
 cd2431638dda8dd1ba598dcdab0ad3170308cf5feda2c23f4e5dc146e3817830  docs/vv/evidence/2026-11-04-re-review/gate11-format-check-exit.txt
 c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774  docs/vv/evidence/2026-11-04-re-review/gate11-format-check.log
+c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774  docs/vv/evidence/2026-11-04-re-review/gate11-format-final.log
 15c960798a3f38fd2ae3b1dc63ef3daeceebe324865f164fffcfce9c8faada61  docs/vv/evidence/2026-11-04-re-review/gate11-format2.log
 c43cc487f79481072975f09f6becf98d6621c85167fa97da90b1c431c2dfc774  docs/vv/evidence/2026-11-04-re-review/gate11-format3.log
 89d447ffb9ddbd3bec82a49a39f83a1e6562e8a4e24e618fa15aabf734b3f456  docs/vv/evidence/2026-11-04-re-review/gate11-new-tests-exit.txt
