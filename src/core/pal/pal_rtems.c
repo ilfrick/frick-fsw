@@ -101,6 +101,17 @@ void *POSIX_Init(void *argument)
 
 #define FF_WDOG_REG(offset) (*(volatile uint32_t *)(uintptr_t)(FF_WDOG0_BASE + (offset)))
 
+/* Forward declarations of the platform watchdog hooks defined later in this
+ * translation unit. ff_pal_wd_hw_feed() is called from ff_pal_wd_hw_arm()
+ * (line 167) before its definition (line 228); without these declarations the
+ * RTEMS cross-build reports an implicit function declaration (NC-EXT-239).
+ * The hooks themselves remain NOT IMPLEMENTED for flight builds (NC-PAL-01);
+ * this declaration only resolves the compile diagnostic for the emulated N18
+ * profile. */
+FF_Status_t ff_pal_wd_hw_arm(uint32_t timeout_ms);
+FF_Status_t ff_pal_wd_hw_feed(void);
+FF_Status_t ff_pal_wd_hw_reset(void);
+
 static bool g_wdog_initialized;
 static uint32_t g_wdog_timeout_ms;
 
