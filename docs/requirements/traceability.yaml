@@ -146,10 +146,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-009
     derived: false
-    implementation: ["src/core/tbl/tbl.c"]
-    tests: ["tests/unit/test_tbl.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
+    implementation: ["src/core/tbl/tbl.c", "src/core/tbl/tbl.h"]
+    tests: ["tests/unit/test_tbl.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_tbl_sched_coupling.c"]
     lean: []
-    lean_note: "Atomic activate verified by unit test (staging not visible until activate)."
+    lean_note: "Atomic activate verified by unit test (staging not visible until activate). The optional post-activation callback is exercised with a test-local callback (test_tbl_sched_coupling.c cases 1-3) and by the scheduler application's production callback (cases 4-5); its contract is bounded, no I/O, no re-entry into TBL services."
 
   - id: SRS-REQ-014
     level: srs
@@ -665,9 +665,9 @@ requirements:
     parent_sss: SSS-REQ-030
     derived: false
     implementation: ["src/core/sched/ff_sched.c", "src/core/sched/ff_sched.h", "src/apps/app_scheduler.c", "docs/architecture/scheduling.md", "docs/development-plan.md", "docs/planning/sprint-plan.md"]
-    tests: ["tests/unit/test_sched.c", "tests/unit/test_sched_stats.c", "tests/unit/test_sched_max_entries.c", "ci:host-build"]
+    tests: ["tests/unit/test_sched.c", "tests/unit/test_sched_stats.c", "tests/unit/test_sched_max_entries.c", "tests/unit/test_tbl_sched_coupling.c", "tests/unit/test_sched_events.c", "ci:host-build"]
     lean: []
-    lean_note: "Bounded allocation-free table-driven dispatcher delivered (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets with bounded per-poll work and missed-slot accounting, host-verified with an injected clock (tests/unit/test_sched.c, tests/unit/test_sched_stats.c, tests/unit/test_sched_max_entries.c). RTEMS task selection/preemption remains out of scope; mission rates, jitter limits, late-slot policy and recovery authority remain TBD controlled inputs, so no schedulability, jitter or WCET claim is made and no target evidence is implied."
+    lean_note: "Bounded allocation-free table-driven dispatcher delivered (S8-SCH first increment): image validation, atomic double-buffer activation, per-entry absolute release targets with bounded per-poll work and missed-slot accounting, host-verified with an injected clock (tests/unit/test_sched.c, tests/unit/test_sched_stats.c, tests/unit/test_sched_max_entries.c). Table Services load/activate is coupled to dispatch (N22-TS5-66): the app's activation callback snapshots the activated image and the scheduler task applies it on its next tick, host-verified with nominal and out-of-bound cases (tests/unit/test_tbl_sched_coupling.c). RTEMS task selection/preemption remains out of scope; mission rates, jitter limits, late-slot policy and recovery authority remain TBD controlled inputs, so no schedulability, jitter or WCET claim is made and no target evidence is implied."
 
   - id: SRS-REQ-072
     level: srs
@@ -682,10 +682,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-008
     derived: false
-    implementation: ["src/core/pal/pal.h", "src/core/pal/pal_watchdog.c", "src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "src/apps/app_wd.c", "src/apps/app.h", "src/main/fsw_main.c", "config/tables/fsw_tables.c"]
+    implementation: ["src/core/pal/pal.h", "src/core/pal/pal_watchdog.c", "src/core/pal/pal_posix.c", "src/core/pal/pal_rtems.c", "src/apps/app_wd.c", "src/apps/app.h", "src/main/fsw_main.c", "config/tables/fsw_tables.c", "config/platform/platform_mpfs.h"]
     tests: ["tests/unit/test_pal_watchdog.c", "tests/unit/test_extwd_model.c", "tests/unit/test_extwd_middleware.c", "ci:xw2-target"]
     lean: ["req_srs073_not_armed_never_expires", "req_srs073_feed_clears_expiry", "req_srs073_feed_within_period_not_expired"]
-    lean_note: "Lean models the software-visible arm/feed/expiry state machine and proves that a period no larger than the timeout never expires. The hardware binding (MPFS MSS watchdog MMIO, independent clock, reset assertion) is not modelled and is NOT wired (NC-PAL-01); the host backend is simulated, so no target watchdog behaviour is claimed and Renode has no watchdog model (GAP-A5). Host coverage of the derivation clauses (timeout taken from the mission table field, feed period no greater than one quarter of it) is provided by test_pal_watchdog.c cases 7-8, which exercise the same FF_AppWdPlan arithmetic FF_AppWdMain uses; the target arming order and the hardware reset reaction remain HIL scope (N22-TS5-82). The abstract external-watchdog contract is registered as work package TS-7 (docs/vv/test-spec/ts-7-xw2-target-contract.md): tests/unit/test_extwd_model.c validates the test double, tests/unit/test_extwd_middleware.c exercises the unchanged production pal_watchdog.c with only the three ff_pal_wd_hw_* hooks substituted, and ci:xw2-target runs the 13 cases XW-T1..XW-T12 + XW-B1 on a test-only RTEMS/QEMU image. That evidence is PIL-QEMU middleware-contract evidence only: the device seam is a validated double, so it establishes no device, reset scope, electrical/clock independence, timing or N18 result; N18 remains FAIL (NC-EXT-198, root cause NC-PAL-01)."
+    lean_note: "Lean models the software-visible arm/feed/expiry state machine and proves that a period no larger than the timeout never expires. The hardware binding is not modelled. An emulated MPFS WDOG0 binding now exists only in the N18 build (FRICK_PLATFORM_MPFS && FF_ENABLE_RENODE_TEST) against the verified register map (base 0x20001000; TRIGGER->MSVP->TIME->CONTROL, read-back before the first keyed refresh). It uses the pinned model's explicitly emulated 156250 Hz clock, MSVP=TIME and TRIGGER=4095, and armed/fed in the 2026-11-09 Renode run (N18 PASS). That is emulator configuration and integration evidence, not RTPFS160ZT register/timing/reset fidelity: the flight-target hooks remain FF_NOT_IMPLEMENTED (NC-PAL-01), and target/HIL evidence is still required (N22-TS5-82, NC-EXT-188). Host coverage of the derivation clauses (timeout taken from the mission table field, feed period no greater than one quarter of it) is provided by test_pal_watchdog.c cases 7-8, which exercise the same FF_AppWdPlan arithmetic FF_AppWdMain uses; the target arming order and the hardware reset reaction remain HIL scope. The mission timeout default is provisionally 10 s with a 2.5 s feed (NC-EXT-238); the mission-authority value remains an open owner input. The abstract external-watchdog contract is registered as work package TS-7 (docs/vv/test-spec/ts-7-xw2-target-contract.md): tests/unit/test_extwd_model.c validates the test double, tests/unit/test_extwd_middleware.c exercises the unchanged production pal_watchdog.c with only the three ff_pal_wd_hw_* hooks substituted, and ci:xw2-target runs the 13 cases XW-T1..XW-T12 + XW-B1 on a test-only RTEMS/QEMU image. That evidence is PIL-QEMU middleware-contract evidence only: the device seam is a validated double, so it establishes no device, reset scope, electrical/clock independence or timing result."
 
   - id: SRS-REQ-074
     level: srs

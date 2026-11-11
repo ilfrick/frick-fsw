@@ -193,7 +193,7 @@ resolve the mandatory-text contract.
 | N22-TS5-63 | SRS-REQ-011 | EVS event forwarded end-to-end to PUS service 5 | nominal | wire the EVS listener to `FF_PusEmitEvent` as in `fsw_main.c`; raise one event of each severity | each EVS event becomes a PUS service 5 telemetry packet whose payload carries the event id and type (SRS-REQ-011; the PUS S5 encoding itself is owned by TS-1) | SIL | combined | covered |
 | N22-TS5-64 | SRS-REQ-014, SSS-REQ-008 | ES start plus HS detection of the same application set | OOB | register and start two apps; force one to `FF_APP_FAILED`; run an HS loop | ES reports `FF_APP_RUNNING` for the healthy app and `FF_APP_FAILED` for the failed app in the same run, and HS raises the critical event for the failed id (SRS-REQ-014 state tracking + HS detection; SSS-REQ-008) | SIL | combined | covered |
 | N22-TS5-65 | SRS-REQ-014, SRS-REQ-001 | core-service initialisation order with ES-created pipes | nominal | initialise EVS, TBL, SB and ES; register apps (each creating a pipe); start all; publish | initialisation order is honoured with no resource clash; every registered app has a working pipe after `FF_EsStartAll` (SRS-REQ-014 lifecycle; SRS-REQ-001 pipes; FRICK-ARCH-0005 §1 app set) | SIL | combined | covered |
-| N22-TS5-66 | SRS-REQ-071, SRS-REQ-013 | scheduler dispatch from a validated, atomically-activated schedule table | nominal | deploy a schedule image through Table Services, activate it, and let the scheduler dispatch its entries onto the SB | **gap** — SRS-REQ-071 requires the dispatcher to consume a validated, atomically-activated table; the app now registers the schedule image with Table Services and wires `FF_SchedValidate` as the validator, and activates it atomically through `FF_SchedActivate`, but the TBL-driven operational flow (`FF_TblLoad`/`FF_TblActivate` → dispatcher re-activation and dispatch coupling) is not delivered. Open NC-EXT-19 / M17 (NC-EXT-47 §7.3). No oracle is asserted here | SIL | combined | gap |
+| N22-TS5-66 | SRS-REQ-071, SRS-REQ-013 | scheduler dispatch from a validated, atomically-activated schedule table | nominal + OOB | drive the production scheduler application: deploy a schedule image through Table Services (`FF_TblLoad` + `FF_TblActivate` on the handle the app registered), let the scheduler task run its next tick, then poll the dispatcher; repeat with a wrong-length image and a bad-magic image | (a) **nominal** — before the next tick `FF_SchedActiveCount()` is unchanged (the activation callback only snapshots the image; dispatcher state stays single-writer), and after exactly one tick the active count is the newly activated count, exactly one `FF_SCHED_EVT_ACTIVATED` (0x0601) event carries `"SCH: table activated, N entries"`, and the following 1000 ms tick releases exactly one message from the new table (`dispatched` +1); (b) **out-of-bound** — `FF_TblLoad` with `size - 1` returns `FF_BAD_SIZE`, a bad-magic image returns `FF_ERROR`, the subsequent `FF_TblActivate` returns `FF_NOT_READY`, and after a tick the previously activated schedule is still active with no re-activation event (SRS-REQ-071 "validated, atomically-activated table"; SRS-REQ-013 load/validate/activate; SSS-REQ-030). Evidence: `tests/unit/test_tbl_sched_coupling.c::test_tbl_sched_production_activate` / `test_tbl_sched_production_invalid` (production `FF_AppSchedulerMain` under the `FF_TEST_HOOKS` controlled-delay seam, EVS-listener oracle). **Scope limit:** host SIL only; the activation is applied by the scheduler task at its next tick, so the coupling has a bounded deferral of at most one tick whose WCET/latency, the cross-core memory-ordering question (M14) and mission rates (N22-TS5-48/NC-EXT-19) remain open | SIL | combined | covered |
 | N22-TS5-67 | SRS-REQ-044, SRS-REQ-014 | core services on the emulated PolarFire SoC (Renode) | nominal | Renode `polarfire-soc` run of `app_renode_test` exercising the core services | **gap** — SRS-REQ-044 requires a checkable result per change, but the `RENODE_TEST: PASS` aggregate marker is not a per-requirement oracle and no per-check core-service observable is emitted. Open NC-EXT-47 §7.6. No oracle is asserted here | PIL | combined | gap |
 | N22-TS5-68 | SRS-REQ-014, SRS-REQ-071 | core services on target silicon (HIL) | nominal | RTPFS160ZT target: application start, heartbeats, SB/EVS/TBL operation under RTEMS 6.2, watchdog/reset path | **gap** — on-silicon timing, watchdog escalation, scheduler liveness and HS reset behaviour require flight hardware; target evidence remains GAP-A5 (NC-EXT-31). Open TBD (NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
 | N22-TS5-69 | SRS-REQ-015 | core services stay allocation-free after initialisation | nominal | initialise EVS, TBL, SB and ES; register and start the app set; run a bounded publish/load/activate/event workload; observe the process heap via an interposed allocator | no heap allocation occurs during or after the workload — every SB pipe/queue, the TBL registry and the EVS log are static tables sized at compile time, and the allocation counter is unchanged after `FF_EsStartAll` (SRS-REQ-015 "shall not allocate dynamic memory after initialisation"; FRICK-ARCH-0002 §4 static pools; FRICK-ARCH-0009 §4 facade is allocation-free). The sanitizer/leak leg over the whole registered ctest set is owned by TS-6 `N22-TS6-5` | SIL | individual | covered |
@@ -242,9 +242,12 @@ the specific open NC where one exists. Gap rows assert **no** oracle.
   (NC-EXT-47 §7.3; FRICK-ARCH-0018 §1/§5).
 - `N22-TS5-53` — HS treatment of STOPPED/LOADED (non-RUNNING, non-FAILED)
   applications (TBD; NC-EXT-47 §7.3).
-- `N22-TS5-66` — scheduler ↔ TBL validated/activated dispatch coupling not
-  delivered (registration and validator are wired; the TBL load/activate →
-  dispatch path is missing) (NC-EXT-19 / M17; NC-EXT-47 §7.3).
+- `N22-TS5-66` — **closed as a test gap (2026-11-10):** the TBL load/activate →
+  dispatch coupling is delivered and host-tested by
+  `tests/unit/test_tbl_sched_coupling.c::test_tbl_sched_production_activate` /
+  `test_tbl_sched_production_invalid` (nominal + out-of-bound); the bounded
+  one-tick deferral, M14 memory ordering and mission rates remain open under
+  `N22-TS5-48`/NC-EXT-19, which is not closed here.
 - `N22-TS5-70` — SB `FF_SbStats_t` counter width and unsigned wrap/saturation
   semantics are host-tested at the wrap boundary, but the counter width for
   mission telemetry and the reportable saturation policy remain uncontrolled
@@ -351,10 +354,11 @@ automated on the baseline, so that `covered` is not read as `passing`:
   atomic activation, per-entry absolute release targets (no starvation —
   NC-EXT-19 corrected), no cumulative drift, bounded `max_out`, missed-slot
   accounting and real SB delivery, with explicit expected values. Rows
-  `N22-TS5-43/44/45/46` move to `covered`. Mission rates/tolerances, RTEMS/target
-  timing, the EVS-to-HS end-to-end oracle (`N22-TS5-47`) and the TBL
-  load/activate→dispatch coupling (`N22-TS5-66`) remain `gap`, so NC-EXT-19 is
-  **not** closed here.
+  `N22-TS5-43/44/45/46` move to `covered`. The TBL
+  load/activate→dispatch coupling (`N22-TS5-66`) is now delivered and host-tested
+  (revision 1.15) and also moves to `covered`. Mission rates/tolerances,
+  RTEMS/target timing and the EVS-to-HS end-to-end oracle (`N22-TS5-47`) remain
+  `gap`, so NC-EXT-19 is **not** closed here.
 - **Scheduler activation→init contract is a documented limit (not tested).** The
   contract in `src/core/sched/ff_sched.h` states that a new activation clears the
   entry's release target and the target **must** be re-established via
@@ -390,8 +394,8 @@ automated on the baseline, so that `covered` is not read as `passing`:
 | Mixed nominal + out-of-bound | 10 |
 | Individual | 76 |
 | Combined | 11 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 59 |
-| `gap` (no controlled oracle; recorded under NC-EXT-47) | 28 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 60 |
+| `gap` (no controlled oracle; recorded under NC-EXT-47) | 27 |
 | SIL / PIL / HIL (primary assignments; target remains gap) | 83 / 1 / 3 |
 
 Requirement coverage in this scope: `SRS-REQ-001/002/011/013/014/015/019/033/
@@ -431,3 +435,4 @@ authority policies remain gaps.
 | 1.13 | 2026-11-04 | frick-fsw | **N22-TS5-47 evidence corrected to the current script; NC-EXT-236 scope harmonised.** `test_evs_hs_health` is recorded at **110/110** checks with script sha256 `23535db3…6035` and the retained `gate11-new-tests.log` (the 60-check `test_evs_hs_e2e` figure and the intermediate 108-check figure are labelled superseded). NC-EXT-236 is restated accurately: the production sink exists (`src/apps/app_tm_output.c:14-25`, `FF_AppTmOutputInit`/`ff_to_sink`); listener → sink is covered by `test_r3_gap.c:523-575`, and sink → loopback link by an injected sink in `test_evs_hs_health.c`; what is absent is an end-to-end oracle through the production sink. Corrections for FRICK-REVIEW-0454 F-0454-02, FRICK-REVIEW-0455 PA-0455-03, FRICK-REVIEW-0456 F-0456-02 and FRICK-REVIEW-0457 PA-0457-03. No NC closed. |
 | 1.14 | 2026-11-04 | frick-fsw | **NC-EXT-236 evidence delivered: `test_tm_output_chain.c` (47 checks) closes the production sink gap.** `test_tm_output_chain.c` exercises the assembled chain through `FF_AppTmOutputInit`/`ff_to_sink`. NC-EXT-236 reclassified from GAP to MAPPED in TS-5 matrix. No NC closed; human PA authority disposition required for formal closure. |
 | 1.14 | 2026-11-04 | frick-fsw | **FRICK-REVIEW-0458 F-0458-01 correction; hash re-bound to the corrected script.** `tests/unit/test_evs_hs_health.c` header no longer claims that "the listener does not currently forward to the TM sink" (false: `src/main/fsw_main.c` installs `ff_event_listener`, which calls `FF_PusEmitEvent`) and now states that the unverified element is the **assembled** chain through the production `FF_AppTmOutputInit`/`ff_to_sink`, with `test_r3_gap.c:523-575` covering listener → sink. Comment-only change; script is now sha256 `23535db3…6035`, **110 checks**, run `docs/vv/evidence/2026-11-04-re-review/gate11-new-tests.log`. No NC closed, no tool qualified. |
+| 1.15 | 2026-11-10 | frick-fsw | **N22-TS5-66 delivered: TBL load/activate → scheduler dispatch coupling.** The scheduler application now registers an activation callback that only snapshots the activated image into a mutex-protected pending slot; the scheduler task applies it at the top of its next tick (`FF_SchedActivate` + `FF_SchedInit`) and emits `FF_SCHED_EVT_ACTIVATED` with the re-activation text, so the single-writer dispatcher contract is preserved. `N22-TS5-66` gains nominal + out-of-bound oracles (`test_tbl_sched_coupling.c::test_tbl_sched_production_activate` / `test_tbl_sched_production_invalid`) and moves `gap` → `covered`; §3.2 re-counted (60 covered / 27 gap). The test-delay seam now consumes each block notification (`FF_PalTaskDelayMsTestWait`), so injected time is observed by exactly one scheduler iteration; the `N22-TS5-47` integration case expectations were corrected to that deterministic sequence (3 skipped / total 3, then 5 skipped / total 8). Mission rates, the one-tick deferral budget and M14 memory ordering remain open; NC-EXT-19 is not closed. |

@@ -21,25 +21,24 @@
 #include "core/evs/evs.h"
 #include "core/sched/ff_sched.h"
 #include "core/tbl/tbl.h"
+#include "sched_evt.h"
 #include <stdint.h>
 #include <string.h>
 
-/* Reference polling tick. Bounds the maximum release latency observed by the
- * dispatcher; the mission value is a controlled input (FRICK-ARCH-0018). */
-#define FF_SCHED_TICK_MS 100u
-
-/* Heartbeat period; HS watches app liveness independently (SSS-REQ-030). */
-#define FF_SCHED_HEARTBEAT_MS 5000u
-
-/* EVS event ids local to the scheduler application. */
-#define FF_SCHED_EVT_ACTIVATED 0x0601u
-#define FF_SCHED_EVT_INVALID_TABLE 0x0602u
-#define FF_SCHED_EVT_MISSED_SLOT 0x0603u
-#define FF_SCHED_EVT_HEARTBEAT 0x0604u
-#define FF_SCHED_EVT_DISPATCH_FAIL 0x0605u
-
 static FF_SchedTable_t g_sched_image;
-static FF_TblHandle_t g_sched_tbl;
+static FF_TblHandle_t g_sched_tbl = FF_TBL_INVALID_HANDLE;
+
+/* Table Services activation runs in command/TBL context, while the dispatcher
+ * state (core/sched/ff_sched.c) is single-writer and owned by this task. The
+ * activation callback therefore only snapshots the newly activated image into
+ * this mutex-protected slot; the scheduler task applies it at the top of its
+ * next tick (N22-TS5-66). The callback is bounded, performs no I/O and never
+ * calls back into TBL services. */
+static FF_SchedTable_t g_sched_pending_image;
+static bool g_sched_reconfig_pending;
+static FF_MutexId_t g_sched_reconfig_lock;
+static bool g_sched_reconfig_ready;
+static FF_AppId_t g_sched_app_id;
 
 /* Project reference schedule (rates are illustrative configuration, not a
  * mission profile). */
@@ -72,39 +71,150 @@ static void ff_sched_entries_init(void)
     g_sched_image = t;
 }
 
+#ifdef FF_TEST_HOOKS
+/* Test-only exit flag for FF_AppSchedulerMain. When set, the main loop will
+ * exit after the current iteration. This allows deterministic testing of the
+ * scheduler application event emission paths. */
+volatile bool g_sched_test_exit_request = false;
+
+void FF_SchedTestRequestExit(void)
+{
+    g_sched_test_exit_request = true;
+}
+
+void FF_SchedTestResetExit(void)
+{
+    g_sched_test_exit_request = false;
+}
+
+FF_TblHandle_t FF_SchedTestTableHandle(void)
+{
+    return g_sched_tbl;
+}
+#endif
+
+/* TBL activation callback: bounded snapshot only (see the pending-slot comment
+ * above). Rejects any activation that does not target this application's
+ * registered table, so a future co-located table cannot silently reconfigure
+ * dispatch. */
+static void ff_sched_tbl_activated(FF_TblHandle_t handle, const void *image, size_t size)
+{
+    if (!g_sched_reconfig_ready) {
+        (void)FF_EvsSend(FF_SCHED_EVT_RECFG_NOT_READY, FF_EVS_WARNING, g_sched_app_id,
+                         FF_SCHED_EVT_RECFG_NOT_READY_FMT);
+        return;
+    }
+    if ((handle != g_sched_tbl) || (size != sizeof(g_sched_image))) {
+        return;
+    }
+    /* TBL validated the staged image before activation; re-validate the active
+     * copy so a corrupt buffer cannot reach the dispatcher (defence in depth). */
+    if (FF_SchedValidate(image, size) != FF_SUCCESS) {
+        return;
+    }
+    /* Bounded wait (5 ms) to avoid priority inversion in command context.
+     * The scheduler task uses a non-blocking try-lock and holds the lock only
+     * for the memcpy, so a short timeout is sufficient. */
+    if (FF_PalMutexLock(g_sched_reconfig_lock, 5u) != FF_SUCCESS) {
+        (void)FF_EvsSend(FF_SCHED_EVT_RECFG_NOT_READY, FF_EVS_WARNING, g_sched_app_id,
+                         FF_SCHED_EVT_RECFG_NOT_READY_FMT);
+        return;
+    }
+    memcpy(&g_sched_pending_image, image, sizeof(g_sched_pending_image));
+    g_sched_reconfig_pending = true;
+    (void)FF_PalMutexUnlock(g_sched_reconfig_lock);
+}
+
+/* Apply a pending TBL activation in dispatcher (single-writer) context. The
+ * non-blocking lock keeps a scheduler tick from ever waiting on command
+ * context: if the slot is busy, the activation is applied on the next tick. */
+static void ff_sched_apply_pending(uint64_t now_ns, FF_AppId_t app)
+{
+    FF_SchedTable_t pending;
+    bool have_pending = false;
+
+    if (!g_sched_reconfig_ready) {
+        return;
+    }
+    if (FF_PalMutexTryLock(g_sched_reconfig_lock) != FF_SUCCESS) {
+        return;
+    }
+    if (g_sched_reconfig_pending) {
+        pending = g_sched_pending_image;
+        g_sched_reconfig_pending = false;
+        have_pending = true;
+    }
+    (void)FF_PalMutexUnlock(g_sched_reconfig_lock);
+
+    if (!have_pending) {
+        return;
+    }
+    if (FF_SchedActivate(&pending, sizeof(pending)) != FF_SUCCESS) {
+        (void)FF_EvsSend(FF_SCHED_EVT_INVALID_TABLE, FF_EVS_ERROR, app,
+                         FF_SCHED_EVT_INVALID_TABLE_FMT);
+        return;
+    }
+    FF_SchedInit(now_ns);
+    (void)FF_EvsSend(FF_SCHED_EVT_ACTIVATED, FF_EVS_INFO, app, FF_SCHED_EVT_REACTIVATED_FMT,
+                     (unsigned)FF_SchedActiveCount());
+}
+
 void FF_AppSchedulerMain(void *arg)
 {
     FF_AppId_t app = (FF_AppId_t)(uintptr_t)arg;
-    uint32_t reported_missed = 0u;
-    uint32_t reported_publish_errors = 0u;
+    volatile uint32_t reported_missed = 0u;
+    volatile uint32_t reported_publish_errors = 0u;
     uint32_t last_heartbeat_ms = 0u;
 
     ff_sched_entries_init();
 
+    /* Store app ID for callback use (callback runs in TBL/command context). */
+    g_sched_app_id = app;
+
+    /* Reconfiguration slot must exist before the table is registered, because
+     * registration publishes the activation callback. */
+    g_sched_reconfig_pending = false;
+    g_sched_reconfig_ready =
+        (FF_PalMutexCreate(&g_sched_reconfig_lock, "sched-recfg") == FF_SUCCESS);
+    if (!g_sched_reconfig_ready) {
+        (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_ERROR, app,
+                         "SCH: reconfiguration lock unavailable, table activation not applied");
+    }
+
     /* Table Services holds the validated image (registration validates through
-     * FF_SchedValidate); activation is separate and atomic. */
+     * FF_SchedValidate); activation is separate and atomic. A later activation
+     * is applied by this task through ff_sched_tbl_activated/ff_sched_apply_pending. */
     g_sched_tbl = FF_TblRegister(&(FF_Tbl_Def_t){.name = "sample_sched",
                                                  .image = &g_sched_image,
                                                  .size = sizeof(g_sched_image),
-                                                 .validate = FF_SchedValidate});
+                                                 .validate = FF_SchedValidate,
+                                                 .on_activate = ff_sched_tbl_activated});
     if (g_sched_tbl == FF_TBL_INVALID_HANDLE) {
         (void)FF_EvsSend(FF_EVS_APP_ERROR, FF_EVS_ERROR, app, "SCH: table registration failed");
     }
 
     if (FF_SchedActivate(&g_sched_image, sizeof(g_sched_image)) != FF_SUCCESS) {
         (void)FF_EvsSend(FF_SCHED_EVT_INVALID_TABLE, FF_EVS_ERROR, app,
-                         "SCH: schedule table rejected, dispatch inhibited");
+                         FF_SCHED_EVT_INVALID_TABLE_FMT);
     }
     else {
         FF_SchedInit(FF_PalGetMonotonicNs());
-        (void)FF_EvsSend(FF_SCHED_EVT_ACTIVATED, FF_EVS_INFO, app, "SCH app started, %u entries",
+        (void)FF_EvsSend(FF_SCHED_EVT_ACTIVATED, FF_EVS_INFO, app, FF_SCHED_EVT_ACTIVATED_FMT,
                          (unsigned)FF_SchedActiveCount());
     }
 
     for (;;) {
+#ifdef FF_TEST_HOOKS
+        FF_PalTaskDelayMsTest(FF_SCHED_TICK_MS);
+#else
         FF_PalTaskDelayMs(FF_SCHED_TICK_MS);
+#endif
         uint64_t now = FF_PalGetMonotonicNs();
         uint32_t elapsed_ms;
+
+        /* Apply a table activation requested since the last tick before any
+         * release decision, so the new table takes effect atomically. */
+        ff_sched_apply_pending(now, app);
 
         /* Release due messages; the dispatcher publishes them and the app keeps
          * no large receive buffer on its 16 KiB task stack. */
@@ -116,13 +226,13 @@ void FF_AppSchedulerMain(void *arg)
         FF_SchedGetStats(&st);
         if (st.missed != reported_missed) {
             (void)FF_EvsSend(FF_SCHED_EVT_MISSED_SLOT, FF_EVS_WARNING, app,
-                             "SCH: %u release slots skipped (total %u)",
-                             (unsigned)(st.missed - reported_missed), (unsigned)st.missed);
+                             FF_SCHED_EVT_MISSED_SLOT_FMT, (unsigned)(st.missed - reported_missed),
+                             (unsigned)st.missed);
             reported_missed = st.missed;
         }
         if (st.publish_errors != reported_publish_errors) {
             (void)FF_EvsSend(FF_SCHED_EVT_DISPATCH_FAIL, FF_EVS_ERROR, app,
-                             "SCH: %u dispatch failures (total %u)",
+                             FF_SCHED_EVT_DISPATCH_FAIL_FMT,
                              (unsigned)(st.publish_errors - reported_publish_errors),
                              (unsigned)st.publish_errors);
             reported_publish_errors = st.publish_errors;
@@ -132,7 +242,13 @@ void FF_AppSchedulerMain(void *arg)
         elapsed_ms = (uint32_t)((now / 1000000ULL) - last_heartbeat_ms);
         if (elapsed_ms >= FF_SCHED_HEARTBEAT_MS) {
             last_heartbeat_ms = (uint32_t)(now / 1000000ULL);
-            (void)FF_EvsSend(FF_SCHED_EVT_HEARTBEAT, FF_EVS_INFO, app, "SCH heartbeat");
+            (void)FF_EvsSend(FF_SCHED_EVT_HEARTBEAT, FF_EVS_INFO, app, FF_SCHED_EVT_HEARTBEAT_FMT);
         }
+
+#ifdef FF_TEST_HOOKS
+        if (g_sched_test_exit_request) {
+            break;
+        }
+#endif
     }
 }

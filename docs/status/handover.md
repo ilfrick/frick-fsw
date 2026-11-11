@@ -4,14 +4,110 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.64                                   |
-| Date                              | 2026-11-04                            |
+| Revision                         | 3.67                                   |
+| Date                              | 2026-11-10                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
 work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
+
+## S8-SCH: TBL load/activate → scheduler dispatch coupling (N22-TS5-66) — 2026-11-10
+
+**Status: implemented in-tree; host and emulated-target gates green. No
+commit/push. Sprint closure still NOT RECOMMENDED (authority inputs,
+N22-TS5-47, target/HIL).**
+
+- **Gap closed.** `src/core/tbl/tbl.c` already exposed an optional
+  `FF_TblActivateCb` (`FF_Tbl_Def_t::on_activate`), but `src/apps/app_scheduler.c`
+  registered `sample_sched` without one, so a Table Services activation copied the
+  new image into `g_sched_image` and the dispatcher kept running the old table.
+- **Design.** The callback runs in TBL/command context, while `ff_sched.c` state is
+  single-writer and owned by the scheduler task. The callback therefore only
+  re-validates the activated image (`FF_SchedValidate`) and snapshots it into a
+  mutex-protected pending slot (`FF_PalMutexCreate/Lock`); it performs no I/O and
+  does not call back into TBL. The scheduler task applies the snapshot at the top
+  of its next tick with a **non-blocking** lock (`FF_PalMutexTryLock`, deferred to
+  the following tick if busy), then calls `FF_SchedActivate` + `FF_SchedInit(now)`
+  and emits `FF_SCHED_EVT_ACTIVATED` (0x0601, reusing the existing event id) with
+  the re-activation text `"SCH: table activated, %u entries"`. Deferral is bounded
+  to one tick; the worst-case deferral budget is still open.
+- **Contract tightened.** `src/core/tbl/tbl.h` now states the callback contract as
+  bounded/no-I/O/no-TBL-re-entry and directs state-owning subsystems to snapshot
+  and apply in their own task context.
+- **Tests.** `tests/unit/test_tbl_sched_coupling.c` gains production-path cases
+  through `FF_AppSchedulerMain` under the `FF_TEST_HOOKS` controlled-delay seam:
+  (a) nominal — count unchanged before the tick, then the new table is active,
+  exactly one re-activation event is emitted and the next 1000 ms tick releases
+  exactly one message from the new table; (b) out-of-bound — wrong length
+  (`FF_BAD_SIZE`), bad magic (`FF_ERROR`), activation (`FF_NOT_READY`), and the
+  previous schedule stays active with no event. 61 checks.
+- **Test-seam correction.** `FF_PalTaskDelayMsTestWait()` now consumes the block
+  notification, so each `Step()` is observed by exactly one scheduler iteration
+  (previously two steps could be coalesced and the injected time could be applied
+  to the wrong iteration). The `N22-TS5-47` integration expectations in
+  `tests/unit/test_sched_events.c` were corrected to the now-deterministic
+  sequence (2 missed-slot events: 3 skipped/total 3, then 5 skipped/total 8;
+  68 checks). This is a test-harness determinism correction, not a change to the
+  application's reporting policy.
+- **Gates run (2026-11-10, `build2/native` and `build/renode`).** Build clean
+  (no warnings); `ctest` **55/55 PASS**; focused binaries stable over 25
+  consecutive runs (50 executions, 0 failures); `python3 tools/scripts/trace.py`
+  **PASS** (120/76/30/14/68); `lake build` in `verification/lean` **PASS**;
+  `make format-check` **PASS** with the pinned clang-format 18.1.3 in
+  `frick-vv:local` (host has 23.x only, which the Makefile rejects); RTEMS 6.2
+  cross-build **PASS** for the N18 profile (exit 0, 164/164 steps, ELF sha256
+  `5557d0bd…1a0e`, byte-identical to `frick_fsw_renode.elf`); **N18 Renode
+  PASS** (`[renode] PASS (RENODE_TEST: PASS; container status=exited container
+  exit code=0)`; console `SCH app started, 4 entries`). The cross-build emits one
+  **pre-existing** warning outside this increment
+  (`pal_rtems.c:156: implicit declaration of function 'ff_pal_wd_hw_feed'`,
+  prototype only in `pal_watchdog.c`) and it is registered as **NC-EXT-239
+  OPEN** (owner FSW, PAL/NC-PAL-01 workstream).
+- **Still open.** NC-EXT-19/90 (mission schedule/timing/policy inputs),
+  `N22-TS5-47` (EVS-to-HS end-to-end), `N22-TS5-48` (mission rates/tolerances),
+  M14 memory ordering, the activation-apply deferral budget, and target/HIL
+  evidence (GAP-A5). The N18 run is emulated-target startup evidence only: the
+  activation callback is exercised on the host, not on target. NC-EXT-239 is
+  open. No NC is closed by this increment.
+- **Next action.** Independent R2/R3/R4/PA review of this increment
+  (`docs/reviews/`), then continue the next unblocked functional item; the
+  watchdog findings remain owner-deferred.
+
+## Emulated WDOG0 watchdog binding increment — 2026-11-09
+
+**Status: implemented in-tree; host tests green; emulated N18 PASS. Flight binding
+still open (NC-PAL-01). No commit/push.**
+
+- **What changed.** The MPFS MSS WDOG0 binding in `src/core/pal/pal_rtems.c` is
+  now implemented for the **N18 build only** (`FRICK_PLATFORM_MPFS &&
+  FF_ENABLE_RENODE_TEST`), against the verified register map in
+  `config/platform/platform_mpfs.h` (base `0x20001000`; `REFRESH 0x00`,
+  `CONTROL 0x04`, `STATUS 0x08`, `TIME 0x0C`, `MSVP 0x10`, `TRIGGER 0x14`,
+  `FORCE 0x18`; refresh key `0xDEADC0DE`, force key `0xDEAD`). The order is
+  `TRIGGER -> MSVP -> TIME -> CONTROL`, followed by a read-back of the three
+  value registers **before** the first keyed refresh (the configuration is
+  write-once). Flight builds keep the three hooks explicitly
+  `FF_NOT_IMPLEMENTED`.
+- **Emulated profile.** Pinned model clock `156 250 Hz`, mission-table timeout
+  10 s (`TIME = 1 562 500`), `MSVP = TIME` (refresh window disabled),
+  `TRIGGER = 4095` (≈26.2 ms). These are **emulator parameters, not flight
+  values**.
+- **Feeder.** `src/apps/app_wd.c` now uses absolute monotonic deadlines
+  (`FF_PalTaskDelayUntilNs`) with `feed = T/4 = 2.5 s`, so jitter does not
+  accumulate (NC-EXT-187). A 100 ms execution/jitter budget is assumed.
+- **Provisional GEO values (NC-EXT-238).** `T = 10 s`, feed `2.5 s`, pre-reset
+  report budget `250 ms`, margin `100 ms`. Mission-authority values remain open.
+- **Gates run.** Host CTest 54/54 PASS (`build2/native`); RTEMS 6.2 cross-build
+  in `frick-rtems-toolchain:local` PASS; `make renode` **PASS** with
+  `RENODE_TEST: PASS`; console shows `watchdog: WDOG0 armed (emulated profile:
+  timeout 10000 ms, TIME=1562500, TRIGGER=4095, MSVP=TIME, clk=156250 Hz)` and
+  `WD armed: timeout 10000 ms, feed 2500 ms`.
+- **Still open.** NC-PAL-01 (flight binding, target/HIL), NC-EXT-186 (250 ms
+  target timing), NC-EXT-188 (target protection), NC-EXT-238 (mission values),
+  and the independent R2/R3/R4/PA reviews of this increment. Emulated evidence
+  establishes no RTPFS160ZT register/clock/reset-scope/timing fidelity.
 
 ## NC-EXT-18 S6 refusal-cause addendum — 2026-10-24 (S8-PUS-FU)
 
@@ -219,13 +315,15 @@ NC-EXT-184..188 and NC-EXT-191..192):**
    buffer does not bound the work. The owner-approved 250 ms target therefore
    does not yet cover all pre-reset work.
 3. **Controlled watchdog configuration, refresh window and margin (systems +
-   avionics).** The 8 s value stays an arbitrary placeholder; the actual
-   feed-to-feed interval, the earliest permitted MSS refresh and the approved
-   execution/jitter margin are unestablished, so the feeder cadence is
-   deliberately unchanged and relative.
-4. **Target protection and timing evidence (HIL).** The MPFS binding is
-   unwired (NC-PAL-01); no target/HIL watchdog, reset or 250 ms timing evidence
-   exists; the Renode models are generic and not RTPFS160ZT evidence.
+   avionics).** The timeout is provisionally 10 s (feed 2.5 s, NC-EXT-238) and
+   the feeder now uses absolute monotonic deadlines, but the flight value, the
+   earliest permitted MSS refresh, the selected instance and the approved
+   execution/jitter margin remain unestablished. The emulated N18 profile
+   (`156 250 Hz`, `MSVP = TIME`, `TRIGGER = 4095`) is not a flight configuration.
+4. **Target protection and timing evidence (HIL).** The flight MPFS binding is
+   still `FF_NOT_IMPLEMENTED` (NC-PAL-01); a test-only emulated binding now arms
+   and feeds in Renode, but no target/HIL watchdog, reset or 250 ms timing
+   evidence exists, and the Renode model is not RTPFS160ZT fidelity evidence.
 
 **Policy options for the owner (recommendation in bold):**
 
@@ -244,13 +342,13 @@ NC-EXT-184..188 and NC-EXT-191..192):**
   reason to a fixed-size, non-variadic payload.
   **Recommendation: (a)**, because it is the only option that makes the
   owner-approved single budget provable without changing the call sites.
-- *Feed cadence.* (a) Keep the current relative delay and document the
-  resulting inter-feed interval as unverified; (b) switch to an absolute
-  monotonic schedule once the refresh window and margin are authorized;
-  (c) adopt the 8 s / 2 s placeholder as a flight value.
-  **Recommendation: (b) with (a) until the authority inputs exist** — (c) would
-  ratify an unjustified number, and (a) alone leaves the SRS-REQ-073
-  inter-feed clause unverified.
+- *Feed cadence.* (a) Keep a relative delay and document the resulting
+  inter-feed interval as unverified; (b) switch to an absolute monotonic
+  schedule once the refresh window and margin are authorized; (c) adopt the
+  provisional 10 s / 2.5 s values as flight values.
+  **Recommendation: (b), now implemented** — the feeder uses absolute monotonic
+  deadlines with a T/4 interval; the flight value, refresh window and margin
+  remain authority inputs, and (c) is not ratified.
 
 **Correction round (2026-10-21, after FRICK-REVIEW-0419/0420):** the
 record-currency findings are applied — executed counts 320/180/71/113, the
@@ -294,7 +392,7 @@ unchanged and open.
 | pinned `format-check` (`frick-vv:local`) | **PASS** | clang-format 18.1.3, exit 0 |
 | RTEMS 6.2 cross-build (`frick-rtems-toolchain:local`, `--pull=never`) | **PASS** | configure/build exit 0; artifact exports no POSIX `poll`/`select` and no `FF_TEST_HOOKS` seam |
 | **Lean** (`lake build`) | **PASS** | The project-pinned toolchain `leanprover/lean4:v4.10.0` (Lean 4.10.0, commit `c375e19f6b65`, Release; Lake 5.0.0-c375e19) was downloaded through elan in `frick-vv:local` into the **dedicated** cache `~/.cache/frick-fsw/elan` (ELAN_HOME; no global default change, host ownership of the new files restored). The prescribed check `cd verification/lean && lake build` (Makefile `verify-lean`) was executed in the controlled image and reported `Build completed successfully.` with exit 0 |
-| **N18 Renode** (`make renode`, corrected runner) | **FAIL** | Image downloaded and digest-verified against the prescribed pin (`antmicro/renode@sha256:7905c32…`, 908 MB); current-tree ELF rebuilt (`build/renode/frick_fsw_renode.elf`, sha256 `23a4c8da…`, 4 114 616 B). The run **exits with the RTEMS fatal error before the test application can emit its marker**: the RTEMS feeder panics at start-up (`[FF-PANIC] watchdog: init failed` → `watchdog: reset requested but MPFS binding NOT WIRED - NC-PAL-01` → `*** EXIT STATUS NOT ZERO ***`, RTEMS fatal exit 5), because the owner-approved arm-error propagation treats the unwired MPFS binding's `FF_NOT_IMPLEMENTED` as a fatal arm failure. The marker is absent from this run's process log **and** UART console → **FAIL, not PASS and not SKIP**. Root cause registered as **NC-EXT-198** (owner decision). The runner's own `PASS` verdict was a **false PASS from a stale 2026-10-20 log** (its fixed `/tmp` log paths are not writable here) — registered as **NC-EXT-199**, since corrected and retested (fresh per-run log directory, fail-closed verdict unit, mutation-verified regression suite, independent review FRICK-REVIEW-0423); the corrected runner now reports the truthful verdict above |
+| **N18 Renode** (`make renode`, corrected runner) | **FAIL (historical 2026-10-21; superseded by the 2026-11-09 emulated binding increment above)** | Image downloaded and digest-verified against the prescribed pin (`antmicro/renode@sha256:7905c32…`, 908 MB); current-tree ELF rebuilt (`build/renode/frick_fsw_renode.elf`, sha256 `23a4c8da…`, 4 114 616 B). The run **exits with the RTEMS fatal error before the test application can emit its marker**: the RTEMS feeder panics at start-up (`[FF-PANIC] watchdog: init failed` → `watchdog: reset requested but MPFS binding NOT WIRED - NC-PAL-01` → `*** EXIT STATUS NOT ZERO ***`, RTEMS fatal exit 5), because the owner-approved arm-error propagation treats the unwired MPFS binding's `FF_NOT_IMPLEMENTED` as a fatal arm failure. The marker is absent from this run's process log **and** UART console → **FAIL, not PASS and not SKIP**. Root cause registered as **NC-EXT-198** (owner decision). The runner's own `PASS` verdict was a **false PASS from a stale 2026-10-20 log** (its fixed `/tmp` log paths are not writable here) — registered as **NC-EXT-199**, since corrected and retested (fresh per-run log directory, fail-closed verdict unit, mutation-verified regression suite, independent review FRICK-REVIEW-0423); the corrected runner now reports the truthful verdict above. **Current state (2026-11-09): N18 PASS with the test-only emulated WDOG0 binding; see the top section.** |
 | Hosted CI (GitHub/Gitea) | **NOT RUN** | Separate gate; `ci_github` remains green from an earlier, unrelated run and is not evidence for this tree |
 | Target / HIL / QEMU | **NOT RUN** | Separate gate; no target execution, timing, watchdog or flight-readiness evidence exists |
 | UART drain-stop flag | **OPEN finding** | ThreadSanitizer-confirmed C11 data race; registered **NC-EXT-197** (OPEN/deferred for owner triage); the earlier "cannot hang" wording is superseded |
@@ -528,6 +626,14 @@ edits run `chown -R 1000:1000` (no sudo on host). Host lacks cmake-format/lake o
 occasion; prefer Docker.
 
 ## 4. Current state (engineering baseline `318f49b`; status-only follow-ups committed)
+
+> **Historical snapshot (2026-10-20/21).** This section records the state at the
+> original `S8-FDIR-01` increment. The watchdog binding and mission timeout have
+> since changed: see the **Emulated WDOG0 watchdog binding increment — 2026-11-09**
+> section at the top of this document (test-only emulated binding, N18 PASS,
+> provisional 10 s / 2.5 s values). Where this section says the binding is
+> "deliberately unwired" or the timeout is 8 s, read the top section for the
+> current state.
 
 - **Working-tree increment `S8-FDIR-01` (uncommitted, 2026-10-20):** the first
   **real code change since `318f49b`** — panic/reset-recovery. It addresses the
@@ -1600,3 +1706,5 @@ occasion; prefer Docker.
 | 3.63 | 2026-11-04 | frick-fsw | **FRICK-REVIEW-0456/0457 corrections (round three, both PASS WITH COMMENTS).** (a) **F-0456-01**: the bound `build.log` was a 3-line incremental rebuild; a clean `build/gate10` configure/build/CTest/new-tests/format/smoke run now backs the README §3 table, and the `gate8` overwrite is disclosed. (b) **F-0456-02 / PA-0457-03**: NC-EXT-236 harmonised everywhere — the production sink exists (`app_tm_output.c:14-25`); the gap is the absent end-to-end oracle through `FF_AppTmOutputInit`/`ff_to_sink`. (c) **F-0456-03**: the PAL-exhaustion oracle now asserts `FF_PalTaskCreate(...) == FF_NO_RESOURCE` (state-independent), so the fixture cannot pass with `fillers == 0`. Script is now `23535db3…6035`, 110 checks. (d) **F-0456-04**: §2.1 disclosure rewritten — the failing transcript was lost, `format-check.log` contains the command only (PASS is empty by construction), and “no semantic change” replaces the false “no source changed”; pre-format hash was not retained. (e) **PA-0457-01..04**: CANDIDATE revisions/line anchors corrected; review index completed (0439, 0440, 0448); `verification-results.md` duplicate heading retitled historical and the stale RTEMS line annotated. (f) **PA-0457-05..08**: `riscv-rtems6-nm` named as the reference binutils; `src/main/fsw_main_reqtest.c` listed as `#error`-guarded/not compiled; evidence-mapping document classified once; 0439/0440/0442/0444-0448 bound. No NC closed, no sprint closed, no commit/push. |
 | 3.64 | 2026-11-04 | frick-fsw | **FRICK-REVIEW-0458/0459 corrections (round four, both PASS WITH COMMENTS, 0 Blocker/0 Major).** (a) **F-0458-01**: `test_evs_hs_health.c` header no longer claims the listener does not forward to the TM sink; the stated gap is the assembled chain through the production `FF_AppTmOutputInit`/`ff_to_sink`, with `test_r3_gap.c:523-575` covering listener → sink. Comment-only; new sha256 `23535db3…6035`, 110 checks. (b) **F-0458-02**: `build/gate11` is the authoritative directory and smoke runs in a separate `build/gate11-smoke`; nothing rebuilds gate11 after its CTest, and `build/gate10` is marked superseded for that exact defect. (c) **PA-0459-01/02**: candidate identity now cites `tool-qualification.md` rev 1.5; `src/main/fsw_main_reqtest.c` is bound as a manifest-only gate input (uncompiled, but inside the N13 licence and cppcheck path sets). (d) **PA-0459-O-01..03**: stale revision labels annotated; review index carries 0458/0459. 
 FRICK-REVIEW-0460 (V&V) and FRICK-REVIEW-0461 (PA) then confirmed the delta with 0 Blocker/0 Major; their non-functional observations (TS-5 header date, mixed line ranges, smoke log not naming `BUILD_DIR`, pre-existing index gaps) are corrected and reconciled in FRICK-REVIEW-0462. No NC closed, no sprint closed, no commit/push. |
+| 3.66 | 2026-11-10 | frick-fsw | **S8-SCH `N22-TS5-66` delivered: TBL load/activate → scheduler dispatch coupling.** `app_scheduler.c` registers an `FF_TblActivateCb` that re-validates and snapshots the activated image into a mutex-protected pending slot; the scheduler task applies it (`FF_SchedActivate` + `FF_SchedInit`) on its next tick with a non-blocking lock and emits the re-activation event (0x0601, `"SCH: table activated, %u entries"`), preserving the single-writer contract with a bounded one-tick deferral. `tbl.h` callback contract tightened (bounded, no I/O, no TBL re-entry). `test_tbl_sched_coupling.c` gains production-path nominal + out-of-bound cases (61 checks); `FF_PalTaskDelayMsTestWait()` now consumes each block notification so injected time maps to exactly one iteration, and the `N22-TS5-47` expectations were corrected to the deterministic sequence (2 missed-slot events, 68 checks). Gates: build clean, CTest 55/55 PASS, trace PASS (120/76/30/14/68), Lean PASS, pinned clang-format 18 PASS, RTEMS 6.2 cross-build PASS (N18 profile; one pre-existing `pal_rtems.c` implicit-declaration warning, outside this increment), **N18 Renode PASS** (`RENODE_TEST: PASS`, container exit 0; console shows `SCH app started, 4 entries`). TS-5 `N22-TS5-66` `gap` → `covered`; sprint-plan Rev 1.128; architecture Rev 0.4. NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14 and target/HIL remain open. No NC closed, no commit/push. |
+| 3.67 | 2026-11-10 | frick-fsw | **`N22-TS5-66` cycle closed on the emulated target; NC-EXT-239 registered.** After the Rev 3.66 record, the applicable gates were executed on the same working tree: `trace.py` PASS (120/76/30/14/68), pinned clang-format 18.1.3 PASS, RTEMS 6.2 cross-build PASS for the N18 profile (`build/renode`, 164/164 steps, exit 0, ELF sha256 `5557d0bd…1a0e`, byte-identical to the copied `frick_fsw_renode.elf`) and **N18 Renode PASS** (`[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)`, fresh run dir; console `SCH app started, 4 entries`). The cross-build emits one **pre-existing** warning outside this increment (`src/core/pal/pal_rtems.c:156: implicit declaration of function 'ff_pal_wd_hw_feed'`; prototype only in `pal_watchdog.c`), registered as **NC-EXT-239 OPEN** with owner FSW (PAL/NC-PAL-01 workstream). Sprint-plan Rev 1.129, loop-audit Rev 10.46 and `verification-results.md` record the evidence (retained in `docs/vv/evidence/2026-11-10-n22-ts5-66/`); the stale `Renode N18 FAIL` statements in the S8-SCH row, closure table and residual-items section are superseded by the 2026-11-09/2026-11-10 emulated PASS. Still open: NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14, the one-tick deferral budget, target/HIL (GAP-A5), and the independent R2/R3/R4/PA reviews. No NC closed, no commit/push. |

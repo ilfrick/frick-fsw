@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ARCH-0018 |
 | --- | --- |
-| Revision | 0.3 |
-| Date | 2026-10-16 |
+| Revision | 0.5 |
+| Date | 2026-11-10 |
 | Status | Design input with a partially implemented dispatcher; the implementation is not an assurance, schedulability or qualification claim |
 
 ## 1. Scope and terminology
@@ -155,13 +155,26 @@ Delivered and host-verified (not an approved mission profile):
 - Diagnostics for the §5 evidence requirement: release/missed/late/publish-error
   counters exposed by `FF_SchedGetStats`, plus EVS heartbeat, missed-slot and
   dispatch-failure events emitted by `src/apps/app_scheduler.c`.
+- Table Services coupling (`N22-TS5-66`, 2026-11-10): the application registers
+  `sample_sched` with an activation callback (`FF_TblActivateCb`). The callback
+  runs in TBL/command context and only validates the image and snapshots it into
+  a mutex-protected pending slot; the scheduler task applies it at the top of its
+  next tick (`FF_SchedActivate` + `FF_SchedInit`) and emits the activation event.
+  This preserves the single-writer dispatcher contract and bounds the coupling
+  deferral to at most one scheduler tick. An invalid image never reaches the
+  dispatcher: TBL refuses the load, activation returns `FF_NOT_READY`, and the
+  previously active table keeps running.
 - Host verification: `tests/unit/test_sched.c` (nominal and out-of-bound cases
-  with explicit expected results, injected clock) plus real SB delivery.
+  with explicit expected results, injected clock) plus real SB delivery, and
+  `tests/unit/test_tbl_sched_coupling.c` for the TBL load/activate → dispatch
+  path through the production scheduler application.
 
 Explicitly **not** established: mission rates/jitter/tolerances, WCET, target
-RTEMS timing, watchdog interaction, clock-discontinuity behaviour, table
-load/activate-over-SB operational flow, and recovery authority. Section 5's
-gate ("replace the stub only after requirements and review approval") is **satisfied for the requirements/architecture increment**: independent R3 Systems review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-r3-review.md`) and R4 Documentation review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-full-sprint-r4-review.md`) are complete. **Full sprint closure remains NOT RECOMMENDED** (R4) pending: authority-dependent closure of NC-EXT-19/90 (mission schedule/timing/policy inputs), TBL load/activate→dispatch coupling gap (`N22-TS5-66`), EVS-to-HS integration gap (`N22-TS5-47`), and no target/HIL evidence (Renode N18 FAIL, GAP-A5). NC-EXT-19 is not closed and no flight-use authorization is implied.
+RTEMS timing, watchdog interaction, clock-discontinuity behaviour, the
+load/activate-over-SB operational flow (command path, authentication, ground
+procedures), the worst-case deferral budget of the one-tick activation apply, and
+recovery authority. Section 5's
+gate ("replace the stub only after requirements and review approval") is **satisfied for the requirements/architecture increment**: independent R3 Systems review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-r3-review.md`) and R4 Documentation review (2026-10-30, `docs/reviews/2026-10-30-s8-sch-full-sprint-r4-review.md`) are complete. **Full sprint closure remains NOT RECOMMENDED** (R4) pending: authority-dependent closure of NC-EXT-19/90 (mission schedule/timing/policy inputs), EVS-to-HS integration gap (`N22-TS5-47`), and no target/HIL evidence (N18 emulated PASS 2026-11-10; GAP-A5 open). The TBL load/activate→dispatch coupling gap (`N22-TS5-66`) is delivered and host-tested. NC-EXT-19 is not closed and no flight-use authorization is implied.
 
 ## 6. Sources checked (accessed 2026-10-13)
 
@@ -199,3 +212,5 @@ gate ("replace the stub only after requirements and review approval") is **satis
 | 0.1 | 2026-10-13 | frick-fsw | Record scheduler option trade, cFS-SCH behavior, RTEMS ownership boundary, recovery limits and M17 plan |
 | 0.2 | 2026-10-16 | frick-fsw | Record the delivered S8-SCH dispatcher increment (ff_sched validation/atomic activation/absolute per-entry targets, bounded per-poll work, missed-slot and heartbeat diagnostics) and state explicitly that the section 5 review gate, mission timing inputs and target evidence remain open |
 | 0.3 | 2026-10-16 | frick-fsw | Select checked, non-wrapping deadline arithmetic with per-entry disable/counter as provisional framework behavior; cite ADR-0020 and keep NC-EXT-90/mission authority limits open |
+| 0.4 | 2026-11-10 | frick-fsw | Record the delivered Table Services coupling (`N22-TS5-66`): the application's `FF_TblActivateCb` callback only snapshots the activated image, and the scheduler task applies it (`FF_SchedActivate` + `FF_SchedInit`) on its next tick, preserving the single-writer contract with a bounded one-tick deferral; invalid images never reach the dispatcher. Note that the load/activate-over-SB operational flow, the deferral budget, mission timing inputs and target evidence remain open |
+| 0.5 | 2026-11-10 | frick-fsw | Correct the sprint-closure paragraph: the `Renode N18 FAIL` statement is superseded by the 2026-11-10 emulated N18 PASS on the `N22-TS5-66` tree; target/HIL evidence (GAP-A5) remains open. Header revision/date corrected to match the history (was 0.3/2026-10-16). |

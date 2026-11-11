@@ -7,6 +7,95 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Scheduler dispatch of activated tables and deterministic delay seam (2026-11-10)
+
+Functional N21 increment. It closes test-spec gap **N22-TS5-66**: the scheduler
+application did not consume a table activation, so a validated/activated
+scheduler image (SRS-REQ-071) had no effect on dispatch until reboot, and the
+activation path was not exercised end to end against the production app
+(SRS-REQ-013).
+
+- **Deferred activation in the scheduler app.** `src/apps/app_scheduler.c` now
+  registers an `FF_TblActivateCb`. The callback re-validates the activated
+  image and snapshots it (handle, size, generation counter) into a
+  mutex-protected pending slot; the scheduler task applies the snapshot at the
+  start of its next tick, before `FF_SchedPoll`. This keeps `ff_sched` state
+  single-writer (no TBL-thread mutation of the live dispatch table) and keeps
+  the callback bounded.
+- **Callback contract.** `src/core/tbl/tbl.h` documents the new optional
+  `on_activate` hook: it runs in the caller's context, must not perform I/O,
+  must not block unboundedly and must not re-enter TBL services; a subsystem
+  owning other state must snapshot and apply in its own task context.
+  `FF_TblActivate` invokes it only after releasing the TBL lock and only for
+  successful activations.
+- **Re-activation observability.** A repeat activation reuses the existing
+  `FF_SCHED_EVT_ACTIVATED` (0x0601) event id with
+  `FF_SCHED_EVT_REACTIVATED_FMT` ("SCH: table activated, %u entries"), so the
+  ground-visible event-id catalogue is unchanged. The scheduler table handle is
+  reset to `FF_TBL_INVALID_HANDLE` until a successful apply.
+- **Deterministic test seam.** `FF_PalTaskDelayMsTestWait()` now consumes the
+  block notification on return, so each controlled delay entry maps to exactly
+  one injected time step. `tests/unit/test_sched_events.c` expectations were
+  corrected accordingly (two `MISSED_SLOT` events at the injected boundaries).
+- **Verification.** Host build clean (no warnings), CTest **55/55 PASS**,
+  focused scheduler/TBL binaries 50/50 executions over 25 loops, trace PASS
+  (120/76/30/14/68), `lake build` PASS, pinned clang-format 18.1.3 PASS, RTEMS
+  6.2 cross-build PASS (N18 profile; ELF sha256 `5557d0bd…1a0e`) and **N18
+  Renode PASS** (`RENODE_TEST: PASS`, container exit 0; console shows
+  `SCH app started, 4 entries`). `N22-TS5-66` covers the nominal path and
+  out-of-bound cases (`FF_BAD_SIZE`, `FF_ERROR`, `FF_NOT_READY` → no apply,
+  unchanged entry count, no event).
+- **Records updated.** `docs/vv/test-spec/ts-5-core-services.md` (rev 1.15,
+  60 covered / 27 gap), `docs/requirements/traceability.yaml` (SRS-REQ-071,
+  SRS-REQ-013), `docs/architecture/scheduling.md` (rev 0.4),
+  `docs/planning/sprint-plan.md` (rev 1.128), `docs/status/handover.md`
+  (rev 3.66), `docs/status/loop-audit.md` (rev 10.45) and
+  `docs/vv/verification-results.md`.
+- **Limits.** The N18 run is emulated-target startup evidence only: the
+  activation callback itself is exercised on the host, not on target, and no
+  HIL, WCET/timing, radiation or mission-suitability claim is made. The RTEMS
+  cross-build emits one **pre-existing** warning outside this increment
+  (`pal_rtems.c:156` implicit declaration of `ff_pal_wd_hw_feed`), recorded for
+  disposition. The independent R2/R3/R4/PA reviews of this increment are still
+  open.
+
+### Emulated MPFS WDOG0 watchdog binding and provisional GEO parameters (2026-11-09)
+
+Test-only hardware binding increment under the owner-directed FDIR work. It is
+**emulator configuration and integration evidence only**: no flight parameter,
+target/HIL protection, RTPFS160ZT fidelity or mission suitability is claimed,
+and no NC is closed.
+
+- **Emulated WDOG0 binding (N18 build only).** `src/core/pal/pal_rtems.c` now
+  implements `ff_pal_wd_hw_arm/feed/reset` for
+  `FRICK_PLATFORM_MPFS && FF_ENABLE_RENODE_TEST` against the verified register
+  map in `config/platform/platform_mpfs.h` (base `0x20001000`; `REFRESH 0x00`,
+  `CONTROL 0x04`, `STATUS 0x08`, `TIME 0x0C`, `MSVP 0x10`, `TRIGGER 0x14`,
+  `FORCE 0x18`; refresh key `0xDEADC0DE`, force key `0xDEAD`). The order is
+  `TRIGGER -> MSVP -> TIME -> CONTROL`, followed by a read-back of the three
+  value registers **before** the first keyed refresh (the configuration is
+  write-once). The emulated profile uses the pinned model's explicitly emulated
+  `156 250 Hz` clock, `MSVP = TIME` (window disabled) and `TRIGGER = 4095`.
+- **Flight builds unchanged.** They keep the three hooks explicitly
+  `FF_NOT_IMPLEMENTED` under NC-PAL-01; the emulated values are not flight
+  values.
+- **Feeder cadence.** `src/apps/app_wd.c` now uses absolute monotonic deadlines
+  (`FF_PalTaskDelayUntilNs`) at `T/4`, with re-anchoring on overrun, so wake-up
+  jitter does not accumulate (NC-EXT-187). A 100 ms execution/jitter budget is
+  assumed inside the interval.
+- **Provisional GEO values (new NC-EXT-238).** Mission-table default timeout
+  `T = 10 s`, feed `2.5 s`, pre-reset report budget `250 ms`, margin `100 ms`.
+  These are representative development/test defaults; the mission authority
+  must confirm or replace them.
+- **Verification.** Host CTest 54/54 PASS; pinned clang-format 18.1.3 PASS;
+  Lean `lake build` and the elaboration receipt PASS (11 modules); trace PASS
+  (120/76/30/14/68); `gsw-selfcheck` and `metrics.py --check` PASS; RTEMS 6.2
+  cross-build PASS; **N18 Renode PASS** (`RENODE_TEST: PASS`; console shows the
+  WDOG0 arm/feed).
+- **Records updated.** ADR-0021 rev 1.3, FRICK-ARCH-0024 rev 1.6,
+  `docs/requirements/traceability.yaml` (SRS-REQ-073), sprint-plan rev 1.127,
+  handover rev 3.65, loop-audit rev 10.44 and `verification-results.md`.
+
 ### S8-FDIR-01 watchdog specification acceptance round 2 and official-document retrieval (2026-10-22)
 
 Documentation, research and review only, under the owner-authorized path A

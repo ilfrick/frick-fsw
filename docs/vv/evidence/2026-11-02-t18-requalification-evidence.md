@@ -93,9 +93,9 @@ docker run --rm -v "$PWD":/workspace -w /workspace frick-rtems-toolchain:local \
 
 | NC | Remaining Work |
 |----|----------------|
-| NC-EXT-35 | **Complete T1 requalification**: Record clean image build as T18 evidence; pin immutable base/apt/RSB in Dockerfile; complete independent R2/PA review of clean image artifacts |
+| NC-EXT-35 | **Complete T1 requalification**: Record clean image build as T18 evidence; **pin immutable base/apt/RSB in Dockerfile COMPLETED 2026-11-11**; complete independent R2/PA review of clean image artifacts |
 | NC-EXT-36 | **Verify Gitea CI hosted execution**: Confirm act_runner executes jobs with `frick-rtems-toolchain:local` and `frick-vv:local` images; retain run logs |
-| NC-EXT-40 | **Pin immutable inputs**: Replace `apt-get update` with pinned package versions; pin RSB git commit in Dockerfile; verify bit-for-bit reproducible image build |
+| NC-EXT-40 | **Pin immutable inputs COMPLETED 2026-11-11**: apt packages pinned to exact Ubuntu 24.04 versions; RSB git commit pinned (3814cb0e7f86cca2be403eac831f9bf571984659); `apt-get update` retained (apt index fetch remains mutable). Remaining: verify bit-for-bit reproducible image build (two consecutive builds with identical digest). |
 
 ## 7. Evidence Archive
 
@@ -110,4 +110,4 @@ docker run --rm -v "$PWD":/workspace -w /workspace frick-rtems-toolchain:local \
 **Verification**: All commands above executed successfully on 2026-11-02 with the recorded image IDs and tool versions.
 
 ---
-**Authority Note**: This evidence records a clean build and functional test. It does not establish bit-for-bit reproducibility (apt/RSB remain mutable per NC-EXT-40). It does not close NC-EXT-35/36/40; independent R2/PA review and authority disposition on pinning are still required.
+**Authority Note**: This evidence records a clean build and functional test. **Dockerfile pinning completed 2026-11-11** (apt packages + RSB commit). It does not establish bit-for-bit reproducibility (apt index fetch remains mutable per NC-EXT-40; two-build digest comparison pending). It does not close NC-EXT-35/36/40; independent R2/PA review and authority disposition on bit-for-bit reproducibility are still required.
