@@ -33,7 +33,7 @@ Last 8 lines: same as container path
 - B2 discrimination between execution environments affected, but fail-closed behavior preserved
 
 ### (b) Force-setprev probe always fail
-- setpriv as current user: `setresuid failed: Operazione non permessa` (exit code 127)
+- setpriv as current user: `setresuid failed: Operation not permitted` (exit code 127)
 - Direct verdict run (non-root path): correctly fails closed
 - If root with setpriv failing: test SKIPS B2/B2b with explicit message
 - "Different B2 outcome": skip vs pass/fail reporting
