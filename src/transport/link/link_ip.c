@@ -12,13 +12,11 @@
 #include "link_ip.h"
 #include "link_seg.h"
 #include "drivers/net/ff_net_loopback.h"
+#include "core/pal/pal.h"
 #include <string.h>
 
 /* Reference peer address (127.0.0.1) for host tests / emulator. */
-#define FF_LINK_IP_REF_PEER                                                                        \
-    {                                                                                              \
-        127u, 0u, 0u, 1u                                                                           \
-    }
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
 
 static FF_LinkIpConfig_t g_cfg;
 static FF_NetSock_t g_sock = -1;
@@ -187,13 +185,24 @@ static FF_Status_t ip_init(void)
     return ip_init_udp(g_cfg.stack);
 }
 
-static FF_Status_t ip_send(const uint8_t *data, uint16_t len)
+/* Validate the transmit contract shared by the plain and the deadline-bounded
+ * writer. Returns FF_SUCCESS when the arguments may be transmitted. */
+static FF_Status_t ip_check_tx(const uint8_t *data, uint16_t len)
 {
-    if (g_sock < 0) {
+    if ((g_sock < 0) || (g_cfg.stack == NULL)) {
         return FF_NOT_READY;
     }
-    if (g_cfg.stack == NULL) {
-        return FF_NOT_READY;
+    if ((data == NULL) && (len != 0u)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    return FF_SUCCESS;
+}
+
+static FF_Status_t ip_send(const uint8_t *data, uint16_t len)
+{
+    FF_Status_t check = ip_check_tx(data, len);
+    if (check != FF_SUCCESS) {
+        return check;
     }
     FF_NetStack_t *stack = g_cfg.stack;
 
@@ -209,6 +218,32 @@ static FF_Status_t ip_send(const uint8_t *data, uint16_t len)
     }
     /* Consistent error code for partial write (matches ip_write_bytes). */
     return (sent == len) ? FF_SUCCESS : FF_BUFFER_FULL;
+}
+
+/* Deadline-bounded send used by the pre-reset report path (SRS-REQ-074).
+ *
+ * `FF_NetStack_t::send` is a synchronous transmit submission, so this backend
+ * cannot preempt a stalled stack or driver. The budget is therefore honoured on
+ * entry (an already-expired budget must not transmit or report success) and
+ * re-checked after the transfer, so an overrun is reported as FF_TIMEOUT
+ * instead of being reported as delivered within budget. */
+static FF_Status_t ip_send_until(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
+{
+    FF_Status_t check = ip_check_tx(data, len);
+    if (check != FF_SUCCESS) {
+        return check;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    FF_Status_t st = ip_send(data, len);
+    if (st != FF_SUCCESS) {
+        return st;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    return FF_SUCCESS;
 }
 
 static FF_Status_t ip_recv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
@@ -242,6 +277,6 @@ const FF_Link_t FF_LinkIpBackend = {
     .name = "ip_link", /* mode-agnostic: UDP or TCP at init time */
     .init = ip_init,
     .send = ip_send,
-    .send_until = NULL,
+    .send_until = ip_send_until,
     .recv = ip_recv,
 };

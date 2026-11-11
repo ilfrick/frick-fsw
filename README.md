@@ -51,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-11-02. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-11-11. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -73,8 +73,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 120/120 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 106/120 (88.3%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 28/120 (23.3%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 15008/32457 (46.2%) | gcov |
-| Code function coverage | 1709/2553 (66.9%) | gcov |
+| Code statement (line) coverage | 15328/32948 (46.5%) | gcov |
+| Code function coverage | 1749/2593 (67.5%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores

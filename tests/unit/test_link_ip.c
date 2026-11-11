@@ -139,12 +139,16 @@ static uint16_t g_mock_net_tx_len;
 static FF_NetSock_t g_mock_net_sock = -1;
 static FF_NetSock_t g_mock_net_peer = -1;
 static uint16_t g_mock_net_send_limit = 0u; /* when >0, limits bytes per mock_net_send call */
+/* When >0, mock_net_send advances the frozen monotonic clock by this amount to
+ * model a transmit that consumes the remaining deadline budget. */
+static uint64_t g_mock_net_send_advance_ns = 0u;
 
 static FF_Status_t mock_net_init(void)
 {
     g_mock_net_rx_len = 0u;
     g_mock_net_tx_len = 0u;
     g_mock_net_send_limit = 0u;
+    g_mock_net_send_advance_ns = 0u;
     g_mock_net_sock = 0;
     g_mock_net_peer = 1;
     return FF_SUCCESS;
@@ -203,6 +207,9 @@ static FF_NetSock_t mock_net_accept(FF_NetSock_t sd, uint8_t *peer, uint16_t *pe
 static FF_Status_t mock_net_send(FF_NetSock_t sd, const uint8_t *buf, uint16_t len, uint16_t *sent)
 {
     (void)sd;
+    if (g_mock_net_send_advance_ns > 0u) {
+        FF_PalMonotonicTestSet(FF_PalGetMonotonicNs() + g_mock_net_send_advance_ns);
+    }
     /* Partial-send mode: deliver at most g_mock_net_send_limit bytes per call. */
     if (g_mock_net_send_limit > 0u) {
         uint16_t partial = (len < g_mock_net_send_limit) ? len : g_mock_net_send_limit;
@@ -825,6 +832,63 @@ static void test_pus_ip_roundtrip(void)
     FF_PusSetTmSink(NULL); /* R1-F02: do not leak the global sink to later tests */
 }
 
+/* ---- Deadline-bounded send (SRS-REQ-074 pre-reset report path) ---- */
+
+static void test_ip_send_until_deadline(void)
+{
+    /* fsw_main installs FF_LinkSendUntil as the PUS panic reporter, so every
+     * selected backend must expose a deadline-aware writer. The contract under
+     * test:
+     *  - a live budget delivers the datagram and reports FF_SUCCESS;
+     *  - an already-expired budget must not transmit and must report FF_TIMEOUT;
+     *  - an overrun during the transfer is reported as FF_TIMEOUT, never as a
+     *    successful in-budget delivery (the stack call itself cannot be
+     *    preempted: documented limitation of this backend). */
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    g_mock_net_rx_len = 0u;
+    g_mock_net_tx_len = 0u;
+
+    FF_LinkIpConfig_t cfg = FF_LinkIpDefaultConfig(&g_mock_net);
+    cfg.mode = FF_LINK_IPMODE_UDP;
+    cfg.port = 8082u;
+    FF_TEST_ASSERT(FF_LinkIpInit(&cfg) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkSelect(&FF_LinkIpBackend) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkIpBackend.send_until != NULL);
+
+    const uint8_t tx[] = {0xA1u, 0xB2u, 0xC3u};
+
+    /* Nominal: budget in the future, datagram handed to the stack. */
+    g_mock_net_tx_len = 0u;
+    FF_PalMonotonicTestSet(1000ULL);
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 2000ULL) == FF_SUCCESS);
+    FF_TEST_ASSERT(g_mock_net_tx_len == sizeof(tx));
+    FF_TEST_ASSERT(memcmp(g_mock_net_tx, tx, sizeof(tx)) == 0);
+
+    /* Expired on entry: nothing may reach the stack. */
+    g_mock_net_tx_len = 0u;
+    FF_PalMonotonicTestSet(5000ULL);
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 5000ULL) == FF_TIMEOUT);
+    FF_TEST_ASSERT(g_mock_net_tx_len == 0u);
+
+    /* Overrun inside the transfer: sent, but reported as late. */
+    g_mock_net_tx_len = 0u;
+    FF_PalMonotonicTestSet(1000ULL);
+    g_mock_net_send_advance_ns = 2500u;
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 3000ULL) == FF_TIMEOUT);
+    FF_TEST_ASSERT(g_mock_net_tx_len == sizeof(tx));
+    g_mock_net_send_advance_ns = 0u;
+
+    /* NULL payload with a non-zero length is rejected before the stack call
+     * (the plain writer had no such check; both now share one contract). */
+    g_mock_net_tx_len = 0u;
+    FF_PalMonotonicTestSet(1000ULL);
+    FF_TEST_ASSERT(FF_LinkIpBackend.send_until(NULL, sizeof(tx), 2000ULL) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_LinkIpBackend.send(NULL, sizeof(tx)) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(g_mock_net_tx_len == 0u);
+
+    FF_PalMonotonicTestUnfreeze();
+}
+
 FF_TEST_MAIN(test_seg_basic_roundtrip, test_seg_max_frame_rejected, test_seg_buffer_too_small,
              test_seg_null_args, test_seg_length_prefix_encoding, test_seg_roundtrip_two_frames,
              test_seg_fragmented_stream, test_seg_max_size_fragmented_partial,
@@ -832,4 +896,4 @@ FF_TEST_MAIN(test_seg_basic_roundtrip, test_seg_max_frame_rejected, test_seg_buf
              test_ip_init_udp_default, test_ip_null_config, test_ip_null_stack,
              test_ip_backend_name, test_ip_send_no_backend, test_ip_udp_send_recv_roundtrip,
              test_ip_tcp_send_segmented, test_ip_tcp_recv_reassembles, test_ip_tcp_partial_write,
-             test_pus_ip_roundtrip)
+             test_pus_ip_roundtrip, test_ip_send_until_deadline)

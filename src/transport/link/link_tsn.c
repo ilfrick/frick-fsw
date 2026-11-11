@@ -15,10 +15,7 @@
 #include <string.h>
 
 /* Reference: broadcast destination MAC. */
-#define FF_LINK_TSN_REF_MAC                                                                        \
-    {                                                                                              \
-        0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu                                                   \
-    }
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
 
 typedef struct
 {
@@ -179,13 +176,24 @@ static FF_Status_t tsn_link_init(void)
     return st;
 }
 
-static FF_Status_t tsn_link_send(const uint8_t *data, uint16_t len)
+/* Validate the transmit contract shared by the plain and the deadline-bounded
+ * writer. Returns FF_SUCCESS when the arguments may be transmitted. */
+static FF_Status_t tsn_check_tx(const uint8_t *data, uint16_t len)
 {
     if ((g_cfg.mac == NULL) || (g_cfg.mac->transmit == NULL)) {
         return FF_NOT_READY;
     }
     if ((data == NULL) || (len == 0u) || (len > FF_LINK_TSN_RX_FRAMESZ)) {
         return FF_INVALID_ARGUMENT;
+    }
+    return FF_SUCCESS;
+}
+
+static FF_Status_t tsn_link_send(const uint8_t *data, uint16_t len)
+{
+    FF_Status_t check = tsn_check_tx(data, len);
+    if (check != FF_SUCCESS) {
+        return check;
     }
 
     /* Use a static frame buffer: the worst case (14-byte Eth header + up to
@@ -219,6 +227,32 @@ static FF_Status_t tsn_link_send(const uint8_t *data, uint16_t len)
     }
 
     return g_cfg.mac->transmit((void *)g_cfg.mac, frame, eth_len);
+}
+
+/* Deadline-bounded send used by the pre-reset report path (SRS-REQ-074).
+ *
+ * `FF_EthMac_t::transmit` is a synchronous descriptor submission, so this
+ * backend cannot preempt a stalled driver. The budget is therefore honoured on
+ * entry (an already-expired budget must not transmit or report success) and
+ * re-checked after the transfer, so an overrun is reported as FF_TIMEOUT
+ * instead of being reported as delivered within budget. */
+static FF_Status_t tsn_send_until(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
+{
+    FF_Status_t check = tsn_check_tx(data, len);
+    if (check != FF_SUCCESS) {
+        return check;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    FF_Status_t st = tsn_link_send(data, len);
+    if (st != FF_SUCCESS) {
+        return st;
+    }
+    if (FF_PalGetMonotonicNs() >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    return FF_SUCCESS;
 }
 
 static FF_Status_t tsn_link_recv(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms)
@@ -263,6 +297,6 @@ const FF_Link_t FF_LinkTsnBackend = {
     .name = "tsn_eth",
     .init = tsn_link_init,
     .send = tsn_link_send,
-    .send_until = NULL,
+    .send_until = tsn_send_until,
     .recv = tsn_link_recv,
 };

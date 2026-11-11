@@ -1,0 +1,37 @@
+=== NC-EXT-191 link deadline-writer mutation control (2026-11-11T17:14:46Z) ===
+Test-binary exit status is captured directly (not through a pipe).
+
+--- baseline (unmutated) ---
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c checks=149 failures=0
+test_link_tsn exit=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c checks=93 failures=0
+test_link_ip exit=0
+
+--- mutation A: entry deadline check removed from ip_send_until/tsn_send_until ---
+build exit=0
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c:557: g_captured_len == 0u
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c checks=149 failures=1
+test_link_tsn exit=1
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c:871: g_mock_net_tx_len == 0u
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c checks=93 failures=1
+test_link_ip exit=1
+
+--- mutation B: post-transfer deadline re-check removed ---
+build exit=0
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c:563: FF_LinkSendUntil(tx, sizeof(tx), 3000ULL) == FF_TIMEOUT
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c checks=149 failures=1
+test_link_tsn exit=1
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c:877: FF_LinkSendUntil(tx, sizeof(tx), 3000ULL) == FF_TIMEOUT
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c checks=93 failures=1
+test_link_ip exit=1
+
+--- restored sources ---
+build exit=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_tsn.c checks=149 failures=0
+test_link_tsn exit=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_link_ip.c checks=93 failures=0
+test_link_ip exit=0
+
+--- restored-source identity ---
+d019bb9dd21d353806ca2ec2d8324cd4c3563ed48c2d3d2f05356ebd7fea56e0  src/transport/link/link_tsn.c
+c62f99751b77e8dd2258c4c032d3b0278fd4a5c12c854616753381c064461324  src/transport/link/link_ip.c

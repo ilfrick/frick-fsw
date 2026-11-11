@@ -536,3 +536,85 @@ Event ids are still not a controlled catalogue (NC-EXT-102). T3 remains **NOT
 FULLY QUALIFIED** for this candidate: neither the new script nor
 `test_sched_events.c` has an N10 review (`tool-qualification.md` rev 1.6). No
 NC is closed by this cycle and no release/flight approval is claimed.
+
+## NC-EXT-191 link-backend deadline writers — 2026-11-11
+
+**Scope:** the `FF_Link_t::send_until` contract in `src/transport/link/link.h`,
+its IP and TSN implementations (`src/transport/link/link_ip.c`,
+`src/transport/link/link_tsn.c`), the `FF_LinkSendUntil` panic-report path
+installed by `src/main/fsw_main.c` (SRS-REQ-074), and the new cases in
+`tests/unit/test_link_ip.c` / `tests/unit/test_link_tsn.c`.
+
+**Defect:** `FF_LinkSendUntil` returns `FF_NOT_IMPLEMENTED` when the selected
+backend leaves `send_until == NULL`, and both the IP and TSN backends did, so the
+pre-reset S5 report could not be delivered on two of the four backends (loopback
+and UART already implemented it). This is the backend-coverage half of
+NC-EXT-191.
+
+**Change:** `ip_send_until` / `tsn_send_until` follow the pattern already used
+by `loop_send_until` / `uart_send_until`, with validation factored into
+`ip_check_tx()` / `tsn_check_tx()`: validate readiness/arguments → reject an
+already-expired deadline **before** transmitting → send → re-check and report
+`FF_TIMEOUT` on overrun. The `link.h` struct comment now states the return
+contract (entry rejection, post-transfer re-check, `FF_TIMEOUT` on overrun,
+`NULL` ⇒ `FF_NOT_IMPLEMENTED`). `ip_check_tx()` also rejects
+`data == NULL && len != 0` in the plain `ip_send()`, which previously forwarded
+that argument to the stack (defect fix; the other backends already rejected it).
+
+**Documented limitation:** `FF_NetStack_t::send` and `FF_EthMac_t::transmit` are
+synchronous submissions, so a stalled driver cannot be preempted. The deadline is
+an entry/post-check bound, not a preemption guarantee; the target 250 ms bound
+remains GAP-A5 / N22-TS2-78 (HIL scope).
+
+### Executed evidence (current tree, `BUILD_DIR=build2/native`)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Configure + build | exit 0 | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-build.log` |
+| CTest | **56/56 PASS** | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-ctest.log` |
+| Lean 4 | `lake build` exit 0 | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-lean.log` |
+| Traceability | PASS (120/76/30/14/68) | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-trace.log` |
+| Format | pinned clang-format 18.1.3, exit 0 | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-format.log` |
+| GSW / metrics / N13 license | `make gsw-selfcheck` OK | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-license-gsw.log` |
+| Smoke (native simulator) | PASS, 7 applications | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-smoke.log` |
+| Coverage / metrics | 56/56, 15328/32948 (46.5%) | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-coverage-metrics.log` |
+| RTEMS 6.2 cross build | exit 0, `frick_fsw` linked | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-rtems-cross-build.log` |
+| Renode N18 | `RENODE_TEST: PASS` | `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/gate-renode-n18.log` |
+
+The Renode run used the ELF rebuilt for this change
+(sha256 `55188f5a460bf7c2a97f4540bd8a12f571da56d276394c68a1be25b6a9251f84`), so
+it does not rest on a stale image.
+
+### Discriminating oracle and mutation control
+
+New cases (registered in existing binaries, so the CTest count stays 56):
+
+- `tests/unit/test_link_tsn.c::test_tsn_send_until_deadline` (149 checks total):
+  `send_until != NULL`; in-budget delivery (60-octet padded frame reaches the
+  mock MAC); expired-on-entry `FF_TIMEOUT` with **no** transmission;
+  post-transfer overrun `FF_TIMEOUT` with the frame transmitted; `NULL` data /
+  `len == 0` / `len > FF_LINK_TSN_RX_FRAMESZ` → `FF_INVALID_ARGUMENT`.
+- `tests/unit/test_link_ip.c::test_ip_send_until_deadline` (93 checks total):
+  same matrix for the UDP datagram path, plus the `NULL` + non-zero-length
+  rejection in both `send_until` and `send`.
+
+Determinism: the tests freeze the monotonic clock with the host-only
+`FF_PalMonotonicTestSet()` seam, and the mocks advance it during the transfer
+(`g_mock_transmit_advance_ns` / `g_mock_net_send_advance_ns`); no wall-clock
+timing is involved.
+
+Mutation control
+(`docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/mutation-check.log`):
+removing the entry check produces 1 failure per binary; removing the
+post-transfer re-check produces 1 failure per binary; restored sources produce
+0 failures. The cases therefore discriminate the two behaviours they claim.
+
+### Residual open items
+
+NC-EXT-191 remains **OPEN**: only its backend-coverage half is addressed. The
+UART shared-descriptor concurrency and target readiness-semantics parts are
+unchanged and are not claimed. The target 250 ms panic-report bound, on-target
+link behavior and timing remain GAP-A5 / N22-TS2-78 (HIL). T3 remains **NOT
+FULLY QUALIFIED** for this candidate: `test_link_ip.c` and `test_link_tsn.c` have
+no N10 review at these hashes (`tool-qualification.md` rev 1.7). No NC is closed
+by this cycle and no release/flight approval is claimed.

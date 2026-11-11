@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS2                     |
-| Revision                         | 0.9                                    |
-| Date                             | 2026-10-16                             |
+| Revision                         | 0.10                                   |
+| Date                             | 2026-11-11                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-2 |
@@ -98,11 +98,12 @@ its own behavior is TS-3.
 
 ## 2. Test cases
 
-Case IDs `N22-TS2-1` … `N22-TS2-81`; groups: `1–8` link core and loopback,
+Case IDs `N22-TS2-1` … `N22-TS2-83`; groups: `1–8` link core and loopback,
 `9–16` IP backend (UDP/TCP), `17–29` segmentation/reassembly, `30–37` TSN
 backend, `38–41` UART backend, `42–69` SDLS (backend, SA/key lifecycle,
-protect/unprotect), `70–80` combined scenarios and environment-bound gaps, and
-`81` UART packet-framing integration.
+protect/unprotect), `70–80` combined scenarios and environment-bound gaps,
+`81` UART packet-framing integration, and `82–83` deadline-bounded link writers
+(`FF_Link_t::send_until`, SRS-REQ-074 panic-report path).
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -187,6 +188,8 @@ protect/unprotect), `70–80` combined scenarios and environment-bound gaps, and
 | N22-TS2-79 | SRS-REQ-016 | On-target UART byte stream at 115200 baud (HIL) | nominal | target `/dev/console` UART at 115200 8N1 | **gap** — on-target UART timing and line integrity at the configured baud require flight hardware; GAP-A5 (NC-EXT-47 §7.5). No oracle is asserted here | HIL | individual | gap |
 | N22-TS2-80 | SRS-REQ-035 | Real cryptographic backend, HSM and ground key management (HIL) | nominal | certified CCSDS 352.0-B algorithm + hardware keystore; IV-uniqueness and key-distribution procedures | **gap** — GAP-A14: algorithm/HSM qualification, protected zeroisation, IV/counter uniqueness analysis and ground key management are mission/HW-supplied (FRICK-ARCH-0010 §7; NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
 | N22-TS2-81 | NC-EXT-07 characterization; no approved SRS oracle | `link_uart.c` packet framing over split/coalesced UART stream | OOB | PTY sends partial TC, receive timeout, remainder + second packet; too-small `cap`; over-limit PDL then valid packet; maximum frame; plausible maximum-length incomplete PDL followed by a valid packet and enough suffix to complete the declared candidate; close PTY master and read with a longer timeout | split frame is retained on timeout; complete frames return one per call byte-identically; too-small `cap` returns `FF_BAD_SIZE` without consuming the frame; over-limit candidate resynchronizes one octet; maximum 1037-octet frame is intact. For plausible incomplete candidate, return `FF_TIMEOUT`, emit no inner packet, then return the retained entire declared-length candidate only after its remaining bytes arrive (no sync delimiter permits guessing); a zero-byte read substantially before its configured VTIME chunk returns `FF_ERROR` on disconnect rather than retrying to deadline. This exposes the open malformed-candidate/head-of-line recovery policy (ICD §2/§3) | SIL | individual | characterization of current host reference behavior only; no requirement closure, timeout/recovery authority or target evidence |
+| N22-TS2-82 | SRS-REQ-060, SRS-REQ-074 | `link_ip.c` deadline-bounded writer `ip_send_until` (panic-report path) | nominal + OOB | frozen monotonic clock (host test seam): (a) now 1000 ns, deadline 2000 ns; (b) now 5000 ns, deadline 5000 ns; (c) now 1000 ns, deadline 3000 ns while the mock stack advances the clock by 2500 ns during `send`; (d) `data` = NULL with `len` = 3 for `send_until` and `send` | (a) `FF_SUCCESS`, datagram handed to the stack byte-identically; (b) `FF_TIMEOUT` and the stack receives nothing (an expired budget must not transmit); (c) `FF_TIMEOUT` although the datagram was transmitted (an overrun is never reported as an in-budget delivery); (d) `FF_INVALID_ARGUMENT` and nothing transmitted. Oracle: `link.h` `FF_Link_t::send_until` contract (entry rejection, post-transfer re-check, `FF_TIMEOUT` on overrun). `tests/unit/test_link_ip.c::test_ip_send_until_deadline`. The synchronous stack call cannot be preempted, so the target 250 ms bound is not established here (N22-TS2-78) | SIL | individual | host covered |
+| N22-TS2-83 | SRS-REQ-061, SRS-REQ-074 | `link_tsn.c` deadline-bounded writer `tsn_send_until` (panic-report path) | nominal + OOB | frozen monotonic clock (host test seam): (a) now 1000 ns, deadline 2000 ns; (b) now 5000 ns, deadline 5000 ns; (c) now 1000 ns, deadline 3000 ns while the mock MAC advances the clock by 2500 ns during `transmit`; (d) `data` = NULL with `len` = 4, `len` = 0, and `len` = `FF_LINK_TSN_RX_FRAMESZ` + 1 | (a) `FF_SUCCESS`, the 60-octet padded frame reaches the MAC; (b) `FF_TIMEOUT` and no frame reaches the MAC; (c) `FF_TIMEOUT` although the frame was transmitted; (d) `FF_INVALID_ARGUMENT` and no frame transmitted. Oracle: `link.h` `FF_Link_t::send_until` contract. `tests/unit/test_link_tsn.c::test_tsn_send_until_deadline`. Same non-preemptible-transfer limitation; target bound remains N22-TS2-78 | SIL | individual | host covered |
 
 ## 3. Gaps (mapping to NC-EXT-47 sub-items)
 
@@ -270,15 +273,16 @@ oracle.**
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 81 |
+| Total cases | 83 |
 | Nominal | 44 |
 | Out-of-bound | 37 |
-| Individual | 72 |
+| Mixed nominal + out-of-bound | 2 |
+| Individual | 74 |
 | Combined | 9 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 48 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 50 |
 | `gap` (no controlled oracle; recorded under NC-EXT-47) | 32 |
 | `characterization` (NC-driven; no requirement closure) | 1 |
-| SIL / PIL / HIL | 76 / 2 / 3 |
+| SIL / PIL / HIL | 78 / 2 / 3 |
 
 Requirement coverage in this scope: `SRS-REQ-015/016/026/027/028/034/035/039/
 044/059/060/061` and `SSS-REQ-014/019/028` all have at least one case; the link
@@ -303,3 +307,4 @@ unit-test target; its cases are specified but not automated.
 | 0.7 | 2026-10-16 | frick-fsw | Add explicit disconnected-terminal zero-read outcome to N22-TS2-81; preserve malformed plausible-candidate recovery as open |
 | 0.8 | 2026-10-16 | frick-fsw | Remove unsupported SRS-REQ-016 verification mapping from host UART characterization case per independent V&V review |
 | 0.9 | 2026-10-16 | frick-fsw | Define characterization-only status for N22-TS2-81 and reconcile coverage counts after independent V&V review |
+| 0.10 | 2026-11-11 | frick-fsw | Add N22-TS2-82/83 for the IP and TSN deadline-bounded writers (`FF_Link_t::send_until`, SRS-REQ-074 panic-report path) after the `link.h` contract was documented; recount 83 cases (50 `covered`, 32 `gap`, 1 characterization). Target 250 ms bound and the remaining NC-EXT-191 parts (UART shared-descriptor concurrency, target readiness semantics) stay open |

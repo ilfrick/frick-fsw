@@ -21,10 +21,7 @@
 
 /* ---- Mock MAC ---- */
 
-#define MOCK_MAC_ADDR                                                                              \
-    {                                                                                              \
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55                                                         \
-    }
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
 #define MOCK_RX_BUF 256u
 
 static uint8_t g_captured_frame[MOCK_RX_BUF];
@@ -32,6 +29,9 @@ static uint16_t g_captured_len;
 static FF_EthRxCb_t g_rx_cb;
 static void *g_rx_ctx;
 static bool g_mock_echo; /* when true, transmit loops the frame back to the RX callback */
+/* When >0, the mock transmit advances the frozen monotonic clock by this amount
+ * to model a transfer that consumes the remaining deadline budget. */
+static uint64_t g_mock_transmit_advance_ns;
 
 static FF_Status_t mock_mac_init(void *self)
 {
@@ -63,6 +63,9 @@ static FF_Status_t mock_mac_transmit(void *self, const uint8_t *frame, uint16_t 
     }
     (void)memcpy(g_captured_frame, frame, len);
     g_captured_len = len;
+    if (g_mock_transmit_advance_ns > 0u) {
+        FF_PalMonotonicTestSet(FF_PalGetMonotonicNs() + g_mock_transmit_advance_ns);
+    }
     /* Optional loop-back: deliver the frame synchronously to the registered RX
      * callback. Invariant this relies on (see src/transport/link/link_tsn.c):
      * tsn_link_send does NOT hold the link lock while calling transmit, and
@@ -140,6 +143,7 @@ static void reset_mocks(void)
     g_mock_vid = 0u;
     g_mock_pcp = 0u;
     g_mock_echo = false;
+    g_mock_transmit_advance_ns = 0u;
     memset(g_captured_frame, 0, sizeof(g_captured_frame));
 }
 
@@ -516,8 +520,62 @@ static void test_pus_tsn_roundtrip(void)
     FF_PusSetTmSink(NULL);
 }
 
+/* ---- Deadline-bounded send (SRS-REQ-074 pre-reset report path) ---- */
+
+static void test_tsn_send_until_deadline(void)
+{
+    /* fsw_main installs FF_LinkSendUntil as the PUS panic reporter, so every
+     * selected backend must expose a deadline-aware writer. The contract under
+     * test:
+     *  - a live budget delivers the frame and reports FF_SUCCESS;
+     *  - an already-expired budget must not transmit and must report FF_TIMEOUT;
+     *  - an overrun during the transfer is reported as FF_TIMEOUT, never as a
+     *    successful in-budget delivery (the driver call itself cannot be
+     *    preempted: documented limitation of this backend). */
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    reset_mocks();
+    FF_LinkTsnConfig_t cfg = FF_LinkTsnDefaultConfig(&g_mock_mac, &g_mock_tsn);
+    FF_TEST_ASSERT(FF_LinkTsnInit(&cfg) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkSelect(&FF_LinkTsnBackend) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_LinkTsnBackend.send_until != NULL);
+
+    const uint8_t tx[] = {0x01u, 0x02u, 0x03u, 0x04u};
+
+    /* Nominal: budget in the future, transfer completes inside it. */
+    reset_mocks();
+    FF_PalMonotonicTestSet(1000ULL);
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 2000ULL) == FF_SUCCESS);
+    FF_TEST_ASSERT(g_captured_len == 60u); /* padded minimum Ethernet frame */
+
+    /* Expired on entry: the frame must not reach the MAC at all. */
+    reset_mocks();
+    FF_PalMonotonicTestSet(5000ULL);
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 5000ULL) == FF_TIMEOUT);
+    FF_TEST_ASSERT(g_captured_len == 0u);
+
+    /* Overrun inside the transfer: transmitted, but reported as late. */
+    reset_mocks();
+    FF_PalMonotonicTestSet(1000ULL);
+    g_mock_transmit_advance_ns = 2500u;
+    FF_TEST_ASSERT(FF_LinkSendUntil(tx, sizeof(tx), 3000ULL) == FF_TIMEOUT);
+    FF_TEST_ASSERT(g_captured_len == 60u);
+    g_mock_transmit_advance_ns = 0u;
+
+    /* Argument contract is identical to the plain writer. */
+    reset_mocks();
+    FF_PalMonotonicTestSet(1000ULL);
+    FF_TEST_ASSERT(FF_LinkTsnBackend.send_until(NULL, 4u, 2000ULL) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_LinkTsnBackend.send_until(tx, 0u, 2000ULL) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_LinkTsnBackend.send_until(tx, (uint16_t)(FF_LINK_TSN_RX_FRAMESZ + 1u),
+                                                2000ULL) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(g_captured_len == 0u);
+
+    FF_PalMonotonicTestUnfreeze();
+}
+
 FF_TEST_MAIN(test_tsn_init_success, test_tsn_send_eth_frame, test_tsn_recv_after_rx_cb,
              test_tsn_recv_wrong_etype_dropped, test_tsn_recv_null_args, test_tsn_init_null_config,
              test_tsn_init_null_mac, test_tsn_send_too_large, test_tsn_ring_full_drop,
              test_tsn_backend_name, test_tsn_custom_dest_mac, test_tsn_short_frame_dropped,
-             test_tsn_oversized_payload_dropped, test_tsn_init_idempotent, test_pus_tsn_roundtrip)
+             test_tsn_oversized_payload_dropped, test_tsn_init_idempotent, test_pus_tsn_roundtrip,
+             test_tsn_send_until_deadline)

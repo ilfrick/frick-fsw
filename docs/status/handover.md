@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.68                                   |
+| Revision                         | 3.69                                   |
 | Date                              | 2026-11-11                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -12,6 +12,61 @@ This document is the **authoritative resume point** for an agent picking up the
 work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
+
+## NC-EXT-191: IP and TSN deadline-bounded link writers — 2026-11-11
+
+**Status: backend-coverage half implemented in-tree with discriminating oracles;
+host, RTEMS cross-build and Renode gates green. NC remains OPEN (UART
+shared-descriptor concurrency, target readiness semantics). No NC closed.**
+
+- **Defect.** `src/main/fsw_main.c` installs `FF_LinkSendUntil` as the PUS panic
+  reporter (SRS-REQ-074), and `FF_LinkSendUntil` returns `FF_NOT_IMPLEMENTED`
+  when the selected backend's `send_until` is `NULL`. `link_ip.c` and
+  `link_tsn.c` both left it `NULL`, so the pre-reset S5 report could not be
+  delivered on two of the four backends (loopback and UART already implemented
+  it).
+- **Fix.** `ip_send_until` / `tsn_send_until` follow the pattern already used by
+  `loop_send_until` / `uart_send_until`, with the shared validation factored
+  into `ip_check_tx()` / `tsn_check_tx()`: validate readiness/arguments → reject
+  an already-expired deadline **before** transmitting (`FF_TIMEOUT`) → send →
+  re-check and report `FF_TIMEOUT` on overrun. `link.h` now documents the
+  `FF_Link_t::send_until` return contract (entry rejection, post-transfer
+  re-check, `FF_TIMEOUT` on overrun, `NULL` ⇒ `FF_NOT_IMPLEMENTED`).
+  `ip_check_tx()` additionally rejects `data == NULL && len != 0` in the plain
+  `ip_send()`, which previously forwarded that argument to the stack (defect
+  fix; the other backends already rejected it).
+- **Documented limitation.** `FF_NetStack_t::send` and `FF_EthMac_t::transmit`
+  are synchronous submissions, so a stalled driver cannot be preempted. The
+  deadline is an entry/post-check bound, not a preemption guarantee; the target
+  250 ms bound remains GAP-A5 / `N22-TS2-78` (HIL).
+- **Discriminating oracles.** `tests/unit/test_link_tsn.c::
+  test_tsn_send_until_deadline` (149 checks total) and
+  `tests/unit/test_link_ip.c::test_ip_send_until_deadline` (93 checks total) use
+  the host-only frozen-monotonic seam `FF_PalMonotonicTestSet()` and the new
+  mock clock-advance hooks (`g_mock_transmit_advance_ns`,
+  `g_mock_net_send_advance_ns`). Each asserts in-budget delivery, expired-on-
+  entry `FF_TIMEOUT` with no transmission, post-transfer overrun `FF_TIMEOUT`
+  with the frame/datagram transmitted, and the argument contract. Mutation
+  control removes each check and fails exactly one assertion per binary
+  (`docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/mutation-check.log`).
+- **Gates run (2026-11-11, `BUILD_DIR=build2/native`).** Build exit 0; `ctest`
+  **56/56 PASS**; `lake build` PASS; `trace.py` PASS (120/76/30/14/68); pinned
+  clang-format 18.1.3 PASS in `frick-vv:local`; `make gsw-selfcheck` OK;
+  `make smoke` PASS (7 applications); `make metrics` 15328/32948 = 46.5%;
+  RTEMS 6.2 `riscv/mpfs64imafdc` cross build exit 0 in
+  `frick-rtems-toolchain:local`; `make renode` **PASS** on the freshly rebuilt
+  ELF (sha256 `55188f5a…`). Logs:
+  `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/`.
+- **Docs updated.** TS-2 rev 0.10 (`N22-TS2-82/83`, counts 83 = 44 nominal + 37
+  OOB + 2 mixed; 50 covered / 32 gap / 1 characterization; SIL 78 / PIL 2 /
+  HIL 3), `traceability.yaml` (SRS-REQ-060/061/074 lean_notes + REQ-074 tests
+  list), `tool-qualification.md` rev 1.7 (T3 delta; still **NOT FULLY
+  QUALIFIED**), `verification-results.md`, `sprint-plan.md` rev 1.131,
+  `loop-audit.md`, `CHANGELOG.md`.
+- **Still open.** NC-EXT-191 UART shared-descriptor concurrency (`O_NONBLOCK` on
+  a shared fd) and target readiness semantics; target 250 ms bound (GAP-A5 /
+  `N22-TS2-78`, HIL); T3 qualification of the changed test scripts; NC-PAL-01 and
+  NC-EXT-239 untouched. No NC is closed by this increment.
 
 ## NC-EXT-237: Service 5 event identity is emitter-owned — 2026-11-11
 
@@ -1755,3 +1810,4 @@ FRICK-REVIEW-0460 (V&V) and FRICK-REVIEW-0461 (PA) then confirmed the delta with
 | 3.66 | 2026-11-10 | frick-fsw | **S8-SCH `N22-TS5-66` delivered: TBL load/activate → scheduler dispatch coupling.** `app_scheduler.c` registers an `FF_TblActivateCb` that re-validates and snapshots the activated image into a mutex-protected pending slot; the scheduler task applies it (`FF_SchedActivate` + `FF_SchedInit`) on its next tick with a non-blocking lock and emits the re-activation event (0x0601, `"SCH: table activated, %u entries"`), preserving the single-writer contract with a bounded one-tick deferral. `tbl.h` callback contract tightened (bounded, no I/O, no TBL re-entry). `test_tbl_sched_coupling.c` gains production-path nominal + out-of-bound cases (61 checks); `FF_PalTaskDelayMsTestWait()` now consumes each block notification so injected time maps to exactly one iteration, and the `N22-TS5-47` expectations were corrected to the deterministic sequence (2 missed-slot events, 68 checks). Gates: build clean, CTest 55/55 PASS, trace PASS (120/76/30/14/68), Lean PASS, pinned clang-format 18 PASS, RTEMS 6.2 cross-build PASS (N18 profile; one pre-existing `pal_rtems.c` implicit-declaration warning, outside this increment), **N18 Renode PASS** (`RENODE_TEST: PASS`, container exit 0; console shows `SCH app started, 4 entries`). TS-5 `N22-TS5-66` `gap` → `covered`; sprint-plan Rev 1.128; architecture Rev 0.4. NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14 and target/HIL remain open. No NC closed, no commit/push. |
 | 3.67 | 2026-11-10 | frick-fsw | **`N22-TS5-66` cycle closed on the emulated target; NC-EXT-239 registered.** After the Rev 3.66 record, the applicable gates were executed on the same working tree: `trace.py` PASS (120/76/30/14/68), pinned clang-format 18.1.3 PASS, RTEMS 6.2 cross-build PASS for the N18 profile (`build/renode`, 164/164 steps, exit 0, ELF sha256 `5557d0bd…1a0e`, byte-identical to the copied `frick_fsw_renode.elf`) and **N18 Renode PASS** (`[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)`, fresh run dir; console `SCH app started, 4 entries`). The cross-build emits one **pre-existing** warning outside this increment (`src/core/pal/pal_rtems.c:156: implicit declaration of function 'ff_pal_wd_hw_feed'`; prototype only in `pal_watchdog.c`), registered as **NC-EXT-239 OPEN** with owner FSW (PAL/NC-PAL-01 workstream). Sprint-plan Rev 1.129, loop-audit Rev 10.46 and `verification-results.md` record the evidence (retained in `docs/vv/evidence/2026-11-10-n22-ts5-66/`); the stale `Renode N18 FAIL` statements in the S8-SCH row, closure table and residual-items section are superseded by the 2026-11-09/2026-11-10 emulated PASS. Still open: NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14, the one-tick deferral budget, target/HIL (GAP-A5), and the independent R2/R3/R4/PA reviews. No NC closed, no commit/push. |
 | 3.68 | 2026-11-11 | frick-fsw | **NC-EXT-237 fixed: Service 5 event identity is emitter-owned.** `FF_PusEmitEvent` now encodes `event id[2 BE]` + `type[1]` from `event_id`/`evs_type` and treats `data`/`len` as auxiliary data only (bounds `FF_PUS_MAX_TM_FRAME - 3` / `NULL`+`len != 0`; wire format unchanged, ICD rev 1.7); all callers updated to text-only, `test_evs_hs_health.c` re-bound to 122 checks (sha256 `5310cc3c…277f`). New discriminating oracle `tests/unit/test_pus_event_identity.c` (5 cases, 106 checks) fails 33 checks against the pre-fix body. Gates: build 0 warnings, CTest 56/56, Lean, trace (120/76/30/14/68), pinned clang-format 18, N13 license; evidence `docs/vv/evidence/2026-11-11-nc-ext-237/`. Docs: TS-1 rev 1.10, TS-5 rev 1.16, ICD rev 1.7, `service-development.md` rev 0.5, `tool-qualification.md` rev 1.6, `sprint-plan.md` rev 1.130. NC-EXT-237 remains OPEN pending PA acceptance; no NC closed. |
+| 3.69 | 2026-11-11 | frick-fsw | **NC-EXT-191 backend-coverage half: IP and TSN deadline writers.** `link_ip.c`/`link_tsn.c` now implement `FF_Link_t::send_until` (shared `ip_check_tx`/`tsn_check_tx`; reject an expired deadline before transmitting; re-check after the synchronous transfer and report `FF_TIMEOUT` on overrun), so `FF_LinkSendUntil` no longer returns `FF_NOT_IMPLEMENTED` on those backends; `ip_check_tx` also rejects `NULL`+non-zero-length in the plain writer. `link.h` documents the return contract; TS-2 rev 0.10 adds `N22-TS2-82/83`; `test_link_tsn` 149 checks, `test_link_ip` 93 checks, mutation-checked. Gates: build, CTest 56/56, Lean, trace (120/76/30/14/68), clang-format 18, GSW/license, smoke, metrics 46.5%, RTEMS cross build, Renode PASS (ELF `55188f5a…`). NC-EXT-191 stays OPEN (UART shared-descriptor concurrency, target readiness, target 250 ms = GAP-A5); T3 NOT FULLY QUALIFIED; no NC closed. |

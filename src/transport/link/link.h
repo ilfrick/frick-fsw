@@ -23,6 +23,22 @@ typedef struct
     const char *name;
     FF_Status_t (*init)(void);
     FF_Status_t (*send)(const uint8_t *data, uint16_t len);
+    /* Deadline-bounded send used by the pre-reset report path (SRS-REQ-074).
+     *
+     * `deadline_ns` is an absolute FF_PalGetMonotonicNs() instant. A backend
+     * that implements this writer returns:
+     *   - FF_SUCCESS only when the whole transfer was accepted before the
+     *     deadline;
+     *   - FF_TIMEOUT when the deadline had already passed on entry (in which
+     *     case nothing is transmitted) or when it elapsed during the transfer;
+     *   - the ordinary argument/readiness statuses otherwise (FF_NOT_READY,
+     *     FF_INVALID_ARGUMENT, backend error).
+     * Implementations whose underlying transmit call is synchronous cannot
+     * preempt a stalled driver; they enforce the deadline on entry and
+     * re-check it after the transfer, so an overrun is reported as FF_TIMEOUT
+     * rather than as an in-budget delivery. A NULL pointer means the backend
+     * has no deadline-aware writer and FF_LinkSendUntil() reports
+     * FF_NOT_IMPLEMENTED (NC-EXT-191). */
     FF_Status_t (*send_until)(const uint8_t *data, uint16_t len, uint64_t deadline_ns);
     FF_Status_t (*recv)(uint8_t *data, uint16_t cap, uint16_t *len, uint32_t timeout_ms);
 } FF_Link_t;

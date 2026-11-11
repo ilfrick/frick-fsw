@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                         | 10.46                                  |
-| Date                              | 2026-11-10                             |
+| Revision                         | 10.47                                  |
+| Date                              | 2026-11-11                             |
 | Baseline commit                   | `318f49b` (2026-10-19 easy-fixes batch) — chain `b8c3aee` → `1fdbb83` (S8 batch: S8-SCH/S8-VV-FU/S8-PUS-FU and selected N7 OBCP integration) → `2111968` (docs alignment + NC-EXT-94/95/96) → `5be0e8c` (metrics refresh) → `e7e48ee` (bounded PA manifest review) → `318f49b`; committed and pushed to both remotes. The easy-fixes batch was produced on the working tree on top of `e7e48ee`. Status-only commits that change no code, test, requirement or retained-evidence content do not advance this baseline (e.g. `b6e1f61`, the post-commit status refresh) |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
@@ -278,7 +278,46 @@ queue saturation drops forwarding; EVS statistics expose the loss. Full cycle
 and independent delta review status is recorded in the verification log;
 NC-EXT-75 remains open and NC-EXT-47 is not closed.
 
+## 10. NC-EXT-191 backend-coverage increment (2026-11-11)
+
+Scope: the IP and TSN `FF_Link_t::send_until` writers, the documented contract in
+`link.h`, and the new discriminating cases in `test_link_ip.c` /
+`test_link_tsn.c`. Audited against the norms before the commit:
+
+- **N1 (Lean).** No generated code and no new pure algorithm: the change is a
+  deadline wrapper around a synchronous submit call, and the Lean models
+  (`req_srs074_report_precedes_reset`) still cover the report-before-reset
+  ordering. `lake build` PASS. No new theorem is required or claimed.
+- **N3/N4 (backwards requirements, bidirectional traceability).** SRS-REQ-060
+  and SRS-REQ-061 `lean_note` and SRS-REQ-074 `lean_note` + `tests` list now
+  record the implemented writer and its tests; `trace.py` PASS
+  (120/76/30/14/68).
+- **N10/N11 (tool review, evidence retention).** The changed test scripts have no
+  N10 review at these hashes, so `tool-qualification.md` rev 1.7 records a T3
+  delta and leaves T3 **NOT FULLY QUALIFIED**; execution logs are retained in
+  `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/`.
+- **N15 (full cycle per change).** Build, CTest 56/56, Lean, trace, pinned
+  clang-format 18.1.3, GSW/license, smoke, metrics, RTEMS 6.2 cross build and
+  N18 Renode PASS all re-run on the changed tree; no gate was skipped or waived.
+- **N18 (emulated PolarFire SoC).** `make renode` PASS on the ELF rebuilt for
+  this change (sha256 `55188f5a…`). This is emulated-target functional evidence
+  only, not HIL/timing.
+- **N20 (product assurance).** PA review is requested in the same cycle; findings
+  are recorded and non-functional ones tracked as NCs (N21), functional ones
+  corrected.
+- **N21 (sequencing).** The change is a functional defect correction (the panic
+  reporter was inert on two of four backends) committed for the current sprint,
+  so it is in scope; unrelated non-functional findings are not expanded into it.
+- **N22 (test design).** Both new cases are nominal + out-of-bound with explicit
+  expected results (in-budget success, expired-on-entry rejection without
+  transmission, post-transfer overrun reported late, argument rejection), and
+  the mutation control shows each assertion discriminates.
+- **N19 disposition.** Remaining gaps are unchanged and tracked: NC-EXT-191
+  (UART shared-descriptor concurrency, target readiness semantics), GAP-A5 /
+  `N22-TS2-78` (target 250 ms), T3 qualification, NC-PAL-01, NC-EXT-239.
+
 ## History
+
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
@@ -518,3 +557,4 @@ NC-EXT-75 remains open and NC-EXT-47 is not closed.
 | 10.44 | 2026-11-09 | frick-fsw | **Emulated MPFS WDOG0 binding increment (N18 build) + provisional GEO parameters.** Implemented the test-only emulated WDOG0 binding in `src/core/pal/pal_rtems.c` for `FRICK_PLATFORM_MPFS && FF_ENABLE_RENODE_TEST` against the verified register map in `config/platform/platform_mpfs.h` (`0x20001000`; `TRIGGER -> MSVP -> TIME -> CONTROL`; read-back before the first keyed `REFRESH`), using the pinned model's emulated 156250 Hz clock, `MSVP = TIME`, `TRIGGER = 4095`; flight builds remain `FF_NOT_IMPLEMENTED` (NC-PAL-01). Moved the feeder to absolute monotonic deadlines (`FF_PalTaskDelayUntilNs`, NC-EXT-187). Set the mission-table timeout provisionally to 10 s (feed 2.5 s) as representative GEO values under new NC-EXT-238. Updated the host tests (CTest 54/54). **N18 Renode PASS 2026-11-09** (`RENODE_TEST: PASS`; console shows the WDOG0 arm/feed). Gates: native CTest 54/54, pinned clang-format 18.1.3 PASS, `lake build` PASS, elaboration receipt PASS (11 modules), trace PASS (120/76/30/14/68), `gsw-selfcheck` PASS, `metrics.py --check` PASS, RTEMS 6.2 cross-build PASS. Updated ADR-0021 rev 1.3, FRICK-ARCH-0024 rev 1.6, traceability.yaml, sprint-plan rev 1.127, handover rev 3.65 and verification-results. Emulated integration evidence only: no flight parameter, target/HIL protection, RTPFS160ZT fidelity or mission suitability is claimed. The increment still needs independent R2/R3/R4/PA review. No NC closed, no commit/push. |
 | 10.45 | 2026-11-10 | frick-fsw | **S8-SCH `N22-TS5-66` delivered (TBL load/activate → scheduler dispatch).** M17 row updated: the application registers an `FF_TblActivateCb` that re-validates and snapshots the activated image into a mutex-protected pending slot; the scheduler task applies it (`FF_SchedActivate` + `FF_SchedInit`) at the top of its next tick with a non-blocking lock and emits the re-activation event, preserving the single-writer dispatcher contract with a bounded one-tick deferral. Production-path nominal + out-of-bound host cases in `test_tbl_sched_coupling.c` (61 checks); test-delay seam made deterministic (each block notification consumed once) and the `N22-TS5-47` integration expectations corrected to the deterministic sequence. Gates: build clean, CTest 55/55 PASS, trace PASS (120/76/30/14/68), Lean PASS, pinned clang-format 18 PASS, RTEMS 6.2 cross-build PASS (N18 profile) and **N18 Renode PASS** (`RENODE_TEST: PASS`). `N22-TS5-66` closed as a test gap; NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14 memory ordering, the deferral budget and target/HIL evidence remain open. No NC closed, no commit/push. |
 | 10.46 | 2026-11-10 | frick-fsw | **`N22-TS5-66` emulated-target gate completed; NC-EXT-239 registered.** RTEMS 6.2 cross-build PASS for the N18 profile (`build/renode`, exit 0, ELF sha256 `5557d0bd…1a0e`) and **N18 Renode PASS** (`RENODE_TEST: PASS`, container exit 0; console `SCH app started, 4 entries`), with `trace.py` (120/76/30/14/68) and pinned clang-format 18.1.3 re-run PASS. NC-EXT-239 OPEN (non-functional, N21): pre-existing `pal_rtems.c:156` implicit declaration of `ff_pal_wd_hw_feed`, prototype only in `pal_watchdog.c`; owner FSW. The S8-SCH sprint row, the closure table and the residual-items section no longer state `Renode N18 FAIL`; N18 is emulated-target evidence only, so target/HIL (GAP-A5), NC-PAL-01, NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14 and the independent reviews remain open. No NC closed, no commit/push. |
+| 10.47 | 2026-11-11 | frick-fsw | **NC-EXT-191 backend-coverage half implemented (IP and TSN deadline writers).** Section 10 audits the increment against N1/N3/N4/N10/N11/N15/N18/N20/N21/N22: `link_ip.c`/`link_tsn.c` implement `FF_Link_t::send_until`, `link.h` documents the return contract, TS-2 rev 0.10 adds `N22-TS2-82/83`, and the mutation control shows each new assertion discriminates. Gates re-run to success (build, CTest 56/56, Lean, trace 120/76/30/14/68, clang-format 18, GSW/license, smoke, metrics 46.5%, RTEMS cross build, Renode PASS). Remaining gaps tracked: NC-EXT-191 (UART shared-descriptor concurrency, target readiness), GAP-A5/`N22-TS2-78`, T3 qualification, NC-PAL-01, NC-EXT-239. No NC closed. |

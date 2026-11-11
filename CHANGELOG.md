@@ -7,6 +7,56 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### IP and TSN deadline-bounded link writers (2026-11-11)
+
+Functional N21 increment. It implements the **backend-coverage half of NC-EXT-191** (NC stays OPEN):
+`src/main/fsw_main.c` installs `FF_LinkSendUntil` as the PUS panic reporter
+(SRS-REQ-074), and `FF_LinkSendUntil` returns `FF_NOT_IMPLEMENTED` when the
+selected backend's `send_until` is `NULL`. `link_ip.c` and `link_tsn.c` both left
+it `NULL`, so the pre-reset S5 report could never be delivered on two of the four
+backends (loopback and UART already implemented it).
+
+- **Implementation.** `ip_send_until` and `tsn_send_until` follow the pattern
+  already used by `loop_send_until`/`uart_send_until`, with the shared validation
+  factored into `ip_check_tx()`/`tsn_check_tx()`: validate readiness and
+  arguments (`FF_NOT_READY`/`FF_INVALID_ARGUMENT`) → reject an already-expired
+  deadline **before** transmitting (`FF_TIMEOUT`) → send → re-check the deadline
+  and report `FF_TIMEOUT` on overrun.
+- **Contract.** `src/transport/link/link.h` now documents the
+  `FF_Link_t::send_until` return contract (entry rejection, post-transfer
+  re-check, `FF_TIMEOUT` on overrun, `NULL` ⇒ `FF_NOT_IMPLEMENTED`), which also
+  gives the TS-2 cases a grounded oracle.
+- **Defect fix in the plain writer.** `ip_check_tx()` additionally rejects
+  `data == NULL && len != 0` in `ip_send()`, which previously forwarded that
+  argument to the network stack; the other backends already rejected it.
+- **Documented limitation.** `FF_NetStack_t::send` and `FF_EthMac_t::transmit`
+  are synchronous submissions, so a stalled driver cannot be preempted. The
+  deadline is an entry/post-check bound, not a preemption guarantee; the target
+  250 ms bound remains GAP-A5 / `N22-TS2-78` (HIL).
+- **Tests.** `tests/unit/test_link_tsn.c::test_tsn_send_until_deadline` (149
+  checks total) and `tests/unit/test_link_ip.c::test_ip_send_until_deadline` (93
+  checks total) freeze the monotonic clock with the host-only
+  `FF_PalMonotonicTestSet()` seam and advance it inside the mock transfer
+  (`g_mock_transmit_advance_ns`/`g_mock_net_send_advance_ns`). Each asserts
+  in-budget delivery, expired-on-entry `FF_TIMEOUT` with no transmission,
+  post-transfer overrun `FF_TIMEOUT` with the frame/datagram transmitted, and the
+  argument contract. Mutation control removes each check and fails exactly one
+  assertion per binary
+  (`docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/mutation-check.log`).
+- **Verification.** Host build exit 0, CTest **56/56 PASS**, `lake build` PASS,
+  `trace.py` PASS (120/76/30/14/68), pinned clang-format 18.1.3 PASS,
+  `make gsw-selfcheck` OK, `make smoke` PASS (7 applications), `make metrics`
+  15328/32948 = 46.5%, RTEMS 6.2 `riscv/mpfs64imafdc` cross build exit 0, and
+  `make renode` **PASS** on the ELF rebuilt for this change (sha256
+  `55188f5a…`). Logs: `docs/vv/evidence/2026-11-11-nc-ext-191-link-backends/`.
+- **Docs.** TS-2 rev 0.10 (`N22-TS2-82/83`), `traceability.yaml` SRS-REQ-060/
+  061/074, `tool-qualification.md` rev 1.7 (T3 delta; still **NOT FULLY
+  QUALIFIED**), `verification-results.md`, `sprint-plan.md` rev 1.131,
+  `handover.md` rev 3.69, `loop-audit.md` rev 10.47.
+- **Open.** NC-EXT-191 remains **OPEN** (UART shared-descriptor concurrency,
+  target readiness semantics); target 250 ms bound = GAP-A5 / `N22-TS2-78`.
+  No NC is closed and no release/flight approval is implied.
+
 ### Service 5 event identity owned by the emitter (2026-11-11)
 
 Functional N21 increment. It fixes **NC-EXT-237**: `FF_PusEmitEvent(event_id,

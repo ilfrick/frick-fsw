@@ -1,0 +1,3 @@
+bash tools/scripts/renode_vv.sh
+[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)
+[renode] run artifacts: /tmp/frick-renode-vv.Ohz0um
