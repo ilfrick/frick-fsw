@@ -1,0 +1,21 @@
+{
+  "cases": {
+    "XW3-C1": {
+      "capture_bytes": 3133,
+      "capture_sha256": "4234a6e6bc9fde154c5de2dacb01977375afa7dadea1144d05ff940f746d5f16",
+      "verdict_sha256": "fef4e675d77876dee663ae75a1b0d55c9f92fabb6e83def02b0bf9fc29ebc101"
+    }
+  },
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "reasons": [
+    "missing_case:XW3-A1",
+    "missing_case:XW3-R1",
+    "missing_case:XW3-O1",
+    "missing_case:XW3-O2",
+    "required_case_absent:XW3-A1",
+    "required_case_absent:XW3-R1",
+    "case_verdict_failed"
+  ],
+  "result": "FAIL",
+  "run_nonce": "60a22707073c5bb273345601dd58bdfa"
+}

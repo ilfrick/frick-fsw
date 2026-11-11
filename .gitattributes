@@ -15,3 +15,6 @@ CMakeLists.txt text
 # Binary
 *.pdf binary
 *.png binary
+# Recorded captures are byte-exact evidence fixtures (fail-closed verdict tests
+# compare their bytes); never apply end-of-line normalisation to them.
+*.bin binary

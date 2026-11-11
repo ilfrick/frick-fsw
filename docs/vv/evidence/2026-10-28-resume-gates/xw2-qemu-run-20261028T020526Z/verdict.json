@@ -1,0 +1,27 @@
+{
+  "component": {
+    "gaps": [],
+    "observations": 1,
+    "ok": true,
+    "reasons": [],
+    "required_pass": 13,
+    "required_total": 13,
+    "status_totals": {
+      "PASS": 13
+    }
+  },
+  "console": "/home/nicola/fsw/frick-fsw/build/xw2-run-20261028T020526Z/console.log",
+  "console_sha256": "9876e25715e023e60fbcca649091606842493fd9b0c4d8a02c685ab454356c9b",
+  "manifest": "/home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json",
+  "manifest_sha256": "8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819",
+  "qemu_exit": 124,
+  "qemu_failed": false,
+  "result": "PASS",
+  "run_nonce": "305b724b820d6bddcf259e3c97d05687",
+  "whole_run": {
+    "exit_block": [],
+    "hits": [],
+    "ok": true,
+    "reason": ""
+  }
+}

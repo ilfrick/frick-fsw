@@ -68,6 +68,35 @@ static pthread_mutex_t g_alloc_lock = PTHREAD_MUTEX_INITIALIZER;
 static int64_t g_utc_offset_ns = 0;
 static bool g_initialized = false;
 
+#ifdef FF_TEST_HOOKS
+/* Frozen-UTC seam (host tests only): see the pal.h contract. */
+static int g_utc_test_frozen = 0;
+static uint64_t g_utc_test_frozen_ns = 0u;
+
+/* Frozen-monotonic seam (host tests only): see the pal.h contract. */
+static int g_monotonic_test_frozen = 0;
+static uint64_t g_monotonic_test_frozen_ns = 0u;
+
+/* Controlled task delay state (host tests only) */
+static bool g_task_delay_test_enabled = false;
+static pthread_mutex_t g_task_delay_test_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t g_task_delay_test_cond = PTHREAD_COND_INITIALIZER;
+static bool g_task_delay_test_step = false;
+
+/* Handshake for deterministic test control */
+static bool g_task_delay_test_waiting = false;
+static pthread_cond_t g_task_delay_test_waiting_cond = PTHREAD_COND_INITIALIZER;
+#else
+/* Dummy declarations for non-test builds to avoid unused warnings */
+static int g_utc_test_frozen = 0;
+static uint64_t g_utc_test_frozen_ns = 0u;
+static int g_monotonic_test_frozen = 0;
+static uint64_t g_monotonic_test_frozen_ns = 0u;
+static int g_task_delay_test_enabled = 0;
+static int g_task_delay_test_step = 0;
+static int g_task_delay_test_waiting = 0;
+#endif
+
 /* ------------------------------------------------------------------ */
 
 static uint64_t ff_now_ns(void)
@@ -187,11 +216,71 @@ FF_Status_t FF_PalTaskDelete(FF_TaskId_t id)
 
 void FF_PalTaskDelayMs(uint32_t ms)
 {
+#ifdef FF_TEST_HOOKS
+    if (g_task_delay_test_enabled) {
+        FF_PalTaskDelayMsTest(ms);
+        return;
+    }
+#endif
     struct timespec ts;
     ts.tv_sec = (time_t)(ms / 1000u);
     ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
     nanosleep(&ts, NULL);
 }
+
+#ifdef FF_TEST_HOOKS
+
+void FF_PalTaskDelayMsTest(uint32_t ms)
+{
+    (void)ms;
+    pthread_mutex_lock(&g_task_delay_test_mutex);
+    g_task_delay_test_waiting = true;
+    pthread_cond_signal(&g_task_delay_test_waiting_cond);
+    while (!g_task_delay_test_step) {
+        pthread_cond_wait(&g_task_delay_test_cond, &g_task_delay_test_mutex);
+    }
+    g_task_delay_test_step = false;
+    g_task_delay_test_waiting = false;
+    pthread_mutex_unlock(&g_task_delay_test_mutex);
+}
+
+void FF_PalTaskDelayMsTestEnable(void)
+{
+    pthread_mutex_lock(&g_task_delay_test_mutex);
+    g_task_delay_test_enabled = true;
+    pthread_mutex_unlock(&g_task_delay_test_mutex);
+}
+
+void FF_PalTaskDelayMsTestDisable(void)
+{
+    pthread_mutex_lock(&g_task_delay_test_mutex);
+    g_task_delay_test_enabled = false;
+    pthread_cond_broadcast(&g_task_delay_test_cond);
+    pthread_mutex_unlock(&g_task_delay_test_mutex);
+}
+
+void FF_PalTaskDelayMsTestStep(void)
+{
+    pthread_mutex_lock(&g_task_delay_test_mutex);
+    g_task_delay_test_step = true;
+    pthread_cond_signal(&g_task_delay_test_cond);
+    pthread_mutex_unlock(&g_task_delay_test_mutex);
+}
+
+void FF_PalTaskDelayMsTestWait(void)
+{
+    pthread_mutex_lock(&g_task_delay_test_mutex);
+    while (!g_task_delay_test_waiting) {
+        pthread_cond_wait(&g_task_delay_test_waiting_cond, &g_task_delay_test_mutex);
+    }
+    /* Consume the block notification: a subsequent Wait() must observe a *new*
+     * block entry, not the stale flag of the entry already stepped. Without
+     * this, two consecutive Step() calls can be coalesced and the caller cannot
+     * tell which loop iteration observed which injected time. */
+    g_task_delay_test_waiting = false;
+    pthread_mutex_unlock(&g_task_delay_test_mutex);
+}
+#endif
 
 FF_Status_t FF_PalTaskDelayUntilNs(uint64_t deadline_ns)
 {
@@ -499,12 +588,14 @@ uint16_t FF_PalQueueCount(FF_QueueId_t id)
 
 uint64_t FF_PalGetMonotonicNs(void)
 {
+#ifdef FF_TEST_HOOKS
+    if (g_monotonic_test_frozen) {
+        return g_monotonic_test_frozen_ns;
+    }
+#endif
     return ff_now_ns();
 }
 #ifdef FF_TEST_HOOKS
-/* Frozen-UTC seam (host tests only): see the pal.h contract. */
-static int g_utc_test_frozen = 0;
-static uint64_t g_utc_test_frozen_ns = 0u;
 
 /* Called from the unit tests (tests/unit/test_pus.c and
  * tests/unit/test_frozen_utc_seam.c), not from the src tree scanned by the
@@ -519,6 +610,19 @@ void FF_PalTimeTestFreeze(uint64_t utc_ns)
 void FF_PalTimeTestUnfreeze(void)
 {
     g_utc_test_frozen = 0;
+}
+
+// cppcheck-suppress unusedFunction
+void FF_PalMonotonicTestSet(uint64_t monotonic_ns)
+{
+    g_monotonic_test_frozen_ns = monotonic_ns;
+    g_monotonic_test_frozen = 1;
+}
+
+// cppcheck-suppress unusedFunction
+void FF_PalMonotonicTestUnfreeze(void)
+{
+    g_monotonic_test_frozen = 0;
 }
 #endif
 uint64_t FF_PalGetUtcNs(void)

@@ -1,0 +1,102 @@
+{
+  "capture_bytes": 6957,
+  "capture_sha256": "de2ac01986780862b08390229efdedbb141c5b2b65f4497f66bcb644d570464f",
+  "console_fatal": {
+    "exit_block": [],
+    "hits": [],
+    "ok": true,
+    "reason": ""
+  },
+  "identity_reasons": [],
+  "mode": "reject",
+  "oracle": {
+    "checks": [
+      {
+        "detail": "version=0 apid=0x010 type=1",
+        "id": "TC-STRUCT",
+        "ok": true
+      },
+      {
+        "detail": "ingest app announces the uart backend",
+        "id": "LINK-UART",
+        "ok": true
+      },
+      {
+        "detail": "crc_failures=0",
+        "id": "TM-CRC",
+        "ok": true
+      },
+      {
+        "detail": "header_failures=0",
+        "id": "TM-HEADER",
+        "ok": true
+      },
+      {
+        "detail": "tm_packets=77",
+        "id": "CAPTURE-LIVE",
+        "ok": true
+      },
+      {
+        "detail": "count=0",
+        "id": "NO-S17.2",
+        "ok": true
+      },
+      {
+        "detail": "count=0",
+        "id": "NO-S1.1",
+        "ok": true
+      },
+      {
+        "detail": "count=0",
+        "id": "NO-S1.3",
+        "ok": true
+      },
+      {
+        "detail": "count=0",
+        "id": "NO-S1.7",
+        "ok": true
+      },
+      {
+        "detail": "crc_ok=False",
+        "id": "TC-CRC-INVALID",
+        "ok": true
+      },
+      {
+        "detail": "breaks=[]",
+        "id": "TM-COUNTER",
+        "ok": true
+      }
+    ],
+    "counts": {
+      "S5.1": 76,
+      "S5.3": 1
+    },
+    "mode": "reject",
+    "observations": {
+      "destination_ids": [
+        1
+      ],
+      "s1_8_reported": false,
+      "s1_payload_prefixes": [],
+      "s1_payload_prefixes_note": "recorded only: the numeric S1 payload layout is authority-pending",
+      "services": {
+        "S5.1": 76,
+        "S5.3": 1
+      },
+      "tm_crc_failures": 0,
+      "tm_header_failures": 0,
+      "tm_packets": 77,
+      "truncated_tail": 0
+    },
+    "ok": true,
+    "reasons": [],
+    "request": {
+      "crc_ok": false,
+      "service": 17,
+      "source_id": 258,
+      "subservice": 1,
+      "user_data_hex": "01020304"
+    }
+  },
+  "result": "PASS"
+}

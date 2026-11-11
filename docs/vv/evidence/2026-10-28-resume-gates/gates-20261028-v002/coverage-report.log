@@ -1,0 +1,3 @@
+command: docker run --rm --pull=never --network=none --user 1000:1000 ... frick-vv:local bash -lc 'python3 tools/scripts/coverage.py build/xw2-v002-coverage'
+exit: 0
+line coverage: 14125/31254 (45.2%) - report: build/xw2-v002-coverage/coverage.json

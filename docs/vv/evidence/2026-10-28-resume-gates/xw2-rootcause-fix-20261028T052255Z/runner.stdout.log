@@ -1,0 +1,43 @@
+[xw2-renode] run directory: /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261028T052255Z
+[xw2-renode] build exit: 0
+[xw2-renode] ELF sha256 08405e210792048edcd7c7e3d8118ed87a6f4f427a272f0a500686f9f04dcbf7
+[xw2-renode] run nonce 3aa551f26a1116705a23313386c5adab
+[xw2-renode] nm segregation written
+[xw2-renode] positive renode run captured (container exit 0)
+========================================================================
+frick-fsw target requirement evidence (tools/scripts/target_req_verify.py)
+========================================================================
+Status totals:
+  PASS  13
+  FAIL  0
+  SKIP  0
+  OBS   1 (observations, never coverage)
+  GAP   0 (declared gaps, never coverage)
+Per requirement:
+  SRS-REQ-073: PASS=12
+  SRS-REQ-075: PASS=1
+------------------------------------------------------------------------
+COVERAGE: 13/13 required cases
+target-evidence: PASS
+========================================================================
+frick-fsw T1 whole-run verdict (tools/scripts/target_run_verdict.py)
+========================================================================
+console: /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261028T052255Z/console.log
+manifest: /home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json
+run nonce: 3aa551f26a1116705a23313386c5adab
+------------------------------------------------------------------------
+COMPONENT: PASS 13/13
+COVERAGE: 13/13 required cases
+QEMU-PROCESS: exit 0 (accepted)
+WHOLE-RUN: PASS (no panic/fatal marker in the console)
+------------------------------------------------------------------------
+RESULT: PASS
+[xw2-renode] component exit 0, whole-run verdict exit 0
+[xw2-renode] no-wrap control: EXPECTED FAILURE reproduced: watchdog init panic + component verifier exit 1
+[xw2-renode] PASS (XW-2 abstract external-watchdog contract image on the Renode
+[xw2-renode] PolarFire SoC environment; N18 criterion per the 2026-10-27 owner decisions).
+[xw2-renode] Wrapper substitution proven by nm (see /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261028T052255Z/nm-segregation.txt);
+[xw2-renode] no-wrap control reproduced the watchdog-init panic as expected.
+[xw2-renode] NOT a device, NOT HIL; no real reset, no electrical independence, no
+[xw2-renode] timing/WCET, no mission timeout. The production-shaped flight image
+[xw2-renode] FAIL remains NC-PAL-01/NC-EXT-198 (separate, not reclassified).

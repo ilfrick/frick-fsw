@@ -1,0 +1,5 @@
+command: python3 tools/scripts/validator_checkpoint.py via frick-vv:local --pull=never --network=none
+exit: 0
+NC-EXT-174 elaboration receipt: OK (verification/lean/.lake/build/elab_receipt.json)
+
+STDERR:

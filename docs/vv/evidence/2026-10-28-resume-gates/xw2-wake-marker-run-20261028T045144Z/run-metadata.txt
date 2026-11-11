@@ -1,0 +1,16 @@
+Run classification: user-authorized test-only wake-marker diagnostic; standard checked-in Renode runner and RESC wait, not N18 acceptance.
+Date: 2026-10-28.
+Run directory: build/xw2-renode-run-20261028T045144Z.
+Run nonce: 9c3527960b16083b87e5b6bc30cca293.
+
+Candidate identities:
+- Test source SHA-256: 0570ff8b1c8f7892013c25e0716247b4624b1eb2f1c8b1ed0da7dc77d1d4b126.
+- Positive ELF SHA-256: 08405e210792048edcd7c7e3d8118ed87a6f4f427a272f0a500686f9f04dcbf7.
+- No-wrap ELF SHA-256: 56fbc2a05f5bec3222c225fc88f6c35f3ec15970a943ccb1cd82e06b0ed22c83.
+- XW-2 manifest SHA-256: 8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819.
+- Renode image: antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061; image ID sha256:e278e663fd9516284f1ed3c1da5e7ff727db3bd9808b44a91e4325ffa1a0b858.
+- Runner script SHA-256: 162654c95961b42b8d26bde18099b31b565e290cee8a0483b9d15225589e5046.
+
+The positive Renode container exited 0 after the RESC's standard 60-second monitor wait; component verifier result is 12/13 with only SRS-REQ-073:XW-B1 missing, whole-run fatal verdict PASS, and overall runner exit 1. Console includes XW2_DBG: task_entry but neither XW2_DBG: post_delay nor XW2_DBG: post-delay wake; XW-B1 is absent. The no-wrap control reproduced its expected watchdog-init panic and verifier rejection. Build exit was 0. Full runner stdout/exit, process and console captures, verifier/verdict outputs, identities, CMake cache, compiler version, control outputs, and hash lists are retained alongside this file.
+
+Interpretation: the second marker is not reached/observed in this 60-second run; the earlier 180-second diagnostic using the prior marker reached XW-B1. This does not isolate the underlying delay, prove a scheduler/timer defect, satisfy N18, or authorize changing timing. No production code, test timing, priority, manifest, or oracle changed; no commit/push.

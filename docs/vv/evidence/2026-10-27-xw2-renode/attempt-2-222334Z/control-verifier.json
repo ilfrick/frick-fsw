@@ -1,0 +1,120 @@
+{
+  "cases": [
+    {
+      "case": "XW-T1",
+      "detail": "init_failed",
+      "line": 11,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T2",
+      "detail": "init_failed",
+      "line": 13,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T3",
+      "detail": "init_failed",
+      "line": 15,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T4",
+      "detail": "init_failed",
+      "line": 16,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T5",
+      "detail": "init_failed",
+      "line": 18,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T6",
+      "detail": "init_failed",
+      "line": 20,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T7",
+      "detail": "init_failed",
+      "line": 22,
+      "requirement": "SRS-REQ-075",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T8",
+      "detail": "arm_failure_reported_no_silent_arm",
+      "line": 24,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T9",
+      "detail": "init_failed",
+      "line": 26,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T10",
+      "detail": "init_failed",
+      "line": 28,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T11",
+      "detail": "init_failed",
+      "line": 30,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    },
+    {
+      "case": "XW-T12",
+      "detail": "init_failed",
+      "line": 32,
+      "requirement": "SRS-REQ-073",
+      "status": "FAIL"
+    }
+  ],
+  "gaps": [],
+  "observations": 0,
+  "ok": false,
+  "per_requirement": {
+    "SRS-REQ-073": {
+      "FAIL": 10,
+      "PASS": 1
+    },
+    "SRS-REQ-075": {
+      "FAIL": 1
+    }
+  },
+  "reasons": [
+    "fail_case:SRS-REQ-073:XW-T10:init_failed",
+    "fail_case:SRS-REQ-073:XW-T11:init_failed",
+    "fail_case:SRS-REQ-073:XW-T12:init_failed",
+    "fail_case:SRS-REQ-073:XW-T1:init_failed",
+    "fail_case:SRS-REQ-073:XW-T2:init_failed",
+    "fail_case:SRS-REQ-073:XW-T3:init_failed",
+    "fail_case:SRS-REQ-073:XW-T4:init_failed",
+    "fail_case:SRS-REQ-073:XW-T5:init_failed",
+    "fail_case:SRS-REQ-073:XW-T6:init_failed",
+    "fail_case:SRS-REQ-073:XW-T9:init_failed",
+    "fail_case:SRS-REQ-075:XW-T7:init_failed",
+    "missing_case:SRS-REQ-073:XW-B1"
+  ],
+  "required_pass": 1,
+  "required_total": 13,
+  "status_totals": {
+    "FAIL": 11,
+    "PASS": 1
+  }
+}

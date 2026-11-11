@@ -1,0 +1,4 @@
+receipt: /home/nicola/fsw/frick-fsw/verification/lean/.lake/build/elab_receipt.json
+modules elaborated: 11
+receipt sha256: 012d4d58fcbf981195f5a67100d99fdb49801a6ba23e4249fb16c2e5f85e8a7e
+elab-receipt: PASS

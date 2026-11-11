@@ -1,0 +1,3 @@
+renode-image-id=sha256:e278e663fd9516284f1ed3c1da5e7ff727db3bd9808b44a91e4325ffa1a0b858
+renode-digest=antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061
+toolchain-image-id=sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896

@@ -75,6 +75,15 @@ FF_Status_t FF_PusEmitPanicEvent(const char *reason, uint64_t deadline_ns,
 void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer);
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code);
+/* Service 5 event report (ICD §4): the function encodes the report header
+ * `event id[2, big-endian] | type[1]` from `event_id`/`evs_type` and appends
+ * `data`/`len` as auxiliary data only. Callers must pass the auxiliary data
+ * alone (typically the free-text reason) and must not prepend the event id or
+ * the type octet. The subservice is 1 (INFO), 2 (WARNING) or 3 (CRITICAL;
+ * unknown severities fall back to 3). `len` is bounded by
+ * `FF_PUS_MAX_TM_FRAME - 3`; `data == NULL` is accepted only when `len == 0`.
+ * Returns FF_BAD_SIZE on an oversized payload and FF_INVALID_ARGUMENT for
+ * NULL data with non-zero length. */
 FF_Status_t FF_PusEmitEvent(uint16_t event_id, uint8_t evs_type, const uint8_t *data, uint16_t len);
 
 /* ---- Periodic housekeeping ---------------------------------------- */

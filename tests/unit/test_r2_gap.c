@@ -893,37 +893,37 @@ static void test_pus_service3_hk(void)
     pus_register_all();
 
     /* Create: too-short payload, success, duplicate. */
-    FF_TEST_ASSERT(pus_ingest(3u, 1u, bad_size, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 1u, create_ok, sizeof(create_ok)) == FF_SUCCESS);
-    FF_TEST_ASSERT(pus_ingest(3u, 1u, create_ok, sizeof(create_ok)) == FF_ALREADY_EXISTS);
-    FF_TEST_ASSERT(pus_ingest(3u, 1u, create_bad_prov, sizeof(create_bad_prov)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 128u, bad_size, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 128u, create_ok, sizeof(create_ok)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 128u, create_ok, sizeof(create_ok)) == FF_ALREADY_EXISTS);
+    FF_TEST_ASSERT(pus_ingest(3u, 128u, create_bad_prov, sizeof(create_bad_prov)) == FF_SUCCESS);
 
     /* Explicit list: report 3 emits (3,25); report 4 has no provider => NOT_FOUND. */
     g_pus_rx_len = 0u;
     const uint8_t report_list[] = {2u, 3u, 4u};
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, report_list, sizeof(report_list)) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, report_list, sizeof(report_list)) == FF_NOT_FOUND);
     FF_TEST_ASSERT(pus_stream_has(3u, 25u));
 
     /* One-shot request for one report. */
     g_pus_rx_len = 0u;
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, report3, sizeof(report3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, report3, sizeof(report3)) == FF_SUCCESS);
     FF_TEST_ASSERT(pus_stream_has(3u, 25u));
 
     /* Disable periodic generation; explicit one-shot report still emits. */
-    FF_TEST_ASSERT(pus_ingest(3u, 6u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 2u, sel3, sizeof(sel3)) == FF_SUCCESS);
     g_pus_rx_len = 0u;
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, report3, sizeof(report3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, report3, sizeof(report3)) == FF_SUCCESS);
     FF_TEST_ASSERT(pus_stream_has(3u, 25u));
-    FF_TEST_ASSERT(pus_ingest(3u, 5u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 1u, sel3, sizeof(sel3)) == FF_SUCCESS);
 
     /* Selector errors and delete semantics. */
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, NULL, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, sel3, sizeof(sel3)) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 27u, report4, sizeof(report4)) == FF_NOT_FOUND);
-    FF_TEST_ASSERT(pus_ingest(3u, 3u, NULL, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 6u, NULL, 0u) == FF_BAD_SIZE);
-    FF_TEST_ASSERT(pus_ingest(3u, 3u, sel3, sizeof(sel3)) == FF_SUCCESS);
-    FF_TEST_ASSERT(pus_ingest(3u, 3u, sel3, sizeof(sel3)) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, sel3, sizeof(sel3)) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 4u, report4, sizeof(report4)) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(pus_ingest(3u, 129u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 2u, NULL, 0u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(pus_ingest(3u, 129u, sel3, sizeof(sel3)) == FF_SUCCESS);
+    FF_TEST_ASSERT(pus_ingest(3u, 129u, sel3, sizeof(sel3)) == FF_NOT_FOUND);
 }
 
 static void test_pus_service8_function(void)

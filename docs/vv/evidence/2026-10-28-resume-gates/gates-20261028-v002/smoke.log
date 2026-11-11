@@ -1,0 +1,5 @@
+command: docker run --rm --pull=never --network=none --user 1000:1000 ... frick-vv:local bash -lc 'BUILD_DIR=/workspace/build/xw2-v002-ci bash tools/scripts/run_sim.sh'
+exit: 0
+[smoke] building
+[smoke] booting simulator (8 s window)
+[smoke] PASS (banner + 7 applications registered)

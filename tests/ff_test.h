@@ -11,8 +11,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-static int ff_test_checks = 0;
-static int ff_test_failures = 0;
+static int ff_test_checks __attribute__((used)) = 0;
+static int ff_test_failures __attribute__((used)) = 0;
 
 #define FF_TEST_ASSERT(cond)                                                                       \
     do {                                                                                           \

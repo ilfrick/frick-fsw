@@ -1,0 +1,17 @@
+=== XW-2 mpfs image symbols ===
+0000001000001fce T POSIX_Init
+0000001000000fee T __wrap_ff_pal_wd_hw_arm
+0000001000001008 T __wrap_ff_pal_wd_hw_feed
+0000001000001028 T __wrap_ff_pal_wd_hw_reset
+0000001000001fde T ff_pal_wd_hw_arm
+0000001000001ff8 T ff_pal_wd_hw_feed
+0000001000001ffc T ff_pal_wd_hw_reset
+wrapper call sites (must be 3): 3
+real-hook call sites (must be 0): 0
+=== flight-shaped image built in the same configuration ===
+00000010000013a0 T POSIX_Init
+00000010000013b0 T ff_pal_wd_hw_arm
+00000010000013ca T ff_pal_wd_hw_feed
+00000010000013ce T ff_pal_wd_hw_reset
+wrappers defined (must be 0): 0
+real-hook call sites (must be 3): 3

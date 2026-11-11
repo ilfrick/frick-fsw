@@ -193,7 +193,7 @@ static void test_memory_dump_bounded(void)
     tc.version = FF_PUS_VERSION;
     tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION;
     tc.service = FF_PUS_SERVICE_MEMORY; /* 6 */
-    tc.subservice = 5u;                 /* dump (reply TM is 6,6) */
+    tc.subservice = 2u;                 /* ECSS: 2 = Dump (reply TM is 6,6) */
     tc.source_id = 0x0102u;
 
     /* Provisional profile: region ID (1), byte offset (4), and size (2).
@@ -528,7 +528,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u;
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -545,7 +545,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 5u; /* enable */
+        tc.subservice = 1u; /* ECSS: 1 = Enable */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -586,7 +586,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 27u; /* report request */
+        tc.subservice = 4u; /* ECSS: 4 = Request (one-shot) */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -603,7 +603,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 6u; /* disable */
+        tc.subservice = 2u; /* ECSS: 2 = Disable */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -625,7 +625,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u;
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -641,7 +641,7 @@ static void test_hk_periodic_emission(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 5u; /* enable */
+        tc.subservice = 1u; /* ECSS: 1 = Enable */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -722,11 +722,11 @@ static void test_hk_coarse_wrap_due(void)
 
     {
         const uint8_t payload[6] = {10u, 4u, 0u, 0u, 0u, 10u}; /* id=10, prov=4, period=10 s */
-        hk_send_tc(1u, payload, sizeof(payload));
+        hk_send_tc(128u, payload, sizeof(payload));            /* ECSS provisional: Create */
     }
     {
         const uint8_t payload[1] = {10u};
-        hk_send_tc(5u, payload, 1u); /* enable: last_emission = 0xFFFFFFFE:8192 */
+        hk_send_tc(1u, payload, 1u); /* ECSS: 1 = Enable: last_emission = 0xFFFFFFFE:8192 */
     }
 
     /* NC-EXT-207 reproduction point: the wrapped due instant is coarse 8,
@@ -789,7 +789,7 @@ static void test_hk_coarse_wrap_due(void)
     /* Park the report so later tests in this binary are unaffected. */
     {
         const uint8_t payload[1] = {10u};
-        hk_send_tc(6u, payload, 1u);
+        hk_send_tc(2u, payload, 1u); /* ECSS: 2 = Disable */
     }
     g_rx_count = 0u;
     FF_TEST_ASSERT(FF_PusEmitPeriodicHk() == FF_ERROR);
@@ -814,11 +814,11 @@ static void test_hk_large_period_held_unserved(void)
          * must still be *accepted* by TC[3,1]: no range validation is added
          * by this fix. */
         const uint8_t payload[6] = {11u, 5u, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
-        hk_send_tc(1u, payload, sizeof(payload));
+        hk_send_tc(128u, payload, sizeof(payload)); /* ECSS provisional: Create */
     }
     {
         const uint8_t payload[1] = {11u};
-        hk_send_tc(5u, payload, 1u); /* enable: last_emission = 1000:0 */
+        hk_send_tc(1u, payload, 1u); /* ECSS: 1 = Enable: last_emission = 1000:0 */
     }
 
     /* Three calls across three coarse ticks: never due under the wrap-safe
@@ -833,7 +833,7 @@ static void test_hk_large_period_held_unserved(void)
     /* Park the report so later tests in this binary are unaffected. */
     {
         const uint8_t payload[1] = {11u};
-        hk_send_tc(6u, payload, 1u);
+        hk_send_tc(2u, payload, 1u); /* ECSS: 2 = Disable */
     }
     FF_PalTimeTestUnfreeze();
 }
@@ -852,11 +852,11 @@ static void test_hk_backward_step_no_emission(void)
     set_time_cuc(2000u, 0u);
     {
         const uint8_t payload[6] = {12u, 6u, 0u, 0u, 0u, 10u}; /* id=12, prov=6, period=10 s */
-        hk_send_tc(1u, payload, sizeof(payload));
+        hk_send_tc(128u, payload, sizeof(payload));            /* ECSS provisional: Create */
     }
     {
         const uint8_t payload[1] = {12u};
-        hk_send_tc(5u, payload, 1u); /* enable: last_emission = 2000:0 */
+        hk_send_tc(1u, payload, 1u); /* ECSS: 1 = Enable: last_emission = 2000:0 */
     }
 
     g_rx_count = 0u;
@@ -899,7 +899,7 @@ static void test_hk_backward_step_no_emission(void)
     /* Park the report. */
     {
         const uint8_t payload[1] = {12u};
-        hk_send_tc(6u, payload, 1u);
+        hk_send_tc(2u, payload, 1u); /* ECSS: 2 = Disable */
     }
     FF_PalTimeTestUnfreeze();
 }

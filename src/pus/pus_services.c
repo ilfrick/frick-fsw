@@ -684,11 +684,40 @@ FF_Status_t FF_PusRegisterCoreServices(void)
         uint8_t subservice;
         FF_Pus_Handler_t handler;
     } table[] = {
-        {3u, 1u, svc3_create},   {3u, 3u, svc3_delete},   {3u, 5u, svc3_enable},
-        {3u, 6u, svc3_disable},  {3u, 27u, svc3_report},  {6u, 5u, svc6_dump},
-        {8u, 1u, svc8_function}, {9u, 1u, svc9_set_time}, {9u, 2u, svc9_report_time},
-        {11u, 1u, svc11_stub},   {11u, 2u, svc11_stub},   {17u, 1u, svc17_ping},
-        {20u, 1u, svc20_set},    {20u, 3u, svc20_report},
+        /* Service 3: Housekeeping — aligned to ECSS-E-ST-70-41C §6.3:
+         * 1=Enable, 2=Disable, 3=Periodic (enable periodic), 4=Request (one-shot),
+         * 25=HK periodic report TM (emitted by FF_PusEmitPeriodicHk).
+         * Provisional mission-specific (authority pending, NC-EXT-17):
+         * 128=Create HK report, 129=Delete HK report. */
+        {3u, 1u, svc3_enable},
+        {3u, 2u, svc3_disable},
+        {3u, 3u, svc3_enable}, /* Periodic = alias of Enable (starts periodic emission) */
+        {3u, 4u, svc3_report},
+        {3u, 128u, svc3_create},
+        {3u, 129u, svc3_delete}, /* Provisional: management */
+
+        /* Service 6: Memory Management — ECSS §6.6: 2=Dump */
+        {6u, 2u, svc6_dump},
+
+        /* Service 8: Function Management — ECSS: 1=Execute, 2=Execution report */
+        {8u, 1u, svc8_function},
+
+        /* Service 9: Time Management — ECSS: 1=Time set, 2=Time report */
+        {9u, 1u, svc9_set_time},
+        {9u, 2u, svc9_report_time},
+
+        /* Service 11: Schedule Management — ECSS: 1=Schedule, 2=Report schedule.
+         * Currently stubbed (NC-EXT-22); no implementation. */
+        {11u, 1u, svc11_stub},
+        {11u, 2u, svc11_stub},
+
+        /* Service 17: Test — ECSS: 1=Connection test, 2=Connection test report */
+        {17u, 1u, svc17_ping},
+
+        /* Service 20: Parameter Management — ECSS: 1=Set, 2=Set report, 3=Report, 4=Request */
+        {20u, 1u, svc20_set},
+        {20u, 3u, svc20_report},
+        {20u, 4u, svc20_report},
     };
 
     for (size_t i = 0; i < (sizeof(table) / sizeof(table[0])); i++) {

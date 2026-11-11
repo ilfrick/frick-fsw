@@ -1,0 +1,28 @@
+========================================================================
+frick-fsw target requirement evidence (tools/scripts/target_req_verify.py)
+========================================================================
+Status totals:
+  PASS  1
+  FAIL  11
+  SKIP  0
+  OBS   0 (observations, never coverage)
+  GAP   0 (declared gaps, never coverage)
+Per requirement:
+  SRS-REQ-073: FAIL=10 PASS=1
+  SRS-REQ-075: FAIL=1
+Reasons:
+  E: fail_case:SRS-REQ-073:XW-T10:init_failed
+  E: fail_case:SRS-REQ-073:XW-T11:init_failed
+  E: fail_case:SRS-REQ-073:XW-T12:init_failed
+  E: fail_case:SRS-REQ-073:XW-T1:init_failed
+  E: fail_case:SRS-REQ-073:XW-T2:init_failed
+  E: fail_case:SRS-REQ-073:XW-T3:init_failed
+  E: fail_case:SRS-REQ-073:XW-T4:init_failed
+  E: fail_case:SRS-REQ-073:XW-T5:init_failed
+  E: fail_case:SRS-REQ-073:XW-T6:init_failed
+  E: fail_case:SRS-REQ-073:XW-T9:init_failed
+  E: fail_case:SRS-REQ-075:XW-T7:init_failed
+  E: missing_case:SRS-REQ-073:XW-B1
+------------------------------------------------------------------------
+COVERAGE: 1/13 required cases
+target-evidence: FAIL

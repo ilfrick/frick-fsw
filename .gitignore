@@ -1,6 +1,7 @@
 # Builds
 build/
 build-*/
+build[0-9]*/
 *.o
 *.a
 *.so
@@ -23,6 +24,7 @@ verification/lean/.lake/
 # Python
 __pycache__/
 *.pyc
+.pytest_cache/
 .venv/
 venv/
 

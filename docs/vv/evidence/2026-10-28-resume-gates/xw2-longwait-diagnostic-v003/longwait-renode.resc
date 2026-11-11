@@ -1,0 +1,14 @@
+$program ?= @/workspace/build/xw2-renode/frick_fsw_xw2
+mach create "frick-xw2-v003"
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
+sysbus.mmuart1 CreateFileBackend @/diag/uart.log
+sysbus LoadELF $program
+e51 IsHalted true
+u54_2 IsHalted true
+u54_3 IsHalted true
+u54_4 IsHalted true
+u54_1 PC 0x1000000000
+start
+# Diagnostic-only extended monitor wait; no project script or ELF modified.
+sleep 180
+quit

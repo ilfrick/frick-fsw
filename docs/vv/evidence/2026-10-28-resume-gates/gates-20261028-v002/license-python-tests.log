@@ -1,0 +1,9 @@
+command: docker run --rm --pull=never --network=none --user 1000:1000 ... frick-vv:local bash -lc 'python3 tests/python/test_license_check.py'
+exit: 0
+
+STDERR:
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 33.272s
+
+OK

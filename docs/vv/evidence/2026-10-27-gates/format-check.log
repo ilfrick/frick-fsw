@@ -1,0 +1,33 @@
+src/transport/link/link_tsn.c:18:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC                                                                        \
+                           ^
+src/transport/link/link_tsn.c:19:6: error: code should be clang-formatted [-Wclang-format-violations]
+    {                                                                                              \
+     ^
+src/transport/link/link_tsn.c:20:49: error: code should be clang-formatted [-Wclang-format-violations]
+        0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu                                                   \
+                                                ^
+src/transport/link/link_ip.c:18:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER                                                                        \
+                           ^
+src/transport/link/link_ip.c:19:6: error: code should be clang-formatted [-Wclang-format-violations]
+    {                                                                                              \
+     ^
+src/transport/link/link_ip.c:20:25: error: code should be clang-formatted [-Wclang-format-violations]
+        127u, 0u, 0u, 1u                                                                           \
+                        ^
+src/core/pal/pal_posix.c:647:68: error: code should be clang-formatted [-Wclang-format-violations]
+    while ((scanned < FF_EVS_TEXT_LEN) && (fmt[scanned] != '\0') &&
+                                                                   ^
+tests/unit/test_link_tsn.c:24:22: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR                                                                              \
+                     ^
+tests/unit/test_link_tsn.c:25:6: error: code should be clang-formatted [-Wclang-format-violations]
+    {                                                                                              \
+     ^
+tests/unit/test_link_tsn.c:26:43: error: code should be clang-formatted [-Wclang-format-violations]
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55                                                         \
+                                          ^
+tests/unit/test_es_hs_lifecycle.c:851:67: error: code should be clang-formatted [-Wclang-format-violations]
+             test_panic_production_link_wiring_delivers_one_frame,
+                                                                  ^

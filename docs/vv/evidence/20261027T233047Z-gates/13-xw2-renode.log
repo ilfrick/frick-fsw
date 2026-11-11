@@ -1,0 +1,41 @@
+[xw2-renode] run directory: /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261027T233956Z
+[xw2-renode] build exit: 0
+[xw2-renode] ELF sha256 7f76e4e85145624e9404f4239394e68875d4593cb5e130ccafd1b3771e213700
+[xw2-renode] run nonce b892c09eed2eb14a04426421808d201c
+[xw2-renode] nm segregation written
+[xw2-renode] positive renode run captured (container exit 0)
+========================================================================
+frick-fsw target requirement evidence (tools/scripts/target_req_verify.py)
+========================================================================
+Status totals:
+  PASS  12
+  FAIL  0
+  SKIP  0
+  OBS   0 (observations, never coverage)
+  GAP   0 (declared gaps, never coverage)
+Per requirement:
+  SRS-REQ-073: PASS=11
+  SRS-REQ-075: PASS=1
+Reasons:
+  E: missing_case:SRS-REQ-073:XW-B1
+------------------------------------------------------------------------
+COVERAGE: 12/13 required cases
+target-evidence: FAIL
+========================================================================
+frick-fsw T1 whole-run verdict (tools/scripts/target_run_verdict.py)
+========================================================================
+console: /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261027T233956Z/console.log
+manifest: /home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json
+run nonce: b892c09eed2eb14a04426421808d201c
+------------------------------------------------------------------------
+COMPONENT: FAIL 12/13 (1 reason(s))
+  E: missing_case:SRS-REQ-073:XW-B1
+COVERAGE: 12/13 required cases
+QEMU-PROCESS: exit 0 (accepted)
+WHOLE-RUN: PASS (no panic/fatal marker in the console)
+------------------------------------------------------------------------
+RESULT: FAIL
+[xw2-renode] component exit 1, whole-run verdict exit 1
+[xw2-renode] no-wrap control: EXPECTED FAILURE reproduced: watchdog init panic + component verifier exit 1
+[xw2-renode] FAIL: positive run did not pass (component 1, verdict 1).
+[xw2-renode] A component PASS with a fatal console is not a target PASS.

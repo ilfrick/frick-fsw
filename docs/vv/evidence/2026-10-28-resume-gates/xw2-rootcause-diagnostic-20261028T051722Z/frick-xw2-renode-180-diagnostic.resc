@@ -1,0 +1,34 @@
+# frick-fsw - Renode run script for the XW-2 TEST-ONLY external-watchdog
+# contract image (owner-decisioned 2026-10-27: the XW-2 test-only image PASS in
+# Renode against the existing abstract external-watchdog model is the N18
+# criterion for this test; the production-shaped flight image FAIL stays a
+# separate open NC-PAL-01/NC-EXT-198 and is not exercised by this script).
+#
+# Same PolarFire SoC platform (BeagleV-Fire repl) and boot mechanics as the
+# production validation script frick-renode.resc; only the loaded program and
+# the console capture path differ. No watchdog device model is invented here:
+# the device seam is the existing validated test double inside the image
+# (tests/stubs/ff_test_extwd_*), substituted at link time in the test-only
+# executable. NOT a device, NOT HIL, no real reset, no electrical independence.
+#
+# Copyright (C) 2026 Ilfrick
+# SPDX-License-Identifier: MPL-2.0
+
+$program ?= @/workspace/build/xw2-renode/frick_fsw_xw2
+
+mach create "frick-xw2"
+machine LoadPlatformDescription @platforms/boards/beaglev-fire.repl
+# The RTEMS mpfs64imafdc console is mmuart1 (0x20100000); capture it to a file.
+sysbus.mmuart1 CreateFileBackend @/tmp/frick-xw2-uart.log
+sysbus LoadELF $program
+# Boot identical to the production validation: only the U54 boot hart runs.
+e51 IsHalted true
+u54_2 IsHalted true
+u54_3 IsHalted true
+u54_4 IsHalted true
+u54_1 PC 0x1000000000
+start
+# XW-B1 needs ~3 s of post-boot feeder activity after FF_EsStartAll; a bounded
+# 60 s window covers boot + the manifest case set, then the monitor quits.
+sleep 180
+quit

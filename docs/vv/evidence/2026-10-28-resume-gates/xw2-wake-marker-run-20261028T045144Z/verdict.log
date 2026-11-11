@@ -1,0 +1,14 @@
+========================================================================
+frick-fsw T1 whole-run verdict (tools/scripts/target_run_verdict.py)
+========================================================================
+console: /home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261028T045144Z/console.log
+manifest: /home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json
+run nonce: 9c3527960b16083b87e5b6bc30cca293
+------------------------------------------------------------------------
+COMPONENT: FAIL 12/13 (1 reason(s))
+  E: missing_case:SRS-REQ-073:XW-B1
+COVERAGE: 12/13 required cases
+QEMU-PROCESS: exit 0 (accepted)
+WHOLE-RUN: PASS (no panic/fatal marker in the console)
+------------------------------------------------------------------------
+RESULT: FAIL

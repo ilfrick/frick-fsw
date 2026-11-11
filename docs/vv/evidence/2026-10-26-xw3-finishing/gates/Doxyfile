@@ -1,0 +1,31 @@
+# Doxyfile for frick-fsw (run: doxygen Doxyfile; output: build/doxygen)
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: MPL-2.0
+
+PROJECT_NAME           = "frick-fsw"
+PROJECT_NUMBER         = 0.1.0
+PROJECT_BRIEF          = "cFS-inspired flight software: PUS-C TM/TC, RTEMS 6 on PolarFire SoC"
+OUTPUT_DIRECTORY       = build/doxygen-xw3-finishing-20261026T122043Z
+CREATE_SUBDIRS         = NO
+ALLOW_UNICODE_NAMES    = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+INPUT                  = README.md CHANGELOG.md docs src config board
+FILE_PATTERNS          = *.c *.h *.dts *.md
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+DOT_NUM_THREADS        = 1
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+QUIET                  = NO
+JAVADOC_AUTOBRIEF      = YES
+OPTIMIZE_OUTPUT_FOR_C  = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+# (doxygen may not define these macros; harmless if ddox)
+PREDEFINED             = FRICK_PLATFORM_MPFS=1

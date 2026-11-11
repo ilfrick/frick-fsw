@@ -307,7 +307,7 @@ static FF_Status_t send_hk_report_tc(uint8_t report_id, uint8_t ack)
     tc.version = FF_PUS_VERSION;
     tc.ack_flags = ack;
     tc.service = FF_PUS_SERVICE_HK; /* 3 */
-    tc.subservice = 27u;            /* report */
+    tc.subservice = 4u;             /* ECSS: 4 = Request (one-shot) */
     tc.source_id = 0x0102u;
     FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
                                     &frame_len) == FF_SUCCESS);
@@ -328,7 +328,7 @@ static FF_Status_t send_hk_report_list_tc(uint8_t count, const uint8_t *report_i
     memset(&tc, 0, sizeof(tc));
     tc.version = FF_PUS_VERSION;
     tc.service = FF_PUS_SERVICE_HK;
-    tc.subservice = 27u;
+    tc.subservice = 4u; /* ECSS: 4 = Request (one-shot) */
     tc.source_id = 0x0102u;
     FF_Status_t st = FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, (uint16_t)(count + 1u), frame,
                                       sizeof(frame), &frame_len);
@@ -346,7 +346,7 @@ static FF_Status_t create_hk_report_tc(uint8_t report_id, uint8_t provider_id)
     tc.version = FF_PUS_VERSION;
     tc.ack_flags = 0u;
     tc.service = FF_PUS_SERVICE_HK;
-    tc.subservice = 1u;
+    tc.subservice = 128u; /* ECSS provisional: Create HK report */
     tc.source_id = 0x0102u;
     FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
                                     &frame_len) == FF_SUCCESS);
@@ -377,23 +377,33 @@ static void test_hk_standard_subservice_assignments(void)
     FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
     FF_PusSetTmSink(tm_sink);
     FF_TEST_ASSERT(FF_PusRegisterHkProvider(33u, dummy_hk_provider) == FF_SUCCESS);
-    FF_TEST_ASSERT(create_hk_report_tc(33u, 33u) == FF_SUCCESS); /* TC[3,1] */
-
-    /* TC[3,2] is diagnostic-report definition in ECSS; it is not the HK delete
-     * command and is unsupported by this bounded implementation. */
-    FF_TEST_ASSERT(send_hk_id_tc(2u, 33u) == FF_NOT_FOUND);
+    /* Create HK report first (provisional subservice 128) */
+    FF_TEST_ASSERT(create_hk_report_tc(33u, 33u) == FF_SUCCESS); /* TC[3,128] create */
     g_rx_count = 0u;
-    FF_TEST_ASSERT(send_hk_id_tc(6u, 33u) == FF_SUCCESS); /* TC[3,6] disable */
+
+    /* TC[3,1] = Enable (ECSS standard) */
+    FF_TEST_ASSERT(send_hk_id_tc(1u, 33u) == FF_SUCCESS); /* TC[3,1] enable */
     g_rx_count = 0u;
     FF_TEST_ASSERT(send_hk_report_tc(33u, 0u) == FF_SUCCESS);
-    FF_TEST_ASSERT(stream_has(3u, 25u)); /* one-shot TC[3,27] is not periodic output */
+    FF_TEST_ASSERT(stream_has(3u, 25u)); /* one-shot TC[3,4] request emits HK */
+
+    /* TC[3,2] = Disable (ECSS) - only affects periodic emission, not one-shot requests */
+    FF_TEST_ASSERT(send_hk_id_tc(2u, 33u) == FF_SUCCESS); /* TC[3,2] disable */
     g_rx_count = 0u;
-    FF_TEST_ASSERT(send_hk_id_tc(5u, 33u) == FF_SUCCESS); /* TC[3,5] enable */
-    g_rx_count = 0u;
+    /* One-shot request (subservice 4) independent of enabled state */
     FF_TEST_ASSERT(send_hk_report_tc(33u, 0u) == FF_SUCCESS);
     FF_TEST_ASSERT(stream_has(3u, 25u));
+
+    /* TC[3,1] = Enable again */
+    FF_TEST_ASSERT(send_hk_id_tc(1u, 33u) == FF_SUCCESS); /* TC[3,1] enable */
     g_rx_count = 0u;
-    FF_TEST_ASSERT(send_hk_id_tc(3u, 33u) == FF_SUCCESS); /* TC[3,3] delete */
+
+    /* TC[3,4] = Request (one-shot) */
+    FF_TEST_ASSERT(send_hk_report_tc(33u, 0u) == FF_SUCCESS);
+    FF_TEST_ASSERT(stream_has(3u, 25u));
+
+    /* TC[3,129] = Delete (provisional mission-specific) */
+    FF_TEST_ASSERT(send_hk_id_tc(129u, 33u) == FF_SUCCESS); /* TC[3,129] delete */
     g_rx_count = 0u;
     FF_TEST_ASSERT(send_hk_report_tc(33u, 0u) == FF_NOT_FOUND);
     FF_TEST_ASSERT(!stream_has(3u, 25u));
@@ -448,7 +458,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK; /* 3 */
-        tc.subservice = 1u;             /* create */
+        tc.subservice = 128u;           /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -479,7 +489,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u; /* create */
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -503,7 +513,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u; /* create */
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -528,7 +538,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_PARAMETER; /* 20 */
-        tc.subservice = 3u;                    /* report */
+        tc.subservice = 4u;                    /* ECSS: 4 = Request (one-shot) */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -568,7 +578,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u;
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -591,7 +601,7 @@ static void test_ncext_24_provider_length_bounded(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u;
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
                                         sizeof(frame), &frame_len) == FF_SUCCESS);
@@ -753,7 +763,7 @@ static void test_pus_boundary_providers_and_subservices(void)
         tc.version = FF_PUS_VERSION;
         tc.ack_flags = 0u;
         tc.service = FF_PUS_SERVICE_HK;
-        tc.subservice = 1u; /* create */
+        tc.subservice = 128u; /* ECSS provisional: Create HK report */
         tc.source_id = 0x0102u;
         uint8_t payload[6] = {1u, 1u, 0u, 0u, 0u, 0u}; /* report_id=1, provider=1, period=0 */
         FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,

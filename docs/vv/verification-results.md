@@ -311,8 +311,11 @@ All exit codes are also summarised in `candidate-exits.txt`.
 
 ## Residual unproven items (not closed by this cycle)
 
-- N18 functional validation in Renode emulated PolarFire SoC: **FAIL**
-  (NC-EXT-198; root cause NC-PAL-01 unwired MPFS binding).
+- N18 functional validation in Renode emulated PolarFire SoC: **FAIL at the
+  2026-11-04 gate** (NC-EXT-198; root cause NC-PAL-01 unwired MPFS binding).
+  **Superseded 2026-11-09 and 2026-11-10:** the emulated WDOG0 binding and the
+  `N22-TS5-66` tree both PASS (`RENODE_TEST: PASS`). What remains open is
+  target/HIL evidence, not the emulated functional run (NC-PAL-01, GAP-A5).
 - GAP-A4: cppcheck remains an advisory, unqualified checker.
 - NC-EXT-19 remains open (scheduler EVS end-to-end path not verified).
 - **NC-EXT-236**: **EVIDENCE DELIVERED** — `tests/unit/test_tm_output_chain.c` (47 checks) exercises the assembled chain through the production sink `FF_AppTmOutputInit`/`ff_to_sink`. NC remains open pending human PA authority disposition; functional gap closed. |
@@ -322,9 +325,12 @@ All exit codes are also summarised in `candidate-exits.txt`.
   covers sink → loopback link with an **injected** sink, and `test_r3_gap.c:523-575`
   covers listener → sink. Owner role: FSW engineer; acceptance authority:
   **Nicola**; no acceptance date.
-- **NC-EXT-237** remains open: `FF_PusEmitEvent` ignores `event_id`
-  (`src/pus/pus.c`), so event identity is caller-supplied payload only.
-  Owner role: FSW engineer; acceptance authority: **Nicola**; no acceptance date.
+- **NC-EXT-237** (recorded here on 2026-11-04): `FF_PusEmitEvent` ignores
+  `event_id` (`src/pus/pus.c`), so event identity is caller-supplied payload
+  only. Owner role: FSW engineer; acceptance authority: **Nicola**; no
+  acceptance date. **Superseded 2026-11-11 — see the NC-EXT-237 cycle section at
+  the end of this record:** the header is now emitter-owned and a discriminating
+  oracle exists; the NC itself remains OPEN pending PA acceptance.
 - NC-EXT-198/199, NC-PAL-01, NC-EXT-207/208/211 remain open.
 - No NC closed, no sprint completed.
 
@@ -334,3 +340,199 @@ All exit codes are also summarised in `candidate-exits.txt`.
 format, traceability, Lean, cppcheck baseline, RTEMS cross-build). No NC and no
 sprint is closed, no hardware or human review is claimed, and no commit/push is
 authorised by this record alone.
+
+## Emulated WDOG0 watchdog binding cycle — 2026-11-09
+
+**Scope:** test-only MPFS WDOG0 binding for the N18 build
+(`FRICK_PLATFORM_MPFS && FF_ENABLE_RENODE_TEST`), absolute monotonic feeder
+cadence, and the provisional 10 s / 2.5 s mission-table values (NC-EXT-238).
+**Not claimed:** flight binding, target/HIL protection, RTPFS160ZT
+clock/register/reset-scope fidelity, mission suitability.
+
+### Executed evidence (current tree)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Host build + CTest (`build2/native`) | **PASS** | `100% tests passed, 0 tests failed out of 54` |
+| Pinned `clang-format` 18.1.3 (`frick-vv:local`) | **PASS** | `find src config tests ... --dry-run --Werror` exit 0 |
+| Lean `lake build` | **PASS** | `Build completed successfully.` |
+| Lean elaboration receipt (`lean_elab_receipt.py`) | **PASS** | 11 modules; receipt sha256 `3410575860331b36284a199bc91484ce88b94ea3503b46fb8b7b8c460abe1f26` |
+| Traceability (`trace.py`) | **PASS** | 120 requirements, 76 SRS, 30 SSS, 14 gaps, 68 Lean theorems |
+| `make gsw-selfcheck` | **PASS** | GSW 12 tests OK, metrics 9 tests OK, license 14 tests OK + license checker OK |
+| `metrics.py --check` | **PASS** | `metrics panel: current` |
+| RTEMS 6.2 cross-build (`frick-rtems-toolchain:local`) | **PASS** | configure/build exit 0, `build/renode/frick_fsw_renode.elf` produced |
+| **N18 Renode** (`tools/scripts/renode_vv.sh`) | **PASS** | `RENODE_TEST: PASS`; container exit 0 |
+
+### N18 watchdog evidence (retained console)
+
+```
+watchdog: WDOG0 armed (emulated profile: timeout 10000 ms, TIME=1562500, TRIGGER=4095, MSVP=TIME, clk=156250 Hz)
+WD armed: timeout 10000 ms, feed 2500 ms
+RENODE_TEST: PASS
+```
+
+The register sequence was exercised by a separate pinned-image probe before the
+binding was written; the model clock was measured at ≈156.25 kHz. The binding
+programs `TRIGGER -> MSVP -> TIME -> CONTROL`, reads the three value registers
+back before the first keyed refresh, and then feeds with the keyed refresh.
+
+### Residual open items
+
+NC-PAL-01 (flight binding + target/HIL), NC-EXT-186 (250 ms target timing),
+NC-EXT-188 (target protection), NC-EXT-238 (mission-authority values). The
+emulated run is integration evidence only and does not discharge these.
+
+The documentation identity manifest
+`docs/vv/evidence/2026-10-22-s8-fdir-wd-spec-docs.sha256` was regenerated for
+the FRICK-ARCH-0024 rev 1.6 text freeze and verifies (22/22 `OK`, exit 0).
+
+## S8-SCH TBL→dispatch coupling cycle (N22-TS5-66) — 2026-11-10
+
+**Scope:** Table Services load/activate → scheduler dispatch coupling in
+`src/apps/app_scheduler.c` (activation callback snapshots the activated image;
+the scheduler task applies it on its next tick), the `FF_TblActivateCb` contract
+clarification in `src/core/tbl/tbl.h`, the production-path host cases in
+`tests/unit/test_tbl_sched_coupling.c`, and the deterministic controlled-delay
+test seam (`FF_PalTaskDelayMsTestWait`).
+**Not claimed:** mission rates/jitter/tolerances, WCET, the worst-case one-tick
+deferral budget, target/RTEMS timing, cross-core memory ordering (M14), or any
+flight-use authorization.
+
+### Executed evidence (current tree)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Host build (all targets, no warnings) | **PASS** | `cmake --build build2/native -j4` exit 0; no `warning:`/`error:` lines |
+| Full CTest | **PASS** | `100% tests passed, 0 tests failed out of 55` |
+| `tbl_sched_coupling` | **PASS** | `tests/unit/test_tbl_sched_coupling.c checks=61 failures=0` |
+| `sched_events` | **PASS** | `tests/unit/test_sched_events.c checks=68 failures=0` |
+| Repeatability (25 consecutive runs of both binaries, 50 executions) | **PASS** | `failures over 25 runs (50 execs): 0` |
+| Traceability (`trace.py`) | **PASS** | 120 requirements, 76 SRS, 30 SSS, 14 gaps, 68 Lean theorems |
+| Lean `lake build` | **PASS** | `Build completed successfully.` |
+| Pinned `clang-format` 18.1.3 (`frick-vv:local`) | **PASS** | `find src config tests ... --dry-run --Werror` exit 0 (host clang-format 23.x is rejected by the Makefile pin) |
+| RTEMS 6.2 cross-build, N18 profile (`frick-rtems-toolchain:local`, `build/renode`, `FF_ENABLE_RENODE_TEST=ON`) | **PASS (exit 0, 1 pre-existing warning)** | clean rebuild `EXIT=0`, 164/164 steps; `build/renode-build.log`; ELF sha256 `5557d0bd…1a0e` identical to the copied `frick_fsw_renode.elf` |
+| **N18 Renode** (`tools/scripts/renode_vv.sh`, fresh per-run dir) | **PASS** | `[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)`, run dir `/tmp/frick-renode-vv.02rYaH` |
+
+The single RTEMS warning is **pre-existing and outside this increment**:
+`src/core/pal/pal_rtems.c:156: implicit declaration of function 'ff_pal_wd_hw_feed'`
+(the prototype exists only in `src/core/pal/pal_watchdog.c`, not in a header).
+It is registered as **NC-EXT-239 OPEN** in `docs/planning/sprint-plan.md`; it is
+not caused by, and is not corrected in, this cycle.
+
+**Retained evidence:** `docs/vv/evidence/2026-11-10-n22-ts5-66/` (CTest, trace,
+format-check, RTEMS/N18 build log, Renode console and process log, candidate
+hashes).
+
+### N18 scheduler-startup evidence (retained console excerpt)
+
+```
+app SCHEDULER started
+SCH app started, 4 entries
+watchdog: WDOG0 armed (emulated profile: timeout 10000 ms, ...)
+RENODE_TEST: PASS
+```
+
+This confirms the changed initialisation path (mutex creation, callback
+registration, `FF_TBL_INVALID_HANDLE` reset) starts on the emulated target and
+does not break the mission schedule. It does not exercise the activation callback
+on target, which remains host-only evidence in this cycle.
+
+### Oracle summary
+
+- **Nominal** (`test_tbl_sched_production_activate`): with the production
+  `FF_AppSchedulerMain` running under the controlled-delay seam, the startup
+  schedule (4 entries) is active; after `FF_TblLoad` + `FF_TblActivate` on the
+  application's registered handle the active count is **unchanged** (the callback
+  only snapshots), and after exactly one scheduler tick the count is the new
+  table's (2), exactly one `FF_SCHED_EVT_ACTIVATED` event carries
+  `"SCH: table activated, 2 entries"`, and the next 1000 ms tick releases exactly
+  one message from the new table (`dispatched` +1).
+- **Out-of-bound** (`test_tbl_sched_production_invalid`): `FF_TblLoad` with
+  `size - 1` returns `FF_BAD_SIZE`, a bad-magic image returns `FF_ERROR`, the
+  following `FF_TblActivate` returns `FF_NOT_READY`, and after a tick the
+  4-entry schedule is still active with no re-activation event.
+
+### Test-seam correction (not an application behaviour change)
+
+`FF_PalTaskDelayMsTestWait()` now consumes the block notification so each
+`FF_PalTaskDelayMsTestStep()` is observed by exactly one scheduler iteration.
+Previously two steps could be coalesced, letting injected time be applied to the
+wrong iteration. The `N22-TS5-47` integration expectations in
+`tests/unit/test_sched_events.c` were corrected to the deterministic sequence
+(2 missed-slot events: `3 ... total 3`, then `5 ... total 8`); the application's
+report-only-new-skips policy is unchanged.
+
+### Residual open items
+
+NC-EXT-19/90 (mission schedule/timing/policy inputs), `N22-TS5-47`
+(EVS-to-HS end-to-end), `N22-TS5-48` (mission rates/tolerances), the one-tick
+activation-apply deferral budget, M14 memory ordering, and target/HIL evidence
+(GAP-A5). The N18 run above is emulated-target functional validation of this
+change only: it establishes that the image boots, the scheduler app starts and
+the `RENODE_TEST` marker is produced. It is **not** HIL, timing/WCET, radiation
+or mission evidence, and it does not close NC-PAL-01. No NC is closed by this
+cycle.
+
+## NC-EXT-237 S5 event-identity cycle — 2026-11-11
+
+**Scope:** the Service 5 event-report identity contract of
+`FF_PusEmitEvent(event_id, evs_type, data, len)` in `src/pus/pus.c`, its API
+contract in `src/pus/pus.h`, every in-tree caller, and the new discriminating
+oracle `tests/unit/test_pus_event_identity.c`.
+
+**Defect (as registered):** the implementation executed `(void)event_id;` and
+forwarded the caller buffer verbatim, so the argument had no effect, event
+identity was caller-supplied payload only, and the existing
+`test_evs_hs_health.c` oracle asserted payload transparency rather than
+identity (FRICK-REVIEW-0453 PA-07).
+
+**Change:** `FF_PusEmitEvent` now owns the S5 report header
+`event id[2, big-endian] + type[1]` (ICD §4) and encodes it from `event_id` and
+`evs_type`; `data`/`len` carry auxiliary data only. Bounds are `len <=
+FF_PUS_MAX_TM_FRAME - 3` (`FF_BAD_SIZE` above) and `data == NULL` accepted only
+with `len == 0` (`FF_INVALID_ARGUMENT` otherwise). Severity → subservice mapping
+(1/2/3, unknown → 3) is unchanged. The encoded octets are identical to what a
+caller previously produced by embedding the header itself, so **no wire format
+changed**; ICD rev 1.7 records the contract. Callers updated to pass text only:
+`src/main/fsw_main.c`, `src/main/fsw_main_reqtest.c`,
+`tests/target/fsw_main_xw2.c`, `tests/unit/test_r3_gap.c`,
+`tests/unit/test_tm_output_chain.c`, `tests/unit/test_evs_hs_health.c`
+(re-bound to 122 checks, sha256 `5310cc3c…277f`).
+
+### Executed evidence (current tree, `BUILD_DIR=build2/native`)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Configure + build | exit 0, no warnings | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-build.log` |
+| CTest | **56/56 PASS** | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-ctest.log` |
+| Lean 4 | `lake build` exit 0 | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-lean.log` |
+| Traceability | PASS (120/76/30/14/68) | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-trace.log` |
+| Format | pinned clang-format 18, exit 0 | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-format.log` |
+| N13 license | `license_check.py` OK | `docs/vv/evidence/2026-11-11-nc-ext-237/gate-license.log` |
+
+### Discriminating oracle and mutation control
+
+`tests/unit/test_pus_event_identity.c` (5 cases, 106 checks; ctest
+`pus_event_identity`, `TIMEOUT 60`, labels `n22;pus;nc-ext-237`) asserts: two
+emissions that differ only in `event_id` produce different frames each carrying
+the requested id; big-endian order; no duplication of the id in the auxiliary
+data; `0x0000`/`0xFFFF` encoded rather than treated as sentinels; auxiliary data
+that itself looks like an id/type triple passed through unaltered; severity →
+subservice with the raw type octet preserved; and the out-of-bound arguments
+(`len = FF_PUS_MAX_TM_FRAME - 2` and `UINT16_MAX` → `FF_BAD_SIZE` with no frame,
+`NULL` + non-zero length → `FF_INVALID_ARGUMENT`, exact budget
+`FF_PUS_MAX_TM_FRAME - 3` accepted).
+
+Mutation control (`docs/vv/evidence/2026-11-11-nc-ext-237/mutation-check.log`):
+restoring the pre-fix body yields `checks=106 failures=33`, exit 1; restoring
+the fix yields `checks=106 failures=0`, exit 0. The oracle therefore detects the
+defect it documents.
+
+### Residual open items
+
+NC-EXT-237 remains **OPEN** pending acceptance by the project/Software PA
+(acceptance authority **Nicola**; owner role FSW engineer; no acceptance date).
+Event ids are still not a controlled catalogue (NC-EXT-102). T3 remains **NOT
+FULLY QUALIFIED** for this candidate: neither the new script nor
+`test_sched_events.c` has an N10 review (`tool-qualification.md` rev 1.6). No
+NC is closed by this cycle and no release/flight approval is claimed.

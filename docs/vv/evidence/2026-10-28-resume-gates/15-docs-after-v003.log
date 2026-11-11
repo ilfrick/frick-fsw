@@ -1,0 +1,5 @@
+rm -rf build/doxygen
+mkdir -p build/doxygen
+doxygen Doxyfile
+make: doxygen: File o directory non esistente
+make: *** [Makefile:203: docs] Errore 127

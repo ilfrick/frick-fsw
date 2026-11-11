@@ -34,23 +34,13 @@
 
 static void prod_event_listener(const FF_EvsEvent_t *evt)
 {
-    uint8_t payload[FF_PUS_MAX_TM_FRAME];
     uint16_t text_len = 0u;
-    uint16_t total;
 
     while ((text_len < sizeof(evt->text)) && (evt->text[text_len] != '\0')) {
         text_len++;
     }
-    if (text_len > (FF_PUS_MAX_TM_FRAME - 3u)) {
-        text_len = (uint16_t)(FF_PUS_MAX_TM_FRAME - 3u);
-    }
-    payload[0] = (uint8_t)(evt->event_id >> 8);
-    payload[1] = (uint8_t)(evt->event_id & 0xFFu);
-    payload[2] = evt->type;
-    (void)memcpy(&payload[3], evt->text, text_len);
-    total = (uint16_t)(text_len + 3u);
-
-    (void)FF_PusEmitEvent(evt->event_id, evt->type, payload, total);
+    /* FF_PusEmitEvent owns the service 5 report header (event id + type). */
+    (void)FF_PusEmitEvent(evt->event_id, evt->type, (const uint8_t *)evt->text, text_len);
 }
 
 /* ------------------------------------------------------------------ */

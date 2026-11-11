@@ -1,0 +1,5 @@
+Run classification: controlled root-cause diagnostic; not the final acceptance runner.
+Date: 2026-10-28.
+Run directory: build/xw2-renode-rca-180.* (captured before the runner change).
+Only changed variable from the failed 60 s run: monitor wait, 60 s -> 180 s. Positive source SHA-256: 0570ff8b1c8f7892013c25e0716247b4624b1eb2f1c8b1ed0da7dc77d1d4b126; ELF SHA-256: 08405e210792048edcd7c7e3d8118ed87a6f4f427a272f0a500686f9f04dcbf7; manifest SHA-256: 8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819.
+Renode process exit 0; verifier 13/13 PASS. XW2_DBG task_entry, post_delay, post-delay wake, and XW-B1 PASS were each captured once. This isolates the direct failure to the 60 s observation cutoff for this emulator/candidate; it does not indicate a production timer, scheduler, or UART defect. Retained artifacts include the RESC delta, process log, console, and verifier output.

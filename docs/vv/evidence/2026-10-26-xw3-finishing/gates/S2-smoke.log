@@ -1,0 +1,7 @@
+S2 start 2026-10-26T12:18:11Z
+cmd: BUILD_DIR=build/xw3-finishing-s1 bash tools/scripts/run_sim.sh
+[smoke] building
+[smoke] booting simulator (8 s window)
+[smoke] PASS (banner + 7 applications registered)
+smoke_exit=0
+end 2026-10-26T12:18:48Z duration_s=37

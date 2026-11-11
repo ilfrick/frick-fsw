@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ENG-0004 |
 | ----------- | -------------- |
-| Revision    | 0.4 |
-| Date        | 2026-10-13 |
+| Revision    | 0.5 |
+| Date        | 2026-11-11 |
 | Audience    | humans and agents extending the PUS-C service set |
 
 This guide explains how to add a **PUS-C service or subservice** to frick-fsw
@@ -75,6 +75,17 @@ registration slots.
   housekeeping dumps use S3,25; memory dumps S6,6.
 - Events: emit through EVS (`FF_EvsSend`), which the core maps to service 5
   (`FF_PusEmitEvent`). Do not build service 5 packets by hand.
+- Service 5 report header: `FF_PusEmitEvent(event_id, evs_type, data, len)`
+  owns the header `event id[2, big-endian] | type[1]` (ICD §4) and encodes it
+  from `event_id`/`evs_type`; `data`/`len` are **auxiliary data only** (normally
+  the free-text reason). Never prepend an id or a type octet to `data` — that
+  would duplicate the header on the wire. The subservice follows the severity
+  (1 INFO, 2 WARNING, 3 CRITICAL; unknown severities fall back to 3), `len` is
+  bounded by `FF_PUS_MAX_TM_FRAME - 3`, and `data == NULL` is accepted only
+  with `len == 0` (`FF_INVALID_ARGUMENT` otherwise, `FF_BAD_SIZE` when
+  oversized). Event ids remain an interface-authority item (NC-EXT-102); the
+  identity contract and its discriminating oracle are recorded under
+  NC-EXT-237 (`tests/unit/test_pus_event_identity.c`).
 - Timestamps: the TM secondary header CUC is filled by the core
   (`FF_PusSendTm` → `FF_TimeGetCuc`); never stamp manually.
 
@@ -184,3 +195,4 @@ Add the test to `tests/CMakeLists.txt` and give it a `add_test` name.
 | 0.2 | 2026-10-13 | frick-fsw | Clarify `ci-local` is a subset and point to separate applicable verification gates (NC-EXT-38). |
 | 0.3 | 2026-10-13 | frick-fsw | Explicitly list static analysis among gates outside `ci-local` (NC-EXT-38). |
 | 0.4 | 2026-10-13 | frick-fsw | Align revision metadata and separate-gate scope record following independent review (NC-EXT-41). |
+| 0.5 | 2026-11-11 | frick-fsw | Document the Service 5 report-header contract of `FF_PusEmitEvent` (emitter-owned `event id[2 BE]` + `type[1]`, auxiliary-data-only callers, severity→subservice mapping, length/NULL bounds) after the NC-EXT-237 fix; no API or wire change beyond the corrected implementation. |

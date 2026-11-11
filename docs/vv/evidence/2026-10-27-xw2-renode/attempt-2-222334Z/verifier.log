@@ -1,0 +1,17 @@
+========================================================================
+frick-fsw target requirement evidence (tools/scripts/target_req_verify.py)
+========================================================================
+Status totals:
+  PASS  12
+  FAIL  0
+  SKIP  0
+  OBS   0 (observations, never coverage)
+  GAP   0 (declared gaps, never coverage)
+Per requirement:
+  SRS-REQ-073: PASS=11
+  SRS-REQ-075: PASS=1
+Reasons:
+  E: missing_case:SRS-REQ-073:XW-B1
+------------------------------------------------------------------------
+COVERAGE: 12/13 required cases
+target-evidence: FAIL

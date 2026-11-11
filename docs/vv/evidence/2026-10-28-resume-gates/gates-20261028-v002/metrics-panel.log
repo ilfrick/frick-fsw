@@ -1,0 +1,10 @@
+old_coverage_sha256=7c02585be2ee3b92f418dca2a4556a56834cadc692f046c9c8f7b0d32ca69dc0
+new_coverage_sha256=4866ecd6393f1b80ed07226d2f8fbd8085d595c301073f85fe021c3be4ce1f65
+$ metrics.py --readme
+exit=0
+README.md updated (120 requirements, overall red)
+
+
+$ metrics.py --check
+exit=0
+metrics panel: current

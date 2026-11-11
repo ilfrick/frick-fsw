@@ -1,0 +1,7 @@
+command: docker run --rm --pull=never --network=none ... frick-vv:local bash -lc 'cd /workspace/verification/lean && lake build'
+exit: 1
+
+STDERR:
+warning: could not check for elan self-update: error during download
+error: error during download
+info: caused by: [6] Could not resolve hostname (Could not resolve host: release.lean-lang.org)

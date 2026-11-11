@@ -1,0 +1,15 @@
+22:26:59.7609 [INFO] Loaded monitor commands from: /opt/renode/scripts/monitor.py
+22:26:59.7951 [INFO] Monitor available in telnet mode on port 1234
+22:27:00.0196 [INFO] Including script(s): /workspace/tools/docker/renode/frick-xw2-nowrap-renode.resc
+22:27:00.0454 [INFO] System bus created.
+22:27:03.4696 [INFO] sysbus: Loading block of 421656 bytes length at 0x1000000000.
+22:27:03.5761 [INFO] sysbus: Loading block of 4096 bytes length at 0x1000066F18.
+22:27:03.5762 [INFO] sysbus: Loading block of 268009472 bytes length at 0x1000068000.
+22:27:04.0366 [INFO] e51: Setting PC value to 0x1000000000.
+22:27:04.0366 [INFO] u54_1: Setting PC value to 0x1000000000.
+22:27:04.0366 [INFO] u54_2: Setting PC value to 0x1000000000.
+22:27:04.0367 [INFO] u54_3: Setting PC value to 0x1000000000.
+22:27:04.0368 [INFO] u54_4: Setting PC value to 0x1000000000.
+22:27:04.0626 [INFO] frick-xw2-nowrap: Machine started.
+22:27:19.5926 [INFO] frick-xw2-nowrap: Machine paused.
+22:27:19.6924 [INFO] frick-xw2-nowrap: Disposed.

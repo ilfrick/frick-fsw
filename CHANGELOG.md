@@ -7,6 +7,62 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### Service 5 event identity owned by the emitter (2026-11-11)
+
+Functional N21 increment. It fixes **NC-EXT-237**: `FF_PusEmitEvent(event_id,
+evs_type, data, len)` executed `(void)event_id;` and forwarded the caller buffer
+verbatim, so the `event_id` argument had no effect and event identity was
+whatever octets the caller happened to embed. The existing
+`tests/unit/test_evs_hs_health.c` oracle asserted payload transparency and could
+not discriminate the defect (FRICK-REVIEW-0453 PA-07).
+
+- **Header is emitter-owned.** `src/pus/pus.c` `FF_PusEmitEvent` now encodes the
+  PUS-C Service 5 report header `event id[2, big-endian] + type[1]` (ICD §4)
+  from its own `event_id`/`evs_type` arguments and appends `data`/`len` as
+  auxiliary data only. Severity → subservice mapping (1 INFO, 2 WARNING,
+  3 CRITICAL; unknown → 3) is unchanged. The encoded octets are identical to
+  those a caller previously produced by embedding the header itself, so the
+  **wire format did not change**.
+- **Bounds.** `len <= FF_PUS_MAX_TM_FRAME - 3` (`FF_BAD_SIZE` above);
+  `data == NULL` accepted only with `len == 0` (`FF_INVALID_ARGUMENT`
+  otherwise). Both checks run before any framing, so a refused emission produces
+  no frame.
+- **API contract.** `src/pus/pus.h` documents the contract (callers pass
+  auxiliary data only and must not prepend an id or type octet);
+  `docs/interfaces/ICD.md` rev 1.7 records it in §4 and
+  `docs/engineering/service-development.md` §4 explains it for service authors.
+- **Callers updated** to text-only auxiliary data: `src/main/fsw_main.c`,
+  `src/main/fsw_main_reqtest.c`, `tests/target/fsw_main_xw2.c`,
+  `tests/unit/test_r3_gap.c`, `tests/unit/test_tm_output_chain.c` and
+  `tests/unit/test_evs_hs_health.c` (re-bound to 122 checks, sha256
+  `5310cc3c…277f`). `FF_PusEmitPanicEvent` builds its own header and calls
+  `FF_PusSendTmDirect`; it is intentionally unchanged.
+- **Discriminating oracle.** New `tests/unit/test_pus_event_identity.c` (5
+  cases, 106 checks; ctest `pus_event_identity`, labels `n22;pus;nc-ext-237`)
+  asserts identity-from-argument, big-endian order, no duplication in the
+  auxiliary data, `0x0000`/`0xFFFF` encoded as ordinary ids, unaltered auxiliary
+  data, severity → subservice with the raw type octet preserved, and the
+  out-of-bound arguments. Mutation control: restoring the pre-fix body yields
+  `checks=106 failures=33`; the fix yields `checks=106 failures=0`
+  (`docs/vv/evidence/2026-11-11-nc-ext-237/mutation-check.log`).
+- **Verification.** Host build exit 0 with no warnings, CTest **56/56 PASS**,
+  `lake build` PASS, `trace.py` PASS (120/76/30/14/68), pinned clang-format 18
+  PASS, N13 license check OK. Logs:
+  `docs/vv/evidence/2026-11-11-nc-ext-237/`.
+- **Records updated.** `docs/vv/test-spec/ts-1-protocol-core.md` (rev 1.10,
+  `N22-TS1-58`), `docs/vv/test-spec/ts-5-core-services.md` (rev 1.16,
+  `N22-TS5-47`), `docs/interfaces/ICD.md` (rev 1.7),
+  `docs/engineering/service-development.md` (rev 0.5),
+  `docs/vv/tool-qualification.md` (rev 1.6), `docs/requirements/traceability.yaml`
+  (SRS-REQ-011), `docs/planning/sprint-plan.md` (rev 1.130),
+  `docs/status/handover.md` (rev 3.68) and `docs/vv/verification-results.md`.
+- **Limits.** NC-EXT-237 remains **OPEN** pending acceptance by the
+  project/Software PA (owner role FSW engineer; acceptance authority Nicola; no
+  acceptance date). Event ids are still not a controlled catalogue
+  (NC-EXT-102). T3 is **NOT FULLY QUALIFIED** for this candidate: neither the
+  new script nor `test_sched_events.c` has an N10 review
+  (`tool-qualification.md` rev 1.6).
+
 ### Scheduler dispatch of activated tables and deterministic delay seam (2026-11-10)
 
 Functional N21 increment. It closes test-spec gap **N22-TS5-66**: the scheduler

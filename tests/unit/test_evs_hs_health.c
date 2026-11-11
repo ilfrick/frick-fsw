@@ -6,7 +6,9 @@
  *      detects an application in the FAILED state;
  *   2. the direct PUS-C service 5 emission path
  *      (FF_PusEmitEvent -> CCSDS TM -> TM sink -> link loopback), including
- *      INFO/WARNING/CRITICAL subservice selection and payload transparency;
+ *      INFO/WARNING/CRITICAL subservice selection, event-identity encoding
+ *      (the report header is built from the event_id/evs_type arguments) and
+ *      auxiliary-data transparency;
  *   3. nominal and out-of-bound behaviour of FF_PusEmitEvent (oversized
  *      payload, null data with non-zero length, unknown severity mapping).
  *
@@ -22,10 +24,12 @@
  *   - the scheduler heartbeat / late-missed-slot / dispatch-failure events
  *     (N22-TS5-47); tracked as NC-EXT-19.
  *
- * Known product observation (NC-EXT-237): FF_PusEmitEvent ignores its
- * event_id argument; event identity is carried by the caller-supplied
- * payload. This test therefore asserts payload transparency, not
- * event-identity semantics of the argument.
+ * Event identity (NC-EXT-237): FF_PusEmitEvent encodes the service 5 report
+ * header `event id[2, big-endian] | type[1]` from its arguments and appends
+ * the caller data as auxiliary data. This test therefore asserts both the
+ * event id on the wire and auxiliary-data transparency. The dedicated
+ * discriminating oracle for the argument itself is
+ * tests/unit/test_pus_event_identity.c.
  *
  * Copyright (C) 2026 Ilfrick
  * https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
@@ -212,19 +216,17 @@ static bool verify_hs_failure_tm(const uint8_t *frame, uint16_t len, uint8_t exp
     return (strstr(payload_text, needle) != NULL);
 }
 
-/* Build the flight-format event payload: event_id (2 bytes BE), type, text. */
-static uint16_t build_hs_payload(uint8_t *payload, size_t payload_size, uint16_t app_id)
+/* Build the auxiliary data (reason text) for an application-failure event.
+ * FF_PusEmitEvent adds the event id and type octets itself (NC-EXT-237). */
+static uint16_t build_hs_text(uint8_t *text_out, size_t text_size, uint16_t app_id)
 {
     char text[32];
     int n = snprintf(text, sizeof(text), "app %u failed", (unsigned)app_id);
-    if ((n < 0) || ((size_t)n >= sizeof(text)) || ((size_t)(3 + n) > payload_size)) {
+    if ((n < 0) || ((size_t)n >= sizeof(text)) || ((size_t)n > text_size)) {
         return 0u;
     }
-    payload[0] = (uint8_t)(FF_EVS_APP_ERROR >> 8);
-    payload[1] = (uint8_t)(FF_EVS_APP_ERROR & 0xFFu);
-    payload[2] = FF_EVS_CRITICAL;
-    (void)memcpy(&payload[3], text, (size_t)n);
-    return (uint16_t)(3 + n);
+    (void)memcpy(text_out, text, (size_t)n);
+    return (uint16_t)n;
 }
 
 /* ------------------------------------------------------------------ */
@@ -296,13 +298,13 @@ static void test_pus_event_direct_path(void)
     FF_TEST_ASSERT(FF_LinkGet() == &FF_LinkLoopbackBackend);
 
     for (uint16_t app_id = 1u; app_id <= 2u; app_id++) {
-        uint8_t payload[32];
-        uint16_t payload_len = build_hs_payload(payload, sizeof(payload), app_id);
+        uint8_t text[32];
+        uint16_t text_len = build_hs_text(text, sizeof(text), app_id);
         g_evs_tm_count = 0u;
         g_evs_tm_frame_len = 0u;
 
-        FF_TEST_ASSERT(payload_len > 3u);
-        FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, payload, payload_len) ==
+        FF_TEST_ASSERT(text_len > 0u);
+        FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, text, text_len) ==
                        FF_SUCCESS);
         FF_TEST_ASSERT(g_evs_tm_count == 1u);
         FF_TEST_ASSERT(verify_hs_failure_tm(g_evs_tm_frame, g_evs_tm_frame_len, 3u, app_id));
@@ -353,8 +355,12 @@ static void test_pus_event_severity_mapping(void)
                                  sizeof(text), &payload_len));
         FF_TEST_ASSERT(service == 5u);
         FF_TEST_ASSERT(subservice == cases[i].expected_subservice);
-        FF_TEST_ASSERT(payload_len == sizeof(payload));
-        FF_TEST_ASSERT(memcmp(text, payload, sizeof(payload)) == 0);
+        /* Report header built by FF_PusEmitEvent, then the auxiliary data. */
+        FF_TEST_ASSERT(payload_len == (uint16_t)(sizeof(payload) + 3u));
+        FF_TEST_ASSERT((uint8_t)text[0] == (uint8_t)(FF_EVS_APP_ERROR >> 8));
+        FF_TEST_ASSERT((uint8_t)text[1] == (uint8_t)(FF_EVS_APP_ERROR & 0xFFu));
+        FF_TEST_ASSERT((uint8_t)text[2] == cases[i].type);
+        FF_TEST_ASSERT(memcmp(&text[3], payload, sizeof(payload)) == 0);
     }
 
     FF_EvsSetListener(NULL);
@@ -381,7 +387,8 @@ static void test_pus_event_out_of_bound(void)
     FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, payload, UINT16_MAX) ==
                    FF_BAD_SIZE);
     /* Null data with non-zero length is an invalid argument. */
-    FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, NULL, 4u) != FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, NULL, 4u) ==
+                   FF_INVALID_ARGUMENT);
     /* Null data with zero length is accepted (empty report). */
     FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, NULL, 0u) == FF_SUCCESS);
 
@@ -439,8 +446,8 @@ static void test_hs_failure_then_direct_pus_emission(void)
     FF_TEST_ASSERT(FF_EsGetState(bad_id) == FF_APP_FAILED);
 
     for (uint16_t pass = 1u; pass <= 2u; pass++) {
-        uint8_t payload[32];
-        uint16_t payload_len = build_hs_payload(payload, sizeof(payload), bad_id);
+        uint8_t text[32];
+        uint16_t text_len = build_hs_text(text, sizeof(text), bad_id);
 
         /* HS detects the failure at the listener seam. */
         cap_reset();
@@ -452,8 +459,8 @@ static void test_hs_failure_then_direct_pus_emission(void)
          * NC-EXT-236, not exercised here). */
         g_evs_tm_count = 0u;
         g_evs_tm_frame_len = 0u;
-        FF_TEST_ASSERT(payload_len > 3u);
-        FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, payload, payload_len) ==
+        FF_TEST_ASSERT(text_len > 0u);
+        FF_TEST_ASSERT(FF_PusEmitEvent(FF_EVS_APP_ERROR, FF_EVS_CRITICAL, text, text_len) ==
                        FF_SUCCESS);
         FF_TEST_ASSERT(g_evs_tm_count == 1u);
         FF_TEST_ASSERT(verify_hs_failure_tm(g_evs_tm_frame, g_evs_tm_frame_len, 3u, bad_id));

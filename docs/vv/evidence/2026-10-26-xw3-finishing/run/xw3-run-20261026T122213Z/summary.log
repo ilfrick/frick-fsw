@@ -1,0 +1,10 @@
+========================================================================
+frick-fsw XW-3 whole-run verdict
+========================================================================
+  XW3-A1   accept     PASS     (expect PASS)
+  XW3-R1   reject     PASS     (expect PASS)
+  XW3-O1   observe    PASS     (recorded)
+  XW3-O2   observe    PASS     (recorded)
+------------------------------------------------------------------------
+CASES: 4/4 present (2 required, 2 observation)
+RESULT: PASS

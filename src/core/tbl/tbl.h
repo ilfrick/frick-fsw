@@ -21,12 +21,22 @@ typedef uint16_t FF_TblHandle_t;
 /* Returns FF_SUCCESS if the staged image is valid. */
 typedef FF_Status_t (*FF_TblValidateFn)(const void *image, size_t size);
 
+/* Optional callback invoked after successful activation. The callback
+ * receives the table handle and the newly activated image buffer (which is
+ * now the active image). The callback may re-configure dependent subsystems
+ * (e.g., scheduler dispatch table), but it runs in the caller's context, so it
+ * must be bounded: no I/O, no unbounded blocking and no call back into TBL
+ * services. A subsystem that owns other state should only snapshot the image
+ * here and apply it in its own task context. */
+typedef void (*FF_TblActivateCb)(FF_TblHandle_t handle, const void *image, size_t size);
+
 typedef struct
 {
     const char *name;
     void *image; /* active, application owned buffer */
     size_t size;
-    FF_TblValidateFn validate; /* optional, may be NULL */
+    FF_TblValidateFn validate;    /* optional, may be NULL */
+    FF_TblActivateCb on_activate; /* optional, may be NULL */
 } FF_Tbl_Def_t;
 
 FF_Status_t FF_TblInit(void);

@@ -1,0 +1,17 @@
+02:37:15.6470 [INFO] Loaded monitor commands from: /opt/renode/scripts/monitor.py
+02:37:15.6744 [INFO] Monitor available in telnet mode on port 1234
+02:37:15.9082 [INFO] Including script(s): /diag/longwait-renode.resc
+02:37:15.9374 [INFO] System bus created.
+02:37:18.8099 [INFO] sysbus: Loading block of 421728 bytes length at 0x1000000000.
+02:37:18.8976 [INFO] sysbus: Loading block of 4096 bytes length at 0x1000066F60.
+02:37:18.8977 [INFO] sysbus: Loading block of 268009472 bytes length at 0x1000068000.
+02:37:19.3034 [INFO] e51: Setting PC value to 0x1000000000.
+02:37:19.3044 [INFO] u54_1: Setting PC value to 0x1000000000.
+02:37:19.3052 [INFO] u54_2: Setting PC value to 0x1000000000.
+02:37:19.3056 [INFO] u54_3: Setting PC value to 0x1000000000.
+02:37:19.3057 [INFO] u54_4: Setting PC value to 0x1000000000.
+02:37:19.3764 [INFO] frick-xw2-v003: Machine started.
+02:40:19.7322 [INFO] frick-xw2-v003: Machine paused.
+02:40:19.8260 [INFO] frick-xw2-v003: Disposed.
+
+--- STDERR ---

@@ -1,0 +1,7 @@
+{
+  "lines_total": 31254,
+  "lines_covered": 14125,
+  "funcs_total": 2460,
+  "funcs_covered": 1612,
+  "source": "gcov (make coverage)"
+}

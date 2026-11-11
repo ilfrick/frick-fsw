@@ -1,0 +1,27 @@
+{
+  "component": {
+    "gaps": [],
+    "observations": 1,
+    "ok": true,
+    "reasons": [],
+    "required_pass": 13,
+    "required_total": 13,
+    "status_totals": {
+      "PASS": 13
+    }
+  },
+  "console": "/home/nicola/fsw/frick-fsw/docs/vv/evidence/2026-10-28-resume-gates/xw2-longwait-diagnostic-v003/console.log",
+  "console_sha256": "039ea52537c7392c184a56570d17d15e279ac9cf86f80f4ca6245ac280de3f3c",
+  "manifest": "/home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json",
+  "manifest_sha256": "8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819",
+  "qemu_exit": null,
+  "qemu_failed": false,
+  "result": "PASS",
+  "run_nonce": "diag-v003-180s",
+  "whole_run": {
+    "exit_block": [],
+    "hits": [],
+    "ok": true,
+    "reason": ""
+  }
+}

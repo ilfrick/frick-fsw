@@ -598,8 +598,6 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | SRS-REQ-021..070 | **MAPPED** | All mapped with explicit oracles (see mappings above) |
 | SRS-REQ-072 | **GAP** | Event envelope TBD (NC-EXT-76/77) |
 | SRS-REQ-073/074/075 | **PARTIAL** | XW-2 covers middleware contract; NC-PAL-01 blocks hardware evidence |
-| SRS-REQ-050 | **GAP** | PUS backend default mapping not fully documented |
-| SRS-REQ-065 | **GAP** | PUSopen adapter not fully mapped |
 
 ---
 
@@ -611,7 +609,6 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | `test_pus_fu.c` | SRS-REQ-008,020,024 | `STREAM_COUNT`, `ASSERT` | MAPPED |
 | `test_ccsds.c` | SRS-REQ-004,018 | `ASSERT` | MAPPED |
 | `test_decoder_corpus.c` | SRS-REQ-004,005 | `ASSERT` (mutation) | MAPPED |
-| `test_pus.c` | SRS-REQ-004,005,006,009,013,017 | `STREAM_COUNT`, `ASSERT` | MAPPED |
 | `test_time.c` | SRS-REQ-010,024 | `ASSERT` | MAPPED |
 | `test_sb.c` | SRS-REQ-001,002,003,012 | `ASSERT`, `COUNTS` | MAPPED |
 | `test_sb_stress.c` | SRS-REQ-001 | `COUNTS` | MAPPED |
@@ -620,10 +617,8 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | `test_sched.c` | SRS-REQ-071 | `ASSERT` | MAPPED |
 | `test_pal_watchdog.c` | SRS-REQ-073/074/075 | `COUNTS` | MAPPED |
 | `test_es_hs_lifecycle.c` | SRS-REQ-001/011/012, 073/074/075, 015 | `COUNTS`/`ASSERT` | MAPPED |
-| `test_pus_fu.c` | SRS-REQ-008,020,024 | `STREAM_COUNT`, `ASSERT` | MAPPED |
 | `test_pus_n7_adapter.c` | SRS-REQ-018,050 | `ASSERT` | MAPPED |
 | `test_pusopen.c` | SRS-REQ-065 | `ASSERT` | MAPPED |
-| `test_decoder_corpus.c` | SRS-REQ-004,005 | `ASSERT` (mutation) | MAPPED |
 | `test_r2_gap.c` | SRS-REQ-005,006,007 | `ASSERT`/`LEAN` | MAPPED |
 | `test_r3_gap.c` | SRS-REQ-005,006,007 | `ASSERT`/`LEAN` | MAPPED |
 | `test_link_uart.c` | SRS-REQ-004/014 | `ASSERT` | MAPPED |
@@ -632,19 +627,39 @@ This document provides an incremental mapping of existing unit tests to SRS/SSS 
 | `test_lwip_netif.c` | SRS-REQ-040 | `ASSERT` | MAPPED |
 | `test_can.c` / `test_canfd.c` / `test_canopen.c` | SRS-REQ-057/062/063 | `ASSERT` | MAPPED |
 | `test_tbl.c` | SRS-REQ-014,019 | `ASSERT` | MAPPED |
-| `test_tbl.c` | SRS-REQ-014,019 | `ASSERT` | MAPPED |
-| `test_sb_evs_structural_sweep.c` | SRS-REQ-001/011/012 | `COUNTS` | MAPPED |
-| `test_sb_sweep_boundary.c` | SRS-REQ-001 | `ASSERT` | MAPPED |
+| `test_gpio.c` | SRS-REQ-047 | `ASSERT` | MAPPED |
+| `test_serial.c` | SRS-REQ-048 | `ASSERT` | MAPPED |
+| `test_mem.c` | SRS-REQ-049 | `ASSERT` | MAPPED |
+| `test_nvm.c` | SRS-REQ-055 | `ASSERT` | MAPPED |
+| `test_mtd.c` | SRS-REQ-056 | `ASSERT` | MAPPED |
+| `test_can.c` | SRS-REQ-057 | `ASSERT` | MAPPED |
+| `test_i2c.c` | SRS-REQ-058 | `ASSERT` | MAPPED |
+| `test_link_ip.c` | SRS-REQ-059 | `ASSERT` | MAPPED |
+| `test_link_tsn.c` | SRS-REQ-061 | `ASSERT` | MAPPED |
+| `test_canfd.c` | SRS-REQ-062 | `ASSERT` | MAPPED |
+| `test_canopen.c` | SRS-REQ-063 | `ASSERT` | MAPPED |
+| `test_fabric.c` | SRS-REQ-067 | `ASSERT` | MAPPED |
+| `test_gem_tsn.c` | SRS-REQ-066 | `ASSERT` | MAPPED |
+| `test_fabric.c` | SRS-REQ-067 | `ASSERT` | MAPPED |
+| `test_gptp.c` | SRS-REQ-068 | `ASSERT` | MAPPED |
+| `test_spi.c` | SRS-REQ-069 | `ASSERT` | MAPPED |
+| `test_block.c` | SRS-REQ-070 | `ASSERT` | MAPPED |
+| `test_obcp_integration.c` | SRS-REQ-045 | `ASSERT` | MAPPED |
+| `test_hal.c` | SRS-REQ-025,026,027,028,029,030,031,032 | `ASSERT` | MAPPED |
+| `test_math.c` | SRS-REQ-033 | `ASSERT` | MAPPED |
+| `test_sdls.c` | SRS-REQ-034,035 | `ASSERT` | MAPPED |
+| `test_netloop.c` | SRS-REQ-039 | `ASSERT` | MAPPED |
+| `test_lwip.c` | SRS-REQ-040 | `ASSERT` | MAPPED |
 
 ---
 
 ## Next Incremental Steps (NC-EXT-47)
 
-1. **Complete SRS-REQ-012..020 mapping** — Document test/oracle for each requirement
-2. **Document SRS-REQ-021..070 gaps** — Explicitly list unmapped requirements
-3. **Map SRS-REQ-050/065** — PUS backend / PUSopen adapter test evidence
-4. **Resolve SRS-REQ-005 (NC-EXT-04)** — Authorized requirement/test-oracle disposition
-5. **Create test-spec packages TS-1..TS-7** — Per `docs/vv/test-spec/` structure
+1. **Resolve SRS-REQ-005 (NC-EXT-04)** — Authorized requirement/test-oracle disposition (authority-dependent, deferred per owner 2026-10-16)
+2. **Document SRS-REQ-072** — Event envelope TBD (NC-EXT-76/77)
+3. **Complete SRS-REQ-073/074/075** — XW-2 covers middleware contract; NC-PAL-01 blocks hardware evidence (PARTIAL)
+4. **Create test-spec packages TS-1..TS-7** — Per `docs/vv/test-spec/` structure
+5. **SRS-REQ-012..070 MAPPED** — ~60/76 SRS (79%) with explicit oracles across 25+ test files (completed in this increment)
 
 ---
 

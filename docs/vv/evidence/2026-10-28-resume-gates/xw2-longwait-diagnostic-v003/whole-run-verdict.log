@@ -1,0 +1,14 @@
+========================================================================
+frick-fsw T1 whole-run verdict (tools/scripts/target_run_verdict.py)
+========================================================================
+console: /home/nicola/fsw/frick-fsw/docs/vv/evidence/2026-10-28-resume-gates/xw2-longwait-diagnostic-v003/console.log
+manifest: /home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json
+run nonce: diag-v003-180s
+------------------------------------------------------------------------
+COMPONENT: PASS 13/13
+COVERAGE: 13/13 required cases
+WHOLE-RUN: PASS (no panic/fatal marker in the console)
+------------------------------------------------------------------------
+RESULT: PASS
+
+--- STDERR ---

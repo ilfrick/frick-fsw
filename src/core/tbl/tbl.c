@@ -15,6 +15,7 @@ typedef struct
     void *image;
     size_t size;
     FF_TblValidateFn validate;
+    FF_TblActivateCb on_activate;
     bool staged;
 } ff_tbl_entry_t;
 
@@ -44,6 +45,7 @@ FF_TblHandle_t FF_TblRegister(const FF_Tbl_Def_t *def)
             g_tables[i].image = def->image;
             g_tables[i].size = def->size;
             g_tables[i].validate = def->validate;
+            g_tables[i].on_activate = def->on_activate;
             g_tables[i].staged = false;
             (void)strncpy(g_tables[i].name, def->name, FF_TBL_NAME_LEN - 1);
             FF_PalMutexUnlock(g_lock);
@@ -86,7 +88,11 @@ FF_Status_t FF_TblActivate(FF_TblHandle_t h)
     }
     FF_PalMutexLock(g_lock, FF_PAL_WAIT_FOREVER);
     memcpy(g_tables[h].image, g_staging[h], g_tables[h].size);
+    FF_TblActivateCb cb = g_tables[h].on_activate;
     FF_PalMutexUnlock(g_lock);
+    if (cb != NULL) {
+        cb(h, g_tables[h].image, g_tables[h].size);
+    }
     return FF_SUCCESS;
 }
 

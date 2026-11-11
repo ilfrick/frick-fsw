@@ -1,0 +1,60 @@
+# NC-EXT-237 mutation check: restore the pre-fix FF_PusEmitEvent body and re-run the new oracle
+# date: 2026-11-11T16:15:36Z
+# expected: the discriminating oracle must FAIL on the pre-fix implementation
+
+## pre-fix implementation (event_id ignored)
+[  3%] Built target frick_pus_asn1
+[ 32%] Built target frick_lwip
+[ 32%] Built target frick_net_lwip
+[ 34%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.o
+[ 34%] Linking C static library libfrick_fsw_core.a
+[ 98%] Built target frick_fsw_core
+[ 98%] Linking C executable test_pus_event_identity
+[100%] Built target test_pus_event_identity
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:122: dl == (uint16_t)(sizeof(aux) + 3u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:123: (d[0] == 0x11u) && (d[1] == 0x11u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:124: d[2] == (uint8_t)FF_EVS_INFO
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:125: memcmp(&d[3], aux, sizeof(aux)) == 0
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:130: dl == (uint16_t)(sizeof(aux) + 3u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:131: (d[0] == 0x22u) && (d[1] == 0x22u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:132: d[2] == (uint8_t)FF_EVS_INFO
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:133: memcmp(&d[3], aux, sizeof(aux)) == 0
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:162: dl == (uint16_t)(sizeof(aux) + 3u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:163: (d[0] == 0x00u) && (d[1] == 0x01u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:164: d[2] == (uint8_t)FF_EVS_ERROR
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:165: (d[3] == 0xABu) && (d[4] == 0xCDu) && (d[5] == 0x00u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:190: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:191: (d[0] == 0x00u) && (d[1] == 0x00u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:192: d[2] == (uint8_t)FF_EVS_WARNING
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:195: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:196: (d[0] == 0xFFu) && (d[1] == 0xFFu)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:197: d[2] == (uint8_t)FF_EVS_WARNING
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:232: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:233: (d[0] == 0x42u) && (d[1] == 0x42u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:236: d[2] == cases[i].type
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:232: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:233: (d[0] == 0x42u) && (d[1] == 0x42u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:236: d[2] == cases[i].type
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:232: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:233: (d[0] == 0x42u) && (d[1] == 0x42u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:236: d[2] == cases[i].type
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:232: dl == 3u
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:233: (d[0] == 0x42u) && (d[1] == 0x42u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:236: d[2] == cases[i].type
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:274: dl == (uint16_t)(FF_PUS_MAX_TM_FRAME)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:275: (d[0] == 0x01u) && (d[1] == 0x01u)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c:276: d[2] == (uint8_t)FF_EVS_INFO
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c checks=106 failures=33
+mutation_test_exit=1
+
+## fixed implementation restored
+[  3%] Built target frick_pus_asn1
+[ 32%] Built target frick_lwip
+[ 32%] Built target frick_net_lwip
+[ 34%] Building C object CMakeFiles/frick_fsw_core.dir/src/pus/pus.c.o
+[ 34%] Linking C static library libfrick_fsw_core.a
+[ 98%] Built target frick_fsw_core
+[ 98%] Linking C executable test_pus_event_identity
+[100%] Built target test_pus_event_identity
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus_event_identity.c checks=106 failures=0
+restored_test_exit=0

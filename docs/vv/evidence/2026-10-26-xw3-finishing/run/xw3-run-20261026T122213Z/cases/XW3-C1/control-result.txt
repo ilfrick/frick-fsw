@@ -1,0 +1,3 @@
+qemu_exit=0
+verdict_exit=1
+fatal_marker=watchdog: init failed

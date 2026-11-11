@@ -1,0 +1,1 @@
+EXPECTED FAILURE reproduced: watchdog init panic + component verifier exit 1

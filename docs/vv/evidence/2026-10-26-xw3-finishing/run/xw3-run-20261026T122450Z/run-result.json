@@ -1,0 +1,15 @@
+{
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "reasons": [
+    "missing_case:XW3-A1",
+    "missing_case:XW3-R1",
+    "missing_case:XW3-O1",
+    "missing_case:XW3-O2",
+    "required_case_absent:XW3-A1",
+    "required_case_absent:XW3-R1",
+    "case_verdict_failed"
+  ],
+  "result": "FAIL",
+  "run_nonce": "60a22707073c5bb273345601dd58bdfa",
+  "summary_sha256": "926e5fcc14e5a4ec45fca41afd0e7bcbf7fc3ef093eab552284cb036afff3c87"
+}

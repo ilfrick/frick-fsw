@@ -1,0 +1,64 @@
+{
+  "_comment": [
+    "T1 required-case manifest for tools/scripts/target_req_verify.py and",
+    "tools/scripts/target_run_verdict.py.",
+    "Every entry in 'cases' must appear exactly once as TGTREQ: ...:PASS in the",
+    "target console for the component result to pass. Entries in 'gaps' are oracle",
+    "gaps: they are never counted as coverage and a PASS for them is a failure."
+  ],
+  "cases": [
+    {
+      "requirement": "SRS-REQ-012",
+      "case": "L1"
+    },
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "L2"
+    },
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "L3"
+    },
+    {
+      "requirement": "SRS-REQ-004",
+      "case": "L4"
+    },
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "L5"
+    },
+    {
+      "requirement": "SRS-REQ-003",
+      "case": "L6"
+    },
+    {
+      "requirement": "SRS-REQ-010",
+      "case": "L7"
+    },
+    {
+      "requirement": "SRS-REQ-009",
+      "case": "L8"
+    },
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "L10"
+    }
+  ],
+  "gaps": [
+    {
+      "requirement": "SRS-REQ-004",
+      "case": "L4-S18",
+      "reason": "NC-EXT-04: the S1.8 report for a malformed TC is not asserted (requirement/implementation disagreement)"
+    },
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "L8-WIRE",
+      "reason": "NC-EXT-18: the on-wire refusal failure code is an interface-authority decision"
+    },
+    {
+      "requirement": "SRS-REQ-008",
+      "case": "L9",
+      "reason": "NC-EXT-17: the 6-byte TC[3,1] create is an unapproved extension (ICD defines 2 octets), so S3.25 one-shot is not asserted"
+    }
+  ]
+}

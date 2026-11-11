@@ -1,0 +1,14 @@
+{
+  "capture_bytes": 7097,
+  "capture_sha256": "e51973066de4960930cc0fb41dc27f8bcf919e7f423d17bf834c9ec91ebb8834",
+  "case": "XW3-O2",
+  "checked_at_utc": "2026-10-26T12:24:20Z",
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "qemu_accepted_codes": [
+    0,
+    124
+  ],
+  "qemu_exit": 124,
+  "run_nonce": "150f55b0ac3d15e35ba8d19d92eebccc",
+  "variant": "split"
+}

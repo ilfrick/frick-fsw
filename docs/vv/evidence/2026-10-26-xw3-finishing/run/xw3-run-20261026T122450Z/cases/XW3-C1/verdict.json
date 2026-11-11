@@ -1,0 +1,132 @@
+{
+  "capture_bytes": 3133,
+  "capture_sha256": "4234a6e6bc9fde154c5de2dacb01977375afa7dadea1144d05ff940f746d5f16",
+  "console_fatal": {
+    "exit_block": [
+      "exit source: 5 (RTEMS_FATAL_SOURCE_EXIT)",
+      "exit code: 1 (0x00000001)"
+    ],
+    "hits": [
+      {
+        "line": 54,
+        "marker": "[FF-PANIC]",
+        "text": "[FF-PANIC] watchdog: init failed"
+      },
+      {
+        "line": 57,
+        "marker": "*** EXIT STATUS NOT ZERO ***",
+        "text": "*** EXIT STATUS NOT ZERO ***"
+      },
+      {
+        "line": 58,
+        "marker": "RTEMS_FATAL_SOURCE_EXIT",
+        "text": "exit source: 5 (RTEMS_FATAL_SOURCE_EXIT)"
+      }
+    ],
+    "ok": false,
+    "reason": "watchdog fatal"
+  },
+  "identity_reasons": [],
+  "mode": "accept",
+  "oracle": {
+    "checks": [
+      {
+        "detail": "version=0 apid=0x010 type=1",
+        "id": "TC-STRUCT",
+        "ok": true
+      },
+      {
+        "detail": "crc_ok=True",
+        "id": "TC-CRC-VALID",
+        "ok": true
+      },
+      {
+        "detail": "ingest app announces the uart backend",
+        "id": "LINK-UART",
+        "ok": true
+      },
+      {
+        "detail": "crc_failures=0",
+        "id": "TM-CRC",
+        "ok": true
+      },
+      {
+        "detail": "header_failures=0",
+        "id": "TM-HEADER",
+        "ok": true
+      },
+      {
+        "detail": "count=0",
+        "id": "S17.2-COUNT",
+        "ok": false
+      },
+      {
+        "detail": "count=0",
+        "id": "S1.1-COUNT",
+        "ok": false
+      },
+      {
+        "detail": "count=0",
+        "id": "S1.3-COUNT",
+        "ok": false
+      },
+      {
+        "detail": "count=0",
+        "id": "S1.7-COUNT",
+        "ok": false
+      },
+      {
+        "detail": "extra=[]",
+        "id": "S1-SET",
+        "ok": true
+      },
+      {
+        "detail": "got=n/a want=01020304",
+        "id": "S17.2-PAYLOAD",
+        "ok": false
+      },
+      {
+        "detail": "breaks=[]",
+        "id": "TM-COUNTER",
+        "ok": true
+      }
+    ],
+    "counts": {
+      "S5.1": 14,
+      "S5.3": 1
+    },
+    "mode": "accept",
+    "observations": {
+      "destination_ids": [
+        1
+      ],
+      "s1_8_reported": false,
+      "s1_payload_prefixes": [],
+      "s1_payload_prefixes_note": "recorded only: the numeric S1 payload layout is authority-pending",
+      "services": {
+        "S5.1": 14,
+        "S5.3": 1
+      },
+      "tm_crc_failures": 0,
+      "tm_header_failures": 0,
+      "tm_packets": 15,
+      "truncated_tail": 0
+    },
+    "ok": false,
+    "reasons": [
+      "S17.2-COUNT:count=0",
+      "S1.1-COUNT:count=0",
+      "S1.3-COUNT:count=0",
+      "S1.7-COUNT:count=0",
+      "S17.2-PAYLOAD:got=n/a want=01020304"
+    ],
+    "request": {
+      "crc_ok": true,
+      "service": 17,
+      "source_id": 258,
+      "subservice": 1,
+      "user_data_hex": "01020304"
+    }
+  },
+  "result": "FAIL"
+}

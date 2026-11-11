@@ -1,0 +1,44 @@
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+tests/unit/test_sched_events.c:33:31: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_SCHED_EVT_ACTIVATED      0x0601u
+                              ^
+tests/unit/test_sched_events.c:34:35: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_SCHED_EVT_INVALID_TABLE  0x0602u
+                                  ^
+tests/unit/test_sched_events.c:35:33: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_SCHED_EVT_MISSED_SLOT    0x0603u
+                                ^
+tests/unit/test_sched_events.c:36:31: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_SCHED_EVT_HEARTBEAT      0x0604u
+                              ^
+tests/unit/test_sched_events.c:37:35: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_SCHED_EVT_DISPATCH_FAIL  0x0605u
+                                  ^
+tests/unit/test_sched_events.c:70:2: error: code should be clang-formatted [-Wclang-format-violations]
+}
+ ^
+tests/unit/test_sched_events.c:95:2: error: code should be clang-formatted [-Wclang-format-violations]
+}
+ ^
+tests/unit/test_sched_events.c:139:71: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_TEST_ASSERT(FF_EvsSend(FF_SCHED_EVT_HEARTBEAT, FF_EVS_INFO, 1u,
+                                                                      ^
+tests/unit/test_sched_events.c:140:50: error: code should be clang-formatted [-Wclang-format-violations]
+                              "SCH heartbeat") == FF_SUCCESS);
+                                                 ^
+tests/unit/test_sched_events.c:152:14: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(
+             ^
+tests/unit/test_sched_events.c:153:32: error: code should be clang-formatted [-Wclang-format-violations]
+    test_sched_activated_event,
+                               ^
+tests/unit/test_sched_events.c:154:34: error: code should be clang-formatted [-Wclang-format-violations]
+    test_sched_missed_slot_event,
+                                 ^
+tests/unit/test_sched_events.c:155:36: error: code should be clang-formatted [-Wclang-format-violations]
+    test_sched_dispatch_fail_event,
+                                   ^
+tests/unit/test_sched_events.c:156:31: error: code should be clang-formatted [-Wclang-format-violations]
+    test_sched_heartbeat_event
+                              ^
+make: *** [Makefile:207: format-check] Error 123

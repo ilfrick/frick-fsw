@@ -1,0 +1,5 @@
+[cppcheck] image:   frick-vv:local
+[cppcheck] checker: Cppcheck 2.13.0
+[cppcheck] paths:   /workspace/src /workspace/config
+[cppcheck] findings: 163 (report: docs/vv/evidence/2026-11-04-re-review/gate11-cppcheck-new.txt)
+[cppcheck] advisory: a qualified/certified checker remains GAP-A4

@@ -1,0 +1,4 @@
+receipt: /workspace/verification/lean/.lake/build/elab_receipt.json
+modules elaborated: 11
+receipt sha256: 53a994e1f1004affceb7058e5db750748b00a0b302a41a46c5e13b21103b9ac2
+elab-receipt: PASS

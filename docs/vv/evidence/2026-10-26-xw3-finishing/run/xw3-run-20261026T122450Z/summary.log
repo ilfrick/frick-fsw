@@ -1,0 +1,16 @@
+========================================================================
+frick-fsw XW-3 whole-run verdict
+========================================================================
+  XW3-A1   accept     MISSING  (expect PASS)
+  XW3-R1   reject     MISSING  (expect PASS)
+  XW3-O1   observe    MISSING  (recorded)
+  XW3-O2   observe    MISSING  (recorded)
+------------------------------------------------------------------------
+CASES: 0/4 present (2 required, 2 observation)
+  E: missing_case:XW3-A1
+  E: missing_case:XW3-R1
+  E: missing_case:XW3-O1
+  E: missing_case:XW3-O2
+  E: required_case_absent:XW3-A1
+  E: required_case_absent:XW3-R1
+RESULT: FAIL

@@ -4,14 +4,60 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.67                                   |
-| Date                              | 2026-11-10                            |
+| Revision                         | 3.68                                   |
+| Date                              | 2026-11-11                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
 work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
+
+## NC-EXT-237: Service 5 event identity is emitter-owned — 2026-11-11
+
+**Status: fixed in-tree with a discriminating oracle; host gates green.
+NC remains OPEN pending PA acceptance. No commit/push in this increment alone.**
+
+- **Defect.** `FF_PusEmitEvent(event_id, evs_type, data, len)` executed
+  `(void)event_id;` and forwarded the caller buffer verbatim. Event identity was
+  therefore whatever bytes the caller happened to embed, and the argument was
+  dead. `test_evs_hs_health.c` asserted payload transparency, so it could not
+  detect this (FRICK-REVIEW-0453 PA-07).
+- **Fix.** The emitter now owns the S5 report header
+  `event id[2, big-endian] + type[1]` (ICD §4) and encodes it from `event_id`
+  and `evs_type`; `data`/`len` are auxiliary data only. Bounds: `len <=
+  FF_PUS_MAX_TM_FRAME - 3` (`FF_BAD_SIZE` above), `data == NULL` accepted only
+  with `len == 0` (`FF_INVALID_ARGUMENT` otherwise). Severity → subservice
+  (1/2/3, unknown → 3) is unchanged. The encoded octets are what a caller
+  previously produced by embedding the header itself, so **the wire format did
+  not change**; ICD rev 1.7 now records the API contract.
+- **Callers updated** to pass text only: `src/main/fsw_main.c`,
+  `src/main/fsw_main_reqtest.c`, `tests/target/fsw_main_xw2.c`,
+  `tests/unit/test_r3_gap.c`, `tests/unit/test_tm_output_chain.c`,
+  `tests/unit/test_evs_hs_health.c` (re-bound to 122 checks, sha256
+  `5310cc3c…277f`). `FF_PusEmitPanicEvent` builds its own header and calls
+  `FF_PusSendTmDirect`; it is intentionally unchanged.
+- **Discriminating oracle.** `tests/unit/test_pus_event_identity.c` (5 cases,
+  106 checks; ctest `pus_event_identity`) pins identity-from-argument,
+  big-endian order, no duplication in auxiliary data, `0x0000`/`0xFFFF` as
+  ordinary ids, unaltered auxiliary data, severity → subservice with the raw
+  type octet preserved, and the out-of-bound arguments. Mutation control:
+  restoring the pre-fix body yields `checks=106 failures=33`; the fix yields
+  `checks=106 failures=0`
+  (`docs/vv/evidence/2026-11-11-nc-ext-237/mutation-check.log`).
+- **Gates run (2026-11-11, `BUILD_DIR=build2/native`).** Build exit 0 with no
+  warnings; `ctest` **56/56 PASS**; `lake build` PASS; `trace.py` PASS
+  (120/76/30/14/68); pinned clang-format 18 PASS in `frick-vv:local`;
+  `license_check.py` OK. Logs: `docs/vv/evidence/2026-11-11-nc-ext-237/`.
+- **Docs updated.** TS-1 `N22-TS1-58` (rev 1.10), TS-5 `N22-TS5-47` (rev 1.16),
+  ICD rev 1.7, `docs/engineering/service-development.md` §4 (rev 0.5),
+  `docs/vv/tool-qualification.md` rev 1.6 (T3 inventory extended; still **NOT
+  FULLY QUALIFIED** — no N10 review for the new script), `traceability.yaml`
+  SRS-REQ-011, `verification-results.md`, `sprint-plan.md` rev 1.130.
+- **Still open.** NC-EXT-237 acceptance (owner role FSW engineer; acceptance
+  authority **Nicola**, project/Software PA; no acceptance date), NC-EXT-102
+  (event-id catalogue), T3 qualification of the new scripts. No NC is closed by
+  this increment.
 
 ## S8-SCH: TBL load/activate → scheduler dispatch coupling (N22-TS5-66) — 2026-11-10
 
@@ -1708,3 +1754,4 @@ occasion; prefer Docker.
 FRICK-REVIEW-0460 (V&V) and FRICK-REVIEW-0461 (PA) then confirmed the delta with 0 Blocker/0 Major; their non-functional observations (TS-5 header date, mixed line ranges, smoke log not naming `BUILD_DIR`, pre-existing index gaps) are corrected and reconciled in FRICK-REVIEW-0462. No NC closed, no sprint closed, no commit/push. |
 | 3.66 | 2026-11-10 | frick-fsw | **S8-SCH `N22-TS5-66` delivered: TBL load/activate → scheduler dispatch coupling.** `app_scheduler.c` registers an `FF_TblActivateCb` that re-validates and snapshots the activated image into a mutex-protected pending slot; the scheduler task applies it (`FF_SchedActivate` + `FF_SchedInit`) on its next tick with a non-blocking lock and emits the re-activation event (0x0601, `"SCH: table activated, %u entries"`), preserving the single-writer contract with a bounded one-tick deferral. `tbl.h` callback contract tightened (bounded, no I/O, no TBL re-entry). `test_tbl_sched_coupling.c` gains production-path nominal + out-of-bound cases (61 checks); `FF_PalTaskDelayMsTestWait()` now consumes each block notification so injected time maps to exactly one iteration, and the `N22-TS5-47` expectations were corrected to the deterministic sequence (2 missed-slot events, 68 checks). Gates: build clean, CTest 55/55 PASS, trace PASS (120/76/30/14/68), Lean PASS, pinned clang-format 18 PASS, RTEMS 6.2 cross-build PASS (N18 profile; one pre-existing `pal_rtems.c` implicit-declaration warning, outside this increment), **N18 Renode PASS** (`RENODE_TEST: PASS`, container exit 0; console shows `SCH app started, 4 entries`). TS-5 `N22-TS5-66` `gap` → `covered`; sprint-plan Rev 1.128; architecture Rev 0.4. NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14 and target/HIL remain open. No NC closed, no commit/push. |
 | 3.67 | 2026-11-10 | frick-fsw | **`N22-TS5-66` cycle closed on the emulated target; NC-EXT-239 registered.** After the Rev 3.66 record, the applicable gates were executed on the same working tree: `trace.py` PASS (120/76/30/14/68), pinned clang-format 18.1.3 PASS, RTEMS 6.2 cross-build PASS for the N18 profile (`build/renode`, 164/164 steps, exit 0, ELF sha256 `5557d0bd…1a0e`, byte-identical to the copied `frick_fsw_renode.elf`) and **N18 Renode PASS** (`[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)`, fresh run dir; console `SCH app started, 4 entries`). The cross-build emits one **pre-existing** warning outside this increment (`src/core/pal/pal_rtems.c:156: implicit declaration of function 'ff_pal_wd_hw_feed'`; prototype only in `pal_watchdog.c`), registered as **NC-EXT-239 OPEN** with owner FSW (PAL/NC-PAL-01 workstream). Sprint-plan Rev 1.129, loop-audit Rev 10.46 and `verification-results.md` record the evidence (retained in `docs/vv/evidence/2026-11-10-n22-ts5-66/`); the stale `Renode N18 FAIL` statements in the S8-SCH row, closure table and residual-items section are superseded by the 2026-11-09/2026-11-10 emulated PASS. Still open: NC-EXT-19/90, `N22-TS5-47`/`N22-TS5-48`, M14, the one-tick deferral budget, target/HIL (GAP-A5), and the independent R2/R3/R4/PA reviews. No NC closed, no commit/push. |
+| 3.68 | 2026-11-11 | frick-fsw | **NC-EXT-237 fixed: Service 5 event identity is emitter-owned.** `FF_PusEmitEvent` now encodes `event id[2 BE]` + `type[1]` from `event_id`/`evs_type` and treats `data`/`len` as auxiliary data only (bounds `FF_PUS_MAX_TM_FRAME - 3` / `NULL`+`len != 0`; wire format unchanged, ICD rev 1.7); all callers updated to text-only, `test_evs_hs_health.c` re-bound to 122 checks (sha256 `5310cc3c…277f`). New discriminating oracle `tests/unit/test_pus_event_identity.c` (5 cases, 106 checks) fails 33 checks against the pre-fix body. Gates: build 0 warnings, CTest 56/56, Lean, trace (120/76/30/14/68), pinned clang-format 18, N13 license; evidence `docs/vv/evidence/2026-11-11-nc-ext-237/`. Docs: TS-1 rev 1.10, TS-5 rev 1.16, ICD rev 1.7, `service-development.md` rev 0.5, `tool-qualification.md` rev 1.6, `sprint-plan.md` rev 1.130. NC-EXT-237 remains OPEN pending PA acceptance; no NC closed. |

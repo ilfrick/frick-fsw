@@ -92,4 +92,39 @@
 #define FF_PCIE0_PLIC 149u
 #define FF_PCIE1_PLIC 150u
 
+/* MSS watchdog WDOG0 (E51). Only WDOG0 can reset the MSS; the other four MSS
+ * watchdogs only interrupt the E51 (MSS TRM DS60001702S 3.12.12). The register
+ * layout below is the verified WATCHDOG_TypeDef map used by the pinned Renode
+ * model probe (docs/vv/evidence/2026-10-22-s8-fdir-wd-model-probe.log) and the
+ * public Microchip reference (FRICK-ARCH-0024 F-1/F-3). */
+#define FF_WDOG0_BASE 0x20001000u
+#define FF_WDOG_REFRESH_OFF 0x00u /* keyed reload: 0xDEADC0DE */
+#define FF_WDOG_CONTROL_OFF 0x04u /* bit 0 = enable */
+#define FF_WDOG_STATUS_OFF 0x08u  /* bit 4 = LOCKED (model) */
+#define FF_WDOG_TIME_OFF 0x0Cu    /* load value (24-bit; driver cap 16 777 200) */
+#define FF_WDOG_MSVP_OFF 0x10u    /* maximum value for permitted refresh */
+#define FF_WDOG_TRIGGER_OFF 0x14u /* timeout-interrupt threshold (12-bit) */
+#define FF_WDOG_FORCE_OFF 0x18u   /* force-reset key 0xDEAD after a timeout */
+
+#define FF_WDOG_REFRESH_KEY 0xDEADC0DEu
+#define FF_WDOG_FORCE_RESET_KEY 0x0000DEADu
+#define FF_WDOG_CONTROL_ENABLE 0x00000001u
+#define FF_WDOG_TIME_MAX 16777200u /* cited driver MSS_WDOG_TIMER_MAX */
+#define FF_WDOG_TRIGGER_MAX 4095u  /* cited driver MSS_WDOG_TRIGGER_MAX */
+
+/* EMULATED / PROVISIONAL N18 watchdog configuration.
+ *
+ * The pinned Renode `Timers.MPFS_Watchdog` model clocks WDOG0 at 156 250 Hz
+ * (polarfire-soc.repl, marked "this value is estimated from the comments in the
+ * code"). That is an EMULATOR parameter, NOT the flight-target watchdog clock
+ * (NC-PAL-01, FRICK-ARCH-0024 M-2). It is used only to turn the mission timeout
+ * into model ticks so that the N18 build exercises the real register sequence.
+ *
+ * TRIGGER is the maximum 12-bit value (4095 ticks = 26.2 ms at this model
+ * clock); MSVP is programmed equal to TIME, which keeps the forbidden-refresh
+ * window disabled (a refresh is permitted at any counter value).
+ */
+#define FF_WDOG_EMU_CLK_HZ 156250u
+#define FF_WDOG_EMU_TRIGGER_TICKS 4095u
+
 #endif /* FF_PLATFORM_MPFS_H */

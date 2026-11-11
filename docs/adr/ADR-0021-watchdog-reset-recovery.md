@@ -25,7 +25,10 @@ as the single recovery entry; an independent hardware watchdog that is kicked
 and, on loss of kicking, resets the processor; **one** reset path shared by a
 hang and a commanded software reset; a timeout of 8 s fed every 2 s, driven by
 the mission configuration table; and a pre-reset notification sent to ground as
-a **PUS service 5 event report (D3)**.
+a **PUS service 5 event report (D3)**. (The timeout value was later revised to
+a **provisional 10 s timeout with a 2.5 s feed**; these are representative GEO
+values under NC-EXT-238, and the mission-authority value remains open; see the
+decision below.)
 
 ## Decision
 
@@ -37,18 +40,32 @@ a **PUS service 5 event report (D3)**.
 - The host simulator provides a **simulated backend** that records arm, feed and
   reset requests and performs no hardware reset, so the mechanism can be
   stimulated deterministically in tests (owner decision B2-b).
-- The RTEMS/MPFS MSS watchdog binding remains **not wired**: the hooks report
-  `FF_NOT_IMPLEMENTED` (NC-PAL-01). The Renode BeagleV-Fire board description
-  imports the PolarFire SoC platform and instantiates five MPFS watchdog models;
-  model availability is not evidence of RTPFS160ZT register/timing/reset
-  fidelity. The target binding still requires a verified Microchip BSP/datasheet
+- The RTEMS/MPFS MSS watchdog binding is implemented **only for the emulated
+  N18 build** (`FRICK_PLATFORM_MPFS && FF_ENABLE_RENODE_TEST`) against the
+  verified WDOG0 register map (base `0x20001000`; REFRESH/CONTROL/STATUS/TIME/
+  MSVP/TRIGGER/FORCE at offsets `0x00`/`0x04`/`0x08`/`0x0C`/`0x10`/`0x14`/
+  `0x18`; refresh key `0xDEADC0DE`, force key `0xDEAD`). The configuration
+  order is `TRIGGER -> MSVP -> TIME -> CONTROL`, followed by a read-back of the
+  three value registers before the first keyed refresh; the write-once
+  configuration makes a mis-arm unrecoverable, so the read-back is mandatory.
+  The emulated profile uses the pinned model's explicitly emulated clock
+  (`156 250 Hz`), the mission-table timeout, `MSVP = TIME` (refresh window
+  disabled) and `TRIGGER = 4095` ticks. This is **emulator configuration, not a
+  flight parameter**.
+- Flight builds keep the three hooks explicitly `FF_NOT_IMPLEMENTED`
+  (NC-PAL-01): the target watchdog clock, gating, mission timeout and HIL
+  evidence are not established, so no flight binding is inferred from the
+  emulator. The target binding still requires a verified Microchip BSP/datasheet
   reference and target/HIL validation (GAP-A5).
 - A dedicated lowest-priority task (`FF_AppWdMain`, `src/apps/app_wd.c`) arms
-  the watchdog after framework initialisation. The 8 s default and 2 s interval
-  are framework placeholders only; preserve actual inter-feed ≤ T/4, use
-  absolute monotonic deadlines with execution/jitter margin, and audit the
-  earliest valid hardware refresh window before selecting cadence. No mission
-  timing or flight suitability is established.
+  the watchdog after framework initialisation. The default is now **10 s**
+  (feed every 2.5 s), a *provisional representative GEO value* recorded under
+  NC-EXT-238; the mission-authority value remains an open owner input. The
+  feeder uses absolute monotonic deadlines (`FF_PalTaskDelayUntilNs`) rather
+  than cumulative relative delays, so wake-up jitter does not stretch the
+  effective period (NC-EXT-187). A 100 ms execution/jitter budget is assumed
+  inside the T/4 interval. No mission timing or flight suitability is
+  established.
 
 ### Pre-reset event report (SRS-REQ-074)
 
@@ -106,8 +123,10 @@ a **PUS service 5 event report (D3)**.
 
 ## Consequences
 
-- Reset recovery is **implemented and host-tested but not qualified**: the
-  hardware protection is absent until NC-PAL-01 is closed, and the FDIR
+- Reset recovery is **implemented and host-tested but not qualified**: an
+  emulated WDOG0 binding now exists for the N18 build and arms/feeds in Renode,
+  but the flight-target protection is still absent until NC-PAL-01 is closed
+  with authorised hardware parameters and target/HIL evidence. The FDIR
   monitors/thresholds and the recovery budget need FMECA linkage and
   system/HIL validation before any behaviour claim. No self-approval of
   FDIR/reset-recovery behaviour is asserted.
@@ -186,3 +205,4 @@ until controlled target documentation and configuration are audited.
 | 1.0 | 2026-10-20 | Initial watchdog reset recovery and pre-reset report decision record |
 | 1.1 | 2026-10-21 | Record owner follow-up: 8 s is arbitrary; 250 ms local attempt target and monotonic timing direction; correct Renode model inventory; add public HAL/product audit leads with explicit target-variant and configuration limitations |
 | 1.2 | 2026-10-21 | frick-fsw | Record the implemented shared deadline and its host evidence, and correct the writer design: the `poll()`-based readiness wait was replaced by a non-blocking descriptor with a bounded retry because RTEMS 6.2 implements no `poll()` and the flight target did not link; the target readiness semantics, the mandatory-text envelope and the bounded-formatting strategy remain open |
+| 1.3 | 2026-11-09 | frick-fsw | Implement the emulated WDOG0 binding for the N18 build against the verified register map (read-back before first keyed refresh), keep the flight hooks explicitly `FF_NOT_IMPLEMENTED` (NC-PAL-01), move the feeder to absolute monotonic deadlines (NC-EXT-187), and record the provisional 10 s GEO timeout and 2.5 s feed (NC-EXT-238). Emulated N18 evidence only; no target/HIL or flight-suitability claim |

@@ -1,0 +1,112 @@
+{
+  "cases": [
+    {
+      "case": "XW-T1",
+      "detail": "armed_window_eq_sut_timeout",
+      "line": 10,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T2",
+      "detail": "feed_reloaded_deadline",
+      "line": 11,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T3",
+      "detail": "armed_at_deadline_minus_1",
+      "line": 12,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T4",
+      "detail": "expired_at_boundary_reset_once",
+      "line": 13,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T5",
+      "detail": "one_step_one_expiry",
+      "line": 14,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T6",
+      "detail": "late_feed_refused_no_resurrection",
+      "line": 15,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T7",
+      "detail": "one_device_assertion_two_requests",
+      "line": 16,
+      "requirement": "SRS-REQ-075",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T8",
+      "detail": "arm_failure_reported_no_silent_arm",
+      "line": 17,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T9",
+      "detail": "feed_failure_reported_expiry_follows",
+      "line": 18,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T10",
+      "detail": "stuck_feed_still_expires",
+      "line": 19,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T11",
+      "detail": "jump_observable_and_single_expiry",
+      "line": 20,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-T12",
+      "detail": "sut_check_runs_on_rtems_clock",
+      "line": 21,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    },
+    {
+      "case": "XW-B1",
+      "detail": "production_feeder_reaches_the_device",
+      "line": 68,
+      "requirement": "SRS-REQ-073",
+      "status": "PASS"
+    }
+  ],
+  "gaps": [],
+  "observations": 1,
+  "ok": true,
+  "per_requirement": {
+    "SRS-REQ-073": {
+      "PASS": 12
+    },
+    "SRS-REQ-075": {
+      "PASS": 1
+    }
+  },
+  "reasons": [],
+  "required_pass": 13,
+  "required_total": 13,
+  "status_totals": {
+    "PASS": 13
+  }
+}

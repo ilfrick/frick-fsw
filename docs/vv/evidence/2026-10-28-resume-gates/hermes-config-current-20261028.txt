@@ -1,0 +1,75 @@
+Hermes runtime configuration observation (read-only; secrets excluded)
+Observed: 2026-10-28
+
+$ hermes profile list
+exit=0
+
+ Profile          Model                        Gateway      Alias        Distribution
+ ───────────────    ───────────────────────────    ───────────    ───────────    ────────────────────
+ ◆default         gpt-6-luna                   running      —            —
+  jeeves          gpt-6-luna                   running      —            —
+  researcher      gpt-6-luna                   running      —            —
+  reviewer        gpt-6-luna                   running      —            —
+  writer          gpt-6-luna                   running      —            —
+
+$ hermes -p default config get model.default
+exit=0
+gpt-6-luna
+
+$ hermes -p default config get model.provider
+exit=0
+openai-codex
+
+$ hermes -p default config get model.base_url
+exit=0
+https://chatgpt.com/backend-api/codex
+
+$ hermes -p default config get memory.provider
+exit=0
+
+
+$ hermes -p jeeves config get model.default
+exit=0
+gpt-6-luna
+
+$ hermes -p jeeves config get model.provider
+exit=0
+openai-codex
+
+$ hermes -p jeeves config get model.base_url
+exit=0
+https://chatgpt.com/backend-api/codex
+
+$ hermes -p jeeves config get memory.provider
+exit=0
+ollama_memory
+
+$ hermes -p jeeves plugins list --plain --no-bundled
+exit=0
+enabled      git      1.0.0    ollama_memory
+
+$ hermes -p jeeves memory status
+exit=0
+
+Memory status
+────────────────────────────────────────
+  Built-in (MEMORY.md / USER.md):
+    Memory injection:   enabled ✓
+    User profile:       enabled ✓
+    Memory tool:        enabled ✓
+  Provider:  ollama_memory
+
+  ollama_memory config:
+    endpoint: http://127.0.0.1:11434
+    model: qwen3-embedding:4b
+    collection: hermes_memory
+    auto_embed_writes: True
+
+  Plugin:    installed ✓
+  Status:    available ✓
+
+  Installed plugins:
+    • byterover  (API key / local)
+    • retaindb  (API key / local)
+    • ollama_memory  (local) ← active
+

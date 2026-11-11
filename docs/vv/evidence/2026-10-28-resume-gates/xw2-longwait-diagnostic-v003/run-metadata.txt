@@ -1,0 +1,13 @@
+Run classification: diagnostic-only; not the approved N18 runner result.
+Date: 2026-10-28 (Renode process-log time zone not independently verified).
+Renode monitor script: same platform, ELF, source, manifest, and oracle as the 60-second diagnostic; only the monitor wait was extended to 180 seconds.
+Renode container process exit: 0. Host monotonic elapsed: 186.87 seconds.
+Renode process-log timestamps: machine started 02:37:19.3764; paused 02:40:19.7322; disposed 02:40:19.8260.
+Image: antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061; image ID sha256:e278e663fd9516284f1ed3c1da5e7ff727db3bd9808b44a91e4325ffa1a0b858.
+Positive ELF SHA-256: ef5cdabad92711d582d0131d2cea627fd612f71f38cafa32b86cc8c936bbdbd9.
+Test-source SHA-256: 616d2791419bdf337865c483c026f7e0f14317e9d83732f5e9bc2bdd36857fa6.
+Manifest SHA-256: 8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819.
+Console SHA-256: 039ea52537c7392c184a56570d17d15e279ac9cf86f80f4ca6245ac280de3f3c.
+Observed markers: XW2_DBG task_entry=1; XW2_DBG post_delay=1; XW-B1=2 occurrences (observation + verdict). Component verifier: 13/13 PASS, exit 0. Whole-run fatal scanner: no fatal marker, exit 0.
+Prior same-candidate no-wrap ELF SHA-256: f6dbad844176c0247879b458a86c544e7a6ca2a631ebc6f6f8713a4ad9030674; expected watchdog-init panic recorded at ../xw2-run-20261028T012351Z-debug/control-console.log. That control was not re-run in this extended-wait diagnostic.
+Inference: the prior 60-second monitor window did not capture completion; the 180-second diagnostic did. This supports an insufficient observation window as the immediate explanation, but does not establish why Renode execution/task wake-up is slow or authorize changing the project runner. N18 and T37 remain open/not qualified; reviews remain open.

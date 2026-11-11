@@ -1,0 +1,20 @@
+========================================================================
+frick-fsw XW-3 external TC/TM oracle (tools/scripts/xw3_verdict.py)
+========================================================================
+mode: observe   capture: 7305 bytes   sha256 fa9841fc60b926df2acb0b4f5640033f387945739f65e21a75784d9c938d9d76
+request: S17.1 src=0x0102 user_data=01020304 tc_crc_ok=True
+identity: OK
+console fatal markers: 0 (ok=True)
+------------------------------------------------------------------------
+  [ok ] TC-STRUCT: version=0 apid=0x010 type=1
+  [ok ] TC-CRC-VALID: crc_ok=True
+  [ok ] LINK-UART: ingest app announces the uart backend
+  [ok ] TM-CRC: crc_failures=0
+  [ok ] TM-HEADER: header_failures=0
+  [ok ] CAPTURE-LIVE: tm_packets=84
+  [ok ] TM-COUNTER: breaks=[]
+observed services: {'S1.1': 2, 'S1.3': 2, 'S1.7': 2, 'S5.1': 76, 'S17.2': 2}
+observed: s1_8_reported=False truncated_tail=0 crc_failures=0 header_failures=0
+------------------------------------------------------------------------
+oracle: PASS   identity: PASS   console: PASS
+RESULT: PASS

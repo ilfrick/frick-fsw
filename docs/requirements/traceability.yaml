@@ -129,7 +129,7 @@ requirements:
     parent_sss: SSS-REQ-006
     derived: false
     implementation: ["src/core/evs/evs.c", "src/core/sb/sb.c", "src/apps/app_tm_output.c", "src/main/fsw_main.c", "src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_sb.c", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_sb.c", "ci:simulator-smoke", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_event_identity.c"]
     lean: []
     lean_note: "SRS-REQ-011's forwarding rate/latency guarantee is bounded by the authority-owned event envelope in SSS-REQ-006/SRS-REQ-072; exactly-once loss accounting applies independently of that envelope. End-to-end ground forwarding and post-acceptance loss detection/counter semantics are not demonstrated; mission inputs remain TBD under NC-EXT-76. The host structural sweep is characterization, not requirement compliance evidence."
 

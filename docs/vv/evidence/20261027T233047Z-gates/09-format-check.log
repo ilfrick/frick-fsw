@@ -1,0 +1,8 @@
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+src/core/pal/pal_posix.c:647:68: error: code should be clang-formatted [-Wclang-format-violations]
+    while ((scanned < FF_EVS_TEXT_LEN) && (fmt[scanned] != '\0') &&
+                                                                   ^
+tests/unit/test_es_hs_lifecycle.c:851:67: error: code should be clang-formatted [-Wclang-format-violations]
+             test_panic_production_link_wiring_delivers_one_frame,
+                                                                  ^
+make: *** [Makefile:198: format-check] Error 123

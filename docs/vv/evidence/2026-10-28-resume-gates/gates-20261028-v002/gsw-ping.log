@@ -1,0 +1,4 @@
+command: docker run --rm --pull=never --network=none --user 1000:1000 ... frick-vv:local bash -lc 'python3 tools/gsw/ff_gsw.py --ping'
+exit: 0
+TC frame (17 B): 1810c000000a2b1101010201020304f72b
+(no --connect given; frame size/CRC self-check only)

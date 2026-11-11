@@ -1,0 +1,96 @@
+{
+  "capture_bytes": 7097,
+  "capture_sha256": "e51973066de4960930cc0fb41dc27f8bcf919e7f423d17bf834c9ec91ebb8834",
+  "console_fatal": {
+    "exit_block": [],
+    "hits": [],
+    "ok": true,
+    "reason": ""
+  },
+  "identity_reasons": [],
+  "mode": "observe",
+  "oracle": {
+    "checks": [
+      {
+        "detail": "version=0 apid=0x010 type=1",
+        "id": "TC-STRUCT",
+        "ok": true
+      },
+      {
+        "detail": "crc_ok=True",
+        "id": "TC-CRC-VALID",
+        "ok": true
+      },
+      {
+        "detail": "ingest app announces the uart backend",
+        "id": "LINK-UART",
+        "ok": true
+      },
+      {
+        "detail": "crc_failures=0",
+        "id": "TM-CRC",
+        "ok": true
+      },
+      {
+        "detail": "header_failures=0",
+        "id": "TM-HEADER",
+        "ok": true
+      },
+      {
+        "detail": "tm_packets=80",
+        "id": "CAPTURE-LIVE",
+        "ok": true
+      },
+      {
+        "detail": "breaks=[]",
+        "id": "TM-COUNTER",
+        "ok": true
+      }
+    ],
+    "counts": {
+      "S1.1": 1,
+      "S1.3": 1,
+      "S1.7": 1,
+      "S17.2": 1,
+      "S5.1": 76
+    },
+    "mode": "observe",
+    "observations": {
+      "destination_ids": [
+        1
+      ],
+      "s17_2_count": 1,
+      "s1_8_reported": false,
+      "s1_acceptance_count": 1,
+      "s1_completion_count": 1,
+      "s1_payload_prefixes": [
+        "0102110100",
+        "0102110100",
+        "0102110100"
+      ],
+      "s1_payload_prefixes_note": "recorded only: the numeric S1 payload layout is authority-pending",
+      "s1_start_count": 1,
+      "services": {
+        "S1.1": 1,
+        "S1.3": 1,
+        "S1.7": 1,
+        "S17.2": 1,
+        "S5.1": 76
+      },
+      "tm_crc_failures": 0,
+      "tm_header_failures": 0,
+      "tm_packets": 80,
+      "truncated_tail": 0
+    },
+    "ok": true,
+    "reasons": [],
+    "request": {
+      "crc_ok": true,
+      "service": 17,
+      "source_id": 258,
+      "subservice": 1,
+      "user_data_hex": "01020304"
+    }
+  },
+  "result": "PASS"
+}

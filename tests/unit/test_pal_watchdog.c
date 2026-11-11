@@ -221,12 +221,14 @@ static void test_watchdog_plan_from_mission_table(void)
     FF_TEST_ASSERT(FF_MissionTablesInit() == FF_SUCCESS);
     cfg = FF_GetMissionCfg();
 
-    /* The mission table default: 8 s -> 8000 ms, fed every 2000 ms. */
+    /* The mission table default: 10 s -> 10000 ms, fed every 2500 ms.
+     * The 10 s value is a PROVISIONAL representative GEO value (NC-EXT-238);
+     * the mission authority value remains an open owner input. */
     FF_TEST_ASSERT(cfg != NULL);
-    FF_TEST_ASSERT(cfg->watchdog_timeout_s == 8u);
+    FF_TEST_ASSERT(cfg->watchdog_timeout_s == 10u);
     FF_TEST_ASSERT(FF_AppWdPlan(cfg, &timeout_ms, &feed_ms) == FF_SUCCESS);
-    FF_TEST_ASSERT(timeout_ms == 8000u);
-    FF_TEST_ASSERT(feed_ms == 2000u);
+    FF_TEST_ASSERT(timeout_ms == 10000u);
+    FF_TEST_ASSERT(feed_ms == 2500u);
     FF_TEST_ASSERT(feed_ms <= (timeout_ms / 4u)); /* SRS-REQ-073 quarter period */
 
     /* Property over representative table values: 1 s .. 60 s. */

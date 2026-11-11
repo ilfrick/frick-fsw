@@ -1,0 +1,24 @@
+{
+  "docker_image_id": "sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896",
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "manifest_sha256": "e52329d3cddd5458dc8068b8aa1d178e593a2875e89338ce620789ecd587b4e1",
+  "mode": "real",
+  "oracle_tool": "xw3_verdict.py",
+  "oracle_tool_sha256": "58f811acb9590359e98bc7168f692ed1f2e807c31c62e3f3722063c53a256643",
+  "run_nonce": "150f55b0ac3d15e35ba8d19d92eebccc",
+  "runner": "qemu_xw3_vv.sh",
+  "runner_sha256": "49faa871db075e175b276508f88eb75b659c2e3efb8bdd4ed505f8ad86c291be",
+  "sources": {
+    "CMakeLists.txt": "948b4782490d73e2b05ef9e64a24901b46e44639721d12290b1998c88ed61f9e",
+    "src/apps/app_cmd_ingest.c": "30246693063eaa2cf15c65a6cf64e2bb139206739017260d2ba3acd49eff60d1",
+    "src/pus/pus.c": "8f8511aaca5215f145545c6a6bf1bf71ff0544520ca076d74a842b92c923c721",
+    "src/pus/pus_services.c": "915b62e7deb97e322198821c7dd5e5ef4f4e04a6ca30f84e32ee5e30b31e6de3",
+    "src/transport/link/link_uart.c": "031aac9a4a9b8fd7b6db05defa35de3af10e2b1353373ca7004b0592b3a7c3c9",
+    "tests/stubs/ff_test_extwd_model.c": "62872b52516823e7196385cdee8b646f503510db44da402490d9cc44a0dc9f16",
+    "tests/stubs/ff_test_extwd_model.h": "9c9747eb6de26e65bfffb7f4a8795ecc9f8ab255430299bceb03aca0575e8ad2",
+    "tests/stubs/ff_test_extwd_pal.c": "a2a65be58ccd64a55dd2226129c0c0234113adb273f0d5e0ae9e78c758431f19",
+    "tests/target/app_xw2_test.c": "1b79f0444ab90196044f30f962063c8c858446842eafa5f06113acaaa1a19877",
+    "tests/target/app_xw2_test.h": "ac55b7b6f6eda205e8f1533ef2c83bbe3b02883e4902a3108baacc8ca9f11f3d",
+    "tests/target/fsw_main_xw2.c": "969edf3046066de88e41ae33389847b2970dfe8ce765628c399af78f60cab167"
+  }
+}

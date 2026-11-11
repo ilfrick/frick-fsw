@@ -283,8 +283,8 @@ static void test_pus_verification_failures(void)
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_NOT_FOUND);
     FF_TEST_ASSERT(rx_find(1u, 1u, &d, &dl));
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
-    FF_TEST_ASSERT(dl == 5u);
-    FF_TEST_ASSERT(d[4] == FF_PUS_FAIL_UNKNOWN_SERVICE);
+    FF_TEST_ASSERT(dl == 9u);
+    FF_TEST_ASSERT(d[8] == FF_PUS_FAIL_UNKNOWN_SERVICE);
 
     /* Unknown subservice -> completion failure code 9. */
     rx_reset();
@@ -292,7 +292,8 @@ static void test_pus_verification_failures(void)
                      NULL, 0u, frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_NOT_FOUND);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
-    FF_TEST_ASSERT(d[4] == FF_PUS_FAIL_UNKNOWN_SUBSERVICE);
+    FF_TEST_ASSERT(dl == 9u);
+    FF_TEST_ASSERT(d[8] == FF_PUS_FAIL_UNKNOWN_SUBSERVICE);
 
     /* Service 11 scheduling stub -> NOT_IMPLEMENTED -> failure code 20. */
     rx_reset();
@@ -300,7 +301,8 @@ static void test_pus_verification_failures(void)
                      NULL, 0u, frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_NOT_IMPLEMENTED);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
-    FF_TEST_ASSERT(d[4] == FF_PUS_FAIL_EXECUTION);
+    FF_TEST_ASSERT(dl == 9u);
+    FF_TEST_ASSERT(d[8] == FF_PUS_FAIL_EXECUTION);
 
     /* Acceptance-only: exactly one service 1 packet, no completion (SRS-REQ-006). */
     rx_reset();
@@ -429,13 +431,13 @@ static void test_pus_hk_s3_lifecycle(void)
     create_payload[3] = 0u;
     create_payload[4] = 0u;
     create_payload[5] = 0u; /* period_s = 0 (one-shot only) */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 1u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 128u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      create_payload, sizeof(create_payload), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(1u, 7u, &d, &dl));
 
     /* Duplicate create is rejected with a completion failure. */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 1u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 128u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      create_payload, sizeof(create_payload), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_ALREADY_EXISTS);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
@@ -445,7 +447,7 @@ static void test_pus_hk_s3_lifecycle(void)
     one[0] = report_id;
     report_request[0] = 1u;
     report_request[1] = report_id;
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 4u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      report_request, sizeof(report_request), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
@@ -454,31 +456,31 @@ static void test_pus_hk_s3_lifecycle(void)
     FF_TEST_ASSERT((d[1] == 0xAAu) && (d[2] == 0xBBu) && (d[3] == 0xCCu) && (d[4] == 0xDDu));
 
     /* Disable periodic generation (3,6); a one-shot (3,27) still reports. */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 6u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 2u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 4u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      report_request, sizeof(report_request), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
 
     /* Enable periodic generation (3,5); one-shot remains available. */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 5u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 1u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 27u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 4u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION,
                      report_request, sizeof(report_request), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
 
     /* Delete (3,3); a second delete is a completion failure (not found). */
-    flen = encode_tc(FF_PUS_SERVICE_HK, 3u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 129u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     rx_reset();
-    flen = encode_tc(FF_PUS_SERVICE_HK, 3u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
+    flen = encode_tc(FF_PUS_SERVICE_HK, 129u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_NOT_FOUND);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
@@ -522,23 +524,14 @@ static void test_pus_service9_set_report(void)
 
 static void r3_evs_to_pus(const FF_EvsEvent_t *evt)
 {
-    uint8_t payload[FF_PUS_MAX_TM_FRAME];
     uint16_t text_len = 0u;
-    uint16_t total;
 
     while ((text_len < sizeof(evt->text)) && (evt->text[text_len] != '\0')) {
         text_len++;
     }
-    if (text_len > (FF_PUS_MAX_TM_FRAME - 3u)) {
-        text_len = (uint16_t)(FF_PUS_MAX_TM_FRAME - 3u);
-    }
-    payload[0] = (uint8_t)(evt->event_id >> 8);
-    payload[1] = (uint8_t)(evt->event_id & 0xFFu);
-    payload[2] = evt->type;
-    (void)memcpy(&payload[3], evt->text, text_len);
-    total = (uint16_t)(text_len + 3u);
-
-    (void)FF_PusEmitEvent(evt->event_id, evt->type, payload, total);
+    /* FF_PusEmitEvent owns the service 5 report header (event id + type); the
+     * listener passes the reason text as auxiliary data only. */
+    (void)FF_PusEmitEvent(evt->event_id, evt->type, (const uint8_t *)evt->text, text_len);
 }
 
 static void test_pus_event_s5_propagation(void)

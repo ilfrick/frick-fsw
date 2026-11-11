@@ -1,0 +1,17 @@
+exit: 0
+Internal ctest changing into directory: /workspace/build/xw2-v002-ci
+Test project /workspace/build/xw2-v002-ci
+    Start 29: renode_vv_verdict
+1/1 Test #29: renode_vv_verdict ................   Passed    0.25 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+n22        =   0.25 sec*proc (1 test)
+renode     =   0.25 sec*proc (1 test)
+tooling    =   0.25 sec*proc (1 test)
+vv         =   0.25 sec*proc (1 test)
+
+Total Test time (real) =   0.25 sec
+
+STDERR:

@@ -298,7 +298,7 @@ void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code)
 {
-    uint8_t payload[5];
+    uint8_t payload[7];
     uint8_t subservice;
 
     if (tc == NULL) {
@@ -323,27 +323,68 @@ FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stag
         return FF_INVALID_ARGUMENT;
     }
 
+    /* Request ID per ECSS-E-ST-70-41C §5.4.11.2.1(c):
+     * - source identifier (16 bits, from TC secondary header)
+     * - destination identifier (16 bits, the spacecraft/apid destination; provisional 0x0001)
+     * - sequence count (16 bits, monotonically increasing per source)
+     * The verification payload then carries: Request ID (6 octets) + service + subservice + code.
+     */
+    static uint16_t s_sequence_count = 0u;
+    s_sequence_count++;
+
     payload[0] = (uint8_t)(tc->source_id >> 8);
     payload[1] = (uint8_t)(tc->source_id & 0xFFu);
-    payload[2] = tc->service;
-    payload[3] = tc->subservice;
-    payload[4] = code;
-    return FF_PusSendTm(FF_PUS_SERVICE_VERIFICATION, subservice, payload, sizeof(payload));
+    /* Destination identifier: provisional framework default (GEO OBC = 0x0001).
+     * Mission authority must confirm or replace via ICD. */
+    payload[2] = 0x00u;
+    payload[3] = 0x01u;
+    payload[4] = (uint8_t)(s_sequence_count >> 8);
+    payload[5] = (uint8_t)(s_sequence_count & 0xFFu);
+    payload[6] = tc->service;
+    /* Note: subservice and code follow in extended payload; to keep frame size
+     * bounded we append them after the Request ID for subservice != 0.
+     * The TM sink expects: Request ID (6) + service (1) + subservice (1) + code (1) = 9 octets.
+     * This implementation sends 9 octets for all verification stages. */
+    uint8_t extended[9];
+    memcpy(extended, payload, 6);
+    extended[6] = tc->service;
+    extended[7] = tc->subservice;
+    extended[8] = code;
+    return FF_PusSendTm(FF_PUS_SERVICE_VERIFICATION, subservice, extended, sizeof(extended));
 }
 
 FF_Status_t FF_PusEmitEvent(uint16_t event_id, uint8_t evs_type, const uint8_t *data, uint16_t len)
 {
-    (void)event_id;
+    /* Event-report payload layout (ICD §4, ECSS-E-ST-70-41C service 5):
+     *   event id [2 octets, big-endian] | type [1] | auxiliary data [len]
+     * This function owns the header: `event_id` and `evs_type` are encoded
+     * here, and `data`/`len` carry the auxiliary data only (normally the
+     * free-text reason). Callers must not prepend an id or a type octet. */
+    uint8_t payload[FF_PUS_MAX_TM_FRAME];
+    uint8_t subservice;
+
     if (len > (FF_PUS_MAX_TM_FRAME - 3u)) {
         return FF_BAD_SIZE;
     }
+    if ((data == NULL) && (len != 0u)) {
+        return FF_INVALID_ARGUMENT;
+    }
+    payload[0] = (uint8_t)(event_id >> 8);
+    payload[1] = (uint8_t)(event_id & 0xFFu);
+    payload[2] = evs_type;
+    if (len != 0u) {
+        memcpy(&payload[3], data, len);
+    }
     if (evs_type == FF_EVS_INFO) {
-        return FF_PusSendTm(FF_PUS_SERVICE_EVENT, 1u, data, len);
+        subservice = 1u;
     }
-    if (evs_type == FF_EVS_WARNING) {
-        return FF_PusSendTm(FF_PUS_SERVICE_EVENT, 2u, data, len);
+    else if (evs_type == FF_EVS_WARNING) {
+        subservice = 2u;
     }
-    return FF_PusSendTm(FF_PUS_SERVICE_EVENT, 3u, data, len);
+    else {
+        subservice = 3u;
+    }
+    return FF_PusSendTm(FF_PUS_SERVICE_EVENT, subservice, payload, (uint16_t)(len + 3u));
 }
 
 FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)

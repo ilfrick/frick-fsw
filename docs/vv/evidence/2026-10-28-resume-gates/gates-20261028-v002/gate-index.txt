@@ -1,0 +1,9 @@
+Offline gate refresh 2026-10-28 v002
+Environment: cached frick-vv:local and frick-rtems-toolchain:local; Docker invocations used --pull=never --network=none.
+Build + root CTest transcript: ci-build-test.log (root CTest 53/54; permission-sensitive B2b).
+Unprivileged CTest: ctest-unprivileged.log (54/54).
+QEMU differential 13/13: ../xw2-qemu-run-20261028T020526Z/ .
+Renode XW-2 12/13: ../xw2-run-20261028T012351Z-debug/ .
+Docs: docs.log, docs.exit (Doxygen exit 0; 147 warnings; index 60068 bytes).
+Current source identity: test-source.sha256 in each XW-2 run directory.
+No production-source or manifest/oracle change in this diagnostic delta.

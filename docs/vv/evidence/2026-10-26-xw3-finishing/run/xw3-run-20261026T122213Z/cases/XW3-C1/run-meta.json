@@ -1,0 +1,14 @@
+{
+  "capture_bytes": 3133,
+  "capture_sha256": "1f4ec9ec74560afe601f888d9661129e49d39a669bdd2d0dde855883733a1811",
+  "case": "XW3-C1",
+  "checked_at_utc": "2026-10-26T12:24:39Z",
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "qemu_accepted_codes": [
+    0,
+    124
+  ],
+  "qemu_exit": 0,
+  "run_nonce": "150f55b0ac3d15e35ba8d19d92eebccc",
+  "variant": "golden"
+}

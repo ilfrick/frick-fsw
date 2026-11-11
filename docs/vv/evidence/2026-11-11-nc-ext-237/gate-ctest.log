@@ -1,0 +1,282 @@
+Test project /home/nicola/fsw/frick-fsw/build2/native
+      Start  1: ccsds
+ 1/56 Test  #1: ccsds ............................   Passed    0.00 sec
+      Start  2: sb
+ 2/56 Test  #2: sb ...............................   Passed    0.01 sec
+      Start  3: sb_stress
+ 3/56 Test  #3: sb_stress ........................   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+ 4/56 Test  #4: sb_sweep_boundary ................   Passed    0.01 sec
+      Start  5: sb_evs_structural_sweep
+ 5/56 Test  #5: sb_evs_structural_sweep ..........   Passed   32.14 sec
+      Start  6: tbl
+ 6/56 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start  7: sched
+ 7/56 Test  #7: sched ............................   Passed    0.00 sec
+      Start  8: sched_stats
+ 8/56 Test  #8: sched_stats ......................   Passed    0.00 sec
+      Start  9: sched_max_entries
+ 9/56 Test  #9: sched_max_entries ................   Passed    0.00 sec
+      Start 10: sched_events
+10/56 Test #10: sched_events .....................   Passed    0.05 sec
+      Start 11: pus
+11/56 Test #11: pus ..............................   Passed    0.00 sec
+      Start 12: pus_fu
+12/56 Test #12: pus_fu ...........................   Passed    0.00 sec
+      Start 13: obcp_engine_connectivity
+13/56 Test #13: obcp_engine_connectivity .........   Passed    0.01 sec
+      Start 14: pus_n7_adapter_contract
+14/56 Test #14: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 15: pusopen_adapter_contract
+15/56 Test #15: pusopen_adapter_contract .........   Passed    0.00 sec
+      Start 16: time
+16/56 Test #16: time .............................   Passed    0.01 sec
+      Start 17: frozen_utc_seam
+17/56 Test #17: frozen_utc_seam ..................   Passed    0.01 sec
+      Start 18: r2_gap
+18/56 Test #18: r2_gap ...........................   Passed    0.02 sec
+      Start 19: r3_gap
+19/56 Test #19: r3_gap ...........................   Passed    0.00 sec
+      Start 20: tbl_sched_coupling
+20/56 Test #20: tbl_sched_coupling ...............   Passed    0.01 sec
+      Start 21: es_hs_lifecycle
+21/56 Test #21: es_hs_lifecycle ..................   Passed    0.32 sec
+      Start 22: evs_hs_health
+22/56 Test #22: evs_hs_health ....................   Passed    0.11 sec
+      Start 23: tm_output_chain
+23/56 Test #23: tm_output_chain ..................   Passed    0.01 sec
+      Start 24: pus_event_identity
+24/56 Test #24: pus_event_identity ...............   Passed    0.10 sec
+      Start 25: pal_watchdog
+25/56 Test #25: pal_watchdog .....................   Passed    0.01 sec
+      Start 26: wd_host_model_contract
+26/56 Test #26: wd_host_model_contract ...........   Passed    0.00 sec
+      Start 27: extwd_model_contract
+27/56 Test #27: extwd_model_contract .............   Passed    0.00 sec
+      Start 28: extwd_middleware_contract
+28/56 Test #28: extwd_middleware_contract ........   Passed    0.00 sec
+      Start 29: decoder_corpus
+29/56 Test #29: decoder_corpus ...................   Passed    0.03 sec
+      Start 30: link_uart
+30/56 Test #30: link_uart ........................   Passed    0.37 sec
+      Start 31: renode_vv_verdict
+31/56 Test #31: renode_vv_verdict ................   Passed    0.20 sec
+      Start 32: hal
+32/56 Test #32: hal ..............................   Passed    0.00 sec
+      Start 33: math
+33/56 Test #33: math .............................   Passed    0.01 sec
+      Start 34: sdls
+34/56 Test #34: sdls .............................   Passed    0.00 sec
+      Start 35: gem
+35/56 Test #35: gem ..............................   Passed    0.00 sec
+      Start 36: gem_tsn
+36/56 Test #36: gem_tsn ..........................   Passed    0.00 sec
+      Start 37: gptp
+37/56 Test #37: gptp .............................   Passed    0.00 sec
+      Start 38: netloop
+38/56 Test #38: netloop ..........................   Passed    0.00 sec
+      Start 39: gpio
+39/56 Test #39: gpio .............................   Passed    0.00 sec
+      Start 40: serial
+40/56 Test #40: serial ...........................   Passed    0.00 sec
+      Start 41: mem
+41/56 Test #41: mem ..............................   Passed    0.00 sec
+      Start 42: nvm
+42/56 Test #42: nvm ..............................   Passed    0.00 sec
+      Start 43: mtd
+43/56 Test #43: mtd ..............................   Passed    0.00 sec
+      Start 44: can
+44/56 Test #44: can ..............................   Passed    0.00 sec
+      Start 45: i2c
+45/56 Test #45: i2c ..............................   Passed    0.00 sec
+      Start 46: spi
+46/56 Test #46: spi ..............................   Passed    0.00 sec
+      Start 47: block
+47/56 Test #47: block ............................   Passed    0.00 sec
+      Start 48: pcie
+48/56 Test #48: pcie .............................   Passed    0.00 sec
+      Start 49: spacewire
+49/56 Test #49: spacewire ........................   Passed    0.00 sec
+      Start 50: fabric
+50/56 Test #50: fabric ...........................   Passed    0.00 sec
+      Start 51: canfd
+51/56 Test #51: canfd ............................   Passed    0.01 sec
+      Start 52: canopen
+52/56 Test #52: canopen ..........................   Passed    0.00 sec
+      Start 53: link_ip
+53/56 Test #53: link_ip ..........................   Passed    0.00 sec
+      Start 54: link_tsn
+54/56 Test #54: link_tsn .........................   Passed    0.00 sec
+      Start 55: lwip
+55/56 Test #55: lwip .............................   Passed    0.00 sec
+      Start 56: lwip_netif
+56/56 Test #56: lwip_netif .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 56
+
+Label Time Summary:
+decoder-corpus        =   0.03 sec*proc (1 test)
+es-hs-lifecycle       =   0.32 sec*proc (1 test)
+fdir                  =   0.02 sec*proc (4 tests)
+host-model            =   0.00 sec*proc (1 test)
+host-pty              =   0.37 sec*proc (1 test)
+link                  =   0.37 sec*proc (1 test)
+max-entries           =   0.00 sec*proc (1 test)
+n22                   =   0.79 sec*proc (10 tests)
+nc-ext-237            =   0.10 sec*proc (1 test)
+pus                   =   0.10 sec*proc (1 test)
+renode                =   0.20 sec*proc (1 test)
+s8-sch                =   0.00 sec*proc (1 test)
+s8-vv-fu              =   0.35 sec*proc (2 tests)
+sb-evs                =  32.14 sec*proc (1 test)
+tool-qualification    =  32.14 sec*proc (1 test)
+tooling               =   0.20 sec*proc (1 test)
+uart                  =   0.37 sec*proc (1 test)
+vv                    =   0.20 sec*proc (1 test)
+watchdog              =   0.02 sec*proc (4 tests)
+xw1                   =   0.01 sec*proc (2 tests)
+
+Total Test time (real) =  33.56 sec
+exit=0
+# final re-run after documentation updates (no source change)
+date: 2026-11-11T16:24:03Z
+Test project /home/nicola/fsw/frick-fsw/build2/native
+      Start  5: sb_evs_structural_sweep
+      Start 24: pus_event_identity
+      Start 30: link_uart
+      Start 21: es_hs_lifecycle
+ 1/56 Test #24: pus_event_identity ...............   Passed    0.11 sec
+      Start 31: renode_vv_verdict
+ 2/56 Test #31: renode_vv_verdict ................   Passed    0.13 sec
+      Start 22: evs_hs_health
+ 3/56 Test #21: es_hs_lifecycle ..................   Passed    0.32 sec
+      Start 10: sched_events
+ 4/56 Test #22: evs_hs_health ....................   Passed    0.11 sec
+      Start 29: decoder_corpus
+ 5/56 Test #10: sched_events .....................   Passed    0.04 sec
+      Start 20: tbl_sched_coupling
+ 6/56 Test #29: decoder_corpus ...................   Passed    0.03 sec
+      Start 18: r2_gap
+ 7/56 Test #20: tbl_sched_coupling ...............   Passed    0.00 sec
+      Start 16: time
+ 8/56 Test #30: link_uart ........................   Passed    0.37 sec
+      Start 51: canfd
+ 9/56 Test #16: time .............................   Passed    0.01 sec
+      Start 23: tm_output_chain
+10/56 Test #23: tm_output_chain ..................   Passed    0.00 sec
+      Start 13: obcp_engine_connectivity
+11/56 Test #51: canfd ............................   Passed    0.01 sec
+      Start 33: math
+12/56 Test #13: obcp_engine_connectivity .........   Passed    0.00 sec
+      Start  4: sb_sweep_boundary
+13/56 Test #18: r2_gap ...........................   Passed    0.02 sec
+14/56 Test #33: math .............................   Passed    0.00 sec
+      Start  2: sb
+      Start 25: pal_watchdog
+15/56 Test  #4: sb_sweep_boundary ................   Passed    0.00 sec
+16/56 Test  #2: sb ...............................   Passed    0.00 sec
+      Start 17: frozen_utc_seam
+      Start 19: r3_gap
+17/56 Test #17: frozen_utc_seam ..................   Passed    0.00 sec
+      Start 26: wd_host_model_contract
+18/56 Test #25: pal_watchdog .....................   Passed    0.01 sec
+19/56 Test #19: r3_gap ...........................   Passed    0.00 sec
+20/56 Test #26: wd_host_model_contract ...........   Passed    0.00 sec
+      Start 47: block
+      Start 35: gem
+      Start 45: i2c
+21/56 Test #47: block ............................   Passed    0.00 sec
+22/56 Test #35: gem ..............................   Passed    0.00 sec
+      Start 46: spi
+      Start 12: pus_fu
+23/56 Test #45: i2c ..............................   Passed    0.00 sec
+      Start 32: hal
+24/56 Test #46: spi ..............................   Passed    0.00 sec
+25/56 Test #12: pus_fu ...........................   Passed    0.00 sec
+      Start 27: extwd_model_contract
+      Start 15: pusopen_adapter_contract
+26/56 Test #32: hal ..............................   Passed    0.01 sec
+27/56 Test #27: extwd_model_contract .............   Passed    0.00 sec
+      Start 53: link_ip
+      Start 40: serial
+28/56 Test #15: pusopen_adapter_contract .........   Passed    0.01 sec
+      Start 52: canopen
+29/56 Test #53: link_ip ..........................   Passed    0.01 sec
+30/56 Test #40: serial ...........................   Passed    0.00 sec
+      Start 14: pus_n7_adapter_contract
+      Start  3: sb_stress
+31/56 Test #52: canopen ..........................   Passed    0.01 sec
+32/56 Test #14: pus_n7_adapter_contract ..........   Passed    0.00 sec
+      Start 39: gpio
+      Start 11: pus
+33/56 Test  #3: sb_stress ........................   Passed    0.01 sec
+34/56 Test #39: gpio .............................   Passed    0.01 sec
+      Start 54: link_tsn
+      Start  1: ccsds
+35/56 Test #11: pus ..............................   Passed    0.02 sec
+36/56 Test #54: link_tsn .........................   Passed    0.01 sec
+      Start 34: sdls
+      Start  7: sched
+37/56 Test  #1: ccsds ............................   Passed    0.01 sec
+38/56 Test #34: sdls .............................   Passed    0.01 sec
+      Start  6: tbl
+      Start 55: lwip
+39/56 Test  #7: sched ............................   Passed    0.01 sec
+40/56 Test  #6: tbl ..............................   Passed    0.00 sec
+      Start 42: nvm
+      Start  9: sched_max_entries
+41/56 Test #55: lwip .............................   Passed    0.01 sec
+42/56 Test #42: nvm ..............................   Passed    0.00 sec
+      Start 56: lwip_netif
+      Start 38: netloop
+43/56 Test  #9: sched_max_entries ................   Passed    0.01 sec
+44/56 Test #56: lwip_netif .......................   Passed    0.00 sec
+45/56 Test #38: netloop ..........................   Passed    0.00 sec
+      Start 36: gem_tsn
+      Start 50: fabric
+      Start 43: mtd
+46/56 Test #36: gem_tsn ..........................   Passed    0.01 sec
+47/56 Test #50: fabric ...........................   Passed    0.01 sec
+      Start  8: sched_stats
+      Start 49: spacewire
+48/56 Test #43: mtd ..............................   Passed    0.01 sec
+49/56 Test  #8: sched_stats ......................   Passed    0.01 sec
+      Start 37: gptp
+      Start 41: mem
+50/56 Test #49: spacewire ........................   Passed    0.01 sec
+51/56 Test #37: gptp .............................   Passed    0.01 sec
+      Start 44: can
+      Start 48: pcie
+52/56 Test #41: mem ..............................   Passed    0.01 sec
+53/56 Test #44: can ..............................   Passed    0.01 sec
+      Start 28: extwd_middleware_contract
+54/56 Test #48: pcie .............................   Passed    0.01 sec
+55/56 Test #28: extwd_middleware_contract ........   Passed    0.00 sec
+56/56 Test  #5: sb_evs_structural_sweep ..........   Passed   20.25 sec
+
+100% tests passed, 0 tests failed out of 56
+
+Label Time Summary:
+decoder-corpus        =   0.03 sec*proc (1 test)
+es-hs-lifecycle       =   0.32 sec*proc (1 test)
+fdir                  =   0.02 sec*proc (4 tests)
+host-model            =   0.00 sec*proc (1 test)
+host-pty              =   0.37 sec*proc (1 test)
+link                  =   0.37 sec*proc (1 test)
+max-entries           =   0.01 sec*proc (1 test)
+n22                   =   0.71 sec*proc (10 tests)
+nc-ext-237            =   0.11 sec*proc (1 test)
+pus                   =   0.11 sec*proc (1 test)
+renode                =   0.13 sec*proc (1 test)
+s8-sch                =   0.01 sec*proc (1 test)
+s8-vv-fu              =   0.34 sec*proc (2 tests)
+sb-evs                =  20.25 sec*proc (1 test)
+tool-qualification    =  20.25 sec*proc (1 test)
+tooling               =   0.13 sec*proc (1 test)
+uart                  =   0.37 sec*proc (1 test)
+vv                    =   0.13 sec*proc (1 test)
+watchdog              =   0.02 sec*proc (4 tests)
+xw1                   =   0.01 sec*proc (2 tests)
+
+Total Test time (real) =  20.26 sec
+exit=0

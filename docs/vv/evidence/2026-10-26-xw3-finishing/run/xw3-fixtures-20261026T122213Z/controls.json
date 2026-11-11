@@ -1,0 +1,170 @@
+{
+  "controls": [
+    {
+      "actual_exit": 0,
+      "control": "P1-positive-replay",
+      "expect_exit": 0,
+      "expect_reasons": [],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "unmodified accepted capture, identity rebound to this run",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N1-empty-capture",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "S17.2-COUNT"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "no bytes at all",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N2-stale-capture",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "nonce_mismatch"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "capture bound to another run's nonce",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N3-wrong-elf",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "elf_mismatch"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "capture bound to a different image",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N4-wrong-payload",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "S17.2-PAYLOAD"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "S17.2 payload altered, CRC recomputed",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N5-wrong-response",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "S1.7-COUNT"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "completion ack replaced by a failure ack",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N7-fatal-after-pass",
+      "expect_exit": 1,
+      "expect_reasons": [],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "valid response set followed by a fatal marker",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N8-qemu-nonzero-clean-capture",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "qemu_process_failure:1"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "clean capture, QEMU process exit 1",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N9-timeout124-with-fatal",
+      "expect_exit": 1,
+      "expect_reasons": [],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "accepted timeout 124 must not hide a fatal marker",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N10-timeout124-incomplete",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "S1.7-COUNT"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "accepted timeout 124 must not hide an incomplete response set",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N12-malformed-evidence",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "run_meta_unreadable"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "truncated capture and no run metadata",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N13-malformed-meta-missing-size",
+      "expect_exit": 1,
+      "expect_reasons": [
+        "capture_size_missing"
+      ],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "valid capture, metadata omits the recorded capture size",
+      "ok": true
+    },
+    {
+      "actual_exit": 1,
+      "control": "N6-fatal-before-pass",
+      "expect_exit": 1,
+      "expect_reasons": [],
+      "fatal_as_expected": true,
+      "missing_reasons": [],
+      "note": "real capture of the no-wrap control image (watchdog init panic)",
+      "ok": true
+    },
+    {
+      "actual_exit": 2,
+      "control": "N11a-fixture-seam-refused",
+      "expect_exit": 2,
+      "note": "fixture mode without XW3_ALLOW_FIXTURE must be refused",
+      "ok": true
+    },
+    {
+      "actual_exit": 2,
+      "control": "N11b-missing-prerequisite",
+      "expect_exit": 2,
+      "note": "an absent fixture/image prerequisite must exit 2, never 0",
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "passed": 15,
+  "result": "PASS",
+  "run_dir": "build/xw3-run-20261026T122213Z"
+}

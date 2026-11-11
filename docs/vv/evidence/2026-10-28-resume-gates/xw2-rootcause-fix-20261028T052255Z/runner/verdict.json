@@ -1,0 +1,27 @@
+{
+  "component": {
+    "gaps": [],
+    "observations": 1,
+    "ok": true,
+    "reasons": [],
+    "required_pass": 13,
+    "required_total": 13,
+    "status_totals": {
+      "PASS": 13
+    }
+  },
+  "console": "/home/nicola/fsw/frick-fsw/build/xw2-renode-run-20261028T052255Z/console.log",
+  "console_sha256": "6aed83ba18955bc4d076156e64af7fbfcc9ebb4ac9590f4875efe106b42d636f",
+  "manifest": "/home/nicola/fsw/frick-fsw/tools/scripts/xw2_manifest.json",
+  "manifest_sha256": "8d1fdbc50b5816d42f2fad110b4d760d6212336a5abda23d379e9bab40438819",
+  "qemu_exit": 0,
+  "qemu_failed": false,
+  "result": "PASS",
+  "run_nonce": "3aa551f26a1116705a23313386c5adab",
+  "whole_run": {
+    "exit_block": [],
+    "hits": [],
+    "ok": true,
+    "reason": ""
+  }
+}

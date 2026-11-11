@@ -38,6 +38,12 @@ FF_Status_t FF_PalTaskCreate(FF_TaskId_t *id, const char *name, FF_PalTaskFunc_t
                              uint32_t stack_bytes, uint8_t priority);
 FF_Status_t FF_PalTaskDelete(FF_TaskId_t id);
 void FF_PalTaskDelayMs(uint32_t ms);
+#ifdef FF_TEST_HOOKS
+/* Test-only variant of FF_PalTaskDelayMs that advances the frozen monotonic
+ * time instead of sleeping. Used for deterministic testing of time-dependent
+ * application logic. Only available when FF_TEST_HOOKS is defined. */
+void FF_PalTaskDelayMsTest(uint32_t ms);
+#endif
 /* Wait until an absolute deadline in FF_PalGetMonotonicNs()'s time domain.
  * Returns immediately with FF_SUCCESS when the deadline has passed. */
 FF_Status_t FF_PalTaskDelayUntilNs(uint64_t deadline_ns);
@@ -84,6 +90,24 @@ uint32_t FF_PalGetCpuLoadPpt(void);
  * FF_PalSetUtcNs and the monotonic clock is not consulted. */
 void FF_PalTimeTestFreeze(uint64_t utc_ns);
 void FF_PalTimeTestUnfreeze(void);
+
+/* Host-test-only monotonic time control (absent from flight builds). Allows
+ * deterministic time injection for tests that exercise time-dependent
+ * application logic (e.g. scheduler heartbeat, missed-slot detection). When
+ * frozen, FF_PalGetMonotonicNs returns the test-controlled value. */
+void FF_PalMonotonicTestSet(uint64_t monotonic_ns);
+void FF_PalMonotonicTestUnfreeze(void);
+
+/* Host-test-only controlled task delay (absent from flight builds). When
+ * enabled, FF_PalTaskDelayMs waits on a test-controlled condition variable
+ * instead of sleeping, allowing deterministic step-by-step execution of
+ * time-dependent application logic. FF_PalTaskDelayMsTestWait() blocks until
+ * the task enters a *new* controlled delay (each entry is consumed once), so a
+ * caller can inject time between two loop iterations deterministically. */
+void FF_PalTaskDelayMsTestEnable(void);
+void FF_PalTaskDelayMsTestDisable(void);
+void FF_PalTaskDelayMsTestStep(void);
+void FF_PalTaskDelayMsTestWait(void);
 #endif
 
 /* ---- Hardware watchdog (FDIR reset recovery) ---------------------

@@ -1,0 +1,33 @@
+{
+  "cases": {
+    "XW3-A1": {
+      "capture_bytes": 7097,
+      "capture_sha256": "1e70c13622febc9053bf6ab1f74f723e8d2b3a5bb073344fcf19ad96377f4310",
+      "verdict_sha256": "cad28be5f94ad37cb59a7c558fad8323d62629e5b818aeee5395468db87c1165"
+    },
+    "XW3-C1": {
+      "capture_bytes": 3133,
+      "capture_sha256": "1f4ec9ec74560afe601f888d9661129e49d39a669bdd2d0dde855883733a1811",
+      "verdict_sha256": "91c73dcac2f3db221a3bbe902e3f3ac010ed22e3c42449d5d2042bd1aefc45ba"
+    },
+    "XW3-O1": {
+      "capture_bytes": 7305,
+      "capture_sha256": "fa9841fc60b926df2acb0b4f5640033f387945739f65e21a75784d9c938d9d76",
+      "verdict_sha256": "6dcbfa581cdf171d5ddecefcf9c46956b9fe213cf03b3ca7529f175ed9b2d7c9"
+    },
+    "XW3-O2": {
+      "capture_bytes": 7097,
+      "capture_sha256": "e51973066de4960930cc0fb41dc27f8bcf919e7f423d17bf834c9ec91ebb8834",
+      "verdict_sha256": "b2867aa08c44dc0780d9220454c6701eb8c965f970c508155f2b4b702243da25"
+    },
+    "XW3-R1": {
+      "capture_bytes": 6957,
+      "capture_sha256": "de2ac01986780862b08390229efdedbb141c5b2b65f4497f66bcb644d570464f",
+      "verdict_sha256": "14c93db2048b6dd3b6d1dd049600da2ae9ccd8eaa5313579d430d107cafe70c3"
+    }
+  },
+  "elf_sha256": "5fa7db3244c0902e5aed4b0e32f05c55a7964efcdba6f882040a09b434491c75",
+  "reasons": [],
+  "result": "PASS",
+  "run_nonce": "150f55b0ac3d15e35ba8d19d92eebccc"
+}

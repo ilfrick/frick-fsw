@@ -1,0 +1,104 @@
+{
+  "_comment": [
+    "XW-3 case manifest for tools/scripts/qemu_xw3_vv.sh, tools/scripts/xw3_verdict.py",
+    "and tools/scripts/xw3_negative_controls.py.",
+    "",
+    "Every case delivers REAL octets on the QEMU serial input of the accepted XW-2",
+    "test-only image; the octets cross QEMU's serial device into the unchanged",
+    "middleware (/dev/console -> link_uart -> CMD_INGEST -> PUS -> link_uart).",
+    "Expectations are derived from the controlled interface (ICD section 3/4) and",
+    "the SRS, never from the captured bytes.",
+    "",
+    "expect=PASS means the case's own assertion set passed. Observation cases are",
+    "recorded (counts) and never asserted, because the ICD does not fix the",
+    "behaviour; they are listed as gaps below."
+  ],
+  "tc": {
+    "golden": "18 10 C0 00 00 0A 2B 11 01 01 02 01 02 03 04 F7 2B",
+    "corrupt_crc": "18 10 C0 00 00 0A 2B 11 01 01 02 01 02 03 04 F7 2A"
+  },
+  "cases": [
+    {
+      "case": "XW3-A1",
+      "requirement": "SRS-REQ-012",
+      "mode": "accept",
+      "variant": "golden",
+      "inject": "6:golden",
+      "expect": "PASS",
+      "required": true,
+      "asserts": [
+        "the injected golden frame's CRC verifies under the oracle's own CRC-16/CCITT-FALSE implementation (SRS-REQ-004 stimulus self-check)",
+        "exactly one S17.2 whose payload equals the injected TC user data (SRS-REQ-012)",
+        "exactly one S1.1, one S1.3 and one S1.7 and no other S1 subservice (SRS-REQ-006, service/subservice only)",
+        "every accepted packet: APID 0x020, CCSDS version 0, type 0, sec-hdr 1, self-consistent PDL, valid CRC-16/CCITT-FALSE (SRS-REQ-004)",
+        "TM counters strictly increasing modulo 16384 in capture order (SRS-REQ-007)"
+      ]
+    },
+    {
+      "case": "XW3-R1",
+      "requirement": "SRS-REQ-004",
+      "mode": "reject",
+      "variant": "corrupt_crc",
+      "inject": "6:corrupt_crc",
+      "expect": "PASS",
+      "required": true,
+      "asserts": [
+        "the injected frame really has an invalid CRC (stimulus self-check)",
+        "no S17.2 response (the request was not executed)",
+        "no S1.1/S1.3/S1.7 acknowledgement",
+        "the capture still contains CRC-valid TM, so the serial path was live and the absence is meaningful"
+      ]
+    },
+    {
+      "case": "XW3-O1",
+      "requirement": "SRS-REQ-012",
+      "mode": "observe",
+      "variant": "duplicate",
+      "inject": "6:golden,8:golden",
+      "expect": "RECORDED",
+      "required": false,
+      "asserts": [
+        "the S17.2 and S1 acceptance counts for two identical commands are recorded"
+      ]
+    },
+    {
+      "case": "XW3-O2",
+      "requirement": "SRS-REQ-012",
+      "mode": "observe",
+      "variant": "split",
+      "inject": "6:golden_head,8:golden_tail",
+      "expect": "RECORDED",
+      "required": false,
+      "asserts": [
+        "whether a frame split across two writes is reassembled by the link is recorded"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "requirement": "SRS-REQ-005",
+      "case": "XW3-G1",
+      "reason": "S1.8 reporting for a rejected/malformed frame is not asserted: SRS-REQ-005 versus the current event-only behaviour is open under NC-EXT-04. Presence/absence is recorded as an observation only."
+    },
+    {
+      "requirement": "SRS-REQ-006",
+      "case": "XW3-G2",
+      "reason": "The numeric S1 payload layout (TC type/subtype, service, subservice, error code) is authority-pending (NC-EXT-14/15). S1 packets are counted by service/subservice only; their payload prefix is recorded, not asserted."
+    },
+    {
+      "requirement": "SRS-REQ-012",
+      "case": "XW3-G3",
+      "reason": "The duplicate-command response behaviour is not fixed by the ICD; XW3-O1 records it as an observation and asserts nothing."
+    },
+    {
+      "requirement": "SRS-REQ-012",
+      "case": "XW3-G4",
+      "reason": "Frame reassembly across writes is not fixed by the ICD; XW3-O2 records it as an observation and asserts nothing."
+    },
+    {
+      "requirement": "SRS-REQ-008",
+      "case": "XW3-G5",
+      "reason": "The 6-octet TC[3,1] form and other authority-pending service forms are not exercised; the ICD records TC[3,1] as an unapproved extension (NC-EXT-17)."
+    }
+  ]
+}

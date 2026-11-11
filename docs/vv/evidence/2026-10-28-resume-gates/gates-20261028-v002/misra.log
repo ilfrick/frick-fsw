@@ -1,0 +1,5 @@
+exit: 0
+[misra] findings: 171 (report: /workspace/build/misra-report.txt)
+[misra] advisory: see docs/quality/misra-c.md (certified checker required for compliance)
+
+STDERR:
