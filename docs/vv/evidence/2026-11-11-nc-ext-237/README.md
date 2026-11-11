@@ -33,6 +33,7 @@ by embedding the header itself, so the **wire format did not change** (ICD rev
 | `gate-format.log` | pinned clang-format 18 (`frick-vv:local`) `make format-check` — exit 0 |
 | `gate-license.log` | N13 `license_check.py` — OK, exit 0 |
 | `mutation-check.log` | pre-fix body → `checks=106 failures=33` (exit 1); fixed body → `checks=106 failures=0` (exit 0) |
+| `clean-tree-verify.log` | commit `4ca8931` re-verified from a detached `git worktree` with no untracked files: configure exit 0, build exit 0 with 0 warnings, ctest **56/56 PASS** — the commit is self-contained |
 
 ## Commands and results
 

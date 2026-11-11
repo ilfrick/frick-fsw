@@ -1,0 +1,24 @@
+# Clean-tree verification of commit 4ca8931 (git worktree --detach, no untracked files)
+# date: 2026-11-11T16:30:24Z
+# method: git worktree add --detach /tmp/opencode/nc237-verify HEAD
+#         third_party/{lwip,asn1-pusc-lib,asn1-pusc-lib-generated,n7s-obcp,pusopen}
+#         symlinked from the pinned fetch cache (these paths are gitignored by design)
+
+## configure
+$ cmake -S . -B build/clean -G Ninja -DCMAKE_BUILD_TYPE=Debug
+-- Configuring done (19.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/opencode/nc237-verify/build/clean
+configure_exit=0
+
+## build
+$ cmake --build build/clean -j$(nproc)
+[409/411] Linking C executable tests/test_lwip
+[410/411] Linking C executable tests/test_lwip_netif
+build_exit=0
+warnings: 0 (the only 'warning' match is the third-party file name n7s-obcp/flat/warning.c)
+
+## ctest
+$ ctest --test-dir build/clean -j4
+100% tests passed, 0 tests failed out of 56
+ctest_exit=0
