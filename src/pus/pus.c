@@ -298,7 +298,7 @@ void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code)
 {
-    uint8_t payload[7];
+    uint8_t payload[7] = {0};
     uint8_t subservice;
 
     if (tc == NULL) {
