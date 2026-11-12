@@ -156,9 +156,12 @@ static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t d
             break;
         }
         ssize_t w = write(g_fd, data + sent, (size_t)(len - sent));
-        (void)fcntl(g_fd, F_SETFL, flags);
+        int restore_rc = fcntl(g_fd, F_SETFL, flags);
         if (w > 0) {
             sent = (uint16_t)(sent + (uint16_t)w);
+            if (restore_rc != 0) {
+                result = FF_ERROR;
+            }
             continue;
         }
         if ((w < 0) && (errno == EINTR)) {
