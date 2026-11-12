@@ -555,6 +555,49 @@ static void test_service9_report_time(void)
     FF_PalTimeTestUnfreeze();
 }
 
+/* ---- S1 Service 1 progress success (TC[17,1] -> TM[1,5]) --------------- */
+
+/* Verifies that TC[17,1] with the FF_PUS_ACK_PROGRESS flag emits TM[1,5]
+ * (start/progress success) through the full TC ingestion path. test_ping_roundtrip
+ * covers acceptance (1,1), start (1,3) and completion (1,7) but not progress (1,5). */
+static void test_service1_progress_success(void)
+{
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    FF_Pus_TcHdr_t tc;
+
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(tm_sink);
+
+    /* TC[17,1] ping with progress acknowledgement requested. */
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_PROGRESS; /* progress only */
+    tc.service = FF_PUS_SERVICE_TEST;   /* 17 */
+    tc.subservice = 1u;                 /* ping */
+    tc.source_id = 0x0102u;
+    const uint8_t payload[] = {0x01, 0x02};
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame, sizeof(frame),
+                                    &frame_len) == FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+
+    /* Expected TM: 1,5 progress success - 17,2 ping reply. No acceptance or
+     * completion TM since those ack flags were not requested. */
+    FF_TEST_ASSERT(stream_has(1u, 5u));
+    FF_TEST_ASSERT(stream_has(17u, 2u));
+    FF_TEST_ASSERT(!stream_has(1u, 1u)); /* acceptance not requested */
+    FF_TEST_ASSERT(!stream_has(1u, 7u)); /* completion not requested */
+
+    /* Count should be exactly 2: one (1,5) and one (17,2). */
+    FF_TEST_ASSERT(stream_count(1u, 5u) == 1u);
+    FF_TEST_ASSERT(stream_count(17u, 2u) == 1u);
+}
+
 /* ---- S1 Service 1 verification: missing subservices (NC-EXT-15) ---------- */
 
 /* Test that start failure (subservice 4) and progress failure (subservice 6)
@@ -1228,8 +1271,9 @@ static void test_function_execute_bounded(void)
 }
 
 FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time,
-             test_service9_report_time, test_verification_missing_subservices,
-             test_hk_periodic_emission, test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
+             test_service9_report_time, test_service1_progress_success,
+             test_verification_missing_subservices, test_hk_periodic_emission,
+             test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
              test_hk_backward_step_no_emission, test_param_set_bounded,
              test_function_execute_bounded)
 
