@@ -103,7 +103,7 @@ provisional-profile note at the end of this section.
 | 1  | 1 | acceptance success | TM | TC type/subtype, source id, errcode 0 |
 | 1  | 2 | acceptance failure | TM | errcode |
 | 1  | 3 / 5 | start / progress success | TM | errcode 0 |
-| 1  | 4 / 6 | start / progress failure | TM | errcode |
+| 1  | 4 / 6 | start / progress failure (reserved, not emitted) | TM | errcode |
 | 1  | 7 | completion success | TM | errcode 0 |
 | 1  | 8 | completion failure | TM | errcode |
 | 3  | 1 | create housekeeping report definition | TC | report id[1] + provider id[1] |
