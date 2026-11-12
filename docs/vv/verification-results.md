@@ -406,6 +406,7 @@ flight-use authorization.
 | Full CTest | **PASS** | `100% tests passed, 0 tests failed out of 55` |
 | `tbl_sched_coupling` | **PASS** | `tests/unit/test_tbl_sched_coupling.c checks=61 failures=0` |
 | `sched_events` | **PASS** | `tests/unit/test_sched_events.c checks=68 failures=0` |
+| `sched_tm_chain` | **PASS** | `tests/unit/test_sched_tm_chain.c checks=50 failures=0` |
 | Repeatability (25 consecutive runs of both binaries, 50 executions) | **PASS** | `failures over 25 runs (50 execs): 0` |
 | Traceability (`trace.py`) | **PASS** | 120 requirements, 76 SRS, 30 SSS, 14 gaps, 68 Lean theorems |
 | Lean `lake build` | **PASS** | `Build completed successfully.` |
