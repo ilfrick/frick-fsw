@@ -88,6 +88,37 @@ static bool stream_has_function_report(uint8_t func_id, uint8_t status)
     return false;
 }
 
+/* Check that TM[9,2] (time report) carries the expected 6-octet CUC payload:
+ * coarse[4, big-endian] + fine[2, big-endian] at TM payload offset 19. */
+static bool stream_has_time_report(uint32_t coarse, uint16_t fine)
+{
+    uint16_t pos = 0u;
+    while ((pos + 25u) <= g_rx_count) {
+        if ((g_rx[pos + 7] == FF_PUS_SERVICE_TIME) && (g_rx[pos + 8] == 2u)) {
+            uint16_t pdl = (uint16_t)(((uint16_t)g_rx[pos + 4] << 8) | g_rx[pos + 5]);
+            uint16_t step = (uint16_t)(6u + pdl + 1u);
+            if ((step < 7u) || ((uint16_t)(pos + step) <= pos)) {
+                break;
+            }
+            if ((uint8_t)((coarse >> 24) & 0xFFu) == g_rx[pos + 19u] &&
+                (uint8_t)((coarse >> 16) & 0xFFu) == g_rx[pos + 20u] &&
+                (uint8_t)((coarse >> 8) & 0xFFu) == g_rx[pos + 21u] &&
+                (uint8_t)(coarse & 0xFFu) == g_rx[pos + 22u] &&
+                (uint8_t)((fine >> 8) & 0xFFu) == g_rx[pos + 23u] &&
+                (uint8_t)(fine & 0xFFu) == g_rx[pos + 24u]) {
+                return true;
+            }
+        }
+        uint16_t pdl2 = (uint16_t)(((uint16_t)g_rx[pos + 4] << 8) | g_rx[pos + 5]);
+        uint16_t step2 = (uint16_t)(6u + pdl2 + 1u);
+        if ((step2 < 7u) || ((uint16_t)(pos + step2) <= pos)) {
+            break;
+        }
+        pos = (uint16_t)(pos + step2);
+    }
+    return false;
+}
+
 static bool stream_has_memory_bytes(uint32_t offset, uint16_t length)
 {
     uint16_t pos = 0u;
@@ -470,6 +501,58 @@ static void test_service9_time(void)
     /* time unchanged: coarse not overwritten by the attempted mis-parse */
     FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
     FF_TEST_ASSERT(coarse == 5u);
+}
+
+/* ---- S9 Service 9 time report (TC[9,2] -> TM[9,2]) ---------- */
+
+/* Verifies that TC[9,2] (report time) emits TM[9,2] carrying the current CUC
+ * time, and that an unknown service-9 subservice is refused. */
+static void test_service9_report_time(void)
+{
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    FF_Pus_TcHdr_t tc;
+    uint32_t coarse = 0u;
+    uint16_t fine = 0u;
+
+    FF_TimeInit();
+
+    /* Freeze time at a deterministic instant: coarse=42 s, fine=0. */
+    FF_PalTimeTestFreeze(0u);
+    FF_TEST_ASSERT(FF_TimeSetUtcNs(42ULL * 1000000000ULL) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 42u);
+
+    /* TC[9,2]: report time (no payload needed; handler ignores input). */
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = 0u;                /* isolate the handler: no verification TM */
+    tc.service = FF_PUS_SERVICE_TIME; /* 9 */
+    tc.subservice = 2u;               /* ECSS: 2 = Report time */
+    tc.source_id = 0x0102u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+    /* TM[9,2] must carry the frozen CUC time. */
+    FF_TEST_ASSERT(stream_has_time_report(42u, 0u));
+
+    /* Advance time and re-report: the emitted coarse must track the new time. */
+    FF_TEST_ASSERT(FF_TimeSetUtcNs(100ULL * 1000000000ULL) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeGetCuc(&coarse, &fine) == FF_SUCCESS);
+    FF_TEST_ASSERT(coarse == 100u);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(stream_has_time_report(100u, 0u));
+
+    /* Unknown service-9 subservice: refused, no time report TM. */
+    tc.subservice = 99u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(!stream_has_time_report(100u, 0u));
+    FF_PalTimeTestUnfreeze();
 }
 
 /* ---- S1 Service 1 verification: missing subservices (NC-EXT-15) ---------- */
@@ -1145,8 +1228,8 @@ static void test_function_execute_bounded(void)
 }
 
 FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time,
-             test_verification_missing_subservices, test_hk_periodic_emission,
-             test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
+             test_service9_report_time, test_verification_missing_subservices,
+             test_hk_periodic_emission, test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
              test_hk_backward_step_no_emission, test_param_set_bounded,
              test_function_execute_bounded)
 
