@@ -136,6 +136,18 @@ uint32_t FF_PalWatchdogGetFeeds(void);
 uint32_t FF_PalWatchdogGetResets(void);
 uint32_t FF_PalWatchdogGetTimeoutMs(void);
 
+/* ---- Platform watchdog hardware hooks --------------------------------
+ * Platform-specific hardware binding hooks for the watchdog. Declared here
+ * (a single header) so that every platform translation unit that implements
+ * or calls them (pal_posix.c, pal_rtems.c) sees a prototype before first use,
+ * avoiding implicit-declaration diagnostics (NC-EXT-239). Implemented by
+ * exactly one platform translation unit; pal_watchdog.c declares the same
+ * prototypes for cross-TU consistency.
+ */
+FF_Status_t ff_pal_wd_hw_arm(uint32_t timeout_ms);
+FF_Status_t ff_pal_wd_hw_feed(void);
+FF_Status_t ff_pal_wd_hw_reset(void);
+
 /* Pre-reset notification: the application layer registers a bounded,
  * lock-free reporter (PUS service 5 event report to ground). PAL has no
  * upward dependency on PUS; an unset notifier or a failing notifier never
