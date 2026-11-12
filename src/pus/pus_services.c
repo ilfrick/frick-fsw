@@ -230,12 +230,13 @@ static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
             g_hk_reports[i].used = true;
             g_hk_reports[i].report_id = report_id;
             g_hk_reports[i].provider_id = provider;
-            g_hk_reports[i].enabled = true;
-            g_hk_reports[i].period_s = period_s;
-            /* Initialize last emission time to current time so the first
-             * periodic emission occurs after one full period (matches svc3_enable). */
+            /* Initialize last emission time before enabling so a concurrent
+             * FF_PusEmitPeriodicHk() never observes enabled=true with a stale
+             * (zero-initialized) last_emission. (NC-EXT-211) */
             (void)FF_TimeGetCuc(&g_hk_reports[i].last_emission_coarse,
                                 &g_hk_reports[i].last_emission_fine);
+            g_hk_reports[i].enabled = true;
+            g_hk_reports[i].period_s = period_s;
             return FF_SUCCESS;
         }
     }
@@ -265,11 +266,12 @@ static FF_Status_t svc3_enable(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
     }
     for (uint16_t i = 0; i < FF_PUS_MAX_HK_REPORTS; i++) {
         if (g_hk_reports[i].used && (g_hk_reports[i].report_id == d[0])) {
-            g_hk_reports[i].enabled = true;
-            /* Initialize last emission time to current time so the first
-             * periodic emission occurs after one full period. */
+            /* Initialize last emission time before enabling so a concurrent
+             * FF_PusEmitPeriodicHk() never observes enabled=true with a stale
+             * (zero-initialized) last_emission. (NC-EXT-211) */
             (void)FF_TimeGetCuc(&g_hk_reports[i].last_emission_coarse,
                                 &g_hk_reports[i].last_emission_fine);
+            g_hk_reports[i].enabled = true;
             return FF_SUCCESS;
         }
     }
