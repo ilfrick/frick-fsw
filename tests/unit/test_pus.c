@@ -41,6 +41,53 @@ static FF_Status_t g_param_test_setter(uint8_t id, const uint8_t *data, uint16_t
     return FF_SUCCESS;
 }
 
+/* Function execute test recording (svc8_function / TC[8,1]). */
+static uint8_t g_func_exec_args[8];
+static uint16_t g_func_exec_len;
+static bool g_func_exec_called;
+
+static FF_Status_t g_func_test_handler(const uint8_t *args, uint16_t len)
+{
+    g_func_exec_len = len;
+    if (len != 0u && args != NULL) {
+        uint16_t n =
+            len > (uint16_t)sizeof(g_func_exec_args) ? (uint16_t)sizeof(g_func_exec_args) : len;
+        memcpy(g_func_exec_args, args, n);
+    }
+    g_func_exec_called = true;
+    return FF_SUCCESS;
+}
+
+static bool stream_has_function_report(uint8_t func_id, uint8_t status)
+{
+    /* TM[8,2] payload: func_id[1] + status[1] at TM secondary header offset 19. */
+    uint16_t pos = 0u;
+    while ((pos + 9u) <= g_rx_count) {
+        if ((g_rx[pos + 7] == FF_PUS_SERVICE_FUNCTION) && (g_rx[pos + 8] == 2u)) {
+            uint16_t pdl = (uint16_t)(((uint16_t)g_rx[pos + 4] << 8) | g_rx[pos + 5]);
+            uint16_t step = (uint16_t)(6u + pdl + 1u);
+            if ((step < 7u) || ((uint16_t)(pos + step) <= pos)) {
+                break;
+            }
+            /* TM secondary header is 13 octets; payload starts at offset 19 from packet start. */
+            if ((pos + 21u) <= (uint16_t)(pos + step)) {
+                uint8_t payload_func_id = g_rx[pos + 19u];
+                uint8_t payload_status = g_rx[pos + 20u];
+                if ((payload_func_id == func_id) && (payload_status == status)) {
+                    return true;
+                }
+            }
+        }
+        uint16_t pdl = (uint16_t)(((uint16_t)g_rx[pos + 4] << 8) | g_rx[pos + 5]);
+        uint16_t step = (uint16_t)(6u + pdl + 1u);
+        if ((step < 7u) || ((uint16_t)(pos + step) <= pos)) {
+            break;
+        }
+        pos = (uint16_t)(pos + step);
+    }
+    return false;
+}
+
 static bool stream_has_memory_bytes(uint32_t offset, uint16_t length)
 {
     uint16_t pos = 0u;
@@ -1011,10 +1058,97 @@ static void test_param_set_bounded(void)
     }
 }
 
+/* ---- S8 Function management: execute function (TC[8,1]) ---------- */
+
+/* Verifies that TC[8,1] (execute function) invokes the registered function
+ * handler with the correct function ID and arguments, and that error paths
+ * (unknown function ID, bad size) return the correct status. */
+static void test_function_execute_bounded(void)
+{
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(tm_sink);
+
+    /* Reset recording state. */
+    g_func_exec_len = 0u;
+    g_func_exec_called = false;
+    memset(g_func_exec_args, 0, sizeof(g_func_exec_args));
+
+    /* Register function handler for function id 7. */
+    FF_TEST_ASSERT(FF_PusRegisterFunction(7u, g_func_test_handler) == FF_SUCCESS);
+
+    /* TC[8,1]: execute function 7 with args [0xCC, 0xDD]. */
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t payload[3] = {7u, 0xCCu, 0xDDu};
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_FUNCTION;
+        tc.subservice = 1u; /* ECSS: 1 = Execute function */
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
+                                        sizeof(frame), &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(g_func_exec_called);
+        FF_TEST_ASSERT(g_func_exec_len == 2u);
+        FF_TEST_ASSERT(g_func_exec_args[0] == 0xCCu);
+        FF_TEST_ASSERT(g_func_exec_args[1] == 0xDDu);
+        /* TM[8,2] execution report emitted with func_id=7, status=0 (success). */
+        FF_TEST_ASSERT(stream_has_function_report(7u, 0u));
+    }
+
+    /* Error: unknown function ID -> FF_NOT_FOUND, handler not called. */
+    g_func_exec_called = false;
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t payload[2] = {99u, 0x00u};
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_FUNCTION;
+        tc.subservice = 1u;
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
+                                        sizeof(frame), &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+        FF_TEST_ASSERT(!g_func_exec_called);
+    }
+
+    /* Error: bad size (empty payload) -> FF_BAD_SIZE. */
+    g_func_exec_called = false;
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_FUNCTION;
+        tc.subservice = 1u;
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame),
+                                        &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+        FF_TEST_ASSERT(!g_func_exec_called);
+    }
+}
+
 FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time,
              test_verification_missing_subservices, test_hk_periodic_emission,
              test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
-             test_hk_backward_step_no_emission, test_param_set_bounded)
+             test_hk_backward_step_no_emission, test_param_set_bounded,
+             test_function_execute_bounded)
 
 /* ---- S1 Service 1 verification: missing subservices (NC-EXT-15) ---------- */
 
