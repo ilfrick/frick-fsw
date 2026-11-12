@@ -22,6 +22,25 @@ static uint8_t g_rx[8 * 128];
 static uint16_t g_rx_count;
 static uint8_t g_region[64];
 
+/* Parameter set test recording (svc20_set / TC[20,1]). */
+static uint8_t g_param_set_id;
+static uint8_t g_param_set_data[8];
+static uint16_t g_param_set_len;
+static bool g_param_set_called;
+
+static FF_Status_t g_param_test_setter(uint8_t id, const uint8_t *data, uint16_t len)
+{
+    g_param_set_id = id;
+    g_param_set_len = len;
+    if (len != 0u && data != NULL) {
+        uint16_t n =
+            len > (uint16_t)sizeof(g_param_set_data) ? (uint16_t)sizeof(g_param_set_data) : len;
+        memcpy(g_param_set_data, data, n);
+    }
+    g_param_set_called = true;
+    return FF_SUCCESS;
+}
+
 static bool stream_has_memory_bytes(uint32_t offset, uint16_t length)
 {
     uint16_t pos = 0u;
@@ -906,10 +925,96 @@ static void test_hk_backward_step_no_emission(void)
 
 /* ---- HM-P2 - forbidden refresh window (host model) ---------- */
 
+/* ---- S20 Parameter set (TC[20,1]) bounded test ---------- */
+
+/* Verifies that TC[20,1] (set parameter) invokes the registered parameter
+ * setter with the correct parameter ID and data, and that error paths
+ * (unknown parameter ID, bad size) return the correct status. */
+static void test_param_set_bounded(void)
+{
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(tm_sink);
+
+    /* Reset recording state. */
+    g_param_set_id = 0u;
+    g_param_set_len = 0u;
+    g_param_set_called = false;
+    memset(g_param_set_data, 0, sizeof(g_param_set_data));
+
+    /* Register setter for parameter id 42. */
+    FF_TEST_ASSERT(FF_PusRegisterParamSetter(42u, g_param_test_setter) == FF_SUCCESS);
+
+    /* TC[20,1]: set parameter 42 with data [0xAA, 0xBB]. */
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t payload[3] = {42u, 0xAAu, 0xBBu};
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_PARAMETER;
+        tc.subservice = 1u; /* ECSS: 1 = Set parameter */
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
+                                        sizeof(frame), &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(g_param_set_called);
+        FF_TEST_ASSERT(g_param_set_id == 42u);
+        FF_TEST_ASSERT(g_param_set_len == 2u);
+        FF_TEST_ASSERT(g_param_set_data[0] == 0xAAu);
+        FF_TEST_ASSERT(g_param_set_data[1] == 0xBBu);
+    }
+
+    /* Error: unknown parameter ID -> FF_NOT_FOUND, setter not called. */
+    g_param_set_called = false;
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t payload[2] = {99u, 0x00u};
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_PARAMETER;
+        tc.subservice = 1u;
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, sizeof(payload), frame,
+                                        sizeof(frame), &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+        FF_TEST_ASSERT(!g_param_set_called);
+    }
+
+    /* Error: bad size (empty payload) -> FF_BAD_SIZE. */
+    g_param_set_called = false;
+    {
+        FF_Pus_TcHdr_t tc;
+        uint8_t frame[128];
+        uint16_t frame_len = 0u;
+        memset(&tc, 0, sizeof(tc));
+        tc.version = FF_PUS_VERSION;
+        tc.ack_flags = 0u;
+        tc.service = FF_PUS_SERVICE_PARAMETER;
+        tc.subservice = 1u;
+        tc.source_id = 0x0102u;
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame),
+                                        &frame_len) == FF_SUCCESS);
+        g_rx_count = 0u;
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+        FF_TEST_ASSERT(!g_param_set_called);
+    }
+}
+
 FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time,
              test_verification_missing_subservices, test_hk_periodic_emission,
              test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
-             test_hk_backward_step_no_emission)
+             test_hk_backward_step_no_emission, test_param_set_bounded)
 
 /* ---- S1 Service 1 verification: missing subservices (NC-EXT-15) ---------- */
 

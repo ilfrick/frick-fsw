@@ -469,6 +469,7 @@
 | 2026-10-10 | M12/M13 plan + requirements (OBCP, mission services) | R3+R4 | REJECTED(R4) -> closed | 2026-10-10-m12-m13-plan-r3-r4-review.md |
 | 2026-10-10 | M4/M11 MSS GPIO driver + Renode check | R1+R2+R4 | REJECTED -> closed | 2026-10-10-m4-m11-gpio-r1-r2-r4-review.md |
 | 2026-10-10 | M4/M11 MSS MMUART serial driver | R1+R2+R4 | REJECTED -> closed (reworked, wide registers) | 2026-10-10-m4-m11-serial-r1-r2-r4-review.md |
+| 2026-11-12 | PUS service 20 TC[20,1] set-parameter unit test (`test_param_set_bounded`) + tests/CMakeLists.txt SPDX header (N13) | PA (N20) | APPROVED — 0 Major/0 Minor; svc20_set end-to-end via FF_PusIngest verified; all gates green (build 0 warnings, test_pus 244/0, trace PASS 120/76/30/14/68, format OK, license OK); no production src/ change; pre-existing NCs (NC-EXT-19/90, N22-TS5-47, GAP-A5, NC-PAL-01) untouched and remain OPEN; does not block commit/push | PA-REVIEW-TEST-PUS-SVC20-PARAM-SET-20261112.md |
 
 This directory stores every review report produced for frick-fsw, including
 **independent reviews** per norm N9. Reports are required in the same

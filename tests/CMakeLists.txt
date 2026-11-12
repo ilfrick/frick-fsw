@@ -1,7 +1,7 @@
-#frick - fsw - unit test registration(CMake)
-#Copyright(C) 2026 Ilfrick
-#https: // github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
-#SPDX - License - Identifier : MPL - 2.0
+# frick-fsw - unit test registration (CMake)
+# Copyright (C) 2026 Ilfrick
+# https://github.com/ilfrick/frick-fsw | https://www.housefz.com/git/ilfrick/frick-fsw
+# SPDX-License-Identifier: MPL-2.0
 
 add_executable(test_ccsds unit/test_ccsds.c)
 add_executable(test_sb    unit/test_sb.c)

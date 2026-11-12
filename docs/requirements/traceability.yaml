@@ -80,7 +80,7 @@ requirements:
     implementation: ["src/pus/pus.c", "src/apps/app_cmd_ingest.c"]
     tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_decoder_corpus.c"]
     lean: []
-    lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; the S8-VV-FU corpus additionally asserts the 'shall not be executed' clause (malformed/unknown-service frames invoke no handler) on host, but does not resolve the S1-completion-reporting conflict or claim profile compliance."
+    lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; the S8-VV-FU corpus additionally asserts the 'shall not be executed' clause (malformed/unknown-service frames invoke no handler) on host, but does not resolve the S1-completion-reporting conflict or claim profile compliance. `tests/unit/test_pus.c` additionally covers `test_param_set_bounded` (TC[20,1] parameter set via `svc20_set`, nominal + out-of-bound: unknown parameter ID → `FF_NOT_FOUND`, empty payload → `FF_BAD_SIZE`) as regression/characterization evidence for Service 20 parameter management."
 
   - id: SRS-REQ-006
     level: srs
