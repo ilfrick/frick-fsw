@@ -131,7 +131,7 @@ static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t d
         return (g_fd < 0) ? FF_NOT_READY : FF_INVALID_ARGUMENT;
     }
     int flags = fcntl(g_fd, F_GETFL, 0);
-    if ((flags < 0) || (fcntl(g_fd, F_SETFL, flags | O_NONBLOCK) != 0)) {
+    if (flags < 0) {
         return FF_ERROR;
     }
     FF_Status_t result = FF_SUCCESS;
@@ -147,7 +147,16 @@ static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t d
             result = FF_TIMEOUT;
             break;
         }
+        /* Set O_NONBLOCK for this write only, then restore blocking mode
+         * immediately, so a concurrent writer on the shared fd (uart_send)
+         * never observes non-blocking mode for longer than a single write()
+         * call. The plain send path keeps its blocking semantics. */
+        if (fcntl(g_fd, F_SETFL, flags | O_NONBLOCK) != 0) {
+            result = FF_ERROR;
+            break;
+        }
         ssize_t w = write(g_fd, data + sent, (size_t)(len - sent));
+        (void)fcntl(g_fd, F_SETFL, flags);
         if (w > 0) {
             sent = (uint16_t)(sent + (uint16_t)w);
             continue;
@@ -163,7 +172,6 @@ static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t d
         result = FF_ERROR;
         break;
     }
-    (void)fcntl(g_fd, F_SETFL, flags);
     return result;
 }
 
