@@ -155,7 +155,7 @@ static bool stream_has(uint8_t service, uint8_t subservice)
 {
     /* TM secondary header service/subservice are at offsets 7 and 8. */
     uint16_t pos = 0u;
-    while (pos < g_rx_count) {
+    while ((pos + 9u) <= g_rx_count) {
         if (g_rx[pos + 7] == service && g_rx[pos + 8] == subservice) {
             return true;
         }
@@ -671,6 +671,139 @@ static void test_verification_missing_subservices(void)
                                           FF_PUS_STAGE_COMPLETION, 0u, 0u) == FF_SUCCESS);
 }
 
+/* ---- S1 verification failures owned by the ingestion chain --------------- */
+
+/* Check a TM[1, subservice] verification packet against its payload octets.
+ * The 9-octet verification payload is Request ID [6] + service [1] +
+ * subservice [1] + failure code [1], starting at packet offset 19 (6-octet
+ * CCSDS primary header + 13-octet PUS TM secondary header). The octet order
+ * and length are properties of FF_PusSendVerification (src/pus/pus.c), not of
+ * the ICD, which describes only the S1 field content (NC-EXT-241). */
+static bool stream_has_verification(uint8_t subservice, uint8_t req_service, uint8_t req_subservice,
+                                    uint8_t code)
+{
+    uint16_t pos = 0u;
+    while ((pos + 28u) <= g_rx_count) {
+        uint16_t pdl = (uint16_t)(((uint16_t)g_rx[pos + 4] << 8) | g_rx[pos + 5]);
+        uint16_t step = (uint16_t)(6u + pdl + 1u);
+        if ((step < 7u) || ((uint16_t)(pos + step) <= pos)) {
+            break;
+        }
+        if ((step >= 28u) && (g_rx[pos + 7] == FF_PUS_SERVICE_VERIFICATION) &&
+            (g_rx[pos + 8] == subservice) && (g_rx[pos + 25] == req_service) &&
+            (g_rx[pos + 26] == req_subservice) && (g_rx[pos + 27] == code)) {
+            return true;
+        }
+        pos = (uint16_t)(pos + step);
+    }
+    return false;
+}
+
+/* Exercises the Service 1 failure paths that FF_PusIngest itself owns. The
+ * illegal-APID case characterizes the current policy recorded as gap
+ * N22-TS1-23 (the controlling APID-rejection/acceptance-failure policy remains
+ * open under NC-EXT-13); the unknown-service case re-asserts N22-TS1-20 at
+ * payload-octet level. Ack = 0 variants are characterization checks, not
+ * requirement-derived oracles: SRS-REQ-005 states an unconditional completion
+ * failure while the baseline reports one only when the completion ack flag is
+ * set, so they are recorded as gap N22-TS1-104 and must be re-dispositioned
+ * when NC-EXT-04 is resolved. */
+static void test_verification_failure_via_ingest(void)
+{
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+    FF_Pus_TcHdr_t tc;
+
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(tm_sink);
+
+    /* 1. TC on a non-TC APID (0x011) with the acceptance ack set: rejected
+     *    before dispatch -> exactly one TM[1,2] with code
+     *    FF_PUS_FAIL_ILLEGAL_APID (N22-TS1-23). */
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE;
+    tc.service = FF_PUS_SERVICE_TEST; /* 17 */
+    tc.subservice = 1u;               /* ping */
+    tc.source_id = 0x0102u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(0x011u, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_ERROR);
+    FF_TEST_ASSERT(stream_has_verification(2u, FF_PUS_SERVICE_TEST, 1u, FF_PUS_FAIL_ILLEGAL_APID));
+    FF_TEST_ASSERT(stream_count(1u, 2u) == 1u); /* exactly one failure packet */
+    /* An acceptance failure must not be followed by a completion failure. */
+    FF_TEST_ASSERT(stream_count(1u, 8u) == 0u);
+    /* Request ID octets: source identifier 0x0102, provisional destination 0x0001. */
+    FF_TEST_ASSERT(g_rx_count >= 28u); /* length precondition for the reads below */
+    FF_TEST_ASSERT(g_rx[19] == 0x01u);
+    FF_TEST_ASSERT(g_rx[20] == 0x02u);
+    FF_TEST_ASSERT(g_rx[21] == 0x00u);
+    FF_TEST_ASSERT(g_rx[22] == 0x01u);
+    FF_TEST_ASSERT(!stream_has(1u, 1u));  /* acceptance success must not be sent */
+    FF_TEST_ASSERT(!stream_has(17u, 2u)); /* handler must not run */
+
+    /* 2. Illegal APID (0x020, also != FF_APID_TC) without an acceptance ack:
+     *    rejected with no TM. Characterization check, not a requirement-derived
+     *    oracle (N22-TS1-104 / NC-EXT-04): the unconditional completion-failure
+     *    wording of SRS-REQ-005 conflicts with the ack-gated baseline. */
+    tc.ack_flags = 0u;
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TM, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_ERROR);
+    FF_TEST_ASSERT(g_rx_count == 0u);
+
+    /* 3. Unknown subservice on a known service with the completion ack set:
+     *    TM[1,8] + code FF_PUS_FAIL_UNKNOWN_SUBSERVICE, ingest FF_NOT_FOUND
+     *    (N22-TS1-20, re-asserted at payload-octet level). */
+    memset(&tc, 0, sizeof(tc));
+    tc.version = FF_PUS_VERSION;
+    tc.ack_flags = FF_PUS_ACK_COMPLETION;
+    tc.service = FF_PUS_SERVICE_TEST; /* 17 */
+    tc.subservice = 9u;               /* not implemented */
+    tc.source_id = 0x0102u;
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(
+        stream_has_verification(8u, FF_PUS_SERVICE_TEST, 9u, FF_PUS_FAIL_UNKNOWN_SUBSERVICE));
+    FF_TEST_ASSERT(stream_count(1u, 8u) == 1u);
+    FF_TEST_ASSERT(!stream_has(1u, 1u)); /* acceptance not requested */
+
+    /* 4. Unknown service (0) with the completion ack set: TM[1,8] + code
+     *    FF_PUS_FAIL_UNKNOWN_SERVICE (N22-TS1-20). */
+    tc.service = 0u;
+    tc.subservice = 1u;
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SERVICE));
+    FF_TEST_ASSERT(!stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SUBSERVICE));
+
+    /* 5. Unknown subservice without the completion ack set: no TM at all.
+     *    Characterization check, not a requirement-derived oracle
+     *    (N22-TS1-104 / NC-EXT-04), same conflict as sub-case 2. */
+    tc.ack_flags = 0u;
+    tc.service = FF_PUS_SERVICE_TEST;
+    tc.subservice = 9u;
+    frame_len = 0u;
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, NULL, 0u, frame, sizeof(frame), &frame_len) ==
+                   FF_SUCCESS);
+    g_rx_count = 0u;
+    FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+    FF_TEST_ASSERT(g_rx_count == 0u);
+}
+
 /* ---- S3 Service 3 : periodic housekeeping emission (NC-EXT-17) ----- */
 
 /* Dummy HK provider that returns fixed data. */
@@ -768,7 +901,7 @@ static void test_hk_periodic_emission(void)
     FF_TEST_ASSERT(FF_PusEmitPeriodicHk() == FF_SUCCESS);
     FF_TEST_ASSERT(stream_count(3u, 25u) == 1u);
 
-    /* One-shot report request (TC[3,27]) should still work regardless of periodic state. */
+    /* One-shot report request (TC[3,4]) should still work regardless of periodic state. */
     {
         FF_Pus_TcHdr_t tc;
         uint8_t payload[2] = {1u, 1u}; /* N=1, report_id=1 */
@@ -1003,7 +1136,7 @@ static void test_hk_large_period_held_unserved(void)
     set_time_cuc(1000u, 0u);
     {
         /* id=11, prov=5, period=0xFFFFFFFF (big-endian); the extreme value
-         * must still be *accepted* by TC[3,1]: no range validation is added
+         * must still be *accepted* by TC[3,128]: no range validation is added
          * by this fix. */
         const uint8_t payload[6] = {11u, 5u, 0xFFu, 0xFFu, 0xFFu, 0xFFu};
         hk_send_tc(128u, payload, sizeof(payload)); /* ECSS provisional: Create */
@@ -1272,8 +1405,8 @@ static void test_function_execute_bounded(void)
 
 FF_TEST_MAIN(test_ping_roundtrip, test_memory_dump_bounded, test_service9_time,
              test_service9_report_time, test_service1_progress_success,
-             test_verification_missing_subservices, test_hk_periodic_emission,
-             test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
+             test_verification_missing_subservices, test_verification_failure_via_ingest,
+             test_hk_periodic_emission, test_hk_coarse_wrap_due, test_hk_large_period_held_unserved,
              test_hk_backward_step_no_emission, test_param_set_bounded,
              test_function_execute_bounded)
 

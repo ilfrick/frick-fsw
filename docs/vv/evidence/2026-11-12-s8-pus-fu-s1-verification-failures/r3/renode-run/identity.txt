@@ -1,0 +1,7 @@
+Renode ELF: build/renode/frick_fsw_renode.elf
+SHA-256: e36aee30f381df32d9b085b11d616e35082a9650263e3b8614ed8f4004843a41
+ELF mtime: 2026-11-13 00:42:40.184387242 +0100
+ELF size: 4133912
+Toolchain image: sha256:8cdb7b38d6b2696cc8c00acf6b622f5f8d9c3728fbf6be3811df28533843a896
+Renode image: antmicro/renode@sha256:7905c3295be5b35a934ddb353e43e47e64c073b97da248d378b13c664b9fb061
+Fresh-run source directory: /tmp/frick-renode-vv.XWp8XQ

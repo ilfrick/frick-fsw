@@ -1,0 +1,126 @@
+Recovery build started UTC: 2026-11-12T23:34:34Z
+[  0%] Built target test_link_uart
+[  1%] Built target frick_pus_asn1
+[ 22%] Built target frick_lwip
+[ 22%] Built target frick_net_lwip
+[ 70%] Built target frick_fsw_core
+[ 70%] Built target test_ccsds
+[ 70%] Built target frick_fsw
+[ 70%] Built target test_sb
+[ 72%] Built target test_sb_stress
+[ 73%] Built target test_tbl
+[ 73%] Built target test_sched
+[ 73%] Built target test_sb_sweep
+[ 73%] Built target test_sched_stats
+[ 73%] Built target test_sched_max_entries
+[ 74%] Built target test_sched_events
+[ 74%] Built target test_pus
+[ 77%] Built target test_time
+[ 77%] Built target test_frozen_utc_seam
+[ 78%] Built target test_r2_gap
+[ 78%] Built target test_r3_gap
+[ 78%] Built target test_pus_event_identity
+[ 78%] Built target test_tbl_sched_coupling
+[ 80%] Built target test_sched_tm_chain
+[ 80%] Built target test_es_hs_lifecycle
+[ 80%] Built target test_tm_output_chain
+[ 81%] Built target test_evs_hs_health
+[ 81%] Built target test_pal_watchdog
+[ 82%] Built target test_wd_host_contract
+[ 84%] Built target test_extwd_model
+[ 84%] Built target test_extwd_middleware
+[ 85%] Built target test_decoder_corpus
+[ 86%] Building C object tests/CMakeFiles/test_pus_fu.dir/unit/test_pus_fu.c.o
+[ 86%] Building C object tests/CMakeFiles/test_pus_s11_residual.dir/unit/test_pus_s11_residual.c.o
+[ 86%] Building C object tests/CMakeFiles/test_obcp_integration.dir/unit/test_obcp_integration.c.o
+[ 86%] Building C object tests/CMakeFiles/test_pus_n7_adapter.dir/unit/test_pus_n7_adapter.c.o
+[ 86%] Linking C executable test_pus_n7_adapter
+[ 86%] Linking C executable test_obcp_integration
+[ 88%] Linking C executable test_pus_s11_residual
+[ 88%] Linking C executable test_pus_fu
+[ 88%] Built target test_pus_n7_adapter
+[ 88%] Built target test_pus_fu
+[ 88%] Built target test_pus_s11_residual
+[ 88%] Building C object tests/CMakeFiles/test_hal.dir/unit/test_hal.c.o
+[ 88%] Built target test_obcp_integration
+[ 88%] Building C object tests/CMakeFiles/test_pusopen.dir/unit/test_pusopen.c.o
+[ 88%] Building C object tests/CMakeFiles/test_math.dir/unit/test_math.c.o
+[ 88%] Building C object tests/CMakeFiles/test_pusopen.dir/__/src/pus/adapters/pus_adapter_pusopen.c.o
+[ 88%] Linking C executable test_math
+[ 88%] Building C object tests/CMakeFiles/test_sdls.dir/unit/test_sdls.c.o
+[ 88%] Linking C executable test_pusopen
+[ 88%] Built target test_math
+[ 88%] Linking C executable test_hal
+[ 88%] Building C object tests/CMakeFiles/test_sdls.dir/__/src/security/ff_crypto_test.c.o
+[ 88%] Built target test_pusopen
+[ 88%] Linking C executable test_sdls
+[ 88%] Building C object tests/CMakeFiles/test_gem.dir/unit/test_gem.c.o
+[ 88%] Built target test_hal
+[ 88%] Building C object tests/CMakeFiles/test_gem_tsn.dir/unit/test_gem_tsn.c.o
+[ 88%] Building C object tests/CMakeFiles/test_gptp.dir/unit/test_gptp.c.o
+[ 88%] Built target test_sdls
+[ 88%] Linking C executable test_gem
+[ 88%] Linking C executable test_gem_tsn
+[ 88%] Building C object tests/CMakeFiles/test_netloop.dir/unit/test_netloop.c.o
+[ 88%] Linking C executable test_gptp
+[ 88%] Built target test_gem
+[ 88%] Built target test_gem_tsn
+[ 88%] Building C object tests/CMakeFiles/test_gpio.dir/unit/test_gpio.c.o
+[ 88%] Linking C executable test_netloop
+[ 88%] Built target test_gptp
+[ 89%] Building C object tests/CMakeFiles/test_serial.dir/unit/test_serial.c.o
+[ 89%] Building C object tests/CMakeFiles/test_mem.dir/unit/test_mem.c.o
+[ 89%] Built target test_netloop
+[ 90%] Linking C executable test_gpio
+[ 90%] Building C object tests/CMakeFiles/test_nvm.dir/unit/test_nvm.c.o
+[ 92%] Linking C executable test_mem
+[ 92%] Built target test_gpio
+[ 92%] Linking C executable test_serial
+[ 92%] Building C object tests/CMakeFiles/test_mtd.dir/unit/test_mtd.c.o
+[ 92%] Built target test_mem
+[ 93%] Linking C executable test_nvm
+[ 93%] Built target test_serial
+[ 93%] Building C object tests/CMakeFiles/test_can.dir/unit/test_can.c.o
+[ 93%] Linking C executable test_mtd
+[ 94%] Building C object tests/CMakeFiles/test_i2c.dir/unit/test_i2c.c.o
+[ 94%] Built target test_nvm
+[ 94%] Building C object tests/CMakeFiles/test_spi.dir/unit/test_spi.c.o
+[ 94%] Built target test_mtd
+[ 94%] Building C object tests/CMakeFiles/test_block.dir/unit/test_block.c.o
+[ 94%] Linking C executable test_can
+[ 94%] Linking C executable test_i2c
+[ 94%] Built target test_can
+[ 94%] Linking C executable test_spi
+[ 94%] Linking C executable test_block
+[ 94%] Built target test_i2c
+[ 94%] Building C object tests/CMakeFiles/test_spacewire.dir/unit/test_spacewire.c.o
+[ 94%] Built target test_block
+[ 94%] Built target test_spi
+[ 96%] Building C object tests/CMakeFiles/test_pcie.dir/unit/test_pcie.c.o
+[ 97%] Building C object tests/CMakeFiles/test_fabric.dir/unit/test_fabric.c.o
+[ 97%] Building C object tests/CMakeFiles/test_canfd.dir/unit/test_canfd.c.o
+[ 97%] Linking C executable test_spacewire
+[ 97%] Linking C executable test_pcie
+[ 97%] Built target test_spacewire
+[ 97%] Building C object tests/CMakeFiles/test_canopen.dir/unit/test_canopen.c.o
+[ 97%] Built target test_pcie
+[ 97%] Linking C executable test_fabric
+[ 97%] Building C object tests/CMakeFiles/test_link_ip.dir/unit/test_link_ip.c.o
+[ 97%] Linking C executable test_canfd
+[ 97%] Built target test_fabric
+[ 97%] Built target test_canfd
+[ 97%] Building C object tests/CMakeFiles/test_link_tsn.dir/unit/test_link_tsn.c.o
+[ 97%] Building C object tests/CMakeFiles/test_lwip.dir/unit/test_lwip.c.o
+[ 97%] Linking C executable test_canopen
+[ 97%] Linking C executable test_link_ip
+[ 97%] Built target test_canopen
+[ 97%] Linking C executable test_lwip
+[ 98%] Building C object tests/CMakeFiles/test_lwip_netif.dir/unit/test_lwip_netif.c.o
+[100%] Linking C executable test_link_tsn
+[100%] Built target test_link_ip
+[100%] Built target test_lwip
+[100%] Built target test_link_tsn
+[100%] Linking C executable test_lwip_netif
+[100%] Built target test_lwip_netif
+BUILD_EXIT=0
+Project C-target policy: -Wall -Wextra -Werror. Configure-time generator diagnostics are separate.

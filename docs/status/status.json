@@ -1,10 +1,10 @@
 {
     "meta": {
-        "updated": "2026-11-11",
+        "updated": "2026-11-13",
         "source": "tools/scripts/metrics.py + docs/status/status.json",
-        "note": "Engineering baseline: 318f49b; status-only HEAD follow-up. The working tree contains uncommitted S8-FDIR-01, S8-VV-FU, S8-SCH (N22-TS5-66 delivered), S8-PUS-FU, emulated WDOG0 binding (2026-11-09), and the 2026-11-10 R2 Major finding corrections for N22-TS5-66. Independent reviews retained: R2/R3/R4/PA reviews for N22-TS5-66 completed (all APPROVED WITH COMMENTS). On the current tree: direct native build + full CTest 55/55 PASS, make trace PASS (120/76/30/14/68), pinned format-check PASS, Lean lake build PASS, RTEMS 6.2 cross-build PASS (N18 profile), N18 Renode PASS (emulated startup; SCH app started, 4 entries). Host evidence only: no target WCET, no target/HIL, no hardware-watchdog claim. The MPFS watchdog binding is unwired (NC-PAL-01) and the exactly-one/mandatory-text/formatting policy plus the controlled MSS refresh window and approved jitter margin remain with the authorized human authority. The following items remain OPEN NCs that cannot be closed in this development environment and remain open until real mission use \u2014 they are NOT blockers for commit or push: NC-EXT-19/90 (mission schedule/timing/policy inputs; authority-dependent), NC-EXT-236 (EVS-to-HS TM sink\u2192link segment), GAP-A5/NC-PAL-01 (target/HIL evidence).",
+        "note": "Current uncommitted candidate adds the ICD §4 S3/S6 dispatch-contract correction (rev 1.8, no production wire-behaviour change) on top of the S8-PUS-FU S1 test/document increment and the bounded UART FF_Link_t::send_until correction. Fresh local native build/CTest 58/58; focused pus_s11_residual 1176 checks; Lean, trace (120/76/30/14/68), GSW/license, smoke, docs, RTEMS cross-build and Renode PASS on a freshly rebuilt image. The full pinned-format check remains limited by three unchanged initializer violations under NC-EXT-244; changed C files pass clang-format 23.1.3. T3 is NOT FULLY QUALIFIED. **Independent reviews (R1/R3, R2/R4 documentation, PA/N20) for the ICD rev 1.8 increment were attempted via the configured review subagents but could not be obtained in this session (external model usage limit); they are PENDING and must be completed before any package attestation, release or flight claim. No review reports were fabricated.** Commit/push are performed under the explicit N7 delegation with this pending-review state recorded. No NC, sprint, safety, release or flight decision is closed or approved. NC-EXT-19/90, N22-TS5-47, GAP-A5, NC-PAL-01 and other authority-owned inputs remain open and are not decided here.",
         "ci_gitea_verification": "act_runner deployed on the Gitea mirror (frick-act-runner, norm N6); runner log shows jobs executed for ilfrick/frick-fsw on 2026-10-10 (verified; README panel reflects an operational pipeline).",
-        "semaphore_semantics": "green = the latest recorded evidence for the gate is current for the delivered scope. A gate a host-only increment cannot re-run keeps the last REAL run: `renode_functional_validation` green = the last REAL Renode PASS is still valid because the RTEMS image and the already-validated artifacts are unchanged (norm N18 proxy for a host-only change); `lean_verification` green = the last REAL `lake build` is still valid because no Lean source/theorem changed (the CI `verify-lean` leg re-runs it). The review gates (`documentation_review`, `product_assurance_review`, `reviews`, `vv_records`) are set green only once the review loop of the current increment is closed (every finding corrected and the delta review passed); until then they stay at the pre-review state. Norms N8/N11: this file and the generated metrics panel are refreshed every cycle."
+        "semaphore_semantics": "green = the latest recorded evidence for the gate is current for the delivered scope. A gate a host-only increment cannot re-run keeps the last REAL run: `renode_functional_validation` green = the last REAL Renode PASS is still valid because the RTEMS image and the already-validated artifacts are unchanged (norm N18 proxy for a host-only change); `lean_verification` green = the last REAL `lake build` is still valid because no Lean source/theorem changed (the CI `verify-lean` leg re-runs it). The review gates (`documentation_review`, `product_assurance_review`, `reviews`, `vv_records`) are set green only once the review loop of the current increment is closed (every finding corrected and the delta review passed); until then they stay at the pre-review state. Norms N8/N11: this file and the generated metrics panel are refreshed every cycle. Candidate-scoped fresh local passes do not automatically turn these project-wide yellow fields green: each semaphore is program-wide, and it remains yellow while any applicable coverage, separate gate, exact-candidate review or release-evidence obligation is pending. The 2026-11-13 UART run record lists its scoped passes and the NC-EXT-244 full-format limitation; it does not override this global dashboard state."
     },
     "milestones": {
         "M1": "done",
@@ -23,7 +23,7 @@
         "M14": "planned",
         "M15": "planned",
         "M16": "planned",
-        "M17": "in progress (RTEMS-backed scheduler delivered, OBJ-31/S8-SCH; NC-EXT-19/90 open pending authority inputs; NC-EXT-236 EVS-to-HS TM sink\u2192link open; GAP-A5/NC-PAL-01 target/HIL open \u2014 all OPEN until mission use, NOT blockers for commit/push)"
+        "M17": "in progress (RTEMS-backed scheduler delivered, OBJ-31/S8-SCH; NC-EXT-19/90 open pending authority inputs; NC-EXT-236 EVS-to-HS TM sink→link open; GAP-A5/NC-PAL-01 target/HIL open — all OPEN until mission use, NOT blockers for commit/push)"
     },
     "gates": {
         "build_and_unit_tests": "yellow",
@@ -50,23 +50,23 @@
     "deferred": [
         {
             "id": "NC-EXT-112",
-            "title": "host-gate environment (Git ownership, absent host doxygen/tools) \u2014 deferred"
+            "title": "host-gate environment (Git ownership, absent host doxygen/tools) — deferred"
         },
         {
             "id": "NC-EXT-139",
-            "title": "oracle/testability precision (frame counting, clock injection) \u2014 deferred"
+            "title": "oracle/testability precision (frame counting, clock injection) — deferred"
         },
         {
             "id": "NC-EXT-160",
-            "title": "R2 re-review report front-matter row \u2014 deferred (cosmetic)"
+            "title": "R2 re-review report front-matter row — deferred (cosmetic)"
         },
         {
             "id": "NC-EXT-164",
-            "title": "review-index date ordering \u2014 deferred (cosmetic)"
+            "title": "review-index date ordering — deferred (cosmetic)"
         },
         {
             "id": "NC-EXT-183",
-            "title": "docs-container help text and ignored feed result \u2014 deferred"
+            "title": "docs-container help text and ignored feed result — deferred"
         }
     ],
     "note": ""

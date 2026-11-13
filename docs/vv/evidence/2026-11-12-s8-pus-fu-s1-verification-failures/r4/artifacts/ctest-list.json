@@ -1,0 +1,1437 @@
+{
+  "backtraceGraph": {
+    "commands": [
+      "add_test"
+    ],
+    "files": [
+      "/home/nicola/fsw/frick-fsw/tests/CMakeLists.txt"
+    ],
+    "nodes": [
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 211,
+        "parent": 0
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 212,
+        "parent": 2
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 213,
+        "parent": 4
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 214,
+        "parent": 6
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 216,
+        "parent": 8
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 224,
+        "parent": 10
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 225,
+        "parent": 12
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 226,
+        "parent": 14
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 227,
+        "parent": 16
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 228,
+        "parent": 18
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 229,
+        "parent": 20
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 230,
+        "parent": 22
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 232,
+        "parent": 24
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 236,
+        "parent": 26
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 239,
+        "parent": 28
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 241,
+        "parent": 30
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 242,
+        "parent": 32
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 243,
+        "parent": 34
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 244,
+        "parent": 36
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 245,
+        "parent": 38
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 246,
+        "parent": 40
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 248,
+        "parent": 42
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 249,
+        "parent": 44
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 251,
+        "parent": 46
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 253,
+        "parent": 48
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 255,
+        "parent": 50
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 264,
+        "parent": 52
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 273,
+        "parent": 54
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 274,
+        "parent": 56
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 278,
+        "parent": 58
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 285,
+        "parent": 60
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 290,
+        "parent": 62
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 295,
+        "parent": 64
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 298,
+        "parent": 66
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 301,
+        "parent": 68
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 304,
+        "parent": 70
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 305,
+        "parent": 72
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 306,
+        "parent": 74
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 307,
+        "parent": 76
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 308,
+        "parent": 78
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 309,
+        "parent": 80
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 310,
+        "parent": 82
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 311,
+        "parent": 84
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 312,
+        "parent": 86
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 313,
+        "parent": 88
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 314,
+        "parent": 90
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 315,
+        "parent": 92
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 316,
+        "parent": 94
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 317,
+        "parent": 96
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 318,
+        "parent": 98
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 319,
+        "parent": 100
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 320,
+        "parent": 102
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 321,
+        "parent": 104
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 322,
+        "parent": 106
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 323,
+        "parent": 108
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 326,
+        "parent": 110
+      },
+      {
+        "file": 0
+      },
+      {
+        "command": 0,
+        "file": 0,
+        "line": 327,
+        "parent": 112
+      }
+    ]
+  },
+  "kind": "ctestInfo",
+  "tests": [
+    {
+      "backtrace": 1,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_ccsds"
+      ],
+      "name": "ccsds",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 3,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sb"
+      ],
+      "name": "sb",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 5,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sb_stress"
+      ],
+      "name": "sb_stress",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 7,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sb_sweep",
+        "32",
+        "32"
+      ],
+      "name": "sb_sweep_boundary",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 9,
+      "command": [
+        "/home/nicola/.pyenv/shims/python3",
+        "/home/nicola/fsw/frick-fsw/tools/scripts/sb_evs_structural_sweep.py",
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sb_sweep",
+        "--output",
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/sb-evs-structural-sweep.csv"
+      ],
+      "name": "sb_evs_structural_sweep",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "sb-evs",
+            "tool-qualification"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 11,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_tbl"
+      ],
+      "name": "tbl",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 13,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sched"
+      ],
+      "name": "sched",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 15,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sched_stats"
+      ],
+      "name": "sched_stats",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 17,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sched_max_entries"
+      ],
+      "name": "sched_max_entries",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "max-entries",
+            "n22",
+            "s8-sch"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 30.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 19,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sched_events"
+      ],
+      "name": "sched_events",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 21,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pus"
+      ],
+      "name": "pus",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 23,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pus_fu"
+      ],
+      "name": "pus_fu",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 25,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_obcp_integration"
+      ],
+      "name": "obcp_engine_connectivity",
+      "properties": [
+        {
+          "name": "TIMEOUT",
+          "value": 30.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 27,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pus_n7_adapter"
+      ],
+      "name": "pus_n7_adapter_contract",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 29,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pusopen"
+      ],
+      "name": "pusopen_adapter_contract",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 31,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_time"
+      ],
+      "name": "time",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 33,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_frozen_utc_seam"
+      ],
+      "name": "frozen_utc_seam",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 35,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_r2_gap"
+      ],
+      "name": "r2_gap",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 37,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_r3_gap"
+      ],
+      "name": "r3_gap",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 39,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_tbl_sched_coupling"
+      ],
+      "name": "tbl_sched_coupling",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 41,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sched_tm_chain"
+      ],
+      "name": "sched_tm_chain",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "n22",
+            "s8-sch"
+          ]
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 43,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_es_hs_lifecycle"
+      ],
+      "name": "es_hs_lifecycle",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "es-hs-lifecycle",
+            "n22",
+            "s8-vv-fu"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 45,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_evs_hs_health"
+      ],
+      "name": "evs_hs_health",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "n22"
+          ]
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 47,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_tm_output_chain"
+      ],
+      "name": "tm_output_chain",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "n22"
+          ]
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 49,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pus_event_identity"
+      ],
+      "name": "pus_event_identity",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "n22",
+            "nc-ext-237",
+            "pus"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 51,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pal_watchdog"
+      ],
+      "name": "pal_watchdog",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "fdir",
+            "n22",
+            "watchdog"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 53,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_wd_host_contract"
+      ],
+      "name": "wd_host_model_contract",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "fdir",
+            "host-model",
+            "watchdog"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 55,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_extwd_model"
+      ],
+      "name": "extwd_model_contract",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "fdir",
+            "n22",
+            "watchdog",
+            "xw1"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 57,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_extwd_middleware"
+      ],
+      "name": "extwd_middleware_contract",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "fdir",
+            "n22",
+            "watchdog",
+            "xw1"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 59,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_decoder_corpus"
+      ],
+      "name": "decoder_corpus",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "decoder-corpus",
+            "n22",
+            "s8-vv-fu"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 61,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_link_uart"
+      ],
+      "name": "link_uart",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "host-pty",
+            "link",
+            "uart"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 63,
+      "command": [
+        "/bin/sh",
+        "/home/nicola/fsw/frick-fsw/tests/shell/test_renode_vv_verdict.sh"
+      ],
+      "name": "renode_vv_verdict",
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "n22",
+            "renode",
+            "tooling",
+            "vv"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 65,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_hal"
+      ],
+      "name": "hal",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 67,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_math"
+      ],
+      "name": "math",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 69,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_sdls"
+      ],
+      "name": "sdls",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 71,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_gem"
+      ],
+      "name": "gem",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 73,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_gem_tsn"
+      ],
+      "name": "gem_tsn",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 75,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_gptp"
+      ],
+      "name": "gptp",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 77,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_netloop"
+      ],
+      "name": "netloop",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 79,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_gpio"
+      ],
+      "name": "gpio",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 81,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_serial"
+      ],
+      "name": "serial",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 83,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_mem"
+      ],
+      "name": "mem",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 85,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_nvm"
+      ],
+      "name": "nvm",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 87,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_mtd"
+      ],
+      "name": "mtd",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 89,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_can"
+      ],
+      "name": "can",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 91,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_i2c"
+      ],
+      "name": "i2c",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 93,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_spi"
+      ],
+      "name": "spi",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 95,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_block"
+      ],
+      "name": "block",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 97,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_pcie"
+      ],
+      "name": "pcie",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 99,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_spacewire"
+      ],
+      "name": "spacewire",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 101,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_fabric"
+      ],
+      "name": "fabric",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 103,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_canfd"
+      ],
+      "name": "canfd",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 105,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_canopen"
+      ],
+      "name": "canopen",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 107,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_link_ip"
+      ],
+      "name": "link_ip",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 109,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_link_tsn"
+      ],
+      "name": "link_tsn",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 111,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_lwip"
+      ],
+      "name": "lwip",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    },
+    {
+      "backtrace": 113,
+      "command": [
+        "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests/test_lwip_netif"
+      ],
+      "name": "lwip_netif",
+      "properties": [
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "/home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4/tests"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 1,
+    "minor": 0
+  }
+}

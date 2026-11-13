@@ -1,0 +1,5 @@
+N18 run UTC: 2026-11-12T23:37:00Z
+bash tools/scripts/renode_vv.sh
+[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)
+[renode] run artifacts: /tmp/frick-renode-vv.BIgH3b
+N18_RENODE_EXIT=0

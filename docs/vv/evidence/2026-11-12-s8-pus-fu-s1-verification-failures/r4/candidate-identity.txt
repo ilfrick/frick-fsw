@@ -1,0 +1,26 @@
+Baseline HEAD: e5f01d402af382a78d5a8242fe6b1c4e2eb6bb83
+Recorded UTC: 2026-11-13T06:07:11+00:00
+Scope: 18 modified tracked paths are captured in candidate-working-tree.patch; external changed/untracked review and evidence paths are listed in assets-outside-paths.txt. Unrelated pre-existing paths are excluded and preserved.
+
+Tracked candidate path SHA-256:
+30d95f6d928a5d9977ce2c354c0f8f151590c3c663050a7b6cab1198ef05d6b6  CHANGELOG.md
+4ea25142324539b598d0cf08b7e66124294981508384e096c8a15f845eda702a  README.md
+eefd031755239d8d74e6fa0aa280e6e9e26b634627d4b8adf3a88384d4f78273  docs/planning/sprint-plan.md
+893a7102746c29c41d3185b6fd6ce490c22eba746374c4a6830f594fcf29b8ba  docs/requirements/traceability.md
+e1221224c6c2969034bd067032e7cbe57ab89da1f72c278ef39926fe51a6e0a8  docs/requirements/traceability.yaml
+f34cf369b666d2caaae9d2af855fd241a5bd153dbfa0fa50461ad4ded0858b97  docs/reviews/README.md
+9654627769a7ce3927581e2659df37986a7d3a64b43e030fcc6e66757dbf68b6  docs/status/handover.md
+8675564d7345c0a6962f92cb3e4add8be5fe008671c7da4817aa459e866320cf  docs/status/loop-audit.md
+564ce1b2105ed47dee388c80fe29df1e43298917847847fa4d2c63bffd51890c  docs/status/status.json
+a3b8e70e32388a49181726abea39446c5db7bb8aba75463391045e3a413d4245  docs/vv/test-spec/ts-1-protocol-core.md
+67b21a088e27fc9d49f2c84c91fd8634cd5c36ad93c2755c0d456aa5c108df0b  docs/vv/test-spec/ts-2-link-security.md
+20cf8d979868312bc63b3effcfc70cde649a2eb54a05f50eb818710cf319fdd2  docs/vv/tool-qualification.md
+4634850d0506d85f0865c6d2eebc3ec7027826fb8a67ee7f50d36b4841107191  docs/vv/verification-results.md
+45e3f58337546d7485efd0e477d042a788e6ca0fd7b88e4e6e14d54d122b1961  src/transport/link/link.h
+c39c3f271680d0d0c838d10fc72039e5ea65ee0f2fda8df7c56080200737cc99  src/transport/link/link_uart.c
+68346402e3fa1ad0cc665669cc410d67165753ddf6d03544f29d4b96e1e7d038  tests/CMakeLists.txt
+11d18353f7e006a13cf7897055e478e31619adb9ecbd33ecc83de115303f5006  tests/unit/test_link_uart.c
+dc8ea3dbae907c43f5897daa799ad792165604eca8cddd119612b2b3a6d889c7  tests/unit/test_pus.c
+
+Patch SHA-256: 6a5b31c7d32905e9175bab2d1930eac01d10f9a743639d0f0925ff64b65c4b76  docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/candidate-working-tree.patch
+Outside-list SHA-256: 7e9b7fc31399bbbfa5cda23d4398bcdb2e1a9774491ce72bfc504ea7a3c3ef38  docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/assets-outside-paths.txt

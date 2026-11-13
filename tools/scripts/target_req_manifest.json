@@ -58,7 +58,7 @@
     {
       "requirement": "SRS-REQ-008",
       "case": "L9",
-      "reason": "NC-EXT-17: the 6-byte TC[3,1] create is an unapproved extension (ICD defines 2 octets), so S3.25 one-shot is not asserted"
+      "reason": "NC-EXT-17/ESC-HK-01: the 6-byte TC[3,128] create width is authority-pending (ICD rev 1.8 records it as provisional), so S3.25 one-shot is not asserted"
     }
   ]
 }

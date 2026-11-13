@@ -78,7 +78,7 @@ requirements:
     parent_sss: SSS-REQ-004
     derived: false
     implementation: ["src/pus/pus.c", "src/apps/app_cmd_ingest.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_decoder_corpus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r2_gap.c", "tests/unit/test_r3_gap.c", "tests/unit/test_decoder_corpus.c", "tests/unit/test_pus_s11_residual.c"]
     lean: []
     lean_note: "Dispatch behavior is modeled in Frick.Pus, but SRS-REQ-005 malformed-frame failure reporting conflicts with test_pus_malformed_tc_event, which expects only an EVS/S5 event. NC-EXT-04 is open for authorized requirements/test-oracle disposition; the S8-VV-FU corpus additionally asserts the 'shall not be executed' clause (malformed/unknown-service frames invoke no handler) on host, but does not resolve the S1-completion-reporting conflict or claim profile compliance. `tests/unit/test_pus.c` additionally covers `test_param_set_bounded` (TC[20,1] parameter set via `svc20_set`, nominal + out-of-bound: unknown parameter ID → `FF_NOT_FOUND`, empty payload → `FF_BAD_SIZE`) as regression/characterization evidence for Service 20 parameter management."
 
@@ -103,7 +103,7 @@ requirements:
     parent_sss: SSS-REQ-005
     derived: false
     implementation: ["src/pus/pus_services.c", "src/apps/app_hk.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_fu.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_fu.c", "tests/unit/test_pus_s11_residual.c"]
     lean: []
     lean_note: "Housekeeping flow exercised end-to-end in the simulator; formalisation in the class-A work package (GAP-A2)."
 
@@ -112,7 +112,7 @@ requirements:
     parent_sss: SSS-REQ-003
     derived: false
     implementation: ["src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_s11_residual.c"]
     lean: []
     lean_note: "Memory dump bounded by registered regions; out-of-region requests rejected (asserted in test_pus.c)."
 
@@ -121,7 +121,7 @@ requirements:
     parent_sss: SSS-REQ-007
     derived: false
     implementation: ["src/core/time/time.c", "src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c", "tests/unit/test_time.c", "tests/unit/test_r3_gap.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_ccsds.c", "tests/unit/test_time.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_s11_residual.c"]
     lean: ["req_srs024_cuc_field_roundtrip"]
 
   - id: SRS-REQ-011
@@ -138,7 +138,7 @@ requirements:
     parent_sss: SSS-REQ-014
     derived: false
     implementation: ["src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_s11_residual.c"]
     lean: []
     lean_note: "Ping/pong covered by test_pus.c (service 17)."
 
@@ -182,9 +182,9 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-001
     derived: true
-    justification: "ECSS-E-ST-70-41C tailoring; mission identifiers, APIDs and frame profile from config/fsw_config.h and ICD-GND."
-    implementation: ["config/fsw_config.h", "src/transport/ccsds/ccsds.c"]
-    tests: ["tests/unit/test_ccsds.c"]
+    justification: "ECSS-E-ST-70-41C tailoring; mission identifiers, APIDs and frame profile from config/fsw_config.h and ICD-GND. The current implementation rejects a TC whose APID is not FF_APID_TC before dispatch; `src/pus/pus.c` and `tests/unit/test_pus.c` characterize that behavior, while the acceptance-policy basis remains open under NC-EXT-13."
+    implementation: ["config/fsw_config.h", "src/transport/ccsds/ccsds.c", "src/pus/pus.c"]
+    tests: ["tests/unit/test_ccsds.c", "tests/unit/test_pus.c"]
 
   - id: SRS-REQ-018
     level: srs
@@ -568,7 +568,7 @@ requirements:
     implementation: ["src/transport/link/link_ip.h", "src/transport/link/link_ip.c"]
     tests: ["tests/unit/test_link_ip.c"]
     lean: []
-    lean_note: "Reference TCP/IP FF_Link_t backend (UDP default, TCP with seg) carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). The backend is host-verified with a mock FF_NetStack_t (g_mock_net); the reference FF_NetStackLoopback stack is host-verified separately by test_netloop (it is a socket pair, so it models the peer rather than a single-link self-loop). A PUS-C TM/TC round-trip end to end over the backend is exercised by test_pus_ip_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5. The backend now exposes the deadline-bounded writer FF_Link_t::send_until (ip_send_until), so the installed panic reporter FF_LinkSendUntil (SRS-REQ-074) is implemented on this backend instead of returning FF_NOT_IMPLEMENTED: test_ip_send_until_deadline verifies in-budget delivery, rejection of an already-expired budget without transmitting, FF_TIMEOUT on a post-transfer overrun, and the NULL-payload/non-zero-length rejection shared with the plain writer (a defect fix: the plain writer previously forwarded it to the stack). FF_NetStack_t::send is synchronous, so the transfer itself cannot be preempted; the deadline is enforced on entry and re-checked after it (documented limitation). The UART shared-descriptor concurrency is resolved: uart_send_until() now sets O_NONBLOCK per-write and restores blocking mode immediately after each write() call, and captures the restore fcntl result (result = FF_ERROR on restore failure). The remaining NC-EXT-191 parts (target readiness semantics) stay open."
+    lean_note: "Reference TCP/IP FF_Link_t backend (UDP default, TCP with seg) carrying PUS-C TM/TC over FF_NetStack_t (M4-residual, restored scope). The backend is host-verified with a mock FF_NetStack_t (g_mock_net); the reference FF_NetStackLoopback stack is host-verified separately by test_netloop (it is a socket pair, so it models the peer rather than a single-link self-loop). A PUS-C TM/TC round-trip end to end over the backend is exercised by test_pus_ip_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5. The backend now exposes the deadline-bounded writer FF_Link_t::send_until (ip_send_until), so the installed panic reporter FF_LinkSendUntil (SRS-REQ-074) is implemented on this backend instead of returning FF_NOT_IMPLEMENTED: test_ip_send_until_deadline verifies in-budget delivery, rejection of an already-expired budget without transmitting, FF_TIMEOUT on a post-transfer overrun, and the NULL-payload/non-zero-length rejection shared with the plain writer (a defect fix: the plain writer previously forwarded it to the stack). FF_NetStack_t::send is synchronous, so the transfer itself cannot be preempted; the deadline is enforced on entry and re-checked after it (documented limitation). UART per-write O_NONBLOCK reduces the mode-change window when restoration succeeds. The restore result is now checked after every write outcome; restore failure returns FF_ERROR without retry but may leave the shared descriptor nonblocking, so concurrent-writer effects remain open under NC-EXT-191. Target readiness semantics and the target 250 ms bound (GAP-A5) also remain open."
 
   - id: SRS-REQ-061
     level: srs
@@ -577,7 +577,7 @@ requirements:
     implementation: ["src/transport/link/link_tsn.h", "src/transport/link/link_tsn.c"]
     tests: ["tests/unit/test_link_tsn.c"]
     lean: []
-    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_EthMac_t + FF_TsnBackend_t + GEM (M4-residual, restored scope). Implemented and host-verified with a mock MAC + mock TSN. Ethernet framing uses EtherType 0x88F5 (reference). A PUS-C TM/TC round-trip end to end over the backend (mock MAC looped back) is exercised by test_pus_tsn_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5. The backend now exposes the deadline-bounded writer FF_Link_t::send_until (tsn_send_until), so the installed panic reporter FF_LinkSendUntil (SRS-REQ-074) is implemented on this backend instead of returning FF_NOT_IMPLEMENTED: test_tsn_send_until_deadline verifies in-budget delivery, rejection of an already-expired budget without transmitting, and FF_TIMEOUT on a post-transfer overrun. FF_EthMac_t::transmit is a synchronous descriptor submission, so the transfer itself cannot be preempted; the deadline is enforced on entry and re-checked after it (documented limitation). The UART shared-descriptor concurrency is resolved: uart_send_until() now sets O_NONBLOCK per-write and restores blocking mode immediately after each write() call, and captures the restore fcntl result (result = FF_ERROR on restore failure). The remaining NC-EXT-191 parts (target readiness semantics) stay open."
+    lean_note: "Reference TSN FF_Link_t backend carrying PUS-C TM/TC over FF_EthMac_t + FF_TsnBackend_t + GEM (M4-residual, restored scope). Implemented and host-verified with a mock MAC + mock TSN. Ethernet framing uses EtherType 0x88F5 (reference). A PUS-C TM/TC round-trip end to end over the backend (mock MAC looped back) is exercised by test_pus_tsn_roundtrip (demonstration, method Dem); on-target link-level = GAP-A5. The backend now exposes the deadline-bounded writer FF_Link_t::send_until (tsn_send_until), so the installed panic reporter FF_LinkSendUntil (SRS-REQ-074) is implemented on this backend instead of returning FF_NOT_IMPLEMENTED: test_tsn_send_until_deadline verifies in-budget delivery, rejection of an already-expired budget without transmitting, and FF_TIMEOUT on a post-transfer overrun. FF_EthMac_t::transmit is a synchronous descriptor submission, so the transfer itself cannot be preempted; the deadline is enforced on entry and re-checked after it (documented limitation). UART per-write O_NONBLOCK reduces the mode-change window when restoration succeeds. The restore result is now checked after every write outcome; restore failure returns FF_ERROR without retry but may leave the shared descriptor nonblocking, so concurrent-writer effects remain open under NC-EXT-191. Target readiness semantics and the target 250 ms bound (GAP-A5) also remain open."
 
   - id: SRS-REQ-062
     level: srs
@@ -694,7 +694,7 @@ requirements:
     implementation: ["src/core/pal/pal_posix.c", "src/core/pal/pal.h", "src/transport/link/link.c", "src/transport/link/link.h", "src/transport/link/link_uart.c", "src/transport/link/link_loopback.c", "src/pus/pus.c", "src/pus/pus.h", "src/main/fsw_main.c", "config/fsw_config.h"]
     tests: ["tests/unit/test_es_hs_lifecycle.c", "tests/unit/test_link_uart.c", "tests/unit/test_link_ip.c", "tests/unit/test_link_tsn.c"]
     lean: ["req_srs074_report_precedes_reset"]
-    lean_note: "Lean models action ordering only (report before reset). The owner decision received 2026-10-21 (Telegram 1317/1318; escalation record ESC-1/ESC-5) sets an initial 250 ms single absolute-monotonic deadline for formatting, console/UART wait or timeout, and all retries; it is a local attempt bound, not remote delivery. Mandatory S5 content must not be truncated. The shared deadline is now threaded through the PAL panic path, the console writer, the PUS direct writer and all four link backends (FF_Pal_PanicNotifier_t, FF_Pus_DirectWriter_t and FF_Link_t::send_until carry an absolute deadline); loopback, UART, IP and TSN each implement a non-NULL send_until, so FF_LinkSendUntil no longer returns FF_NOT_IMPLEMENTED on a selected backend (NC-EXT-191 backend-coverage half implemented; the UART shared-descriptor concurrency and target readiness semantics remain open, so the NC stays open). The IP and TSN writers validate, reject an already-expired deadline before transmitting, then re-check after the synchronous transfer and report FF_TIMEOUT on overrun (test_ip_send_until_deadline / test_tsn_send_until_deadline); that is an entry/post-check bound, not preemption of a stalled driver. The console and UART writes are non-blocking and bounded by that deadline, and no poll()/select() is used because RTEMS 6.2 provides neither (the flight-target link was verified with the cached RTEMS 6.2 toolchain). Mandatory-content handling is still unresolved: an over-length reason suppresses the notification, and the formatting work itself is not deadline-enforced, so the requirement-level exactly-one obligation, the mandatory-text envelope and the bounded-formatting strategy remain authority decisions (FRICK-REVIEW-0411/0413/0414). N22-TS5-50 covers emission count/content and report-failure independence; N22-TS5-83..87 add the host deadline, fault-path, UART partial/stall, over-length characterization and production-wiring cases, all recorded as gaps because host evidence does not establish the 250 ms target on the target. The direct sender takes no EVS/SB/PUS/queue/time lock, allocates nothing and uses a static frame buffer; current reason text is bounded to FF_EVS_TEXT_LEN. Report-before-reset ordering remains established by inspection and the Lean theorem req_srs074_report_precedes_reset, not the simulated backend (NC-EXT-132). The degraded monotonic timestamp and ICD event-catalogue confirmation limit (NC-EXT-102) remain."
+    lean_note: "Lean models action ordering only (report before reset). The owner decision received 2026-10-21 (Telegram 1317/1318; escalation record ESC-1/ESC-5) sets an initial 250 ms single absolute-monotonic deadline for formatting, console/UART wait or timeout, and all retries; it is a local attempt bound, not remote delivery. Mandatory S5 content must not be truncated. The shared deadline is now threaded through the PAL panic path, the console writer, the PUS direct writer and all four link backends (FF_Pal_PanicNotifier_t, FF_Pus_DirectWriter_t and FF_Link_t::send_until carry an absolute deadline); loopback, UART, IP and TSN each implement a non-NULL send_until, so FF_LinkSendUntil no longer returns FF_NOT_IMPLEMENTED on a selected backend (NC-EXT-191 backend-coverage half implemented; shared-descriptor writer effects (including failed-restore state) and target readiness semantics remain open, so the NC stays open). The IP and TSN writers validate, reject an already-expired deadline before transmitting, then re-check after the synchronous transfer and report FF_TIMEOUT on overrun (test_ip_send_until_deadline / test_tsn_send_until_deadline); that is an entry/post-check bound, not preemption of a stalled driver. Host cases N22-TS2-84..86 exercise UART restore-error, errno-preservation, final-write deadline-overrun and expired zero-length API subcases only; the UART retry loop is not a hard return-time or target readiness bound. No poll()/select() is used because RTEMS 6.2 provides neither (the flight-target link was verified with the cached RTEMS 6.2 toolchain). Mandatory-content handling is still unresolved: an over-length reason suppresses the notification, and the formatting work itself is not deadline-enforced, so the requirement-level exactly-one obligation, the mandatory-text envelope and the bounded-formatting strategy remain authority decisions (FRICK-REVIEW-0411/0413/0414). N22-TS5-50 covers emission count/content and report-failure independence; N22-TS5-83..87 add the host deadline, fault-path, UART partial/stall, over-length characterization and production-wiring cases, all recorded as gaps because host evidence does not establish the 250 ms target on the target. The direct sender takes no EVS/SB/PUS/queue/time lock, allocates nothing and uses a static frame buffer; current reason text is bounded to FF_EVS_TEXT_LEN. Report-before-reset ordering remains established by inspection and the Lean theorem req_srs074_report_precedes_reset, not the simulated backend (NC-EXT-132). The degraded monotonic timestamp and ICD event-catalogue confirmation limit (NC-EXT-102) remain."
 
   - id: SRS-REQ-075
     level: srs

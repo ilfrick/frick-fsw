@@ -44,6 +44,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tools" / "scripts" / "qemu_req_vv.sh"
 
+# Retained 2026-10-26 transcript: the L9 gap wording predates the ICD rev 1.8
+# correction and the verifier matches gap lines by requirement/case only.
 CLEAN_CASES = """frick-fsw: 8 applications registered
 TGTREQ: SRS-REQ-012:L1:PASS:per_frame_offsets_ok_S17.2_exact_negctl_3/3
 TGTREQ-OBS: SRS-REQ-005:L2:S1.8_payload=01022A0109 (implementation-defined layout; NC-EXT-14/15)

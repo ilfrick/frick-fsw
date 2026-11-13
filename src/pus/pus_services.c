@@ -52,7 +52,7 @@ typedef struct
     uint8_t report_id;
     uint8_t provider_id;
     bool enabled;
-    uint32_t period_s; /* 0 = one-shot only (TC[3,27] only), >0 = periodic */
+    uint32_t period_s; /* 0 = one-shot only (TC[3,4]), >0 = periodic */
     uint32_t last_emission_coarse;
     uint16_t last_emission_fine;
 } ff_hk_report_t;
@@ -211,9 +211,10 @@ FF_Status_t FF_PusRegisterMemoryRegion(uint8_t region_id, const void *base, uint
 static FF_Status_t svc3_create(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
 {
     (void)tc;
-    /* Provisional TC[3,1] payload: 6 bytes (report_id, provider_id, period_s[4]).
-     * ICD §4 defines 2 bytes; this 6-byte form is an authority-pending extension
-     * tracked under NC-EXT-17. Do not claim ECSS compliance for this wire format. */
+    /* Provisional TC[3,128] payload: 6 bytes (report_id, provider_id, period_s[4]).
+     * ICD §4 records this 6-byte form; its width (and the existence of the
+     * period field at all) is still an interface-authority item tracked under
+     * ESC-HK-01/NC-EXT-210. Do not claim ECSS compliance for this wire format. */
     if (len < 6u) {
         return FF_BAD_SIZE;
     }
@@ -316,7 +317,7 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
             }
             continue;
         }
-        /* TC[3,27] is a one-shot request and is independent of the report's
+        /* TC[3,4] is a one-shot request and is independent of the report's
          * periodic-generation enabled/disabled state. */
         FF_Pus_DataProvider_t prov = find_provider(g_hk_providers, report->provider_id);
         if (prov == NULL) {
@@ -398,7 +399,7 @@ static FF_Status_t svc3_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint1
  * Consequence recorded in ADR-0020: for `period_s >= 2^31` the test never
  * fires (u is capped below 2^31), so such a report holds unserved rather
  * than flooding. This is a property of the modular formulation, NOT a
- * maximum-period mission limit: no TC[3,1] range validation is added here;
+ * maximum-period mission limit: no TC[3,128] range validation is added here;
  * the maximum permissible period and the coarse wrap policy remain
  * authority-owned (NC-EXT-208, ESC-HK-06, both OPEN).
  *

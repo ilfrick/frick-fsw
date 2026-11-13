@@ -51,7 +51,7 @@ and the milestone/objective plan.
 
 ## Status panel - completion, coverage and review/V&V traffic lights
 
-Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-11-11. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
+Maintained by `tools/scripts/metrics.py` (V&V tool T13, norm N8/N10); last updated 2026-11-13. The completion and coverage metrics are generated from `docs/status/status.json`, the traceability manifest, the sprint plan, the review log and the coverage report, and are **refreshed every cycle** (norms N8/N11/N19). Single source of truth: `docs/requirements/traceability.yaml` (mirrored in `traceability.md`).
 
 Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one gate is open/pending or an issue is deferred - **🔴 (RED)** a recorded gate failed.
 
@@ -63,7 +63,7 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | SSS requirements satisfied | 26/30 (86.7%) | all child SRS delivered (else self delivered) |
 | SRS requirements delivered | 72/76 (94.7%) | implemented (non-doc) + verified (non-`ci:docs`) |
 | Design traceability | 63/76 (82.9%) | SRS IDs found in SDD text (proxy; not semantic matrix validation) |
-| Review streams (affirmative latest verdict) | 47/208 (22.6%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
+| Review streams (affirmative latest verdict) | 50/242 (20.7%) | review-log heuristic; latest affirmative, non-scoped conclusion; not NC-closure evidence |
 
 ### Coverage
 
@@ -73,8 +73,8 @@ Legend: **🟢 (GREEN)** recorded gates pass - **🟡 (YELLOW)** at least one ga
 | Requirements with implementation | 120/120 (100%) | manifest implementation list non-empty (incl. `docs/`) |
 | Requirements with test/CI evidence | 106/120 (88.3%) | manifest tests list non-empty (incl. planned `ci:docs`) |
 | Formal verification coverage (Lean) | 28/120 (23.3%) | manifest Lean link non-empty (norm N1) |
-| Code statement (line) coverage | 15328/32948 (46.5%) | gcov |
-| Code function coverage | 1749/2593 (67.5%) | gcov |
+| Code statement (line) coverage | 15924/33832 (47.1%) | gcov |
+| Code function coverage | 1796/2640 (68.0%) | gcov |
 | Branch / decision (MC-DC) coverage | not measured | **GAP-A4** (certified checker / WCET) |
 
 ### Semaphores
@@ -182,9 +182,9 @@ the N7/ESA ASN.1 adapter, with the open CCSDS codec as the built-in alternative)
 | Service | Name | Implemented subservices |
 | ------- | ---- | ----------------------- |
 | 1 | Request verification | 1,2,3,5,7,8 acceptance success/failure, start success, progress success, completion success/failure (framework-generated). The stage→subservice map also defines start failure (4), but no command path emits it, and progress failure (6) is not mapped at all, so the `FRICK-ICD-001` §4 row "4 / 6 start / progress failure" is not answerable on the wire in this implementation (see NC-EXT-94) |
-| 3 | Housekeeping | 1 create, 3 delete, 5 enable, 6 disable, 27 report (provider-registered; 5/6 set only the periodic state flag — no periodic emission path exists) |
+| 3 | Housekeeping | 1 enable, 2 disable, 3 periodic (alias of 1), 4 one-shot report request, 25 report TM, provisional management 128 create / 129 delete (provider-registered; the state flag set by 1/2/3/128 is honoured only by `FF_PusEmitPeriodicHk()`, which has no production caller in this release — no periodic emission path is wired, ESC-HK-02) |
 | 5 | Event reporting | 1-3 event messages (via EVS listener) |
-| 6 | Memory management | 5 dump (region-bounded, registered regions only) |
+| 6 | Memory management | 2 dump (region-bounded, registered regions only; reply TM[6,6]) |
 | 8 | Function management | 1 function invocation (provider-registered) |
 | 9 | Time management | 1 set time (CUC), 2 report time (CUC) |
 | 11 | Scheduling | 1,2 stub (returns NOT_IMPLEMENTED) |

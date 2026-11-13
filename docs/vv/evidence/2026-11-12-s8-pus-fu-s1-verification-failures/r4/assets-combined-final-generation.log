@@ -1,0 +1,9 @@
+Purpose: final combined UART-inclusive S8-PUS-FU S1 candidate manifest after R4-AUDIT-01 and N8/N11/N20 corrections and their bounded R4 reviews.
+
+Baseline HEAD: e5f01d402af382a78d5a8242fe6b1c4e2eb6bb83
+
+Inventory: every regular file recursively under r4 plus every regular path listed in assets-outside-paths.txt. Reject symlinks, special, missing, duplicate files, and build paths.
+
+Exact exclusions: active r4/assets.sha256 and three post-manifest reports pre-registered in docs/reviews/README.md (PA-N20, VV-R2, R4-N17 COMBINED-CANDIDATE-MANIFEST-ATTESTATION). Superseded 108e/48f reports and historical S1 attestations are included, not reused.
+
+Declared paths: 298. Manifest entries: 297. Lexical repository-relative path order, sha256sum-compatible format. Independent PA/R2/R4 reviewers must confirm exact path set/exclusions and run sha256sum -c against this digest.

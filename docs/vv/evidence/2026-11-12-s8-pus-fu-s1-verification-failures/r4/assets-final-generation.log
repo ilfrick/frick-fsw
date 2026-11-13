@@ -1,0 +1,12 @@
+Purpose: final package-level manifest generation after candidate/status freeze and substantive inventory reviews. This log is an in-scope regular r4 artifact and is included by the manifest it documents.
+
+Inventory rule: every regular file recursively under `docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/` plus every regular path in r4/assets-outside-paths.txt, with repository-root-relative paths. Reject symlinks/special files, missing/nonregular explicit paths, duplicate paths, and any included path under `build/`. No submodules/gitlinks are configured.
+
+Exclusions: exactly r4/assets.sha256 itself and the three pre-indexed external PA/N20, V&V/R2, and R4/N17 post-manifest attestation report paths named in docs/reviews/README.md. No other in-scope file is excluded. The stale 45-entry manifest is retained as assets-stale-45-entry.sha256; the 157-entry preview and its log are historical evidence and are included in the final package.
+
+Expected inventory at generation freeze: 41 explicit outside files plus all regular r4 files other than the active assets.sha256, including this log. The current pre-log count was 134 regular files under r4 (including assets.sha256), giving 174 files after excluding assets.sha256 plus 41 outside paths; after this log is added the expected final entry count is 175. Recompute from the frozen tree and fail closed if the count differs.
+
+Generation operation: enumerate the declared set, sort paths lexicographically, calculate SHA-256 from repository root, and write `assets.sha256`; independently compare exact path set with the declared scope and run `sha256sum -c docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/assets.sha256` from repository root. The three independent attestations must separately record the exact manifest digest, inventory/exclusion check, and checksum command result. Any change to an included byte invalidates this manifest and requires a new freeze/rebind/re-attestation.
+
+This file records method only; it contains no manifest digest or pass result and makes no package, release, qualification, or approval claim.
+Final-generation attempt 1: package inventory validation succeeded but atomic replacement failed with EXDEV because the temporary output was written on /tmp/opencode (different filesystem). The old active assets.sha256 was not modified; the subsequent sha256sum check therefore reproduced the historical 41 OK / 4 FAILED result. This attempt is retained here; retry writes the temporary manifest in the r4 directory before rename.

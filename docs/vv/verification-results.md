@@ -619,3 +619,383 @@ link behavior and timing remain GAP-A5 / N22-TS2-78 (HIL). T3 remains **NOT
 FULLY QUALIFIED** for this candidate: `test_link_ip.c` and `test_link_tsn.c` have
 no N10 review at these hashes (`tool-qualification.md` rev 1.7). No NC is closed
 by this cycle and no release/flight approval is claimed.
+
+## S8-PUS-FU S1 ingestion failure paths — 2026-11-12
+
+**Scope:** `tests/unit/test_pus.c` only — `test_verification_failure_via_ingest`,
+`stream_has_verification`, a bounds guard on the pre-existing `stream_has`, and
+new assertions for no completion failure after acceptance failure plus a buffer
+length precondition before direct Request-ID reads. No production source
+(`src/`) changed; `src/pus/pus.c` is byte-identical to HEAD (sha256
+`1eea40c0…5401`).
+
+**Characterization evidence added; requirement gap remains:** the illegal-TC-APID
+rejection/acceptance-failure policy in `N22-TS1-23` is not established by the
+cited SRS/ICD text; ICD §1 leaves primary-header acceptance policy open under
+NC-EXT-13. Existing `test_pus_s11_residual.c` (declared but unregistered,
+NC-EXT-240) and `test_decoder_corpus.c` already exercised non-TC-APID rejection
+at packet level. The new test adds byte-level characterization for APID `0x011`
+with ack = ACCEPTANCE: current `FF_ERROR`, exactly one TM (1,2), no TM (1,8),
+the echoed service/subservice and Request-ID octets (source `0x0102`,
+provisional destination `0x0001`), no TM (1,1), and non-dispatch of the ping
+handler. TS-1 rev 1.12 classifies N22-TS1-23 as `gap`, not covered. The test also
+re-asserts the already-covered `N22-TS1-20` handler-not-found branch at
+payload-octet level (TM (1,8) codes 8 and 9).
+
+**Oracle authority and open interface gap:** the 9-octet S1 payload order
+(Request ID [6] + service + subservice + code) is derived from
+`src/pus/pus.c::FF_PusSendVerification`; ICD §4 describes S1 field content but
+does not control that layout. The destination identifier is provisional. This
+ICD/implementation divergence is registered as **NC-EXT-241**, owned by the
+interface authority and unscheduled pending its decision. Concrete failure-code
+allocations remain provisional under NC-EXT-18. The `FF_ERROR` / `FF_NOT_FOUND`
+return-code assertions characterize the implementation; no API return contract
+is documented in `pus.h`.
+
+**Ack = 0 variants are characterization checks, not requirement-derived
+oracles.** Sub-cases 2 and 5 (illegal APID `0x020` with ack = 0; TC (17,9) with
+ack = 0) pin the observed `FF_ERROR` / `FF_NOT_FOUND` with no TM. SRS-REQ-005
+states an unconditional completion failure while the baseline reports one only
+when the corresponding ack flag is set; the conflict is registered as
+`N22-TS1-104` (`gap`) and cross-referenced to `N22-TS1-22` (NC-EXT-04, NC-EXT-47
+§7.3). Resolving NC-EXT-04 may invalidate these characterization checks and
+requires re-disposition of the test and case row. TS-1 rev 1.12 is 104 cases =
+76 `covered` + 28 `gap`; N22-TS1-23 was reclassified as a gap after R1/R3
+review, not counted as covered.
+
+### Executed evidence (ordered fresh run, `BUILD_DIR=build/evidence-20261112-pus-s1-r4`)
+
+Configure, build, CTest and the focused test were run in that order in the same
+fresh build directory. The retained full build log has no compiler warning
+lines; project C targets use `-Wall -Wextra -Werror`, while configure logs
+ASN1SCC generator diagnostics separately (endianness properties with no effect;
+not C compiler warnings). The retained log sequence identifies source and build
+configuration; exact test/CTest binaries are copied under `r4/artifacts/`. This
+table records execution evidence, not the package checksum outcome. The exact
+manifest digest, path/exclusion inventory check, and `sha256sum -c` result are
+recorded only by the three pre-indexed post-manifest attestation reports; any
+missing report, failure, or subsequent covered-file change means the package
+must not be treated as currently integrity-verified.
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Candidate identity | Baseline HEAD and exact eleven-path tracked working-tree delta are retained with path hashes; unrelated untracked paths excluded | `.../r4/candidate-identity.txt`, `.../r4/candidate-working-tree.patch` |
+| Configure (`FF_USE_PUS_ASN1=ON`) | exit 0 | `.../r4/gate-configure.log` |
+| Build (full output) | exit 0; no compiler warnings observed; project C targets enforce `-Werror` | `.../r4/gate-build.log` |
+| Required `make build` / `make test` targets | Both exit 0 with isolated `BUILD_DIR=build/evidence-20261112-pus-s1-r4`; default `build/native` contains an older Docker `/workspace` cache, so its path validation fails and is not overwritten | `.../r4/correction-make-build.log`, `.../r4/correction-make-test.log`, `.../r4/gate-make-cache-preservation-attempt.log` |
+| CTest | **57/57 PASS** (registered tests only; NC-EXT-240 target excluded); invocation inventory and 55 distinct compiled executables retained; submanifest verification 55/55 | `.../r4/gate-ctest.log`, `.../r4/artifacts/ctest-list.json`, `.../r4/artifacts/ctest-binaries.sha256`, `.../r4/artifacts/ctest-binaries-verify.log` |
+| `test_pus` binary | `checks=322 failures=0`; exact executable retained at `.../r4/artifacts/test_pus` | `.../r4/gate-test-pus.log`, `.../r4/artifacts/identities.txt` |
+| Container CI subset | `make ci-local` exit 0; 57/57 CTest, Lean receipt and trace pass | `.../r4/correction-ci-local.log` |
+| Lean 4 | `lake build` exit 0 | `.../r4/gate-lean.log` |
+| Lean elaboration receipt | 11 modules elaborated, receipt validation PASS | `.../r4/gate-lean-receipt.log` |
+| Traceability | PASS (120/76/30/14/68) | `.../r4/correction-trace.log` |
+| Format (host clang-format 23.1.3, unpinned) | exit 0 for the project tree | `.../r4/gate-format.log` |
+| Format (pinned clang-format 18, full repository) | **FAIL**, unchanged initializers at `src/transport/link/link_tsn.c:18`, `src/transport/link/link_ip.c:19`, `tests/unit/test_link_tsn.c:24`; registered as NC-EXT-244, deferred under N21 | `.../r4/gate-format-pinned.log` |
+| Format (pinned clang-format 18, changed `test_pus.c`) | exit 0; a later host clang-format 23 check is retained but is not used as pinned-tool evidence | `.../r4/correction-format-pinned.log`, `.../r4/correction-format-changed-file.log` |
+| N13 license / GSW self-check | `make gsw-selfcheck` exit 0; includes authored-file license policy and Python GSW/metrics/license tests | `.../r4/correction-gsw-selfcheck.log` |
+| Native simulator smoke | PASS (banner + 7 apps) with isolated `BUILD_DIR`. Default-path attempt failed CMake validation against retained `/workspace` cache and is not a software smoke failure. | `.../r4/correction-smoke.log`, `.../r4/attempt-smoke-default-cache.log` |
+| Doxygen docs generation | `make docs-container` exit 0 | `.../r4/correction-docs-container.log` |
+| N18 environment self-test | Renode starts and PolarFire SoC platform loads; exit 0 | `.../r4/gate-renode-env.log` |
+| N18 fresh RTEMS image + Renode | Fresh ELF SHA-256 `e36aee30…4843a41`, mtime 2026-11-13 00:42:40 +0100; exact ELF retained at `.../r4/artifacts/frick_fsw_renode.elf`; `RENODE_TEST: PASS`, container exit 0 | `.../r4/gate-renode-image-docker.log`, `.../r4/gate-renode-fresh.log`, `.../r4/renode-run/`, `.../r4/artifacts/identities.txt` |
+
+The initial r3 N18 invocation used a stale ELF (SHA-256 `55188f5a…`) and is
+retained only as invalid historical evidence in `gate-renode.log`. The r4
+candidate image was subsequently rebuilt using the controlled Docker toolchain
+image and a fresh `make renode` passed against ELF SHA-256
+`e36aee30f381df32d9b085b11d616e35082a9650263e3b8614ed8f4004843a41`; raw
+process/UART/status files are retained and hash-bound under `r4/renode-run/`.
+This remains emulated integration evidence only: no physical target, RTEMS
+runtime on hardware, HIL or hardware-timing claim. The changed C test passes pinned
+clang-format 18; the full pinned-format gate's unrelated existing initializer-format failures are
+tracked as NC-EXT-244 and remains open.
+
+### Discriminating oracle and mutation control
+
+`.../r4/mutation-check.log` records the source baseline hash, test hash, exact
+mutations, mutated hashes and restoration proof:
+
+- `FF_PUS_FAIL_ILLEGAL_APID` → `FF_PUS_FAIL_BAD_DATA` in `src/pus/pus.c:424`
+  (sha256 `1eea40c0…` → `1df235d2…`) fails 1 check (`test_pus.c:735`).
+- Removing the `tc.service == 0u` code selection at `src/pus/pus.c:439`
+  (→ `cd2b01fa…`) fails 2 checks (`test_pus.c:788-789`).
+- Restored source (`1eea40c0…`) fails 0 checks.
+
+### Pre-existing finding registered, not fixed here
+
+`tests/unit/test_pus_s11_residual.c` is declared in `FF_TEST_TARGETS` but not
+registered with CTest; direct invocation reports `checks=1164 failures=10`
+because S3/S6 expectations use service subservice numbers not implemented by
+the ADR-0020 provisional mapping. It is outside this test-only delta and is
+recorded as **NC-EXT-240** (owner FSW, M17); no pass or closure is claimed.
+
+### Review evidence and residuals
+
+The first PA review found major record defects; its correction re-review
+addressed those findings in substance. The earlier R2/V&V review approved a
+prior candidate with comments. Fresh V&V/R2 review
+`VV-R2-20261113-s8-pus-fu-s1-ingestion-failures.md` found a Major
+manifest-integrity/currentness gap on the then-current snapshot: four hashes
+were stale and successful isolated Make-target logs were absent. The exact
+focused-test and Renode binaries and a 55-executable CTest inventory have since
+been retained under `r4/artifacts`; the manifest must still be regenerated and
+independently verified. V&V/R2 delta review confirmed the artifact inventory
+and corrected status wording, but the Major remains open until package-level
+manifest verification succeeds. The fresh R4 correction re-review `2026-11-13-r4-pus-s1-ingest-correction-rereview.md`
+found DOC-R4-RR-01 Major (manifest and review-status currentness) and
+DOC-R4-RR-02 Minor (N12/N14 audit inconsistency). The R4 delta resolved
+DOC-R4-RR-02 and left DOC-R4-RR-01 partially resolved/open for the package
+manifest correction. PA independently confirmed the retained CTest inventory
+(57 cases, 55 binaries) and 55/55 hash/copy identity, resolving that persistence
+residual in substance; final package-manifest and PA delta confirmation remain
+pending.
+Avionics R1/R3 correction re-review SYS-R1R3-20261113-PUS-S1-INGEST-RR
+passed with comments and resolved SYS-R1R3-01 in substance; its two Minor sync
+observations were addressed and independently confirmed with PASS in
+`SYS-R1R3-20261113-PUS-S1-INGEST-SYNC-CONFIRMATION.md`. PA-R3 independently
+verified the initial 45-entry r4 manifest and resolved PA-N20-R3-01 in
+substance for those inspected bytes. The report is itself manifest-bound and
+has since changed, and the R1/R3 correction/synchronization reports have now
+been added; final manifest rebind and PA delta confirmation remain pending.
+Reports are retained and indexed in `docs/reviews/README.md`; this record does
+not claim any review gate closed until the correction re-reviews pass.
+
+NC-EXT-15 remains open. NC-EXT-04, NC-EXT-13, NC-EXT-14..18 and NC-EXT-47
+authority/profile gaps remain open. NC-EXT-241 records the S1 payload interface divergence;
+NC-EXT-242 tracks TS-1 case ordering; NC-EXT-243 tracks the unsynchronized
+Request-ID sequence counter; NC-EXT-244 tracks the unrelated pinned-format
+discrepancy. T3 remains **NOT FULLY QUALIFIED** for this
+candidate (`tool-qualification.md` rev 1.9). No requirement or ICD clause is
+added; no NC is closed; no release/flight approval is claimed.
+
+### Staging scope and manifest history
+
+This section retains the S8-PUS-FU S1 review sequence and earlier manifest
+snapshots. The substantive S1 reports include `PA-REVIEW-PUS-S1-INGEST-VERIFICATION-FAILURES-20261112.md`,
+`PA-R2-20261112-pus-s1-ingest-verification-failures.md`,
+`VV-R2-20261112-s8-pus-fu-s1-verification-failures.md`,
+`SYS-R1R3-20261113-PUS-S1-INGEST-CORRECTION-REREVIEW.md`,
+`SYS-R1R3-20261113-PUS-S1-INGEST-SYNC-CONFIRMATION.md`,
+`PA-R3-20261113-s8-pus-s1-ingestion-failure-review.md`,
+`VV-R2-20261113-s8-pus-fu-s1-evidence-delta.md`,
+`VV-R2-20261113-s8-pus-s1-manifest-scope-method-review.md`,
+`PA-N20-20261113-s8-pus-s1-final-inventory-delta.md`,
+`VV-R2-20261113-s8-pus-s1-final-inventory-delta.md`,
+`2026-11-13-r4-pus-s1-final-inventory-delta.md`,
+`VV-R2-20261113-s8-pus-s1-candidate-identity-delta.md`, and the substantive R4
+report `2026-11-13-r4-pus-s1-final-substantive-documentation-review.md`. These
+are retained as findings/results for their identified snapshots; the prior
+45-entry manifest and 157-entry preview are historical and do not bind the
+UART-inclusive candidate.
+
+**Historical path correction:** the original S1-pre-registered report paths
+`PA-N20-20261113-s8-pus-s1-final-manifest-attestation.md`,
+`VV-R2-20261113-s8-pus-s1-final-manifest-attestation.md`, and
+`R4-N17-20261113-s8-pus-s1-final-manifest-attestation.md` are not the combined
+candidate's exclusions. Those files are included as historical review evidence.
+The current combined-candidate manifest excludes only itself and these exact
+pre-registered reports:
+
+- `PA-N20-20261113-COMBINED-CANDIDATE-MANIFEST-ATTESTATION.md`
+- `VV-R2-20261113-COMBINED-CANDIDATE-MANIFEST-ATTESTATION.md`
+- `R4-N17-20261113-COMBINED-CANDIDATE-MANIFEST-ATTESTATION.md`
+
+The current manifest scope, path inventory, and checksum/attestation method are
+specified in `docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/README.md`
+and pre-registered in `docs/reviews/README.md`. The complete candidate inventory
+includes all substantive reports and evidence, including this correction review;
+only the manifest itself and the three exact reports above are excluded. The
+three independent reports must identify one digest, inspect the exact path set
+and exclusions, and record successful `sha256sum -c` results. They are inventory
+attestations, not substantive N17/N20 approval, N10 qualification, or NC closure.
+Any covered-file change invalidates the manifest and requires a new freeze and
+applicable reviews. The final Git tree is intended to bind the manifest and
+three detached reports; no commit identity or release approval is claimed.
+
+Other pre-existing untracked review reports from separate increments
+remain untouched and outside this evidence scope:
+`2026-11-11-r4-doc-review-nc-ext-237-nc-ext-191.md`,
+`2026-11-11-vv-r2-nc-ext-239-independent-vv-review.md`,
+`2026-11-12-r4-doc-review-icd-s1-subservice-4-6-annotation.md`,
+`2026-11-12-r4-doc-review-pus-services-ordering-nc-ext-211.md`,
+`FRICK-REVIEW-0479-R4-DOC-NC-EXT-239.md`,
+`FRICK-REVIEW-0480-VV-N22-TS5-47-SCHED-TM-CHAIN.md`,
+`PA-REVIEW-ICD-PUS-S1-4-6-20261112.md`,
+`PA-REVIEW-NC-EXT-239-pal_rtems-20261111.md`,
+`PA-REVIEW-PUS-PAYLOAD-INIT-20261112.md`,
+`PA-REVIEW-UART-SEND-UNTIL-RESTORE-RESULT-20261112.md`,
+`SYS-REVIEW-R1-R3-20261111-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-icd-s1-subservice-4-6-annotation-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-lean-watchdog-formal-fix-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-nc-ext-178-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-pus-c-payload-zero-init-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-pus-services-ordering-nc-ext-211-avionics-systems-review.md`,
+`SYS-REVIEW-R1-R3-20261112-sched-tm-chain-test-increment.md`,
+`SYS-REVIEW-R1-R3-20261112-uart-send-until-restore-result-avionics-systems-review.md`,
+`VV-R2-20261111-nc-ext-237-independent-vv-review.md`,
+`VV-R2-20261112-icd-pus-s1-4-6-not-emitted.md`,
+`VV-R2-20261112-nc-ext-178-register-discipline.md`,
+`VV-R2-20261112-pus-svc3-init-ordering.md`, and
+`VV-R2-20261112-uart-send-until-concurrency-review.md`.
+The separate worktree items `.opencode/plugins/`, `opencode.json`, and
+`tests/unit/test_sched_events.c.bak` are also untouched and excluded. None of
+these pre-existing paths is staged or included in this candidate.
+
+
+## S8-FU UART `send_until()` restore-failure correction — 2026-11-13
+
+**Status: bounded code/test change implemented; local gates and substantive
+independent reviews are recorded; package-wide evidence binding is pending.** This change follows
+PA finding PA-001 in `PA-REVIEW-UART-SEND-UNTIL-RESTORE-RESULT-20261112.md`.
+`uart_send_until()` now checks the temporary `fcntl(F_SETFL, original_flags)`
+restore result after every attempted write, returns `FF_ERROR` without retry on
+failure, and snapshots `errno` immediately after `write()` so a successful
+restore cannot change error classification. It does not claim that the OS
+restored flags after a failed `fcntl`; the shared descriptor may remain
+nonblocking.
+
+### Executed evidence
+
+Evidence logs, raw Renode captures, ELF, test executable, and input identities
+are retained under `docs/vv/evidence/2026-11-13-uart-restore-error/`; the README
+there records each command/result and limits. The candidate source/test
+identity at the time of the fresh run is:
+
+- `src/transport/link/link_uart.c` sha256
+  `c39c3f271680d0d0c838d10fc72039e5ea65ee0f2fda8df7c56080200737cc99`;
+- `src/transport/link/link.h` sha256
+  `45e3f58337546d7485efd0e477d042a788e6ca0fd7b88e4e6e14d54d122b1961`;
+- `tests/unit/test_link_uart.c` sha256
+  `11d18353f7e006a13cf7897055e478e31619adb9ecbd33ecc83de115303f5006`;
+- `tests/CMakeLists.txt` sha256
+  `68346402e3fa1ad0cc665669cc410d67165753ddf6d03544f29d4b96e1e7d038`;
+- `build/uart-full/tests/test_link_uart` sha256
+  `726d1052bde18396860a0fd9d1ed354a534e29ee7d0aadc4bc8ac7d47b041b3d`.
+
+Fresh full native build and CTest passed (**57/57**); focused `test_link_uart`
+reported **104 checks, 0 failures**, and registered CTest `link_uart` passed 1/1.
+N22-TS2-84 has two explicit host PTY subcases: (a) `EAGAIN` + restore failure,
+asserting `FF_ERROR`, exactly one write attempt, no transmitted bytes, and the
+still-nonblocking descriptor before fixture cleanup; (b) `EAGAIN` + successful
+restore that clobbers `errno`, then successful retry and exact payload receipt,
+asserting two write attempts. N22-TS2-85 covers final-write deadline overrun:
+the delayed accepted transfer returns `FF_TIMEOUT` and exact transmitted bytes
+are asserted. N22-TS2-86 checks an expired zero-length request returns
+`FF_TIMEOUT` with no write attempt. A final positive write is post-checked against the monotonic deadline. N22-TS2-85
+asserts `FF_TIMEOUT` plus exact emitted bytes when the accepted final write
+completes after deadline (timeout does not mean no bytes were transmitted). The
+expired zero-length API edge is N22-TS2-86. These API subcases are not
+SRS-REQ-074 compliance or full panic-path evidence.
+
+`make verify-lean`, `make trace` (120/76/30/14/68), changed-file pinned
+clang-format 18, `make gsw-selfcheck` including N13 license checks, isolated
+`BUILD_DIR=build/uart-full make smoke`, `make docs-container`, `make rtems-docker`,
+and `make renode` all passed. Renode reported `RENODE_TEST: PASS` (container exit
+0) on the newly rebuilt RTEMS image; it is emulator-only evidence, not physical
+target, HIL, timing/WCET, qualification or flight evidence. Logs capture exact
+commands/results.
+
+### Limitations and incomplete gates
+
+Full pinned clang-format 18 `make format-check` still fails only on the three
+unchanged initializers in `src/transport/link/link_tsn.c:18`,
+`src/transport/link/link_ip.c:19`, and `tests/unit/test_link_tsn.c:24`
+(NC-EXT-244, deferred; changed C files pass). `make metrics` completed and
+refreshed the README status panel. The first default `make build` and `make smoke`
+attempts hit the pre-existing `build/native` CMake cache bound to `/workspace`;
+no cache was removed. Both were rerun successfully with the isolated
+`build/uart-full` directory. Metrics completed with current outputs. T3 remains
+**NOT FULLY QUALIFIED**; successful execution is not qualification.
+
+Independent R1 re-review found no functional defect in the restore, errno,
+post-write deadline or expired zero-length cases; R3 found no new defect in the
+deadline/API edges. The evidence/docs delta reviews confirm the UART-local
+run-assets list, 104-check result, traceability mirror, tool-register hash and
+status/date corrections. The R2/R4 reports explicitly do not claim candidate-wide
+integrity because the old r4 manifest remains stale. PA/N20 substantive review
+found no new product defect in the bounded UART scope and is recorded in
+`PA-N20-20261113-UART-RESTORE-DEADLINE-SUBSTANTIVE-REVIEW.md`. Candidate-wide
+integrity is controlled by the active r4 inventory/manifest and three
+independent post-manifest reports; the local UART run-assets checksum is not a
+substitute. Verify the exact digest and report results in that package.
+NC-EXT-191 remains OPEN for shared-descriptor effects (especially after actual
+restore failure), RTEMS target-readiness semantics and target 250 ms timing.
+No NC, sprint, qualification, release, or flight decision is closed or approved.
+
+## ICD §4 S3/S6 dispatch-contract correction — 2026-11-13
+
+**Scope:** `docs/interfaces/ICD.md` rev 1.8 §4 (Service 3 and Service 6 rows),
+the S3/S6 residual dispatch test `tests/unit/test_pus_s11_residual.c` (now
+registered in CTest), and the citing text that repeated the superseded
+allocation (`src/pus/pus_services.c` comments, `docs/architecture/pus-layer.md`
+rev 0.1.9, `README.md`, `docs/adr/ADR-0020` rev 0.4, TS-1 rev 1.13,
+`docs/vv/target-io-coverage.md`, `docs/vv/xw3-tc-oracle-matrix.md`, the XW-2/XW-3
+gap manifests, `src/apps/app_req_test.c`).
+
+**Defect (documented-vs-implemented divergence):** ICD §4 still documented the
+superseded Service 3 allocation (1=create, 3=delete, 5=enable, 6=disable,
+27=one-shot) and the superseded Service 6 dump subservice (6,5), while
+`FF_PusRegisterCoreServices()` registers 1=enable, 2=disable, 3=periodic alias of
+enable, 4=one-shot request, 25=report TM, 128=create, 129=delete, and the S6 dump
+handler is subservice 2. A ground segment built to the old row would have had a
+create executed as an enable.
+
+**Change:** ICD rev 1.8 records the implemented, owner-approved (2026-11-10)
+provisional contract, the 6-octet create payload
+(`report id + provider id + period_s[4 BE]`), the periodic-emission caveat
+(`FF_PusEmitPeriodicHk()` has no production caller, ESC-HK-02) and the
+authority-pending create width (ESC-HK-01, NC-EXT-210). **No production wire
+behaviour changed by this revision.** NC-EXT-16/17/18 remain CLOSED for
+implementation only; formal mission ICD entry remains M15 scope.
+
+### Executed evidence (current tree)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Configure + build (`BUILD_DIR=build/uart-full`) | exit 0 | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/build.log` |
+| CTest | **58/58 PASS** | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/ctest.log` |
+| Focused `pus_s11_residual` | 1176 checks, 0 failures | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/pus-s11-residual.log` |
+| Changed-file clang-format (23.1.3, unpinned) | exit 0 | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/format-changed-files.log` |
+| Lean 4 | `lake build` exit 0 | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/lean.log` |
+| Traceability | PASS (120/76/30/14/68) | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/trace.log` |
+| GSW / metrics / N13 license | `make gsw-selfcheck` OK | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/gsw-selfcheck.log` |
+| Smoke (native simulator) | PASS, 7 applications | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/smoke.log` |
+| Coverage / metrics | 58/58; 15924/33832 (47.1%) lines, 1796/2640 (68.0%) functions | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/metrics.log` |
+| Docs (Doxygen) | exit 0, `build/doxygen/html/index.html` non-empty | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/docs-container.log` |
+| RTEMS 6.2 cross build (`make rtems-docker`) | exit 0, `frick_fsw` linked | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/rtems-docker.log` |
+| Renode N18 (`make renode`) | `RENODE_TEST: PASS`, container exit 0 | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/renode.log`, `renode-run/` |
+| Python verdict fixtures | 17 tests OK | `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/python-fixtures.log` |
+
+The Renode run used the RTEMS image rebuilt from the current tree in this cycle
+(ELF sha256 `41acb18583ac25a6deb671274e1400fe4db8b84f6c105958f22959db0660cb20`,
+`renode-elf.sha256`), so it does not rest on the earlier S1-increment image. It
+is emulator-only evidence, not physical target, HIL, timing/WCET, qualification
+or flight evidence.
+
+### Discriminating oracle
+
+`tests/unit/test_pus_s11_residual.c` (registered CTest `pus_s11_residual`,
+labels `n22;pus;nc-ext-14;nc-ext-15;nc-ext-16;nc-ext-18;nc-ext-22`) drives the
+implemented dispatch directly: S3 128=create, 1=enable, 2=disable, 3=periodic
+alias, 4=one-shot request, 129=delete; S6 2=dump; plus S9/S17/S20 dispatch and
+the S1 verification chain. It asserts that the superseded `{5,6,27}` subservices
+are **not** the registered handlers (`FF_NOT_FOUND`), so a regression back to the
+old allocation fails the test rather than passing silently. 1176 checks, 0
+failures.
+
+The new test artifact is also added to the `tests` lists of SRS-REQ-005,
+SRS-REQ-008, SRS-REQ-009, SRS-REQ-010 and SRS-REQ-012 in
+`docs/requirements/traceability.yaml` and the human-readable mirror
+`docs/requirements/traceability.md` (norm N3/N4); `make trace` still reports
+PASS (120 requirements, 76 srs, 30 sss, 14 gaps, 68 Lean theorems). No
+requirement text, status token or Lean theorem changed.
+
+### Limitations and incomplete gates
+
+Full pinned clang-format 18 `make format-check` remains blocked on the host
+(only clang-format 23.1.3 installed) and on the three unchanged initializer files
+(NC-EXT-244, deferred); the changed C files pass `clang-format --dry-run
+--Werror` under 23.1.3. This is not equivalent to the pinned-18 gate and is
+recorded as a limitation. `make metrics` refreshed the README status panel
+(coverage and review-stream figures changed). T3 remains **NOT FULLY QUALIFIED**;
+successful execution is not qualification. No NC is closed, no authority decision
+is taken, and no sprint, release or flight decision is approved.

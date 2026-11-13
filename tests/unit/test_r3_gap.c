@@ -442,7 +442,7 @@ static void test_pus_hk_s3_lifecycle(void)
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_ALREADY_EXISTS);
     FF_TEST_ASSERT(rx_find(1u, 8u, &d, &dl));
 
-    /* Report on request (3,27) produces (3,25) with the provider image. */
+    /* Report on request (3,4) produces (3,25) with the provider image. */
     rx_reset();
     one[0] = report_id;
     report_request[0] = 1u;
@@ -455,7 +455,7 @@ static void test_pus_hk_s3_lifecycle(void)
     FF_TEST_ASSERT(d[0] == report_id);
     FF_TEST_ASSERT((d[1] == 0xAAu) && (d[2] == 0xBBu) && (d[3] == 0xCCu) && (d[4] == 0xDDu));
 
-    /* Disable periodic generation (3,6); a one-shot (3,27) still reports. */
+    /* Disable periodic generation (3,2); a one-shot (3,4) still reports. */
     flen = encode_tc(FF_PUS_SERVICE_HK, 2u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
@@ -465,7 +465,7 @@ static void test_pus_hk_s3_lifecycle(void)
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);
     FF_TEST_ASSERT(rx_find(3u, 25u, &d, &dl));
 
-    /* Enable periodic generation (3,5); one-shot remains available. */
+    /* Enable periodic generation (3,1); one-shot remains available. */
     flen = encode_tc(FF_PUS_SERVICE_HK, 1u, FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_COMPLETION, one,
                      sizeof(one), frame, sizeof(frame));
     FF_TEST_ASSERT(FF_PusIngest(frame, flen) == FF_SUCCESS);

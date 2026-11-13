@@ -1,0 +1,22 @@
+# Mutation control for test_verification_failure_via_ingest (R2 candidate)
+# UTC: 2026-11-12T20:26:12Z
+# source baseline sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+# test sha256: 1521d95e03f44e8a8a26b2ebd261ca67204392c5133c842e08a74ff458987da5
+# test baseline: /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=322 failures=0
+
+=== M1 ILLEGAL_APID -> BAD_DATA ===
+mutated sha256: 1df235d22e200f3b8d467c6a18d12af8e49e342701946ce5f987434ec2e8489f
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:735: stream_has_verification(2u, FF_PUS_SERVICE_TEST, 1u, FF_PUS_FAIL_ILLEGAL_APID)
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=322 failures=1
+restored sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+
+=== M2 remove service-0 code selection ===
+mutated sha256: cd2b01fa0f5604d4ae1a17b299f2c37dfc0683823d9018167efdb24991e8b9ed
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:788: stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SERVICE)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:789: !stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SUBSERVICE)
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=322 failures=2
+restored sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+
+=== restored test ===
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=322 failures=0
+source status: 

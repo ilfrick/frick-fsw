@@ -33,6 +33,10 @@ typedef struct
      *     case nothing is transmitted) or when it elapsed during the transfer;
      *   - the ordinary argument/readiness statuses otherwise (FF_NOT_READY,
      *     FF_INVALID_ARGUMENT, backend error).
+     * A backend that temporarily changes a shared device mode must inspect the
+     * restoration result after every transfer attempt. If restoration fails,
+     * it reports FF_ERROR and stops retrying; the device mode is then uncertain
+     * and the caller must not infer that the transfer can safely be retried.
      * Implementations whose underlying transmit call is synchronous cannot
      * preempt a stalled driver; they enforce the deadline on entry and
      * re-check it after the transfer, so an overrun is reported as FF_TIMEOUT

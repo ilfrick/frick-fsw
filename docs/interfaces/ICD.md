@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 1.7 |
-| Date        | 2026-11-11 |
+| Revision    | 1.8 |
+| Date        | 2026-11-13 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -106,19 +106,31 @@ provisional-profile note at the end of this section.
 | 1  | 4 / 6 | start / progress failure (reserved, not emitted) | TM | errcode |
 | 1  | 7 | completion success | TM | errcode 0 |
 | 1  | 8 | completion failure | TM | errcode |
-| 3  | 1 | create housekeeping report definition | TC | report id[1] + provider id[1] |
-| 3  | 3 | delete housekeeping report definition | TC | report id[1] |
-| 3  | 5 | set periodic-generation **state flag** to enabled | TC | report id[1] (state flag only; **no periodic emission path exists in this release** — TM[3,25] is produced only by TC[3,27]) |
-| 3  | 6 | set periodic-generation **state flag** to disabled | TC | report id[1] (state flag only; see above) |
-| 3  | 25 | housekeeping report | TM | report id + data |
-| 3  | 27 | one-shot housekeeping report request | TC | count N[1] (`N >= 1`) + N report ids[1 each]; payload length must be exactly `1+N` octets; requests are processed in order, reporting the **first** error only while still serving the remaining valid ids (one-shot; no periodic arming) |
+| 3  | 1 | set periodic-generation **state flag** to enabled | TC | report id[1]; the report must already exist (unknown id -> `FF_NOT_FOUND`) and enabling re-initializes its last-emission time (NC-EXT-211) |
+| 3  | 2 | set periodic-generation **state flag** to disabled | TC | report id[1] (state flag only; see the emission-path caveat below) |
+| 3  | 3 | enable periodic generation — **alias of subservice 1** | TC | report id[1]; registered to the same handler as subservice 1, so it has identical effects |
+| 3  | 4 | one-shot housekeeping report request | TC | count N[1] (`N >= 1`) + N report ids[1 each]; payload length must be exactly `1+N` octets; requests are processed in order, reporting the **first** error only while still serving the remaining valid ids; independent of the periodic state flag |
+| 3  | 25 | housekeeping report | TM | report id[1] + provider data; emitted by the one-shot request path and by `FF_PusEmitPeriodicHk()` |
+| 3  | 128 | create housekeeping report definition | TC | report id[1] + provider id[1] + period_s[4, big-endian] (6-octet minimum payload; trailing octets are currently ignored, NC-EXT-210); `period_s = 0` means one-shot only. Creation sets the periodic state flag to enabled and initializes the last-emission time (NC-EXT-211). Provisional management subservice (NC-EXT-17, approved as mission tailoring 2026-11-10) |
+| 3  | 129 | delete housekeeping report definition | TC | report id[1]; unknown id -> `FF_NOT_FOUND`. Provisional management subservice (NC-EXT-17, approved as mission tailoring 2026-11-10) |
 | 5  | - | event report | TM | event id[@2, big-endian], type[1], text — the header is built by `FF_PusEmitEvent` from its `event_id`/`evs_type` arguments; callers supply the auxiliary data (normally the free-text reason) only and must not prepend an id or type octet (NC-EXT-237) |
-| 6  | 5 / 6 | memory dump (TC 6,5 -> TM 6,6) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0`, `length == 0` or `length` exceeds `FF_PUS_MAX_TM_FRAME`; with `FF_NOT_FOUND` when no registered region carries the identifier, and with `FF_INVALID_ARGUMENT` when the region exists but `offset + length` lies outside it (region resolution precedes the range check, so an unknown region is never reported as a range refusal). These causes are **distinct in software** but **none of them is distinguishable on the wire by design**: every refusal surfaces as S1(1,8) with `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produces no response when it is clear. Validation precedence is: payload length, then `region id`/`length` range, then region resolution, then region bounds. The PUS-C failure-code allocation that would separate the causes on the wire is an interface-authority decision and is not made here (NC-EXT-18) |
+| 6  | 2 / 6 | memory dump (TC[6,2] -> TM[6,6]) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload, exactly); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0`, `length == 0` or `length` exceeds `FF_PUS_MAX_TM_FRAME`; with `FF_NOT_FOUND` when no registered region carries the identifier, and with `FF_INVALID_ARGUMENT` when the region exists but `offset + length` lies outside it (region resolution precedes the range check, so an unknown region is never reported as a range refusal). These causes are **distinct in software** but **none of them is distinguishable on the wire by design**: every refusal surfaces as S1(1,8) with `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produces no response when it is clear. Validation precedence is: payload length, then `region id`/`length` range, then region resolution, then region bounds. The PUS-C failure-code allocation that would separate the causes on the wire is an interface-authority decision and is not made here (NC-EXT-18) |
 | 8  | - | function call | TC (dispatch) | function id |
 | 9  | 1 / 2 | time set / CUC report | TC/TM | 6-octet CUC T-field (P-field implicit; section 5) |
 | 11 | 1 / 2 | on-board control procedure (OBCP) activation — **stub** | TC | registered and answerable, but returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); no OBCP engine or script execution exists in this release (M15; NC-S9-01) |
 | 17 | 1 / 2 | test (ping / pong) | TC/TM | echo of the TC user data |
 | 20 | - | parameter report | TM | table-backed parameters |
+
+**Service 3 periodic-emission caveat.** The periodic-generation state flag set by
+TC[3,1], TC[3,2], TC[3,3] and TC[3,128] is honoured by
+`FF_PusEmitPeriodicHk()`, which emits TM[3,25] for each enabled report whose
+period has elapsed. That function has **no production caller** in the flight
+build of this release (ESC-HK-02), so periodic generation is inert on the
+vehicle: TM[3,25] is produced by the one-shot request TC[3,4] until a cadence
+owner is decided. The due test uses signed modular time arithmetic and holds a
+report unserved rather than flooding across a coarse-wrap/backward-step window
+(NC-EXT-207); the maximum permissible `period_s`, the CUC epoch and the coarse
+wrap policy remain authority-owned (NC-EXT-208, ESC-HK-05, ESC-HK-06).
 
 Verification error codes: `FF_PUS_FAIL_*` (unknown service/subservice,
 illegal APID, execution failure).
@@ -140,17 +152,23 @@ different identity in the auxiliary data (NC-EXT-237).
 **Provisional profile note (authority pending).** **Every** service/subservice
 row in this section is a provisional framework default recorded in
 `docs/adr/ADR-0020-provisional-pus-and-scheduler-policies.md`: the Service 3
-subservice allocation (1/3/5/6/27), the Service 6 memory-dump layout
-(`region id[1] + byte offset[4 BE] + length[2 BE]`, 7-octet TC payload), and the
-S1/S5/S8/S9/S11/S17/S20 code points. They align with the pinned
-ECSS-E-ST-70-41C (2016) service/subservice labelling where such a mapping
-exists, but they are **not** an approved mission PUS profile, an approved
-memory-access authorization model, or an approved OBCP concept. The Service 3
-codes are tracked open by NC-EXT-16 (and NC-EXT-14/15/17 for adjacent S1/S3/S8/S9
-and TM[8,2] semantics); the Service 6 region/address-width contract by
-NC-EXT-18; OBCP service use by M15/NC-S9-01. A mission profile/ICD authority
-must accept or replace these values before any operational use; this document
-remains an internal reference profile (section 6).
+subservice allocation (1/2/3/4/25/128/129), the Service 6 memory-dump layout
+(TC[6,2] with `region id[1] + byte offset[4 BE] + length[2 BE]`, 7-octet TC
+payload, TM[6,6]), and the S1/S5/S8/S9/S11/S17/S20 code points. They align with
+the pinned ECSS-E-ST-70-41C (2016) service/subservice labelling where such a
+mapping exists, but they are **not** an approved mission PUS profile, an
+approved memory-access authorization model, or an approved OBCP concept. The
+Service 3 allocation and the Service 6 dump subservice are the provisional
+defaults adopted as mission tailoring by the owner/systems engineer on
+2026-11-10 (NC-EXT-16/17/18); **formal mission ICD entry and mission-profile
+compatibility remain M15 scope and are not claimed here**, and the
+housekeeping-create payload width is still an interface-authority item
+(ESC-HK-01, NC-EXT-210). The Service 3 codes remain tracked open by NC-EXT-16
+(and NC-EXT-14/15/17 for adjacent S1/S3/S8/S9 and TM[8,2] semantics); the
+Service 6 region/address-width contract by NC-EXT-18; OBCP service use by
+M15/NC-S9-01. A mission profile/ICD authority must accept or replace these
+values before any operational use; this document remains an internal reference
+profile (section 6).
 
 ## 5. Time code (CUC, CCSDS 301.0-B-4)
 
@@ -231,3 +249,4 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 1.5 | 2026-10-20 | frick-fsw | S8-FDIR-01: add the event-id catalogue note after §4 recording that the S5 format is documented but no controlled event-id catalogue exists yet, that `FF_EVS_PANIC_RESET` (`0x0104`, CRITICAL) is now emitted on the pre-reset panic path, and that the ids are not authoritative until the interface/requirements authority allocates them (NC-EXT-102). No wire behavior changed |
 | 1.6 | 2026-10-24 | frick-fsw | S8-PUS-FU NC-EXT-18: describe the implemented S6 refusal causes as distinct software-visible statuses (`FF_NOT_FOUND` for an unregistered region identifier, `FF_INVALID_ARGUMENT` for an out-of-region offset+length, region resolution first) while restating that they remain deliberately indistinguishable on the wire pending the interface-authority failure-code allocation. No wire behavior changed by this revision |
 | 1.7 | 2026-11-11 | frick-fsw | NC-EXT-237: the §4 S5 row now records that the `event id[@2, big-endian]` + `type[1]` header is built by `FF_PusEmitEvent` from its `event_id`/`evs_type` arguments and that callers pass auxiliary data only; the event-id catalogue note points at that contract. **No wire behavior changed**: the encoded octets are identical to those previously produced by callers that embedded the header themselves |
+| 1.8 | 2026-11-13 | frick-fsw | Correct the §4 S3/S6 dispatch contract to the implemented wire behaviour approved as provisional mission tailoring on 2026-11-10 (NC-EXT-16/17/18): S3 rows now read 1=Enable, 2=Disable, 3=Periodic (alias of Enable), 4=Request, 25=HK report TM, 128=Create (6-octet `report id + provider id + period_s[4 BE]`), 129=Delete, replacing the superseded 1/3/5/6/27 rows; the S6 dump row now reads TC[6,2] instead of TC[6,5]; add the periodic-emission caveat (no production caller, ESC-HK-02) and the create-payload/`period_s` authority caveats (ESC-HK-01/05/06, NC-EXT-208/210). **No production code changed by this revision**; it removes a documented-vs-implemented divergence that would have mis-dispatched a ground command (a create built to the old row would have been executed as an enable) |

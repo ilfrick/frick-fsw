@@ -115,20 +115,32 @@ static FF_Status_t uart_send(const uint8_t *data, uint16_t len)
 
 /* Deadline-bounded send.
  *
- * The descriptor is switched to non-blocking mode so a stalled UART cannot
- * trap the panic context inside write(), and the original mode is restored
- * afterwards so the normal (blocking) send path keeps its semantics.
+ * The shared descriptor is temporarily switched to non-blocking mode for each
+ * write. Other writers may observe that mode during the write; every restore
+ * result is checked, but a failed restoration leaves the descriptor mode
+ * uncertain and returns FF_ERROR.
  *
  * No poll()/select() is used: RTEMS 6.2 provides neither, and a target build
  * that referenced them would not link. A temporarily full transmit buffer is
- * handled by a short back-off and a retry against the shared deadline, which
- * is bounded by construction. The wait is a busy retry, not a readiness wait:
- * the target driver's readiness semantics are unverified (see ADR-0021).
+ * handled by a short back-off and retry against the shared deadline. This is
+ * not a hard return-time bound or a readiness wait; target driver readiness
+ * semantics remain unverified (see ADR-0021).
  */
 static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t deadline_ns)
 {
     if ((g_fd < 0) || ((data == NULL) && (len != 0u))) {
         return (g_fd < 0) ? FF_NOT_READY : FF_INVALID_ARGUMENT;
+    }
+    struct timespec entry_ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &entry_ts) != 0) {
+        return FF_ERROR;
+    }
+    uint64_t entry_ns = (uint64_t)entry_ts.tv_sec * 1000000000ULL + (uint64_t)entry_ts.tv_nsec;
+    if (entry_ns >= deadline_ns) {
+        return FF_TIMEOUT;
+    }
+    if (len == 0u) {
+        return FF_SUCCESS;
     }
     int flags = fcntl(g_fd, F_GETFL, 0);
     if (flags < 0) {
@@ -147,27 +159,40 @@ static FF_Status_t uart_send_until(const uint8_t *data, uint16_t len, uint64_t d
             result = FF_TIMEOUT;
             break;
         }
-        /* Set O_NONBLOCK for this write only, then restore blocking mode
-         * immediately, so a concurrent writer on the shared fd (uart_send)
-         * never observes non-blocking mode for longer than a single write()
-         * call. The plain send path keeps its blocking semantics. */
+        /* Temporarily set O_NONBLOCK for this write. A concurrent writer may
+         * observe the temporary mode; a restore failure is reported below. */
         if (fcntl(g_fd, F_SETFL, flags | O_NONBLOCK) != 0) {
             result = FF_ERROR;
             break;
         }
         ssize_t w = write(g_fd, data + sent, (size_t)(len - sent));
+        int write_errno = errno;
         int restore_rc = fcntl(g_fd, F_SETFL, flags);
+        if (restore_rc != 0) {
+            /* Do not retry or report a successful transfer while the shared
+             * descriptor may still be non-blocking. */
+            result = FF_ERROR;
+            break;
+        }
         if (w > 0) {
             sent = (uint16_t)(sent + (uint16_t)w);
-            if (restore_rc != 0) {
+            struct timespec completed_ts;
+            if (clock_gettime(CLOCK_MONOTONIC, &completed_ts) != 0) {
                 result = FF_ERROR;
+                break;
+            }
+            uint64_t completed_ns =
+                (uint64_t)completed_ts.tv_sec * 1000000000ULL + (uint64_t)completed_ts.tv_nsec;
+            if (completed_ns >= deadline_ns) {
+                result = FF_TIMEOUT;
+                break;
             }
             continue;
         }
-        if ((w < 0) && (errno == EINTR)) {
+        if ((w < 0) && (write_errno == EINTR)) {
             continue;
         }
-        if ((w < 0) && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
+        if ((w < 0) && ((write_errno == EAGAIN) || (write_errno == EWOULDBLOCK))) {
             struct timespec pause = {.tv_sec = 0, .tv_nsec = 1000000L};
             (void)nanosleep(&pause, NULL);
             continue;

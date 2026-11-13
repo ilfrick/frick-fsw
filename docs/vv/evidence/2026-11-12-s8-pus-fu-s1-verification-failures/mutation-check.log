@@ -1,0 +1,27 @@
+# Mutation control for test_verification_failure_via_ingest
+# Host: Linux 7.0.0-43-generic x86_64
+# Date: 2026-11-12T18:52:41Z
+# Build dir: build/evidence-20261112-pus-s1
+# Baseline src/pus/pus.c sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+# Test baseline: /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=320 failures=0
+
+=== Mutation 1: illegal-APID failure code ILLEGAL_APID -> BAD_DATA ===
+file: src/pus/pus.c
+patch: FF_PUS_FAIL_ILLEGAL_APID); -> FF_PUS_FAIL_BAD_DATA);  (single occurrence, line 424)
+mutated sha256: 1df235d22e200f3b8d467c6a18d12af8e49e342701946ce5f987434ec2e8489f
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:731: stream_has_verification(2u, FF_PUS_SERVICE_TEST, 1u, FF_PUS_FAIL_ILLEGAL_APID)
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=320 failures=1
+restored sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+
+=== Mutation 2: remove service-0 failure-code selection ===
+file: src/pus/pus.c
+patch: (tc.service == 0u) ? FF_PUS_FAIL_UNKNOWN_SERVICE : FF_PUS_FAIL_UNKNOWN_SUBSERVICE -> FF_PUS_FAIL_UNKNOWN_SUBSERVICE  (line 439)
+mutated sha256: cd2b01fa0f5604d4ae1a17b299f2c37dfc0683823d9018167efdb24991e8b9ed
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:779: stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SERVICE)
+FAIL /home/nicola/fsw/frick-fsw/tests/unit/test_pus.c:780: !stream_has_verification(8u, 0u, 1u, FF_PUS_FAIL_UNKNOWN_SUBSERVICE)
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=320 failures=2
+restored sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+
+=== Restored baseline ===
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus.c checks=320 failures=0
+git status for src/pus/pus.c (empty means byte-identical to HEAD):

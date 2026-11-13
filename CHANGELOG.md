@@ -7,6 +7,60 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### ICD §4 S3/S6 dispatch-contract correction (2026-11-13)
+
+Documentation/interface-contract correction (N8/N12), no behaviour change.
+`docs/interfaces/ICD.md` §4 still described the superseded Service 3 allocation
+(1=create, 3=delete, 5=enable, 6=disable, 27=one-shot request) and the superseded
+Service 6 dump subservice (TC[6,5]). The registered handlers and the provisional
+tailoring the owner/systems engineer approved on 2026-11-10 (NC-EXT-16/17/18) are
+1=enable, 2=disable, 3=periodic (alias of enable), 4=one-shot request,
+25=report TM, 128=create, 129=delete, and TC[6,2]=dump. A ground segment built to
+the old row would have had its create command executed as an enable, so ICD
+rev 1.8 now records the implemented contract, the 6-octet create payload
+(`report id + provider id + period_s[4 BE]`), the periodic-emission caveat
+(`FF_PusEmitPeriodicHk()` has no production caller, ESC-HK-02) and the
+authority-pending create width (ESC-HK-01, NC-EXT-210). Citing text is aligned in
+the same change: `src/pus/pus_services.c` comments, `docs/architecture/pus-layer.md`
+(rev 0.1.9), `README.md`, `docs/adr/ADR-0020` (rev 0.4 label note), TS-1 rev 1.13,
+`docs/vv/target-io-coverage.md`, `docs/vv/xw3-tc-oracle-matrix.md`, the XW-2/XW-3
+gap manifests and the `app_req_test.c` gap string. The new test artifact
+`tests/unit/test_pus_s11_residual.c` is added to the `tests` lists of SRS-REQ-005,
+SRS-REQ-008, SRS-REQ-009, SRS-REQ-010 and SRS-REQ-012 in
+`docs/requirements/traceability.yaml` and `docs/requirements/traceability.md`
+(norm N3/N4); `make trace` still passes. Retained historical evidence
+and 2026-10-26 console transcripts are left as recorded and annotated where they
+are used as fixtures. No NC is closed, no authority decision is taken, and no
+compliance, qualification, release or flight claim is implied.
+
+### S8-FU UART deadline-writer restore-failure correction (2026-11-13)
+
+Functional N21 follow-up to the existing NC-EXT-191 review finding. The UART
+`send_until` writer now checks the temporary descriptor-mode restore result after
+every write outcome and returns `FF_ERROR` without retry when restoration fails.
+Deterministic PTY tests inject `EAGAIN` followed by restore failure, verify
+error/no-retry behavior, and cover preserved write errno plus final-write
+deadline overrun (timeout can follow emitted bytes). TS-2 rev 0.13 adds
+N22-TS2-84/85/86, including an expired zero-length request returning timeout
+without transmission. The fixture cleans up through the test-only real-fcntl seam. This does not guarantee
+that the OS restored the descriptor after `fcntl` failure, close NC-EXT-191, or
+establish target readiness/timing. Gate and review status is in
+`docs/vv/verification-results.md`; no sprint, NC, qualification, or release
+closure is implied.
+
+### S8-PUS-FU Service 1 ingestion-failure test increment (2026-11-13)
+
+Test/documentation-only increment. `tests/unit/test_pus.c` adds explicit
+implementation-characterization checks for illegal APID and unknown
+service/subservice ingestion failures, including verification-packet payload
+octets. TS-1 is updated to rev 1.12 (104 cases: 76 covered, 28 gaps); unresolved
+acceptance-policy and acknowledgement-zero cases remain gaps, not requirement
+coverage. No production PUS source or requirement text changed. The current
+evidence package and independent review findings/status are recorded in
+`docs/vv/verification-results.md` and its indexed independent review reports.
+This entry records no NC, sprint, qualification, release, or flight approval;
+consult the live result/review records for their current state.
+
 ### IP and TSN deadline-bounded link writers (2026-11-11)
 
 Functional N21 increment. It implements the **backend-coverage half of NC-EXT-191** (NC stays OPEN):

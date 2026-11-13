@@ -4,14 +4,14 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS2                     |
-| Revision                         | 0.10                                   |
-| Date                             | 2026-11-11                             |
+| Revision                         | 0.13                                   |
+| Date                             | 2026-11-13                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-2 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 | Scope                            | Link backends (`link.c`, `link_loopback.c`, `link_uart.c`, `link_ip.c`, `link_tsn.c`), PUS-C segmentation/reassembly (`link_seg.c`, SRS-REQ-059) and the CCSDS SDLS sub-layer (`src/security/ff_sdls.c`, SRS-REQ-034/035) |
-| Baseline                         | Candidate delta: source HEAD `13ebf92` plus uncommitted UART receive-framing changes/tests and prior T7 changes; see current verification-results. Earlier TS-2 cases retain their historical baselines. |
+| Baseline                         | Candidate delta: committed HEAD `e5f01d4` plus current S8-PUS-FU/NC-EXT-191 source, test and document changes; see `docs/vv/verification-results.md`. Earlier TS-2 cases retain their historical baselines. |
 | Modules under test               | `src/transport/link/link.c`, `link_loopback.c`, `link_uart.c`, `link_seg.c`, `link_ip.c`, `link_tsn.c`; `src/security/ff_sdls.c` |
 | Interfaces cited                 | `link.h`, `link_seg.h`, `link_ip.h`, `link_tsn.h`, `security/ff_sdls.h`, `core/common/ff_types.h`, `docs/interfaces/ICD.md` (FRICK-ICD-001), `docs/architecture/security-sdls.md` (FRICK-ARCH-0010), `docs/architecture/network-stack.md` (FRICK-ARCH-0012) |
 
@@ -98,12 +98,13 @@ its own behavior is TS-3.
 
 ## 2. Test cases
 
-Case IDs `N22-TS2-1` … `N22-TS2-83`; groups: `1–8` link core and loopback,
+Case IDs `N22-TS2-1` … `N22-TS2-86`; groups: `1–8` link core and loopback,
 `9–16` IP backend (UDP/TCP), `17–29` segmentation/reassembly, `30–37` TSN
 backend, `38–41` UART backend, `42–69` SDLS (backend, SA/key lifecycle,
 protect/unprotect), `70–80` combined scenarios and environment-bound gaps,
-`81` UART packet-framing integration, and `82–83` deadline-bounded link writers
-(`FF_Link_t::send_until`, SRS-REQ-074 panic-report path).
+`81` UART packet-framing integration, `82–83` IP/TSN deadline-bounded writers,
+`84` UART restore-error/errno preservation, `85` UART deadline-overrun reporting,
+and `86` expired zero-length UART send behavior (`SRS-REQ-074` API subcases).
 
 | Case | Requirement | Case | Class | Inputs (boundaries) | Expected result (oracle) | Env | Scope | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -190,6 +191,9 @@ protect/unprotect), `70–80` combined scenarios and environment-bound gaps,
 | N22-TS2-81 | NC-EXT-07 characterization; no approved SRS oracle | `link_uart.c` packet framing over split/coalesced UART stream | OOB | PTY sends partial TC, receive timeout, remainder + second packet; too-small `cap`; over-limit PDL then valid packet; maximum frame; plausible maximum-length incomplete PDL followed by a valid packet and enough suffix to complete the declared candidate; close PTY master and read with a longer timeout | split frame is retained on timeout; complete frames return one per call byte-identically; too-small `cap` returns `FF_BAD_SIZE` without consuming the frame; over-limit candidate resynchronizes one octet; maximum 1037-octet frame is intact. For plausible incomplete candidate, return `FF_TIMEOUT`, emit no inner packet, then return the retained entire declared-length candidate only after its remaining bytes arrive (no sync delimiter permits guessing); a zero-byte read substantially before its configured VTIME chunk returns `FF_ERROR` on disconnect rather than retrying to deadline. This exposes the open malformed-candidate/head-of-line recovery policy (ICD §2/§3) | SIL | individual | characterization of current host reference behavior only; no requirement closure, timeout/recovery authority or target evidence |
 | N22-TS2-82 | SRS-REQ-060, SRS-REQ-074 | `link_ip.c` deadline-bounded writer `ip_send_until` (panic-report path) | nominal + OOB | frozen monotonic clock (host test seam): (a) now 1000 ns, deadline 2000 ns; (b) now 5000 ns, deadline 5000 ns; (c) now 1000 ns, deadline 3000 ns while the mock stack advances the clock by 2500 ns during `send`; (d) `data` = NULL with `len` = 3 for `send_until` and `send` | (a) `FF_SUCCESS`, datagram handed to the stack byte-identically; (b) `FF_TIMEOUT` and the stack receives nothing (an expired budget must not transmit); (c) `FF_TIMEOUT` although the datagram was transmitted (an overrun is never reported as an in-budget delivery); (d) `FF_INVALID_ARGUMENT` and nothing transmitted. Oracle: `link.h` `FF_Link_t::send_until` contract (entry rejection, post-transfer re-check, `FF_TIMEOUT` on overrun). `tests/unit/test_link_ip.c::test_ip_send_until_deadline`. The synchronous stack call cannot be preempted, so the target 250 ms bound is not established here (N22-TS2-78) | SIL | individual | host covered |
 | N22-TS2-83 | SRS-REQ-061, SRS-REQ-074 | `link_tsn.c` deadline-bounded writer `tsn_send_until` (panic-report path) | nominal + OOB | frozen monotonic clock (host test seam): (a) now 1000 ns, deadline 2000 ns; (b) now 5000 ns, deadline 5000 ns; (c) now 1000 ns, deadline 3000 ns while the mock MAC advances the clock by 2500 ns during `transmit`; (d) `data` = NULL with `len` = 4, `len` = 0, and `len` = `FF_LINK_TSN_RX_FRAMESZ` + 1 | (a) `FF_SUCCESS`, the 60-octet padded frame reaches the MAC; (b) `FF_TIMEOUT` and no frame reaches the MAC; (c) `FF_TIMEOUT` although the frame was transmitted; (d) `FF_INVALID_ARGUMENT` and no frame transmitted. Oracle: `link.h` `FF_Link_t::send_until` contract. `tests/unit/test_link_tsn.c::test_tsn_send_until_deadline`. Same non-preemptible-transfer limitation; target bound remains N22-TS2-78 | SIL | individual | host covered |
+| N22-TS2-84 | SRS-REQ-074 API error subcase only | `link_uart.c` deadline writer reports restore failure and preserves write errno across successful restore | OOB | On the UART PTY slave, case (a) inject `write() = -1/EAGAIN`, then fail the immediately following `fcntl(F_SETFL, original_flags)` restore with a future deadline; case (b) inject one `EAGAIN`, let restore succeed while the wrapper clobbers `errno`, then allow the next write | (a) return `FF_ERROR`; assert exactly one UART write attempt, no bytes at the PTY master, the injection was consumed, and the descriptor remains nonblocking until fixture cleanup via test-only `__real_fcntl`; (b) return `FF_SUCCESS`, assert exactly two UART write attempts and exact payload bytes received, proving `EAGAIN` is classified from saved write errno despite successful `fcntl` clobbering it. Oracle: `link.h` API error contract. Host PTY subcases only; not SRS-REQ-074 compliance, full panic path, target readiness, target 250 ms timing or NC-EXT-191 closure | SIL | individual | host covered |
+| N22-TS2-85 | SRS-REQ-074 API deadline subcase only | `link_uart.c` deadline writer detects deadline overrun during the final transfer | OOB | Set a future monotonic deadline 100 ms ahead; wrap the PTY slave `write()` to complete the payload and delay return by 150 ms | Return `FF_TIMEOUT` after the accepted transfer; assert the delay injection was consumed and the exact payload bytes are present at the PTY master. This confirms the final successful write is post-checked against the deadline; timeout does not imply no bytes were transmitted. Oracle: `link.h` deadline-writer contract. Host timing test only; no target WCET, deterministic timing, target 250 ms compliance or full SRS-REQ-074 verification is claimed | SIL | individual | host covered |
+| N22-TS2-86 | SRS-REQ-074 API deadline subcase only | `link_uart.c` rejects an expired deadline for a zero-length send | OOB | Give `send_until(NULL, 0, deadline_past)` a deadline equal to current monotonic time | Return `FF_TIMEOUT` and assert the wrapped UART `write()` attempt count does not change. Oracle: `link.h` says an already-passed deadline returns timeout; no payload is sent. Host API edge only; no full SRS-REQ-074 verification | SIL | individual | host covered |
 
 ## 3. Gaps (mapping to NC-EXT-47 sub-items)
 
@@ -273,16 +277,17 @@ oracle.**
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 83 |
+| Total cases | 86 |
 | Nominal | 44 |
-| Out-of-bound | 37 |
+| Out-of-bound | 40 |
 | Mixed nominal + out-of-bound | 2 |
-| Individual | 74 |
+| Individual | 77 |
 | Combined | 9 |
-| `covered` (oracle grounded in a requirement/architecture/interface clause) | 50 |
+| `covered` (oracle grounded in a requirement/architecture/interface clause) | 48 |
+| `host covered` (host API subcase; no full target/SRS verification claim) | 5 |
 | `gap` (no controlled oracle; recorded under NC-EXT-47) | 32 |
 | `characterization` (NC-driven; no requirement closure) | 1 |
-| SIL / PIL / HIL | 78 / 2 / 3 |
+| SIL / PIL / HIL | 81 / 2 / 3 |
 
 Requirement coverage in this scope: `SRS-REQ-015/016/026/027/028/034/035/039/
 044/059/060/061` and `SSS-REQ-014/019/028` all have at least one case; the link
@@ -307,4 +312,7 @@ unit-test target; its cases are specified but not automated.
 | 0.7 | 2026-10-16 | frick-fsw | Add explicit disconnected-terminal zero-read outcome to N22-TS2-81; preserve malformed plausible-candidate recovery as open |
 | 0.8 | 2026-10-16 | frick-fsw | Remove unsupported SRS-REQ-016 verification mapping from host UART characterization case per independent V&V review |
 | 0.9 | 2026-10-16 | frick-fsw | Define characterization-only status for N22-TS2-81 and reconcile coverage counts after independent V&V review |
-| 0.10 | 2026-11-11 | frick-fsw | Add N22-TS2-82/83 for the IP and TSN deadline-bounded writers (`FF_Link_t::send_until`, SRS-REQ-074 panic-report path) after the `link.h` contract was documented; recount 83 cases (50 `covered`, 32 `gap`, 1 characterization). Target 250 ms bound and the remaining NC-EXT-191 parts (UART shared-descriptor concurrency, target readiness semantics) stay open |
+| 0.10 | 2026-11-11 | frick-fsw | Add N22-TS2-82/83 for the IP and TSN deadline-bounded writers (`FF_Link_t::send_until`, SRS-REQ-074 panic-report path) after the `link.h` contract was documented; recount 83 cases (50 `covered`, 32 `gap`, 1 characterization). Target 250 ms bound and UART shared-descriptor/readiness effects stay open |
+| 0.11 | 2026-11-13 | frick-fsw | Define the link API temporary-mode restoration error contract; add N22-TS2-84 for the UART `EAGAIN` + failed-restore outcome and successful-restore errno-preservation outcome. Recount: 84 cases, 44 nominal, 38 OOB, 2 mixed; 48 covered, 3 host covered, 32 gap, 1 characterization (host-covered rows are not folded into the `covered` subtotal). The case verifies API error subcases only, not SRS-REQ-074 compliance; shared-descriptor effects after restore failure, target readiness and target 250 ms bound remain open. |
+| 0.12 | 2026-11-13 | frick-fsw | Add N22-TS2-85 for the UART final-write deadline-overrun path identified in R3 review: a delayed accepted transfer returns `FF_TIMEOUT` and exact emitted bytes are asserted, matching the `link.h` post-transfer deadline contract. Recount 85 cases (44 nominal, 39 OOB, 2 mixed; 48 covered, 4 host covered, 32 gap, 1 characterization). Evidence is host timing only; no deterministic target timing/WCET or complete SRS-REQ-074 coverage is claimed. |
+| 0.13 | 2026-11-13 | frick-fsw | Add N22-TS2-86 for an expired zero-length UART send, resolving the R3 API edge: return `FF_TIMEOUT` without any write. Recount 86 cases (44 nominal, 40 OOB, 2 mixed; 48 covered, 5 host covered, 32 gap, 1 characterization). N22-TS2-84..86 are host API subcases only, not complete SRS-REQ-074, target readiness, timing or WCET evidence. |

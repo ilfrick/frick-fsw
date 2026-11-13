@@ -1,0 +1,116 @@
+[  1%] Built target frick_pus_asn1
+[  1%] Built target test_link_uart
+[ 22%] Built target frick_lwip
+[ 22%] Built target frick_net_lwip
+[ 70%] Built target frick_fsw_core
+[ 72%] Linking C executable test_sb
+[ 72%] Linking C executable test_sb_stress
+[ 72%] Linking C executable frick_fsw
+[ 72%] Linking C executable test_ccsds
+[ 72%] Built target test_ccsds
+[ 72%] Built target test_sb_stress
+[ 72%] Built target test_sb
+[ 72%] Built target frick_fsw
+[ 72%] Linking C executable test_sb_sweep
+[ 72%] Linking C executable test_tbl
+[ 72%] Linking C executable test_sched_stats
+[ 72%] Linking C executable test_sched
+[ 73%] Built target test_tbl
+[ 73%] Built target test_sched_stats
+[ 73%] Linking C executable test_sched_max_entries
+[ 73%] Built target test_sched
+[ 73%] Built target test_sb_sweep
+[ 73%] Linking C executable test_sched_events
+[ 73%] Built target test_pus
+[ 74%] Linking C executable test_time
+[ 74%] Built target test_sched_max_entries
+[ 76%] Linking C executable test_frozen_utc_seam
+[ 77%] Built target test_sched_events
+[ 78%] Linking C executable test_r2_gap
+[ 78%] Built target test_time
+[ 78%] Linking C executable test_r3_gap
+[ 78%] Built target test_frozen_utc_seam
+[ 78%] Linking C executable test_pus_event_identity
+[ 78%] Linking C executable test_tbl_sched_coupling
+[ 78%] Built target test_r2_gap
+[ 78%] Built target test_r3_gap
+[ 78%] Built target test_pus_event_identity
+[ 78%] Linking C executable test_sched_tm_chain
+[ 78%] Linking C executable test_es_hs_lifecycle
+[ 78%] Built target test_tbl_sched_coupling
+[ 80%] Linking C executable test_evs_hs_health
+[ 80%] Linking C executable test_tm_output_chain
+[ 81%] Built target test_sched_tm_chain
+[ 81%] Built target test_es_hs_lifecycle
+[ 81%] Linking C executable test_pal_watchdog
+[ 82%] Linking C executable test_wd_host_contract
+[ 82%] Built target test_evs_hs_health
+[ 82%] Built target test_tm_output_chain
+[ 82%] Linking C executable test_extwd_middleware
+[ 82%] Built target test_pal_watchdog
+[ 82%] Linking C executable test_extwd_model
+[ 82%] Built target test_wd_host_contract
+[ 82%] Linking C executable test_decoder_corpus
+[ 82%] Built target test_extwd_middleware
+[ 84%] Linking C executable test_pus_s11_residual
+[ 85%] Built target test_extwd_model
+[ 85%] Linking C executable test_pus_fu
+[ 86%] Built target test_decoder_corpus
+[ 86%] Linking C executable test_obcp_integration
+[ 86%] Built target test_pus_s11_residual
+[ 88%] Built target test_pus_fu
+[ 88%] Linking C executable test_pus_n7_adapter
+[ 88%] Linking C executable test_pusopen
+[ 88%] Linking C executable test_hal
+[ 88%] Built target test_obcp_integration
+[ 88%] Built target test_pus_n7_adapter
+[ 88%] Built target test_pusopen
+[ 88%] Linking C executable test_math
+[ 88%] Built target test_hal
+[ 88%] Linking C executable test_sdls
+[ 88%] Linking C executable test_gem_tsn
+[ 88%] Linking C executable test_gem
+[ 88%] Built target test_math
+[ 88%] Linking C executable test_gptp
+[ 88%] Built target test_sdls
+[ 88%] Built target test_gem
+[ 88%] Built target test_gem_tsn
+[ 88%] Linking C executable test_netloop
+[ 88%] Built target test_gptp
+[ 89%] Linking C executable test_gpio
+[ 89%] Linking C executable test_serial
+[ 90%] Linking C executable test_mem
+[ 90%] Built target test_netloop
+[ 92%] Linking C executable test_nvm
+[ 93%] Built target test_serial
+[ 93%] Built target test_mem
+[ 93%] Built target test_gpio
+[ 93%] Linking C executable test_mtd
+[ 93%] Linking C executable test_can
+[ 93%] Linking C executable test_i2c
+[ 93%] Built target test_nvm
+[ 93%] Built target test_mtd
+[ 93%] Built target test_can
+[ 94%] Built target test_i2c
+[ 94%] Linking C executable test_spi
+[ 94%] Linking C executable test_pcie
+[ 94%] Linking C executable test_block
+[ 94%] Linking C executable test_spacewire
+[ 94%] Built target test_spacewire
+[ 96%] Built target test_pcie
+[ 96%] Built target test_spi
+[ 96%] Linking C executable test_fabric
+[ 96%] Built target test_block
+[ 96%] Linking C executable test_canfd
+[ 96%] Linking C executable test_canopen
+[ 96%] Linking C executable test_link_ip
+[ 96%] Built target test_fabric
+[ 96%] Built target test_canopen
+[ 97%] Linking C executable test_link_tsn
+[ 98%] Built target test_canfd
+[ 98%] Linking C executable test_lwip_netif
+[ 98%] Built target test_link_ip
+[ 98%] Linking C executable test_lwip
+[ 98%] Built target test_link_tsn
+[ 98%] Built target test_lwip
+[100%] Built target test_lwip_netif

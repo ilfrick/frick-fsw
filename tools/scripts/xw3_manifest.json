@@ -98,7 +98,7 @@
     {
       "requirement": "SRS-REQ-008",
       "case": "XW3-G5",
-      "reason": "The 6-octet TC[3,1] form and other authority-pending service forms are not exercised; the ICD records TC[3,1] as an unapproved extension (NC-EXT-17)."
+      "reason": "The 6-octet TC[3,128] create form and other authority-pending service forms are not exercised; its payload width remains an interface-authority item (ESC-HK-01/NC-EXT-210) and the ICD records it as provisional (NC-EXT-17)."
     }
   ]
 }

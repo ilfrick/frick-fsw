@@ -27,9 +27,11 @@ a mission authority decision.
   verification reports.
 - For Service 3, use the ECSS standardized service/subservice definitions and
   report semantics where the framework implements them; do not invent periodic
-  report timing or mission report allocations. The bounded TC[3,27] handler
-  accepts a provisional `N:u8` followed by exactly N report-structure IDs;
-  one-shot requests are honored independently of periodic-generation status.
+  report timing or mission report allocations. The bounded one-shot request
+  handler (subservice 4 in the mapping adopted 2026-11-10; see the change
+  history) accepts a provisional `N:u8` followed by exactly N report-structure
+  IDs; one-shot requests are honored independently of periodic-generation
+  status.
 - For the framework's bounded Service 6 dump path, use a provisional payload
   profile of `region_id:u8` (zero reserved), `byte_offset:u32` big-endian, and
   `length:u16` big-endian. Map the ID to a configured logical memory region;
@@ -109,3 +111,4 @@ not be enabled from this ADR alone.
 | 0.1 | 2026-10-16 | frick-fsw | Record owner-directed provisional public references and explicit mission-authority disclaimer |
 | 0.2 | 2026-10-24 | frick-fsw | Record the S6 refusal-cause distinction (unregistered region `FF_NOT_FOUND` vs out-of-region `FF_INVALID_ARGUMENT`, region resolution first), the ordered/subtractive bound check that cannot wrap on RV32/RV64, and that the on-wire failure codes remain an interface-authority decision (NC-EXT-18). Provisional profile values unchanged |
 | 0.3 | 2026-10-25 | frick-fsw | Record the S3 periodic due-test correction (NC-EXT-207): replaced raw coarse comparison with signed-modular `time_period_due` (elapsed vs period); `u >= 2^31` undecided band resolves to wait, removing premature-emit/burst and forced-wrap TM-flood regimes. `period_s >= 2^31` holds unserved — formulation property, NOT a max-period validation/limit (NC-EXT-208, ESC-HK-06 remain authority-owned). Wire behavior unchanged outside previously defective regimes; no caller added. |
+| 0.4 | 2026-11-13 | frick-fsw | **Label correction only, no policy change.** The Service 3 subservice labels used in this ADR are superseded by the provisional allocation the owner/systems engineer adopted on 2026-11-10 (NC-EXT-16/17): 1=Enable, 2=Disable, 3=Periodic (alias of Enable), 4=Request, 25=Report TM, 128=Create, 129=Delete; Service 6 dump is subservice 2. `docs/interfaces/ICD.md` rev 1.8 now records that implemented contract, so the previous `TC[3,27]` label for the one-shot handler is replaced by "subservice 4" in the text above. The create payload width (6 octets) remains an interface-authority item (ESC-HK-01, NC-EXT-210), and formal mission ICD entry remains M15 scope. |

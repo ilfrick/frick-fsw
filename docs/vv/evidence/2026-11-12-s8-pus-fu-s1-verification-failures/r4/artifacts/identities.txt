@@ -1,0 +1,6 @@
+Focused test executable copied from build/evidence-20261112-pus-s1-r4/tests/test_pus
+4be7c2b1e12fd50b20e057096b4fe68a01acd0ceea57c4cfc82d26eed1997ddb  docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/artifacts/test_pus
+Renode ELF copied from build/renode/frick_fsw_renode.elf
+e36aee30f381df32d9b085b11d616e35082a9650263e3b8614ed8f4004843a41  docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/artifacts/frick_fsw_renode.elf
+CTest list: 57 registered entries; 55 distinct executable copies retained under artifacts/ctest-binaries/
+CTest binary hashes: artifacts/ctest-binaries.sha256

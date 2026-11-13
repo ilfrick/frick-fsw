@@ -1,0 +1,4 @@
+CTest entries: 57
+Distinct compiled executables invoked from build/evidence-20261112-pus-s1-r4/tests: 55
+Copies are retained under artifacts/ctest-binaries/; `sha256sum -c artifacts/ctest-binaries.sha256` verifies them from the artifacts directory.
+Non-binary commands such as /bin/sh and Python are listed in ctest-list.json; invoked project scripts and sources are bound separately in assets.sha256.

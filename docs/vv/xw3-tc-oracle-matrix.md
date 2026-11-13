@@ -98,7 +98,7 @@ service/subservice only.
 | XW3-G2 | Numeric `S1` payload layout | NC-EXT-14/15 authority-pending |
 | XW3-G3 | Duplicate-command response behaviour | not fixed by the ICD |
 | XW3-G4 | Frame reassembly across writes | not fixed by the ICD |
-| XW3-G5 | `TC[3,1]` 6-octet create form and other authority-pending service forms | NC-EXT-17: unapproved extension, not exercised |
+| XW3-G5 | `TC[3,128]` 6-octet create form and other authority-pending service forms | NC-EXT-17/ESC-HK-01: provisional extension whose payload width is authority-pending, not exercised |
 
 ## 6. What this evidence is not
 

@@ -1,0 +1,4 @@
+UTC: 2026-11-13T00:42:24Z
+Command: make license-check
+make: ***  Nessuna regola per generare l'obiettivo «license-check».  Arresto.
+EXIT=2

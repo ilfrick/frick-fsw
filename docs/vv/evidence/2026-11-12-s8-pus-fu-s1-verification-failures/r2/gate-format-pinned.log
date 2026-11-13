@@ -1,0 +1,32 @@
+V&V image ID: sha256:80cff001630cebae324370c28037a441fc93739536fa184172dd8773b958e08b
+Image created: 2026-10-30T07:57:51.204558178+01:00
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+src/transport/link/link_tsn.c:18:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                           ^
+src/transport/link/link_tsn.c:18:30: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                             ^
+src/transport/link/link_tsn.c:18:70: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                                                                     ^
+src/transport/link/link_ip.c:19:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                           ^
+src/transport/link/link_ip.c:19:30: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                             ^
+src/transport/link/link_ip.c:19:46: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                                             ^
+tests/unit/test_link_tsn.c:24:22: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                     ^
+tests/unit/test_link_tsn.c:24:24: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                       ^
+tests/unit/test_link_tsn.c:24:58: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                                                         ^
+make: *** [Makefile:207: format-check] Error 123
+FORMAT_PINNED_EXIT=2

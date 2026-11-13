@@ -7,8 +7,10 @@
 #include "../ff_test.h"
 #include "transport/link/link.h"
 #include "transport/ccsds/ccsds.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -32,17 +34,69 @@ static uint8_t g_uart_tx_received[UART_TX_TEST_SIZE];
 #ifdef FF_TEST_HAVE_WRITE_WRAP
 extern ssize_t __real_write(int fd, const void *buf, size_t count);
 #endif
+#ifdef FF_TEST_HAVE_FCNTL_WRAP
+extern int __real_fcntl(int fd, int cmd, ...);
+#endif
 static int g_uart_slave_fd = -1;
 #ifdef FF_TEST_HAVE_WRITE_WRAP
 static uint32_t g_uart_forced_short_writes;
+static uint32_t g_uart_forced_eagain_writes;
+static uint32_t g_uart_write_attempts;
+static uint64_t g_uart_delay_after_write_ns;
 
 ssize_t __wrap_write(int fd, const void *buf, size_t count)
 {
+    if (fd == g_uart_slave_fd) {
+        g_uart_write_attempts++;
+    }
+    if ((fd == g_uart_slave_fd) && (g_uart_forced_eagain_writes > 0u)) {
+        g_uart_forced_eagain_writes--;
+        errno = EAGAIN;
+        return -1;
+    }
     if ((fd == g_uart_slave_fd) && (g_uart_forced_short_writes > 0u) && (count > 1u)) {
         g_uart_forced_short_writes--;
         return __real_write(fd, buf, 1u); /* deliberate short write */
     }
-    return __real_write(fd, buf, count);
+    ssize_t written = __real_write(fd, buf, count);
+    if ((fd == g_uart_slave_fd) && (written > 0) && (g_uart_delay_after_write_ns > 0u)) {
+        struct timespec delay = {.tv_sec = (time_t)(g_uart_delay_after_write_ns / 1000000000ULL),
+                                 .tv_nsec = (long)(g_uart_delay_after_write_ns % 1000000000ULL)};
+        g_uart_delay_after_write_ns = 0u;
+        (void)nanosleep(&delay, NULL);
+    }
+    return written;
+}
+#endif
+#ifdef FF_TEST_HAVE_FCNTL_WRAP
+static bool g_uart_fail_restore_once;
+static bool g_uart_clobber_errno_on_restore;
+static uint32_t g_uart_injected_restore_failures;
+
+int __wrap_fcntl(int fd, int cmd, ...)
+{
+    va_list args;
+    int arg;
+
+    if (cmd == F_GETFL) {
+        return __real_fcntl(fd, cmd);
+    }
+    va_start(args, cmd);
+    arg = va_arg(args, int);
+    va_end(args);
+    if ((fd == g_uart_slave_fd) && (cmd == F_SETFL) && g_uart_fail_restore_once &&
+        ((arg & O_NONBLOCK) == 0)) {
+        g_uart_fail_restore_once = false;
+        g_uart_injected_restore_failures++;
+        errno = EIO;
+        return -1;
+    }
+    int rc = __real_fcntl(fd, cmd, arg);
+    if ((fd == g_uart_slave_fd) && (cmd == F_SETFL) && (rc == 0) &&
+        g_uart_clobber_errno_on_restore && ((arg & O_NONBLOCK) == 0)) {
+        errno = EIO;
+    }
+    return rc;
 }
 #endif
 
@@ -309,6 +363,68 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
         FF_TEST_ASSERT(memcmp(tx, observed, sizeof(tx)) == 0);
         FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), 1u) == FF_TIMEOUT);
     }
+#if defined(FF_TEST_HAVE_WRITE_WRAP) && defined(FF_TEST_HAVE_FCNTL_WRAP)
+    {
+        const uint8_t tx[] = {0xA5u, 0x5Au, 0x02u};
+        struct timespec now;
+        int original_flags = __real_fcntl(g_uart_slave_fd, F_GETFL);
+        FF_TEST_ASSERT(original_flags >= 0);
+        g_uart_forced_eagain_writes = 1u;
+        g_uart_write_attempts = 0u;
+        g_uart_fail_restore_once = true;
+        g_uart_injected_restore_failures = 0u;
+        FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
+        uint64_t deadline =
+            (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec + 1000000000ULL;
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline) == FF_ERROR);
+        FF_TEST_ASSERT(g_uart_forced_eagain_writes == 0u);
+        FF_TEST_ASSERT(g_uart_write_attempts == 1u);
+        FF_TEST_ASSERT(!g_uart_fail_restore_once);
+        FF_TEST_ASSERT(g_uart_injected_restore_failures == 1u);
+        uint8_t unexpected[sizeof(tx)];
+        ssize_t unexpected_len = read(g_master_fd, unexpected, sizeof(unexpected));
+        FF_TEST_ASSERT(unexpected_len < 0);
+        FF_TEST_ASSERT((errno == EAGAIN) || (errno == EWOULDBLOCK));
+        /* The injected fcntl failure deliberately leaves O_NONBLOCK set. The
+         * production writer reports FF_ERROR and stops; restore the PTY only
+         * in the test fixture so later cases use the original mode. */
+        int failed_restore_flags = __real_fcntl(g_uart_slave_fd, F_GETFL);
+        FF_TEST_ASSERT(failed_restore_flags >= 0);
+        FF_TEST_ASSERT((failed_restore_flags & O_NONBLOCK) != 0);
+        FF_TEST_ASSERT(__real_fcntl(g_uart_slave_fd, F_SETFL, original_flags) == 0);
+        FF_TEST_ASSERT((__real_fcntl(g_uart_slave_fd, F_GETFL) & O_NONBLOCK) == 0);
+    }
+    {
+        const uint8_t tx[] = {0xA5u, 0x5Au, 0x03u};
+        uint8_t observed[sizeof(tx)];
+        struct timespec now;
+        g_uart_forced_eagain_writes = 1u;
+        g_uart_write_attempts = 0u;
+        g_uart_clobber_errno_on_restore = true;
+        FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
+        uint64_t deadline =
+            (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec + 1000000000ULL;
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline) == FF_SUCCESS);
+        g_uart_clobber_errno_on_restore = false;
+        FF_TEST_ASSERT(g_uart_forced_eagain_writes == 0u);
+        FF_TEST_ASSERT(g_uart_write_attempts == 2u);
+        FF_TEST_ASSERT(read(g_master_fd, observed, sizeof(observed)) == (ssize_t)sizeof(observed));
+        FF_TEST_ASSERT(memcmp(observed, tx, sizeof(tx)) == 0);
+    }
+    {
+        const uint8_t tx[] = {0xA5u, 0x5Au, 0x04u};
+        uint8_t observed[sizeof(tx)];
+        struct timespec now;
+        FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
+        uint64_t deadline =
+            (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec + 100000000ULL;
+        g_uart_delay_after_write_ns = 150000000ULL;
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline) == FF_TIMEOUT);
+        FF_TEST_ASSERT(g_uart_delay_after_write_ns == 0u);
+        FF_TEST_ASSERT(read(g_master_fd, observed, sizeof(observed)) == (ssize_t)sizeof(observed));
+        FF_TEST_ASSERT(memcmp(observed, tx, sizeof(tx)) == 0);
+    }
+#endif
     {
         static uint8_t tx[UART_TX_TEST_SIZE];
         FF_UartDrain_t drain = {.target = sizeof(tx), .received = 0u, .stop = false};
@@ -381,6 +497,14 @@ static void test_uart_framing_split_coalesced_timeout_and_bounds(void)
         FF_TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
         uint64_t deadline_past = (uint64_t)now.tv_sec * 1000000000ULL + (uint64_t)now.tv_nsec;
         FF_TEST_ASSERT(FF_LinkUartBackend.send_until(tx, sizeof(tx), deadline_past) == FF_TIMEOUT);
+#ifdef FF_TEST_HAVE_WRITE_WRAP
+        uint32_t attempts_before_empty = g_uart_write_attempts;
+#endif
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(NULL, 0u, deadline_past) == FF_TIMEOUT);
+#ifdef FF_TEST_HAVE_WRITE_WRAP
+        FF_TEST_ASSERT(g_uart_write_attempts == attempts_before_empty);
+#endif
+        FF_TEST_ASSERT(FF_LinkUartBackend.send_until(NULL, 0u, deadline_past) == FF_TIMEOUT);
     }
     /* send_until with deadline = 0 must return FF_TIMEOUT immediately. */
     {

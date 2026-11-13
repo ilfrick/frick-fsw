@@ -1,8 +1,14 @@
 /*
  * frick-fsw - S8-PUS-FU S11 residual bounded corrections
  *
- * Implements comprehensive S1 verification end-to-end tests and S3/S9/S20
- * subservice dispatch validation per NC-EXT-14/15/16/18/22.
+ * Implements comprehensive S1 verification end-to-end tests and S3/S6/S9/S17/S20
+ * subservice dispatch validation against the owner-approved 2026-11-10
+ * subservice mapping registered by FF_PusRegisterCoreServices():
+ *   S3  1=Enable, 2=Disable, 3=Periodic, 4=Request, 128=Create, 129=Delete
+ *   S6  2=Dump
+ * These dispatch assertions are the residual evidence tracked by
+ * NC-EXT-14/15/16/18/22; the numbers above are the approved production mapping,
+ * not a new proposal.
  *
  * These are host-SIL requirement-based tests (norm N22). They do not establish
  * PUS-C profile compliance, qualification, or mission tailoring.
@@ -193,7 +199,7 @@ static void test_s1_missing_subservices_coverage(void)
     FF_TEST_ASSERT(stream_count(1u, 5u) == 0u); /* progress NOT sent */
 }
 
-/* ---- S3: standard subservice assignment validation (NC-EXT-16) -------- */
+/* ---- S3: approved subservice assignment validation -------------------- */
 
 static void test_s3_subservice_assignments(void)
 {
@@ -210,51 +216,34 @@ static void test_s3_subservice_assignments(void)
     uint8_t frame[128];
     uint16_t frame_len = 0u;
 
-    /* TC[3,1] create - should succeed */
+    /* TC[3,128] create - approved management subservice, should succeed */
     {
         uint8_t payload[6] = {10u, 1u, 0u, 0u, 0u, 10u}; /* id=10, prov=1, period=10s */
-        build_tc(FF_PUS_SERVICE_HK, 1u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        build_tc(FF_PUS_SERVICE_HK, 128u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
         FF_TEST_ASSERT(stream_count(1u, 1u) == 1u); /* acceptance OK */
+        FF_TEST_ASSERT(stream_count(1u, 7u) == 1u); /* completion OK */
     }
 
-    /* TC[3,5] enable - should succeed for existing report */
+    /* TC[3,1] enable - should succeed for the report created above */
     g_rx_count = 0u;
     {
         uint8_t payload[1] = {10u};
-        build_tc(FF_PUS_SERVICE_HK, 5u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        build_tc(FF_PUS_SERVICE_HK, 1u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
         FF_TEST_ASSERT(stream_count(1u, 1u) == 1u);
     }
 
-    /* TC[3,6] disable - should succeed */
-    g_rx_count = 0u;
-    {
-        uint8_t payload[1] = {10u};
-        build_tc(FF_PUS_SERVICE_HK, 6u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
-        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
-        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u);
-    }
-
-    /* TC[3,27] report request - one-shot, should emit HK TM(3,25).
-     * Must be called while report still exists (before TC[3,3] delete). */
-    g_rx_count = 0u;
-    {
-        uint8_t payload[2] = {1u, 10u}; /* N=1, report_id=10 */
-        build_tc(FF_PUS_SERVICE_HK, 27u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
-        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
-        FF_TEST_ASSERT(stream_count(3u, 25u) == 1u); /* HK report TM emitted */
-    }
-
-    /* TC[3,2] (diagnostic) - NOT FOUND per implementation */
+    /* TC[3,2] disable - should succeed for the existing report */
     g_rx_count = 0u;
     {
         uint8_t payload[1] = {10u};
         build_tc(FF_PUS_SERVICE_HK, 2u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
-        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u);
     }
 
-    /* TC[3,3] delete - should succeed after create */
+    /* TC[3,3] periodic - approved alias of enable, should succeed */
     g_rx_count = 0u;
     {
         uint8_t payload[1] = {10u};
@@ -263,21 +252,52 @@ static void test_s3_subservice_assignments(void)
         FF_TEST_ASSERT(stream_count(1u, 1u) == 1u);
     }
 
-    /* Verify non-standard subservices return NOT_FOUND */
-    const uint8_t invalid_subservices[] = {4u, 7u, 8u, 9u, 10u, 255u};
-    for (size_t i = 0; i < sizeof(invalid_subservices); i++) {
+    /* TC[3,4] request - one-shot, should emit HK TM(3,25).
+     * Must be called while the report still exists (before TC[3,129] delete). */
+    g_rx_count = 0u;
+    {
+        uint8_t payload[2] = {1u, 10u}; /* N=1, report_id=10 */
+        build_tc(FF_PUS_SERVICE_HK, 4u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(stream_count(3u, 25u) == 1u); /* HK report TM emitted */
+    }
+
+    /* TC[3,129] delete - approved management subservice, should succeed */
+    g_rx_count = 0u;
+    {
+        uint8_t payload[1] = {10u};
+        build_tc(FF_PUS_SERVICE_HK, 129u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u);
+    }
+
+    /* Superseded S3 numbering must not dispatch: 5 = former enable,
+     * 6 = former disable, 27 = former one-shot report request. */
+    const uint8_t superseded_subservices[] = {5u, 6u, 27u};
+    for (size_t i = 0; i < sizeof(superseded_subservices); i++) {
+        g_rx_count = 0u;
+        uint8_t payload[2] = {1u, 10u}; /* N=1, report_id=10 */
+        build_tc(FF_PUS_SERVICE_HK, superseded_subservices[i], 0x0102u, payload, sizeof(payload),
+                 frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+        FF_TEST_ASSERT(stream_count(1u, 8u) == 1u); /* completion fail */
+    }
+
+    /* Never-assigned subservices must also return NOT_FOUND */
+    const uint8_t unassigned_subservices[] = {0u, 7u, 8u, 9u, 10u, 255u};
+    for (size_t i = 0; i < sizeof(unassigned_subservices); i++) {
         g_rx_count = 0u;
         uint8_t payload[1] = {10u};
-        build_tc(FF_PUS_SERVICE_HK, invalid_subservices[i], 0x0102u, payload, sizeof(payload),
+        build_tc(FF_PUS_SERVICE_HK, unassigned_subservices[i], 0x0102u, payload, sizeof(payload),
                  frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
     }
 
-    /* TC[3,27] report request for deleted report should return NOT_FOUND */
+    /* TC[3,4] request for the deleted report should return NOT_FOUND */
     g_rx_count = 0u;
     {
         uint8_t payload[2] = {1u, 10u}; /* N=1, report_id=10 (deleted) */
-        build_tc(FF_PUS_SERVICE_HK, 27u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        build_tc(FF_PUS_SERVICE_HK, 4u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
         FF_TEST_ASSERT(stream_count(3u, 25u) == 0u); /* no HK report TM emitted */
     }
@@ -479,17 +499,27 @@ static void test_s6_subservice_boundaries(void)
     uint8_t frame[128];
     uint16_t frame_len = 0u;
 
-    /* Valid subservice 5 (dump) */
+    /* Positive: the approved dump subservice is 2 */
     {
         uint8_t payload[7] = {1u, 0u, 0u, 0u, 0u, 0u, 4u}; /* region=1, offset=0, size=4 */
-        build_tc(FF_PUS_SERVICE_MEMORY, 5u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        build_tc(FF_PUS_SERVICE_MEMORY, 2u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
         FF_TEST_ASSERT(stream_count(6u, 6u) == 1u); /* dump reply */
     }
 
-    /* Invalid subservice 0-4, 6-255 should be NOT_FOUND */
+    /* Superseded S6 dump numbering (5) must not dispatch */
+    {
+        g_rx_count = 0u;
+        uint8_t payload[7] = {1u, 0u, 0u, 0u, 0u, 0u, 4u};
+        build_tc(FF_PUS_SERVICE_MEMORY, 5u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+        FF_TEST_ASSERT(stream_count(6u, 6u) == 0u); /* no dump reply */
+    }
+
+    /* Every other subservice 0-255 (including the dump reply number 6 used as
+     * a TC subservice) should be NOT_FOUND */
     for (uint16_t ss = 0; ss < 256; ss++) {
-        if (ss == 5u)
+        if ((ss == 2u) || (ss == 5u))
             continue;
         g_rx_count = 0u;
         uint8_t payload[7] = {1u, 0u, 0u, 0u, 0u, 0u, 4u};

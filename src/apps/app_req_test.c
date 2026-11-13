@@ -24,8 +24,9 @@
  *     PDL) and requires the same validator to reject it.
  *   - Sub-aspects that are not controlled by a document are NOT asserted:
  *     the S1 payload prefix and the numeric failure codes are observations only
- *     (NC-EXT-14/15), and the 6-byte TC[3,1] create is an unapproved extension
- *     (NC-EXT-17) so the HK one-shot case is a declared GAP, not a PASS.
+ *     (NC-EXT-14/15), and the 6-byte TC[3,128] create payload width remains an
+ *     interface-authority item (ESC-HK-01/NC-EXT-210) so the HK one-shot case is
+ *     a declared GAP, not a PASS.
  *
  * Test-only state (documented leakage): this module registers memory region 1
  * (needed by L8) and installs its own TM sink for the duration of the suite,
@@ -774,9 +775,9 @@ FF_Status_t FF_AppReqTestRun(void)
     ff_req_gap("SRS-REQ-004", "L4-S18", "NC-EXT-04: S1.8 for a malformed TC is not asserted");
     ff_req_gap("SRS-REQ-005", "L8-WIRE",
                "NC-EXT-18: on-wire refusal failure code is interface-authority owned");
-    ff_req_gap(
-        "SRS-REQ-008", "L9",
-        "NC-EXT-17: 6-byte TC[3,1] create is an unapproved extension (ICD defines 2 octets)");
+    ff_req_gap("SRS-REQ-008", "L9",
+               "NC-EXT-17/ESC-HK-01: 6-byte TC[3,128] create width is authority-pending "
+               "(ICD rev 1.8 records it as provisional)");
 
     (void)FF_AppTmOutputInit();
     return FF_SUCCESS;

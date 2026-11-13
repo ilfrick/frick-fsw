@@ -1,0 +1,5 @@
+UTC: 2026-11-13T00:42:24Z
+Command: make renode-env
+bash tools/scripts/renode_env_selftest.sh
+[renode-env] PASS: Renode runs and the PolarFire SoC board platform loads
+EXIT=0

@@ -1,0 +1,26 @@
+Run ID: S8-PUS-FU-S1-r4
+UTC: 2026-11-12T23:50:14Z
+HEAD: e5f01d402af382a78d5a8242fe6b1c4e2eb6bb83
+test sha256: dc8ea3dbae907c43f5897daa799ad792165604eca8cddd119612b2b3a6d889c7
+production pus sha256: 1eea40c06ecf399326347585995f71eec718318e535332f44edb043db3e15401
+configure
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Default PUS-C backend: N7/ESA ASN.1 enabled
+-- Default OBCP engine: pinned N7 Space/MicroPython
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Build type: Debug
+-- LWIP_MBEDTLSDIR not set - using default location /home/nicola/fsw/frick-fsw/third_party/lwip/../mbedtls
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+-- Doxygen needs to be installed to generate the doxygen documentation
+-- Found Python3: /home/nicola/.pyenv/shims/python3 (found version "3.12.9") found components: Interpreter
+-- Configuring done (14.7s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/nicola/fsw/frick-fsw/build/evidence-20261112-pus-s1-r4
+CONFIGURE_EXIT=0

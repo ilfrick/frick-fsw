@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ARCH-0003 |
 | ----------- | --------------- |
-| Revision    | 0.1.8 |
-| Date        | 2026-10-18 |
+| Revision    | 0.1.9 |
+| Date        | 2026-11-13 |
 
 ## 1. Purpose
 
@@ -101,7 +101,7 @@ sequenceDiagram
 | Service | Content |
 | ------- | ------- |
 | 1  | Verification (acceptance / start / progress / completion) |
-| 3  | Housekeeping: TC[3,1] create; TC[3,3] delete; TC[3,5] enable; TC[3,6] disable; TC[3,27] report |
+| 3  | Housekeeping: TC[3,1] enable; TC[3,2] disable; TC[3,3] periodic (alias of enable); TC[3,4] one-shot report request; TM[3,25] report; provisional management TC[3,128] create and TC[3,129] delete |
 | 5  | Event reporting (via EVS listener -> `FF_PusEmitEvent`) |
 | 6  | Memory management: region-bounded dump; provisional payload region ID + byte offset + length (ADR-0020) |
 | 8  | Function management |
@@ -111,9 +111,13 @@ sequenceDiagram
 | 20 | Parameter: set (TC[20,1], report id + value via a registered setter) and report (TC[20,3] -> TM[20,4], provider/table-backed) |
 
 The Service 3 subservice assignments and Service 6 region-ID/offset layout are
-provisional public-reference defaults recorded in ADR-0020. TC[3,27] uses the
-provisional payload `N:u8` followed by exactly N report IDs; a one-shot report
-request is honored even if periodic generation is disabled. ECSS-E-ST-70-41C
+provisional public-reference defaults recorded in ADR-0020; the Service 3
+allocation was adopted as provisional mission tailoring on 2026-11-10
+(NC-EXT-16/17), while formal mission ICD entry remains M15 scope. TC[3,4] uses
+the provisional payload `N:u8` followed by exactly N report IDs; a one-shot
+report request is honored even if periodic generation is disabled, and
+`FF_PusEmitPeriodicHk()` currently has no production caller (ESC-HK-02).
+ECSS-E-ST-70-41C
 requires mission tailoring and an approved Space-to-Ground ICD; this framework
 document is not that ICD and does not establish mission profile compatibility or
 PUS compliance. Service 6 uses a configured logical region identifier and a
@@ -163,3 +167,4 @@ SSS-REQ-003/004/005/006/007/014/015 and the SRS-REQ-00x links in
 | 0.1.6 | 2026-10-16 | frick-fsw | Document S3 report-provider failure propagation (SRS-REQ-008 / NC-EXT-17); profile mapping and independent review remain open |
 | 0.1.7 | 2026-10-16 | frick-fsw | Record provisional ECSS-referenced S3 subservices and S6 logical region/offset profile per ADR-0020; mission profile and authority gaps remain open |
 | 0.1.8 | 2026-10-18 | frick-fsw | Correct the §6 Service 20 row to list both the registered set (TC[20,1]) and report (TC[20,3] -> TM[20,4]) subservices; no PUS-C compliance claim |
+| 0.1.9 | 2026-11-13 | frick-fsw | Align the §6 Service 3 row and the following paragraph with the implemented and 2026-11-10 owner-approved provisional allocation (1=enable, 2=disable, 3=periodic alias, 4=one-shot request, 25=report TM, 128=create, 129=delete) and record that `FF_PusEmitPeriodicHk()` has no production caller (ESC-HK-02). Documentation only; no behaviour changed, no PUS-C compliance or mission-profile claim |

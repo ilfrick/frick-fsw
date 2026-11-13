@@ -1,0 +1,4 @@
+N18 environment self-test UTC: 2026-11-12T23:54:39Z
+bash tools/scripts/renode_env_selftest.sh
+[renode-env] PASS: Renode runs and the PolarFire SoC board platform loads
+RENODE_ENV_EXIT=0

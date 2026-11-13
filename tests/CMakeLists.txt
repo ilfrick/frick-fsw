@@ -45,11 +45,13 @@ if(FF_PLATFORM STREQUAL "native")
   target_compile_options(test_link_uart PRIVATE -Wall -Wextra -Werror)
   target_link_libraries(test_link_uart PRIVATE Threads::Threads)
   if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-#External syscall harness : force deterministic short writes on the UART
-#slave descriptor so the production partial - progress / retry loop is
-#exercised by the test instead of being assumed.
+# External syscall harness: force deterministic short/EAGAIN writes and a
+# restore-fcntl failure on the UART slave descriptor, exercising the production
+# partial-progress and restore-error paths without changing production code.
     target_link_options(test_link_uart PRIVATE -Wl,--wrap=write)
-    target_compile_definitions(test_link_uart PRIVATE FF_TEST_HAVE_WRITE_WRAP=1)
+    target_link_options(test_link_uart PRIVATE -Wl,--wrap=fcntl)
+    target_compile_definitions(test_link_uart PRIVATE
+      FF_TEST_HAVE_WRITE_WRAP=1 FF_TEST_HAVE_FCNTL_WRAP=1)
   endif()
 endif()
 
@@ -228,6 +230,7 @@ add_test(NAME sched_max_entries COMMAND test_sched_max_entries)
 add_test(NAME sched_events COMMAND test_sched_events)
 add_test(NAME pus   COMMAND test_pus)
 add_test(NAME pus_fu COMMAND test_pus_fu)
+add_test(NAME pus_s11_residual COMMAND test_pus_s11_residual)
 if(TARGET test_obcp_integration)
   add_test(NAME obcp_engine_connectivity COMMAND test_obcp_integration)
   set_tests_properties(obcp_engine_connectivity PROPERTIES TIMEOUT 30)

@@ -1,0 +1,9 @@
+Lean receipt UTC: 2026-11-13T00:00:42Z
+cd verification/lean && lake build
+Build completed successfully.
+python3 tools/scripts/lean_elab_receipt.py
+receipt: /home/nicola/fsw/frick-fsw/verification/lean/.lake/build/elab_receipt.json
+modules elaborated: 11
+receipt sha256: fac81e2e59ed138215ee791d520610867b7b7b11ac9ed0ded1fd8b183b8e7b9a
+elab-receipt: PASS
+LEAN_RECEIPT_EXIT=0

@@ -4,14 +4,108 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.69                                   |
-| Date                              | 2026-11-11                            |
+| Revision                         | 3.91                                   |
+| Date                              | 2026-11-13                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
 work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
+
+## Current bounded functional increment — UART restore-failure handling (2026-11-13)
+
+**Status: code/test correction and local functional cycle complete; bounded R1/R3
+reviews, R2 evidence reviews, and PA/N20 substantive review are recorded. R4
+identified R4-AUDIT-01 in loop-audit §12.3; the bounded correction re-review
+resolved the wording finding. A prior manifest snapshot (`f07c2ca4…`) had
+matching PA/R2/R4 inventory attestations, but subsequent covered status-document
+changes invalidated that binding. The active manifest and three exact-path
+reports must be checked together for current package integrity. No commit/push;
+full sprint scope and session remain in progress.**
+`uart_send_until()` now checks every
+`F_SETFL` restoration, stops with `FF_ERROR` if it fails, and preserves `write()`
+`errno` across the restoration call. N22-TS2-84 has two host PTY subcases; N22-TS2-85 checks final-write deadline overrun; N22-TS2-86 rejects expired zero-length send: failed
+restore after `EAGAIN` (one write attempt, no bytes sent, descriptor observed
+still nonblocking) and successful restore that clobbers `errno` (retry and exact
+payload success). Focused test: 104 checks, zero failures; full native CTest 57/57.
+Build, Lean, trace, changed-file pinned format, GSW/license, smoke, docs,
+RTEMS cross-build and Renode all passed. Full pinned format remains blocked only
+by three unchanged initializers (NC-EXT-244); metrics ran; T3 remains NOT FULLY
+QUALIFIED. Exact logs/hashes are in
+`docs/vv/evidence/2026-11-13-uart-restore-error/` and current status in
+`docs/vv/verification-results.md`.
+
+**Package evidence check:** compare the active r4 manifest digest with each of
+the three pre-registered report bodies and independently verify the declared
+inventory and checksum output. A missing/mismatched report, failed checksum, or
+covered-byte change means package-wide integrity is not established and requires
+a new freeze/review cycle. The f07c snapshot reports are historical only.
+
+## S8-PUS-FU S1 ingestion-failure test increment — 2026-11-13
+
+**Status: bounded test/documentation candidate; all host/emulator gates recorded,
+but the package-manifest and final independent review sequence is not yet
+complete. No commit/push. Do not declare the sprint/session complete while
+planned sprint work remains.**
+
+- **Change scope.** `tests/unit/test_pus.c` adds explicit implementation-
+  characterization tests for illegal APID and unknown service/subservice
+  verification failures. No production PUS source or requirement text changed.
+  TS-1 rev 1.12 has 104 cases: 76 covered, 28 gaps. `N22-TS1-23` and
+  `N22-TS1-104` remain gaps; no acceptance policy is inferred. The human-readable
+  traceability mirror is rev 0.56 (the S1-specific correction was added in rev
+  0.54), and project `CHANGELOG.md` records the
+  test-only increment.
+- **Host evidence.** Fresh r4 configure/build/CTest passed (57/57), focused
+  `test_pus` passed (322 checks, 0 failures), and 55 distinct compiled CTest
+  binaries plus their invocation inventory are retained and hash-checked.
+  Required `make build`/`make test` and the repeated smoke test pass with an
+  isolated `BUILD_DIR`; default `build/native` is an older root-owned Docker
+  cache configured under `/workspace`, so host-path attempts fail CMake
+  validation and are preserved, not treated as code/test failures. The latest
+  `make ci-local`, trace, docs-container, GSW/license, and Renode environment
+  self-test logs are in
+  `docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/`.
+- **Formatting limitation.** Pinned clang-format 18 passes on the changed test,
+  but the full-repository check fails on three unchanged initializer files;
+  NC-EXT-244 remains OPEN/deferred. Do not modify those unrelated files as part
+  of this increment.
+- **N18.** Fresh Docker RTEMS build ELF
+  `e36aee30f381df32d9b085b11d616e35082a9650263e3b8614ed8f4004843a41` ran in
+  Renode with `RENODE_TEST: PASS`, container exit 0; ELF and raw run logs are
+  retained. This is emulator-only evidence, not physical target, HIL, WCET,
+  qualification, release, or flight approval.
+- **Independent-review state.** R1/R3 correction re-review passed with comments;
+  both documentation-sync observations separately passed. PA/R2/R4 independently
+  checked the initial 157-entry preview for its generation snapshot. R2-FINAL-
+  INV-02 was resolved for the refreshed 11-path identity/patch at its review
+  snapshot; following tracked-status edits require the identity record to be
+  regenerated and independently rechecked before freeze. The preview is now
+  historical because four later review reports and the outside-path list
+  changed. DOC-R4-FINAL-01 and the PA/R2 evidence-integrity findings are
+  snapshot-scoped; the prior active 45-entry manifest had four failed hashes,
+  omitted later evidence/reports, and included transient `build/` paths. The
+  final package digest/inventory/check result is to be stated only in the three
+  post-manifest attestation reports; this handover does not assert that result.
+- **Manifest protocol / immediate next steps.** Freeze the current candidate,
+  evidence, and substantive review reports; `assets.sha256` must include all regular
+  files under the r4 evidence directory plus explicitly enumerated candidate,
+  configuration, and review paths. Its only exclusions are itself and the
+  three exact post-manifest attestation reports pre-indexed in
+  `docs/reviews/README.md` (PA/N20, V&V/R2, R4/N17). The substantive R4 report
+  and all substantive correction reports are intended for inclusion; the three attestations only verify the exact manifest digest,
+  inventory/exclusions, and `sha256sum -c`, and do not replace substantive
+  review or close NCs. Any covered-file edit requires a new freeze/rebind and
+  applicable re-review. After a successful independent check, the eventual Git
+  commit tree must bind the manifest and those attestations; no commit or
+  authorization is claimed. Current live record:
+  `docs/vv/verification-results.md`, `docs/status/loop-audit.md`, and
+  `docs/reviews/README.md`.
+- **Still open.** NC-EXT-240..244; NC-EXT-04/13/15 and profile/interface
+  authority inputs; T3 remains NOT FULLY QUALIFIED; package-manifest integrity
+  and final PA/R2/R4 review sequence; hosted CI; full sprint scope. No NC,
+  qualification, phase, release or flight decision is closed or approved.
 
 ## NC-EXT-191: IP and TSN deadline-bounded link writers — 2026-11-11
 
@@ -1812,3 +1906,25 @@ FRICK-REVIEW-0460 (V&V) and FRICK-REVIEW-0461 (PA) then confirmed the delta with
 | 3.68 | 2026-11-11 | frick-fsw | **NC-EXT-237 fixed: Service 5 event identity is emitter-owned.** `FF_PusEmitEvent` now encodes `event id[2 BE]` + `type[1]` from `event_id`/`evs_type` and treats `data`/`len` as auxiliary data only (bounds `FF_PUS_MAX_TM_FRAME - 3` / `NULL`+`len != 0`; wire format unchanged, ICD rev 1.7); all callers updated to text-only, `test_evs_hs_health.c` re-bound to 122 checks (sha256 `5310cc3c…277f`). New discriminating oracle `tests/unit/test_pus_event_identity.c` (5 cases, 106 checks) fails 33 checks against the pre-fix body. Gates: build 0 warnings, CTest 56/56, Lean, trace (120/76/30/14/68), pinned clang-format 18, N13 license; evidence `docs/vv/evidence/2026-11-11-nc-ext-237/`. Docs: TS-1 rev 1.10, TS-5 rev 1.16, ICD rev 1.7, `service-development.md` rev 0.5, `tool-qualification.md` rev 1.6, `sprint-plan.md` rev 1.130. NC-EXT-237 remains OPEN pending PA acceptance; no NC closed. |
 | 3.69 | 2026-11-11 | frick-fsw | **NC-EXT-191 backend-coverage half: IP and TSN deadline writers.** `link_ip.c`/`link_tsn.c` now implement `FF_Link_t::send_until` (shared `ip_check_tx`/`tsn_check_tx`; reject an expired deadline before transmitting; re-check after the synchronous transfer and report `FF_TIMEOUT` on overrun), so `FF_LinkSendUntil` no longer returns `FF_NOT_IMPLEMENTED` on those backends; `ip_check_tx` also rejects `NULL`+non-zero-length in the plain writer. `link.h` documents the return contract; TS-2 rev 0.10 adds `N22-TS2-82/83`; `test_link_tsn` 149 checks, `test_link_ip` 93 checks, mutation-checked. Gates: build, CTest 56/56, Lean, trace (120/76/30/14/68), clang-format 18, GSW/license, smoke, metrics 46.5%, RTEMS cross build, Renode PASS (ELF `55188f5a…`). NC-EXT-191 stays OPEN (UART shared-descriptor concurrency, target readiness, target 250 ms = GAP-A5); T3 NOT FULLY QUALIFIED; no NC closed. |
 | 3.70 | 2026-11-11 | frick-fsw | **Resolve NC-EXT-165: N18 re-executed on current tree HEAD `833a0e0`.** Fresh RTEMS 6.2 cross-build (`frick-rtems-toolchain:local`) configured, linked and produced `frick_fsw_renode.elf` with zero warnings; prescribed `make renode` returned `[renode] PASS (RENODE_TEST: PASS; container status=exited container exit code=0)`; all 14 HAL checks PASS; ELF sha256 `55188f5a…` bound to current tree (commit `0cc455f`, NC-EXT-239 `pal_rtems.c` declaration fix, ancestor of HEAD). Companion host gates green: build exit 0 (0 warnings), CTest 56/56, Lean `lake build`, trace PASS (120/76/30/14/68), pinned clang-format 18, license OK. Independent reviews obtained: PA/N20, doc/N17-R4, V&V/R2, avionics/R1-R3 — no finding blocks resolution. Scope note: emulated Renode functional validation only — not target/HIL, not RTPFS160ZT fidelity, not WCET/timing; flight hooks remain `FF_NOT_IMPLEMENTED`; NC-PAL-01, NC-EXT-186 and NC-EXT-188 remain OPEN and are NOT closed by this resolution. NC-TS-01 ELF-freshness weakness mitigated for this run (freshly built ELF) but remains a register item for a structural script fix. NC-EXT-142 disposition corrected (sprint row no longer limits Renode/cross-build PASS to 2026-10-20 tree state). |
+| 3.71 | 2026-11-13 | frick-fsw | Add S8-PUS-FU S1 ingestion-failure increment resume record and current N17 state: final substantive R4 review DOC-R4-FINAL-01 found the current 45-entry manifest stale/incomplete (4 failures, missing current evidence/reports, transient build paths). Candidate identity now includes 11 tracked paths. Final manifest inventory correction/reviews and PA/R2/R4 attestations remain pending; no commit, NC closure, sprint completion or release/qualification approval. |
+| 3.72 | 2026-11-13 | frick-fsw | Record the PA/R2/R4 preview inventory reviews and R2 identity delta: the 157-entry preview was verified for its snapshot, R2-FINAL-INV-02 is resolved for the refreshed 11-path identity, and the preview is now historical after outside-list/review updates. Active manifest remains the obsolete 45-entry file; final inventory/check/attestations remain pending. |
+| 3.73 | 2026-11-13 | frick-fsw | Update the resume record with the current preview-review dispositions and clarify that later tracked status-document changes require re-binding/rechecking the 11-path identity. The active package manifest remains stale; no sprint, NC, release or qualification closure. |
+| 3.74 | 2026-11-13 | frick-fsw | Make the handover durable across package generation: report the obsolete 45-entry manifest and 157-entry preview as historical snapshots, delegate current checksum outcome to the three exact post-manifest attestations, and restate the manifest inventory/exclusion sequence without asserting package integrity or approval. |
+| 3.75 | 2026-11-13 | frick-fsw | Add the UART deadline-writer restore-failure correction as the current resume item; record focused checks and 57/57 CTest, local gate results, exact evidence location, review/re-attestation work still pending, and explicit NC-EXT-191 residuals. |
+| 3.76 | 2026-11-13 | frick-fsw | Add the R3-identified final-write deadline post-check and N22-TS2-85 host timing oracle to the same bounded UART deadline-writer increment; update expected results and preserve target timing/readiness limitations. |
+| 3.77 | 2026-11-13 | frick-fsw | Reconcile the first independent review observations and update current evidence/result hashes, focused-check count, and incomplete re-review/manifest status. |
+| 3.78 | 2026-11-13 | frick-fsw | Resolve R3’s expired zero-length deadline edge with an entry deadline check and N22-TS2-86; update focused evidence to 104 checks and TS-2 rev 0.13. |
+| 3.79 | 2026-11-13 | frick-fsw | Correct stale S1 traceability-mirror pointer to current rev 0.56 and remove the already-resolved traceability update from immediate next actions; PA and package-wide manifest remain pending. |
+| 3.80 | 2026-11-13 | frick-fsw | Record the final R1/R3 code/API re-reviews and R2/R4 evidence/documentation delta dispositions; identify PA substantive review and package-wide manifest/attestations as the remaining candidate gates. |
+| 3.81 | 2026-11-13 | frick-fsw | Record PA/N20 substantive review with no new product defect, update the next action to package-wide inventory/attestation, and preserve residual NC-EXT-191/T3 limits. |
+| 3.82 | 2026-11-13 | frick-fsw | Record final bounded R2/R4 candidate and status-delta reviews; only package-wide inventory/manifest and independent attestations remain as evidence-binding work. |
+| 3.83 | 2026-11-13 | frick-fsw | Make the package evidence action a standing verification check against the active r4 README/manifest/reports instead of a stale one-way pending action; the pre-loop S1 manifest remains historical. |
+| 3.84 | 2026-11-13 | frick-fsw | Correct current package state: active r4 manifest is the historical pre-UART S1 inventory, and combined-candidate generation/verification plus three post-manifest attestations remain explicitly incomplete; distinguish that CM work from completed substantive reviews. |
+| 3.85 | 2026-11-13 | frick-fsw | Record the R4 pre-freeze correction re-review: stale-manifest status, T3 scope, TS-2 API-only cases, and NC-EXT-191 limits confirmed; package freeze and three attestations remain pending. |
+| 3.86 | 2026-11-13 | frick-fsw | Make package-integrity status snapshot-neutral: require verification of the active manifest and three matching attestations, while retaining the historical status of prior S1 attestations; no claim inferred from paths alone. |
+| 3.87 | 2026-11-13 | frick-fsw | Record R4-AUDIT-01 as a current documentation finding; prior 48f checksum reports are snapshot-bound and superseded by the loop-audit correction, which requires re-review, fresh manifest generation, and matching attestations. |
+| 3.88 | 2026-11-13 | frick-fsw | Record R4-AUDIT-01 resolved for bounded loop-audit status wording; package inventory/attestation remains unbound after this tracked documentation update, and the sprint/session remain in progress. |
+| 3.89 | 2026-11-13 | frick-fsw | Record R4/N17 PASS with no findings on the loop-audit N8/N11/N20 status correction; final manifest/check and three exact-digest attestations remain required; no sprint completion or commit/push. |
+| 3.90 | 2026-11-13 | frick-fsw | Bind the handover status to active manifest digest f07c2ca4… and matching 297/297 PA/R2/R4 attestations; retain snapshot-change invalidation and N7 full-sprint no-commit boundary. |
+| 3.91 | 2026-11-13 | frick-fsw | Correct snapshot status after R4 found five covered status-file checksum failures: f07c attestation is historical; require active manifest/report digest reconciliation and keep sprint incomplete/no commit. |
+| 3.92 | 2026-11-13 | frick-fsw | **ICD §4 S3/S6 dispatch-contract correction (rev 1.8), no production wire-behaviour change.** The superseded S3 allocation (1=create, 3=delete, 5=enable, 6=disable, 27=one-shot) and superseded S6 dump subservice (6,5) in `docs/interfaces/ICD.md` §4 contradicted the owner-approved 2026-11-10 tailoring (NC-EXT-16/17/18) and the registered handlers; a ground segment built to the old row would have had a create executed as an enable. The documented contract is now 1=enable, 2=disable, 3=periodic alias of enable, 4=one-shot request, 25=report TM, 128=create (6-octet `report id + provider id + period_s[4 BE]`), 129=delete; Service 6 dump = TC[6,2]; periodic-emission caveat recorded (`FF_PusEmitPeriodicHk()` has no production caller, ESC-HK-02); create width remains authority-pending (ESC-HK-01, NC-EXT-210). Citing text aligned in the same change: `src/pus/pus_services.c` comments, `docs/architecture/pus-layer.md` rev 0.1.9, `README.md`, `docs/adr/ADR-0020` rev 0.4, TS-1 rev 1.13, `docs/vv/target-io-coverage.md`, `docs/vv/xw3-tc-oracle-matrix.md`, XW-2/XW-3 gap manifests, `app_req_test.c` gap string. New residual dispatch test `tests/unit/test_pus_s11_residual.c` (1176 checks, CTest `pus_s11_residual`) asserts the implemented mapping and that superseded `{5,6,27}` return `FF_NOT_FOUND`; traced to SRS-REQ-005/008/009/010/012 in traceability.yaml/md (N3/N4); `make trace` PASS. Gates on this exact tree: build exit 0, CTest 58/58, Lean `lake build`, trace PASS, GSW/license OK, smoke PASS (7 apps), coverage 15924/33832 lines + 1796/2640 functions, Doxygen exit 0, RTEMS 6.2 cross-build exit 0, Renode N18 PASS on fresh ELF `41acb185…cb20`, changed-file clang-format 23.1.3 exit 0. Full pinned format check blocked by NC-EXT-244 initializers; T3 NOT FULLY QUALIFIED; Renode emulator-only. **Independent reviews (R1/R3, R2/R4 doc, PA/N20) were attempted but could not be obtained (external model usage limit); they are PENDING and must be completed before any package attestation, release or flight claim. No review reports were fabricated.** Candidate manifest `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/assets.sha256` regenerated as a digest only (attestations pending). Commit/push performed under explicit N7 delegation with pending-review state recorded; NC-EXT-16/17/18 closed for implementation only (formal ICD entry remains M15), no NC closed, no authority decision taken, sprint incomplete. |

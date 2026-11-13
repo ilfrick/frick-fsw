@@ -24,7 +24,9 @@ VERDICT = ROOT / "tools" / "scripts" / "target_run_verdict.py"
 MANIFEST = ROOT / "tools" / "scripts" / "target_req_manifest.json"
 
 # Case lines as emitted by src/apps/app_req_test.c (nine required cases, three
-# declared gaps after the F2 correction).
+# declared gaps after the F2 correction). Retained 2026-10-26 transcript: the L9
+# gap wording predates the ICD rev 1.8 correction, and the verifier matches gap
+# lines by requirement/case only, never by reason text.
 GOOD_CASES = [
     "TGTREQ: SRS-REQ-012:L1:PASS:per_frame_offsets_ok_S17.2_exact_negctl_3/3",
     "TGTREQ-OBS: SRS-REQ-005:L2:S1.8_payload=01022A0109 (implementation-defined layout; NC-EXT-14/15)",
