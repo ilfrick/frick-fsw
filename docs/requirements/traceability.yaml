@@ -431,9 +431,9 @@ requirements:
     parent_sss: SSS-REQ-022
     derived: false
     implementation: ["src/obcp/ff_obcp.c", "src/obcp/ff_obcp.h", "docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
-    tests: ["tests/unit/test_obcp_integration.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
+    tests: ["tests/unit/test_obcp_integration.c", "tests/unit/test_obcp_budget.c", "tests/unit/test_obcp_abort.c", "tests/unit/test_pus_s18.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
     lean: []
-    lean_note: "M12 OBCP integration is in progress using pinned n7space/n7s-obcp behind FF_Obcp_t. Host callback-connectivity evidence exists; production mission service/PUS S18 bindings, bounded arbitrary-script execution/result reporting, target/resource evidence and mission suitability remain open. Does not establish SRS-REQ-045 completion. SRS-REQ-054 remains a separately governed fallback requirement; replacement-engine development is deferred by owner direction."
+    lean_note: "M12 OBCP integration is in progress using pinned n7space/n7s-obcp behind FF_Obcp_t. VM-instruction-budget slice implemented: FF_ObcpExecutePy(script, len, max_vm_instructions) requires nonzero budget, fails closed on zero budget, distinguishes OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED from interpreter error, and preserves engine-context reuse after exhaustion. Production mission service/PUS S18 bindings partially implemented (load/start, abort, status via PUS TC[18,1/3/5], provisional ICD). Target/resource evidence and mission suitability remain open. Does not establish SRS-REQ-045 completion. SRS-REQ-054 remains a separately governed fallback requirement; replacement-engine development is deferred by owner direction."
 
   - id: SRS-REQ-046
     level: srs
@@ -869,9 +869,9 @@ requirements:
     level: sss
     derived: false
     implementation: ["src/obcp/ff_obcp.c", "src/obcp/ff_obcp.h", "docs/development-plan.md", "docs/roadmap.md", "docs/architecture/component-gap-analysis.md"]
-    tests: ["tests/unit/test_obcp_integration.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
+    tests: ["tests/unit/test_obcp_integration.c", "tests/unit/test_obcp_budget.c", "tests/unit/test_obcp_abort.c", "tests/unit/test_pus_s18.c", "docs/vv/test-spec/ts-9-obcp-integration.md"]
     lean: []
-    lean_note: "M12 OBCP integration in progress: the pinned N7 engine is built behind FF_Obcp_t and host callback connectivity is tested. Production bindings, arbitrary-script execution guarantees, target/resource evidence and mission-use suitability are not established; do not claim SRS-REQ-045 completion."
+    lean_note: "M12 OBCP integration in progress: the pinned N7 engine is built behind FF_Obcp_t and host callback connectivity is tested. VM-instruction-budget slice implemented: FF_ObcpExecutePy(script, len, max_vm_instructions) requires nonzero budget, fails closed on zero budget, distinguishes OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED from interpreter error, and preserves engine-context reuse after exhaustion. Production mission service/PUS S18 bindings partially implemented (load/start, abort, status via PUS TC[18,1/3/5], provisional ICD). Target/resource evidence and mission-use suitability are not established; do not claim SRS-REQ-045 completion."
 
   - id: SSS-REQ-023
     level: sss

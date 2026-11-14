@@ -3,9 +3,9 @@
 | Field | Value |
 | ----- | ----- |
 | Document ID | FRICK-ARCH-OBCP-001 |
-| Revision | 0.5 |
-| Date | 2026-10-30 |
-| Status | Adapter integrated in default build; assurance and mission use remain open |
+| Revision | 0.6 |
+| Date | 2026-11-14 |
+| Status | VM-instruction-budget slice integrated; production service/PUS S18 bindings and target execution evidence remain open |
 | Requirements | SRS-REQ-045, SRS-REQ-054, SSS-REQ-022, SSS-REQ-027 |
 
 ## 1. Scope and conclusion
@@ -46,10 +46,39 @@ from returning. The adapter serializes access to one engine context and does
 not enable upstream concurrent-OBCP mode. The heap buffer and script-length
 limit are caller-provided/static integration limits, not evidence of total
 memory/stack accounting, WCET or processor margin. Code-size impact is also not
-budgeted. NC-S9-01 remains deferred/open for these limitations and missing
-target/service assurance; this does not block unrelated S9-S12 work. The
-fallback SRS-REQ-054 is a distinct M16 product, not evidence that M12 has
-completed.
+budgeted.
+
+A project-owned VM-instruction-budget slice has been integrated on top of the
+pinned upstream engine (see `tools/patches/n7s-obcp/` and
+`tools/scripts/apply_n7s_obcp_patch.sh`):
+
+- `FF_ObcpExecutePy(script, len, max_vm_instructions)` requires a nonzero
+  `max_vm_instructions` on every call; a zero budget fails closed
+  (`FF_INVALID_ARGUMENT`) without executing the script.
+- The MicroPython VM dispatch path (`py/vm.c`, project-owned modification under
+  `src/modifications/py/vm.c`) decrements a per-execution counter on each
+  interpreted instruction and raises `mp_type_OverflowError` with the message
+  "vm instruction budget exhausted" when the budget reaches zero.
+- `obcpengine_execute_py` returns `OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED`
+  (distinct from `OBCP_ENGINE_EXEC_ERROR` and `OBCP_ENGINE_EXEC_SUCCESS`) when
+  the dispatch path exhausts the budget. The adapter maps this to
+  `FF_OBCP_STATE_BUDGET_EXHAUSTED` and reports `budget_exhausted == true`
+  through `FF_ObcpGetStatus`.
+- After budget exhaustion, the same engine context can execute a subsequent
+  bounded script without stale abort/exception/budget state (proven by
+  `test_obcp_budget.c`).
+
+**Budget slice limits:** the VM-instruction count is not a WCET bound; native
+callbacks (datapool read/write, `obcp_wait`, `obcp_waituntil`,
+`obcp_send_event`, packet IO, GC/allocation) are not instruction-counted. The
+budget is not an arbitrary-code termination guarantee, not an operator-preemption
+mechanism, and not target/HIL evidence. The slice does not close NC-S9-01; it
+is a project-level mitigation pending system/OBCP authority disposition of the
+residual arbitrary-code execution bound.
+
+NC-S9-01 remains deferred/open for missing target/service assurance and missing
+independent review; this does not block unrelated S9-S12 work. The fallback
+SRS-REQ-054 is a distinct M16 product, not evidence that M12 has completed.
 
 ## 2. Observed upstream interface
 

@@ -25,6 +25,15 @@
   development. Do not expand a functional task into a broad wording/perfection
   review loop. This does not itself waive separate commit, release, safety,
   security, regulatory, or contractual gates, or close an NC.
+
+NC triage rule (non-derogable): NCs opened because of test failures or objective
+defects in artifacts must be resolved immediately before proceeding; they block
+the current cycle. NCs related to mission data/profile inputs, absence of
+target/hardware evidence, or missing human review authority must be opened (if
+not already open), documented with owner and evidence, and dispositioned as
+“open to system, non-blocking” — they do not block unrelated development or the
+current code cycle, but they must remain visible and tracked until an authorized
+human disposes of them.
 - **N22 controls test design:** requirement-based and integration tests include
   applicable nominal and out-of-bound cases, each compared against explicit
   expected results. Renode is an emulator that can host integration tests; it
@@ -179,3 +188,4 @@ but neither run is evidenced here as hosted qualification for T21.
 | N20 | Every phase product is independently reviewed also by the Senior SW Product Assurance engineer (`aeronautics-space-sw-pa-engineer`); findings are corrected and the reviews repeated until they pass |
 | N21 | Correct functional bugs and implement missing sprint-committed features; log other findings as NCs for later review/disposition; do not stop unrelated development; preserve separate release/safety/security gates |
 | N22 | Requirement-based and integration tests cover nominal and applicable out-of-bound operation against explicit expected results; Renode is an emulator, not a test type |
+| N23 | If project rules clearly permit a necessary change or correction, proceed with it; do not stop without a documented reason. Uncertainty or problems are not grounds for inaction when the applicable norms authorize the fix. Record the decision, the rule relied on, and any residual gap as an NC with owner/milestone. |

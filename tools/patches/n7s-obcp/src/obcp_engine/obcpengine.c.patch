@@ -1,0 +1,89 @@
+diff --git a/src/obcp_engine/obcpengine.c b/src/obcp_engine/obcpengine.c
+index 9b30dd6..72aebbe 100644
+--- a/src/obcp_engine/obcpengine.c
++++ b/src/obcp_engine/obcpengine.c
+@@ -1,8 +1,22 @@
+ #include <assert.h>
++#include <string.h>
+ #include "obcpengine.h"
+ #include <py/mpstate.h>
++#include <py/lexer.h>
++#include <py/parse.h>
++#include <py/compile.h>
++#include <py/objfun.h>
++#include <py/nlr.h>
+ #include "port/micropython_embed.h"
+ 
++/* Project-owned VM budget enforcement, implemented in the modified py/vm.c
++ * (project-owned modification under src/modifications/py/). Declared extern
++ * here so obcpengine_execute_py() can set and inspect the per-execution
++ * instruction budget. */
++extern void mp_vm_set_instruction_budget(size_t max_instructions);
++extern bool mp_vm_budget_is_exhausted(void);
++extern void mp_vm_budget_clear_exhausted(void);
++
+ // Initial values, so that functions remain unempty
+ // This is intended to work in a single-threaded environment
+ static uintptr_t dummy_getter(uint32_t index);
+@@ -65,21 +79,56 @@ bool obcpengine_init(obcp_engine_context_t* context)
+     return true;
+ }
+ 
+-bool obcpengine_execute_py(const char* const script, char* const heap, const size_t heap_size)
++obcpengine_exec_result_t obcpengine_execute_py(const char* const script, char* const heap, const size_t heap_size, const size_t max_vm_instructions)
+ {
+ #ifdef OBCP_ENABLE_CONCURRENT_OBCPS
+     mp_state_ctx_t mp_state_ctx;
+     obcp_engine_context.obcp_engine_set_thread_local_value(obcp_thread_local_value_index_mp_state, (uintptr_t)&mp_state_ctx);
+ #endif
+     int stack_top;
++    nlr_buf_t nlr;
++    obcpengine_exec_result_t result;
++
++    if (script == NULL || heap == NULL || heap_size == 0u || max_vm_instructions == 0u) {
++#ifdef OBCP_ENABLE_CONCURRENT_OBCPS
++        obcp_engine_context.obcp_engine_set_thread_local_value(obcp_thread_local_value_index_mp_state, (uintptr_t)NULL);
++#endif
++        return OBCP_ENGINE_EXEC_ERROR;
++    }
+ 
++    mp_vm_set_instruction_budget(max_vm_instructions);
+     mp_embed_init(&heap[0], heap_size, &stack_top);
+-    mp_embed_exec_str(script);
+-    mp_embed_deinit();
++
++    if (nlr_push(&nlr) == 0) {
++        /* Compile and execute. Any exception (including budget exhaustion
++         * raised from the VM dispatch path) propagates here via nlr. */
++        mp_lexer_t *lex = mp_lexer_new_from_str_len(MP_QSTR__lt_stdin_gt_, script, strlen(script), 0);
++        qstr source_name = lex->source_name;
++        mp_parse_tree_t parse_tree = mp_parse(lex, MP_PARSE_FILE_INPUT);
++        mp_obj_t module_fun = mp_compile(&parse_tree, source_name, true);
++        mp_call_function_0(module_fun);
++        nlr_pop();
++        mp_embed_deinit();
+ #ifdef OBCP_ENABLE_CONCURRENT_OBCPS
+-    obcp_engine_context.obcp_engine_set_thread_local_value(obcp_thread_local_value_index_mp_state, (uintptr_t)NULL);
++        obcp_engine_context.obcp_engine_set_thread_local_value(obcp_thread_local_value_index_mp_state, (uintptr_t)NULL);
+ #endif
+-    return true;
++        result = OBCP_ENGINE_EXEC_SUCCESS;
++    } else {
++        /* Exception propagated from the VM. Distinguish budget exhaustion
++         * from other interpreter errors using the budget-exhausted flag. */
++        mp_embed_deinit();
++#ifdef OBCP_ENABLE_CONCURRENT_OBCPS
++        obcp_engine_context.obcp_engine_set_thread_local_value(obcp_thread_local_value_index_mp_state, (uintptr_t)NULL);
++#endif
++        if (mp_vm_budget_is_exhausted()) {
++            mp_vm_budget_clear_exhausted();
++            result = OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED;
++        } else {
++            result = OBCP_ENGINE_EXEC_ERROR;
++        }
++    }
++
++    return result;
+ }
+ 
+ bool obcpengine_execute_mpy(const uint8_t* const script, const size_t script_length, char* const heap, const size_t heap_size)

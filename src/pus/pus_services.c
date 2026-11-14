@@ -24,6 +24,10 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef FF_USE_N7_OBCP
+#include "obcp/ff_obcp.h"
+#endif /* FF_USE_N7_OBCP */
+
 #define FF_PUS_MAX_REG 16u
 #define FF_PUS_MAX_MEM_REGIONS 8u
 #define FF_PUS_MAX_HK_REPORTS 16u
@@ -668,6 +672,115 @@ static FF_Status_t svc20_report(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint
     return FF_PusSendTm(FF_PUS_SERVICE_PARAMETER, 4u, payload, (uint16_t)(plen + 1u));
 }
 
+/* ---- Service 18 : On-board Control Procedures (provisional) -----------
+ *
+ * PUS S18 provides OBCP load/start/abort/status via the pinned n7s-obcp
+ * engine behind FF_Obcp_t. This is a provisional interface: the wire
+ * format, subservice set and TM layout are NOT yet an approved ICD.
+ * They are documented here as provisional mission tailoring and must be
+ * ratified by the interface authority before mission use.
+ *
+ * Subservices implemented:
+ *   1 = Load + start OBCP script. TC payload:
+ *       [max_vm_instructions:4 BE][script: NUL-terminated string]
+ *       Invokes FF_ObcpExecutePy(script, len, max_vm_instructions).
+ *   3 = Abort. TC payload: empty. Invokes FF_ObcpRequestAbort().
+ *   5 = Status report. TC payload: empty. Invokes FF_ObcpGetStatus()
+ *       and emits TM[18,25] with the engine state.
+ *
+ * Response TM (provisional):
+ *   TM[18,1]  payload: [state:1][budget_exhausted:1]
+ *                    [engine_reported_success:1][ff_status:1]
+ *   TM[18,25] payload: same 4-byte state block (status report)
+ */
+#if defined(FF_USE_N7_OBCP) && defined(FF_USE_PUS_S18_PROVISIONAL)
+
+static FF_Status_t svc18_load_start(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
+{
+    (void)tc;
+    if (len < 5u) {
+        return FF_BAD_SIZE;
+    }
+    /* max_vm_instructions: 4 bytes big-endian, followed by NUL-terminated script. */
+    uint32_t max_vi = rd_u32(&d[0]);
+    const char *script = (const char *)&d[4];
+    uint16_t script_len = (uint16_t)(len - 4u);
+    if (script_len == 0u) {
+        return FF_BAD_SIZE;
+    }
+    /* Validate no embedded NUL before end (FF_ObcpExecutePy requires this). */
+    for (uint16_t i = 0u; i < script_len; i++) {
+        if (script[i] == '\0') {
+            return FF_INVALID_ARGUMENT;
+        }
+    }
+
+    FF_ObcpStatus_t st;
+    FF_Status_t rc = FF_ObcpExecutePy(script, script_len, (size_t)max_vi);
+    if (rc != FF_SUCCESS) {
+        /* Execution did not complete (budget zero, invalid argument,
+         * interpreter error, budget exhaustion). Propagate the engine result
+         * directly without reading a potentially stale status. */
+        return rc;
+    }
+    if (FF_ObcpGetStatus(&st) != FF_SUCCESS) {
+        return FF_ERROR;
+    }
+
+    /* Provisional response TM: TM[18,1] state block. */
+    uint8_t resp[4];
+    resp[0] = (uint8_t)st.state;
+    resp[1] = st.budget_exhausted ? 1u : 0u;
+    resp[2] = st.engine_reported_success ? 1u : 0u;
+    resp[3] = (uint8_t)rc;
+    (void)FF_PusSendTm(FF_PUS_SERVICE_OBCP, 1u, resp, sizeof(resp));
+    return rc;
+}
+
+static FF_Status_t svc18_abort(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
+{
+    (void)tc;
+    (void)d;
+    (void)len;
+    FF_Status_t rc = FF_ObcpRequestAbort();
+
+    uint8_t resp[4];
+    FF_ObcpStatus_t st;
+    if (FF_ObcpGetStatus(&st) == FF_SUCCESS) {
+        resp[0] = (uint8_t)st.state;
+        resp[1] = st.budget_exhausted ? 1u : 0u;
+        resp[2] = st.engine_reported_success ? 1u : 0u;
+    } else {
+        resp[0] = (uint8_t)FF_OBCP_STATE_ERROR;
+        resp[1] = 0u;
+        resp[2] = 0u;
+    }
+    resp[3] = (uint8_t)rc;
+    (void)FF_PusSendTm(FF_PUS_SERVICE_OBCP, 1u, resp, sizeof(resp));
+    return rc;
+}
+
+static FF_Status_t svc18_status(const FF_Pus_TcHdr_t *tc, const uint8_t *d, uint16_t len)
+{
+    (void)tc;
+    (void)d;
+    (void)len;
+    FF_ObcpStatus_t st;
+    if (FF_ObcpGetStatus(&st) != FF_SUCCESS) {
+        return FF_ERROR;
+    }
+
+    uint8_t resp[4];
+    resp[0] = (uint8_t)st.state;
+    resp[1] = st.budget_exhausted ? 1u : 0u;
+    resp[2] = st.engine_reported_success ? 1u : 0u;
+    resp[3] = 0u;
+    (void)FF_PusSendTm(FF_PUS_SERVICE_OBCP, 25u, resp, sizeof(resp));
+    return FF_SUCCESS;
+}
+
+#endif /* defined(FF_USE_N7_OBCP) && defined(FF_USE_PUS_S18_PROVISIONAL) */
+
 /* ---- Registration of the core service set ------------------------ */
 
 FF_Status_t FF_PusRegisterCoreServices(void)
@@ -721,6 +834,14 @@ FF_Status_t FF_PusRegisterCoreServices(void)
         {20u, 1u, svc20_set},
         {20u, 3u, svc20_report},
         {20u, 4u, svc20_report},
+
+#if defined(FF_USE_N7_OBCP) && defined(FF_USE_PUS_S18_PROVISIONAL)
+        /* Service 18: On-board Control Procedures — provisional (ICD pending).
+         * Bound to the pinned n7s-obcp engine via FF_Obcp_t. */
+        {18u, 1u, svc18_load_start},
+        {18u, 3u, svc18_abort},
+        {18u, 5u, svc18_status},
+#endif
     };
 
     for (size_t i = 0; i < (sizeof(table) / sizeof(table[0])); i++) {

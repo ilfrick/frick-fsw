@@ -1,0 +1,50 @@
+diff --git a/src/obcp_engine/obcpengine.h b/src/obcp_engine/obcpengine.h
+index a2393c7..54f87b6 100644
+--- a/src/obcp_engine/obcpengine.h
++++ b/src/obcp_engine/obcpengine.h
+@@ -71,17 +71,41 @@ typedef struct {
+ bool obcpengine_init(obcp_engine_context_t* context);
+ 
+ /**
+- * @brief Execute a Python source script.
++ * @brief Execution result codes for obcpengine_execute_py().
++ *
++ * Distinguishes successful completion from interpreter error and VM
++ * instruction-budget exhaustion. The upstream Boolean return at the pinned
++ * revision collapses all of these into true/false and is therefore not a
++ * sufficient script-success oracle.
++ */
++typedef enum {
++    OBCP_ENGINE_EXEC_SUCCESS = 0,   /**< Script completed normally */
++    OBCP_ENGINE_EXEC_ERROR,         /**< Interpreter error (compile, runtime, etc.) */
++    OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED, /**< VM instruction budget exhausted */
++} obcpengine_exec_result_t;
++
++/**
++ * @brief Execute a Python source script with a per-execution VM-instruction
++ * budget.
+  *
+  * Executes a null-terminated Python source string in the embedded
+- * MicroPython runtime backed by the provided heap memory.
++ * MicroPython runtime backed by the provided heap memory. The @p
++ * max_vm_instructions parameter must be nonzero on every call; a zero budget
++ * fails closed (returns #OBCP_ENGINE_EXEC_ERROR without running the script).
++ *
++ * Budget exhaustion is enforced in the interpreter dispatch path and is
++ * distinguishable from normal completion and interpreter error via the
++ * return code.
+  *
+  * @param script Null-terminated string containing Python source code to run.
+  * @param heap Pointer to a memory area to be used as the MicroPython heap.
+  * @param heap_size Size, in bytes, of the heap buffer pointed to by @p heap.
+- * @return true if the script executed successfully, false on error.
++ * @param max_vm_instructions Maximum VM instructions to execute (>0 required).
++ * @return #OBCP_ENGINE_EXEC_SUCCESS on normal completion,
++ *         #OBCP_ENGINE_EXEC_ERROR on interpreter error or zero budget,
++ *         #OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED on budget exhaustion.
+  */
+-bool obcpengine_execute_py(const char* const script, char* const heap, const size_t heap_size);
++obcpengine_exec_result_t obcpengine_execute_py(const char* const script, char* const heap, const size_t heap_size, const size_t max_vm_instructions);
+ 
+ /**
+  * @brief Execute a precompiled MicroPython (.mpy) script.

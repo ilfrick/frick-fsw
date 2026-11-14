@@ -7,6 +7,85 @@ change. All dates UTC, project language English (norm N2).
 
 ## [Unreleased]
 
+### M12/S9-S10 OBCP VM-instruction-budget slice (2026-11-14)
+
+Bounded adapter/runtime increment: nonzero caller-supplied per-execution VM
+instruction budget enforced in the interpreter dispatch path, with a distinct
+`OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED` result distinguishable from normal
+completion, interpreter error, and operator abort. Engine context is reusable
+after exhaustion; `max_vm_instructions == 0` fails closed (no unbounded default
+mode). Implemented as project-owned patches under `tools/patches/n7s-obcp/`
+applied before `make flat`, modifying the pinned MicroPython `py/vm.c`
+(DISPATCH/dispatch_loop decrement + exhaustion counter) and
+`obcp_engine/obcpengine.c` (`nlr_push`/`nlr_pop` + before/after counter
+comparison). Engine sources remain pinned at n7s-obcp
+`55d6d97e7e7ff08a130698f7a922bcf58acb3d99` + MicroPython
+`647c8b96cae7e202c7a020395b7cfe65e5b8ce04`; MIT license preserved.
+
+- `src/obcp/ff_obcp.c`/`ff_obcp.h`: `FF_ObcpExecutePy(script, len,
+  max_vm_instructions)` 3-arg signature; old 2-arg fail-closed path removed;
+  returns `FF_OBCP_STATE_BUDGET_EXHAUSTED` / `budget_exhausted == true`
+  through `FF_ObcpGetStatus()`.
+- `src/pus/pus_services.c` / `tests/CMakeLists.txt` / `CMakeLists.txt`:
+  provisional PUS Service 18 (TC[18,1]/[18,3]/[18,5], TM[18,1]/[18,25]) is
+  gated behind new default-OFF option `FF_USE_PUS_S18_PROVISIONAL`. Default
+  build does **not** register S18 handlers; default CTest does **not** run
+  `pus_s18`. Mapping is NOT an approved ICD, not validated as a product
+  contract, not enabled for mission use. No mission parameters, no `fsw_main`
+  wiring, no target/HIL claim.
+- Tests: `test_obcp_budget.c` (22 checks), `test_obcp_abort.c` (11 checks),
+  `test_obcp_integration.c` (22 checks) pass on fresh host build
+  (`build/native_verify6`); `test_pus_s18.c` restored to its original
+  4-outcome oracle and is built/run only under `FF_USE_PUS_S18_PROVISIONAL=ON`
+  (not the default acceptance).
+- Gates: fresh `build/native_verify6` configure/build/CTest 60/60 PASS,
+  `make verify-lean` PASS, `make trace` PASS (120 requirements, 68 lean
+  theorems). No commit/push; norm N7 full sprint scope and applicable gates
+  remain open. NC-S9-01 remains OPEN (engine selection, PUS/ICD authority,
+  RTEMS/RISC-V, Renode, target/HIL, independent review, mission acceptance all
+  separate from this host adapter evidence).
+
+This entry records no NC, sprint, qualification, release, or flight approval;
+consult the live result/review records for their current state.
+
+### M12/S9-S10 N18 finalization: patch-clone reconciliation (2026-11-14)
+
+Reconciliation of project-owned patch/overlay with the vendor clone, without
+treating the ignored clone as sole source:
+
+- `tools/patches/n7s-obcp/src/modifications/py/vm.c`: added
+  `mp_vm_budget_exhaustion_count++` to the computed-goto `DISPATCH()` macro
+  (previously only the non-computed-goto `dispatch_loop` path incremented the
+  counter). Latent gap: `MICROPY_OPT_COMPUTED_GOTO (0)` in the effective
+  configuration, so the computed-goto path is not compiled; fix is preventive
+  for any future config change. Synced to `third_party/n7s-obcp/src/modifications/py/vm.c`.
+- `third_party/n7s-obcp/src/obcp_engine/obcpengine.c`: reconciled with the
+  project-owned `tools/patches/n7s-obcp/src/obcp_engine/obcpengine.c.patch`:
+  exception branch now calls `mp_embed_deinit()` and clears thread-local, and
+  distinguishes budget exhaustion via `mp_vm_budget_is_exhausted()`
+  / `mp_vm_budget_clear_exhausted()` boolean flag instead of counter
+  comparison. Previously the clone omitted `mp_embed_deinit()` on the
+  exception branch and used counter comparison.
+- `tools/scripts/apply_n7s_obcp_patch.sh`: `patch_already_in_place()` now
+  requires ALL of (new signature, budget API set call, budget-exhausted result
+  enum) for `obcpengine.c`, and equivalent multi-marker checks for
+  `obcpengine.h`/`Makefile`. Previously a single marker presence was accepted
+  as "already applied", risking acceptance of a partial patch.
+- `tests/unit/test_obcp_budget.c`: added `test_context_reuse_after_interpreter_error`
+  (interpreter error followed by benign execution on same context). All 6 checks
+  pass (GREEN observed; RED was NOT observed — not test-first, not proof of
+  regression fix). The test passed on the pre-fix clone `obcpengine.c`, so it
+  does not by itself validate the `mp_embed_deinit()` cleanup fix.
+
+Gates on `build/native_verify6` (fresh, never deleted): configure exit 0,
+build exit 0 (0 warnings), CTest 60/60 PASS, `make verify-lean` PASS,
+`make trace` PASS (120 requirements, 68 lean theorems). `FF_USE_PUS_S18_PROVISIONAL=OFF`;
+no `pus_s18` CTest entry. No commit/push; norm N7 full sprint scope and
+applicable gates remain open. NC-S9-01 remains OPEN.
+
+This entry records no NC, sprint, qualification, release, or flight approval;
+consult the live result/review records for their current state.
+
 ### ICD §4 S3/S6 dispatch-contract correction (2026-11-13)
 
 Documentation/interface-contract correction (N8/N12), no behaviour change.

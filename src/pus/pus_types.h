@@ -33,6 +33,7 @@
 #define FF_PUS_SERVICE_SCHEDULE 11u
 #define FF_PUS_SERVICE_EVENT 5u
 #define FF_PUS_SERVICE_TEST 17u
+#define FF_PUS_SERVICE_OBCP 18u
 #define FF_PUS_SERVICE_PARAMETER 20u
 
 /* --- Verification (service 1) failure codes ----------------------- */

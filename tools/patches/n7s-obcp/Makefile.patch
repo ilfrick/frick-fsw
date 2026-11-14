@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+index 1301c4a..81fa379 100644
+--- a/Makefile
++++ b/Makefile
+@@ -25,6 +25,7 @@ clone:
+ 	cp $(MODS_DIR)/py/builtin.h $(MPY_CLONE_DIR)/py/builtin.h
+ 	cp $(MODS_DIR)/py/makemoduledefs.py $(MPY_CLONE_DIR)/py/makemoduledefs.py
+ 	cp $(MODS_DIR)/py/objmodule.c $(MPY_CLONE_DIR)/py/objmodule.c
++	cp $(MODS_DIR)/py/vm.c $(MPY_CLONE_DIR)/py/vm.c
+ 
+ embed: clone
+ 	@echo "Generating MicroPython embed port with custom modules..."

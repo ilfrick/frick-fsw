@@ -74,9 +74,20 @@ if [[ "${MODE}" == "all" || "${MODE}" == "obcp-only" ]]; then
     git clone https://github.com/n7space/n7s-obcp.git "${DEST}/n7s-obcp"
     git -C "${DEST}/n7s-obcp" checkout --quiet "${OBCP_COMMIT}"
   fi
-  verify_checkout "${DEST}/n7s-obcp" "${OBCP_COMMIT}" "n7s-obcp"
-  git -C "${DEST}/n7s-obcp" -c url.https://github.com/.insteadOf=git@github.com: \
-    submodule update --init src/micropython
+
+  # Fail-closed: verify parent checkout HEAD before any submodule operation.
+  actual="$(git -C "${DEST}/n7s-obcp" rev-parse HEAD)"
+  if [[ "${actual}" != "${OBCP_COMMIT}" ]]; then
+    echo "[fetch] error: n7s-obcp revision mismatch: expected ${OBCP_COMMIT}, found ${actual}" >&2
+    exit 1
+  fi
+
+  # Initialize the MicroPython submodule only when genuinely absent/uninitialized.
+  # An already-initialized submodule is verified in place and never silently reset.
+  if [[ ! -e "${DEST}/n7s-obcp/src/micropython/.git" ]]; then
+    git -C "${DEST}/n7s-obcp" -c url.https://github.com/.insteadOf=[EMAIL]: \
+      submodule update --init src/micropython
+  fi
   actual_mpy="$(git -C "${DEST}/n7s-obcp/src/micropython" rev-parse HEAD)"
   if [[ "${actual_mpy}" != "${MICROPYTHON_COMMIT}" ]]; then
     echo "[fetch] error: n7s-obcp MicroPython revision mismatch: expected ${MICROPYTHON_COMMIT}, found ${actual_mpy}" >&2
@@ -88,6 +99,29 @@ if [[ "${MODE}" == "all" || "${MODE}" == "obcp-only" ]]; then
     printf '%s\n' "${status}" >&2
     exit 1
   fi
+
+  # Determine whether the project-owned N7 VM-budget patch is already applied.
+  n7s_patch_applied=0
+  if [[ -e "${DEST}/n7s-obcp/.git" ]]; then
+    if git -C "${DEST}/n7s-obcp" apply --reverse --check \
+        "${ROOT}/tools/patches/n7s-obcp/Makefile.patch" >/dev/null 2>&1; then
+      n7s_patch_applied=1
+    fi
+  fi
+
+  if [[ "${n7s_patch_applied}" -eq 0 ]]; then
+    # Fresh or unpatched checkout: verify pristine state before applying patch.
+    verify_checkout "${DEST}/n7s-obcp" "${OBCP_COMMIT}" "n7s-obcp"
+    bash "${ROOT}/tools/scripts/apply_n7s_obcp_patch.sh"
+  else
+    # Patch already applied: verify commit hash only (modifications are expected).
+    actual="$(git -C "${DEST}/n7s-obcp" rev-parse HEAD)"
+    if [[ "${actual}" != "${OBCP_COMMIT}" ]]; then
+      echo "[fetch] error: n7s-obcp revision mismatch: expected ${OBCP_COMMIT}, found ${actual}" >&2
+      exit 1
+    fi
+  fi
+
 fi
 
 echo "[fetch] done (${MODE}): ${DEST}"

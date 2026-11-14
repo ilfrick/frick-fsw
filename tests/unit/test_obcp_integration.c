@@ -249,7 +249,7 @@ static void test_script_connects_services_and_checks_input_bounds(void)
     FF_TEST_ASSERT(FF_ObcpInit(&config) == FF_SUCCESS);
     FF_TEST_ASSERT(FF_ObcpGetStatus(&status) == FF_SUCCESS);
     FF_TEST_ASSERT(status.state == FF_OBCP_STATE_READY);
-    FF_TEST_ASSERT(FF_ObcpExecutePy(script, sizeof(script) - 1u) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_ObcpExecutePy(script, sizeof(script) - 1u, 1000u) == FF_SUCCESS);
     FF_TEST_ASSERT(g_write_count == 1u && g_parameter_id == 100u && g_parameter_value == 42);
     FF_TEST_ASSERT(g_enum_id == 101u && g_enum_value == 3);
     FF_TEST_ASSERT(g_float_id == 102u && g_float_value == 1.25f);
@@ -265,9 +265,9 @@ static void test_script_connects_services_and_checks_input_bounds(void)
     FF_TEST_ASSERT(FF_ObcpGetStatus(&status) == FF_SUCCESS);
     FF_TEST_ASSERT(status.state == FF_OBCP_STATE_RETURNED);
     FF_TEST_ASSERT(status.engine_reported_success);
-    FF_TEST_ASSERT(FF_ObcpExecutePy(NULL, 1u) == FF_INVALID_ARGUMENT);
-    FF_TEST_ASSERT(FF_ObcpExecutePy(script, 0u) == FF_INVALID_ARGUMENT);
-    FF_TEST_ASSERT(FF_ObcpExecutePy(script, FF_OBCP_SCRIPT_MAX_BYTES + 1u) == FF_BAD_SIZE);
+    FF_TEST_ASSERT(FF_ObcpExecutePy(NULL, 1u, 1000u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_ObcpExecutePy(script, 0u, 1000u) == FF_INVALID_ARGUMENT);
+    FF_TEST_ASSERT(FF_ObcpExecutePy(script, FF_OBCP_SCRIPT_MAX_BYTES + 1u, 1000u) == FF_BAD_SIZE);
     FF_PalShutdown();
 }
 

@@ -19,7 +19,11 @@ typedef enum {
     FF_OBCP_STATE_RUNNING,
     FF_OBCP_STATE_RETURNED,
     FF_OBCP_STATE_ABORT_REQUESTED,
-    FF_OBCP_STATE_ERROR
+    FF_OBCP_STATE_ERROR,
+    /* Distinct from FF_OBCP_STATE_ERROR: the VM instruction budget was
+     * exhausted in the interpreter dispatch path. The engine context remains
+     * usable for a subsequent bounded execution. */
+    FF_OBCP_STATE_BUDGET_EXHAUSTED,
 } FF_ObcpState_t;
 
 /*
@@ -43,10 +47,16 @@ typedef struct
      * independent script-success oracle at the pinned revision. */
     bool engine_reported_success;
     bool abort_requested;
+    /* True when the last execution exhausted the VM instruction budget.
+     * Cleared on the next FF_ObcpExecutePy call. */
+    bool budget_exhausted;
 } FF_ObcpStatus_t;
 
 FF_Status_t FF_ObcpInit(const FF_ObcpConfig_t *config);
-FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len);
+/* max_vm_instructions must be > 0 on every call; a zero budget fails closed.
+ * Returns FF_OBCP_STATE_BUDGET_EXHAUSTED (via FF_ObcpGetStatus) when the
+ * interpreter dispatch path exhausts the budget. */
+FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len, size_t max_vm_instructions);
 /* Abort is cooperative: it is observed at the next obcpcontrol.beginstep(). */
 FF_Status_t FF_ObcpRequestAbort(void);
 FF_Status_t FF_ObcpGetStatus(FF_ObcpStatus_t *status);

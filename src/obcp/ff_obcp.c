@@ -16,6 +16,7 @@ static FF_ObcpState_t g_state = FF_OBCP_STATE_UNINITIALIZED;
 static uint32_t g_abort_requested;
 static bool g_engine_reported_success;
 static bool g_initialized;
+static bool g_budget_exhausted;
 static char g_script[FF_OBCP_SCRIPT_MAX_BYTES + 1u];
 static char *g_heap;
 static size_t g_heap_size;
@@ -101,10 +102,10 @@ FF_Status_t FF_ObcpInit(const FF_ObcpConfig_t *config)
     return FF_SUCCESS;
 }
 
-FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len)
+FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len, size_t max_vm_instructions)
 {
     size_t i;
-    bool engine_result;
+    obcpengine_exec_result_t engine_result;
     FF_Status_t lock_status;
 
     if (!__atomic_load_n(&g_initialized, __ATOMIC_ACQUIRE) || script == NULL || script_len == 0u) {
@@ -118,6 +119,10 @@ FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len)
             return FF_INVALID_ARGUMENT;
         }
     }
+    /* A zero budget fails closed: no execution path runs without a budget. */
+    if (max_vm_instructions == 0u) {
+        return FF_INVALID_ARGUMENT;
+    }
     lock_status = FF_PalMutexTryLock(g_obcp_mutex);
     if (lock_status != FF_SUCCESS) {
         return FF_BUSY;
@@ -127,6 +132,7 @@ FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len)
     g_script[script_len] = '\0';
     __atomic_store_n(&g_abort_requested, 0u, __ATOMIC_RELEASE);
     __atomic_store_n(&g_engine_reported_success, false, __ATOMIC_RELEASE);
+    __atomic_store_n(&g_budget_exhausted, false, __ATOMIC_RELEASE);
     ff_obcp_set_state(FF_OBCP_STATE_RUNNING);
 
     if (!obcpengine_provide_buffer(g_packet_buffer, g_packet_buffer_size)) {
@@ -135,17 +141,30 @@ FF_Status_t FF_ObcpExecutePy(const char *script, size_t script_len)
         return FF_ERROR;
     }
 
-    engine_result = obcpengine_execute_py(g_script, g_heap, g_heap_size);
-    __atomic_store_n(&g_engine_reported_success, engine_result, __ATOMIC_RELEASE);
-    ff_obcp_set_state((__atomic_load_n(&g_abort_requested, __ATOMIC_ACQUIRE) != 0u)
-                          ? FF_OBCP_STATE_ABORT_REQUESTED
-                          : (engine_result ? FF_OBCP_STATE_RETURNED : FF_OBCP_STATE_ERROR));
+    engine_result = obcpengine_execute_py(g_script, g_heap, g_heap_size, max_vm_instructions);
+    switch (engine_result) {
+    case OBCP_ENGINE_EXEC_SUCCESS:
+        __atomic_store_n(&g_engine_reported_success, true, __ATOMIC_RELEASE);
+        ff_obcp_set_state((__atomic_load_n(&g_abort_requested, __ATOMIC_ACQUIRE) != 0u)
+                              ? FF_OBCP_STATE_ABORT_REQUESTED
+                              : FF_OBCP_STATE_RETURNED);
+        break;
+    case OBCP_ENGINE_EXEC_BUDGET_EXHAUSTED:
+        __atomic_store_n(&g_engine_reported_success, false, __ATOMIC_RELEASE);
+        __atomic_store_n(&g_budget_exhausted, true, __ATOMIC_RELEASE);
+        ff_obcp_set_state(FF_OBCP_STATE_BUDGET_EXHAUSTED);
+        break;
+    default: /* OBCP_ENGINE_EXEC_ERROR */
+        __atomic_store_n(&g_engine_reported_success, false, __ATOMIC_RELEASE);
+        ff_obcp_set_state(FF_OBCP_STATE_ERROR);
+        break;
+    }
     (void)FF_PalMutexUnlock(g_obcp_mutex);
 
-    /* At the pinned upstream revision this API returns true after the VM call
-     * without propagating interpreter exceptions. The status is therefore
-     * execution-returned, not proof that the procedure's actions succeeded. */
-    return engine_result ? FF_SUCCESS : FF_ERROR;
+    /* Derive status from the actual interpreter outcome. The upstream Boolean
+     * alone is not a script-success oracle; budget exhaustion and interpreter
+     * error are distinct results. */
+    return (engine_result == OBCP_ENGINE_EXEC_SUCCESS) ? FF_SUCCESS : FF_ERROR;
 }
 
 FF_Status_t FF_ObcpRequestAbort(void)
@@ -168,5 +187,6 @@ FF_Status_t FF_ObcpGetStatus(FF_ObcpStatus_t *status)
     status->state = __atomic_load_n(&g_state, __ATOMIC_ACQUIRE);
     status->engine_reported_success = __atomic_load_n(&g_engine_reported_success, __ATOMIC_ACQUIRE);
     status->abort_requested = (__atomic_load_n(&g_abort_requested, __ATOMIC_ACQUIRE) != 0u);
+    status->budget_exhausted = __atomic_load_n(&g_budget_exhausted, __ATOMIC_ACQUIRE);
     return FF_SUCCESS;
 }

@@ -26,6 +26,8 @@ option(FF_ENABLE_EXTWD_TARGET_TEST "Build the XW-2 test-only emulated-target ima
 option(FF_XW2_NOWRAP_CONTROL "Build the XW-2 no-wrap expected-failure control image (same sources, device seam NOT substituted)" OFF)
 option(FF_USE_PUS_ASN1 "Use the N7/ESA asn1-pusc-lib PUS-C backend by default (generated code required; see make pus-asn1)" ON)
 option(FF_USE_N7_OBCP "Build and link the pinned N7 Space MicroPython OBCP backend" ON)
+option(FF_USE_PUS_S18_PROVISIONAL "Enable provisional PUS Service 18 OBCP binding (ICD pending; default OFF — fail-closed boundary, not an approval of any wire contract)" OFF)
+option(FF_USE_INHOUSE_OBCP "Build the in-house OBCP engine placeholder (milestone M16, scope-bounded, default OFF)" OFF)
 
 set(FF_PLATFORM "native" CACHE STRING "Target platform: native | rtems | rtems-generic")
 
@@ -84,6 +86,20 @@ if(FF_USE_N7_OBCP)
       "FF_USE_N7_OBCP=ON but pinned N7 OBCP/MicroPython sources are missing. "
       "Run 'bash tools/scripts/fetch_third_party.sh obcp-only'.")
   endif()
+  # Apply project-owned patches (VM instruction budget slice, engine
+  # budget-aware execute_py, Makefile wiring) before the flat source set is
+  # generated, so the build uses the patched MicroPython vm.c and obcpengine.c.
+  execute_process(
+    COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/tools/scripts/apply_n7s_obcp_patch.sh
+    WORKING_DIRECTORY ${FF_N7_OBCP_DIR}
+    RESULT_VARIABLE FF_N7_OBCP_PATCH_RESULT
+    OUTPUT_VARIABLE FF_N7_OBCP_PATCH_OUTPUT
+    ERROR_VARIABLE FF_N7_OBCP_PATCH_ERROR)
+  if(NOT FF_N7_OBCP_PATCH_RESULT EQUAL 0)
+    message(FATAL_ERROR
+      "Failed to apply project-owned N7 OBCP patches (${FF_N7_OBCP_PATCH_RESULT}).\n"
+      "${FF_N7_OBCP_PATCH_OUTPUT}\n${FF_N7_OBCP_PATCH_ERROR}")
+  endif()
   execute_process(
     COMMAND make flat
     WORKING_DIRECTORY ${FF_N7_OBCP_DIR}
@@ -114,6 +130,11 @@ if(FF_USE_N7_OBCP)
   set_source_files_properties(${FF_N7_OBCP_SOURCES} PROPERTIES COMPILE_OPTIONS "-w;-fno-common")
   add_compile_definitions(FF_USE_N7_OBCP=1)
   message(STATUS "Default OBCP engine: pinned N7 Space/MicroPython")
+endif()
+
+if(FF_USE_PUS_S18_PROVISIONAL)
+  add_compile_definitions(FF_USE_PUS_S18_PROVISIONAL=1)
+  message(STATUS "Provisional PUS Service 18 OBCP binding enabled (ICD pending — NOT for mission use)")
 endif()
 
 # ----------------------------------------------------------------------
@@ -156,6 +177,9 @@ if(FF_USE_N7_OBCP)
   list(APPEND FF_CORE_SOURCES
     ${FF_SRC_DIR}/obcp/ff_obcp.c
     ${FF_N7_OBCP_SOURCES})
+endif()
+if(FF_USE_INHOUSE_OBCP)
+  list(APPEND FF_CORE_SOURCES ${FF_SRC_DIR}/obcp/ff_obcp_inhouse.c)
 endif()
 
 # Renode functional test application (norm N18): compiled and registered only
