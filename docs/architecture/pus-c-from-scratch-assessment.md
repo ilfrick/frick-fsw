@@ -36,7 +36,7 @@ are the tailoring target of M15 (§9).
 
 | Svc | Name | In scope (fundamental) | Out of scope / optional | Today | Verdict |
 | --- | ---- | ---------------------- | ----------------------- | ----- | ------- |
-| 1 | Request verification | TM acceptance/start/progress/completion incl. failures (1,2,3,4,5,6,7,8) + failure codes | 9,10 | partial (1,2,3,5,7,8) | **core** |
+| 1 | Request verification | TM acceptance/start/progress/completion incl. failures (1,2,3,4,5,6,7,8) + failure codes | 9,10 | partial (1,2,3,5,6,7,8) | **core** |
 | 2 | Device command | TC/TM 1,2,4..12 (raw + wrap, device/composite) | — | missing | optional (reference, M13) |
 | 3 | Housekeeping | 1,2,3,4,5,6,9,10,11,25,27,31 (structure admin, periodic generation, HK report) | 7,8,12,26,28..44 (advanced/derived) | partial | **in scope** |
 | 4 | Parameter statistics | — | 1..9 | missing | out (mission) |
@@ -281,3 +281,4 @@ the current last milestone).
 | 0.1 | 2026-10-11 | frick-fsw | Initial assessment: fundamental PUS-C service scope, flight-worthiness, effort (person-month), ECSS-Q-ST-80C assurance, make-vs-buy (scratch / N7-ESA ASN.1 / PUSopen), risks, hybrid recommendation and proposed M15 |
 | 0.2 | 2026-10-13 | frick-fsw | Update project license target description; mark MPL transition as candidate under open NC-EXT-43 |
 | 0.3 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): correct the Service-1 "Today" cell from `partial (1,2,4,8)` to the actual framework-emitted set `partial (1,2,3,5,7,8)` (4 is mapped but unreachable; 6 unmapped — NC-EXT-94), and synchronize the header `Date` with this document's own last history row (rev 0.2 was recorded on 2026-10-13). No scope/target/verdict change |
+| 0.4 | 2026-11-14 | frick-fsw | NC-EXT-94/95: implement TM[1,6] (progress failure) emission in `src/pus/pus.c` when handler returns error with `ack_progress` set; document TC[20,1] parameter set in ICD §4 S20 row. Update Service-1 emitted set to `partial (1,2,3,5,6,7,8)`. Wire behaviour changed: TM[1,6] now emitted on handler error with `ack_progress`; TC[20,1] now accepted on the wire. |

@@ -103,7 +103,8 @@ provisional-profile note at the end of this section.
 | 1  | 1 | acceptance success | TM | TC type/subtype, source id, errcode 0 |
 | 1  | 2 | acceptance failure | TM | errcode |
 | 1  | 3 / 5 | start / progress success | TM | errcode 0 |
-| 1  | 4 / 6 | start / progress failure (reserved, not emitted) | TM | errcode |
+| 1  | 4 | start failure (reserved, not emitted) | TM | errcode |
+| 1  | 6 | progress failure | TM | errcode |
 | 1  | 7 | completion success | TM | errcode 0 |
 | 1  | 8 | completion failure | TM | errcode |
 | 3  | 1 | set periodic-generation **state flag** to enabled | TC | report id[1]; the report must already exist (unknown id -> `FF_NOT_FOUND`) and enabling re-initializes its last-emission time (NC-EXT-211) |
@@ -119,7 +120,8 @@ provisional-profile note at the end of this section.
 | 9  | 1 / 2 | time set / CUC report | TC/TM | 6-octet CUC T-field (P-field implicit; section 5) |
 | 11 | 1 / 2 | on-board control procedure (OBCP) activation — **stub** | TC | registered and answerable, but returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); no OBCP engine or script execution exists in this release (M15; NC-S9-01) |
 | 17 | 1 / 2 | test (ping / pong) | TC/TM | echo of the TC user data |
-| 20 | - | parameter report | TM | table-backed parameters |
+| 20 | 1 | parameter set | TC | parameter id[1] + value[N]; returns `FF_NOT_FOUND` for unknown id |
+| 20 | 3 / 4 | parameter report | TM | table-backed parameters; emitted by `svc20_report` |
 
 **Service 3 periodic-emission caveat.** The periodic-generation state flag set by
 TC[3,1], TC[3,2], TC[3,3] and TC[3,128] is honoured by
@@ -250,3 +252,4 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 1.6 | 2026-10-24 | frick-fsw | S8-PUS-FU NC-EXT-18: describe the implemented S6 refusal causes as distinct software-visible statuses (`FF_NOT_FOUND` for an unregistered region identifier, `FF_INVALID_ARGUMENT` for an out-of-region offset+length, region resolution first) while restating that they remain deliberately indistinguishable on the wire pending the interface-authority failure-code allocation. No wire behavior changed by this revision |
 | 1.7 | 2026-11-11 | frick-fsw | NC-EXT-237: the §4 S5 row now records that the `event id[@2, big-endian]` + `type[1]` header is built by `FF_PusEmitEvent` from its `event_id`/`evs_type` arguments and that callers pass auxiliary data only; the event-id catalogue note points at that contract. **No wire behavior changed**: the encoded octets are identical to those previously produced by callers that embedded the header themselves |
 | 1.8 | 2026-11-13 | frick-fsw | Correct the §4 S3/S6 dispatch contract to the implemented wire behaviour approved as provisional mission tailoring on 2026-11-10 (NC-EXT-16/17/18): S3 rows now read 1=Enable, 2=Disable, 3=Periodic (alias of Enable), 4=Request, 25=HK report TM, 128=Create (6-octet `report id + provider id + period_s[4 BE]`), 129=Delete, replacing the superseded 1/3/5/6/27 rows; the S6 dump row now reads TC[6,2] instead of TC[6,5]; add the periodic-emission caveat (no production caller, ESC-HK-02) and the create-payload/`period_s` authority caveats (ESC-HK-01/05/06, NC-EXT-208/210). **No production code changed by this revision**; it removes a documented-vs-implemented divergence that would have mis-dispatched a ground command (a create built to the old row would have been executed as an enable) |
+| 1.9 | 2026-11-14 | frick-fsw | NC-EXT-94/95: align ICD §4 with implemented wire behaviour. S1 row split: subservice 4 = start failure (reserved, not emitted), subservice 6 = progress failure (emitted by `FF_PusSendVerification` when `FF_PUS_STAGE_PROGRESS` is called with `success=0`, i.e. handler returns error with `ack_progress` set). S20 row split: subservice 1 = parameter set (TC[20,1], implemented by `svc20_set`), subservice 3/4 = parameter report (TM[20,4], implemented by `svc20_report`). Wire behaviour changed: TM[1,6] is now emitted on handler error with `ack_progress` set; TC[20,1] is now accepted on the wire. |
