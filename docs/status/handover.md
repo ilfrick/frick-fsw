@@ -13,99 +13,43 @@ work without prior conversation context. It summarises objectives, rules, how to
 build/test/verify, milestones and the immediate next steps. It is updated on
 every significant increment (norm N8/N16).
 
-## Current bounded functional increment — UART restore-failure handling (2026-11-13)
+## Current bounded functional increment — M12 OBCP VM-instruction-budget slice + M16 placeholder + UART/PUS fixes (2026-11-14)
 
-**Status: code/test correction and local functional cycle complete; bounded R1/R3
-reviews, R2 evidence reviews, and PA/N20 substantive review are recorded. R4
-identified R4-AUDIT-01 in loop-audit §12.3; the bounded correction re-review
-resolved the wording finding. A prior manifest snapshot (`f07c2ca4…`) had
-matching PA/R2/R4 inventory attestations, but subsequent covered status-document
-changes invalidated that binding. The active manifest and three exact-path
-reports must be checked together for current package integrity. No commit/push;
-full sprint scope and session remain in progress.**
-`uart_send_until()` now checks every
-`F_SETFL` restoration, stops with `FF_ERROR` if it fails, and preserves `write()`
-`errno` across the restoration call. N22-TS2-84 has two host PTY subcases; N22-TS2-85 checks final-write deadline overrun; N22-TS2-86 rejects expired zero-length send: failed
-restore after `EAGAIN` (one write attempt, no bytes sent, descriptor observed
-still nonblocking) and successful restore that clobbers `errno` (retry and exact
-payload success). Focused test: 104 checks, zero failures; full native CTest 57/57.
-Build, Lean, trace, changed-file pinned format, GSW/license, smoke, docs,
-RTEMS cross-build and Renode all passed. Full pinned format remains blocked only
-by three unchanged initializers (NC-EXT-244); metrics ran; T3 remains NOT FULLY
-QUALIFIED. Exact logs/hashes are in
-`docs/vv/evidence/2026-11-13-uart-restore-error/` and current status in
-`docs/vv/verification-results.md`.
+**Status: committed and pushed to origin + gitea (commit `b9681e8`). Gates verified
+on isolated build dir `build/commit-all` (`FF_USE_INHOUSE_OBCP=ON`): cmake
+configure exit 0, cmake build exit 0 (0 warnings), ctest 60/60 PASS. `make
+verify-lean` and `make trace` NOT RUN (interrupted previously — pending next
+cycle). No release/safety/qualification approval claimed.**
 
-**Package evidence check:** compare the active r4 manifest digest with each of
-the three pre-registered report bodies and independently verify the declared
-inventory and checksum output. A missing/mismatched report, failed checksum, or
-covered-byte change means package-wide integrity is not established and requires
-a new freeze/review cycle. The f07c snapshot reports are historical only.
-
-## S8-PUS-FU S1 ingestion-failure test increment — 2026-11-13
-
-**Status: bounded test/documentation candidate; all host/emulator gates recorded,
-but the package-manifest and final independent review sequence is not yet
-complete. No commit/push. Do not declare the sprint/session complete while
-planned sprint work remains.**
-
-- **Change scope.** `tests/unit/test_pus.c` adds explicit implementation-
-  characterization tests for illegal APID and unknown service/subservice
+- **M12 OBCP (S9-S10):** VM-instruction-budget slice implemented (nonzero per-execution
+  budget enforced in interpreter dispatch path, distinct `BUDGET_EXHAUSTED` result,
+  context reusable after exhaustion, zero-budget fails closed). Pinned
+  `n7space/n7s-obcp` @ `55d6d97e` + MicroPython @ `647c8b96` behind `FF_Obcp_t`.
+  `FF_USE_PUS_S18_PROVISIONAL` default OFF (fail-closed boundary, not S18
+  approval; no wire binding, no mission activation). Tests: `test_obcp_budget`
+  (22/22 PASS), `test_obcp_abort` (11/11 PASS), `test_obcp_integration` (22/22
+  PASS), `test_pus_s18` (built/run only under `FF_USE_PUS_S18_PROVISIONAL=ON`).
+  NC-S9-01 OPEN for production PUS S18 binding, target/HIL evidence, license
+  disposition, independent human/authority review, mission acceptance — not a
+  blocker to unrelated work.
+- **M16 placeholder (scope-bounded, owner decision iii):** `src/obcp/ff_obcp_inhouse.{c,h}`
+  implement the `FF_Obcp_t` contract with VM instruction budget, safe abort and
+  cleanup. CMake option `FF_USE_INHOUSE_OBCP` default OFF. `tests/unit/test_obcp_inhouse.c`
+  (nominal, zero-budget fail-closed, null script, abort, uninitialized status).
+  Production PUS S18 binding, mission activation, target/hardware execution,
+  WCET evidence explicitly OUT OF SCOPE.
+- **UART restore-failure (S8-FDIR-01/SRS-REQ-074):** `uart_send_until()` checks
+  every `F_SETFL` restoration, stops with `FF_ERROR` if it fails, preserves
+  `write()` `errno` across restoration. `test_link_uart` 104 checks, zero failures
+  (EAGAIN + restore EIO injection).
+- **PUS S1 ingestion-failure characterization (S8-PUS-FU):** `tests/unit/test_pus.c`
+  adds characterization tests for illegal APID and unknown service/subservice
   verification failures. No production PUS source or requirement text changed.
-  TS-1 rev 1.12 has 104 cases: 76 covered, 28 gaps. `N22-TS1-23` and
-  `N22-TS1-104` remain gaps; no acceptance policy is inferred. The human-readable
-  traceability mirror is rev 0.56 (the S1-specific correction was added in rev
-  0.54), and project `CHANGELOG.md` records the
-  test-only increment.
-- **Host evidence.** Fresh r4 configure/build/CTest passed (57/57), focused
-  `test_pus` passed (322 checks, 0 failures), and 55 distinct compiled CTest
-  binaries plus their invocation inventory are retained and hash-checked.
-  Required `make build`/`make test` and the repeated smoke test pass with an
-  isolated `BUILD_DIR`; default `build/native` is an older root-owned Docker
-  cache configured under `/workspace`, so host-path attempts fail CMake
-  validation and are preserved, not treated as code/test failures. The latest
-  `make ci-local`, trace, docs-container, GSW/license, and Renode environment
-  self-test logs are in
-  `docs/vv/evidence/2026-11-12-s8-pus-fu-s1-verification-failures/r4/`.
-- **Formatting limitation.** Pinned clang-format 18 passes on the changed test,
-  but the full-repository check fails on three unchanged initializer files;
-  NC-EXT-244 remains OPEN/deferred. Do not modify those unrelated files as part
-  of this increment.
-- **N18.** Fresh Docker RTEMS build ELF
-  `e36aee30f381df32d9b085b11d616e35082a9650263e3b8614ed8f4004843a41` ran in
-  Renode with `RENODE_TEST: PASS`, container exit 0; ELF and raw run logs are
-  retained. This is emulator-only evidence, not physical target, HIL, WCET,
-  qualification, release, or flight approval.
-- **Independent-review state.** R1/R3 correction re-review passed with comments;
-  both documentation-sync observations separately passed. PA/R2/R4 independently
-  checked the initial 157-entry preview for its generation snapshot. R2-FINAL-
-  INV-02 was resolved for the refreshed 11-path identity/patch at its review
-  snapshot; following tracked-status edits require the identity record to be
-  regenerated and independently rechecked before freeze. The preview is now
-  historical because four later review reports and the outside-path list
-  changed. DOC-R4-FINAL-01 and the PA/R2 evidence-integrity findings are
-  snapshot-scoped; the prior active 45-entry manifest had four failed hashes,
-  omitted later evidence/reports, and included transient `build/` paths. The
-  final package digest/inventory/check result is to be stated only in the three
-  post-manifest attestation reports; this handover does not assert that result.
-- **Manifest protocol / immediate next steps.** Freeze the current candidate,
-  evidence, and substantive review reports; `assets.sha256` must include all regular
-  files under the r4 evidence directory plus explicitly enumerated candidate,
-  configuration, and review paths. Its only exclusions are itself and the
-  three exact post-manifest attestation reports pre-indexed in
-  `docs/reviews/README.md` (PA/N20, V&V/R2, R4/N17). The substantive R4 report
-  and all substantive correction reports are intended for inclusion; the three attestations only verify the exact manifest digest,
-  inventory/exclusions, and `sha256sum -c`, and do not replace substantive
-  review or close NCs. Any covered-file edit requires a new freeze/rebind and
-  applicable re-review. After a successful independent check, the eventual Git
-  commit tree must bind the manifest and those attestations; no commit or
-  authorization is claimed. Current live record:
-  `docs/vv/verification-results.md`, `docs/status/loop-audit.md`, and
-  `docs/reviews/README.md`.
-- **Still open.** NC-EXT-240..244; NC-EXT-04/13/15 and profile/interface
-  authority inputs; T3 remains NOT FULLY QUALIFIED; package-manifest integrity
-  and final PA/R2/R4 review sequence; hosted CI; full sprint scope. No NC,
-  qualification, phase, release or flight decision is closed or approved.
+
+**Still open.** NC-S9-01, NC-PAL-01, NC-EXT-198/199, NC-EXT-244 (full pinned
+format fails on three unchanged initializers — do not modify unrelated files),
+T3 NOT FULLY QUALIFIED. Full sprint scope and applicable gates remain open;
+commit/push authorized by owner (norm N7 delegated) after gate verification.
 
 ## NC-EXT-191: IP and TSN deadline-bounded link writers — 2026-11-11
 
