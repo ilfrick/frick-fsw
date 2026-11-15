@@ -53,6 +53,19 @@ if(FF_PLATFORM STREQUAL "native")
     target_compile_definitions(test_link_uart PRIVATE
       FF_TEST_HAVE_WRITE_WRAP=1 FF_TEST_HAVE_FCNTL_WRAP=1)
   endif()
+
+# Run the GSW CLI against the production UART link backend using bridged host
+# PTYs. The Python serial adapter is test-only; this is SIL, not pyserial/HIL.
+  add_executable(test_gsw_uart_e2e_server
+    integration/gsw_uart_e2e_server.c
+    ${FF_SRC_DIR}/transport/link/link_uart.c)
+  target_include_directories(test_gsw_uart_e2e_server PRIVATE
+    ${FF_SRC_DIR} ${FF_SRC_DIR}/core ${FF_CFG_DIR})
+  target_compile_definitions(test_gsw_uart_e2e_server PRIVATE
+    FF_LINK_UART_DEVICE=\"/dev/ttyUSB0\"
+    FF_LINK_UART_DEVICE_ENV=\"FRICK_E2E_UART_DEVICE\")
+  target_compile_options(test_gsw_uart_e2e_server PRIVATE -Wall -Wextra -Werror)
+  target_link_libraries(test_gsw_uart_e2e_server PRIVATE frick_fsw_core Threads::Threads)
 endif()
 
 add_executable(test_es_hs_lifecycle unit/test_es_hs_lifecycle.c)
@@ -99,6 +112,30 @@ add_executable(test_pus_fu unit/test_pus_fu.c)
 
 #S8 - PUS - FU S11 residual : S1 / S3 / S9 / S11 / S17 / S20 / S6 subservice dispatch validation
 add_executable(test_pus_s11_residual unit/test_pus_s11_residual.c)
+
+#NC-EXT-251 : dispatch reservation contention test (TDD RED phase)
+add_executable(test_pus_dispatch_reservation_contention unit/test_pus_dispatch_reservation_contention.c)
+target_link_libraries(test_pus_dispatch_reservation_contention PRIVATE frick_fsw_core Threads::Threads)
+
+# Minimal debug test for contention issue
+add_executable(test_minimal_debug unit/minimal_debug_test.c)
+target_link_libraries(test_minimal_debug PRIVATE frick_fsw_core Threads::Threads)
+
+# Debug test 2 - contention with TC ingest
+add_executable(test_debug2 unit/debug_test2.c)
+target_link_libraries(test_debug2 PRIVATE frick_fsw_core Threads::Threads)
+
+# Debug test 3 - dispatch mutex contention between two TC ingests
+add_executable(test_debug3 unit/debug_test3.c)
+target_link_libraries(test_debug3 PRIVATE frick_fsw_core Threads::Threads)
+
+# Debug test - basic mutex contention
+add_executable(test_mutex_contention unit/test_mutex_contention.c)
+target_link_libraries(test_mutex_contention PRIVATE frick_fsw_core Threads::Threads)
+
+# Debug test 4 - dispatch mutex contention with custom handler
+add_executable(test_debug4 unit/debug_test4.c)
+target_link_libraries(test_debug4 PRIVATE frick_fsw_core Threads::Threads)
 
 #test_r2_gap : pthread_cond_timedwait / wait error injection for PAL queue error paths
 if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
@@ -239,6 +276,23 @@ add_test(NAME sb    COMMAND test_sb)
 add_test(NAME sb_stress COMMAND test_sb_stress)
 add_test(NAME sb_sweep_boundary COMMAND test_sb_sweep 32 32)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
+if(TARGET test_gsw_uart_e2e_server)
+  add_test(
+    NAME gsw_uart_e2e
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/python/test_gsw_uart_e2e.py
+            $<TARGET_FILE:test_gsw_uart_e2e_server>)
+  set_tests_properties(gsw_uart_e2e PROPERTIES
+    TIMEOUT 15 LABELS "n22;ts2;gsw;uart;host-pty;sil")
+  add_test(
+    NAME gsw_uart_e2e_missing_ack
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/python/test_gsw_uart_e2e.py
+            $<TARGET_FILE:test_gsw_uart_e2e_server>
+            drop-accept-ack)
+  set_tests_properties(gsw_uart_e2e_missing_ack PROPERTIES
+    TIMEOUT 15 LABELS "n22;ts2;gsw;uart;host-pty;sil;oob")
+endif()
 add_test(
   NAME sb_evs_structural_sweep
   COMMAND ${Python3_EXECUTABLE}
@@ -255,6 +309,10 @@ add_test(NAME sched_events COMMAND test_sched_events)
 add_test(NAME pus   COMMAND test_pus)
 add_test(NAME pus_fu COMMAND test_pus_fu)
 add_test(NAME pus_s11_residual COMMAND test_pus_s11_residual)
+add_test(NAME pus_dispatch_reservation_contention COMMAND test_pus_dispatch_reservation_contention)
+set_tests_properties(pus_dispatch_reservation_contention PROPERTIES TIMEOUT 30 LABELS "n22;pus;nc-ext-251;concurrency")
+add_test(NAME minimal_debug COMMAND test_minimal_debug)
+set_tests_properties(minimal_debug PROPERTIES TIMEOUT 30 LABELS "debug;nc-ext-251")
 if(TARGET test_pus_s18)
   add_test(NAME pus_s18 COMMAND test_pus_s18)
 endif()
@@ -362,3 +420,10 @@ if(FF_USE_LWIP)
   add_test(NAME lwip COMMAND test_lwip)
   add_test(NAME lwip_netif COMMAND test_lwip_netif)
 endif()
+
+# NC-EXT-251 TDD test: PUS API status return
+add_executable(test_pus_api_status unit/test_pus_api_status.c)
+target_link_libraries(test_pus_api_status frick_fsw_core)
+target_include_directories(test_pus_api_status PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+set_target_properties(test_pus_api_status PROPERTIES C_STANDARD 99)
+add_test(NAME test_pus_api_status COMMAND test_pus_api_status)

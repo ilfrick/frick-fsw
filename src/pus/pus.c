@@ -26,6 +26,10 @@ static uint16_t g_tm_counter;
 static uint32_t g_tc_count;
 static bool g_ready;
 
+/* Dispatch reservation: true when a TC dispatch is in progress (between
+ * acceptance and completion). Used to return FF_BUSY on concurrent ingest. */
+static bool g_dispatch_reserved = false;
+
 /* Mutex protecting all shared PUS core state (NC-EXT-05: serialization for
  * multi-context TM calls). Created once on first FF_PusInit. */
 static FF_MutexId_t g_pus_mutex;
@@ -48,6 +52,7 @@ FF_Status_t FF_PusInit(void)
     g_tm_counter = 0u;
     g_tc_count = 0u;
     g_ready = false;
+    g_dispatch_reserved = false;
     FF_PalMutexUnlock(g_pus_mutex);
 
     if (FF_PusRegisterCoreServices() != FF_SUCCESS) {
@@ -82,11 +87,12 @@ const FF_Pus_Backend_t *FF_PusGetBackend(void)
     return backend;
 }
 
-void FF_PusSetTmSink(FF_Pus_TmSink_t sink)
+FF_Status_t FF_PusSetTmSink(FF_Pus_TmSink_t sink)
 {
     FF_PalMutexLock(g_pus_mutex, 0u);
     g_tm_sink = sink;
     FF_PalMutexUnlock(g_pus_mutex);
+    return FF_SUCCESS;
 }
 
 /* ---- Registration ------------------------------------------------- */
@@ -287,12 +293,16 @@ static FF_Status_t ff_panic_reporter(const char *reason, uint64_t deadline_ns)
     return FF_PusEmitPanicEvent(reason, deadline_ns, g_panic_writer);
 }
 
-void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
+FF_Status_t FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer)
 {
+    if (writer == NULL) {
+        return FF_INVALID_ARGUMENT;
+    }
     FF_PalMutexLock(g_pus_mutex, 0u);
     g_panic_writer = writer;
     FF_PalMutexUnlock(g_pus_mutex);
     FF_PalSetPanicNotifier(ff_panic_reporter);
+    return FF_SUCCESS;
 }
 
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
@@ -405,6 +415,12 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
         FF_PalMutexUnlock(g_pus_mutex);
         return FF_NOT_READY;
     }
+    /* Dispatch reservation: if another TC is being processed (between
+     * acceptance and completion), reject this one with FF_BUSY. */
+    if (g_dispatch_reserved) {
+        FF_PalMutexUnlock(g_pus_mutex);
+        return FF_BUSY;
+    }
     if (g_backend->decode_tc(raw, len, &apid, &tc, &data, &data_len) != FF_SUCCESS) {
         FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_EvsSend(FF_EVS_PUS_TC_ERR, FF_EVS_ERROR, 0u, "PUS decode failure");
@@ -422,12 +438,18 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
             FF_PalMutexUnlock(g_pus_mutex);
             (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_ACCEPTANCE, 0u,
                                          FF_PUS_FAIL_ILLEGAL_APID);
+            FF_PalMutexLock(g_pus_mutex, 0u);
+            g_dispatch_reserved = false;
+            FF_PalMutexUnlock(g_pus_mutex);
             return FF_ERROR;
         }
         FF_PalMutexUnlock(g_pus_mutex);
         return FF_ERROR;
     }
     if (ack_accept) {
+        /* Reserve dispatch for this TC: no other ingest can proceed
+         * until this dispatch completes (completion ACK or error). */
+        g_dispatch_reserved = true;
         FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_ACCEPTANCE, 1u, 0u);
         FF_PalMutexLock(g_pus_mutex, 0u);
@@ -440,8 +462,12 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
         if (ack_complete) {
             FF_PalMutexUnlock(g_pus_mutex);
             (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_COMPLETION, 0u, code);
+            FF_PalMutexLock(g_pus_mutex, 0u);
+            g_dispatch_reserved = false;
+            FF_PalMutexUnlock(g_pus_mutex);
             return FF_NOT_FOUND;
         }
+        g_dispatch_reserved = false;
         FF_PalMutexUnlock(g_pus_mutex);
         return FF_NOT_FOUND;
     }
@@ -451,20 +477,30 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_START, 1u, 0u);
         FF_PalMutexLock(g_pus_mutex, 0u);
     }
-    if (ack_progress) {
-        FF_PalMutexUnlock(g_pus_mutex);
-        (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_PROGRESS, 1u, 0u);
-        FF_PalMutexLock(g_pus_mutex, 0u);
-    }
 
     rc = handler(&tc, data, data_len);
+
+    /* Progress verification after handler: success emits TM[1,5], error emits TM[1,6].
+     * Implements ICD §4 S1 row: subservice 5 = progress success, 6 = progress fail.
+     * Exactly one progress verification is sent; never both 1,5 and 1,6. */
+    if (ack_progress) {
+        FF_PalMutexUnlock(g_pus_mutex);
+        (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_PROGRESS, (rc == FF_SUCCESS) ? 1u : 0u,
+                                     (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        FF_PalMutexLock(g_pus_mutex, 0u);
+    }
 
     if (ack_complete) {
         FF_PalMutexUnlock(g_pus_mutex);
         (void)FF_PusSendVerification(&tc, FF_PUS_STAGE_COMPLETION, (rc == FF_SUCCESS) ? 1u : 0u,
                                      (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        FF_PalMutexLock(g_pus_mutex, 0u);
+        g_dispatch_reserved = false;
+        FF_PalMutexUnlock(g_pus_mutex);
         return rc;
     }
+    FF_PalMutexLock(g_pus_mutex, 0u);
+    g_dispatch_reserved = false;
     FF_PalMutexUnlock(g_pus_mutex);
     return rc;
 }

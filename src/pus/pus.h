@@ -50,7 +50,7 @@ typedef FF_Status_t (*FF_Pus_FunctionHandler_t)(const uint8_t *args, uint16_t le
 FF_Status_t FF_PusInit(void);
 FF_Status_t FF_PusSetBackend(const FF_Pus_Backend_t *backend);
 const FF_Pus_Backend_t *FF_PusGetBackend(void);
-void FF_PusSetTmSink(FF_Pus_TmSink_t sink);
+FF_Status_t FF_PusSetTmSink(FF_Pus_TmSink_t sink);
 
 /* ---- Telecommand ingestion and telemetry emission ---------------- */
 FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len);
@@ -72,7 +72,7 @@ FF_Status_t FF_PusEmitPanicEvent(const char *reason, uint64_t deadline_ns,
                                  FF_Pus_DirectWriter_t writer);
 /* Installs the pre-reset reporter used by FF_PalPanic (wiring seam so the
  * flight wiring is the same code path the host tests exercise). */
-void FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer);
+FF_Status_t FF_PusInstallPanicReporter(FF_Pus_DirectWriter_t writer);
 FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stage, uint8_t success,
                                    uint8_t code);
 /* Service 5 event report (ICD §4): the function encodes the report header
