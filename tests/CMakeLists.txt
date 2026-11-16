@@ -427,3 +427,9 @@ target_link_libraries(test_pus_api_status frick_fsw_core)
 target_include_directories(test_pus_api_status PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 set_target_properties(test_pus_api_status PROPERTIES C_STANDARD 99)
 add_test(NAME test_pus_api_status COMMAND test_pus_api_status)
+
+# NC-EXT-251 TDD test: PUS pre-acceptance ACK reservation
+add_executable(test_pus_pre_acceptance_ack_reservation unit/test_pus_pre_acceptance_ack_reservation.c)
+target_link_libraries(test_pus_pre_acceptance_ack_reservation PRIVATE frick_fsw_core Threads::Threads)
+add_test(NAME test_pus_pre_acceptance_ack_reservation COMMAND test_pus_pre_acceptance_ack_reservation)
+set_tests_properties(test_pus_pre_acceptance_ack_reservation PROPERTIES TIMEOUT 60 LABELS "n22;pus;nc-ext-251;concurrency;ack-reservation")

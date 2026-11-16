@@ -86,16 +86,16 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-004
     derived: false
-    implementation: ["src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
+    implementation: ["src/pus/pus.c", "src/pus_modified/pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_s11_residual.c", "tests/unit/test_pus_dispatch_reservation_contention.c", "tests/unit/test_pus_pre_acceptance_ack_reservation.c", "tests/integration/gsw_uart_e2e_server.c", "tests/python/test_gsw_uart_e2e.py"]
     lean: ["req_srs006_acceptance_completion", "complete_ack_produces_two", "ack_acceptance_is_counted"]
 
   - id: SRS-REQ-007
     level: srs
     parent_sss: SSS-REQ-004
     derived: false
-    implementation: ["src/pus/pus.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c"]
+    implementation: ["src/pus/pus.c", "src/pus_modified/pus.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_r3_gap.c", "tests/unit/test_pus_dispatch_reservation_contention.c", "tests/integration/gsw_uart_e2e_server.c", "tests/python/test_gsw_uart_e2e.py"]
     lean: ["req_srs007_counter_increases", "req_srs007_counter_wrap_bounded"]
 
   - id: SRS-REQ-008
@@ -138,9 +138,9 @@ requirements:
     parent_sss: SSS-REQ-014
     derived: false
     implementation: ["src/pus/pus_services.c"]
-    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_s11_residual.c"]
+    tests: ["tests/unit/test_pus.c", "tests/unit/test_pus_s11_residual.c", "tests/integration/gsw_uart_e2e_server.c", "tests/python/test_gsw_uart_e2e.py"]
     lean: []
-    lean_note: "Ping/pong covered by test_pus.c (service 17)."
+    lean_note: "Service-17 ping/pong is covered by test_pus.c and the host-SIL GSW/UART/PUS integration test; physical UART/ground-segment demonstration remains open."
 
   - id: SRS-REQ-013
     level: srs
