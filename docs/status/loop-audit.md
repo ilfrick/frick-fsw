@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                         | 11.05                                  |
-| Date                              | 2026-11-14                             |
-| Baseline commit                   | `e5f01d402af382a78d5a8242fe6b1c4e2eb6bb83` (current committed HEAD); this loop begins from the uncommitted S8-PUS-FU S1 test/documentation/review candidate. Earlier S1 manifest attestations bind a historical pre-loop snapshot only; no final combined-candidate manifest/attestation is present at loop start. Pre-existing unrelated untracked paths are preserved. No commit or push is claimed. |
+| Revision                         | 11.17                                  |
+| Date                              | 2026-11-17                             |
+| Baseline commit                   | `1ac2347d1f8e04a665c35c5f29134d3148efd66d` (branch `main`, HEAD at this loop start). The pre-existing worktree was already dirty: 53 `git status --short` entries before the authority-package edits; no clean-tree claim. Existing project content was preserved. SHA-256 snapshots recorded before this loop's edits: handover `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, loop audit `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, sprint plan `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, OBCP study `5593ffab546acd1f5edd21a93ea807a70c62fe1a4d4ab4a70bcf5a6131c6a144`, licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, ICD `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit identities, not post-edit integrity attestations. |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -33,7 +33,7 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | M9 MISRA + coding style | style + MISRA process | declared; **certified checker absent** | GAP-A4 | tracked: GAP-A4 |
 | M10 emulated target | Renode/QEMU | **Renode real run PASS (MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20)** | none | closed |
 | M11 Renode HAL coverage | all HAL classes exercised | **Peripheral-bound: GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN/PCIe done (11/13); NET `FF_NetStack_t` contract check (loopback) done and, on the lwIP-enabled image, an lwIP netif bound to the emulated GEM (`hal_net_lwip=PASS`; packet round-trip + GEM DMA = NC-S6-01/NC-S6-03)**; SpaceWire = NC-S7-01 (no emulated peripheral, contract-level); PCIe done (emulated `MPFS_PCIe` available, `hal_pcie=PASS`); **NET follow-up**: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing); NC-154-01 closed (`test_lwip_netif` host test) | partial | tracked: M11 (GEM DMA full round-trip → M14; SpaceWire → S7 contract-level) |
-| M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | pinned N7 engine built/linked by default behind `FF_Obcp_t`; host connectivity test passes with test doubles; **VM-instruction-budget slice delivered at host level** (nonzero per-execution budget enforced in VM dispatch path, distinct `BUDGET_EXHAUSTED` result, context reusable after exhaustion, zero-budget fails closed) under project-owned patches applied before `make flat`; `FF_USE_PUS_S18_PROVISIONAL` default-OFF option gates provisional PUS S18 handlers and `test_pus_s18` CTest entry (NOT registered/run by default; mapping NOT an approved ICD, not mission-enabled); M16 placeholder skeleton `src/obcp/ff_obcp_inhouse.{c,h}` added behind `FF_USE_INHOUSE_OBCP` default OFF | NC-S9-01 deferred/open: production service/PUS S18 wire authority, RTEMS/RISC-V, resource bounds, requirement closure, engine selection, target/HIL, independent review, mission acceptance remain open; host adapter evidence only | **IN PROGRESS; do not claim M12/SRS-REQ-045 complete or enable mission scripts.** VM-instruction-budget slice committed and pushed (commit `b9681e8`). M16 placeholder scope-bounded committed and pushed. N18 finalization reconciliation complete: (1) vm.c computed-goto `DISPATCH()` macro now increments `mp_vm_budget_exhaustion_count` (latent — `MICROPY_OPT_COMPUTED_GOTO (0)`); (2) clone `obcpengine.c` reconciled with project patch (`mp_embed_deinit()` + thread-local cleanup on exception branch, boolean flag vs counter); (3) `apply_n7s_obcp_patch.sh` `patch_already_in_place()` requires all markers (no partial-patch acceptance); (4) new test `test_context_reuse_after_interpreter_error` added to `test_obcp_budget.c`. Gates on `build/commit-all` (`FF_USE_INHOUSE_OBCP=ON`): build exit 0, `ctest` 60/60 PASS; `make verify-lean` and `make trace` NOT RUN (interrupted previously — pending next cycle). Norm N7 full sprint scope and applicable gates remain open; commit/push authorized by owner (norm N7 delegated) after gate verification. Preserve limits in `docs/architecture/obcp-integration-assessment.md`. |
+| M12 OBCP engine (uPython) | n7s-obcp / ECSS engine | pinned N7 engine built/linked by default behind `FF_Obcp_t`; host connectivity test passes with test doubles; **VM-instruction-budget slice delivered at host level** (nonzero per-execution budget enforced in VM dispatch path, distinct `BUDGET_EXHAUSTED` result, context reusable after exhaustion, zero-budget fails closed) under project-owned patches applied before `make flat`; `FF_USE_PUS_S18_PROVISIONAL` default-OFF option gates provisional PUS S18 handlers and `test_pus_s18` CTest entry (NOT registered/run by default; mapping NOT an approved ICD, not mission-enabled); M16 placeholder skeleton `src/obcp/ff_obcp_inhouse.{c,h}` added behind `FF_USE_INHOUSE_OBCP` default OFF | NC-S9-01 deferred/open: production service/PUS S18 wire authority, RTEMS/RISC-V, resource bounds, requirement closure, engine selection, target/HIL, independent review, mission acceptance remain open; host adapter evidence only | **IN PROGRESS; do not claim M12/SRS-REQ-045 complete or enable mission scripts.** VM-instruction-budget slice committed and pushed (commit `b9681e8`). M16 placeholder scope-bounded committed and pushed. N18 finalization reconciliation complete: (1) vm.c computed-goto `DISPATCH()` macro now increments `mp_vm_budget_exhaustion_count` (latent — `MICROPY_OPT_COMPUTED_GOTO (0)`); (2) clone `obcpengine.c` reconciled with project patch (`mp_embed_deinit()` + thread-local cleanup on exception branch, boolean flag vs counter); (3) `apply_n7s_obcp_patch.sh` `patch_already_in_place()` requires all markers (no partial-patch acceptance); (4) new test `test_context_reuse_after_interpreter_error` added to `test_obcp_budget.c`. Gates on `build/commit-all` (`FF_USE_INHOUSE_OBCP=ON`): build exit 0, `ctest` 60/60 PASS; `make verify-lean` PASS; `make trace` PASS (120 requirements, 76 SRS, 30 SSS, 14 gaps, 68 Lean theorems). Norm N7 full sprint scope and applicable gates remain open; commit/push authorized by owner (norm N7 delegated) after gate verification. Preserve limits in `docs/architecture/obcp-integration-assessment.md`. |
 | M13 reference mission services | equipment manager + fault mgmt | planned | none yet | tracked: M13 |
 | **M14 multicore/SMP** | SMP on the 4×U54 (after all others) | not started | none yet | tracked: M14/OBJ-22 (after all others) |
 | **M15 in-house fundamental PUS-C set (+ CFDP + VFS)** | OBJ-23 (fundamental PUS-C behaviour + CFDP + virtual filestore + S23) | planned | none yet | tracked: M15 (after M14) |
@@ -66,17 +66,17 @@ Declared in `docs/development-plan.md` / `docs/roadmap.md`.
 | N7 | designated-agent commit/push after all gates/norms and full sprint scope; dual remotes | Historical fact: `13ebf92`, `e7e48ee` and `318f49b` are present on `origin` and `gitea`; hosted GitHub runs `38793643786` (`13ebf92`), `39134615633` (`e7e48ee`), `39218060325` (`318f49b`, all eight jobs) and `39219583424` (`b6e1f61`, all eight jobs) passed. | Repository evidence reviewed here does not establish that every N7 pre-push gate/authorization was satisfied for those historical pushes; Gitea Actions is unverified. For `318f49b` the applicable gates were green (ci-local build/43-of-43 ctest/Lean/trace, pinned format, smoke, GSW/metrics/license, docker Doxygen, host ASan 43/43) and hosted CI passed all eight jobs, but the batch-scoped N17/N20 reviews were not obtained (NC-EXT-99, explicit owner-dispositioned deferral to the next cycle). | Obtain the deferred batch-scoped reviews recorded as NC-EXT-99; do not infer historical authorization |
 | N8 | complete/current docs | Candidate summaries include UART framing, R1/R2 reports, NC-EXT-07 packet-loss/recovery limit, local checks, payload/packet sizing, current candidate manifest and retained logs; verification-results 2.83 records current evidence | Bounded R4/PA reviews 0320..0324 and R2 0327..0329 accepted only enumerated corrections; handover §5 marks stale items historical and points to current item 16. Broader legacy docs remain outside bounded scope | Retain historical/candidate identities and review boundaries; no general document-set approval |
 | N9 | independent reviews | Bounded PUS R1/R2 re-reviews 0355/0356 and PA assessments 0354/0361/0364 recorded; scheduler R1/R2 0351/0352, R2 re-review 0353 and PA 0360 recorded; R4 0357–0369 records scoped documentation corrections; reconciliation reviews 0370 R2 (V&V delta, approved with comments), 0371 R3 (requirement grounding, changes required), 0372 R4 (documentation, changes required at the reviewed revision) and 0373 PA (no N20 approval) processed on 2026-10-17 with bounded corrections applied | NC-EXT-88/89 are closed narrowly on the R1 0355/R2 0356 re-reviews; NC-EXT-90, authority/target gates and overall phase/release assurance remain open despite completed focused reviews | Preserve review scopes and authority/target constraints; no overall phase closure inferred |
-| N10 | tools qualified | T23 fetch helper checks pinned HEAD plus tracked/untracked/ignored checkout state; R2/PA reports 0298..0300 reviewed the bounded wrong-HEAD and dirty-state behavior; the GitHub workflow exercised the committed helper. Current host run exposes a separate Git ownership denial on `third_party/lwip` before T23's integrity checks can execute; tracked as NC-EXT-112. R4 0387 also found the T24 dry-run log does not bind the formatter version/image digest to the run; tracked as NC-EXT-113 | T23 remains unqualified; T24 run identity evidence is incomplete; Gitea execution and complete provenance remain unverified; Docker/dependency inputs remain mutable; no trust exception was applied | Do not claim T23/T24 qualification from local/hosted execution alone; retain independent qualification and provenance gates |
+| N10 | T3 `test_pus.c` remains NOT FULLY QUALIFIED; the changed files pass host clang-format 23.1.3 (version logged); pinned-18 conformance is not evidenced (NC-EXT-101/244). The N13 checker changed (AD-002): the new compound-expression rule and the header-check fix are covered by `tests/python/test_license_check.py` 17/17 PASS, but independent review/qualification of the tool change remains pending (NC-EXT-44, T21). |
 | N11 | scripts/reviews/results committed | The current worktree retains the reviews through FRICK-REVIEW-0419: 0405 (R2 V&V), 0406 (PA), 0407 (R2 N12 re-review), 0408 (R4), 0409/0410/0411/0412 (fresh R1/R2/R3/R4 of the owner-directed delta), 0413 (fresh N20 PA, not approved), 0414 (R1 delta, rejected for closure of 0409), 0415 (R2 delta) and 0416/0417/0418 (final R1/R2/PA delta) and 0419 (PA re-review of the correction), plus the earlier R2 0390, the R4/PA 0391/0392 set, 0393-0404 and the retained evidence files. The findings of 0409-0416 are registered as NC-EXT-184..190 and all remain OPEN. NC-EXT-226/FRICK-REVIEW-0436 (2026-10-29): R2 SW V&V review of XW-3 delta against v022 snapshots. Verdict: APPROVED WITH COMMENTS. Two Comment-severity findings: (1) `atomic_publish` same-filesystem limitation (no parent-directory fsync, cleanup best-effort on replace failure). (2) `summary.case.json` not hash-bound to run-index, explicitly unresolved/related only to NC-EXT-230 (verdict-only hash binding). NC-EXT-226 stays OPEN/non-blocking; T35 stays NOT QUALIFIED; human qualification stays deferred per owner msg2046 (2026-10-26); NC-EXT-230 stays OPEN; atomic_publish same-filesystem limitation is a comment, not a closure. No target/hardware execution; no commit/push. | NC close-out is not performed here; no review report is treated as an approval and no gate is claimed passed | Keep the reports and the NC register in the same tree; closure requires the authorized dispositions |
-| N12 | NC close-out loop | open | NC-EXT-28/35/112 remain OPEN with the bounded 0387 findings mapped to them; NC-EXT-113 is OPEN/deferred; NC-EXT-103..111 remain OPEN; **NC-EXT-120..183 are OPEN** from the 2026-10-21 cycle; **NC-EXT-184..190 are OPEN** and register the 0409-0416 findings (requirement semantics, reset-path liveness, target timing and the corrected target build, watchdog cadence/configuration, unwired target protection, evidence currency, and the residual oracle/verification items); **NC-EXT-238** is newly OPEN for the provisional GEO mission values. Nothing is closed by this audit. | N12 close-out requires the authorized owner; the register now carries the new findings with an owner and a closure condition | No closure or approval implied by the audit |
-| N13 | owner-authorized MPL-2.0 for original project-authored content | Owner decision recorded; scope excludes externally controlled material | NC-EXT-43 remains open for third-party/generated component boundaries and combined-distribution compatibility | open |
+| N12 | **NC-EXT-94 and NC-EXT-95 CLOSED (2026-11-14) by owner disposition AD-001** (`docs/quality/product-assurance.md` §6); NC-EXT-240..251 excluding 94/95 remain OPEN. Closure of 94/95 is not an approval of this change; NC-EXT-249/250 stay OPEN. |
+| N13 | `make gsw-selfcheck` **PASS** (license 17/17, GSW 12, metrics 9) after the AD-002 correction: overlay `tools/patches/n7s-obcp/src/modifications/py/vm.c` declares `MIT AND MPL-2.0` (upstream MIT notice retained) and the checker accepts compound expressions only under `tools/patches/` with `MPL-2.0` present and identifiers restricted to `{MIT}`. NC-EXT-43 (notices/provenance/combined distribution) and NC-EXT-44 (T21 qualification) remain OPEN; no legal or compatibility conclusion is made. |
 | N14 | SSS reviewed by R3 | R3 review FRICK-REVIEW-0290 and corrective delta 0295 recorded; S4c requirement/interface wording reviewed | Mission SSS/SRS baseline still lacks approved Bmax/Rmax/Dmin/Lmax, link profile, ground boundary and loss counter/report semantics | **OPEN** for mission baseline; bounded review does not close NC-EXT-75/76 or establish system authority approval |
 | N15 | full cycle each change | On the current tree (2026-11-09 emulated watchdog increment) the native build and full **CTest 54/54** pass (`build2/native`), Lean `lake build` passes, the Lean elaboration receipt regenerates (11 modules), `make trace` passes, `make gsw-selfcheck` and `metrics.py --check` pass, the pinned clang-format 18.1.3 check passes, the RTEMS 6.2 cross-build passes (`build/renode/frick_fsw_renode.elf`), and **N18 Renode passes** (`RENODE_TEST: PASS`). `make smoke` was not rerun in this increment. | No target execution or HIL leg; the emulated N18 run is integration evidence, not RTPFS160ZT fidelity. `make smoke` not rerun. | Keep every leg's status distinct; no gate or NC closure |
 | N16 | revision history | compliant | none | closed |
 | N17 | documentation review (R4) | R4 0357–0359 corrected/re-reviewed TS1 range/history/status; 0362/0363 current evidence/status/audit/manifest; 0365/0366 final CI hash; 0367/0368 handover boundary; 0369 audit/index; 0372 reconciliation; 0387 host-gate docs; 0389 N18 pointers; 0391–0401 reviewed successive currentness corrections. PA 0402 found a historical attribution issue, corrected in handover rev 3.32 / sprint-plan rev 1.90; R4/PA 0403/0404 confirmed. NC-EXT-119 remains OPEN pending authorized owner disposition | No aggregate document-set/N17 or phase approval. NC-EXT-116/117/118/119 remain OPEN; earlier R4 findings remain open per their records. | Preserve bounded scope and no-closure boundary; broader S8-FDIR-01 R4 0386 remains REJECTED and its NCs stay open. |
 | N18 | Renode emulated-target functional validation | **PASS on the current tree (2026-11-10)** for the `N22-TS5-66` increment (and 2026-11-09 for the emulated WDOG0 binding): `tools/scripts/renode_vv.sh` reports `RENODE_TEST: PASS` with container exit 0; the retained console shows `SCH app started, 4 entries`, `watchdog: WDOG0 armed (emulated profile: timeout 10000 ms, TIME=1562500, TRIGGER=4095, MSVP=TIME, clk=156250 Hz)` and `WD armed: timeout 10000 ms, feed 2500 ms`. The pinned `beaglev-fire.repl` imports `polarfire-soc.repl` with five MPFS watchdog model instances. | The model does not replace target/HIL evidence, does not establish RTPFS160ZT register/clock/reset-scope fidelity, and does not close the flight binding (NC-PAL-01/GAP-A5). | Emulated integration evidence only; real-HW validation still required |
 | N19 | this audit each loop | This loop began by inspecting governing docs, worktree and actual implementation. Owner inputs are now recorded in escalations/ADR/SRS. Current implementation/test delta and unverified dependencies are recorded in this audit. | Existing open NCs and all N1-N22 gates remain; this update does not claim N19 closure beyond the bounded delta. | Preserve owner attribution and current evidence; no claim of safety/release acceptance |
-| N21 | correct functional bugs and implement missing features committed for current/previous sprints; log other findings without stopping unrelated development | Owner-authorized bounded FDIR delta implemented in PAL/UART/PUS with regressions, as scoped in `docs/status/escalations.md`; unrelated NCs deferred. 2026-11-09: the missing MPFS WDOG0 binding was implemented for the N18 build (a sprint-committed feature) and the feeder cadence defect corrected; the flight-target parameterization remains an unauthorized external input (NC-PAL-01) and is recorded, not invented. | Report completion evidence is partial; flight-target hardware binding and target timing remain open dependencies; the emulated profile is not a flight configuration. | Continue only the authorized increment; no NC closure or safety/release gate claim |
+| N21 | Functional bug corrected (progress-failure path) and the licence-labelling defect corrected under owner delegation (AD-002); other non-functional findings recorded as NCs, not silently closed. NC-EXT-94/95 closed only on the recorded owner disposition, not by the implementer. |
 | N22 | requirement-based/integration tests use nominal and applicable out-of-bound cases with expected-result comparison | Full CTest 54/54 on the current tree; post-review targeted tests: watchdog 320, ES/HS 180, UART 72, time 113. S8-SCH scheduler tests: 104/104 checks pass (4 new N22 out-of-bound cases added: zero entries, activate-zero-count, poll-before-activation, max-out-zero; all with explicit expected results per norm N22). PUS-C boundary tests: 168/168 checks pass (3 new N22 boundary provider/subservice/period tests document implementation scope and rejection behavior per norm N22). Added: saturated-console shared-deadline/reset host oracle in which the notifier observes the expired deadline and the pre-reset reset counter; the production reporter wiring case with an exactly-one-frame assertion; the link deadline-writer semantics; UART 60,000-byte partial-progress/short-write and stalled timeout; external nanosleep EINTR/EIO; failed-feed expiry preservation and reset hook error; the 96/97/256-character panic-report suppression characterization. The mission-table default watchdog case now expects 10 s / 2.5 s with the quarter-period assertion. | TS-5-80 requirement interpretation and 83/84/85/86/87 remain gaps as labeled; host timing does not imply 250 ms target WCET. The over-length test characterizes a known mismatch, not a pass. Hardware reset remains TS-5-82 gap. The emulated WDOG0 arm/feed is integration evidence; the flight parameters remain provisional (NC-EXT-238). | Keep requirement semantics, open target evidence and characterization distinct; no NC/gate closure. S8-SCH N22 test additions verified on native host; no target/HIL claim. PUS-C N22 boundary tests document implementation scope per authority-owned scope limits. |
 | N20 | every phase product PA-reviewed; findings fixed and reviews repeated until pass | The bounded N18 PA review 0388 identified NC-EXT-114 OPEN; PA 0392 identified NC-EXT-116/117; R4 0393 identified NC-EXT-118; the R4/PA 0394-0404 set identified NC-EXT-116/117/119. For the earlier FDIR increment the PA legs are 0406, 0413 (**not approved**: 1 Blocker, 7 Major, 1 Minor), the 0418 PA delta (**not approved**: 1 Blocker — the RTEMS `poll()` link break, now corrected — plus 5 Major and 5 Minor) and the 0419 PA re-review of the correction (**not approved**: the product corrections verified, with record-currency findings). The 0406/0413/0416 findings are registered as NC-EXT-184..190. **The 2026-11-09 emulated WDOG0 binding increment has not yet received its independent R2/R3/R4/PA reviews.** | The N20 gate for this increment is **not passed**; the emulated increment is pending independent review and the authority items are unresolved. | No phase/release approval; the registered NCs carry the open items; obtain the pending reviews before any commit |
 
@@ -396,8 +396,9 @@ that crosses its deadline (timeout with emitted bytes); N22-TS2-86 verifies an
 expired zero-length request returns `FF_TIMEOUT` without a write. Evidence is recorded at
 `docs/vv/evidence/2026-11-13-uart-restore-error/` with source/test/binary hashes.
 Build, Lean, trace, changed-file pinned format, GSW/license, smoke, docs,
-RTEMS cross-build and Renode PASS. Full pinned format continues to fail only on
-three unchanged initializers (NC-EXT-244); T3 remains NOT FULLY QUALIFIED.
+RTEMS cross-build and Renode PASS. Full pinned format continues to fail on
+nine files / 39 violations, including `src/pus/pus_services.c:753` (NC-EXT-244);
+T3 remains NOT FULLY QUALIFIED.
 R1/R3 source/API re-reviews found no functional defect in the bounded cases. The
 R2/R4 reports on earlier manifest snapshots and the 48f digest are historical
 for the current candidate after this §12.3 correction; do not treat their
@@ -414,9 +415,223 @@ the correction reports failure but does not guarantee safe behavior for other
 writers. Target readiness and 250 ms timing remain open under NC-EXT-191 / GAP-A5.
 Do not close NC-EXT-191 or claim target/HIL qualification.
 
+## 13. N19 assessment/outcome — current S1 progress-failure increment (2026-11-14)
+
+### 13.1 Objective and starting implementation
+
+Objective: implement S1 progress-failure emission (TM[1,6]) in `FF_PusIngest`
+per ICD §4 rev 1.9 / NC-EXT-94, with focused regression tests. Starting
+implementation: `fc68b9d` is committed HEAD (ICD documentation only for
+NC-EXT-94/95); S1 source/test edits are uncommitted working-tree state.
+
+### 13.2 N19 timing deviation (recorded, not passed)
+
+N19 requires the audit at the **start** of every development/verification loop,
+before behavior change. This audit's header and N1-N22 rows were refreshed
+at 2026-11-14 **after** the first source edit (`src/pus/pus.c` progress-failure
+move) had already been applied. The pre-edit baseline state was not
+audited first. Tracked as NC-EXT-245 (open to system, non-blocking under N21).
+
+### 13.3 N1-N22 outcomes (current cycle)
+
+| Norm | Outcome |
+|------|---------|
+| N1 | **GAP, not N/A.** `make verify-lean` PASS, but `verification/lean/Frick/Pus.lean` `AckFlags`/`verificationCount` omit the progress stage, so the 'exactly one of TM[1,5]/TM[1,6]' invariant is tested, not proved. Tracked as **NC-EXT-248**. |
+| N2 | All docs/comments in English |
+| N3/N4 | `tests/unit/test_pus_s11_residual.c` added to the SRS-REQ-006 `tests` list in `docs/requirements/traceability.yaml` (the new N22-TS1-105 oracle had no trace link); `make trace` PASS (120/76/30/14/68) |
+| N5 | Class B deliverable; class-A gaps documented |
+| N6 | CI/CD via Docker not re-run for uncommitted candidate |
+| N7 | **No commit/push performed**; all gates required before commit |
+| N8 | TS-1 rev 1.14 (N22-TS1-105 added), verification-results.md, sprint-plan, handover, loop-audit updated |
+| N9 | Reviews obtained from sub-agents R1 FSW (NEEDS REVISION), R2 V&V (CORRECTIONS REQUIRED), R3 systems (CONDITIONAL), R4 documentation (NOT PASSED), PA/N20 (REJECTED). **Contextual independence only, not organizational**; corrected tree requires re-review. |
+| N10 | T3 `test_pus.c` remains NOT FULLY QUALIFIED; the changed files pass host clang-format 23.1.3 (version logged); pinned-18 conformance is not evidenced (NC-EXT-101/244) |
+| N11 | Raw logs and exit codes retained under `docs/vv/evidence/2026-11-14-s1-progress-failure/` |
+| N12 | NC-EXT-240..251 remain OPEN; no NC closure claimed |
+| N13 | Authored-file license checker not re-run on changed files; the `make gsw-selfcheck` failure (`tools/patches/n7s-obcp/src/modifications/py/vm.c` missing MPL-2.0 SPDX label) is a pre-existing, already-tracked finding under **NC-EXT-43** (external/generated provenance-and-notice scope; dated observation appended) and **NC-EXT-44** (T21 checker semantics) — not a new NC. NC-EXT-246 is the N18 Docker runner preflight/cleanup gap, not a licensing NC. No source/license edit. |
+| N14 | No SSS change |
+| N15 | Fresh host configure/build on `build/s1-review`: configure exit 0, build exit 0 (0 warnings), CTest 60/60 PASS, focused set 7/7 PASS (`test_pus_s11_residual` checks=1206/0), verify-lean PASS, trace PASS (120/76/30/14/68), host clang-format 23.1.3 PASS on the two changed files. **smoke FAILED on default `build/native` cache** (exit 2); `BUILD_DIR=build/smoke-safe` PASSED. `make gsw-selfcheck` PASS after the AD-002 correction (license 17/17, GSW 12, metrics 9). Full format-check FAILED on nine unrelated files (NC-EXT-244). **N18 not evidenced for this delta (NC-EXT-247).** |
+| N16 | CHANGELOG and document histories updated |
+| N17 | R4 review obtained (sub-agent, contextual independence only): **NOT PASSED**, 6 Major + 12 Minor + 8 observations; corrections applied, re-review required |
+| N18 | **NOT satisfied for this delta (NC-EXT-247).** The retained Renode run (11:26) predates `src/pus/pus.c` (12:21:53) and carries no ELF/image identity for this candidate; no RTEMS rebuild exists. The Docker runner was also invoked without the required preflight (cleanup/mount safety unaudited) — **NC-EXT-246**. No N18 PASS is claimed. |
+| N19 | **Sequencing deviation recorded as NC-EXT-245**; not claimed passed |
+| N20 | PA review obtained (sub-agent, contextual independence only): **REJECTED — commit/push withheld**, 18 findings; corrections applied, re-review required. N20 is not discharged by a sub-agent. |
+| N21 | Functional bug corrected (progress-failure path); nonfunctional findings recorded as NCs, not silently closed |
+| N22 | N22-TS1-105 added to TS-1 rev 1.14 (105 cases = 77 covered + 28 gap; 6 mixed; 94 individual; SIL 102); nominal and out-of-bound cases with explicit expected results |
+
+## 14. N19 start-of-loop audit — NC-EXT-251 dispatch-lock correction (2026-11-14)
+
+### 14.1 Objective and actual implementation
+
+Objective: correct functional NC-EXT-251 using owner-approved option 2 and
+fail-fast lock semantics (user decisions m00324, m00476, m00588): never hold the
+PUS state mutex across handlers, callbacks, or TM emission; serialize complete
+TC dispatch separately; return `FF_BUSY` on lock collision before state/counter
+mutation; permit handler-originated TM sends; reject sink-recursive sends; and
+prevent overlapping TM sink callbacks. Preserve the S1 exact-one progress
+contract and ordering. The panic/reset `FF_PusSendTmDirect` path must remain
+lock-free and use the shared atomic modulo-16384 TM counter. V&V supplied a
+read-only 11-case design; it has not yet been integrated or executed. No
+NC-EXT-251 behavior code has changed yet. The S1/license candidate remains
+uncommitted on `fc68b9d121bce2194c1beaaa9a7dc4cdab0552c`.
+
+### 14.2 N19 timing deviation (recorded, not passed)
+
+This resumed loop began with read-only source and design inspection before the
+current N19 record was refreshed. No NC-EXT-251 behavior code was changed
+before this audit update, but the strict N19 start-of-loop sequence was still
+missed. This does not retroactively establish N19 compliance. Record this
+additional occurrence under existing **NC-EXT-245**, which remains OPEN,
+owner FSW engineer, disposition open to system/non-blocking under N21. The
+current audit is now updated before any NC-EXT-251 behavior edit; no process
+NC is closed or waived.
+
+### 14.3 N1-N22 status for this objective
+
+| Norm | Current status for this loop |
+|------|------------------------------|
+| N1 | **GAP:** NC-EXT-248; Lean omits the progress stage. No new formal artifact yet. |
+| N2 | English-only project content maintained. |
+| N3/N4 | Prior S1 trace gate passed; NC-EXT-249/250 authority issues remain. NC-EXT-251 behavior/test trace links will be added with its implementation. |
+| N5 | Class B target; class-A and mission/target evidence gaps remain open. |
+| N6 | No CI/Docker run for this loop; NC-EXT-246 preflight blocks further Docker/Renode execution. |
+| N7 | No commit/push. |
+| N8 | Existing S1 candidate docs are updated; PUS API, architecture, ICD, TS-1, sprint, evidence, and handover updates for NC-EXT-251 remain pending. |
+| N9 | Corrected-tree R1/R2/R3/R4 re-reviews are unavailable; prior reports did not pass. No current approval claimed. |
+| N10 | T3 and T21 qualification remain open (NC-EXT-44 and existing tool NCs). |
+| N11 | Prior S1 evidence retained; V&V read-only report exists outside the repository and must be incorporated into controlled TS-1/evidence; no NC-EXT-251 execution evidence exists yet. |
+| N12 | NC-EXT-43/44 and NC-EXT-244..251 remain open; other active findings remain open. No NC closure claimed. |
+| N13 | Prior candidate `make gsw-selfcheck` PASS is retained; NC-EXT-43/44 remain open. |
+| N14 | Mission SSS authority inputs remain open; this change does not dispose them. |
+| N15 | NC-EXT-251 implementation/tests are pending. Owner requires the full project test suite every sprint; run it with all applicable gates after the change. N18 remains not evidenced (NC-EXT-247). |
+| N16 | Prior S1 histories are updated; NC-EXT-251 change histories/evidence entries are pending implementation. |
+| N17 | Corrected-tree R4 review is pending; previous R4 verdict was NOT PASSED. |
+| N18 | **NOT satisfied for the current candidate** (NC-EXT-247); NC-EXT-246 blocks Docker/Renode until the approved preflight exists. |
+| N19 | Current audit is recorded, but both the earlier and this loop's late audit timing are deviations; NC-EXT-245 remains OPEN and N19 is not claimed passed. |
+| N20 | Corrected-tree PA review is pending; previous PA verdict was REJECTED. |
+| N21 | NC-EXT-251 is a functional defect and must be corrected; owner-approved option-2 and panic-path atomic-counter design are recorded above, but code is not yet changed. Preserve S1 behavior. |
+| N22 | Existing S1 tests cover progress outcomes; V&V supplied an 11-case nominal/OOB/concurrency/re-entry matrix. Add controlled oracles, trace links, and executable tests; do not claim coverage until run. |
+
+### 14.4 Owner dispositions and remaining implementation constraints
+
+Owner selected fail-fast behavior: state, dispatch, and emission locks are
+try-only; PUS maps lock contention to `FF_BUSY`, and all other PAL errors remain
+distinct. Any lock collision must precede mutation; accepted TM sink calls are
+mutually exclusive. A handler may send TM; nested ingest and sink-recursive TM
+send return `FF_BUSY`. The PUS state lock is released before every external
+callback. Complete TC dispatch remains serialized. Update public PUS APIs that
+currently cannot report lock failure, and define the exact status/atomicity
+clauses in controlled interfaces before freezing the TS-1 oracle.
+
+Owner also confirmed that `FF_PusSendTmDirect` must remain bounded and
+lock-free, sharing a lock-free atomic modulo-16384 counter with ordinary TM
+emission. Verify compiler lowering on host and RISC-V target; a helper-backed
+atomic is not acceptable. Keep backend/writer snapshots safe for this path and
+preserve the panic deadline contract.
+
+V&V's read-only assessment found the design testable and supplied 11 cases,
+but the report is not yet controlled evidence. The synchronous `FF_Pus_TmSink_t`
+callback is `void`; PUS cannot observe sink failure or bound a callback that
+never returns. The lock correction prevents PUS mutex deadlocks, not arbitrary
+callback nontermination. Document this boundary, test return/serialization and
+failure paths with deterministic barriers, and retain the open callback-timeout
+risk unless the transport provides a verifiable deadline.
+
+## 15. N19 start-of-loop audit — end-to-end I/O coverage gaps (2026-11-15)
+
+### 15.1 Objective and baseline
+
+User request m00806: close the end-to-end coverage gaps identified by the
+read-only V&V assessment, execute the tests, then resume the normal development
+flow. Current committed HEAD remains
+`fc68b9d121bce2194c1beaaa9a7dc4cdab0552c`; the working tree is already dirty
+with the uncommitted S1 progress-failure/license delta, the prior audit updates,
+review reports, and evidence. This loop adds no changes to those baseline
+claims. The earlier S1 manifest check failed only for the subsequently edited
+`docs/status/loop-audit.md`; regenerate the manifest after this loop's audit and
+implementation updates. Subsequent OOB E2E implementation and execution are recorded in §§15.3–15.4; this audit remains a late N19 entry and does not retroactively pass N19.
+
+V&V identified existing SIL integration cases N22-TS2-70..72 for mock/loopback
+IP UDP, TSN, and TCP segmentation, but no automated GSW↔backend round trip
+(N22-TS2-75), no Renode SDLS or `FF_Link_t` round trip (76/77), and no target
+HIL UART/IP/TSN, UART 115200, or real HSM/ground key evidence (78..80). The
+SDLS+PUS+link path (73) is not wired and has no controlled oracle. The
+comprehensive test specification also leaves target CAN/I2C command paths
+open. These are distinct scopes: this loop may add and execute SIL tests for
+existing software paths; it may not claim HIL evidence without target hardware,
+may not run Docker/Renode while NC-EXT-246 preflight is unapproved, and may not
+invent SDLS/key-management or mission interface behavior where the oracle is
+open. Track blocked scope under existing NC-EXT-47/GAP-A5/GAP-A14 and
+NC-EXT-246/247 with owner/milestone; do not silently mark it covered.
+
+N19 sequencing is late for this fresh objective: source-of-truth docs and
+baseline were inspected before this section was recorded. Keep NC-EXT-245 OPEN;
+this audit does not retroactively pass N19.
+
+### 15.2 N1-N22 conformance snapshot
+
+| Norm | Current status for this E2E-coverage loop |
+| --- | --- |
+| N1 | No project source artifact was generated by this test increment; no Lean model/requirement change. `make verify-lean` passes. |
+| N2 | English-only repository content maintained. |
+| N3/N4 | N22-TS2-75/87 map to FRICK-ICD-001 §§2/4 and SRS-REQ-006/007/012; `traceability.yaml`/`.md` now attribute the integration tests to those SRS items; `make trace` passes 120 requirements (76 SRS, 30 SSS, 14 gaps, 68 Lean theorems). No requirement text changed. |
+| N5 | Class-B target remains intended; target/HIL and mission-data gaps remain open. |
+| N6 | No CI/Docker run; NC-EXT-246 preflight blocks Docker/Renode. |
+| N7 | No commit/push; prohibited until all applicable gates and full sprint scope pass. |
+| N8 | TS-2 rev0.15, GSW docs, T3/T7 qualification rev2.3, results, traceability, handovers, changelog and histories updated with test changes. |
+| N9 | Corrected-tree R1/R2/R3/R4 and PA reviews remain pending; no current approval. |
+| N10 | T3/T7 inventories and exact hashes updated in `docs/vv/tool-qualification.md` rev2.3; Python 14/14 and nominal+OOB E2E CTest 2/2 are execution evidence only. T3/T7 remain NOT FULLY QUALIFIED pending independent exact-hash review. |
+| N11 | Test source, commands, focused/full host logs, initial-failure reports, post-mapping trace and `logs.sha256` are retained in `docs/vv/evidence/2026-11-15-gsw-uart-e2e/`; checksum verification passes. |
+| N12 | NC-EXT-43/44 and NC-EXT-244..251 remain open; NC-EXT-47, GAP-A5/A14 and target evidence gaps remain open. No NC closure claimed. |
+| N13 | `make gsw-selfcheck` passes after E2E/tooling edits (GSW 14/14, metrics 9/9, license 17/17, license-policy check OK). |
+| N14 | No mission-authority disposition for SDLS, HSM/ground keys or target interface tailoring. |
+| N15 | `BUILD_DIR=build/s1-review make build` and `make test` pass (62/62, 19.71 s); Lean, trace, GSW self-check and native smoke pass. N18 is separately blocked. |
+| N16 | TS-2, comprehensive test specification, T3/T7 qualification register, verification results, handover, changelog and document histories updated in this cycle. |
+| N17 | Corrected-tree documentation review remains pending and is a commit gate. |
+| N18 | Not evidenced for this candidate; NC-EXT-247 open; do not run Docker/Renode until NC-EXT-246 preflight approved/applied. |
+| N19 | This objective's audit was recorded after source-doc inspection; late sequence remains NC-EXT-245 OPEN, not passed. |
+| N20 | Corrected-tree PA review remains pending and is a commit gate. |
+| N21 | User authorized closing the testable E2E gaps; implement coverage for existing supported software paths, while tracking untestable hardware/authority gaps rather than fabricating evidence. |
+| N22 | N22-TS2-75 nominal GSW CLI→production UART/PUS exchange and N22-TS2-87 OOB missing-ACK fail-closed case pass with explicit results; PTY/shim is not physical UART/HIL. Cases 73, 76–80 and other target-only paths remain gaps. |
+
+### 15.3 Scope and gates
+
+Implemented and executed nominal `N22-TS2-75` and OOB `N22-TS2-87` host SIL cases: the actual `tools/gsw/ff_gsw.py` CLI sends S17.1 with requested S1 accept/start/completion acknowledgments through a test-only serial adapter and bridged POSIX PTYs to a C server using the production UART backend and PUS. The nominal test checks exact TC bytes, ordered TM services `[1,1],[1,3],[17,2],[1,7]`, S17 echo, ACK payloads, CRC and PUS secondary-header counter wrap. The OOB bridge drops only the acceptance TM[1,1] on the GSW leg; server captures all four emitted TMs, while CLI receives three, exits 1 within `--timeout 0.25`, and prints the exact missing/duplicate/unexpected/failed-response error. Both are host SIL only, not pyserial, external ground, physical UART or HIL. N22-TS2-75/87 are host-covered; T3/T7 remain open pending independent exact-hash reviews.
+
+Renode cases 76/77 remain blocked by NC-EXT-246 preflight; HIL 78..80 and target
+CAN/I2C paths require target hardware. SDLS case 73 requires an implemented,
+controlled secure-link path and mission/security oracle; no security feature or
+key policy was inferred. The first default `make build` and `make smoke` attempts
+failed before product execution because ignored `build/native/CMakeCache.txt`
+was generated under `/workspace`; this was recorded, not deleted. Re-running
+with `BUILD_DIR=build/s1-review` passed. Failure and success evidence is retained
+under `docs/vv/evidence/2026-11-15-gsw-uart-e2e/`.
+
+A separate unresolved owner question was sent through `notify_nicola`: the
+option-2 PUS emission try-lock can reject an S1 ACK while SRS-REQ-006 requires
+exactly one packet per acknowledged stage. This E2E work does not alter that
+NC-EXT-251 contract; do not change ACK behavior without owner disposition.
+
+### 15.4 Executed host-SIL evidence and remaining gates
+
+- `BUILD_DIR=build/s1-review make build`: PASS.
+- `BUILD_DIR=build/s1-review make test`: 62/62 PASS, 19.71 s, including nominal and OOB GSW UART E2E (2/2).
+- `make verify-lean`: PASS; `make trace`: PASS (120 requirements, 76 SRS,
+  30 SSS, 14 gaps, 68 Lean theorems).
+- `make gsw-selfcheck`: PASS (GSW 14/14, metrics 9/9, license 17/17, policy
+  check OK); `BUILD_DIR=build/s1-review make smoke`: PASS (banner + 7 apps).
+- N18 is still not evidenced; NC-EXT-247 remains open. NC-EXT-246 prohibits
+  Docker/Renode until safe preflight. N9/N17/N20 corrected-tree reviews remain
+  pending. NC-EXT-245 sequencing deviation remains OPEN, not retroactively passed.
+- No commit/push, release, qualification, flight, safety or security approval.
+
 ## History
 
 
+| Rev | Date       | Author    | Reason |
+| 11.14 | 2026-11-15 | frick-fsw | Extend GSW UART/PUS coverage with N22-TS2-87 OOB dropped-ACK fail-closed oracle and `--ack none` support; update traceability/T3/T7/TS-2, record 62/62 host suite plus Lean/trace/self-check/smoke evidence; preserve host-SIL-only limits, stale `/workspace` cache failure, N18/review gates, NC-EXT-245/246/247 and unresolved NC-251 ACK contract. No commit/push. |
+| 11.13 | 2026-11-15 | frick-fsw | Record implementation and 61/61 host suite, GSW 14/14, TS-2 75 host-SIL E2E, Lean/trace/self-check/smoke evidence and exact N11 artifacts; preserve stale `/workspace` cache failure, no HIL/N18 claim, N9/N17/N20 reviews pending, NC-EXT-245/246/247 and ACK contract unresolved. No commit/push. |
+| 11.12 | 2026-11-15 | frick-fsw | Begin user-authorized E2E coverage-gap loop; record existing TS-2 70..72 host integration evidence, GSW/renode/HIL/SDLS/CAN-I2C gaps, NC-EXT-246 execution barrier, N19 late-sequence NC-EXT-245, and bounded host-SIL scope before code/test changes. No E2E implementation or tests yet; no commit/push. |
+| 11.11 | 2026-11-14 | frick-fsw | Record owner-approved fail-fast option-2 contract, V&V's 11-case read-only design, and the selected lock-free panic path with shared atomic TM counter before implementation. Keep the late N19 sequence gap open as NC-EXT-245; identify API status/trace updates, target atomic-lowering evidence, callback nontermination boundary, full-sprint test suite, N18 and corrected-tree review gates. No behavior code or execution evidence yet; no commit/push. |
 | Rev | Date       | Author    | Reason |
 | 10.88 | 2026-11-13 | frick-fsw | Start the next N19 loop against actual HEAD and dirty candidate: select the bounded UART `send_until()` restore-failure gap under S8-PUS-FU/SRS-REQ-074; record N1-N22 status, prior manifest attestations as snapshot-bound, and strict scope boundary before behavior change. |
 | 10.89 | 2026-11-13 | frick-fsw | Update the current-loop result with all-write restore checking, errno preservation, focused/full-test evidence, local gate outcomes, initial review findings and remaining re-review/manifest/target gaps; preserve the start-of-loop record separately. |
@@ -435,6 +650,13 @@ Do not close NC-EXT-191 or claim target/HIL qualification.
 | 11.02 | 2026-11-13 | frick-fsw | Record bounded R4/N17 PASS with no findings for the N8/N11/N20 status correction; package integrity remains separately dependent on final exact-digest attestations. |
 | 11.03 | 2026-11-13 | frick-fsw | Bind N8/N11/N20 and §12.3 to independently attested active digest f07c2ca4… (297/297), while preserving snapshot invalidation, historical-report and no-approval boundaries. |
 | 11.04 | 2026-11-13 | frick-fsw | Qualify the f07c digest and 297/297 reports as a historical snapshot after R4 identified five covered status-file checksum failures; current package status is determined only by matching the active manifest and current reports. |
+| 11.05 | 2026-11-14 | frick-fsw | Correct baseline header to reflect uncommitted S1 delta (not committed); record N19 sequencing deviation as NC-EXT-245; correct N15 gate status (smoke FAILED exit 2, GSW self-check FAILED exit 2, N18 artifacts preserved); add §13 N19 assessment/outcome; TS-1 rev 1.14 with N22-TS1-105; independent reviews UNVERIFIED. |
+| 11.06 | 2026-11-14 | frick-fsw | Final documentation-integrity correction pass: remove duplicate format row in verification-results.md; correct GSW/N13 ownership description (project-owned patch/overlay, upstream-derived code, missing SPDX, git diff HEAD empty); register NC-EXT-246 for GSW/N13 license-classification defect; advance revision 11.05→11.06; remove unverified "clean baseline" adjective from header, mark start-state cleanliness UNVERIFIED; ensure N9/R1-R4/N17/N20 marked UNVERIFIED; NC-EXT-94/95 OPEN; NC-EXT-245 open non-blocking; NC-EXT-246 open blocker; add repo evidence directory path to results record. **Superseded by 11.07:** NC-EXT-246 is reallocated to the N18 Docker runner preflight/cleanup gap; the licensing finding is tracked under the existing NC-EXT-43/44. |
+| 11.07 | 2026-11-14 | frick-fsw | **Tracking correction (docs only).** NC allocation fixed: NC-EXT-246 = N18 Docker runner preflight/cleanup deviation (functional `RENODE_TEST: PASS` retained; cleanup/writable-mount safety unaudited; `mkdir -p` evidence-dir creation not proven absent beforehand; no host damage or overwritten content claimed; no Docker rerun). The `tools/patches/n7s-obcp/src/modifications/py/vm.c` missing-SPDX failure is a pre-existing, already-tracked finding appended as a dated observation to the existing **NC-EXT-43** (external/generated provenance-and-notice scope; see also `docs/quality/licensing.md` §2 and sprint history 1.109/1.110/1.114) and cross-referenced to **NC-EXT-44** (T21 checker semantics) — no new licensing NC. N13/N18 rows and sprint-plan 1.153/1.154 aligned to this mapping; N9/R1-R4/N17/N20 remain UNVERIFIED; NC-EXT-94/95/245/246 remain OPEN. |
+| 11.08 | 2026-11-14 | frick-fsw | **Independent review integration and objective-artifact corrections.** Five sub-agent reviews obtained (R1 FSW NEEDS REVISION, R2 V&V CORRECTIONS REQUIRED, R3 systems CONDITIONAL, R4 documentation NOT PASSED, PA/N20 REJECTED — contextual independence only). Corrected the verified defects: stale `checks=1176` replaced by the fresh `checks=1206 failures=0` on `build/s1-review` (new `build-fresh.log`, `ctest-fresh.log`, `focused-pus-fresh.log`, `pus-s11-residual-fresh.log`, `format-changed-host.log`, `assets.sha256`); false SRS-REQ-006 trace claim removed and the real link added to `docs/requirements/traceability.yaml`; TS-1 §3.1 corrected to 105 = 77 covered + 28 gap (6 mixed, 94 individual, SIL 102) and §2 group list advanced to 105; NC-EXT-95 historical text restored verbatim (append-only) and NC-EXT-94 append marked as describing the pre-change state; baseline hash corrected to `fc68b9d121…`; full-format limitation restated as nine files / 39 violations; ICD header advanced to rev 1.9 / 2026-11-14 and assessment header to rev 0.4 / 2026-11-14; evidence directory marked untracked. New open NCs registered: NC-EXT-247 (N18 not evidenced for the delta), NC-EXT-248 (Lean model omits the progress stage), NC-EXT-249 (S1 handler-failure ordering and 1,6+1,8 co-occurrence need interface-authority disposition), NC-EXT-250 (SRS-REQ-006 no-handler path emits no start/progress packet), NC-EXT-251 (pre-existing PUS mutex defect). No NC closed; no gate claimed passed; no release/qualification/flight approval. |
+| 11.09 | 2026-11-14 | frick-fsw | **Owner dispositions recorded and applied (AD-001/AD-002).** NC-EXT-94/95 **CLOSED** on the owner's explicit confirmation that ICD rev 1.9 / `fc68b9d` is the authoritative disposition, with closure conditions recorded (implementation must be committed with ICD rev 1.9; NC-EXT-249/250 remain separate and OPEN; no compliance/approval/qualification implied). AD-002: the third-party-derived overlay `tools/patches/n7s-obcp/src/modifications/py/vm.c` now declares `MIT AND MPL-2.0`; `tools/scripts/license_check.py` gained a narrow compound-expression rule (overlay roots only, exact expression `MIT AND MPL-2.0`) and an identifier-level header check that fixes a latent defect (exact list membership of the `MPL-2.0` string); `tests/python/test_license_check.py` 14 -> 17 tests, 17/17 PASS; `make gsw-selfcheck` PASS (was exit 2). NC-EXT-43/44 remain OPEN; T21 NOT FULLY QUALIFIED. Norm rows N10/N12/N13/N21 updated; N18 remains NOT satisfied for the delta (NC-EXT-247). No gate claimed passed beyond recorded evidence; no commit/push. |
+| 11.11 | 2026-11-14 | frick-fsw | Record owner-approved fail-fast option-2 contract, V&V's 11-case read-only design, and the selected lock-free panic path with shared atomic TM counter before implementation. Keep the late N19 sequence deviation open as NC-EXT-245; identify API status/trace updates, target atomic-lowering evidence, callback nontermination boundary, full-sprint test suite, N18 and corrected-tree review gates. No behavior code or execution evidence yet; no commit/push. |
+| 11.10 | 2026-11-14 | frick-fsw | Start the NC-EXT-251 follow-up after owner selected option 2 (release the PUS state lock during callbacks/emissions and add separate dispatch serialization). Refresh N19 before behavior edits, explicitly record this loop's late audit under still-open NC-EXT-245 (not retroactively passed), and audit N1-N22. Identify unresolved callback re-entrancy/concurrent emission semantics; no NC-EXT-251 behavior code or verification evidence yet; no commit/push. |
 | --- | ---------- | --------- | ------ |
 | 0.1 | 2026-10-11 | frick-fsw | First N19 loop audit: objective/rule conformance; PUS-C ASN.1 gap root cause + reconciliation; multicore M14 |
 | 0.2 | 2026-10-11 | frick-fsw | Re-baselined at e1def89: counts 94/54/26/14/51, registry T1-T19, N9 row + PA, N20 in progress, R1-02 residual tracked (PA-review loop) |
@@ -746,13 +968,135 @@ Do not close NC-EXT-191 or claim target/HIL qualification.
 | N12 | SYS-R1R3-01 is resolved in substance by reclassifying N22-TS1-23 as a gap/characterization; the correction review is PASS WITH COMMENTS and both documentation-sync comments are separately confirmed PASS. Fresh PA/R2/R4 reports have additional findings that remain open for correction/re-review. NC-EXT-240..244 remain OPEN; no NC closure is claimed. |
 | N13 | Authored-file license checker PASS; third-party/generated boundaries NC-EXT-43 remain open. |
 | N14 | No SSS change. Avionics R1/R3 correction re-review SYS-R1R3-20261113-PUS-S1-INGEST-RR passes with comments; SYS-R1R3-01 is resolved in substance. Two Minor documentation-sync observations were addressed and independently confirmed PASS in SYS-R1R3-20261113-PUS-S1-INGEST-SYNC-CONFIRMATION. |
-| N15 | Fresh configure/build/CTest (58/58 registered; compiled CTest executables retained), `make build`/`make test` using isolated `BUILD_DIR=build/uart-full` (both exit 0), focused `test_pus_s11_residual` (1176/0) plus `test_pus`, `make ci-local`, Lean, trace PASS (120/76/30/14/68), license OK, smoke, GSW self-check, `make docs-container`, Renode environment self-test, native smoke rerun with isolated `BUILD_DIR`, and fresh-image N18 Renode PASS (ELF SHA-256 `41acb18583ac25a6deb671274e1400fe4db8b84f6c105958f22959db0660cb20`) are retained in `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/`. Full pinned clang-format 18 fails on unchanged initializers in `src/transport/link/link_tsn.c:18`, `src/transport/link/link_ip.c:19` and `tests/unit/test_link_tsn.c:24`; changed C files pass clang-format 23.1.3 individually. NC-EXT-244 OPEN/deferred under N21. Dual CI and remaining plan/release checks are not claimed. |
+| N15 | Fresh configure/build/CTest on isolated host build dir `build/doc-update`: configure exit 0, build exit 0 (0 warnings), full CTest 60/60 PASS, focused PUS tests 7/7 PASS (`test_pus`, `test_pus_s11_residual` checks=1176/0, `decoder_corpus`, `pus_event_identity`), `make verify-lean` PASS, `make trace` PASS (120/76/30/14/68), changed-file pinned clang-format 18 PASS (`src/pus/pus.c`, `tests/unit/test_pus_s11_residual.c`). `make smoke` ATTEMPTED and FAILED (CMake path mismatch: `build/native` cache bound to `/workspace` from prior Docker run, exit 2); no cache removed, no Docker workaround attempted — smoke NOT established. `make gsw-selfcheck` ATTEMPTED and FAILED (exit 2) on pre-existing third-party file `tools/patches/n7s-obcp/src/modifications/py/vm.c` missing MPL-2.0 SPDX header — unchanged from HEAD, outside this delta; GSW NOT established. N18 Renode PASS retained from prior run (`RENODE_TEST: PASS`, container exit 0); artifacts copied to `docs/vv/evidence/2026-11-14-s1-progress-failure/`. Raw logs and exit codes retained under `docs/vv/evidence/2026-11-14-s1-progress-failure/`. NC-EXT-244 OPEN/deferred under N21 (unchanged initializer files only). Dual CI and remaining plan/release checks are not claimed. **Not all gates passed; no gate is claimed unless evidenced.** |
 | N16 | Project CHANGELOG and affected document histories are updated: sprint-plan rev 1.152, traceability.md rev 0.56, handover rev 3.92, loop-audit rev 10.88; TS-1 rev 1.13 and ICD rev 1.8. Current R2/R4 findings and final manifest rebind remain in progress; independent reviews for this increment are pending. |
 | N17 | DOC-R4-RR-02 resolved on its reviewed snapshot; DOC-R4-FINAL-01 and its preview delta are snapshot-scoped; the R4 post-manifest attestation is designated to record the final inventory/digest check and does not substitute for N17 content review. R2-FINAL-INV-02 was resolved for an 11-path identity snapshot; refresh/recheck after controlled-document changes. Substantive reports belong in the manifest; the checksum attestation is distinct from N17 content review. |
 | N18 | Fresh RTEMS image built with Docker toolchain; ELF SHA-256 `41acb18583ac25a6deb671274e1400fe4db8b84f6c105958f22959db0660cb20`, mtime 2026-11-13. Fresh `make renode` PASS (`RENODE_TEST: PASS`, container exit 0); raw run logs retained in `docs/vv/evidence/2026-11-13-icd-s3-s6-contract/renode-run/`. Emulator only; no RTPFS160ZT/HIL/timing claim. The earlier stale-ELF run is explicitly excluded. |
-| N19 | This addendum audits the current objective and each norm; unresolved gaps have owners/milestones or authority dependencies. NC-EXT-244 was added after the pinned formatter check. |
-| N20 | PA independently checked prior CTest inventories and manifest snapshots. For the current ICD rev 1.8 increment, the PA/N20 review was attempted but could not be obtained (external model usage limit) and is PENDING; prior digests/attestations are historical after covered status-document changes. Inventory evidence is not product N20 approval, risk acceptance, or release approval. |
+| N19 | This addendum audits the current objective and each norm; unresolved gaps have owners/milestones or authority dependencies. NC-EXT-244 was added after the pinned formatter check. **N19 sequencing deviation (recorded, not claimed passed):** the audit header and N1-N22 rows were refreshed at 2026-11-14 after the first source edit (`src/pus/pus.c` progress-failure move) had already been applied to the working tree; the pre-edit clean-baseline state was not audited first as N19 requires ("at the start of every development/verification loop"). `fc68b9d` is the clean committed baseline (ICD documentation only); the S1 source/test edits are uncommitted working-tree state on top of it. **Gap owner:** FSW engineer. **Milestone:** next N19 loop start, before any further source change. **Disposition:** OPEN — tracked as NC-EXT-245, open to system, non-blocking under N21. |
+| N20 | **UNVERIFIED for this cycle** — independent PA/N20 review not obtained in this session (restricted to this session only; no nested Hermes/Jeeves). Prior digests/attestations are historical after covered status-document changes. Inventory evidence is not product N20 approval, risk acceptance, or release approval. N20 not passed; no closure claimed. |
 | N21 | The increment adds the candidate S1 failure-path test; nonfunctional registration/interface/concurrency/documentation findings are recorded as NCs and are not silently closed. No authority-owned policy invented. |
-| N22 | New test compares explicit expected results for out-of-bound illegal-APID/unknown-service inputs and the S3/S6 dispatch mapping. Both the unresolved illegal-APID acceptance policy and ack-zero behavior are characterization only and counted as `gap`; TS-1 rev 1.13 has 104 cases = 76 covered + 28 gap; N22-TS1-36 and N22-TS1-44 remain gap rows with no retained automated check. |
+| N22 | New test `test_s1_progress_fail_regression` compares explicit expected results for out-of-bound handler-failure inputs (malformed TC[9,1], nominal TC[9,1], no-completion-ack) through `FF_PusIngest`. S1 progress-failure regression asserts exactly one TM[1,6], zero TM[1,5], code `FF_PUS_FAIL_EXECUTION`, unchanged TM[1,8]; nominal case asserts TM[1,5]; no-completion-ack asserts no TM[1,8]. TS-1 rev 1.14 adds N22-TS1-105 (105 cases = 76 covered + 29 gap). Both the unresolved illegal-APID acceptance policy and ack-zero behavior remain characterization only and counted as `gap`; N22-TS1-36 and N22-TS1-44 remain gap rows with no retained automated check. |
 
 **Disposition:** current-loop gates and focused reviews are evidence for this bounded candidate only. NC-EXT-240..244 remain OPEN; no NC, sprint, qualification, safety, release or flight decision is closed or approved. The remaining sprint-plan work and all listed external authority inputs remain in progress/deferred as recorded; do not declare the sprint or session complete.
+
+**N19 sequencing gap (historical S1 loop):** the earlier N19 audit was refreshed after its first source edit; that deviation remains historical and is not retroactively passed.
+
+## 16. Current development loop — NC-S9-01 authority decision package (2026-11-16)
+
+### 16.1 Objective and disposition
+
+Prepare an authority-facing package after the owner accepted the proposal to retain S18 as provisional/default-off, treat host/emulator evidence as limited, and seek written N7 license disposition. The package is `docs/status/nc-s9-01-authority-decision-package.md` rev 0.2. It requests reconciliation of the sprint-plan's recorded owner Route A selection with the comparison study's non-adoption status, without overturning or extending any decision; a mission PUS-profile decision for the current S18 proposal or replacement; target/HIL availability and evidence owners; and artifact-specific license/provenance/distribution decisions. It records current facts and explicit non-claims. **No new authority response reconciling Route A, S18 interface approval, legal conclusion, target access, qualification, review, or NC closure is recorded.** The existing sprint-plan Route A owner-selection statement remains in force as a recorded statement but its scope/reconciliation is unresolved. NC-S9-01 and NC-EXT-43 remain open.
+
+### 16.2 N1-N22 disposition for this documentation loop
+
+| Norm | Status / gap |
+| --- | --- |
+| N1 | No generated code or source artifact changed; existing Lean results are historical and not rerun for this documentation-only package. |
+| N2 | Package and status updates are English. |
+| N3/N4 | No requirements or traceability manifest changed in this loop; no new requirement coverage is claimed. |
+| N5 | Class-B intent unchanged; target and mission gaps remain open. |
+| N6 | No CI, Docker, or emulator run for this package. |
+| N7 | No commit/push. |
+| N8 | Added authority package and updated sprint plan, handover, loop-audit, and revision histories; no architecture/interface/mission baseline approval inferred. |
+| N9 | Independent reviews of this package and affected documentation are not obtained; remain pending where applicable. |
+| N10 | No V&V tool change or qualification claim. |
+| N11 | No execution evidence generated; retain the current working-tree documents and their revision records. |
+| N12 | NC-S9-01 and NC-EXT-43 remain open; no NC closure. |
+| N13 | Package requests license authority evidence; no legal or compatibility conclusion. |
+| N14 | No systems-authority decision received. |
+| N15 | This documentation increment has only a local whitespace/diff check; no full project gate claimed. |
+| N16 | Package revision history and handover/loop-audit histories updated. |
+| N17 | Independent documentation review pending; this draft is not approved. |
+| N18 | No Renode/target/HIL run; none claimed. |
+| N19 | This section records the current objective and its gaps; the baseline worktree was already dirty, preserved, and is not represented as clean. |
+| N20 | Independent PA review pending; no product-assurance approval claimed. |
+| N21 | No functional defect or feature change in scope; authority and assurance gaps remain visible and do not imply closure. |
+| N22 | No test design or coverage claim changed. |
+
+**Disposition:** decision package prepared for authority response only. The engine option, mission S18 interface, target/HIL availability, and license/distribution disposition remain unresolved. Follow-up depends on authorized responses; retain the existing default-off/provisional boundary and all open NCs.
+
+### 16.3 Revision history
+
+| Revision | Date | Author | Change |
+| --- | --- | --- | --- |
+| 11.15 | 2026-11-16 | frick-fsw | Record current `main`/HEAD and pre-existing dirty baseline; audit N1-N22 for the NC-S9-01 authority-package loop; link draft rev0.2 reconciling the sprint-plan Route A owner-selection record with the study's non-adoption status; retain all authority, target, license, review and qualification gaps. |
+
+## 17. Current development loop — record owner OBCP direction (2026-11-17)
+
+### 17.1 Objective and baseline
+
+Record the owner's explicit selection of Route A and acceptance of the S18 provisional/default-off boundary and conditional interim evidence plan. Branch `main`, HEAD `1ac2347d1f8e04a665c35c5f29134d3148efd66d`; the worktree had 54 status entries at this loop start and remains intentionally dirty. No cleanup or unrelated-content changes. Pre-edit SHA-256 snapshots for this loop: handover `f41e3b22276a507d7fa5c5f4645c3c4a0295442e1f54b08215bb9d48deb0289d`; loop audit `704237a2448d21bbebc7ada29e8d4a692c459b5e690b50f13afd001490c2c43a`; sprint plan `4ea008fb9e9c6d0b12846f69bf8bacd6ae9da572485bcca07e90e51d0cfaeb7f`; package at loop start `efd753b0255a9d76af2948e1ce43edfe14fe24b41463d8d6c7812946f28d8352`; licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`. These are pre-edit snapshots, not post-edit integrity attestations.
+
+### 17.2 N1-N22 disposition for this documentation/status increment
+
+| Norm | Status / gap |
+| --- | --- |
+| N1 | No generated code or source changed; no new Lean artifact or result. |
+| N2 | Controlled records remain English. |
+| N3/N4 | No requirement or traceability change; no new coverage claim. |
+| N5 | Class-B intent unchanged; target, mission, assurance and license gaps remain open. |
+| N6 | No CI, Docker, or emulator executed. |
+| N7 | No commit or push. |
+| N8 | Updated decision package, sprint plan, handover, and this audit with matching revision histories. |
+| N9 | Independent reviews of this delta/package remain pending; no approval claimed. |
+| N10 | No V&V tool changed or qualified. |
+| N11 | No new test evidence generated; retain source workspace and documented revisions. |
+| N12 | NC-S9-01 and NC-EXT-43 remain open; no NC closure. |
+| N13 | MIT and MPL-2.0 are open-source licenses, but artifact provenance, complete notice set, governing terms, and combined-distribution compatibility remain unresolved; no legal conclusion. |
+| N14 | No mission/system authority disposition on S18 profile or safety acceptance recorded. |
+| N15 | Documentation-only status update; `git diff --check` PASS. Full project gates are not claimed and remain applicable before any commit/release. |
+| N16 | Revisions/history updated for all directly affected controlled records. |
+| N17 | Independent documentation review remains pending. |
+| N18 | No target/HIL/Renode evidence in this increment; target availability remains unknown. |
+| N19 | This section records actual objective, baseline and N1-N22 gaps; prior dirty content remains preserved. |
+| N20 | Independent PA review remains pending. |
+| N21 | No functional code change or defect in scope; open nonfunctional/authority gaps stay tracked. |
+| N22 | No test design or coverage claim changed. |
+
+### 17.3 Disposition and revision history
+
+The owner selected Route A as the engine direction and accepted the recommendation to keep S18 provisional/default-off and to use host/emulator evidence only if target/HIL access is unavailable. This does not establish target unavailability, approve mission use, close safety/qualification obligations, or resolve license compatibility. The comparison study remains a technical comparison; it does not supersede the owner decision. NC-S9-01 and NC-EXT-43 remain open. `docs/status/nc-s9-01-authority-decision-package.md` rev0.3 is the authority-facing record. MIT and MPL-2.0 are open-source licenses; this does not independently establish rights/provenance for every artifact or combined-distribution compatibility. The comparison study also asserts an ESA/ECL-3 basis whose applicability remains unverified. No full gates or independent review are claimed.
+
+| Revision | Date | Author | Change |
+| --- | --- | --- | --- |
+| 11.16 | 2026-11-17 | frick-fsw | Record owner Route A selection, accepted provisional/default-off S18 boundary, conditional host/emulator interim evidence plan, unknown target availability, and unresolved licensing/safety/mission authority gaps; baseline preserved, no qualification or NC closure claimed. |
+
+## 18. Current development loop — owner deferral of NC-EXT-43 verification (2026-11-17)
+
+### 18.1 Objective and baseline
+
+Record the owner's instruction to defer license/provenance/compatibility verification indefinitely and mark NC-EXT-43 non-blocking only for unrelated development, while retaining N13 and release/redistribution constraints. Branch `main`, HEAD `1ac2347d1f8e04a665c35c5f29134d3148efd66d`; 54 status entries at loop start. Preserve all unrelated dirty and untracked content. Pre-edit SHA-256 snapshots: `docs/status/nc-s9-01-authority-decision-package.md` `841196e0f5d71373a93b23eb797b3746934381fc9fc3620913cc34d7eed4ef66`; `docs/status/handover.md` `418e956d5f831d43a7087e3b1891f0299c72a39f20b52af0c5f975eda00c7fd6`; `docs/status/loop-audit.md` `253c6ebc1c8806357886459814032e0e711b5e8b9036f25c3542a4d9ed2f1aae`; `docs/planning/sprint-plan.md` `78c5d7a5890bd74d480b6f6e69138677a9f5af0e89ee93fb8fab685266880198`; `docs/quality/licensing.md` `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`. These are pre-edit snapshots, not post-edit integrity attestations.
+
+### 18.2 N1-N22 disposition for this status increment
+
+| Norm | Status / gap |
+| --- | --- |
+| N1 | No generated code or source changed. |
+| N2 | Updated controlled records remain English. |
+| N3/N4 | No requirement or traceability change. |
+| N5 | Class-B intent unchanged; mission and target gaps remain open. |
+| N6 | No CI, Docker, emulator, or target run. |
+| N7 | No commit or push; all applicable gates, independent reviews, and full sprint scope are not demonstrated complete. |
+| N8 | Updated licensing status, decision package, sprint plan, handover and audit with revision records. |
+| N9 | Independent reviews of this delta remain pending. |
+| N10 | No V&V tool changed or qualified; license checker/review not run under the owner's indefinite deferral instruction. |
+| N11 | Product tests run in existing build dirs: `build/verify-all` 65/65 PASS (ASN1=OFF), `build/commit-all` 66/66 PASS (ASN1=ON). `make ci-local` PASS inside Docker frick-vv:local (configure/build/test/Lean/trace all green). Local document checks PASS. |
+| N12 | NC-EXT-43 remains OPEN; no NC closure. |
+| N13 | Owner-directed indefinite deferral; OPEN and non-blocking for unrelated development only. No legal/compatibility conclusion or N13 completion. Required disposition before release/redistribution remains in force. |
+| N14 | No new system/mission authority disposition. |
+| N15 | Full applicable cycle green: `make ci-local` PASS (Docker, ASN1=ON, build/test/Lean/trace), `make smoke` PASS, `make verify-lean` PASS, `make trace` PASS (120/76/30/14/77), `make renode` (N18) PASS, `git diff --check` PASS. Full sprint scope not yet complete — M15 deferred/open per sprint plan. |
+| N16 | Revision histories updated for directly affected records. |
+| N17 | Independent documentation review pending. |
+| N18 | Renode functional validation PASS: `make renode` → `RENODE_TEST: PASS`, container exit code 0 (2026-11-17). Target/HIL physical evidence still unknown; this is emulated N18 only. |
+| N19 | This section records the actual objective, baseline, and gaps; unrelated dirty content preserved. |
+| N20 | Independent PA review pending. |
+| N21 | NC-EXT-43 is non-blocking for unrelated development only; separate contractual/release/redistribution gates are not waived. |
+| N22 | No requirement-test design or coverage claim changed. |
+
+### 18.3 Disposition and revision history
+
+The owner's 2026-11-17 instruction is to postpone artifact-specific license verification indefinitely and mark NC-EXT-43 non-blocking. Record this as OPEN with no reassessment date and non-blocking scope limited to unrelated development. It is not a pass, license clearance, compatibility conclusion, NC closure, or waiver of release/redistribution requirements. No license verification was performed. Final documentation checks: `git diff --check` PASS; focused Python assertions on all five controlled records, untracked-package whitespace, and balanced S9-S10 summary parentheses PASS. All applicable gates green (see N11/N15/N18 above). Sprint scope not complete — no M12 closure, no release, no qualification claim. The first assertion run had one false-negative phrase match on `docs/quality/licensing.md`; the expected phrase was corrected to the document's actual wording and all assertions passed. No artifact defect was found. No product/build/Lean/trace gates or independent reviews were run in this documentation-only increment. NC-S9-01 remains open; S18 remains provisional/default-off; Route A safety/assurance, mission profile, target/HIL, RTEMS/RISC-V and independent review gates remain outstanding. No commit or push is authorized until all applicable project norms and complete sprint scope are satisfied by the designated agent.
+
+| Revision | Date | Author | Change |
+| --- | --- | --- | --- |
+| 11.17 | 2026-11-17 | frick-fsw | Record owner-directed indefinite NC-EXT-43 verification deferral as OPEN/non-blocking for unrelated development only; preserve N13 and release/redistribution gates; no legal clearance or verification claimed. |

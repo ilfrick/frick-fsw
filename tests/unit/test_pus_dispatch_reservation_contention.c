@@ -63,12 +63,14 @@ static void build_tc_full_ack(uint8_t service, uint8_t subservice, uint16_t sour
     FF_Pus_TcHdr_t tc;
     memset(&tc, 0, sizeof(tc));
     tc.version = FF_PUS_VERSION;
-    tc.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_START | FF_PUS_ACK_PROGRESS | FF_PUS_ACK_COMPLETION;
+    tc.ack_flags =
+        FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_START | FF_PUS_ACK_PROGRESS | FF_PUS_ACK_COMPLETION;
     tc.service = service;
     tc.subservice = subservice;
     tc.source_id = source_id;
 
-    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, payload_len, frame, 256, frame_len) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, payload_len, frame, 256, frame_len) ==
+                   FF_SUCCESS);
 }
 
 static uint16_t stream_count(uint8_t service, uint8_t subservice)
@@ -79,7 +81,8 @@ static uint16_t stream_count(uint8_t service, uint8_t subservice)
         if (g_rx_buf[pos + 7] == service && g_rx_buf[pos + 8] == subservice) {
             count++;
         }
-        if ((pos + 6u) > g_rx_count) break;
+        if ((pos + 6u) > g_rx_count)
+            break;
         uint16_t pdl = (uint16_t)(((uint16_t)g_rx_buf[pos + 4] << 8) | g_rx_buf[pos + 5]);
         pos = (uint16_t)(pos + 6u + pdl + 1u);
     }
@@ -133,8 +136,8 @@ static void test_pus_dispatch_reservation_contention(void)
     build_tc_full_ack(21, 2, 0x0103, (uint8_t[]){0xAA, 0xBB, 0xCC, 0xDD}, 4, tc_frame2, &tc_len2);
 
     /* Spawn task that ingests TC1 - will block in sink during first ACK emission */
-    FF_TEST_ASSERT(FF_PalTaskCreate(&g_block_task_id, "tc1", blocking_task_fn, tc_frame1,
-                                    4096, 10) == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PalTaskCreate(&g_block_task_id, "tc1", blocking_task_fn, tc_frame1, 4096,
+                                    10) == FF_SUCCESS);
 
     /* Wait for TC1 to enter acceptance phase (sink blocked) */
     uint32_t wait_cycles = 0;
@@ -144,7 +147,8 @@ static void test_pus_dispatch_reservation_contention(void)
     }
     FF_TEST_ASSERT(g_tc1_in_acceptance);
 
-    printf("TC1 in acceptance phase, attempting TC2...\n"); fflush(stdout);
+    printf("TC1 in acceptance phase, attempting TC2...\n");
+    fflush(stdout);
 
     /* Now attempt TC2 from main thread - should get FF_BUSY because
      * TC1 holds the dispatch mutex during acceptance phase */
@@ -152,14 +156,15 @@ static void test_pus_dispatch_reservation_contention(void)
 
     /* GREEN PHASE ASSERTION: TC2 must get FF_BUSY because dispatch mutex
      * is held by TC1 during acceptance phase */
-    printf("TC2 returned %d, expected FF_BUSY=%d\n", rc, FF_BUSY); fflush(stdout);
+    printf("TC2 returned %d, expected FF_BUSY=%d\n", rc, FF_BUSY);
+    fflush(stdout);
     FF_TEST_ASSERT(rc == FF_BUSY);
 
     /* Verify TC2's S1 ACKs were NOT emitted (it got FF_BUSY before acceptance).
      * Note: TC1's acceptance ACK (service 1, subservice 1) was already emitted
      * before TC2 was attempted, so stream_count(1,1) will be 1 from TC1.
      * We verify TC2's ACKs by checking completion ACK which TC1 hasn't reached yet. */
-    FF_TEST_ASSERT(stream_count(1, 7) == 0);  /* TC2 completion success - not emitted */
+    FF_TEST_ASSERT(stream_count(1, 7) == 0); /* TC2 completion success - not emitted */
 
     /* Now unblock the sink to let TC1 complete */
     g_sink_blocked = false;
@@ -168,8 +173,8 @@ static void test_pus_dispatch_reservation_contention(void)
     FF_PalTaskDelayMs(500);
 
     /* Verify TC1's ACKs were emitted (acceptance and start at minimum) */
-    FF_TEST_ASSERT(stream_count(1, 1) == 1);  /* TC1 acceptance success */
-    FF_TEST_ASSERT(stream_count(1, 3) == 1);  /* TC1 start success */
+    FF_TEST_ASSERT(stream_count(1, 1) == 1); /* TC1 acceptance success */
+    FF_TEST_ASSERT(stream_count(1, 3) == 1); /* TC1 start success */
 
     /* Clean up */
     FF_TEST_ASSERT(FF_PalTaskDelete(g_block_task_id) == FF_SUCCESS);

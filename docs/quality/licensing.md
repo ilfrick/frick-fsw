@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-LIC-001                          |
-| Revision                          | 1.8                                    |
-| Date                              | 2026-10-19                             |
+| Revision                          | 2.0                                    |
+| Date                              | 2026-11-17                             |
 | License                           | MPL-2.0 (Mozilla Public License 2.0)   |
 | Copyright                         | Copyright (C) 2026 Ilfrick — [GitHub](https://github.com/ilfrick/frick-fsw) · [Gitea](https://www.housefz.com/git/ilfrick/frick-fsw) |
 | Norm                              | N13 (open source; license documented, reviewed and updated) |
@@ -19,7 +19,13 @@ captures the owner decision and does not make an independent legal or
 provenance determination. **NC-EXT-43 remains OPEN** for third-party, generated,
 mission-supplied, commercial, and other externally controlled components and
 for combined/distribution-profile compatibility. Their terms are not changed by
-the project owner's authorization. The CFF `date-released` value refers to the
+the project owner's authorization. **Owner-directed status (2026-11-17):**
+indefinitely defer artifact-specific license/provenance/compatibility verification
+for NC-EXT-43; no reassessment date is scheduled. NC-EXT-43 remains OPEN and is
+non-blocking only for unrelated development under N21. This status does not
+satisfy N13, close the NC, establish any legal or compatibility conclusion,
+waive the required disposition before release/redistribution, or authorize
+license/compatibility claims. The CFF `date-released` value refers to the
 historical v0.1.0 release and does not purport to describe a release under MPL.
 
 SPDX headers on original project-authored source, configuration, build, test,
@@ -55,7 +61,7 @@ generation provenance, and distribution profile require a controlled review.
 | Platform `libm` | Toolchain-provided host/RTEMS library | LGPL/BSD-style reported | Not relicensed; distribution/link mode not independently verified |
 | lwIP | Pinned fetched stack, not committed per repository record | BSD-3-Clause reported | Preserve upstream terms; verify exact tag, notices, and integration/distribution |
 | N7 Space / ESA `asn1-pusc-lib` | Fetched GPL-3.0 code; generated output described separately | GPL-3.0 reported | Compatibility and generated-code/runtime-exception applicability require legal review; do not infer from the prior AGPL analysis |
-| N7 Space `n7s-obcp` / MicroPython | Pinned fetched OBCP candidate; source includes a pinned MicroPython submodule | MIT stated upstream for engine and MicroPython | Verify complete notices, provenance, modifications/patches, generated outputs, and combined-distribution compatibility before integration/release; NC-EXT-43 remains open |
+| N7 Space `n7s-obcp` / MicroPython | Pinned fetched OBCP candidate; source includes a pinned MicroPython submodule | MIT stated upstream for engine and MicroPython | The project-owned overlay `tools/patches/n7s-obcp/src/modifications/py/vm.c` declares `MIT AND MPL-2.0` (§5.1) and retains the upstream MIT notice. Verification of notices, provenance, modifications, generated outputs, and combined-distribution compatibility is indefinitely deferred by owner direction; NC-EXT-43 remains OPEN/non-blocking for unrelated development only and is not cleared for release/redistribution |
 | ASN1SCC generator/runtime | External generator and generated-code conditions described in ADR-0016 | GPL/runtime exception reported | Verify exact version and applicable generated-code license before distributing output |
 | SDLS mission backend | Mission-supplied interface; project reference backend is local | Mission/HW-specific | Mission code is outside the project license unless separately contributed and authorized |
 
@@ -93,6 +99,36 @@ the same commit (norm N8):
 Copyright (C) 2026 Ilfrick (https://github.com/ilfrick/frick-fsw, https://www.housefz.com/git/ilfrick/frick-fsw)
 SPDX-License-Identifier: MPL-2.0
 ```
+
+### 5.1 Compound expressions for third-party-derived overlay files
+
+`tools/patches/n7s-obcp/src/modifications/py/vm.c` is a project-owned
+modification overlay on the pinned upstream MicroPython `py/vm.c`. The file as a
+whole therefore contains code under two sets of terms: the inherited upstream
+code is **MIT** (upstream notice retained unmodified in the file), and the
+project-owned modifications are **MPL-2.0**. A single `MPL-2.0` label on that
+file would misstate the inherited code, and a single `MIT` label would misstate
+the project's contribution, so the header declares the compound expression
+`SPDX-License-Identifier: MIT AND MPL-2.0`.
+
+The N13 checker (`tools/scripts/license_check.py`) accepts a compound expression
+only under all of the following conditions:
+
+1. the file is under a controlled overlay root (`tools/patches/`);
+2. the full expression is exactly `MIT AND MPL-2.0`.
+
+Expressions using `OR`, `WITH`, parentheses, or any other identifier are
+rejected. This avoids treating a different license relationship as equivalent
+to the stated combination of inherited MIT code and MPL-2.0 project changes.
+
+Anything else remains an error, and every authored file outside the overlay
+roots must still declare exactly `MPL-2.0`. This is a representation rule, not a
+compatibility or legal conclusion: provenance, complete upstream notices and
+combined-distribution compatibility for `n7s-obcp` + MicroPython remain
+**OPEN** under NC-EXT-43, and the checker change is recorded under NC-EXT-44
+(T21 checker semantics/qualification). The engineering decision to use the
+compound form rather than a single `MPL-2.0` label was taken on 2026-11-14 under
+owner delegation and is recorded in `docs/quality/product-assurance.md` §6.
 
 ## 6. Project name / codename "Eärendil" (third-party names)
 
@@ -150,3 +186,5 @@ J. R. R. Tolkien's legendarium.
 | 1.6 | 2026-10-14 | frick-fsw | Restore the omitted 1.4 history event as a superseded interim correction; make revision chronology continuous |
 | 1.7 | 2026-10-16 | frick-fsw | Record pinned N7 OBCP/MicroPython candidate and defer combined-distribution/legal compatibility to independent/legal review |
 | 1.8 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): synchronize the header `Date` with this document's own last history row (it read 2026-10-14 while rev 1.7 was recorded on 2026-10-16); no licensing-boundary or content change |
+| 2.0 | 2026-11-17 | frick-fsw | Record the owner's indefinite deferral of NC-EXT-43 license/provenance verification and its non-blocking scope for unrelated development; keep the NC open and preserve the release/redistribution gate. No legal or compatibility conclusion. |
+| 1.9 | 2026-11-14 | frick-fsw | Add §5.1: compound SPDX expression (`MIT AND MPL-2.0`) for the third-party-derived overlay `tools/patches/n7s-obcp/src/modifications/py/vm.c`, the narrow checker rule (overlay roots only; exact compound expression `MIT AND MPL-2.0`), and the NC-EXT-43/44 status. Representation rule only; no compatibility or legal conclusion |

@@ -21,6 +21,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PATCH_DIR="${ROOT}/tools/patches/n7s-obcp"
 CLONE="${N7_OBCP_CLONE:-${ROOT}/third_party/n7s-obcp}"
 
+# Allow git to read pinned dependency checkouts mounted inside containers
+# (e.g. CI/V&V Docker bind-mounts) where ownership differs from the runner user.
+git config --global --add safe.directory "${CLONE}" 2>/dev/null || true
+
 OBCP_COMMIT="55d6d97e7e7ff08a130698f7a922bcf58acb3d99"
 MICROPYTHON_COMMIT="647c8b96cae7e202c7a020395b7cfe65e5b8ce04"
 
@@ -60,6 +64,8 @@ if [[ ! -e "${CLONE}/src/micropython/.git" ]]; then
   echo "[apply-n7s-obcp-patch] error: MicroPython submodule not found" >&2
   exit 2
 fi
+
+git config --global --add safe.directory "${CLONE}/src/micropython" 2>/dev/null || true
 
 if [[ "${SKIP_COMMIT_CHECK}" -eq 0 ]]; then
   actual_mpy="$(git -C "${CLONE}/src/micropython" rev-parse HEAD 2>/dev/null || true)"
