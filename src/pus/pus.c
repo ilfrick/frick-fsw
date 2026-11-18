@@ -467,7 +467,7 @@ FF_Status_t FF_PusSendVerification(const FF_Pus_TcHdr_t *tc, FF_Pus_Stage_t stag
 
     /* Sequence count is incremented only when emission succeeds. The retry
      * loop in ff_pus_emit_required does NOT increment on FF_BUSY. */
-    uint16_t seq = __atomic_fetch_add(&s_sequence_count, 1u, __ATOMIC_RELAXED);
+    uint16_t seq = __atomic_add_fetch(&s_sequence_count, 1u, __ATOMIC_RELAXED);
     payload[0] = (uint8_t)(tc->source_id >> 8);
     payload[1] = (uint8_t)(tc->source_id & 0xFFu);
     /* Destination identifier: provisional framework default (GEO OBC = 0x0001).

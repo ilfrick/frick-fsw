@@ -69,6 +69,11 @@ void *POSIX_Init(void *argument);
 
 /* Deterministic sizing: no unlimited objects. */
 #define CONFIGURE_UNIFIED_WORK_AREAS
+
+/* SMP configuration for M14 (4x U54 cores on PolarFire SoC) */
+#define CONFIGURE_SMP_APPLICATION
+#define CONFIGURE_MAXIMUM_PROCESSORS 4
+
 #define CONFIGURE_INIT
 
 #include <rtems/confdefs.h>
