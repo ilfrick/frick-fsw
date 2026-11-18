@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.103                                  |
+| Revision                         | 3.104                                  |
 | Date                              | 2026-11-18                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -21,7 +21,7 @@ The OBCP/PUS S18 code and tests exist, but S18 remains provisional and is not an
 
 ## Current bounded functional increment — R1/R2 Blockers fixed (NC-EXT-251), M9/M11 and Renode HAL coverage (2026-11-18)
 
-**Status: COMMITTED AND PUSHED** (commit `ff52055860c506cb7d124c3507bd2358be134b15`, 2026-11-18, pushed to origin and gitea). Working-tree docs updated per R4 review.
+**Status: COMMITTED AND PUSHED** (commit `4d6a7b279ddce856b51d07394f94a106d4353fe4`, 2026-11-18, pushed to origin and gitea). R4 review corrections committed and pushed.
 
 - **R1 (code) and R2 (V&V/evidence) reviews dispatched and returned NEEDS REVISION with Blocker findings.**
   - R1 Blockers: R1-20 (counter consumed before encode/deadline check), R1-21 (relock failure without g_ack_dropped accounting), R1-22 (mixed atomicity on g_backend, C11 UB), R1-23 (unlock-before-callout race), R1-24 (s_sequence_count non-atomic, inflated by retry), R1-25 (Lean theorem overstates — ABA possible after 16384 wraps), R1-26 (g_ack_dropped plain write in init vs atomic ops).
@@ -53,7 +53,7 @@ The OBCP/PUS S18 code and tests exist, but S18 remains provisional and is not an
 
 **Still open:** NC-EXT-251 **CLOSED** (corrected, all gates PASS, independent R3/PA reviews APPROVE); NC-S9-01, NC-PAL-01, NC-EXT-246/247, NC-WDOG0-01/-02 OPEN; NC-EXT-43 OPEN under the owner's indefinite deferral (release/redistribution gate retained); M15/M16 and the full sprint scope incomplete. S18 remains provisional/default-off and is not mission-approved. No M12 closure, release, qualification, certification, HIL evidence or mission approval is claimed.
 
-**Next:** All independent reviews complete (R3 APPROVE, R4 NEEDS REVISION addressed in this update, PA APPROVE WITH COMMENTS). If N7 criteria met, `aeronautics-space-fsw-engineer` commits this doc update and pushes to both remotes. Then proceed to next sprint increment per roadmap (M14/M15/M16).
+**Next:** All independent reviews complete (R3 APPROVE, R4 NEEDS REVISION addressed in commit 02f9954, PA APPROVE WITH COMMENTS). N7 criteria met — commit and push executed by designated agent. Proceed to next sprint increment per roadmap (M14/M15/M16).
 
 ## Current bounded functional increment — NC-EXT-251 correction, M9/M11 and Renode HAL coverage (2026-11-17)
 

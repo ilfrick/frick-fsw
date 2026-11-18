@@ -6,7 +6,7 @@
 | Document id                      | FRICK-AUDIT-001                        |
 | Revision                         | 11.21                                  |
 | Date                              | 2026-11-18                             |
-| Baseline commit                   | `ff52055860c506cb7d124c3507bd2358be134b15` (branch `main`, HEAD at this loop start; the previous loop started at `c166cea36483c3262a64edd63dc4368fcbc119df`). The pre-existing worktree was already dirty; no clean-tree claim. Existing project content was preserved. SHA-256 snapshots recorded before this loop's edits: handover `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, loop audit `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, sprint plan `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, OBCP study `5593ffab546acd1f5edd21a93ea807a70c62fe1a4d4ab4a70bcf5a6131c6a144`, licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, ICD `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit identities, not post-edit integrity attestations. |
+| Baseline commit                   | `4d6a7b279ddce856b51d07394f94a106d4353fe4` (branch `main`, HEAD at this loop start; the previous loop started at `c166cea36483c3262a64edd63dc4368fcbc119df`). The pre-existing worktree was already dirty; no clean-tree claim. Existing project content was preserved. SHA-256 snapshots recorded before this loop's edits: handover `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, loop audit `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, sprint plan `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, OBCP study `5593ffab546acd1f5edd21a93ea807a70c62fe1a4d4ab4a70bcf5a6131c6a144`, licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, ICD `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit identities, not post-edit integrity attestations. |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -1224,7 +1224,7 @@ No M12 closure, no release, no qualification, no HIL evidence and no mission app
 
 ### 21.1 Commit identity
 
-Branch `main`, HEAD `ff52055860c506cb7d124c3507bd2358be134b15` (was `c166cea36483c3262a64edd63dc4368fcbc119df`).
+Branch `main`, HEAD `4d6a7b279ddce856b51d07394f94a106d4353fe4` (was `c166cea36483c3262a64edd63dc4368fcbc119df`).
 Commit message: "fix: PUS S1 reservation atomicity, counter composition ordering, mutex relock accounting".
 Files changed: `src/pus/pus.c` (primary), `docs/requirements/traceability.yaml`, `docs/status/handover.md`, `docs/status/loop-audit.md`.
 Pushed to both `origin` (GitHub) and `gitea` under owner N7 delegation.
@@ -1304,7 +1304,7 @@ No M12 closure, no release, no qualification, no HIL evidence and no mission app
 
 ### 21.1 Objective and baseline
 
-Record the independent review outcomes for commit `ff52055` (R1/R2 Blockers fix in `src/pus/pus.c`) and the working-tree documentation corrections per R4 review `del_mwlsalod_15re`. Branch `main`, HEAD `ff52055860c506cb7d124c3507bd2358be134b15` at loop start. Pre-edit SHA-256 snapshots: `docs/status/handover.md` `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, `docs/status/loop-audit.md` `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, `docs/planning/sprint-plan.md` `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, `docs/requirements/traceability.yaml` `78c5d7a5890bd74d480b6f6e69138677a9f5af0e89ee93fb8fab685266880198`, `docs/quality/licensing.md` `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, `docs/interfaces/ICD.md` `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit snapshots, not post-edit integrity attestations.
+Record the independent review outcomes for commit `ff52055` (R1/R2 Blockers fix in `src/pus/pus.c`) and the working-tree documentation corrections per R4 review `del_mwlsalod_15re`. Branch `main`, HEAD `4d6a7b279ddce856b51d07394f94a106d4353fe4` at loop start. Pre-edit SHA-256 snapshots: `docs/status/handover.md` `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, `docs/status/loop-audit.md` `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, `docs/planning/sprint-plan.md` `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, `docs/requirements/traceability.yaml` `78c5d7a5890bd74d480b6f6e69138677a9f5af0e89ee93fb8fab685266880198`, `docs/quality/licensing.md` `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, `docs/interfaces/ICD.md` `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit snapshots, not post-edit integrity attestations.
 
 ### 21.2 Review outcomes
 
