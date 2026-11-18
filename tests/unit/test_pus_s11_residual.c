@@ -55,6 +55,26 @@ static uint16_t stream_count(uint8_t service, uint8_t subservice)
     return count;
 }
 
+/* Return the verification code byte of the first TM packet matching
+ * service/subservice, or 0xFF if none. Frame layout:
+ *   [0..5] CCSDS primary header | [6..18] PUS TM sec hdr (svc@7, ss@8)
+ *   [19..24] Request ID | [25] verification svc | [26] verification ss | [27] code
+ *   [28..29] CRC (FF_FRAME_WITH_CRC=1) */
+static uint8_t stream_code_byte(uint8_t service, uint8_t subservice)
+{
+    uint16_t pos = 0u;
+    while ((pos + 28u) <= g_rx_count) {
+        if (g_rx_buf[pos + 7] == service && g_rx_buf[pos + 8] == subservice) {
+            return g_rx_buf[pos + 27];
+        }
+        if ((pos + 6u) > g_rx_count)
+            break;
+        uint16_t pdl = (uint16_t)(((uint16_t)g_rx_buf[pos + 4] << 8) | g_rx_buf[pos + 5]);
+        pos = (uint16_t)(pos + 6u + pdl + 1u);
+    }
+    return 0xFFu;
+}
+
 static void wr_u16be(uint8_t *p, uint16_t v)
 {
     p[0] = (uint8_t)(v >> 8);
@@ -339,7 +359,10 @@ static void test_s9_time_subservices(void)
         FF_TEST_ASSERT(stream_count(9u, 2u) == 1u); /* time report TM emitted */
     }
 
-    /* Invalid: 7-octet payload with P-field (should be FF_BAD_SIZE) */
+    /* Invalid: 7-octet payload with P-field (should be FF_BAD_SIZE).
+     * Handler failure with ack_progress+ack_complete: exactly one TM[1,6]
+     * (progress fail, code FF_PUS_FAIL_EXECUTION), zero TM[1,5], and unchanged
+     * completion failure TM[1,8] when its ack is requested. */
     g_rx_count = 0u;
     {
         uint8_t payload[7];
@@ -348,7 +371,10 @@ static void test_s9_time_subservices(void)
         wr_u16be(&payload[5], 0u);
         build_tc(FF_PUS_SERVICE_TIME, 1u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
-        FF_TEST_ASSERT(stream_count(1u, 8u) == 1u); /* completion fail */
+        FF_TEST_ASSERT(stream_count(1u, 6u) == 1u); /* progress fail (S1-6) */
+        FF_TEST_ASSERT(stream_count(1u, 5u) == 0u); /* no progress success */
+        FF_TEST_ASSERT(stream_code_byte(1u, 6u) == FF_PUS_FAIL_EXECUTION);
+        FF_TEST_ASSERT(stream_count(1u, 8u) == 1u); /* completion fail (S1-8) */
     }
 
     /* Invalid subservice 0 and 255 */
@@ -361,6 +387,88 @@ static void test_s9_time_subservices(void)
     {
         build_tc(FF_PUS_SERVICE_TIME, 255u, 0x0102u, NULL, 0u, frame, &frame_len);
         FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_NOT_FOUND);
+    }
+}
+
+/* ---- S1: progress-failure regression (NC-EXT-94) ------------------------
+
+   Production-path regression through FF_PusIngest: a registered handler that
+   returns an error must produce exactly one TM[1,6] (progress fail), zero
+   TM[1,5], code FF_PUS_FAIL_EXECUTION, and unchanged completion failure when
+   its ack is requested. The nominal progress-success case (TM[1,5]) is also
+   retained here. */
+
+static void test_s1_progress_fail_regression(void)
+{
+    FF_TEST_ASSERT(FF_PalInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_EvsInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_TimeInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusInit() == FF_SUCCESS);
+    FF_TEST_ASSERT(FF_PusSetBackend(&FF_PusBackendOpen) == FF_SUCCESS);
+    FF_PusSetTmSink(tm_sink);
+
+    uint8_t frame[128];
+    uint16_t frame_len = 0u;
+
+    /* TC[9,1] malformed 7-octet payload: handler returns FF_BAD_SIZE.
+     * All four acks set → expect acceptance(1,1), progress-fail(1,6), completion-fail(1,8),
+     * NO progress-success(1,5). Code on both failure TM = FF_PUS_FAIL_EXECUTION. */
+    g_rx_count = 0u;
+    {
+        uint8_t payload[7];
+        payload[0] = 0x2Eu; /* P-field that would mis-parse as coarse MSB */
+        wr_u32be(&payload[1], 0u);
+        wr_u16be(&payload[5], 0u);
+        build_tc(FF_PUS_SERVICE_TIME, 1u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u); /* acceptance OK */
+        FF_TEST_ASSERT(stream_count(1u, 6u) == 1u); /* progress fail (S1-6) */
+        FF_TEST_ASSERT(stream_count(1u, 5u) == 0u); /* no progress success */
+        FF_TEST_ASSERT(stream_code_byte(1u, 6u) == FF_PUS_FAIL_EXECUTION);
+        FF_TEST_ASSERT(stream_count(1u, 8u) == 1u); /* completion fail (S1-8) */
+        FF_TEST_ASSERT(stream_code_byte(1u, 8u) == FF_PUS_FAIL_EXECUTION);
+    }
+
+    /* TC[9,1] well-formed 6-octet payload: handler returns FF_SUCCESS.
+     * All four acks set → expect acceptance(1,1), progress-success(1,5),
+     * completion-success(1,7), NO progress-fail(1,6). */
+    g_rx_count = 0u;
+    {
+        uint8_t payload[6];
+        wr_u32be(&payload[0], 42u); /* coarse = 42s */
+        wr_u16be(&payload[4], 0u);  /* fine = 0 */
+        build_tc(FF_PUS_SERVICE_TIME, 1u, 0x0102u, payload, sizeof(payload), frame, &frame_len);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u); /* acceptance OK */
+        FF_TEST_ASSERT(stream_count(1u, 5u) == 1u); /* progress success (S1-5) */
+        FF_TEST_ASSERT(stream_count(1u, 6u) == 0u); /* no progress fail */
+        FF_TEST_ASSERT(stream_count(1u, 7u) == 1u); /* completion OK */
+    }
+
+    /* Same handler failure but completion ack NOT requested: expect exactly
+     * one TM[1,6], zero TM[1,5], zero TM[1,8]. */
+    g_rx_count = 0u;
+    {
+        FF_Pus_TcHdr_t tc_nocomp;
+        memset(&tc_nocomp, 0, sizeof(tc_nocomp));
+        tc_nocomp.version = FF_PUS_VERSION;
+        tc_nocomp.ack_flags = FF_PUS_ACK_ACCEPTANCE | FF_PUS_ACK_START | FF_PUS_ACK_PROGRESS;
+        tc_nocomp.service = FF_PUS_SERVICE_TIME;
+        tc_nocomp.subservice = 1u;
+        tc_nocomp.source_id = 0x0102u;
+        uint8_t payload[7];
+        payload[0] = 0x2Eu;
+        wr_u32be(&payload[1], 0u);
+        wr_u16be(&payload[5], 0u);
+        FF_TEST_ASSERT(FF_CcsdsEncodeTc(FF_APID_TC, &tc_nocomp, payload, sizeof(payload), frame,
+                                        sizeof(frame), &frame_len) == FF_SUCCESS);
+        FF_TEST_ASSERT(FF_PusIngest(frame, frame_len) == FF_BAD_SIZE);
+        FF_TEST_ASSERT(stream_count(1u, 1u) == 1u); /* acceptance OK */
+        FF_TEST_ASSERT(stream_count(1u, 3u) == 1u); /* start OK */
+        FF_TEST_ASSERT(stream_count(1u, 6u) == 1u); /* progress fail (S1-6) */
+        FF_TEST_ASSERT(stream_count(1u, 5u) == 0u); /* no progress success */
+        FF_TEST_ASSERT(stream_count(1u, 8u) == 0u); /* no completion (ack not requested) */
+        FF_TEST_ASSERT(stream_code_byte(1u, 6u) == FF_PUS_FAIL_EXECUTION);
     }
 }
 
@@ -598,7 +706,7 @@ static void test_unknown_service_dispatch(void)
 
 /* Main test entry */
 FF_TEST_MAIN(test_s1_full_verification_sequence, test_s1_missing_subservices_coverage,
-             test_s3_subservice_assignments, test_s9_time_subservices,
-             test_s20_parameter_subservices, test_s11_stub_emits_event,
+             test_s1_progress_fail_regression, test_s3_subservice_assignments,
+             test_s9_time_subservices, test_s20_parameter_subservices, test_s11_stub_emits_event,
              test_s6_subservice_boundaries, test_s17_subservice_boundaries,
              test_unknown_service_dispatch)

@@ -127,4 +127,14 @@
 #define FF_WDOG_EMU_CLK_HZ 156250u
 #define FF_WDOG_EMU_TRIGGER_TICKS 4095u
 
+/* MSS QSPI NOR flash (primary SPI.MPFS_QSPI on the beaglev-fire board repl).
+ * The QSPI controller is at 0x21000000; the underlying flash (Micron MT25Q,
+ * 8 MB) is modelled as a child of that SPI controller, NOT as memory mapped at
+ * this address. Consequently the reference MTD driver cannot be exercised by
+ * direct MMIO in the Renode functional test: the M11 HAL matrix does not cover
+ * MTD, and on-target QSPI remains GAP-A5. These constants record the platform
+ * address map only; no source file currently consumes them. */
+#define FF_QSPI0_BASE 0x21000000u
+#define FF_QSPI_FLASH_SIZE 0x00800000u /* 8 MB */
+
 #endif /* FF_PLATFORM_MPFS_H */
