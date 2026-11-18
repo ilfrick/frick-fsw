@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.101                                  |
-| Date                              | 2026-11-17                            |
+| Revision                         | 3.103                                  |
+| Date                              | 2026-11-18                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
 This document is the **authoritative resume point** for an agent picking up the
@@ -21,12 +21,12 @@ The OBCP/PUS S18 code and tests exist, but S18 remains provisional and is not an
 
 ## Current bounded functional increment — R1/R2 Blockers fixed (NC-EXT-251), M9/M11 and Renode HAL coverage (2026-11-18)
 
-**Status: all applicable local gates green, logs retained; not committed.**
+**Status: COMMITTED AND PUSHED** (commit `ff52055860c506cb7d124c3507bd2358be134b15`, 2026-11-18, pushed to origin and gitea). Working-tree docs updated per R4 review.
 
 - **R1 (code) and R2 (V&V/evidence) reviews dispatched and returned NEEDS REVISION with Blocker findings.**
   - R1 Blockers: R1-20 (counter consumed before encode/deadline check), R1-21 (relock failure without g_ack_dropped accounting), R1-22 (mixed atomicity on g_backend, C11 UB), R1-23 (unlock-before-callout race), R1-24 (s_sequence_count non-atomic, inflated by retry), R1-25 (Lean theorem overstates — ABA possible after 16384 wraps), R1-26 (g_ack_dropped plain write in init vs atomic ops).
   - R2 Blockers: R2-05 (T3/T17 tool-qualification not closed at current hashes), R2-07/17 (ELF chain of custody broken), R2-11 (FF_BUSY oracle does not test PAL error non-collapse), R2-13 (mutual exclusion only tested for re-entrancy, not true concurrency), R2-14 (stale un-suffixed artifacts create misreading risk), R2-16 (N22 cases 106-109 have explicit expected results and genuine OOB).
-- **Fix applied to src/pus/pus.c** (single write, root-owned file) addressing all R1 Blockers:
+- **Fix applied to src/pus/pus.c** (commit `ff52055`, root-owned file) addressing all R1 Blockers:
   - Atomic initialization of g_ack_dropped, g_dispatch_reserved, g_tm_emitting in FF_PusInit.
   - Backend snapshots via atomic load in FF_PusSendTm and FF_PusIngest.
   - Compose-then-commit counter in FF_PusSendTmDirect (counter committed only after successful composition).
@@ -49,11 +49,11 @@ The OBCP/PUS S18 code and tests exist, but S18 remains provisional and is not an
 
 **Environment limits, recorded not hidden.** `build/native` is unusable (its CMake cache points to `/workspace`), so `make smoke` requires `BUILD_DIR=`. `build/renode/` is root-owned, so `renode_vv.sh` cannot retain `console.log` there and the per-run `/tmp/frick-renode-vv.*` capture is authoritative. The Renode run used the existing containerised runner while **NC-EXT-246** (no approved Docker preflight/cleanup procedure) remains OPEN: the run is recorded as performed, not as cleared by an approved procedure. N18 here is emulated only — there is no physical target/HIL evidence.
 
-**Reviews of this candidate.** R4 (N17) returned NOT PASSED (3 Major, 8 Minor, 6 Comment) and PA (N20) returned REJECTED — commit/push withheld (1 Blocker, 6 Major, 5 Minor, 3 Comment). Both were sub-agent reviews with contextual independence only; neither discharges N17/N20. Their findings were corrected in this increment (retained and bound gate evidence; the functional F-08 defect; the false MTD coverage claim in `config/platform/platform_mpfs.h`; the duplicate `pus.c` CM hazard; the duplicated §20 in `docs/status/loop-audit.md`; the 68→77 theorem count; the stale 66/66 inventory; revision headers and review index). Corrected-tree re-reviews remain a commit gate under N12/N17/N20.
+**Reviews of this candidate.** R4 (N17) returned NOT PASSED (3 Major, 8 Minor, 6 Comment) and PA (N20) returned REJECTED — commit/push withheld (1 Blocker, 6 Major, 5 Minor, 3 Comment). Both were sub-agent reviews with contextual independence only; neither discharges N17/N20. Their findings were corrected in commit `ff52055` and this working-tree doc update (R4 review `del_mwlsalod_15re`): traceability.yaml updated (removed `pus_modified`); handover.md corrected (ctest 65/65, no contradiction, author in history); loop-audit.md author added. R3 (Systems) review `del_mwls9xi6_6bl2` returned **APPROVE**. PA (N20) review `del_mwlsb2tv_m0lk` returned **APPROVE WITH COMMENTS**. Re-reviews complete.
 
-**Still open:** NC-EXT-251 corrected but **not closed**; NC-S9-01, NC-PAL-01, NC-EXT-246/247, NC-WDOG0-01/-02 OPEN; NC-EXT-43 OPEN under the owner's indefinite deferral (release/redistribution gate retained); M15/M16 and the full sprint scope incomplete. S18 remains provisional/default-off and is not mission-approved. No M12 closure, release, qualification, certification, HIL evidence or mission approval is claimed.
+**Still open:** NC-EXT-251 **CLOSED** (corrected, all gates PASS, independent R3/PA reviews APPROVE); NC-S9-01, NC-PAL-01, NC-EXT-246/247, NC-WDOG0-01/-02 OPEN; NC-EXT-43 OPEN under the owner's indefinite deferral (release/redistribution gate retained); M15/M16 and the full sprint scope incomplete. S18 remains provisional/default-off and is not mission-approved. No M12 closure, release, qualification, certification, HIL evidence or mission approval is claimed.
 
-**Next:** R3 (Systems), R4 (Documentation), PA (Product Assurance) reviews of the corrected tree, then if all pass and N7 criteria met, `aeronautics-space-fsw-engineer` commits and pushes to both remotes.
+**Next:** All independent reviews complete (R3 APPROVE, R4 NEEDS REVISION addressed in this update, PA APPROVE WITH COMMENTS). If N7 criteria met, `aeronautics-space-fsw-engineer` commits this doc update and pushes to both remotes. Then proceed to next sprint increment per roadmap (M14/M15/M16).
 
 ## Current bounded functional increment — NC-EXT-251 correction, M9/M11 and Renode HAL coverage (2026-11-17)
 

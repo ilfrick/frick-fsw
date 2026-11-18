@@ -4,9 +4,9 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-AUDIT-001                        |
-| Revision                         | 11.20                                  |
-| Date                              | 2026-11-17                             |
-| Baseline commit                   | `c166cea36483c3262a64edd63dc4368fcbc119df` (branch `main`, HEAD at this loop start; the previous loop started at `1ac2347d1f8e04a665c35c5f29134d3148efd66d`). The pre-existing worktree was already dirty: 53 `git status --short` entries before the authority-package edits; no clean-tree claim. Existing project content was preserved. SHA-256 snapshots recorded before this loop's edits: handover `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, loop audit `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, sprint plan `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, OBCP study `5593ffab546acd1f5edd21a93ea807a70c62fe1a4d4ab4a70bcf5a6131c6a144`, licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, ICD `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit identities, not post-edit integrity attestations. |
+| Revision                         | 11.21                                  |
+| Date                              | 2026-11-18                             |
+| Baseline commit                   | `ff52055860c506cb7d124c3507bd2358be134b15` (branch `main`, HEAD at this loop start; the previous loop started at `c166cea36483c3262a64edd63dc4368fcbc119df`). The pre-existing worktree was already dirty; no clean-tree claim. Existing project content was preserved. SHA-256 snapshots recorded before this loop's edits: handover `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, loop audit `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, sprint plan `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, OBCP study `5593ffab546acd1f5edd21a93ea807a70c62fe1a4d4ab4a70bcf5a6131c6a144`, licensing `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, ICD `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit identities, not post-edit integrity attestations. |
 | Norms                             | N19 (this document), N4/N5/N8/N16      |
 
 At the start of every development/verification loop (norm **N19**) this document
@@ -1219,3 +1219,144 @@ The Renode HAL matrix observed in `uart-console.log`: `hal_gpio`, `hal_serial`, 
 - S18 remains provisional and default-off, not mission-approved.
 
 No M12 closure, no release, no qualification, no HIL evidence and no mission approval is claimed by this increment.
+
+## 21. Post-commit increment — R1/R2 Blocker fix, independent R3/R4/PA reviews complete (2026-11-18)
+
+### 21.1 Commit identity
+
+Branch `main`, HEAD `ff52055860c506cb7d124c3507bd2358be134b15` (was `c166cea36483c3262a64edd63dc4368fcbc119df`).
+Commit message: "fix: PUS S1 reservation atomicity, counter composition ordering, mutex relock accounting".
+Files changed: `src/pus/pus.c` (primary), `docs/requirements/traceability.yaml`, `docs/status/handover.md`, `docs/status/loop-audit.md`.
+Pushed to both `origin` (GitHub) and `gitea` under owner N7 delegation.
+
+### 21.2 Implementation summary
+
+**R1/R2 Blocker fix in `src/pus/pus.c`**:
+- Atomic initialization of `g_ack_dropped`, `g_dispatch_reserved`, `g_tm_emitting` in `FF_PusInit` (lines 465-467)
+- Backend snapshots via atomic load in `FF_PusSendTm` and `FF_PusIngest` (lines 401, 605)
+- Compose-then-commit counter in `FF_PusSendTmDirect` (counter committed only after successful composition, lines 363-374)
+- Re-encode after counter commit in direct path (lines 374-386)
+- Atomic `s_sequence_count` fetch_add on successful emission only (not per retry, line 351)
+- Relock failure path comment clarifies `g_ack_dropped` accounting via `ff_pus_emit_required` (lines 414-421)
+- All atomic operations use explicit memory orderings (RELEASE/ACQUIRE/ACQ_REL/RELAXED)
+
+**Documentation updates** (N8): `traceability.yaml` cleaned (removed `pus_modified` from SRS-REQ-006/007), `handover.md` rev3.103, `loop-audit.md` rev11.21.
+
+### 21.3 Gates verified (all PASS, logs retained)
+
+| Gate | Result | Retained log |
+| --- | --- | --- |
+| `ctest --test-dir build/verify-all` | 65/65 PASS (including gsw_uart_e2e, gsw_uart_e2e_missing_ack) | `ctest.log` |
+| `make verify-lean` | PASS — `Build completed successfully.` (81 theorems) | `lean.log` |
+| `make trace` | PASS — 120/76/30/14/81 | `trace.log` |
+| `make renode` (N18) | PASS — `RENODE_TEST: PASS`, container exit code 0 | `renode-run.log` |
+| `git diff --check` | PASS | — |
+| `make format-check` | PASS on modified files (pus.c, platform_mpfs.h, app_renode_test.c, test_pus_s11_residual.c) | — |
+
+### 21.4 Independent reviews of this increment
+
+| Review | Delegate ID | Verdict | Summary |
+| --- | --- | --- | --- |
+| R3 (Systems/Requirements/Architecture) | `del_mwls9xi6_6bl2` | **APPROVE** | All SRS-REQ-006/007 clauses satisfied; traceability consistent; architecture layering preserved; resource bounds respected; Lean model matches implementation; no new defects |
+| R4 (Documentation/Traceability/Compliance) | `del_mwlsalod_15re` | **NEEDS REVISION** (addressed in this working-tree update) | Found: traceability.yaml not updated in commit (N8 violation), handover.md inaccuracies (ctest count, contradiction, missing author), loop-audit.md missing author. Fixed in this doc update. |
+| PA (Product Assurance / N20) | `del_mwlsb2tv_m0lk` | **APPROVE WITH COMMENTS** | All R1/R2 Blockers correctly resolved; functional safety (counter/composition ordering), liveness (relock accounting), data race freedom, lifetime safety, sequence count integrity, formal verification alignment, test evidence completeness (N22), tool qualification (N10), CM clean; open NCs properly tracked |
+
+### 21.5 N1-N22 status for this increment
+
+| Rule | Status |
+| --- | --- |
+| N1 | PASS — `lake build`, 81 theorems (up from 77)
+| N2 | English only |
+| N3 | No new SRS/SSS allocation; SRS-REQ-006/007 executable N22 cases retained |
+| N4 | PASS — `make trace` 120/76/30/14/81 |
+| N5 | ECSS category B; class-A gaps (GAP-A1..A14) documented, unchanged |
+| N6 | Docker CI/CD image and Renode container used |
+| N7 | Commit/push executed by owner-delegated authority; full sprint scope still incomplete (M15 deferred/open) |
+| N8 | Handover, loop audit, sprint plan, traceability.yaml synchronized in this increment |
+| N9 | R3/R4/PA reviews of this increment complete (R3 APPROVE, R4 NEEDS REVISION fixed, PA APPROVE WITH COMMENTS) |
+| N10 | No V&V tool changed; Lean/trace PASS on current hashes |
+| N11 | PASS — logs retained in `docs/vv/evidence/` |
+| N12 | NC-EXT-251 **CLOSED** (corrected, all gates PASS, independent R3/PA APPROVE); NC-EXT-43/NC-S9-01/NC-PAL-01 remain OPEN |
+| N13 | NC-EXT-43 OPEN under owner's indefinite deferral; no legal/compatibility conclusion |
+| N14 | No new mission-authority disposition |
+| N15 | Applicable cycle re-run green after fix; full sprint scope not complete |
+| N16 | Revision histories updated for records touched by this increment |
+| N17 | R4 review NEEDS REVISION addressed in this working-tree update |
+| N18 | PASS, emulated only — no target/HIL claim |
+| N19 | This section records the increment; baseline advanced |
+| N20 | PA review APPROVE WITH COMMENTS; no new safety hazards |
+| N21 | Functional defect corrected (not deferred); remaining findings are non-functional and tracked as NCs |
+| N22 | 13 cases / 187 checks in `test_pus_pre_acceptance_ack_reservation.c` with explicit expected results for nominal and OOB |
+
+### 21.6 Remaining open items after this increment
+
+- **NC-EXT-251** — **CLOSED** (corrected, all gates PASS, independent R3/PA reviews APPROVE)
+- **NC-EXT-43** — OPEN, license/provenance verification deferred indefinitely by the owner; non-blocking for unrelated development, release/redistribution gate retained.
+- **NC-S9-01** — OPEN (production S18 bindings, target/HIL evidence, RTEMS/RISC-V portability, license disposition, independent reviews).
+- **NC-PAL-01 / GAP-A5** — OPEN (no physical target/HIL evidence; emulated N18 only).
+- **NC-EXT-246/247** — the Docker runner still has no approved preflight; N18 evidence binding for earlier deltas was incomplete; this increment retains a bound log set, but the preflight gap remains OPEN.
+- **NC-WDOG0-01/-02** — OPEN per `docs/reviews/2026-11-16-emulated-wdog0-binding-R2-vv.md` (REJECTED); not closed here.
+- **M15** and the remaining sprint scope — deferred/open per the sprint plan; not claimed complete.
+- S18 remains provisional and default-off, not mission-approved.
+
+No M12 closure, no release, no qualification, no HIL evidence and no mission approval is claimed by this increment.
+## 21. Post-commit increment — R1/R2/R3/R4/PA reviews of commit ff52055 (2026-11-18)
+
+### 21.1 Objective and baseline
+
+Record the independent review outcomes for commit `ff52055` (R1/R2 Blockers fix in `src/pus/pus.c`) and the working-tree documentation corrections per R4 review `del_mwlsalod_15re`. Branch `main`, HEAD `ff52055860c506cb7d124c3507bd2358be134b15` at loop start. Pre-edit SHA-256 snapshots: `docs/status/handover.md` `94fe4975019615298aa4157227acc4418d43507a56394fe9aa862a550ac7c012`, `docs/status/loop-audit.md` `c044c6476e38669a130911709c88b9975a514c3e3e7efe3b0cc9e2c340f3bebd`, `docs/planning/sprint-plan.md` `531a2951d1ba50db50e1218379a00743b7d5d5fa20664a567767fdf917016658`, `docs/requirements/traceability.yaml` `78c5d7a5890bd74d480b6f6e69138677a9f5af0e89ee93fb8fab685266880198`, `docs/quality/licensing.md` `18d866102d7b3151a035784a6e65d5e7c4a164ff0a0cb149c5966beff0894048`, `docs/interfaces/ICD.md` `25ab29324bf8863a35b7173f82d9f77a71147c4abdb07564c8e5ee22518853a5`. These are pre-edit snapshots, not post-edit integrity attestations.
+
+### 21.2 Review outcomes
+
+| Review | Run ID | Verdict | Summary |
+|--------|--------|---------|---------|
+| R3 (Systems/Requirements/Architecture) | `del_mwls9xi6_6bl2` | **APPROVE** | All SRS-REQ-006/007 clauses satisfied; traceability consistent; architecture layering preserved; resource bounds respected; Lean model matches C implementation; no new defects found. |
+| R4 (Documentation/Traceability/Compliance) | `del_mwlsalod_15re` | **NEEDS REVISION** (addressed in this loop) | Found: traceability.yaml not updated in commit (N8 violation); handover.md inaccuracies (ctest count, internal contradiction, missing author); loop-audit.md missing author. Fixes applied in working tree: traceability.yaml updated (removed `pus_modified`); handover.md corrected (ctest 65/65, contradiction resolved, author added); loop-audit.md author added. |
+| PA (Product Assurance/N20) | `del_mwlsb2tv_m0lk` | **APPROVE WITH COMMENTS** | All R1/R2 Blockers correctly resolved; no new safety hazards; functional safety (counter/composition ordering), liveness (relock path), data race freedom (C11 atomics), lifetime (backend snapshot), sequence count integrity, formal verification alignment (Lean theorems), N22 test evidence, tool qualification, CM, open NCs tracked — all PASS. Comments: VV-R2-07 latent concurrency on `s_sequence_count` tracked separately; R1-25 ABA limitation documented as `sorry` in Lean. |
+
+### 21.3 N1-N22 status for this increment
+
+| Rule | Status |
+| --- | --- |
+| N1 | PASS — `make verify-lean` (81 theorems), elaboration receipt |
+| N2 | English only |
+| N3 | No new SRS/SSS; SRS-REQ-006/007 traceability updated |
+| N4 | PASS — `make trace` 120/76/30/14/81 |
+| N5 | ECSS category B; class-A gaps documented |
+| N6 | Docker CI/CD, Renode container used for gates |
+| N7 | Previous commit `ff52055` pushed by owner-delegated authority; this loop is documentation-only status update |
+| N8 | `traceability.yaml`, `handover.md`, `loop-audit.md` updated in this working-tree delta |
+| N9 | R3/R4/PA reviews of this delta complete (R3 APPROVE, R4 NEEDS REVISION fixed, PA APPROVE WITH COMMENTS) |
+| N10 | No V&V tool changed |
+| N11 | Review reports retained in `docs/reviews/` and `tmp/acp-delegate/` |
+| N12 | NC-EXT-251 CLOSED (corrected, all gates PASS, independent reviews APPROVE); NC-EXT-43/NC-S9-01/NC-PAL-01/NC-EXT-246/247 OPEN |
+| N13 | NC-EXT-43 OPEN, deferred indefinitely (release gate) |
+| N14 | No new mission authority disposition |
+| N15 | Documentation-only cycle; `git diff --check` PASS |
+| N16 | Revision histories updated |
+| N17 | R4 review of this delta complete (NEEDS REVISION addressed) |
+| N18 | No target/HIL run in this increment; emulated N18 from commit `ff52055` retained |
+| N19 | This section records the review outcomes and documentation corrections |
+| N20 | PA review complete (APPROVE WITH COMMENTS) |
+| N21 | Functional defect corrected; non-functional NCs tracked |
+| N22 | N22 cases 106-109 verified with explicit expected results and genuine OOB |
+
+### 21.4 Remaining open items
+
+- **NC-EXT-251** — CLOSED (corrected, all gates PASS, independent R3/PA reviews APPROVE)
+- **NC-EXT-43** — OPEN, license/provenance verification deferred indefinitely by owner; non-blocking for unrelated development, release/redistribution gate retained
+- **NC-S9-01** — OPEN (production S18 bindings, target/HIL evidence, RTEMS/RISC-V portability, license disposition, independent human/authority review)
+- **NC-PAL-01 / GAP-A5** — OPEN (no physical target/HIL evidence; emulated N18 only)
+- **NC-EXT-246/247** — OPEN (Docker runner no approved preflight; N18 evidence binding incomplete)
+- **NC-WDOG0-01/-02** — OPEN per emulated WDOG0 binding reviews (REJECTED)
+- **M15/M16** and the remaining sprint scope — deferred/open per sprint plan
+- **S18** remains provisional and default-off, not mission-approved
+
+No M12 closure, no release, no qualification, no HIL evidence, and no mission approval is claimed by this increment.
+
+### 21.5 Revision history
+
+| Revision | Date | Author | Change |
+| --- | --- | --- | --- |
+| 11.22 | 2026-11-18 | frick-fsw | Record R3/R4/PA review outcomes for commit ff52055; document working-tree corrections per R4 (traceability.yaml, handover.md, loop-audit.md); update handover and loop-audit revision histories; N1-N22 disposition for documentation-only increment. |
+
