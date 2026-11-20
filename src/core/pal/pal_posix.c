@@ -142,6 +142,10 @@ FF_Status_t FF_PalPlatformInit(void)
 
 void FF_PalShutdown(void)
 {
+    memset(g_tasks, 0, sizeof(g_tasks));
+    memset(g_mutexes, 0, sizeof(g_mutexes));
+    memset(g_queues, 0, sizeof(g_queues));
+    g_utc_offset_ns = 0;
     g_initialized = false;
 }
 

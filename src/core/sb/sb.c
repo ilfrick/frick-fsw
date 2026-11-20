@@ -214,8 +214,8 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             /* Acquire per-pipe lock for this specific subscription with extended retry */
             FF_Status_t lock_status = FF_PalMutexTryLock(pipe->pipe_lock);
             if (lock_status != FF_SUCCESS) {
-                /* Extended retry for SMP contention - 1000 attempts with pause */
-                for (int retry = 0; retry < 1000; retry++) {
+                /* Extended retry for SMP contention - 5000 attempts with pause */
+                for (int retry = 0; retry < 5000; retry++) {
                     FF_CPU_RELAX();
                     lock_status = FF_PalMutexTryLock(pipe->pipe_lock);
                     if (lock_status == FF_SUCCESS) {
@@ -234,7 +234,7 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             }
             /* Retry queue put more times for transient full conditions */
             FF_Status_t queue_status = FF_PalQueueTryPut(pipe->queue, msg);
-            for (int queue_retry = 0; queue_retry < 50 && queue_status != FF_SUCCESS;
+            for (int queue_retry = 0; queue_retry < 200 && queue_status != FF_SUCCESS;
                  queue_retry++) {
                 FF_CPU_RELAX();
                 queue_status = FF_PalQueueTryPut(pipe->queue, msg);
