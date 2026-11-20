@@ -4,7 +4,7 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-HANDOVER-001                     |
-| Revision                         | 3.106                                  |
+| Revision                         | 3.107                                  |
 | Date                              | 2026-11-20                            |
 | Norms                             | N8 (entry point), N16 (history)        |
 
@@ -15,7 +15,7 @@ every significant increment (norm N8/N16).
 
 ## Current verification status — M14 SMP configuration + SB SMP implementation (2026-11-20)
 
-**Status: COMMITTED AND PUSHED** (commit `cdf4f14` pushed to `origin` and `gitea`). M14 SMP configuration complete: RTEMS SMP enabled (`CONFIGURE_SMP_APPLICATION`, `CONFIGURE_MAXIMUM_PROCESSORS 4`), SB implementation with per-pipe locks, atomic subscriptions, atomic stats. PAL POSIX limits increased to 64/256 to support SB test depth.
+**Status: COMMITTED AND PUSHED** (commits `cdf4f14`, `19c02b8` pushed to `origin` and `gitea`). M14 SMP configuration complete: RTEMS SMP enabled (`CONFIGURE_SMP_APPLICATION`, `CONFIGURE_MAXIMUM_PROCESSORS 4`), SB implementation with per-pipe locks, atomic subscriptions, atomic stats. PAL POSIX limits increased to 64/256 to support SB test depth.
 
 - **M14 SMP configuration committed.** `config/rtems/rtems_config.c`: `CONFIGURE_SMP_APPLICATION`, `CONFIGURE_MAXIMUM_PROCESSORS 4`. `src/core/sb/sb.c`: per-pipe locks, atomic `slot->app` store, extended retry loops (pipe lookup 200, mutex 1000, queue put 50), `g_bus_maintenance` test hook. `src/core/pal/pal_posix.c`: `FF_PAL_MAX_TASKS/MUTEXES/QUEUES 64`, `FF_PAL_MAX_QUEUE_DEPTH 256`. `config/rtems/rtems_config.c`: `CONFIGURE_MAXIMUM_POSIX_THREADS 64`, `CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES 64`. `tests/unit/test_evs_hs_health.c`: test assertion updated for 64-task limit.
 - **SB tests passing.** `test_sb` 341 checks PASS. `test_sb_smp` 209 checks PASS (4 pub × 10 msgs × 8 subs = 40 msgs/subscriber, all ≥ threshold). `test_sb_stress` 486 checks PASS. All SB-related tests in `build/smp-fresh` PASS.
@@ -23,7 +23,7 @@ every significant increment (norm N8/N16).
 - **Lean PASS.** `make verify-lean` PASS (81 theorems).
 - **Trace PASS.** `make trace` PASS (120 req, 76 SRS, 30 SSS, 14 gaps, 81 Lean theorems).
 - **Renode N18 PASS.** `make renode` PASS (`RENODE_TEST: PASS`, container exit code 0).
-- **Smoke PASS.** `make smoke` on `build/smoke-fresh` PASS (banner + 7 apps registered).
+- **Smoke PASS.** `make smoke` on `build/smoke-fresh2` PASS (banner + 7 apps registered).
 - **Format-check PASS** on modified files (`src/core/sb/sb.c`, `src/core/pal/pal_posix.c`, `config/rtems/rtems_config.c`, `tests/unit/test_evs_hs_health.c`). Pre-existing dirty files not reformatted per instructions.
 - **git diff --check PASS**.
 
