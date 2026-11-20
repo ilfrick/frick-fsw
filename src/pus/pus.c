@@ -616,7 +616,12 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
     if (apid != FF_APID_TC) {
         if (ack_accept) {
             FF_PalMutexUnlock(g_pus_mutex);
-            (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_ACCEPTANCE, 0u, FF_PUS_FAIL_ILLEGAL_APID);
+            FF_Status_t ack_st =
+                ff_pus_emit_required(&tc, FF_PUS_STAGE_ACCEPTANCE, 0u, FF_PUS_FAIL_ILLEGAL_APID);
+            if (ack_st == FF_BUSY) {
+                __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+                return FF_BUSY;
+            }
             if (ff_pus_relock() != FF_SUCCESS) {
                 __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
                 return FF_BUSY;
@@ -628,7 +633,11 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
     }
     if (ack_accept) {
         FF_PalMutexUnlock(g_pus_mutex);
-        (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_ACCEPTANCE, 1u, 0u);
+        FF_Status_t ack_st = ff_pus_emit_required(&tc, FF_PUS_STAGE_ACCEPTANCE, 1u, 0u);
+        if (ack_st == FF_BUSY) {
+            __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+            return FF_BUSY;
+        }
         if (ff_pus_relock() != FF_SUCCESS) {
             __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
             return FF_BUSY;
@@ -641,7 +650,11 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
             (tc.service == 0u) ? FF_PUS_FAIL_UNKNOWN_SERVICE : FF_PUS_FAIL_UNKNOWN_SUBSERVICE;
         if (ack_complete) {
             FF_PalMutexUnlock(g_pus_mutex);
-            (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_COMPLETION, 0u, code);
+            FF_Status_t ack_st = ff_pus_emit_required(&tc, FF_PUS_STAGE_COMPLETION, 0u, code);
+            if (ack_st == FF_BUSY) {
+                __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+                return FF_BUSY;
+            }
             if (ff_pus_relock() != FF_SUCCESS) {
                 __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
                 return FF_BUSY;
@@ -654,7 +667,11 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
 
     if (ack_start) {
         FF_PalMutexUnlock(g_pus_mutex);
-        (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_START, 1u, 0u);
+        FF_Status_t ack_st = ff_pus_emit_required(&tc, FF_PUS_STAGE_START, 1u, 0u);
+        if (ack_st == FF_BUSY) {
+            __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+            return FF_BUSY;
+        }
         if (ff_pus_relock() != FF_SUCCESS) {
             __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
             return FF_BUSY;
@@ -680,8 +697,13 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
      * Exactly one progress verification is sent; never both 1,5 and 1,6. */
     if (ack_progress) {
         FF_PalMutexUnlock(g_pus_mutex);
-        (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_PROGRESS, (rc == FF_SUCCESS) ? 1u : 0u,
-                                   (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        FF_Status_t ack_st =
+            ff_pus_emit_required(&tc, FF_PUS_STAGE_PROGRESS, (rc == FF_SUCCESS) ? 1u : 0u,
+                                 (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        if (ack_st == FF_BUSY) {
+            __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+            return FF_BUSY;
+        }
         if (ff_pus_relock() != FF_SUCCESS) {
             __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
             return FF_BUSY;
@@ -690,8 +712,13 @@ FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len)
 
     if (ack_complete) {
         FF_PalMutexUnlock(g_pus_mutex);
-        (void)ff_pus_emit_required(&tc, FF_PUS_STAGE_COMPLETION, (rc == FF_SUCCESS) ? 1u : 0u,
-                                   (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        FF_Status_t ack_st =
+            ff_pus_emit_required(&tc, FF_PUS_STAGE_COMPLETION, (rc == FF_SUCCESS) ? 1u : 0u,
+                                 (rc == FF_SUCCESS) ? 0u : FF_PUS_FAIL_EXECUTION);
+        if (ack_st == FF_BUSY) {
+            __atomic_store_n(&g_dispatch_reserved, 0u, __ATOMIC_RELEASE);
+            return FF_BUSY;
+        }
         if (ff_pus_relock() != FF_SUCCESS) {
             /* Relock failed after handler: completion ACK was attempted via
              * ff_pus_emit_required (which accounts in g_ack_dropped on

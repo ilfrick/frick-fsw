@@ -8,8 +8,19 @@
 #include "core/pal/pal.h"
 #include "core/evs/evs.h"
 #include <string.h>
-#include <stdio.h>
 #include <stdatomic.h>
+#include <stdio.h>
+
+/* Portable CPU relax hint for spin loops */
+#if defined(__x86_64__) || defined(__i386__)
+#define FF_CPU_RELAX() __builtin_ia32_pause()
+#elif defined(__aarch64__) || defined(__arm__)
+#define FF_CPU_RELAX() __builtin_arm_wfe()
+#elif defined(__riscv)
+#define FF_CPU_RELAX() __builtin_riscv_pause()
+#else
+#define FF_CPU_RELAX() (void)0
+#endif
 
 typedef struct
 {
@@ -195,7 +206,7 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
                 if (pipe != NULL) {
                     break;
                 }
-                __builtin_ia32_pause();
+                FF_CPU_RELAX();
             }
             if (pipe == NULL) {
                 continue;
@@ -205,7 +216,7 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             if (lock_status != FF_SUCCESS) {
                 /* Extended retry for SMP contention - 1000 attempts with pause */
                 for (int retry = 0; retry < 1000; retry++) {
-                    __builtin_ia32_pause();
+                    FF_CPU_RELAX();
                     lock_status = FF_PalMutexTryLock(pipe->pipe_lock);
                     if (lock_status == FF_SUCCESS) {
                         break;
@@ -225,15 +236,11 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
             FF_Status_t queue_status = FF_PalQueueTryPut(pipe->queue, msg);
             for (int queue_retry = 0; queue_retry < 50 && queue_status != FF_SUCCESS;
                  queue_retry++) {
-                __builtin_ia32_pause();
+                FF_CPU_RELAX();
                 queue_status = FF_PalQueueTryPut(pipe->queue, msg);
             }
             if (queue_status == FF_SUCCESS) {
                 atomic_fetch_add_explicit(&g_stats.delivered, 1, memory_order_relaxed);
-                if (sub_app == 207) {
-                    printf("DEBUG PUB: DELIVERED to sub=7 (app=207) msg_id=0x%X\n",
-                           (unsigned)msg->msg_id);
-                }
             }
             else {
                 atomic_fetch_add_explicit(&g_stats.dropped, 1, memory_order_relaxed);
@@ -242,10 +249,6 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
                 dropped_count++;
                 if (queue_status == FF_TIMEOUT) {
                     queue_busy = true;
-                }
-                if (sub_app == 207) {
-                    printf("DEBUG PUB: DROPPED for sub=7 (app=207) msg_id=0x%X status=%d\n",
-                           (unsigned)msg->msg_id, queue_status);
                 }
             }
             FF_PalMutexUnlock(pipe->pipe_lock);
@@ -272,20 +275,21 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
 #ifdef FF_TEST_HOOKS
 FF_Status_t FF_SbTestLock(void)
 {
-    /* Acquire global lock for structural operations (subscribe/unsubscribe)
-     * AND set maintenance flag to block publishes. */
-    FF_Status_t status = FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
-    if (status == FF_SUCCESS) {
-        atomic_store_explicit(&g_bus_maintenance, true, memory_order_release);
-    }
-    return status;
+    /* Set maintenance flag FIRST (release) to block ALL publishes, then
+     * acquire global lock for structural operations. This closes the race
+     * where a publisher checks the flag, passes, then the test sets it. */
+    atomic_store_explicit(&g_bus_maintenance, true, memory_order_release);
+    return FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
 }
 
 FF_Status_t FF_SbTestUnlock(void)
 {
-    /* Clear maintenance flag BEFORE releasing global lock to avoid race. */
+    /* Release global lock FIRST, then clear maintenance flag (release).
+     * This ensures publishers waiting on the flag see it cleared after
+     * structural operations complete. */
+    FF_Status_t status = FF_PalMutexUnlock(g_bus_lock);
     atomic_store_explicit(&g_bus_maintenance, false, memory_order_release);
-    return FF_PalMutexUnlock(g_bus_lock);
+    return status;
 }
 
 FF_Status_t FF_SbTestQueueLock(FF_AppId_t app)

@@ -484,10 +484,10 @@ requirements:
     level: srs
     parent_sss: SSS-REQ-024
     derived: false
-    implementation: ["docs/development-plan.md", "docs/roadmap.md", "docs/status/loop-audit.md"]
-    tests: ["ci:docs"]
+    implementation: ["config/rtems/rtems_config.c", "src/core/sb/sb.c", "src/core/sb/sb.h", "src/core/pal/pal_posix.c", "tests/unit/test_sb_smp.c"]
+    tests: ["tests/unit/test_sb_smp.c", "tests/unit/test_sb.c", "tests/unit/test_sb_stress.c"]
     lean: []
-    lean_note: "Multicore / SMP on the 4xU54 cluster under RTEMS SMP (milestone M14). Planned."
+    lean_note: "Multicore / SMP on the 4xU54 cluster under RTEMS SMP (milestone M14). RTEMS SMP configuration: CONFIGURE_SMP_APPLICATION, CONFIGURE_MAXIMUM_PROCESSORS 4. SB SMP: per-pipe locks, atomic slot->app store, extended retry loops (pipe lookup 200, mutex 1000, queue put 50). PAL POSIX limits: MAX_TASKS/MUTEXES/QUEUES 64, MAX_QUEUE_DEPTH 256. RTEMS POSIX config: POSIX_THREADS 64, POSIX_MESSAGE_QUEUES 64. Lean theorems for SMP concurrency planned for M14 follow-up (M14 is after all other milestones per roadmap)."
 
   - id: SRS-REQ-052
     level: srs

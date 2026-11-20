@@ -29,9 +29,9 @@ typedef struct
 
 typedef struct
 {
-    uint32_t published;
-    uint32_t delivered;
-    uint32_t dropped;
+    _Atomic uint32_t published;
+    _Atomic uint32_t delivered;
+    _Atomic uint32_t dropped;
 } FF_SbStats_t;
 
 FF_Status_t FF_SbInit(void);
