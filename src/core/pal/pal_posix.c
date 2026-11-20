@@ -22,10 +22,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define FF_PAL_MAX_TASKS 32u
-#define FF_PAL_MAX_MUTEXES 32u
-#define FF_PAL_MAX_QUEUES 32u
-#define FF_PAL_MAX_QUEUE_DEPTH 32u
+#define FF_PAL_MAX_TASKS 64u
+#define FF_PAL_MAX_MUTEXES 64u
+#define FF_PAL_MAX_QUEUES 64u
+#define FF_PAL_MAX_QUEUE_DEPTH 256u
 #define FF_PAL_MAX_ITEM_SIZE 1024u
 
 typedef struct

@@ -4,14 +4,14 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-TS2                     |
-| Revision                         | 0.13                                   |
-| Date                             | 2026-11-13                             |
+| Revision                         | 0.16                                   |
+| Date                             | 2026-11-17                             |
 | Norms                            | N10, N11, N22                          |
 | Umbrella                         | `docs/vv/comprehensive-test-spec.md` (FRICK-VV-TSPEC-001) |
 | Work-package index               | `docs/vv/test-spec/README.md` (FRICK-VV-TSPEC-002), work package TS-2 |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 | Scope                            | Link backends (`link.c`, `link_loopback.c`, `link_uart.c`, `link_ip.c`, `link_tsn.c`), PUS-C segmentation/reassembly (`link_seg.c`, SRS-REQ-059) and the CCSDS SDLS sub-layer (`src/security/ff_sdls.c`, SRS-REQ-034/035) |
-| Baseline                         | Candidate delta: committed HEAD `e5f01d4` plus current S8-PUS-FU/NC-EXT-191 source, test and document changes; see `docs/vv/verification-results.md`. Earlier TS-2 cases retain their historical baselines. |
+| Baseline                         | Candidate delta: committed HEAD `fc68b9d121bce2194c1beaaa9a7dc4cdab0552c` plus current uncommitted S1/license/E2E source, test and document changes; see `docs/vv/verification-results.md`. Earlier TS-2 cases retain their historical baselines. |
 | Modules under test               | `src/transport/link/link.c`, `link_loopback.c`, `link_uart.c`, `link_seg.c`, `link_ip.c`, `link_tsn.c`; `src/security/ff_sdls.c` |
 | Interfaces cited                 | `link.h`, `link_seg.h`, `link_ip.h`, `link_tsn.h`, `security/ff_sdls.h`, `core/common/ff_types.h`, `docs/interfaces/ICD.md` (FRICK-ICD-001), `docs/architecture/security-sdls.md` (FRICK-ARCH-0010), `docs/architecture/network-stack.md` (FRICK-ARCH-0012) |
 
@@ -182,7 +182,8 @@ and `86` expired zero-length UART send behavior (`SRS-REQ-074` API subcases).
 | N22-TS2-72 | SRS-REQ-059, SRS-REQ-060, SSS-REQ-028 | TCP-segmented PUS frames end to end | nominal | TCP mode; send a PUS TM frame spanning multiple read chunks and recv it | the seg prefix frames the TM; reassembly returns the TM byte-identical and `FF_PusIngest` accepts it (SRS-REQ-059 + SRS-REQ-060) | SIL | combined | covered |
 | N22-TS2-73 | SRS-REQ-034, SRS-REQ-059, SRS-REQ-060 | SDLS-protected PUS frame carried over the link | nominal | protect a CCSDS/PUS frame with an AUTH_ENC SA, carry the protected unit over the IP link, unprotect on receipt | **gap** — SDLS is not wired into any link backend, `fsw_main.c` or application (only `tests/unit/test_sdls.c` calls `FF_Sdls*`); there is no controlled secure-link requirement or integrated path, so no oracle exists (NC-EXT-47 §7.1 for the combined path, §7.3 for the missing contract; key/HSM = GAP-A14). No oracle is asserted here | SIL | combined | gap |
 | N22-TS2-74 | SRS-REQ-027, SRS-REQ-039, SRS-REQ-060 | IP link backend over two pluggable stacks | nominal | select the IP backend over `FF_NetStackLoopback` and over the mock `FF_NetStack_t`; UDP round trip on each | the same PUS frame round-trips over both stacks without a change to the backend (SRS-REQ-027 pluggable stack; SRS-REQ-039 reference stack; SRS-REQ-060) | SIL | combined | covered |
-| N22-TS2-75 | SRS-REQ-060, SRS-REQ-061 | Link backend ↔ ground support tool end to end | nominal | host simulator link backend ↔ `tools/gsw/ff_gsw.py` exchange of PUS-C TM/TC | **gap** — `tests/python/test_ff_gsw.py` now covers fixed vectors and link-independent fragmented/coalesced serial stream decoding, but no per-requirement host link↔GSW integration or independent ground-segment exchange is available (NC-EXT-03; NC-EXT-47 §7.1/§7.6). No oracle is asserted here | SIL | combined | gap |
+| N22-TS2-75 | FRICK-ICD-001 §§2, 4; SRS-REQ-006/007/012 | GSW CLI ↔ production UART backend ↔ PUS-C TC/TM end to end | nominal | `gsw_uart_e2e`: actual `tools/gsw/ff_gsw.py` CLI sends S17.1 with accept/start/completion ACKs through a test-only `serial.Serial` POSIX adapter and two bridged PTYs to a C server using production `link_uart.c`, `FF_PusIngest` and `FF_LinkSend` | Exact TC vector `1810c000000a2b1101010201020304f72b`; decoded TM order `[1,1],[1,3],[17,2],[1,7]`; S17 echo `01020304`; each positive S1 ACK exactly once with 9-byte source/destination/sequence/TC/service/code fields; PUS TM secondary-header counter increments modulo 16384; raw packet framing and CRC valid. Oracles: ICD §2 UART/CCSDS profile and §4 service mapping; SRS-REQ-006 exact ACK count; SRS-REQ-007 counter; SRS-REQ-012 S17 echo. Host SIL only: test shim/PTY, not pyserial, external ground segment, physical UART, RTEMS, or HIL | SIL | combined | host covered |
+| N22-TS2-87 | FRICK-ICD-001 §§2, 4; SRS-REQ-006; GSW T7 CLI contract | GSW fail-closed response when a requested ACK is lost on UART | out-of-bound | `gsw_uart_e2e_missing_ack`: same actual GSW CLI/C server/production UART/PUS path; PTY bridge deliberately drops only TM[1,1] on the GSW receive path while the server transmits and captures all four expected TMs | C server succeeds and raw capture contains `[1,1],[1,3],[17,2],[1,7]`; GSW receives only `[1,3],[17,2],[1,7]`, exits 1 within 0.25 s, and prints `ERROR: missing, duplicate, unexpected, or failed PUS ping response/ACK`. It must not report success or fabricate the missing ACK. Host-SIL fault injection only; it does not test physical UART loss rates, RTEMS/HIL, or close NC-EXT-251 contention semantics | SIL | combined | host covered |
 | N22-TS2-76 | SRS-REQ-044, SRS-REQ-034, SRS-REQ-035 | SDLS functional check on the emulated PolarFire SoC (Renode) | nominal | Renode run of `app_renode_test` exercising SDLS protect/unprotect | **gap** — no Renode check exercises the SDLS sub-layer; the `RENODE_TEST: PASS` aggregate marker is not a per-requirement oracle (NC-EXT-47 §7.6). No oracle is asserted here | PIL | individual | gap |
 | N22-TS2-77 | SRS-REQ-044, SRS-REQ-060, SRS-REQ-061 | Link backend functional check on the emulated PolarFire SoC (Renode) | nominal | Renode run of `app_renode_test` driving an `FF_Link_t` backend (IP/TSN/UART) round trip | **gap** — the Renode test application exercises the `hal_*` seams (`hal_eth`, `hal_net`, `hal_tsn`, …) but never selects nor drives `FF_LinkIpBackend`/`FF_LinkTsnBackend`/`FF_LinkUartBackend`; `RENODE_TEST: PASS` is not a per-requirement oracle (NC-EXT-47 §7.6). No oracle is asserted here | PIL | combined | gap |
 | N22-TS2-78 | SRS-REQ-060, SRS-REQ-061 | On-target link-level PUS-C over UART/IP/TSN (HIL) | nominal | target RTPFS160ZT; PUS-C TM/TC over the flight UART and mission IP/TSN link | **gap** — on-silicon framing, TCP stream segmentation, UDP/TSN timing and electrical integrity require flight hardware; GAP-A5 / NC-EXT-31 (NC-EXT-47 §7.5). No oracle is asserted here | HIL | combined | gap |
@@ -206,8 +207,6 @@ the specific open NC/TBD where one exists. Gap rows assert **no** oracle.
 - `N22-TS2-73` — SDLS + link + PUS combined secure path: SDLS is not wired into
   any link backend/application, so no controlled combined oracle exists
   (TBD; NC-EXT-47 §7.1/§7.3; GAP-A14).
-- `N22-TS2-75` — link backend ↔ GSW end-to-end: no automated per-requirement
-  oracle (the GSW serial session is manual) (TBD; NC-EXT-47 §7.1/§7.6).
 
 **NC-EXT-47 §7.2 — software-only robustness oracles not specified as a
 controlled, requirement-mapped set.**
@@ -277,20 +276,20 @@ oracle.**
 
 | Metric | Count |
 | --- | --- |
-| Total cases | 86 |
+| Total cases | 87 |
 | Nominal | 44 |
-| Out-of-bound | 40 |
+| Out-of-bound | 41 |
 | Mixed nominal + out-of-bound | 2 |
-| Individual | 77 |
+| Individual | 78 |
 | Combined | 9 |
 | `covered` (oracle grounded in a requirement/architecture/interface clause) | 48 |
-| `host covered` (host API subcase; no full target/SRS verification claim) | 5 |
-| `gap` (no controlled oracle; recorded under NC-EXT-47) | 32 |
+| `host covered` (host API/integration subcase; no full target/HIL claim) | 7 |
+| `gap` (no controlled oracle; recorded under NC-EXT-47) | 31 |
 | `characterization` (NC-driven; no requirement closure) | 1 |
-| SIL / PIL / HIL | 81 / 2 / 3 |
+| SIL / PIL / HIL | 82 / 2 / 3 |
 
-Requirement coverage in this scope: `SRS-REQ-015/016/026/027/028/034/035/039/
-044/059/060/061` and `SSS-REQ-014/019/028` all have at least one case; the link
+Requirement coverage in this scope: `SRS-REQ-006/007/012/015/016/026/027/028/
+034/035/039/044/059/060/061` and `SSS-REQ-014/019/028` all have at least one case; the link
 selection and dispatch API, all four reference backends, the segmentation and
 reassembly layer, the UART stream framing, and the SDLS backend/SA/key-lifecycle
 and protect/unprotect surfaces have nominal and (where a controlled contract
@@ -303,16 +302,20 @@ unit-test target; its cases are specified but not automated.
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
-| 0.1 | 2026-10-14 | frick-fsw | Initial TS-2 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: nominal + out-of-bound case table with explicit oracles for the link core/selection, loopback, IP (UDP/TCP via seg), TSN and UART backends, the PUS-C segmentation/reassembly layer (SRS-REQ-059) and the CCSDS SDLS sub-layer (SRS-REQ-034/035); gaps mapped to NC-EXT-47 sub-items with the open NC/TBD named |
-| 0.2 | 2026-10-15 | frick-fsw | Clarify that new GSW stream-fragmentation tests are link-independent and do not close the host link↔GSW or external ground-segment E2E gap |
-| 0.3 | 2026-10-15 | frick-fsw | Add host-PTY evidence for production UART split/coalesced PDL framing, timeout retention, undersized caller capacity and max packet; update case counts |
-| 0.4 | 2026-10-15 | frick-fsw | Add explicit plausible-incomplete-header retention/release oracle and distinguish test evidence from authority-owned recovery policy |
-| 0.5 | 2026-10-15 | frick-fsw | Add SRS-REQ-017 to the scope list cited by UART framing case N22-TS2-81 |
-| 0.6 | 2026-10-15 | frick-fsw | Remove SRS-REQ-017 mapping because UART PDL framing does not validate the APID/mission-identifier profile |
-| 0.7 | 2026-10-16 | frick-fsw | Add explicit disconnected-terminal zero-read outcome to N22-TS2-81; preserve malformed plausible-candidate recovery as open |
-| 0.8 | 2026-10-16 | frick-fsw | Remove unsupported SRS-REQ-016 verification mapping from host UART characterization case per independent V&V review |
-| 0.9 | 2026-10-16 | frick-fsw | Define characterization-only status for N22-TS2-81 and reconcile coverage counts after independent V&V review |
-| 0.10 | 2026-11-11 | frick-fsw | Add N22-TS2-82/83 for the IP and TSN deadline-bounded writers (`FF_Link_t::send_until`, SRS-REQ-074 panic-report path) after the `link.h` contract was documented; recount 83 cases (50 `covered`, 32 `gap`, 1 characterization). Target 250 ms bound and UART shared-descriptor/readiness effects stay open |
-| 0.11 | 2026-11-13 | frick-fsw | Define the link API temporary-mode restoration error contract; add N22-TS2-84 for the UART `EAGAIN` + failed-restore outcome and successful-restore errno-preservation outcome. Recount: 84 cases, 44 nominal, 38 OOB, 2 mixed; 48 covered, 3 host covered, 32 gap, 1 characterization (host-covered rows are not folded into the `covered` subtotal). The case verifies API error subcases only, not SRS-REQ-074 compliance; shared-descriptor effects after restore failure, target readiness and target 250 ms bound remain open. |
-| 0.12 | 2026-11-13 | frick-fsw | Add N22-TS2-85 for the UART final-write deadline-overrun path identified in R3 review: a delayed accepted transfer returns `FF_TIMEOUT` and exact emitted bytes are asserted, matching the `link.h` post-transfer deadline contract. Recount 85 cases (44 nominal, 39 OOB, 2 mixed; 48 covered, 4 host covered, 32 gap, 1 characterization). Evidence is host timing only; no deterministic target timing/WCET or complete SRS-REQ-074 coverage is claimed. |
+| 0.16 | 2026-11-17 | frick-fsw | Record the 2026-11-17 increment: NC-EXT-251 corrected with the new TS-1-level N22 sink-recursive case, and the emulated N18 HAL matrix restated as 13 groups PASS plus `hal_spacewire=CONTRACT` and `sb_roundtrip=PASS` with MTD absent. TS-2 case counts unchanged; host and emulated evidence only. |
+| 0.17 | 2026-11-18 | frick-fsw | Correct the 0.16 wording that announced a TS-1-level N22 case without the TS-1 row existing: TS-1 rev 1.15 now carries the four cases (`N22-TS1-106`..`109`, ids end at 109, 81 `covered` + 28 `gap`), and this document no longer claims a case it does not own. Also record the 2026-11-18 second NC-EXT-251 correction (13 cases / 187 checks, counter unified on one masked compare-exchange sequence, every re-lock checked, reservation armed for every TC, no counter consumed for an untransmitted frame, emission non-re-entrant) and the `hal_pcie`/`hal_spacewire` tri-state `CONTRACT` verdict exclusion (NC-EXT-253). TS-2 case counts unchanged; host and emulated evidence only. |
+| 0.15 | 2026-11-15 | frick-fsw | Add N22-TS2-87 OOB E2E fault injection: deliberately drop the requested acceptance ACK on the GSW receive leg and assert bounded CLI failure without false success; recount 87 cases, 44 nominal, 41 OOB, 2 mixed; 48 covered, 7 host covered, 31 gaps, 1 characterization. Add `--ack none` parser support promised by help text. Host SIL only; external ground/physical UART/HIL and T7 qualification remain open. |
+| 0.14 | 2026-11-15 | frick-fsw | Replace N22-TS2-75's unsupported IP/TSN requirement mapping and manual-session gap with `gsw_uart_e2e`, an automated host-SIL GSW CLI↔production UART/PUS TC/TM exchange. Map only to controlled ICD §2/§4 and SRS-REQ-006/007/012; update totals to 48 covered, 6 host covered, 31 gaps. PTY/test serial shim does not claim external ground, physical UART, RTEMS or HIL evidence; T7 remains not fully qualified. |
 | 0.13 | 2026-11-13 | frick-fsw | Add N22-TS2-86 for an expired zero-length UART send, resolving the R3 API edge: return `FF_TIMEOUT` without any write. Recount 86 cases (44 nominal, 40 OOB, 2 mixed; 48 covered, 5 host covered, 32 gap, 1 characterization). N22-TS2-84..86 are host API subcases only, not complete SRS-REQ-074, target readiness, timing or WCET evidence. |
+| 0.12 | 2026-11-13 | frick-fsw | Add N22-TS2-85 for the UART final-write deadline-overrun path identified in R3 review: a delayed accepted transfer returns `FF_TIMEOUT` and exact emitted bytes are asserted, matching the `link.h` post-transfer deadline contract. Recount 85 cases (44 nominal, 39 OOB, 2 mixed; 48 covered, 4 host covered, 32 gap, 1 characterization). Evidence is host timing only; no deterministic target timing/WCET or complete SRS-REQ-074 coverage is claimed. |
+| 0.11 | 2026-11-13 | frick-fsw | Define the link API temporary-mode restoration error contract; add N22-TS2-84 for the UART `EAGAIN` + failed-restore outcome and successful-restore errno-preservation outcome. Recount: 84 cases, 44 nominal, 38 OOB, 2 mixed; 48 covered, 3 host covered, 32 gap, 1 characterization (host-covered rows are not folded into the `covered` subtotal). The case verifies API error subcases only, not SRS-REQ-074 compliance; shared-descriptor effects after restore failure, target readiness and target 250 ms bound remain open. |
+| 0.10 | 2026-11-11 | frick-fsw | Add N22-TS2-82/83 for the IP and TSN deadline-bounded writers (`FF_Link_t::send_until`, SRS-REQ-074 panic-report path) after the `link.h` contract was documented; recount 83 cases (50 `covered`, 32 `gap`, 1 characterization). Target 250 ms bound and UART shared-descriptor/readiness effects stay open |
+| 0.9 | 2026-10-16 | frick-fsw | Define characterization-only status for N22-TS2-81 and reconcile coverage counts after independent V&V review |
+| 0.8 | 2026-10-16 | frick-fsw | Remove unsupported SRS-REQ-016 verification mapping from host UART characterization case per independent V&V review |
+| 0.7 | 2026-10-16 | frick-fsw | Add explicit disconnected-terminal zero-read outcome to N22-TS2-81; preserve malformed plausible-candidate recovery as open |
+| 0.6 | 2026-10-15 | frick-fsw | Remove SRS-REQ-017 mapping because UART PDL framing does not validate the APID/mission-identifier profile |
+| 0.5 | 2026-10-15 | frick-fsw | Add SRS-REQ-017 to the scope list cited by UART framing case N22-TS2-81 |
+| 0.4 | 2026-10-15 | frick-fsw | Add explicit plausible-incomplete-header retention/release oracle and distinguish test evidence from authority-owned recovery policy |
+| 0.3 | 2026-10-15 | frick-fsw | Add host-PTY evidence for production UART split/coalesced PDL framing, timeout retention, undersized caller capacity and max packet; update case counts |
+| 0.2 | 2026-10-15 | frick-fsw | Clarify that new GSW stream-fragmentation tests are link-independent and do not close the host link↔GSW or external ground-segment E2E gap |
+| 0.1 | 2026-10-14 | frick-fsw | Initial TS-2 work package per N22 and the FRICK-VV-TSPEC-002 chunk plan: nominal + out-of-bound case table with explicit oracles for the link core/selection, loopback, IP (UDP/TCP via seg), TSN and UART backends, the PUS-C segmentation/reassembly layer (SRS-REQ-059) and the CCSDS SDLS sub-layer (SRS-REQ-034/035); gaps mapped to NC-EXT-47 sub-items with the open NC/TBD named |

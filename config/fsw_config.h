@@ -26,7 +26,7 @@
 #define FF_SB_MAX_SUBSCRIPTIONS 96u
 #define FF_SB_MSG_PAYLOAD_MAX 512u
 #define FF_SB_DEFAULT_DEPTH 16u
-#define FF_SB_QUEUE_DEPTH_MAX 32u
+#define FF_SB_QUEUE_DEPTH_MAX 64u
 
 /* Software Bus message identifiers (cFS style: 0xMMSS) */
 #define FF_SB_WILDCARD 0xFFFFu

@@ -1,0 +1,3 @@
+cd verification/lean && lake build
+Build completed successfully.
+LEAN_EXIT=0

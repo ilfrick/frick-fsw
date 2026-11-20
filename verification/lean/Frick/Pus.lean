@@ -60,20 +60,67 @@ theorem ack_acceptance_is_counted {a : AckFlags} (h : a.acceptance = true) :
 
 -- ---------------------------------------------------------------------
 -- TM message type counter (14 bit field), SRS-REQ-007
+--
+-- The model below is the arithmetic the flight code actually executes, not an
+-- abstract monotone sequence. `src/pus/pus.c` advances the shared counter with
+--
+--     next = (uint16_t)((cur + 1u) & 0x3FFFu)        -- i.e. (cur + 1) mod 16384
+--
+-- on both the normal and the reset/panic emission path, and puts `cur` in the
+-- frame. An earlier model used two unrelated `Nat` functions (`nextTm c = c + 1`
+-- and a separate `wrapTm c = c % 16384`), so the proved properties did not
+-- constrain the shipped modulo arithmetic at all (R3 finding F-3, 2026-11-17).
 -- ---------------------------------------------------------------------
 
+/-- The counter domain: the 14 bit field, `0 .. 16383`. -/
 abbrev TmCounter := Nat
 
-abbrev nextTm (c : TmCounter) : TmCounter := c + 1
+/-- One advance of the shipped sequence: `(c + 1) mod 16384`, matching
+    `(uint16_t)((cur + 1u) & 0x3FFFu)` in `src/pus/pus.c`. -/
+def tmStep (c : Nat) : Nat := (c + 1) % 16384
 
--- | The counter strictly increases on every telemetry emission.
-theorem tm_counter_strictly_increases (c : Nat) : nextTm c > c := by
-  exact Nat.lt_succ_self c
+/-- Every advance stays inside the 14 bit field. -/
+theorem tm_step_bounded (c : Nat) : tmStep c < 16384 := by
+  unfold tmStep
+  exact Nat.mod_lt _ (by decide)
 
--- | A full counter wraps back to zero when it exceeds the 14 bit field.
-def wrapTm (c : TmCounter) : TmCounter := c % 16384
-theorem wrapped_counter_bounded (c : Nat) : wrapTm c < 16384 := by
-  unfold wrapTm
-  exact Nat.mod_lt c (by omega)
+/-- Below the wrap point the advance is exactly one. -/
+theorem tm_step_succ (c : Nat) (h : c < 16383) : tmStep c = c + 1 := by
+  unfold tmStep
+  exact Nat.mod_eq_of_lt (by omega)
+
+/-- Strict increase on the non-wrapping part of the sequence. -/
+theorem tm_counter_strictly_increases (c : Nat) (h : c < 16383) : tmStep c > c := by
+  have := tm_step_succ c h
+  omega
+
+/-- The last value of the field advances to zero: the sequence wraps. -/
+theorem tm_counter_wraps_to_zero : tmStep 16383 = 0 := by
+  unfold tmStep
+  decide
+
+/-- The advance is injective on the field: two distinct in-range values never
+    advance to the same value, so two transmitted frames can never share a
+    counter value. -/
+theorem tm_step_injective (a b : Nat) (ha : a < 16384) (hb : b < 16384)
+    (h : tmStep a = tmStep b) : a = b := by
+  unfold tmStep at h
+  have key : ∀ x y : Nat, x < 16384 → y < 16384 → (x + 1) % 16384 = (y + 1) % 16384 → x = y := by
+    intro x y hx hy hxy
+    have hx' : x + 1 ≤ 16384 := by omega
+    have hy' : y + 1 ≤ 16384 := by omega
+    rcases Nat.lt_or_eq_of_le hx' with hlt | heq
+    · rw [Nat.mod_eq_of_lt hlt] at hxy
+      rcases Nat.lt_or_eq_of_le hy' with hlt2 | heq2
+      · rw [Nat.mod_eq_of_lt hlt2] at hxy
+        omega
+      · rw [heq2, Nat.mod_self] at hxy
+        omega
+    · rw [heq, Nat.mod_self] at hxy
+      rcases Nat.lt_or_eq_of_le hy' with hlt2 | _heq2
+      · rw [Nat.mod_eq_of_lt hlt2] at hxy
+        omega
+      · omega
+  exact key a b ha hb h
 
 end Frick.Pus

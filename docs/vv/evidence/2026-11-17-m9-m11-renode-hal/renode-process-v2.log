@@ -1,0 +1,18 @@
+23:50:13.9417 [INFO] Loaded monitor commands from: /opt/renode/scripts/monitor.py
+23:50:14.0476 [INFO] Monitor available in telnet mode on port 1234
+23:50:14.2981 [INFO] Including script(s): /workspace/tools/docker/renode/frick-renode.resc
+23:50:14.3605 [INFO] System bus created.
+23:50:17.8337 [INFO] sysbus: Loading block of 519920 bytes length at 0x1000000000.
+23:50:17.9418 [INFO] sysbus: Loading block of 4096 bytes length at 0x100007EEF0.
+23:50:17.9421 [INFO] sysbus: Loading block of 267911168 bytes length at 0x1000080000.
+23:50:18.3694 [INFO] e51: Setting PC value to 0x1000000000.
+23:50:18.3702 [INFO] u54_1: Setting PC value to 0x1000000000.
+23:50:18.3707 [INFO] u54_2: Setting PC value to 0x1000000000.
+23:50:18.3708 [INFO] u54_3: Setting PC value to 0x1000000000.
+23:50:18.3709 [INFO] u54_4: Setting PC value to 0x1000000000.
+23:50:18.4340 [INFO] frick-renode: Machine started.
+23:50:19.4168 [WARNING] i2c0: Unhandled write to offset 0x0. Unhandled bits: [7] when writing value 0xC0. Tags: CR2 (0x1).
+23:50:19.4343 [WARNING] mac0: Unhandled write to offset 0x540, value 0x130.
+23:50:19.4403 [WARNING] mac0: Unhandled write to offset 0x4. Unhandled bits: [1, 8, 10, 19, 21] when writing value 0x220502. Tags: full_duplex (0x1), receive_1536_byte_frames (0x1), gigabit_mode_enable (0x1), mdc_clock_division (0x0), data_bus_width (0x1).
+23:50:26.8245 [INFO] frick-renode: Machine paused.
+23:50:26.9375 [INFO] frick-renode: Disposed.

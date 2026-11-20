@@ -44,5 +44,15 @@ doxygen/latex/
 # Local config
 .local/
 
+# Local scratch copies of production sources (never committed; a duplicate
+# pus.c here has no build role and must not enter the configuration baseline)
+src/pus_modified/
+src/pus/*.bak
+src/pus/*.old
+
+# Local scratch/temporary trees produced by ad-hoc investigation
+tmp/
+Testing/
+
 # Gitea act_runner registration state (contains a runner token)
 tools/docker/act_runner/runner-data/

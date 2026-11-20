@@ -1,0 +1,120 @@
+find src config tests -name '*.[ch]' -print0 | xargs -0 -n1 clang-format --dry-run --Werror
+src/obcp/ff_obcp_inhouse.c:82:65: error: code should be clang-formatted [-Wclang-format-violations]
+    if (!__atomic_load_n(&g_ih_initialized, __ATOMIC_ACQUIRE) ||
+                                                                ^
+src/obcp/ff_obcp_inhouse.c:83:26: error: code should be clang-formatted [-Wclang-format-violations]
+        script == NULL || script_len == 0u) {
+                         ^
+src/obcp/ff_obcp_inhouse.c:112:85: error: code should be clang-formatted [-Wclang-format-violations]
+    ff_ih_set_state((__atomic_load_n(&g_ih_abort_requested, __ATOMIC_ACQUIRE) != 0u)
+                                                                                    ^
+src/obcp/ff_obcp_inhouse.c:113:54: error: code should be clang-formatted [-Wclang-format-violations]
+                      ? FF_OBCP_STATE_ABORT_REQUESTED
+                                                     ^
+src/obcp/ff_obcp_inhouse.c:138:38: error: code should be clang-formatted [-Wclang-format-violations]
+    status->engine_reported_success = __atomic_load_n(&g_ih_engine_reported_success,
+                                     ^
+src/obcp/ff_obcp_inhouse.c:138:85: error: code should be clang-formatted [-Wclang-format-violations]
+    status->engine_reported_success = __atomic_load_n(&g_ih_engine_reported_success,
+                                                                                    ^
+src/obcp/ff_obcp_inhouse.c:140:70: error: code should be clang-formatted [-Wclang-format-violations]
+    status->abort_requested = (__atomic_load_n(&g_ih_abort_requested,
+                                                                     ^
+src/obcp/ff_obcp_inhouse.c:142:71: error: code should be clang-formatted [-Wclang-format-violations]
+    status->budget_exhausted = __atomic_load_n(&g_ih_budget_exhausted,
+                                                                      ^
+src/pus/pus_services.c:753:6: error: code should be clang-formatted [-Wclang-format-violations]
+    } else {
+     ^
+src/transport/link/link_tsn.c:18:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                           ^
+src/transport/link/link_tsn.c:18:30: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                             ^
+src/transport/link/link_tsn.c:18:70: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_TSN_REF_MAC {0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu, 0xFFu}
+                                                                     ^
+src/transport/link/link_ip.c:19:28: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                           ^
+src/transport/link/link_ip.c:19:30: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                             ^
+src/transport/link/link_ip.c:19:46: error: code should be clang-formatted [-Wclang-format-violations]
+#define FF_LINK_IP_REF_PEER {127u, 0u, 0u, 1u}
+                                             ^
+tests/unit/test_obcp_abort.c:143:71: error: code should be clang-formatted [-Wclang-format-violations]
+static bool send_packet(const uint32_t channel, const uint32_t length,
+                                                                      ^
+tests/unit/test_obcp_abort.c:189:55: error: code should be clang-formatted [-Wclang-format-violations]
+static void obcp_config_ready(FF_ObcpConfig_t *config,
+                                                      ^
+tests/unit/test_link_tsn.c:24:22: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                     ^
+tests/unit/test_link_tsn.c:24:24: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                       ^
+tests/unit/test_link_tsn.c:24:58: error: code should be clang-formatted [-Wclang-format-violations]
+#define MOCK_MAC_ADDR {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+                                                         ^
+tests/unit/test_obcp_budget.c:147:71: error: code should be clang-formatted [-Wclang-format-violations]
+static bool send_packet(const uint32_t channel, const uint32_t length,
+                                                                      ^
+tests/unit/test_obcp_budget.c:193:55: error: code should be clang-formatted [-Wclang-format-violations]
+static void obcp_config_ready(FF_ObcpConfig_t *config,
+                                                      ^
+tests/unit/test_obcp_budget.c:329:71: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(test_budget_zero_rejected, test_budget_adequate_succeeds,
+                                                                      ^
+tests/unit/test_obcp_budget.c:330:36: error: code should be clang-formatted [-Wclang-format-violations]
+             test_budget_exhausted, test_budget_error_distinct_from_exhaustion,
+                                   ^
+tests/unit/test_obcp_budget.c:330:80: error: code should be clang-formatted [-Wclang-format-violations]
+             test_budget_exhausted, test_budget_error_distinct_from_exhaustion,
+                                                                               ^
+tests/unit/test_obcp_inhouse.c:120:68: error: code should be clang-formatted [-Wclang-format-violations]
+FF_TEST_MAIN(test_nominal_execution, test_zero_budget_fails_closed,
+                                                                   ^
+tests/unit/test_obcp_inhouse.c:121:37: error: code should be clang-formatted [-Wclang-format-violations]
+             test_null_script_fails, test_abort_request,
+                                    ^
+tests/unit/test_obcp_inhouse.c:121:57: error: code should be clang-formatted [-Wclang-format-violations]
+             test_null_script_fails, test_abort_request,
+                                                        ^
+tests/unit/test_pus_s18.c:149:71: error: code should be clang-formatted [-Wclang-format-violations]
+static bool send_packet(const uint32_t channel, const uint32_t length,
+                                                                      ^
+tests/unit/test_pus_s18.c:195:55: error: code should be clang-formatted [-Wclang-format-violations]
+static void obcp_config_ready(FF_ObcpConfig_t *config,
+                                                      ^
+tests/unit/test_pus_s18.c:232:77: error: code should be clang-formatted [-Wclang-format-violations]
+static uint16_t build_tc18_frame(uint8_t subservice, const uint8_t *payload,
+                                                                            ^
+tests/unit/test_pus_s18.c:233:55: error: code should be clang-formatted [-Wclang-format-violations]
+                                 uint16_t payload_len, uint8_t *frame,
+                                                      ^
+tests/unit/test_pus_s18.c:233:71: error: code should be clang-formatted [-Wclang-format-violations]
+                                 uint16_t payload_len, uint8_t *frame,
+                                                                      ^
+tests/unit/test_pus_s18.c:243:74: error: code should be clang-formatted [-Wclang-format-violations]
+    return FF_CcsdsEncodeTc(FF_APID_TC, &tc, payload, payload_len, frame,
+                                                                         ^
+tests/unit/test_pus_s18.c:270:69: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_TEST_ASSERT(FF_ObcpExecutePy(script, sizeof(script) - 1u, 0u)
+                                                                    ^
+tests/unit/test_pus_s18.c:346:68: error: code should be clang-formatted [-Wclang-format-violations]
+    FF_TEST_ASSERT(rc == FF_SUCCESS || rc == FF_INVALID_ARGUMENT ||
+                                                                   ^
+tests/unit/test_pus_s18.c:347:37: error: code should be clang-formatted [-Wclang-format-violations]
+                   rc == FF_ERROR || rc == FF_NOT_FOUND);
+                                    ^
+tests/unit/test_pus_s18.c:351:78: error: code should be clang-formatted [-Wclang-format-violations]
+             test_s18_obcp_budget_exhausted, test_s18_obcp_abort_not_running,
+                                                                             ^
+tests/unit/test_pus_s18.c:352:35: error: code should be clang-formatted [-Wclang-format-violations]
+             test_s18_obcp_status, test_s18_pus_binding)
+                                  ^
+make: *** [Makefile:207: format-check] Error 123
+FORMAT_FULL_EXIT=2

@@ -7,6 +7,8 @@ add_executable(test_ccsds unit/test_ccsds.c)
 add_executable(test_sb    unit/test_sb.c)
 add_executable(test_sb_stress unit/test_sb_stress.c)
 add_executable(test_sb_sweep unit/test_sb_sweep.c)
+add_executable(test_sb_smp unit/test_sb_smp.c)
+target_link_libraries(test_sb_smp PRIVATE frick_fsw_core Threads::Threads)
 add_executable(test_tbl   unit/test_tbl.c)
 add_executable(test_sched unit/test_sched.c)
 add_executable(test_sched_stats unit/test_sched_stats.c)
@@ -117,26 +119,6 @@ add_executable(test_pus_s11_residual unit/test_pus_s11_residual.c)
 add_executable(test_pus_dispatch_reservation_contention unit/test_pus_dispatch_reservation_contention.c)
 target_link_libraries(test_pus_dispatch_reservation_contention PRIVATE frick_fsw_core Threads::Threads)
 
-# Minimal debug test for contention issue
-add_executable(test_minimal_debug unit/minimal_debug_test.c)
-target_link_libraries(test_minimal_debug PRIVATE frick_fsw_core Threads::Threads)
-
-# Debug test 2 - contention with TC ingest
-add_executable(test_debug2 unit/debug_test2.c)
-target_link_libraries(test_debug2 PRIVATE frick_fsw_core Threads::Threads)
-
-# Debug test 3 - dispatch mutex contention between two TC ingests
-add_executable(test_debug3 unit/debug_test3.c)
-target_link_libraries(test_debug3 PRIVATE frick_fsw_core Threads::Threads)
-
-# Debug test - basic mutex contention
-add_executable(test_mutex_contention unit/test_mutex_contention.c)
-target_link_libraries(test_mutex_contention PRIVATE frick_fsw_core Threads::Threads)
-
-# Debug test 4 - dispatch mutex contention with custom handler
-add_executable(test_debug4 unit/debug_test4.c)
-target_link_libraries(test_debug4 PRIVATE frick_fsw_core Threads::Threads)
-
 #test_r2_gap : pthread_cond_timedwait / wait error injection for PAL queue error paths
 if(FF_PLATFORM STREQUAL "native" AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   target_link_options(test_r2_gap PRIVATE -Wl,--wrap=pthread_cond_timedwait -Wl,--wrap=pthread_cond_wait)
@@ -154,7 +136,7 @@ if(FF_USE_N7_OBCP AND FF_USE_PUS_S18_PROVISIONAL)
   add_executable(test_pus_s18 unit/test_pus_s18.c)
 endif()
 
-set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_tbl test_sched test_sched_stats test_sched_max_entries test_sched_events test_pus test_pus_fu test_pus_s11_residual test_evs_hs_health test_tm_output_chain test_pus_event_identity
+set(FF_TEST_TARGETS test_ccsds test_sb test_sb_stress test_sb_sweep test_sb_smp test_tbl test_sched test_sched_stats test_sched_max_entries test_sched_events test_pus test_pus_fu test_pus_s11_residual test_evs_hs_health test_tm_output_chain test_pus_event_identity
                     test_time test_r2_gap test_r3_gap test_es_hs_lifecycle test_pal_watchdog
                     test_decoder_corpus test_frozen_utc_seam test_sched_tm_chain)
 if(TARGET test_obcp_integration)
@@ -275,6 +257,8 @@ add_test(NAME ccsds COMMAND test_ccsds)
 add_test(NAME sb    COMMAND test_sb)
 add_test(NAME sb_stress COMMAND test_sb_stress)
 add_test(NAME sb_sweep_boundary COMMAND test_sb_sweep 32 32)
+add_test(NAME sb_smp COMMAND test_sb_smp)
+set_tests_properties(sb_smp PROPERTIES TIMEOUT 60 LABELS "n22;smp;concurrency;sb")
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 if(TARGET test_gsw_uart_e2e_server)
   add_test(
@@ -311,8 +295,6 @@ add_test(NAME pus_fu COMMAND test_pus_fu)
 add_test(NAME pus_s11_residual COMMAND test_pus_s11_residual)
 add_test(NAME pus_dispatch_reservation_contention COMMAND test_pus_dispatch_reservation_contention)
 set_tests_properties(pus_dispatch_reservation_contention PROPERTIES TIMEOUT 30 LABELS "n22;pus;nc-ext-251;concurrency")
-add_test(NAME minimal_debug COMMAND test_minimal_debug)
-set_tests_properties(minimal_debug PROPERTIES TIMEOUT 30 LABELS "debug;nc-ext-251")
 if(TARGET test_pus_s18)
   add_test(NAME pus_s18 COMMAND test_pus_s18)
 endif()

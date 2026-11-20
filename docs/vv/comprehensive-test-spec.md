@@ -4,11 +4,11 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-TSPEC-001                     |
-| Revision                         | 0.3                                    |
-| Date                             | 2026-10-15                             |
+| Revision                         | 0.7                                    |
+| Date                             | 2026-11-17                             |
 | Norms                            | N6, N10, N11, N15, N21, N22            |
 | Applicable standards             | ECSS-E-ST-40C Rev.1, ECSS-Q-ST-80C Rev.2, ECSS-E-ST-70-41C (PUS-C), CCSDS 133.0-B-2 |
-| Baseline                         | Committed HEAD `13ebf92`; GitHub Actions run `38793643786` passed all eight jobs; Gitea Actions status unverified |
+| Baseline                         | Candidate delta based on HEAD `fc68b9d121bce2194c1beaaa9a7dc4cdab0552c` plus uncommitted S1/license/E2E changes; prior hosted CI record remains historical; see `docs/vv/verification-results.md`. |
 | Companion                        | `docs/vv/system-verification-architecture.md` (FRICK-VV-SVA-001) |
 
 This document defines the **comprehensive test specification** required by norm
@@ -72,8 +72,8 @@ target evidence where hardware-specific behavior is material (GAP-A5).
 ## 2. Requirements traceability base
 
 The traceability manifest (`docs/requirements/traceability.yaml`) currently
-converges at **117 requirements (73 SRS, 30 SSS, 14 GAP)**. The current `make
-trace` run finds/checks **62 Lean theorems**. Every SRS requirement must map to at least one nominal and
+converges at **120 requirements (76 SRS, 30 SSS, 14 GAP)**. The current `make
+trace` run finds/checks **77 Lean theorems**. Every SRS requirement must map to at least one nominal and
 (at most) the applicable out-of-bound test cases below.
 
 ## 3. Test categories
@@ -112,7 +112,7 @@ subsystems), in **nominal** and **out-of-bound** conditions, with explicit oracl
 | PCIe (`ff_pcie_mpfs`) | SRS-REQ-071 | link/register probe | link-down, config fault | PCIe + board init |
 | SpaceWire (`ff_spacewire_mpfs`) | SRS-REQ-072 | contract/register | link fault, bad char | SpaceWire + link layer |
 | NVM/eNVM (`ff_nvm_mpfs`) | SRS-REQ-055 | slot write/read (32×32 B) | slot overflow, bad id, wear bounds | NVM + table persistence |
-| Link backends (`link_*`) | SRS-REQ-059/060/061 | loopback/IP/TSN/UART round-trip | seg desync, partial frame, oversized PUS | Link + PUS dispatch; Link + GSW |
+| Link backends (`link_*`) | SRS-REQ-059/060/061 | loopback/IP/TSN/UART round-trip | seg desync, partial frame, oversized PUS | Link + PUS dispatch; GSW CLI↔production UART/PUS host-SIL PTY E2E nominal + missing-ACK OOB fault (TS-2 N22-TS2-75/87); physical UART/HIL remains open |
 
 > Combined scenarios must exercise **cross-I/O interactions** (e.g. SPI→MTD→TBL,
 > GEM→netif→link_ip→PUS, I2C→sample→TM output→serial) so that interface and
@@ -224,6 +224,10 @@ These are recorded, not fixed, under N21; they do not stop unrelated development
 
 | Rev | Date | Author | Reason |
 | --- | ---- | ------ | ------ |
+| 0.6 | 2026-11-17 | frick-fsw | Correct the Lean theorem count to the current `make trace` result (77, was 68) and advance the document revision for the 2026-11-17 increment |
+| 0.7 | 2026-11-18 | frick-fsw | Correct the Lean theorem count again to the current `make trace` result (**81**, was 77): the SRS-REQ-007 model was rewritten from two unrelated `Nat` functions to the shipped masked advance (`tmStep c = (c+1) % 16384`) and gained `tm_step_bounded`, `tm_step_succ`, `tm_counter_strictly_increases`, `tm_counter_wraps_to_zero`, `tm_step_injective` and the requirement-level `req_srs007_counter_no_duplicate` |
+| 0.5 | 2026-11-15 | frick-fsw | Extend host-SIL GSW↔production UART/PUS E2E to include N22-TS2-87 OOB lost-ACK fail-closed case; preserve hardware/ground-segment limitations and refresh requirement/Lean counts |
+| 0.4 | 2026-11-15 | frick-fsw | Add automated GSW CLI↔production UART/PUS host-SIL PTY coverage at TS-2 N22-TS2-75; preserve hardware/ground-segment limitations and refresh requirement/Lean counts |
 | 0.3 | 2026-10-15 | frick-fsw | Reconcile baseline to committed HEAD 13ebf92 and current trace result (62 Lean theorems); retain GitHub/Gitea evidence distinction |
 | 0.2 | 2026-10-14 | frick-fsw | Update unit-suite file count after registering isolated SB/EVS structural stress coverage |
 | 0.1 | 2026-10-14 | frick-fsw | Initial comprehensive test specification per N22 and owner comprehensiveness directive; defines I/O (individual/combined), nominal/out-of-bound, feature and software-only robustness coverage; maps gaps to NC-EXT-47 |

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-ARCH-0015                        |
-| Revision                          | 0.3                                    |
-| Date                              | 2026-10-19                             |
+| Revision                          | 0.5                                    |
+| Date                              | 2026-11-17                             |
 | Status                            | engineering assessment (decision support); rev 0.1 - estimates labelled |
 | Scope                             | Alternative to SRS-REQ-050: implement PUS-C (ECSS-E-ST-70-41C) from scratch |
 | Target                            | ECSS criticality B, MISRA C:2012, owner-authorized MPL-2.0 for original project code; NC-EXT-43 external-distribution scope open, RTEMS 6.2 / RTPFS160ZT |
@@ -281,4 +281,5 @@ the current last milestone).
 | 0.1 | 2026-10-11 | frick-fsw | Initial assessment: fundamental PUS-C service scope, flight-worthiness, effort (person-month), ECSS-Q-ST-80C assurance, make-vs-buy (scratch / N7-ESA ASN.1 / PUSopen), risks, hybrid recommendation and proposed M15 |
 | 0.2 | 2026-10-13 | frick-fsw | Update project license target description; mark MPL transition as candidate under open NC-EXT-43 |
 | 0.3 | 2026-10-19 | frick-fsw | Easy-fixes batch (documentation accuracy, N21): correct the Service-1 "Today" cell from `partial (1,2,4,8)` to the actual framework-emitted set `partial (1,2,3,5,7,8)` (4 is mapped but unreachable; 6 unmapped — NC-EXT-94), and synchronize the header `Date` with this document's own last history row (rev 0.2 was recorded on 2026-10-13). No scope/target/verdict change |
+| 0.5 | 2026-11-17 | frick-fsw | Record the NC-EXT-251 correction: `FF_PusSendTm` honours the mutex lock result (contention yields `FF_BUSY` instead of releasing another context's critical section) and handlers now run without the state lock held. Scope unchanged; no compliance or assessment conclusion changed. |
 | 0.4 | 2026-11-14 | frick-fsw | NC-EXT-94/95: implement TM[1,6] (progress failure) emission in `src/pus/pus.c` when handler returns error with `ack_progress` set; document TC[20,1] parameter set in ICD §4 S20 row. Update Service-1 emitted set to `partial (1,2,3,5,6,7,8)`. Wire behaviour changed: TM[1,6] now emitted on handler error with `ack_progress`; TC[20,1] now accepted on the wire. |

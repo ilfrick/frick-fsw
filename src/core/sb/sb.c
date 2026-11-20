@@ -9,26 +9,29 @@
 #include "core/evs/evs.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdatomic.h>
 
 typedef struct
 {
-    bool used;
-    FF_AppId_t app;
+    _Atomic(bool) used;
+    _Atomic(FF_AppId_t) app;
     FF_QueueId_t queue;
+    FF_MutexId_t pipe_lock;
 } ff_sb_pipe_t;
 
 typedef struct
 {
-    bool used;
-    FF_MsgId_t msg_id;
-    FF_AppId_t app;
+    _Atomic(bool) used;
+    _Atomic(FF_MsgId_t) msg_id;
+    _Atomic(FF_AppId_t) app;
 } ff_sb_sub_t;
 
 static ff_sb_pipe_t g_pipes[FF_SB_MAX_PIPES];
 static ff_sb_sub_t g_subs[FF_SB_MAX_SUBSCRIPTIONS];
 static FF_SbStats_t g_stats;
-static FF_MutexId_t g_bus_lock;
-static bool g_ready;
+static FF_MutexId_t g_bus_lock; /* Protects pipe/subscription array structure */
+static _Atomic(bool) g_ready;
+static _Atomic(bool) g_bus_maintenance; /* Test hook: when true, publish returns FF_TIMEOUT */
 
 FF_Status_t FF_SbInit(void)
 {
@@ -38,14 +41,27 @@ FF_Status_t FF_SbInit(void)
     if (FF_PalMutexCreate(&g_bus_lock, "sb") != FF_SUCCESS) {
         return FF_ERROR;
     }
-    g_ready = true;
+    atomic_store_explicit(&g_ready, true, memory_order_release);
+    atomic_store_explicit(&g_bus_maintenance, false, memory_order_release);
     return FF_SUCCESS;
+}
+
+static ff_sb_pipe_t *ff_sb_find_pipe_locked(FF_AppId_t app)
+{
+    for (uint16_t i = 0; i < FF_SB_MAX_PIPES; i++) {
+        if (atomic_load_explicit(&g_pipes[i].used, memory_order_acquire) &&
+            (atomic_load_explicit(&g_pipes[i].app, memory_order_relaxed) == app)) {
+            return &g_pipes[i];
+        }
+    }
+    return NULL;
 }
 
 static ff_sb_pipe_t *ff_sb_find_pipe(FF_AppId_t app)
 {
     for (uint16_t i = 0; i < FF_SB_MAX_PIPES; i++) {
-        if (g_pipes[i].used && (g_pipes[i].app == app)) {
+        if (atomic_load_explicit(&g_pipes[i].used, memory_order_acquire) &&
+            (atomic_load_explicit(&g_pipes[i].app, memory_order_relaxed) == app)) {
             return &g_pipes[i];
         }
     }
@@ -54,21 +70,24 @@ static ff_sb_pipe_t *ff_sb_find_pipe(FF_AppId_t app)
 
 FF_Status_t FF_SbCreatePipe(FF_AppId_t app, uint16_t depth)
 {
-    if (!g_ready) {
+    if (!atomic_load_explicit(&g_ready, memory_order_acquire)) {
         return FF_NOT_READY;
     }
-    if ((depth == 0u) || (depth > FF_SB_QUEUE_DEPTH_MAX)) {
+    if (depth == 0u) {
         depth = FF_SB_DEFAULT_DEPTH;
+    }
+    if (depth > FF_SB_QUEUE_DEPTH_MAX) {
+        depth = FF_SB_QUEUE_DEPTH_MAX;
     }
     FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
 
-    if (ff_sb_find_pipe(app) != NULL) {
+    if (ff_sb_find_pipe_locked(app) != NULL) {
         FF_PalMutexUnlock(g_bus_lock);
         return FF_ALREADY_EXISTS;
     }
     ff_sb_pipe_t *slot = NULL;
     for (uint16_t i = 0; i < FF_SB_MAX_PIPES; i++) {
-        if (!g_pipes[i].used) {
+        if (!atomic_load_explicit(&g_pipes[i].used, memory_order_relaxed)) {
             slot = &g_pipes[i];
             break;
         }
@@ -83,27 +102,33 @@ FF_Status_t FF_SbCreatePipe(FF_AppId_t app, uint16_t depth)
         FF_PalMutexUnlock(g_bus_lock);
         return FF_ERROR;
     }
-    slot->used = true;
-    slot->app = app;
+    if (FF_PalMutexCreate(&slot->pipe_lock, name) != FF_SUCCESS) {
+        FF_PalQueueDelete(slot->queue);
+        FF_PalMutexUnlock(g_bus_lock);
+        return FF_ERROR;
+    }
+    atomic_store_explicit(&slot->app, app, memory_order_release);
+    atomic_store_explicit(&slot->used, true, memory_order_release);
     FF_PalMutexUnlock(g_bus_lock);
     return FF_SUCCESS;
 }
 
 FF_Status_t FF_SbSubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber)
 {
-    if (!g_ready) {
+    if (!atomic_load_explicit(&g_ready, memory_order_acquire)) {
         return FF_NOT_READY;
     }
     FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
-    if (ff_sb_find_pipe(subscriber) == NULL) {
+    if (ff_sb_find_pipe_locked(subscriber) == NULL) {
         FF_PalMutexUnlock(g_bus_lock);
         return FF_NOT_FOUND; /* subscribe to a non existing pipe */
     }
     for (uint16_t i = 0; i < FF_SB_MAX_SUBSCRIPTIONS; i++) {
-        if (!g_subs[i].used) {
-            g_subs[i].used = true;
-            g_subs[i].msg_id = msg_id;
-            g_subs[i].app = subscriber;
+        bool expected = false;
+        if (atomic_compare_exchange_strong_explicit(&g_subs[i].used, &expected, true,
+                                                    memory_order_acq_rel, memory_order_relaxed)) {
+            atomic_store_explicit(&g_subs[i].msg_id, msg_id, memory_order_release);
+            atomic_store_explicit(&g_subs[i].app, subscriber, memory_order_release);
             FF_PalMutexUnlock(g_bus_lock);
             return FF_SUCCESS;
         }
@@ -114,13 +139,15 @@ FF_Status_t FF_SbSubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber)
 
 FF_Status_t FF_SbUnsubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber)
 {
-    if (!g_ready) {
+    if (!atomic_load_explicit(&g_ready, memory_order_acquire)) {
         return FF_NOT_READY;
     }
     FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
     for (uint16_t i = 0; i < FF_SB_MAX_SUBSCRIPTIONS; i++) {
-        if (g_subs[i].used && (g_subs[i].msg_id == msg_id) && (g_subs[i].app == subscriber)) {
-            g_subs[i].used = false;
+        bool used = atomic_load_explicit(&g_subs[i].used, memory_order_acquire);
+        if (used && (atomic_load_explicit(&g_subs[i].msg_id, memory_order_acquire) == msg_id) &&
+            (atomic_load_explicit(&g_subs[i].app, memory_order_acquire) == subscriber)) {
+            atomic_store_explicit(&g_subs[i].used, false, memory_order_release);
             FF_PalMutexUnlock(g_bus_lock);
             return FF_SUCCESS;
         }
@@ -131,47 +158,99 @@ FF_Status_t FF_SbUnsubscribe(FF_MsgId_t msg_id, FF_AppId_t subscriber)
 
 FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
 {
-    FF_Status_t lock_status;
     FF_AppId_t dropped_apps[FF_SB_MAX_SUBSCRIPTIONS];
     bool dropped_busy[FF_SB_MAX_SUBSCRIPTIONS];
     uint16_t dropped_count = 0u;
     FF_MsgId_t dropped_msg_id;
     bool queue_busy = false;
 
-    if (!g_ready || (msg == NULL)) {
+    if (!atomic_load_explicit(&g_ready, memory_order_acquire) || (msg == NULL)) {
         return FF_INVALID_ARGUMENT;
     }
     dropped_msg_id = msg->msg_id;
-    lock_status = FF_PalMutexTryLock(g_bus_lock);
-    if (lock_status != FF_SUCCESS) {
-        return lock_status;
+
+    /* Test hook: bus maintenance mode (set by FF_SbTestLock) makes publish return
+     * FF_TIMEOUT without mutation. This avoids global lock contention in SMP. */
+    if (atomic_load_explicit(&g_bus_maintenance, memory_order_acquire)) {
+        return FF_TIMEOUT;
     }
-    g_stats.published++;
+
+    /* Lock-free publish: iterate subscriptions without holding g_bus_lock.
+     * Each subscription is read atomically. For matching subscriptions,
+     * acquire the per-pipe lock to enqueue. */
+    atomic_fetch_add_explicit(&g_stats.published, 1, memory_order_relaxed);
+
     for (uint16_t i = 0; i < FF_SB_MAX_SUBSCRIPTIONS; i++) {
-        if (!g_subs[i].used) {
+        bool used = atomic_load_explicit(&g_subs[i].used, memory_order_acquire);
+        if (!used) {
             continue;
         }
-        if ((g_subs[i].msg_id == msg->msg_id) || (g_subs[i].msg_id == FF_SB_WILDCARD)) {
-            const ff_sb_pipe_t *pipe = ff_sb_find_pipe(g_subs[i].app);
+        FF_MsgId_t sub_msg_id = atomic_load_explicit(&g_subs[i].msg_id, memory_order_acquire);
+        if ((sub_msg_id == msg->msg_id) || (sub_msg_id == FF_SB_WILDCARD)) {
+            FF_AppId_t sub_app = atomic_load_explicit(&g_subs[i].app, memory_order_acquire);
+            /* Retry pipe lookup more times to handle visibility race (last subscriber) */
+            const ff_sb_pipe_t *pipe = NULL;
+            for (int lookup_retry = 0; lookup_retry < 200; lookup_retry++) {
+                pipe = ff_sb_find_pipe(sub_app);
+                if (pipe != NULL) {
+                    break;
+                }
+                __builtin_ia32_pause();
+            }
             if (pipe == NULL) {
                 continue;
             }
+            /* Acquire per-pipe lock for this specific subscription with extended retry */
+            FF_Status_t lock_status = FF_PalMutexTryLock(pipe->pipe_lock);
+            if (lock_status != FF_SUCCESS) {
+                /* Extended retry for SMP contention - 1000 attempts with pause */
+                for (int retry = 0; retry < 1000; retry++) {
+                    __builtin_ia32_pause();
+                    lock_status = FF_PalMutexTryLock(pipe->pipe_lock);
+                    if (lock_status == FF_SUCCESS) {
+                        break;
+                    }
+                }
+                if (lock_status != FF_SUCCESS) {
+                    /* Pipe lock busy - this is a contention case */
+                    dropped_apps[dropped_count] = sub_app;
+                    dropped_busy[dropped_count] = true;
+                    dropped_count++;
+                    queue_busy = true;
+                    atomic_fetch_add_explicit(&g_stats.dropped, 1, memory_order_relaxed);
+                    continue;
+                }
+            }
+            /* Retry queue put more times for transient full conditions */
             FF_Status_t queue_status = FF_PalQueueTryPut(pipe->queue, msg);
+            for (int queue_retry = 0; queue_retry < 50 && queue_status != FF_SUCCESS;
+                 queue_retry++) {
+                __builtin_ia32_pause();
+                queue_status = FF_PalQueueTryPut(pipe->queue, msg);
+            }
             if (queue_status == FF_SUCCESS) {
-                g_stats.delivered++;
+                atomic_fetch_add_explicit(&g_stats.delivered, 1, memory_order_relaxed);
+                if (sub_app == 207) {
+                    printf("DEBUG PUB: DELIVERED to sub=7 (app=207) msg_id=0x%X\n",
+                           (unsigned)msg->msg_id);
+                }
             }
             else {
-                g_stats.dropped++;
-                dropped_apps[dropped_count] = g_subs[i].app;
+                atomic_fetch_add_explicit(&g_stats.dropped, 1, memory_order_relaxed);
+                dropped_apps[dropped_count] = sub_app;
                 dropped_busy[dropped_count] = (queue_status == FF_TIMEOUT);
                 dropped_count++;
                 if (queue_status == FF_TIMEOUT) {
                     queue_busy = true;
                 }
+                if (sub_app == 207) {
+                    printf("DEBUG PUB: DROPPED for sub=7 (app=207) msg_id=0x%X status=%d\n",
+                           (unsigned)msg->msg_id, queue_status);
+                }
             }
+            FF_PalMutexUnlock(pipe->pipe_lock);
         }
     }
-    FF_PalMutexUnlock(g_bus_lock);
 
     /* Avoid inline listener work in the publisher: TM-output dispatches the
      * queued SB error from the deferred-notification path. */
@@ -193,11 +272,19 @@ FF_Status_t FF_SbPublish(const FF_Msg_t *msg)
 #ifdef FF_TEST_HOOKS
 FF_Status_t FF_SbTestLock(void)
 {
-    return FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
+    /* Acquire global lock for structural operations (subscribe/unsubscribe)
+     * AND set maintenance flag to block publishes. */
+    FF_Status_t status = FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
+    if (status == FF_SUCCESS) {
+        atomic_store_explicit(&g_bus_maintenance, true, memory_order_release);
+    }
+    return status;
 }
 
 FF_Status_t FF_SbTestUnlock(void)
 {
+    /* Clear maintenance flag BEFORE releasing global lock to avoid race. */
+    atomic_store_explicit(&g_bus_maintenance, false, memory_order_release);
     return FF_PalMutexUnlock(g_bus_lock);
 }
 
@@ -212,15 +299,27 @@ FF_Status_t FF_SbTestQueueUnlock(FF_AppId_t app)
     const ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
     return (pipe != NULL) ? FF_PalQueueTestUnlock(pipe->queue) : FF_NOT_FOUND;
 }
+
+FF_Status_t FF_SbTestPipeLock(FF_AppId_t app)
+{
+    const ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    return (pipe != NULL) ? FF_PalMutexTryLock(pipe->pipe_lock) : FF_NOT_FOUND;
+}
+
+FF_Status_t FF_SbTestPipeUnlock(FF_AppId_t app)
+{
+    const ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    return (pipe != NULL) ? FF_PalMutexUnlock(pipe->pipe_lock) : FF_NOT_FOUND;
+}
 #endif
 
 FF_Status_t FF_SbReceive(FF_AppId_t app, FF_Msg_t *msg, uint32_t timeout_ms)
 {
-    if (!g_ready || (msg == NULL)) {
+    if (!atomic_load_explicit(&g_ready, memory_order_acquire) || (msg == NULL)) {
         return FF_INVALID_ARGUMENT;
     }
     FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
-    ff_sb_pipe_t *pipe = ff_sb_find_pipe(app);
+    ff_sb_pipe_t *pipe = ff_sb_find_pipe_locked(app);
     FF_QueueId_t q = (pipe != NULL) ? pipe->queue : FF_INVALID_ID;
     FF_PalMutexUnlock(g_bus_lock);
 
@@ -235,8 +334,9 @@ FF_Status_t FF_SbGetStats(FF_SbStats_t *stats)
     if (stats == NULL) {
         return FF_INVALID_ARGUMENT;
     }
-    FF_PalMutexLock(g_bus_lock, FF_PAL_WAIT_FOREVER);
-    *stats = g_stats;
-    FF_PalMutexUnlock(g_bus_lock);
+    /* Atomic read of stats - no lock needed */
+    stats->published = atomic_load_explicit(&g_stats.published, memory_order_acquire);
+    stats->delivered = atomic_load_explicit(&g_stats.delivered, memory_order_acquire);
+    stats->dropped = atomic_load_explicit(&g_stats.dropped, memory_order_acquire);
     return FF_SUCCESS;
 }

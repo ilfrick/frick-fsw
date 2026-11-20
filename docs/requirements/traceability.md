@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-TRACE-001                        |
-| Revision                          | 0.56                                   |
-| Date                              | 2026-11-13                             |
+| Revision                          | 0.59                                   |
+| Date                              | 2026-11-17                             |
 | Single source of truth            | `docs/requirements/traceability.yaml`  |
 | Gate                              | `tools/scripts/trace.py` (norm N4)     |
 
@@ -15,13 +15,15 @@ frick-fsw. The authoritative machine-readable manifest is
 manifest changes, `tools/scripts/trace.py` re-verifies convergence and this
 document is regenerated/reviewed in the same commit (norms N8/N11).
 
-Counts (current): SRS = 75, SSS = 30, GAP = 14, Lean theorems = 68, CI evidence
+Counts (current): SRS = 76, SSS = 30, GAP = 14, Lean theorems = 77, CI evidence
 claims = 13 unique workflow claim names (12 referenced by the manifest; `ci-lean`
 is reported in CI but not claimed by any requirement, norm N1). M12 OBCP
-(SRS-REQ-045 / SSS-REQ-022) now has a partial adapter and host callback-connectivity
-test mapping; production bindings, bounded execution, target/resource evidence
-and mission suitability remain open. Other planned requirements remain
-documented-only with `ci:docs`: SRS-REQ-046/051/053/054. S4b requirements
+(SRS-REQ-045 / SSS-REQ-022) has a partial adapter and host test mapping; nine
+Lean model theorems cover abstract budget/state properties (SRS-REQ-045) and
+abstract state/abort/engine-function equality (SRS-REQ-054). These do not prove
+production binding, target behavior, or mission suitability; NC-S9-01 remains
+open. Other planned requirements remain documented-only with `ci:docs`:
+SRS-REQ-046/051/053. S4b requirements
 059/060/061, fieldbus/PUSopen requirements 062..065, GEM TSN 066, fabric 067,
 and gPTP 068 have implementation and host-test links to their delivered or
 partial scope; target/emulator and vendor-SDK limits remain explicit. Residual
@@ -76,13 +78,13 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-003 | ccsds.c | test_ccsds.c, test_r2_gap.c, test_decoder_corpus.c | req_srs003_tm_length, req_srs003_tc_length | Lean models encoder bounds only; decoder PDL checks (incl. length-boundary corpus) C-tested, not C-refined |
 | SRS-REQ-004 | ccsds.c, pus_adapter_n7.c | test_ccsds.c, test_decoder_corpus.c, test_pus_n7_adapter.c | req_srs004_crc_appended_zero, req_srs004_crc_initial | CRC-match/reject on decode exercised by CCSDS mutation corpus and controlled N7-adapter seam test (host SIL); generated N7 SDK compatibility remains unverified |
 | SRS-REQ-005 | pus.c | test_pus.c, test_r2_gap.c, test_r3_gap.c, test_decoder_corpus.c, test_pus_s11_residual.c | - | Malformed-frame S1 requirement conflicts with test_pus_malformed_tc_event; NC-EXT-04 open. S8-VV-FU corpus asserts 'shall not be executed' (no handler for malformed/unknown-service) on host |
-| SRS-REQ-006 | pus.c | test_pus.c | req_srs006_acceptance_completion, complete_ack_produces_two, ack_acceptance_is_counted | |
-| SRS-REQ-007 | pus.c | test_pus.c | req_srs007_counter_increases, req_srs007_counter_wrap_bounded | |
+| SRS-REQ-006 | pus.c | test_pus.c, test_r3_gap.c, test_pus_s11_residual.c, test_pus_dispatch_reservation_contention.c, test_pus_pre_acceptance_ack_reservation.c, test_pus_api_status.c, gsw_uart_e2e_server.c, test_gsw_uart_e2e.py | req_srs006_acceptance_completion, complete_ack_produces_two, ack_acceptance_is_counted | Host-SIL nominal ACK count plus OOB missing-ACK GSW fail-closed case; not link-HIL evidence |
+| SRS-REQ-007 | pus.c | test_pus.c, test_r3_gap.c, test_pus_dispatch_reservation_contention.c, test_pus_pre_acceptance_ack_reservation.c, gsw_uart_e2e_server.c, test_gsw_uart_e2e.py | req_srs007_counter_increases, req_srs007_counter_wrap_bounded, req_srs007_counter_no_duplicate | Host-SIL modulo-16384 PUS TM secondary-header counter; not hardware evidence |
 | SRS-REQ-008 | pus_services.c, app_hk.c | test_pus.c, test_pus_fu.c, test_pus_s11_residual.c | - | GAP-A2 formalisation; provider length cases are local API bounds only |
 | SRS-REQ-009 | pus_services.c | test_pus.c, test_pus_s11_residual.c | - | region bound asserted |
 | SRS-REQ-010 | time.c, pps.c, pus_services.c | test_pus.c, test_ccsds.c, test_time.c, test_pus_s11_residual.c | req_srs024_cuc_field_roundtrip | CUC round-trip |
 | SRS-REQ-011 | evs.c, sb.c, app_tm_output.c, fsw_main.c, pus.c | test_pus.c, test_sb.c, test_r2_gap.c, test_r3_gap.c, ci:simulator-smoke | - | Forwarding-rate/latency guarantee applies within approved SSS-REQ-006 envelope; loss accounting is independent of that envelope. Mission profile and post-acceptance loss-detection/counter semantics remain TBD (NC-EXT-76); see host structural characterization, not compliance evidence |
-| SRS-REQ-012 | pus_services.c | test_pus.c, test_pus_s11_residual.c | - | S17 ping/pong |
+| SRS-REQ-012 | pus_services.c | test_pus.c, test_pus_s11_residual.c, gsw_uart_e2e_server.c, test_gsw_uart_e2e.py | - | Host-SIL S17 ping/pong; no physical UART/ground-segment claim |
 | SRS-REQ-013 | tbl.c | test_tbl.c | - | atomic activate |
 | SRS-REQ-014 | es.c, app_hs.c | ci:simulator-smoke, test_r2_gap.c, test_es_hs_lifecycle.c | - | HS/ES host integration harness with EVS-listener oracle added in S8-VV-FU (detection-latency and external-watchdog cadence stay TBD) |
 | SRS-REQ-015 | pal_posix.c, pal_rtems.c | ci:static-analysis | - | no heap after init |
@@ -115,7 +117,7 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-042 | .clang-format, docs/engineering/coding-style.md | ci:static-analysis | - | C coding style (M9) |
 | SRS-REQ-043 | tools/scripts/emulated_run.sh, tools/scripts/qemu_vv.sh, cmake/toolchains/rtems-riscv-generic.cmake, docs/vv/emulated-target.md | ci:emulated-run | - | Emulated-target verification (M10, done: Renode + QEMU generic-BSP) |
 | SRS-REQ-044 | tools/docker/renode/, tools/scripts/renode_vv.sh, src/apps/app_renode_test.c | ci:renode | - | Renode functional validation, N18 in force (M10) |
-| SRS-REQ-045 | src/obcp/ff_obcp.c, src/obcp/ff_obcp.h, docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | tests/unit/test_obcp_integration.c, docs/vv/test-spec/ts-9-obcp-integration.md | - | Pinned N7 OBCP integration in progress; host callback connectivity only; M12 incomplete |
+| SRS-REQ-045 | src/obcp/ff_obcp.c, src/obcp/ff_obcp.h, docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | tests/unit/test_obcp_integration.c, tests/unit/test_obcp_budget.c, tests/unit/test_obcp_abort.c, tests/unit/test_pus_s18.c, docs/vv/test-spec/ts-9-obcp-integration.md | req_srs045_zero_budget_fails_closed, req_srs045_nonzero_budget_valid, req_srs045_budget_exhausted_distinct_state, req_srs045_budget_flag_set_and_cleared, req_srs045_context_reusable_after_exhaustion, req_srs045_success_returns_returned_state | Pinned N7 OBCP partial integration; Lean theorems model abstract budget/state properties only. Production binding and target/resource evidence remain open; M12 incomplete |
 | SRS-REQ-046 | docs/development-plan.md, docs/roadmap.md, docs/architecture/component-gap-analysis.md | ci:docs | - | Reference mission services (planned, M13) |
 | SRS-REQ-047 | drivers/gpio/mpfs/ff_gpio_mpfs.c/h, config/platform/platform_mpfs.h | test_gpio.c | - | MSS GPIO driver + Renode MMIO check (M4/M11) |
 | SRS-REQ-048 | drivers/serial/mpfs/ff_serial_mpfs.c/h, config/platform/platform_mpfs.h | test_serial.c | - | MSS MMUART serial driver + Renode MMIO check (M4/M11) |
@@ -124,7 +126,7 @@ compliance (NC-EXT-75/76).
 | SRS-REQ-051 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | Multicore / SMP (planned, M14) |
 | SRS-REQ-052 | docs/architecture/pus-c-from-scratch-assessment.md, src/pus/pus.h | ci:docs | - | Fundamental PUS-C service set (planned, M15) |
 | SRS-REQ-053 | docs/development-plan.md, docs/roadmap.md | ci:docs | - | CFDP + virtual filestore (planned, M15) |
-| SRS-REQ-054 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | - | In-house OBCP engine (planned, M16) |
+| SRS-REQ-054 | docs/development-plan.md, docs/roadmap.md, docs/status/loop-audit.md | ci:docs | req_srs054_state_machine_identical, req_srs054_abort_cooperative, req_srs054_execute_identical | In-house OBCP engine remains planned (M16); theorems model abstract state/abort contracts and equality of model functions, not production engine equivalence |
 | SRS-REQ-055 | drivers/nvm/mpfs/ff_nvm_mpfs.c/h, config/platform/platform_mpfs.h | test_nvm.c, ci:renode | - | Reference eNVM NVM backend (M4/M11) |
 | SRS-REQ-056 | drivers/mtd/mpfs/ff_mtd_mpfs.c/h | test_mtd.c | - | Reference NOR/QSPI MTD backend (M4/M11; on-SoC QSPI check pending the QSPI controller command driver) |
 | SRS-REQ-057 | drivers/can/mpfs/ff_can_mpfs.c/h, config/platform/platform_mpfs.h | test_can.c, ci:renode | - | Reference MSS CAN backend (M4/M11; classic 2.0 A/B, CAN-FD rejected) |
@@ -218,60 +220,63 @@ referenced in class-a-gaps.md; no `req_*` theorem is left unlinked.
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
-| 0.1 | 2026-10-10 | frick-fsw | Initial matrices aligned with traceability.yaml |
-| 0.2 | 2026-10-10 | frick-fsw | Milestone M2: SSS-REQ-016, SRS-REQ-021..024, GAP-A7; counts updated |
-| 0.3 | 2026-10-10 | frick-fsw | M3: SSS-REQ-017, SRS-REQ-025..032, GAP-A8..A13; counts 33/17/13, 45 theorems |
-| 0.4 | 2026-10-10 | frick-fsw | M6: SSS-REQ-018, SRS-REQ-033; counts 34/18/13 |
-| 0.5 | 2026-10-10 | frick-fsw | M7: SSS-REQ-019, SRS-REQ-034/-035, GAP-A14; counts 36/19/14, 51 theorems |
-| 0.6 | 2026-10-10 | frick-fsw | M4: SSS-REQ-020, SRS-REQ-036; counts 37/20/14 |
-| 0.7 | 2026-10-10 | frick-fsw | M4: SRS-REQ-037 RTEMS integration; counts 38/20/14 |
-| 0.8 | 2026-10-10 | frick-fsw | M4: SRS-REQ-038 GEM native TSN backend; counts 39/20/14 |
-| 0.9 | 2026-10-10 | frick-fsw | M4: SRS-REQ-039 reference network stack; counts 40/20/14 |
-| 0.10 | 2026-10-10 | frick-fsw | M4: SRS-REQ-040 lwIP adapter; counts 41/20/14 |
-| 0.11 | 2026-10-10 | frick-fsw | M9: SRS-REQ-041/042 code quality; counts 43/21/14 |
-| 0.12 | 2026-10-10 | frick-fsw | M10: SRS-REQ-043 emulated-target verification; counts 44/21/14 |
-| 0.13 | 2026-10-10 | frick-fsw | N18/M10: SRS-REQ-044 Renode environment; counts 45/21/14 |
-| 0.14 | 2026-10-10 | frick-fsw | M12/M13: SSS-REQ-022/023, SRS-REQ-045/046 (OBCP engine, reference mission services); counts 47/23/14 |
-| 0.15 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-047 reference MSS GPIO driver (+Renode MMIO check); counts 48/23/14 |
-| 0.16 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-048 reference MSS MMUART serial driver (+Renode MMIO check); counts 49/23/14 |
-| 0.17 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-049 static RAM pool + DMA helper (+Renode DDR check); counts 50/23/14 |
-| 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |
-| 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
-| 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |
-| 0.21 | 2026-10-11 | frick-fsw | M11: SRS-REQ-036 Renode GEM identification (ci:renode); SRS-REQ-047/048/049 add ci:renode |
-| 0.22 | 2026-10-11 | frick-fsw | M11: SRS-REQ-039 FF_NetStack_t contract check (ci:renode; not peripheral-bound) |
-| 0.23 | 2026-10-11 | frick-fsw | M16: SSS-REQ-027, SRS-REQ-054 (in-house OBCP engine); counts 55/27/14; complete the SSS summary (024-027) |
-| 0.24 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-055 reference eNVM NVM backend; counts 56/27/14 |
-| 0.25 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-056 reference NOR/QSPI MTD backend; counts 57/27/14 |
-| 0.26 | 2026-10-11 | frick-fsw | SRS-REQ-056 evidence corrected to host-only (on-SoC QSPI check tracked M11) |
-| 0.27 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-057 reference MSS CAN driver; counts 58/27/14 |
-| 0.28 | 2026-10-12 | frick-fsw | M10: SRS-REQ-043 mirror row adds `qemu_vv.sh` + the generic toolchain file (done) |
-| 0.29 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-058 reference MSS I2C driver (+Renode MMIO check); counts 59/27/14 |
-| 0.30 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028/029, SRS-REQ-059..068 (PUS-C over IP/TSN, CAN-FD, CANopen, RS-485 DE, PUSopen adapter, GEM TSN Qav/Qci/Qbb, fabric contract, gPTP/CoreTSN); counts 69/29/14 — FRICK-REVIEW-0137 |
-| 0.31 | 2026-10-13 | frick-fsw | **S4b delivered**: SRS-REQ-059/060/061 implemented (seg/reassembly, IP link backend, TSN link backend); traceability table rows updated from plan/ci:docs to source+test files with ci:build+ci:test evidence; 114/71/29/14/51; trace PASS |
-| 0.31 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-069 reference MSS SPI driver (+Renode MMIO check); counts 70/29/14 |
-| 0.32 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-070 reference MSS block-device driver (+Renode MMIO check); counts 71/29/14 |
-| 0.33 | 2026-10-12 | frick-fsw | M11/S6a: SRS-REQ-038 GEM TSN mirror row gains `ci:renode` (peripheral-bound `hal_tsn` check); counts unchanged 71/29/14 |
-| 0.34 | 2026-10-12 | frick-fsw | M11/S6b-1: SRS-REQ-040 mirror row records the in-repo lwIP RTEMS `sys_arch` port (FF_USE_LWIP builds for the target); counts unchanged 71/29/14 |
-| 0.35 | 2026-10-12 | frick-fsw | M11/S6b-2: SRS-REQ-040 mirror row also records the netif glue (`ff_lwip_netif.c/h`); counts unchanged 71/29/14 |
-| 0.36 | 2026-10-12 | frick-fsw | NET follow-up: SRS-REQ-040 mirror row records `test_lwip_netif.c` (NC-154-01 closed); counts unchanged 71/29/14 |
-| 0.37 | 2026-10-13 | frick-fsw | S4b delta re-review (N12/N20 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings (NF-1/NF-2/NF-3) raised and closed; delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean on authored files; max-size regression test added; test counts updated (test_link_ip 19 funcs, test_link_tsn 14 funcs) |
-| 0.38 | 2026-10-13 | frick-fsw | S4b follow-up (NC-S4b-02/03/04): host PUS-C TM/TC round-trip demonstration added for the IP backend (`test_pus_ip_roundtrip`) and the TSN backend (`test_pus_tsn_roundtrip`) — satisfies the `pus_ip`/`pus_tsn` S4b exit criterion and the `Dem` method of SRS-REQ-060/061; SRS-REQ-059 mirror row corrected (removed `test_link_tsn.c`, which tests SRS-REQ-061); counts unchanged 114/71/29/14/51 |
-| 0.39 | 2026-10-13 | frick-fsw | S4b follow-up 2nd pass: update the SRS-REQ-003 mirror to include decoder PDL-boundary checks in `test_r2_gap.c` and explicitly delimit the existing Lean proof to encoder bounds; counts unchanged 114/71/29/14/51 |
-| 0.40 | 2026-10-13 | frick-fsw | Assessment follow-up: disclose SRS-REQ-005/test-oracle conflict under NC-EXT-04; correct SRS-REQ-060 mirror to distinguish mock `FF_NetStack_t` round-trip from the socket-pair reference loopback; expand SRS-REQ-003 tests for TM malformed bounds and GSW stream offsets; counts unchanged 114/71/29/14/51 |
-| 0.41 | 2026-10-14 | frick-fsw | Add SRS-REQ-072 under SSS-REQ-006; record bounded SB mutex return and authority-owned event-rate/dispatch/latency inputs; trace counts pending convergence |
-| 0.42 | 2026-10-14 | frick-fsw | Reconcile current human-readable trace counts to 117 requirements (73 SRS, 30 SSS, 14 GAP) and state that event-envelope parameters remain TBD |
-| 0.43 | 2026-10-14 | frick-fsw | Update SRS-REQ-001 implementation/test summary for non-waiting PAL queue lock, partial fan-out and distinct full-queue status; trace gate remains 117/73/30/14/51 |
-| 0.44 | 2026-10-14 | frick-fsw | Trace the exploratory SB/EVS structural characterization and distinguish it from requirement compliance; clarify mission loss-accounting semantics remain TBD |
-| 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |
-| 0.46 | 2026-10-15 | frick-fsw | Update trace matrix for S4c/S4d source/test/Lean evidence and ADR-0018 PUS/lwIP defaults; retain explicit target-peripheral and vendor-SDK limits |
-| 0.47 | 2026-10-16 | frick-fsw | Sync the readable mirror to the manifest: add the SRS-REQ-071 / SSS-REQ-030 delivered rows (core/sched/ff_sched + test_sched) and restore the missing SSS-REQ-030 rows in sections 1 and 3 (29 -> 30 SSS rows, mirroring the yaml); mission rate/jitter/recovery inputs remain TBD |
-| 0.48 | 2026-10-16 | frick-fsw | Map partial selected-N7 OBCP adapter/test evidence to SRS-REQ-045 and SSS-REQ-022 without claiming M12 or requirement completion |
-| 0.49 | 2026-10-16 | frick-fsw | Update SRS-REQ-050 and SSS-REQ-015 mirror for ADR-0019 default-N7 selection, generated-source test paths, and explicit full service-codec mapping limits |
-| 0.50 | 2026-10-16 | frick-fsw | Reconcile partial OBCP mappings and revision history with manifest; no SRS-REQ-045 closure claim |
-| 0.51 | 2026-10-20 | frick-fsw | Regenerate the human-readable mirror for manifest additions SRS-REQ-073/074/075: update counts to 76 SRS / 30 SSS / 14 GAP / 68 Lean, add SSS-REQ-008 parent mapping and SRS/test/Lean rows, and preserve the unwired-target and authority limits; trace gate still required |
-| 0.52 | 2026-10-21 | frick-fsw | Mirror the SRS-REQ-073/074/075 evidence-attribution corrections from R2 FRICK-REVIEW-0405 (M-04) and the PA review (M-1): remove `tests/unit/test_pal_watchdog.c` from the SRS-REQ-074 evidence list (it installs no panic reporter and cannot observe the report) and record the new `test_pal_watchdog.c` cases 7-8 covering the SRS-REQ-073 timeout-source and quarter-period derivation; requirements, parents and counts unchanged |
-| 0.53 | 2026-11-01 | frick-fsw | Mirror the XW-2 work-package registration: add `test_extwd_model.c`, `test_extwd_middleware.c` and `ci:xw2-target` to SRS-REQ-073/075; record TS-7 as PIL-QEMU middleware-contract evidence with explicit non-claims (no device, reset scope, independence, timing or N18); update CI claim count to 13 unique / 12 referenced; requirements, parents, SRS/SSS/GAP/Lean counts unchanged |
-| 0.54 | 2026-11-13 | frick-fsw | Mirror the `traceability.yaml` SRS-REQ-017 source/test attribution and bounded APID rejection characterization; explicitly state the acceptance-policy basis remains open under NC-EXT-13. No requirement/parent/count change. |
-| 0.55 | 2026-11-13 | frick-fsw | Reconcile the human-readable SRS-REQ-074 implementation/test row with `traceability.yaml`, add the current UART/IP/TSN test references, and limit their attribution to API subcases rather than SRS-REQ-074 compliance; no requirement/parent/count change. |
+| 0.59 | 2026-11-17 | frick-fsw | Mirror the manifest's SRS-REQ-006/007 test attributions for the NC-EXT-251 cases (`test_pus_dispatch_reservation_contention.c`, `test_pus_pre_acceptance_ack_reservation.c`) and record the 2026-11-17 increment; no requirement, parent or Lean theorem change. |
+| 0.58 | 2026-11-16 | frick-fsw | Mirror the OBCP Lean links and current counts from traceability.yaml; qualify the abstract theorem scope and keep SRS-REQ-045/054 and NC-S9-01 closure open. |
+| 0.57 | 2026-11-15 | frick-fsw | Add GSW UART/PUS host-SIL integration test source attribution to SRS-REQ-006/007/012; no requirement/parent/Lean theorem change. |
 | 0.56 | 2026-11-13 | frick-fsw | Add N22-TS2-86 to the human-readable SRS-REQ-074 test-reference note, matching the YAML's UART host API subcase range 84–86; no requirement/parent/count change. |
+| 0.55 | 2026-11-13 | frick-fsw | Reconcile the human-readable SRS-REQ-074 implementation/test row with `traceability.yaml`, add the current UART/IP/TSN test references, and limit their attribution to API subcases rather than SRS-REQ-074 compliance; no requirement/parent/count change. |
+| 0.54 | 2026-11-13 | frick-fsw | Mirror the `traceability.yaml` SRS-REQ-017 source/test attribution and bounded APID rejection characterization; explicitly state the acceptance-policy basis remains open under NC-EXT-13. No requirement/parent/count change. |
+| 0.53 | 2026-11-01 | frick-fsw | Mirror the XW-2 work-package registration: add `test_extwd_model.c`, `test_extwd_middleware.c` and `ci:xw2-target` to SRS-REQ-073/075; record TS-7 as PIL-QEMU middleware-contract evidence with explicit non-claims (no device, reset scope, independence, timing or N18); update CI claim count to 13 unique / 12 referenced; requirements, parents, SRS/SSS/GAP/Lean counts unchanged |
+| 0.52 | 2026-10-21 | frick-fsw | Mirror the SRS-REQ-073/074/075 evidence-attribution corrections from R2 FRICK-REVIEW-0405 (M-04) and the PA review (M-1): remove `tests/unit/test_pal_watchdog.c` from the SRS-REQ-074 evidence list (it installs no panic reporter and cannot observe the report) and record the new `test_pal_watchdog.c` cases 7-8 covering the SRS-REQ-073 timeout-source and quarter-period derivation; requirements, parents and counts unchanged |
+| 0.51 | 2026-10-20 | frick-fsw | Regenerate the human-readable mirror for manifest additions SRS-REQ-073/074/075: update counts to 76 SRS / 30 SSS / 14 GAP / 68 Lean, add SSS-REQ-008 parent mapping and SRS/test/Lean rows, and preserve the unwired-target and authority limits; trace gate still required |
+| 0.50 | 2026-10-16 | frick-fsw | Reconcile partial OBCP mappings and revision history with manifest; no SRS-REQ-045 closure claim |
+| 0.49 | 2026-10-16 | frick-fsw | Update SRS-REQ-050 and SSS-REQ-015 mirror for ADR-0019 default-N7 selection, generated-source test paths, and explicit full service-codec mapping limits |
+| 0.48 | 2026-10-16 | frick-fsw | Map partial selected-N7 OBCP adapter/test evidence to SRS-REQ-045 and SSS-REQ-022 without claiming M12 or requirement completion |
+| 0.47 | 2026-10-16 | frick-fsw | Sync the readable mirror to the manifest: add the SRS-REQ-071 / SSS-REQ-030 delivered rows (core/sched/ff_sched + test_sched) and restore the missing SSS-REQ-030 rows in sections 1 and 3 (29 -> 30 SSS rows, mirroring the yaml); mission rate/jitter/recovery inputs remain TBD |
+| 0.46 | 2026-10-15 | frick-fsw | Update trace matrix for S4c/S4d source/test/Lean evidence and ADR-0018 PUS/lwIP defaults; retain explicit target-peripheral and vendor-SDK limits |
+| 0.45 | 2026-10-14 | frick-fsw | Resolve bounded R3 findings by conditioning SRS-REQ-072 rate/latency guarantees on the approved envelopes and reconciling SSS-REQ-006/SRS-REQ-011/072 manifest and readable trace paths/tests; mission inputs remain TBD |
+| 0.44 | 2026-10-14 | frick-fsw | Trace the exploratory SB/EVS structural characterization and distinguish it from requirement compliance; clarify mission loss-accounting semantics remain TBD |
+| 0.43 | 2026-10-14 | frick-fsw | Update SRS-REQ-001 implementation/test summary for non-waiting PAL queue lock, partial fan-out and distinct full-queue status; trace gate remains 117/73/30/14/51 |
+| 0.42 | 2026-10-14 | frick-fsw | Reconcile current human-readable trace counts to 117 requirements (73 SRS, 30 SSS, 14 GAP) and state that event-envelope parameters remain TBD |
+| 0.41 | 2026-10-14 | frick-fsw | Add SRS-REQ-072 under SSS-REQ-006; record bounded SB mutex return and authority-owned event-rate/dispatch/latency inputs; trace counts pending convergence |
+| 0.40 | 2026-10-13 | frick-fsw | Assessment follow-up: disclose SRS-REQ-005/test-oracle conflict under NC-EXT-04; correct SRS-REQ-060 mirror to distinguish mock `FF_NetStack_t` round-trip from the socket-pair reference loopback; expand SRS-REQ-003 tests for TM malformed bounds and GSW stream offsets; counts unchanged 114/71/29/14/51 |
+| 0.39 | 2026-10-13 | frick-fsw | S4b follow-up 2nd pass: update the SRS-REQ-003 mirror to include decoder PDL-boundary checks in `test_r2_gap.c` and explicitly delimit the existing Lean proof to encoder bounds; counts unchanged 114/71/29/14/51 |
+| 0.38 | 2026-10-13 | frick-fsw | S4b follow-up (NC-S4b-02/03/04): host PUS-C TM/TC round-trip demonstration added for the IP backend (`test_pus_ip_roundtrip`) and the TSN backend (`test_pus_tsn_roundtrip`) — satisfies the `pus_ip`/`pus_tsn` S4b exit criterion and the `Dem` method of SRS-REQ-060/061; SRS-REQ-059 mirror row corrected (removed `test_link_tsn.c`, which tests SRS-REQ-061); counts unchanged 114/71/29/14/51 |
+| 0.37 | 2026-10-13 | frick-fsw | S4b delta re-review (N12/N20 closure): all findings from initial R1+R2 (FRICK-REVIEW-0165) and PA (FRICK-REVIEW-0166) reviews resolved; 3 new findings (NF-1/NF-2/NF-3) raised and closed; delta re-reviews APPROVED; `-Wall -Wextra -Werror` clean on authored files; max-size regression test added; test counts updated (test_link_ip 19 funcs, test_link_tsn 14 funcs) |
+| 0.31 | 2026-10-13 | frick-fsw | **S4b delivered**: SRS-REQ-059/060/061 implemented (seg/reassembly, IP link backend, TSN link backend); traceability table rows updated from plan/ci:docs to source+test files with ci:build+ci:test evidence; 114/71/29/14/51; trace PASS |
+| 0.36 | 2026-10-12 | frick-fsw | NET follow-up: SRS-REQ-040 mirror row records `test_lwip_netif.c` (NC-154-01 closed); counts unchanged 71/29/14 |
+| 0.35 | 2026-10-12 | frick-fsw | M11/S6b-2: SRS-REQ-040 mirror row also records the netif glue (`ff_lwip_netif.c/h`); counts unchanged 71/29/14 |
+| 0.34 | 2026-10-12 | frick-fsw | M11/S6b-1: SRS-REQ-040 mirror row records the in-repo lwIP RTEMS `sys_arch` port (FF_USE_LWIP builds for the target); counts unchanged 71/29/14 |
+| 0.33 | 2026-10-12 | frick-fsw | M11/S6a: SRS-REQ-038 GEM TSN mirror row gains `ci:renode` (peripheral-bound `hal_tsn` check); counts unchanged 71/29/14 |
+| 0.32 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-070 reference MSS block-device driver (+Renode MMIO check); counts 71/29/14 |
+| 0.31 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-069 reference MSS SPI driver (+Renode MMIO check); counts 70/29/14 |
+| 0.30 | 2026-10-12 | frick-fsw | Restore explicit M4 scope: SSS-REQ-028/029, SRS-REQ-059..068 (PUS-C over IP/TSN, CAN-FD, CANopen, RS-485 DE, PUSopen adapter, GEM TSN Qav/Qci/Qbb, fabric contract, gPTP/CoreTSN); counts 69/29/14 — FRICK-REVIEW-0137 |
+| 0.29 | 2026-10-12 | frick-fsw | M4/M11: SRS-REQ-058 reference MSS I2C driver (+Renode MMIO check); counts 59/27/14 |
+| 0.28 | 2026-10-12 | frick-fsw | M10: SRS-REQ-043 mirror row adds `qemu_vv.sh` + the generic toolchain file (done) |
+| 0.27 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-057 reference MSS CAN driver; counts 58/27/14 |
+| 0.26 | 2026-10-11 | frick-fsw | SRS-REQ-056 evidence corrected to host-only (on-SoC QSPI check tracked M11) |
+| 0.25 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-056 reference NOR/QSPI MTD backend; counts 57/27/14 |
+| 0.24 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-055 reference eNVM NVM backend; counts 56/27/14 |
+| 0.23 | 2026-10-11 | frick-fsw | M16: SSS-REQ-027, SRS-REQ-054 (in-house OBCP engine); counts 55/27/14; complete the SSS summary (024-027) |
+| 0.22 | 2026-10-11 | frick-fsw | M11: SRS-REQ-039 FF_NetStack_t contract check (ci:renode; not peripheral-bound) |
+| 0.21 | 2026-10-11 | frick-fsw | M11: SRS-REQ-036 Renode GEM identification (ci:renode); SRS-REQ-047/048/049 add ci:renode |
+| 0.20 | 2026-10-11 | frick-fsw | M15: SSS-REQ-026, SRS-REQ-053 (CFDP + virtual filestore); counts 54/26/14 |
+| 0.19 | 2026-10-11 | frick-fsw | M15: SSS-REQ-025, SRS-REQ-052 (fundamental PUS-C service set); counts 53/25/14 |
+| 0.18 | 2026-10-11 | frick-fsw | N19/M14: SSS-REQ-024, SRS-REQ-050 (PUS-C ASN.1 default), SRS-REQ-051 (multicore); counts 52/24/14 |
+| 0.17 | 2026-10-11 | frick-fsw | M4/M11: SRS-REQ-049 static RAM pool + DMA helper (+Renode DDR check); counts 50/23/14 |
+| 0.16 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-048 reference MSS MMUART serial driver (+Renode MMIO check); counts 49/23/14 |
+| 0.15 | 2026-10-10 | frick-fsw | M4/M11: SRS-REQ-047 reference MSS GPIO driver (+Renode MMIO check); counts 48/23/14 |
+| 0.14 | 2026-10-10 | frick-fsw | M12/M13: SSS-REQ-022/023, SRS-REQ-045/046 (OBCP engine, reference mission services); counts 47/23/14 |
+| 0.13 | 2026-10-10 | frick-fsw | N18/M10: SRS-REQ-044 Renode environment; counts 45/21/14 |
+| 0.12 | 2026-10-10 | frick-fsw | M10: SRS-REQ-043 emulated-target verification; counts 44/21/14 |
+| 0.11 | 2026-10-10 | frick-fsw | M9: SRS-REQ-041/042 code quality; counts 43/21/14 |
+| 0.10 | 2026-10-10 | frick-fsw | M4: SRS-REQ-040 lwIP adapter; counts 41/20/14 |
+| 0.9 | 2026-10-10 | frick-fsw | M4: SRS-REQ-039 reference network stack; counts 40/20/14 |
+| 0.8 | 2026-10-10 | frick-fsw | M4: SRS-REQ-038 GEM native TSN backend; counts 39/20/14 |
+| 0.7 | 2026-10-10 | frick-fsw | M4: SRS-REQ-037 RTEMS integration; counts 38/20/14 |
+| 0.6 | 2026-10-10 | frick-fsw | M4: SSS-REQ-020, SRS-REQ-036; counts 37/20/14 |
+| 0.5 | 2026-10-10 | frick-fsw | M7: SSS-REQ-019, SRS-REQ-034/-035, GAP-A14; counts 36/19/14, 51 theorems |
+| 0.4 | 2026-10-10 | frick-fsw | M6: SSS-REQ-018, SRS-REQ-033; counts 34/18/13 |
+| 0.3 | 2026-10-10 | frick-fsw | M3: SSS-REQ-017, SRS-REQ-025..032, GAP-A8..A13; counts 33/17/13, 45 theorems |
+| 0.2 | 2026-10-10 | frick-fsw | Milestone M2: SSS-REQ-016, SRS-REQ-021..024, GAP-A7; counts updated |
+| 0.1 | 2026-10-10 | frick-fsw | Initial matrices aligned with traceability.yaml |

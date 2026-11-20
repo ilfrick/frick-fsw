@@ -1,0 +1,24 @@
+UpdateCTestConfiguration  from :/home/nicola/fsw/frick-fsw/build/s1-review/DartConfiguration.tcl
+Test project /home/nicola/fsw/frick-fsw/build/s1-review
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 13
+    Start 13: pus_s11_residual
+
+13: Test command: /home/nicola/fsw/frick-fsw/build/s1-review/tests/test_pus_s11_residual
+13: Working Directory: /home/nicola/fsw/frick-fsw/build/s1-review/tests
+13: Test timeout computed to be: 10000000
+13: /home/nicola/fsw/frick-fsw/tests/unit/test_pus_s11_residual.c checks=1206 failures=0
+1/1 Test #13: pus_s11_residual .................   Passed    0.01 sec
+
+The following tests passed:
+	pus_s11_residual
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+RESIDUAL_EXIT=0

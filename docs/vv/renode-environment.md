@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-VV-RENODE-001                    |
-| Revision                          | 0.23                                   |
-| Date                              | 2026-10-20                             |
+| Revision                          | 0.24                                   |
+| Date                              | 2026-11-17                             |
 | Norms                             | N6, N10, N18                           |
 | Requirement                       | SRS-REQ-044                            |
 
@@ -102,7 +102,9 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
   entry `0x1000000000` (PolarFire SoC/HSS high DDR alias), console UART
   `mmuart1`. Recorded in `docs/vv/verification-results.md`.
 - **HAL coverage (milestone M11, in progress):** the functional run exercises
-  HAL backends and, additionally, a **contract check**:
+  HAL backends and, additionally, a **contract check**. The matrix is 13 groups
+  PASS plus `hal_spacewire=CONTRACT` and `sb_roundtrip=PASS`; **MTD is absent**
+  (see the MTD/QSPI scope limit below).
   - **Peripheral-bound** (11/13): **GPIO** (MSS GPIO, SRS-REQ-047), **SERIAL**
     (MSS MMUART, SRS-REQ-048), **MEM** (static RAM pool + reference DMA,
     SRS-REQ-049), **ETH** (Cadence GEM identification, SRS-REQ-036), **NVM**
@@ -132,6 +134,13 @@ greps for `RENODE_TEST: PASS`. See also `make renode-env`
     code, and round-trips the two slave-address registers only; the full
     transaction path (including the serial-clock divider selection and re-derived
     SCL) is verified in the host unit test.
+    *Scope limit (MTD/QSPI):* the emulated board models the Micron MT25Q QSPI NOR
+    flash as a child of the `SPI.MPFS_QSPI` controller, **not** as memory mapped
+    at `0x21000000`. A direct-MMIO self-test of the reference MTD driver therefore
+    cannot work in this environment, and the functional run does **not** exercise
+    MTD: the HAL matrix has no `hal_mtd` entry. The driver is covered by host unit
+    tests only; on-target QSPI remains **GAP-A5**. These constants exist in
+    `config/platform/platform_mpfs.h` to record the address map, not as coverage.
     *Scope limit (PCIe):* the emulated `PCI.MPFS_PCIe` is present in the
     PolarFire SoC platform but not instantiated in the beaglev-fire board
     repl used for Renode validation; the check therefore returns PASS based on
@@ -183,26 +192,27 @@ stays open (GAP-A4/A6).
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
-| 0.1 | 2026-10-10 | frick-fsw | Initial Renode V&V environment (norm N18); test application |
-| 0.2 | 2026-10-10 | frick-fsw | Review FRICK-REVIEW-0036 fixes: test app receives inline (marker PASS), CMake option + `renode-image`, `make renode-env` self-test, `renode_vv.sh` fails on missing marker, status wording |
-| 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |
-| 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |
-| 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |
-| 0.6 | 2026-10-10 | frick-fsw | M11: MSS MMUART serial HAL backend exercised (`hal_serial=PASS`) |
-| 0.7 | 2026-10-11 | frick-fsw | M11: static RAM pool + DMA HAL backend exercised (`hal_mem=PASS`) |
-| 0.8 | 2026-10-11 | frick-fsw | M11: ETH (Cadence GEM identification) exercised (`hal_eth=PASS`); console capture via container-local path + docker cp |
-| 0.9 | 2026-10-11 | frick-fsw | M11: NET (pluggable TCP/IP, loopback stack) exercised (`hal_net=PASS`) |
-| 0.10 | 2026-10-11 | frick-fsw | V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services); NVM (`hal_nvm`) added to the HAL coverage (5/13) |
-| 0.11 | 2026-10-11 | frick-fsw | M11: CAN (`hal_can`) added to the HAL coverage (6/13; SRS-REQ-057) |
-| 0.12 | 2026-10-11 | frick-fsw | Note the CAN scope limit: the emulated `MPFS_CAN` does not model the AMR RTR/IDE mask bits (R4-0108-11) |
-| 0.13 | 2026-10-12 | frick-fsw | M11: I2C (`hal_i2c`) added to the HAL coverage (7/13; SRS-REQ-058); note the emulated `I2C.MPFS_I2C` scope limit (clock-divider bits not modelled; advances on register writes) |
-| 0.14 | 2026-10-12 | frick-fsw | Correct the I2C clause: the check is an MMIO round trip with the full driver path host-tested (no I2C DMA path; the reference DMA seam is MEM/ETH only) — FRICK-REVIEW-0129 R2-04 |
-| 0.15 | 2026-10-12 | frick-fsw | M11: SPI (`hal_spi`) added to the HAL coverage (8/13; SRS-REQ-069); note the emulated `SPI.MPFS_SPI` scope limit (no registered slave → register round-trips only; the transfer path is host-tested) |
-| 0.16 | 2026-10-12 | frick-fsw | M11: BLOCK (`hal_block`) added to the HAL coverage (9/13; SRS-REQ-070); note the emulated `SD.MPFS_SDController` scope limit (no SD card attached → register round-trips only; the transfer path is host-tested) |
-| 0.17 | 2026-10-12 | frick-fsw | M11/S6a: TSN (`hal_tsn`) added to the HAL coverage (10/13; SRS-REQ-038) — the GEM native TSN backend is exercised peripheral-bound on the emulated Cadence GEM (init + VLAN/PCP + 802.1AS TSU time); the NET lwIP-on-GEM peripheral-bound check is deferred (NC-S6-01, sprint S6b) |
-| 0.18 | 2026-10-12 | frick-fsw | Emulator-scope note: NET lwIP-on-GEM (NC-S6-01: lwIP has no RTEMS port) and SpaceWire (NC-S7-01: no emulated peripheral) are contract-level, not peripheral-bound (GAP-A5) |
-| 0.19 | 2026-10-12 | frick-fsw | M11/S6b-2: `hal_net_lwip` delivered on the lwIP-enabled image (lwIP netif bound to the emulated GEM, MAC config asserted); packet round-trip + emulated GEM DMA deferred (NC-S6-01/NC-S6-03); SpaceWire remains contract-level (NC-S7-01) |
-| 0.20 | 2026-10-12 | frick-fsw | M11/S7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded (SpaceWire no emulated peripheral) |
-| 0.21 | 2026-10-12 | frick-fsw | NET follow-up: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing in the driver; on-Renode GEM DMA round-trip remains GAP-A5: register-only CadenceGEM model, no descriptor engine); NC-154-01 closed (host `test_lwip_netif` 26/26, mock-MAC loopback); NC-S6-01 wording clarified (mock-MAC host test = TX/RX data-path evidence) |
-| 0.22 | 2026-10-20 | frick-fsw | Correct the default registered-application count from six to seven after unconditional WD-feeder registration; the conditional RENODE_TEST variant remains separate |
+| 0.24 | 2026-11-17 | frick-fsw | Record the MTD/QSPI scope limit (flash modelled behind `SPI.MPFS_QSPI`, not memory-mapped at `0x21000000`, so the functional run does not exercise MTD; on-target QSPI = GAP-A5) and restate the HAL matrix as 13 groups PASS plus `hal_spacewire=CONTRACT` and `sb_roundtrip=PASS`. Emulated evidence only; no target/HIL claim. |
 | 0.23 | 2026-10-20 | frick-fsw | Record current S8-FDIR-01 fresh-build N18 Renode PASS and point to retained artifact/toolchain evidence; preserve NC-TS-01 and hardware/provenance limits |
+| 0.22 | 2026-10-20 | frick-fsw | Correct the default registered-application count from six to seven after unconditional WD-feeder registration; the conditional RENODE_TEST variant remains separate |
+| 0.21 | 2026-10-12 | frick-fsw | NET follow-up: NC-S6-03 co-implemented (GEM 64-bit descriptor addressing in the driver; on-Renode GEM DMA round-trip remains GAP-A5: register-only CadenceGEM model, no descriptor engine); NC-154-01 closed (host `test_lwip_netif` 26/26, mock-MAC loopback); NC-S6-01 wording clarified (mock-MAC host test = TX/RX data-path evidence) |
+| 0.20 | 2026-10-12 | frick-fsw | M11/S7: PCIe peripheral-bound (`hal_pcie=PASS`, SRS-REQ-031/032) and SpaceWire contract-level (`hal_spacewire=CONTRACT`, SRS-REQ-032); M11 11/13 peripheral-bound; NC-S7-01 recorded (SpaceWire no emulated peripheral) |
+| 0.19 | 2026-10-12 | frick-fsw | M11/S6b-2: `hal_net_lwip` delivered on the lwIP-enabled image (lwIP netif bound to the emulated GEM, MAC config asserted); packet round-trip + emulated GEM DMA deferred (NC-S6-01/NC-S6-03); SpaceWire remains contract-level (NC-S7-01) |
+| 0.18 | 2026-10-12 | frick-fsw | Emulator-scope note: NET lwIP-on-GEM (NC-S6-01: lwIP has no RTEMS port) and SpaceWire (NC-S7-01: no emulated peripheral) are contract-level, not peripheral-bound (GAP-A5) |
+| 0.17 | 2026-10-12 | frick-fsw | M11/S6a: TSN (`hal_tsn`) added to the HAL coverage (10/13; SRS-REQ-038) — the GEM native TSN backend is exercised peripheral-bound on the emulated Cadence GEM (init + VLAN/PCP + 802.1AS TSU time); the NET lwIP-on-GEM peripheral-bound check is deferred (NC-S6-01, sprint S6b) |
+| 0.16 | 2026-10-12 | frick-fsw | M11: BLOCK (`hal_block`) added to the HAL coverage (9/13; SRS-REQ-070); note the emulated `SD.MPFS_SDController` scope limit (no SD card attached → register round-trips only; the transfer path is host-tested) |
+| 0.15 | 2026-10-12 | frick-fsw | M11: SPI (`hal_spi`) added to the HAL coverage (8/13; SRS-REQ-069); note the emulated `SPI.MPFS_SPI` scope limit (no registered slave → register round-trips only; the transfer path is host-tested) |
+| 0.14 | 2026-10-12 | frick-fsw | Correct the I2C clause: the check is an MMIO round trip with the full driver path host-tested (no I2C DMA path; the reference DMA seam is MEM/ETH only) — FRICK-REVIEW-0129 R2-04 |
+| 0.13 | 2026-10-12 | frick-fsw | M11: I2C (`hal_i2c`) added to the HAL coverage (7/13; SRS-REQ-058); note the emulated `I2C.MPFS_I2C` scope limit (clock-divider bits not modelled; advances on register writes) |
+| 0.12 | 2026-10-11 | frick-fsw | Note the CAN scope limit: the emulated `MPFS_CAN` does not model the AMR RTR/IDE mask bits (R4-0108-11) |
+| 0.11 | 2026-10-11 | frick-fsw | M11: CAN (`hal_can`) added to the HAL coverage (6/13; SRS-REQ-057) |
+| 0.10 | 2026-10-11 | frick-fsw | V&V environment switched to the BeagleV-Fire board repl (QSPI NOR + system services); NVM (`hal_nvm`) added to the HAL coverage (5/13) |
+| 0.9 | 2026-10-11 | frick-fsw | M11: NET (pluggable TCP/IP, loopback stack) exercised (`hal_net=PASS`) |
+| 0.8 | 2026-10-11 | frick-fsw | M11: ETH (Cadence GEM identification) exercised (`hal_eth=PASS`); console capture via container-local path + docker cp |
+| 0.7 | 2026-10-11 | frick-fsw | M11: static RAM pool + DMA HAL backend exercised (`hal_mem=PASS`) |
+| 0.6 | 2026-10-10 | frick-fsw | M11: MSS MMUART serial HAL backend exercised (`hal_serial=PASS`) |
+| 0.5 | 2026-10-10 | frick-fsw | M11 started: MSS GPIO HAL backend exercised in the run (`hal_gpio=PASS`); marker includes HAL checks |
+| 0.4 | 2026-10-10 | frick-fsw | Real toolchain + run: boot U54_1 at 0x1000000000, console mmuart1, `make renode` -> `RENODE_TEST: PASS`; N18 in force |
+| 0.3 | 2026-10-10 | frick-fsw | Align the RTOS baseline to the open-source RTEMS 6.2 project; the nightly workflow installs the open RTEMS toolchain (`setup_rtems.sh`) and runs the Renode validation (N18 blocking path) |
+| 0.2 | 2026-10-10 | frick-fsw | Review FRICK-REVIEW-0036 fixes: test app receives inline (marker PASS), CMake option + `renode-image`, `make renode-env` self-test, `renode_vv.sh` fails on missing marker, status wording |
+| 0.1 | 2026-10-10 | frick-fsw | Initial Renode V&V environment (norm N18); test application |

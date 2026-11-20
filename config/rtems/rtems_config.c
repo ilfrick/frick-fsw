@@ -53,10 +53,10 @@ void *POSIX_Init(void *argument);
  * condition variables are self-contained (no CONFIGURE_* needed); the
  * CONFIGURE_MAXIMUM_POSIX_MUTEXES/CONDITION_VARIABLES/MESSAGE_QUEUE_DESCRIPTORS
  * options are obsolete since RTEMS 5.1 and must not be used. */
-#define CONFIGURE_MAXIMUM_POSIX_THREADS 32
+#define CONFIGURE_MAXIMUM_POSIX_THREADS 64
 #define CONFIGURE_MAXIMUM_POSIX_TIMERS 8
 #define CONFIGURE_MAXIMUM_POSIX_KEYS 8
-#define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES 8
+#define CONFIGURE_MAXIMUM_POSIX_MESSAGE_QUEUES 64
 #define CONFIGURE_MAXIMUM_FILE_DESCRIPTORS 16
 
 /* POSIX initialization thread: POSIX_Init() is the application entry point. */

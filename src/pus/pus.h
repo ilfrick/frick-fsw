@@ -53,7 +53,15 @@ const FF_Pus_Backend_t *FF_PusGetBackend(void);
 FF_Status_t FF_PusSetTmSink(FF_Pus_TmSink_t sink);
 
 /* ---- Telecommand ingestion and telemetry emission ---------------- */
+/* Ingest one encoded telecommand. Dispatch is serialised: a second TC arriving
+ * while one is being dispatched is refused with FF_BUSY. */
 FF_Status_t FF_PusIngest(const uint8_t *raw, uint16_t len);
+/* Emit one telemetry packet. Not re-entrant: a call made while another emission
+ * is in progress (notably from inside the telemetry sink) is refused with
+ * FF_BUSY and emits nothing. Other returns: FF_NOT_READY (no backend), FF_BUSY
+ * (state or emission contended), FF_INVALID_ARGUMENT, FF_BAD_SIZE, FF_ERROR
+ * (encode failure), or a PAL error. Callers emitting a required service 1
+ * verification must not discard FF_BUSY without accounting for the loss. */
 FF_Status_t FF_PusSendTm(uint8_t service, uint8_t subservice, const uint8_t *data, uint16_t len);
 /* Reset-path telemetry: builds one telemetry frame and hands it to `writer`
  * instead of the configured TM sink. Bounded and lock-free: it does not take
@@ -101,9 +109,18 @@ FF_Status_t FF_PusRegisterFunction(uint8_t id, FF_Pus_FunctionHandler_t fn);
 FF_Status_t FF_PusRegisterMemoryRegion(uint8_t region_id, const void *base, uint32_t size);
 
 /* ---- Statistics --------------------------------------------------- */
+/* Allocate and return the next telemetry sequence counter value. One modulo-16384
+ * sequence is shared by every emission path, including the reset/panic direct
+ * path (SRS-REQ-007). */
 uint16_t FF_PusNextTmCounter(void);
+/* Current counter value without allocating it. */
 uint16_t FF_PusPeekTmCounter(void);
 uint32_t FF_PusGetTcCount(void);
+/* Number of required service 1 verifications that could not be emitted because
+ * telemetry emission stayed contended for the whole bounded retry window. A
+ * non-zero value means the ground did not receive an ACK that was owed, so a
+ * loss is accounted rather than silent (SRS-REQ-006, SRS-REQ-011). */
+uint32_t FF_PusPeekAckDropped(void);
 
 /* ---- Backends ----------------------------------------------------- */
 extern const FF_Pus_Backend_t FF_PusBackendOpen;

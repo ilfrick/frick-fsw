@@ -1,0 +1,11 @@
+test_pre_acceptance_ack_reservation checks=16 failures=0
+test_no_missing_ack_after_acceptance checks=29 failures=0
+test_try_only_locks_busy checks=48 failures=0
+test_mutually_exclusive_sink checks=62 failures=0
+test_handler_tm_allowed  checks=74 failures=0
+test_nested_ingest_busy  checks=84 failures=0
+test_no_state_lock_across_callbacks checks=96 failures=0
+test_serialized_full_dispatch checks=115 failures=0
+test_direct_tm_bounded_lockfree checks=131 failures=0
+test_sink_recursive_tm_busy checks=147 failures=0
+/home/nicola/fsw/frick-fsw/tests/unit/test_pus_pre_acceptance_ack_reservation.c checks=147 failures=0

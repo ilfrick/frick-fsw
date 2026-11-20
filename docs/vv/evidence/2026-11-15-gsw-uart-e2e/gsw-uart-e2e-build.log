@@ -1,0 +1,5 @@
+[  1%] Built target frick_pus_asn1
+[ 31%] Built target frick_lwip
+[ 33%] Built target frick_net_lwip
+[ 98%] Built target frick_fsw_core
+[100%] Built target test_gsw_uart_e2e_server

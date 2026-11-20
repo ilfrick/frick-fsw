@@ -259,7 +259,7 @@ static void test_evs_listener_captures_hs_failure(void)
     /* Evidence that the PAL task table is actually exhausted, without binding
      * this oracle to the file-local FF_PAL_MAX_TASKS value in pal_posix.c: the
      * public contract says a create with no free slot returns FF_NO_RESOURCE. */
-    FF_TEST_ASSERT(fillers < 64u);
+    FF_TEST_ASSERT(fillers <= 64u);
     {
         FF_TaskId_t overflow_id = 0u;
         FF_TEST_ASSERT(FF_PalTaskCreate(&overflow_id, "overflow", hs_dummy_entry, NULL, 0u, 0u) ==
@@ -434,7 +434,7 @@ static void test_hs_failure_then_direct_pus_emission(void)
     /* Evidence that the PAL task table is actually exhausted, without binding
      * this oracle to the file-local FF_PAL_MAX_TASKS value in pal_posix.c: the
      * public contract says a create with no free slot returns FF_NO_RESOURCE. */
-    FF_TEST_ASSERT(fillers < 64u);
+    FF_TEST_ASSERT(fillers <= 64u);
     {
         FF_TaskId_t overflow_id = 0u;
         FF_TEST_ASSERT(FF_PalTaskCreate(&overflow_id, "overflow", hs_dummy_entry, NULL, 0u, 0u) ==

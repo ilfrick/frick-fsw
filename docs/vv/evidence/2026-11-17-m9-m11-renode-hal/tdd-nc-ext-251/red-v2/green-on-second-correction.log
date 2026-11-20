@@ -1,0 +1,7 @@
+# GREEN with the second correction (src/pus/pus.c sha256 a1b1a49aae1bd1c40ff5a1678b2ea77d5734b9a8ee42c9921fbe68cde38fb629)
+# Date: 2026-11-17T23:22:02Z
+# Compiler: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+# Command: gcc -std=c99 -I src -I src/core -I config -o /tmp/red-probe/probe /tmp/red-probe/probe.c build/pus-fix/libfrick_fsw_core.a -lpthread -lm && /tmp/red-probe/probe
+# Library: build/pus-fix/libfrick_fsw_core.a sha256 c3db046d3314db01ce242577bb605f5ec85a5f910463b8e683af68f1cd335a33
+checks=7 failures=0
+probe exit status: 0

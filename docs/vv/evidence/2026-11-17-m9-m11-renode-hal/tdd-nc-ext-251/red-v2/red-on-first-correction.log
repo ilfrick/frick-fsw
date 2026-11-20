@@ -1,0 +1,10 @@
+# RED probe against the FIRST correction (pus.c.candidate, sha256 f5a3722b...)
+# command: gcc -std=c99 -I src -I src/core -I config -o /tmp/red-probe/probe /tmp/red-probe/probe.c build/pus-fix/libfrick_fsw_core.a -lpthread -lm && /tmp/red-probe/probe
+# gcc: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+f5a3722b5725a58457e9dda547280dfeaa82a17ce0cc1ca999a22882cce914dc  docs/vv/evidence/2026-11-17-m9-m11-renode-hal/tdd-nc-ext-251/pus.c.candidate
+FAIL /tmp/red-probe/probe.c:56 stored counter stays within [0,16383] after the direct path
+FAIL /tmp/red-probe/probe.c:57 stored counter wrapped to 1
+FAIL /tmp/red-probe/probe.c:58 normal path continues the same sequence
+FAIL /tmp/red-probe/probe.c:69 nested ingest refused FF_BUSY even when no ACK was requested
+checks=7 failures=4
+probe exit status: 1

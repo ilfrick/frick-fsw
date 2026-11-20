@@ -979,23 +979,214 @@ implemented dispatch directly: S3 128=create, 1=enable, 2=disable, 3=periodic
 alias, 4=one-shot request, 129=delete; S6 2=dump; plus S9/S17/S20 dispatch and
 the S1 verification chain. It asserts that the superseded `{5,6,27}` subservices
 are **not** the registered handlers (`FF_NOT_FOUND`), so a regression back to the
-old allocation fails the test rather than passing silently. 1176 checks, 0
-failures.
+old allocation fails the test rather than passing silently. On a fresh host build
+of the reviewed tree (`build/s1-review`, `build-fresh.log`) the test reports
+**checks=1206, failures=0**
+(`docs/vv/evidence/2026-11-14-s1-progress-failure/pus-s11-residual-fresh.log`).
+The earlier `1176` figure was the pre-delta count and is not used for this change.
 
-The new test artifact is also added to the `tests` lists of SRS-REQ-005,
-SRS-REQ-008, SRS-REQ-009, SRS-REQ-010 and SRS-REQ-012 in
-`docs/requirements/traceability.yaml` and the human-readable mirror
-`docs/requirements/traceability.md` (norm N3/N4); `make trace` still reports
-PASS (120 requirements, 76 srs, 30 sss, 14 gaps, 68 Lean theorems). No
-requirement text, status token or Lean theorem changed.
+Traceability: SRS-REQ-006 did **not** previously list
+`tests/unit/test_pus_s11_residual.c`. The earlier statement that it did, and the
+`traceability.yaml:106` citation, were wrong: line 106 belongs to SRS-REQ-008,
+and SRS-REQ-006 listed only `test_pus.c` and `test_r3_gap.c`. This change adds
+`tests/unit/test_pus_s11_residual.c` to the SRS-REQ-006 `tests` list in
+`docs/requirements/traceability.yaml`, so the new `N22-TS1-105` oracle is
+traceable to the requirement it verifies (N3/N4). No requirement text, status
+token or Lean theorem changed; `make trace` reports PASS (120 requirements, 76
+srs, 30 sss, 14 gaps, 68 Lean theorems).
+
+A new progress-failure oracle case `N22-TS1-105` (SRS-REQ-006) has been added to TS-1
+rev 1.14 (see `docs/vv/test-spec/ts-1-protocol-core.md`), raising TS-1 to 105 cases =
+77 covered + 28 gap (6 mixed nominal + out-of-bound; 94 individual; SIL 102 / PIL 1 /
+HIL 2).
+
+**Wire-visible consequences (review findings R1 M-02, R3 F-01/F-02), now recorded:**
+- **Ordering.** Because progress verification follows `handler(...)`, any TC whose
+  handler emits telemetry now sees the handler TM before TM[1,5]/TM[1,6]:
+  `[1,1][1,3][1,5][handler TM][1,7]` became
+  `[1,1][1,3][handler TM][1,5][1,7]` (e.g. TC[17,1]: TM[17,2] now precedes
+  TM[1,5]). No test asserts ordering; the tests count packets only.
+- **Co-occurrence.** On handler failure with both progress and completion acks
+  set, the code emits TM[1,6] **and** TM[1,8], both with code 20. ICD §4 does
+  not state whether a handler failure yields 1,6 alone or 1,6+1,8.
+Both are interface-authority questions, registered as **NC-EXT-249**; this change
+does not decide them.
+
+**Additional open findings from the review pass:**
+**NC-EXT-248** — the Lean model (`verification/lean/Frick/Pus.lean`, `AckFlags`/
+`verificationCount`) omits the progress stage, so the "exactly one of TM[1,5]/
+TM[1,6]" invariant is tested but not proved; N1 coverage of the SRS-REQ-006
+progress clause is a gap, not "N/A". **NC-EXT-250** — on the handler-not-found
+path an acknowledged start/progress stage produces no packet (pre-existing
+SRS-REQ-006 requirement-vs-implementation conflict). **NC-EXT-251** — pre-existing
+PUS mutex defect: `FF_PusSendTm` ignores the `FF_PalMutexLock` result and then
+unconditionally unlocks, so a handler that emits TM releases `FF_PusIngest`'s
+critical section; functional, and it requires its own fix with target evidence.
 
 ### Limitations and incomplete gates
 
-Full pinned clang-format 18 `make format-check` remains blocked on the host
-(only clang-format 23.1.3 installed) and on the three unchanged initializer files
-(NC-EXT-244, deferred); the changed C files pass `clang-format --dry-run
---Werror` under 23.1.3. This is not equivalent to the pinned-18 gate and is
-recorded as a limitation. `make metrics` refreshed the README status panel
-(coverage and review-stream figures changed). T3 remains **NOT FULLY QUALIFIED**;
-successful execution is not qualification. No NC is closed, no authority decision
-is taken, and no sprint, release or flight decision is approved.
+Honest gate status for this cycle (no gate is claimed as passed unless evidenced):
+
+- **make smoke** — ATTEMPTED, FAILED on default `build/native` cache: CMake rejects the mismatch ("The current CMakeCache.txt directory ... is different than the directory /workspace/build/native ...") — exit 2. No destructive cleanup or cache removal was performed, and no unsafe Docker mount workaround was attempted. Smoke gate is NOT established on the default cache for this cycle.
+  - A safe smoke run using a fresh host build dir `BUILD_DIR=build/smoke-safe` via `tools/scripts/run_sim.sh` PASSED ("[smoke] PASS (banner + 7 applications registered)") — exit 0. Full log retained at `docs/vv/evidence/2026-11-14-s1-progress-failure/smoke-safe.log`. Both outcomes are distinct and both are retained.
+- **make gsw-selfcheck** — **PASS (after correction)**: the earlier failure (`tools/patches/n7s-obcp/src/modifications/py/vm.c: missing MPL-2.0 SPDX header`) was a real labelling defect in a project-owned overlay of pinned upstream MicroPython code. It was corrected under owner delegation (AD-002, `docs/quality/product-assurance.md` §6) by declaring the compound expression `SPDX-License-Identifier: MIT AND MPL-2.0` — the inherited code is MIT, the project-owned modifications are MPL-2.0 — instead of a single `MPL-2.0` label that would have misstated the inherited code. The N13 checker accepts a compound expression only under `tools/patches/`, only for the exact expression `MIT AND MPL-2.0`; `OR`, `WITH`, parentheses and other identifiers are rejected (`docs/quality/licensing.md` §5.1), and its header check now parses identifiers instead of testing exact list membership of the `MPL-2.0` string (latent defect: every compound expression would have been reported as "missing MPL-2.0 SPDX header"). `tests/python/test_license_check.py` grew from 14 to 17 tests (operator parsing; compound accepted only under the overlay root; compound rejected for `GPL-3.0-only`, `Apache-2.0` and `MIT`-only). Evidence: `make gsw-selfcheck` exit 0, license 17/17 OK (`gsw-final.log`). This removes the gate failure but does **not** close **NC-EXT-43** (upstream notice completeness, provenance, combined-distribution compatibility) or **NC-EXT-44** (T21 checker qualification); T21 remains NOT FULLY QUALIFIED.
+- **make format-check (pinned clang-format 18, full repository)** — NOT PASSED: the retained log shows **nine files / 39 clang-format violations** (`src/obcp/ff_obcp_inhouse.c`, `src/pus/pus_services.c:753`, `src/transport/link/link_ip.c`, `src/transport/link/link_tsn.c`, `tests/unit/test_link_tsn.c`, `tests/unit/test_obcp_abort.c`, `tests/unit/test_obcp_budget.c`, `tests/unit/test_obcp_inhouse.c`, `tests/unit/test_pus_s18.c`); `make` exits 123. The earlier "three unchanged initializer files" description was wrong, and the retained wrapper marker `FORMAT_FULL_EXIT=2` does not match the make exit 123 (recorded as an evidence-integrity observation). Tracked as NC-EXT-244, deferred under N21; the unrelated files were not modified. The two changed files (`src/pus/pus.c`, `tests/unit/test_pus_s11_residual.c`) pass `clang-format --dry-run --Werror` on the host with clang-format 23.1.3, version-logged in `format-changed-host.log`; the pinned-18 Docker invocation retained only `FORMAT_CHANGED_EXIT=0` without a version or file list, so **pinned-18 conformance for the changed files is not claimed** (NC-EXT-101/NC-EXT-244).
+- **T3 remains NOT FULLY QUALIFIED; successful execution is not qualification.**
+- **NC-EXT-43/44 remain OPEN even though the checker now passes:** the label change resolves a representation defect only. Complete upstream notices, provenance of the remaining modifications, generated outputs and combined-distribution compatibility (NC-EXT-43) and independent review/qualification of the checker rule change (NC-EXT-44, N10/T21) still require an authorized disposition. No compatibility or legal conclusion is made.
+- **NC-EXT-247 OPEN — N18 not evidenced for this delta:** the retained Renode run is timestamped 11:26:43–11:26:56 while `src/pus/pus.c` was last modified at 12:21:53, and it carries no ELF/image identity for this candidate. It therefore **cannot** validate this change; N18 is NOT satisfied for this increment. No RTEMS rebuild exists for the delta, and a re-run is blocked by NC-EXT-246. Owner: FSW engineer; milestone: first Docker run under an approved preflight/cleanup procedure. No waiver is claimed.
+- **NC-EXT-246 OPEN — N18 Docker runner preflight/cleanup deviation:** the runner was invoked without the required preflight; container cleanup and writable-mount safety were not audited, and the evidence directory was created with `mkdir -p` without an explicit `test ! -e` (pre-copy `git status` showed no untracked entries at that path, which does not prove an empty directory was absent). No host damage or overwritten content is claimed; no Docker rerun was performed. Owner: FSW engineer; milestone: before any future Docker runner use.
+- **NC-EXT-245 OPEN — N19 audit sequencing deviation (non-blocking under N21):** the N19 audit header and norm rows were refreshed after the first source edit had already been applied; the pre-edit worktree state is unknown and `fc68b9d` is only the committed HEAD. Pre-edit N19 compliance is not claimed.
+- **Independent reviews obtained as sub-agent reviews (contextual independence only):** R1 FSW (NEEDS REVISION), R2 V&V (CORRECTIONS REQUIRED), R3 systems (CONDITIONAL — NOT APPROVED), R4 documentation (NOT PASSED), PA/N20 (REJECTED — commit/push withheld). Reports are in `docs/reviews/2026-11-14-s1-progress-failure-*.md`. These are **not** organizational independence and do not discharge N20; the findings are being corrected in this same change and the corrected tree requires re-review.
+- No NC is closed, no authority decision is taken, and no sprint, release or flight decision is approved.
+
+Full raw command logs and exit codes are retained under `docs/vv/evidence/2026-11-14-s1-progress-failure/` (working-tree evidence directory; untracked until this change is committed):
+
+## S1 progress-failure emission (NC-EXT-94) — 2026-11-14
+
+**Scope:** `src/pus/pus.c` (`FF_PusIngest`), `tests/unit/test_pus_s11_residual.c`.
+No other production source changed. ICD rev 1.9 §4 (S1 row: subservice 4 =
+start failure reserved/not emitted; subservice 6 = progress failure) and
+`docs/architecture/pus-c-from-scratch-assessment.md` rev 0.4 describe the
+emission. **NC-EXT-94 and NC-EXT-95 are CLOSED (2026-11-14) by owner disposition
+AD-001** (`docs/quality/product-assurance.md` §6): the owner confirmed ICD rev 1.9 /
+`fc68b9d` as the authoritative disposition and directed closure. Closure conditions:
+the implementation must be committed together with ICD rev 1.9; no start-failure
+behaviour invented; no PUS-C compliance claim; no approval, qualification or release
+implied. NC-EXT-249 (S1 ordering and TM[1,6]+TM[1,8] co-occurrence) and NC-EXT-250
+(SRS-REQ-006 no-handler path) remain OPEN as separate items.
+
+**Change:** `FF_PusIngest` progress verification moved from before to after
+`handler(...)`. On handler success (`rc == FF_SUCCESS`) exactly one TM[1,5]
+(progress success, subservice 5, code 0) is emitted when `ack_progress` is set;
+on handler failure exactly one TM[1,6] (progress failure, subservice 6, code
+`FF_PUS_FAIL_EXECUTION`). Never both 1,5 and 1,6. Acceptance, start, and
+completion behaviour unchanged; unknown-service/subservice and illegal-APID
+early-return behaviour unchanged.
+
+- `src/pus/pus.c`: `FF_PusSendVerification` stage→subservice map already covers
+  PROGRESS→{5,6} (`FF_PUS_STAGE_PROGRESS` → subservice 5/6 based on success).
+  `FF_PusIngest` now calls it after `handler(...)` with `success=(rc == FF_SUCCESS)`,
+  `code=0` on success, `code=FF_PUS_FAIL_EXECUTION` on error.
+- `tests/unit/test_pus_s11_residual.c`: extended malformed-TC[9,1] case to assert
+  exactly one TM[1,6], zero TM[1,5], code `FF_PUS_FAIL_EXECUTION`, unchanged
+  completion failure TM[1,8]; added `test_s1_progress_fail_regression` (nominal
+  success → TM[1,5]; handler failure → TM[1,6]; no-completion-ack → no TM[1,8]);
+  added `stream_code_byte` helper verifying FF_PUS_FAIL_EXECUTION (20u) at the
+  verification-TM code octet.
+
+### Executed evidence (current tree, isolated build dir `build/doc-update`)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Configure | exit 0 | `cmake -S . -B build/s1-review -DCMAKE_BUILD_TYPE=Debug -DFF_USE_PUS_ASN1=ON` (`build-fresh.log`) |
+| Build | exit 0; 0 compiler warnings (`-Wall -Wextra -Werror`) | `cmake --build build/s1-review -j` (`build-fresh.log`) |
+| CTest | **60/60 PASS** | `ctest --test-dir build/s1-review --output-on-failure` (`ctest-fresh.log`) |
+| Focused set matching `pus\|pusopen\|decoder` (7 registered tests) | 7/7 PASS | `ctest --test-dir build/s1-review -R "pus\|pusopen\|decoder"` (`focused-pus-fresh.log`) |
+| `test_pus_s11_residual` | checks=1206, failures=0 | registered CTest `pus_s11_residual` (`pus-s11-residual-fresh.log`) |
+| `make verify-lean` | `lake build` exit 0 | `verification/lean` |
+| `make trace` | PASS (120 requirements, 76 srs, 30 sss, 14 gaps, 68 lean theorems) | `tools/scripts/trace.py` |
+| Format (changed files, host clang-format 23.1.3) | `clang-format --dry-run --Werror` PASS (version logged) | `src/pus/pus.c`, `tests/unit/test_pus_s11_residual.c` (`format-changed-host.log`) |
+| N13 license / GSW self-check | **PASS** (`make gsw-selfcheck` exit 0; license checker 17/17 tests OK, GSW 12 OK, metrics 9 OK) after the AD-002 correction: the third-party-derived overlay `tools/patches/n7s-obcp/src/modifications/py/vm.c` now declares the factually accurate compound expression `MIT AND MPL-2.0` (inherited MicroPython code MIT, project modifications MPL-2.0, upstream MIT notice retained), and the checker gained a narrow compound-expression rule (only exact `MIT AND MPL-2.0` under `tools/patches/`; alternate operators, parentheses, and identifiers are rejected) plus a fix for a latent header-membership defect. Provenance/notice completeness and T21 qualification remain OPEN under **NC-EXT-43/44**; this is a representation rule, not a legal or compatibility conclusion. | `docs/vv/evidence/2026-11-14-s1-progress-failure/gsw-final.log` |
+
+**No commit, push, release, qualification, or flight approval claimed.** NC-EXT-94 and
+NC-EXT-95 are closed on the recorded owner disposition AD-001 (closure is not an
+approval of this change and does not discharge the commit gates). NC-EXT-43/44,
+NC-EXT-245/246/247/248/249/250/251 remain OPEN. No requirement text or Lean theorem changed; the host integration server and runner were added to the `tests` attribution for SRS-REQ-006/007/012.
+
+## GSW CLI ↔ production UART/PUS host-SIL E2E (N22-TS2-75/87) — 2026-11-15
+
+**Scope:** `tools/gsw/ff_gsw.py` CLI → test-only serial adapter → bridged POSIX PTYs → production `FF_LinkUartBackend`/`link_uart.c` → `FF_PusIngest` and S17.1 handler → S1/S17 TM back through production UART. Nominal N22-TS2-75 plus OOB N22-TS2-87 deliberately drops requested acceptance ACK TM[1,1] on the GSW receive leg. This is host SIL; it does not demonstrate pyserial, an external ground segment, physical UART, RTEMS, target timing, HIL, Renode, or SDLS. The test adapter implements only the subset of `serial.Serial` needed by this test.
+
+**Controlled oracles:** N22-TS2-75 maps to FRICK-ICD-001 §§2/4 and SRS-REQ-006/007/012. Actual GSW CLI emits TC bytes `1810c000000a2b1101010201020304f72b`; accepted request emits TM services `[1,1],[1,3],[17,2],[1,7]`, each requested positive S1 ACK exactly once; S17.2 echoes `01020304`; S1 payload contains expected source `0x0102`, destination `0x0001`, TC service/subservice and success code; PUS secondary-header TM counter increments modulo 16384; frame/CRC checks pass. For N22-TS2-87 the C server still emits/captures all four TMs, but the test bridge drops TM[1,1] only on the GSW leg; GSW receives `[1,3],[17,2],[1,7]`, exits 1 within `--timeout 0.25`, and prints `ERROR: missing, duplicate, unexpected, or failed PUS ping response/ACK`. No false success. The CCSDS primary sequence field is separately zero per ICD/NC-EXT-06 and is not the SRS-REQ-007 PUS counter. ACK-lock contention/NC-EXT-251 is not exercised and remains unresolved; no ACK contract change is claimed.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Focused CTest (`gsw_uart_e2e`, `gsw_uart_e2e_missing_ack`) | 2/2 PASS, 0.94 s | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-uart-e2e-ctest.log` |
+| Python GSW tests | 14/14 PASS | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-unit.log` |
+| `BUILD_DIR=build/s1-review make build` | PASS | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/final-build.log` |
+| `BUILD_DIR=build/s1-review make test` | 62/62 PASS, 19.71 s | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/full-host-test.log` |
+| `make verify-lean` | PASS (`lake build`) | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/verify-lean.log` |
+| `make trace` (post-test-mapping) | PASS (120 requirements; 76 SRS, 30 SSS, 14 gaps; 68 Lean theorems) | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/trace-post-mapping.log` |
+| `make gsw-selfcheck` | PASS (GSW 14/14, metrics 9/9, license 17/17, license policy OK) | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-selfcheck.log` |
+| `BUILD_DIR=build/s1-review make smoke` | PASS (banner + 7 applications) | `docs/vv/evidence/2026-11-15-gsw-uart-e2e/smoke.log` |
+
+The initial `make build` and default `make smoke` attempts exited 2 before
+compilation/boot because pre-existing ignored `build/native/CMakeCache.txt`
+was generated under `/workspace`; the same commands passed with the isolated
+repository-local `build/s1-review` directory. Earlier test-oracle and CMake
+generation failures, their causes and corrections are retained in
+`docs/vv/evidence/2026-11-15-gsw-uart-e2e/initial-failures.md` and
+`stale-build-cache-failure.md`. No destructive cache cleanup was performed.
+
+N22-TS2-75 nominal and N22-TS2-87 OOB are now **host covered**, not target covered. T3/T7 remain NOT FULLY
+QUALIFIED pending independent exact-hash N10 review. NC-EXT-246/247 block N18;
+no Docker/Renode run was performed. Corrected-tree R1/R2/R3/R4 and PA reviews
+remain pending. No commit, push, release, qualification, flight, safety, or
+security approval is claimed.
+
+## 2026-11-17 — NC-EXT-251 functional correction, M9/M11 increment, and delta reviews
+
+Scope: the uncommitted increment on top of pushed baseline `c166cea`
+(`main`). Functional correction of NC-EXT-251 in `src/pus/pus.c`; Renode HAL
+coverage extension in `src/apps/app_renode_test.c`; cppcheck reduction on the
+modified files; configuration-management corrections (`tests/CMakeLists.txt`
+target deregistration, `docs/requirements/traceability.yaml` implementation
+lists, `.gitignore`).
+
+All logs are retained under `docs/vv/evidence/2026-11-17-m9-m11-renode-hal/`.
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| `make ci-local` (Docker `frick-vv:local`, ASN1=ON) | PASS — `100% tests passed, 0 tests failed out of 65`; `elab-receipt: PASS`; `lean theorems found: 77`; `traceability: PASS (120 requirements, 76 srs, 30 sss, 14 gaps, 77 lean theorems checked)` | `ci-local.log` |
+| `BUILD_DIR=build/smoke-fresh make smoke` | PASS — banner + 7 applications registered | `smoke.log` |
+| `make verify-lean` | PASS — `Build completed successfully.` | `lean.log` |
+| `make trace` | PASS — 120/76/30/14/77 | `trace.log` |
+| `make renode` (N18, emulated) | PASS — `RENODE_TEST: PASS`, container exit code 0 | `renode-run.log`, `renode-process.log`, `uart-console.log`, `status.env` |
+| RTEMS image rebuild (Docker `frick-rtems-toolchain:local`) | PASS — ELF sha256 `3a94de0f2dafcbd18e796110019b7eed37963b5ff3ea188e9caca87b4d49977b` | `rtems-rebuild.log`, `elf.sha256` |
+| `ctest --test-dir build/pus-fix` (ASN1=OFF, N7 OBCP off) | 61/61 PASS; focused PUS suites 7/7 PASS | — |
+| NC-EXT-251 TDD RED | `checks=147 failures=2`, exit 1 on the previous `src/pus/pus.c` | `tdd-nc-ext-251/green-on-head-code-fails.log` |
+| NC-EXT-251 TDD GREEN | `checks=147 failures=0`, exit 0 on the corrected `src/pus/pus.c` | `tdd-nc-ext-251/green-on-fixed-code-passes.log`, `tdd-nc-ext-251/pus.c.candidate` |
+| `git diff --check` | PASS | — |
+
+Renode HAL matrix observed in `uart-console.log`: `hal_gpio`, `hal_serial`,
+`hal_mem`, `hal_eth`, `hal_net`, `hal_nvm`, `hal_can`, `hal_i2c`, `hal_spi`,
+`hal_block`, `hal_tsn`, `hal_pcie`, `hal_net_lwip`, `sb_roundtrip` = PASS;
+`hal_spacewire` = CONTRACT.
+
+**Coverage limits, stated and not claimed away.**
+
+- MTD/QSPI NOR flash is **not** exercised in the emulated environment. Renode
+  models the Micron MT25Q flash as a child of the `SPI.MPFS_QSPI` controller, not
+  as memory mapped at `0x21000000`, so the reference MTD driver cannot be reached
+  by direct MMIO there. The driver is exercised by host unit tests; on-target
+  QSPI remains **GAP-A5**.
+- N18 in this record is **emulated only**. No physical target or HIL evidence
+  exists; no target, qualification or flight claim follows from these runs.
+- `build/native` remains unusable because its CMake cache records `/workspace`;
+  `make smoke` therefore requires `BUILD_DIR=`. `build/renode/` is root-owned, so
+  `tools/scripts/renode_vv.sh` cannot retain `console.log` there and the per-run
+  `/tmp/frick-renode-vv.*` capture is authoritative.
+- The N18 run used the existing containerised runner while **NC-EXT-246** (no
+  approved Docker preflight/cleanup procedure) remains OPEN. The run is recorded
+  as performed, not as cleared by an approved procedure.
+
+**Delta reviews.** R4 (N17) returned **NOT PASSED** (3 Major, 8 Minor, 6 Comment)
+and PA (N20) returned **REJECTED — commit/push withheld** (1 Blocker, 6 Major,
+5 Minor, 3 Comment) for this candidate. Both were sub-agent reviews with
+contextual independence only: neither discharges N17/N20, and neither closes,
+qualifies, waives or approves anything. The findings were corrected in this same
+increment: the gate-evidence Blocker (logs now retained and bound as above), the
+functional F-08 defect (corrected with a retained RED→GREEN case), the false
+"MTD exercised in the emulated SoC" claim in `config/platform/platform_mpfs.h`,
+the duplicate `pus.c` configuration-management hazard, the duplicated §20 in
+`docs/status/loop-audit.md`, and the documented count/consistency errors
+(68 → 77 Lean theorems; stale 66/66 inventory; revision headers; review index).
+Corrected-tree re-reviews are still required and remain a commit gate under
+N12/N17/N20.
+
+NC-EXT-251 is corrected but **not closed**. NC-S9-01, NC-PAL-01,
+NC-EXT-246/247 and NC-WDOG0-01/-02 remain OPEN. NC-EXT-43 remains OPEN under the
+owner's indefinite deferral, non-blocking for unrelated development only, with
+the release/redistribution gate retained. M12 closure, M15/M16, the full sprint
+scope, release, qualification, certification and mission approval are **not**
+claimed.

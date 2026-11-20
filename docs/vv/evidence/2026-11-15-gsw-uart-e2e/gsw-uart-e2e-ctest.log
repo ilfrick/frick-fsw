@@ -1,0 +1,18 @@
+Test project /home/nicola/fsw/frick-fsw/build/s1-review
+    Start 5: gsw_uart_e2e
+1/2 Test #5: gsw_uart_e2e .....................   Passed    0.37 sec
+    Start 6: gsw_uart_e2e_missing_ack
+2/2 Test #6: gsw_uart_e2e_missing_ack .........   Passed    0.56 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Label Time Summary:
+gsw         =   0.93 sec*proc (2 tests)
+host-pty    =   0.93 sec*proc (2 tests)
+n22         =   0.93 sec*proc (2 tests)
+oob         =   0.56 sec*proc (1 test)
+sil         =   0.93 sec*proc (2 tests)
+ts2         =   0.93 sec*proc (2 tests)
+uart        =   0.93 sec*proc (2 tests)
+
+Total Test time (real) =   0.94 sec

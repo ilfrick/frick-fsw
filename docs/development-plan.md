@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-PLAN-0001                        |
-| Revision                          | 0.44                                   |
-| Date                              | 2026-10-20                             |
+| Revision                          | 0.45                                   |
+| Date                              | 2026-11-17                             |
 | Status                            | living plan; updated every cycle (norm N8/N16) |
 | Applicable norms                  | N1-N20 (`docs/rules.md`)               |
 
@@ -331,7 +331,7 @@ connection retains one of four slots until `init()` resets the table
 | M8 | OBJ-16 (deterministic Ethernet: gPTP 802.1AS delivered; fabric CoreTSN deferred to M14) + OBJ-29 (GEM TSN 802.1Qav/Qci/Qbb) | delivered (partial) | gPTP stack `src/drivers/eth/gptp/` (58 host checks) + GEM 802.1Qci screener type 1 (SRS-REQ-066/068); 802.1Qav/Qbb `FF_NOT_IMPLEMENTED` (NC-S8-01/NC-S8-02); fabric CoreTSN deferred to M14 |
 | M9 | OBJ-17 (code quality: MISRA C:2012 + coding style) | in progress | style + MISRA process declared; certified checker = GAP-A4 |
 | M10 | OBJ-18 (emulated-target verification: Renode + QEMU) | done | Renode real run PASS (`make renode`, norm N18, MPFS image); QEMU generic-BSP run PASS (`make qemu`, T20, `qemu-system-riscv64 -M virt`) |
-| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | in progress (11/13 peripheral-bound) | **Peripheral-bound done (11/13): GPIO/SERIAL/MEM/ETH/NVM/CAN/I2C/SPI/BLOCK/TSN/PCIe (`hal_*`=PASS)**. Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`; in-process) and, on the **lwIP-enabled image**, an **lwIP netif bound to the emulated GEM** (`hal_net_lwip=PASS`, S6b-2; packet round-trip + GEM DMA = NC-S6-01/NC-S6-03). SpaceWire is **contract-level only** (NC-S7-01: no emulated peripheral); the full GEM DMA packet round-trip is deferred to M14 |
+| M11 | OBJ-19 (Renode HAL coverage: all HAL classes exercised on the emulated SoC) | **delivered (11/13 peripheral-bound; 2 classes model-limited)** | **Peripheral-bound done (11/13): GPIO, SERIAL, MEM, ETH, NVM, CAN, I2C, SPI, BLOCK, TSN, PCIe (`hal_*`=PASS)**. Plus a **NET `FF_NetStack_t` contract check** via the reference loopback stack (`hal_net=PASS`) and, on the **lwIP-enabled image**, an **lwIP netif bound to the emulated GEM** (`hal_net_lwip=PASS`, S6b-2; packet round-trip + GEM DMA = NC-S6-01/NC-S6-03). SpaceWire is **contract-level only** (NC-S7-01: no emulated peripheral in Renode). MTD (QSPI NOR flash) is **NOT peripheral-bound in Renode** because the model exposes it behind an SPI controller (SPI.Micron_MT25Q on SPI.MPFS_QSPI), not memory-mapped at 0x21000000; the MTD driver exists and is host unit-tested; on-target QSPI is GAP-A5. The full GEM DMA packet round-trip is deferred to M14. **All available Renode HAL checks PASS (`make renode` → `RENODE_TEST: PASS`)**. |
 | M12 | OBJ-20 (OBCP engine: uPython/MicroPython On-Board Control Procedures) | planned | candidate `n7space/n7s-obcp` |
 | M13 | OBJ-21 (reference mission services: equipment manager + fault management) | planned | — |
 | M14 | OBJ-22 (multicore / SMP on the 4×U54, after all other milestones) | planned | — |
@@ -392,4 +392,5 @@ in `docs/status/status.json`; the live resume point is
 | 0.41 | 2026-10-20 | frick-fsw | Align reference application count to seven following the S8-FDIR-01 WD feeder registration; no claim of target watchdog operation or mission qualification |
 | 0.42 | 2026-10-20 | frick-fsw | Correct the M1 v0.1.0 historical baseline to six reference apps; explicitly date WD's later addition in S8-FDIR-01 and distinguish current seven-default count from the conditional Renode app |
 | 0.43 | 2026-10-20 | frick-fsw | Correct the conditional Renode application option name to `FF_ENABLE_RENODE_TEST` (default OFF) per CMake/source; bounded R4 recheck also identified stale source comments claiming six default apps, pending safe reconciliation |
+| 0.45 | 2026-11-17 | frick-fsw | Record M11 Renode HAL coverage over every modelled HAL class (MTD/QSPI absent: flash modelled behind `SPI.MPFS_QSPI`, on-target QSPI = GAP-A5) and the NC-EXT-251 functional PUS correction of the same date. M12 stays code/tests delivered with closure blocked by NC-S9-01; M15/M16 remain incomplete. |
 | 0.44 | 2026-10-20 | frick-fsw | Correct CMake and app_renode_test source comments to state seven default apps and the optional Renode test app; comment-only, no behavior change |

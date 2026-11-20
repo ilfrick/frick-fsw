@@ -6,9 +6,11 @@ Sends PUS-C telecommands and decodes PUS-C telemetry over a serial port (target
 UART) or the host loopback log. TC construction and TM parsing are covered by
 fixed packet vectors; the live serial path uses a bounded incremental TM decoder
 that retains incomplete frames across reads. Fragmentation/resynchronization
-tests live in `tests/python/test_ff_gsw.py` (tool register T7). An end-to-end link
-with an independent ground segment is not yet demonstrated.
-Keep this script under review when changed (norm N10).
+tests live in `tests/python/test_ff_gsw.py` (tool register T7). A host-SIL
+GSW↔production-UART/PUS integration is exercised by
+`tests/python/test_gsw_uart_e2e.py` through bridged PTYs and a test-only serial
+adapter; this is not pyserial, a physical UART, or an external ground-segment
+demonstration. Keep this script under review when changed (norm N10).
 
 Commands:
   ff_gsw.py --connect /dev/ttyUSB0 --baud 115200            open interactive read
@@ -50,9 +52,40 @@ def crc16(data: bytes, crc: int = 0xFFFF) -> int:
     return crc
 
 
-def build_ping_packet(source_id: int = 0x0102, seq: int = 0) -> bytes:
+ACK_STAGE_FLAGS = {
+    "accept": (0x01, 1),
+    "start": (0x02, 3),
+    "progress": (0x04, 5),
+    "completion": (0x08, 7),
+}
+DEFAULT_ACK_STAGES = ("accept", "start", "completion")
+
+
+def parse_ack_stages(value: str) -> tuple[int, tuple[int, ...]]:
+    """Parse the CLI's requested positive service-1 acknowledgment stages."""
+    normalized = value.strip().lower()
+    if normalized in ("", "none"):
+        return 0, ()
+    names = tuple(part.strip().lower() for part in normalized.split(",") if part.strip())
+    if len(set(names)) != len(names):
+        raise ValueError("duplicate --ack stage")
+    unknown = tuple(name for name in names if name not in ACK_STAGE_FLAGS)
+    if unknown:
+        raise ValueError(f"unknown --ack stage: {', '.join(unknown)}")
+    flags = 0
+    subservices = []
+    for name in names:
+        flag, subservice = ACK_STAGE_FLAGS[name]
+        flags |= flag
+        subservices.append(subservice)
+    return flags, tuple(subservices)
+
+
+def build_ping_packet(source_id: int = 0x0102, seq: int = 0, ack_flags: int = 0x0B) -> bytes:
     """Build a PUS service 17 subservice 1 (connection test) TC frame."""
-    ack = 0x01 | 0x02 | 0x08  # acceptance + start + completion
+    if not isinstance(ack_flags, int) or not 0 <= ack_flags <= 0x0F:
+        raise ValueError("ack_flags must be a 4-bit PUS verification mask")
+    ack = ack_flags
     sec = bytes([((2 << 4) | ack), 0x11, 0x01, (source_id >> 8) & 0xFF, source_id & 0xFF])
     payload = b"\x01\x02\x03\x04"
     raw = sec + payload
@@ -157,11 +190,14 @@ class TmStreamDecoder:
         return packets
 
 
-def read_tm_until_ping_reply(read, timeout: float, clock=time.monotonic) -> list:
-    """Read bounded fragments until the expected S17 echo reply or deadline."""
+def read_tm_until_ping_reply(read, timeout: float, clock=time.monotonic, *,
+                             expected_ack_subservices=()) -> list:
+    """Read bounded fragments until the S17 echo and requested S1 ACKs or deadline."""
     deadline = clock() + timeout
     decoder = TmStreamDecoder()
     packets = []
+    required_acks = set(expected_ack_subservices)
+    reply_seen = False
     while True:
         remaining = deadline - clock()
         if remaining <= 0:
@@ -174,8 +210,23 @@ def read_tm_until_ping_reply(read, timeout: float, clock=time.monotonic) -> list
                 del packets[0]
             packets.append(packet)
             if packet == PING_REPLY:
-                return packets
+                reply_seen = True
+            if packet[0] == 1 and packet[1] in required_acks:
+                required_acks.remove(packet[1])
+        if reply_seen and not required_acks:
+            return packets
     return packets
+
+
+def ping_responses_valid(packets, expected_ack_subservices) -> bool:
+    """Require one S17 echo, each requested positive ACK once, and no extras."""
+    if sum(packet == PING_REPLY for packet in packets) != 1:
+        return False
+    expected = tuple(expected_ack_subservices)
+    actual = [sub for service, sub, _data in packets if service == 1]
+    if sorted(actual) != sorted(expected):
+        return False
+    return all(actual.count(sub) == 1 for sub in expected)
 
 
 def main() -> int:
@@ -183,6 +234,8 @@ def main() -> int:
     ap.add_argument("--connect", help="serial device, e.g. /dev/ttyUSB0")
     ap.add_argument("--baud", type=int, default=115200)
     ap.add_argument("--ping", action="store_true", help="send a PUS S17 ping TC")
+    ap.add_argument("--ack", default=",".join(DEFAULT_ACK_STAGES),
+                    help="requested S1 ACK stages: accept,start,progress,completion (or none)")
     ap.add_argument("--file", help="binary TM log to decode")
     ap.add_argument("--decode", action="store_true", help="decode TM packets")
     ap.add_argument("--timeout", type=float, default=3.0)
@@ -199,7 +252,11 @@ def main() -> int:
         return 0
 
     if args.ping:
-        frame = build_ping_packet()
+        try:
+            ack_flags, expected_ack_subservices = parse_ack_stages(args.ack)
+        except ValueError as exc:
+            ap.error(str(exc))
+        frame = build_ping_packet(ack_flags=ack_flags)
         print(f"TC frame ({len(frame)} B): {frame.hex()}")
         if not args.connect:
             print("(no --connect given; frame size/CRC self-check only)")
@@ -220,12 +277,14 @@ def main() -> int:
                 ser.timeout = poll_timeout
                 return ser.read(size)
 
-            packets = read_tm_until_ping_reply(read_fragment, args.timeout)
+            packets = read_tm_until_ping_reply(
+                read_fragment, args.timeout,
+                expected_ack_subservices=expected_ack_subservices)
         print(f"received {len(packets)} TM packets")
         for svc, sub, data in packets:
             print(f"  S{svc}.{sub} payload={data.hex()}")
-        if not any(packet == PING_REPLY for packet in packets):
-            print("WARNING: no matching service 17 ping reply received before timeout")
+        if not ping_responses_valid(packets, expected_ack_subservices):
+            print("ERROR: missing, duplicate, unexpected, or failed PUS ping response/ACK")
             return 1
         return 0
 

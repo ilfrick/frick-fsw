@@ -1,0 +1,2 @@
+cd verification/lean && lake build
+Build completed successfully.

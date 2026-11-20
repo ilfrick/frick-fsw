@@ -170,6 +170,61 @@ class LicenseCheckTests(unittest.TestCase):
                     license_check._header_spdx_expressions(header, Path(filename)), []
                 )
 
+    def test_compound_expression_is_accepted_only_under_overlay_roots(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "LICENSE").write_bytes((license_check.ROOT / "LICENSE").read_bytes())
+            overlay = root / "tools" / "patches" / "dep" / "py"
+            overlay.mkdir(parents=True)
+            (root / "src").mkdir()
+            header = "/*\n * SPDX-License-Identifier: MIT AND MPL-2.0\n */\n"
+            (overlay / "vm.c").write_text(header)
+            self.assertEqual(license_check.validate(root), [])
+            (overlay / "vm.c").write_text("// SPDX-License-Identifier: MPL-2.0\n")
+            (root / "src" / "example.c").write_text(header)
+            errors = license_check.validate(root)
+            self.assertTrue(any("src/example.c: unexpected SPDX" in error for error in errors))
+            self.assertTrue(any(
+                "src/example.c: missing MPL-2.0 SPDX header" in error for error in errors
+            ))
+
+    def test_only_exact_compound_expression_is_accepted(self):
+        overlay = Path("tools/patches/dep/vm.c")
+        for expression in (
+            "MIT OR MPL-2.0",
+            "MPL-2.0 OR MIT",
+            "MIT WITH Classpath-exception-2.0 AND MPL-2.0",
+            "MIT AND (MPL-2.0 OR GPL-2.0-only)",
+        ):
+            with self.subTest(expression=expression):
+                self.assertFalse(license_check._spdx_expression_allowed(overlay, expression))
+        self.assertTrue(
+            license_check._spdx_expression_allowed(overlay, "MIT AND MPL-2.0")
+        )
+
+    def test_compound_expression_rejects_identifiers_outside_the_allowlist(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "LICENSE").write_bytes((license_check.ROOT / "LICENSE").read_bytes())
+            overlay = root / "tools" / "patches" / "dep" / "py"
+            overlay.mkdir(parents=True)
+            for bad_expression in (
+                "MPL-2.0 AND GPL-3.0-only",
+                "MIT AND Apache-2.0",
+                "MIT",
+                "MIT OR MPL-2.0",
+                "MPL-2.0 OR MIT",
+                "MIT WITH Classpath-exception-2.0 AND MPL-2.0",
+            ):
+                with self.subTest(expression=bad_expression):
+                    (overlay / "vm.c").write_text(
+                        "/* SPDX-License-Identifier: " + bad_expression + " */\n"
+                    )
+                    errors = license_check.validate(root)
+                    self.assertTrue(any(
+                        "missing MPL-2.0 SPDX header" in error for error in errors
+                    ))
+
     def test_mismatched_comment_terminators_are_not_declarations(self):
         for header in (
             "# SPDX-License-Identifier: MPL-2.0 */",

@@ -24,6 +24,15 @@ MANAGED_ROOTS = (
 EXCLUDED_PARTS = {".git", "build", "third_party"}
 HISTORICAL_REPORTS = Path("docs/reviews")
 HISTORICAL_LICENSE_DECISIONS = {Path("docs/adr/ADR-0011-agpl-license.md")}
+# Third-party-derived overlay files. A file under `tools/patches/` is a
+# project-owned modification of a pinned upstream dependency, so its header may
+# carry the compound SPDX expression that states MPL-2.0 for the project
+# modifications *and* MIT for the inherited code. Only the exact
+# `MIT AND MPL-2.0` expression is accepted under these roots. See
+# `docs/quality/licensing.md` §5.1 and NC-EXT-43 (provenance/notice completeness
+# remains open).
+COMPOUND_SPDX_ROOTS = (Path("tools/patches"),)
+COMPOUND_SPDX_EXPRESSION = "MIT AND MPL-2.0"
 SPDX_DECLARATION = re.compile(
     r"^\s*(?:(?://|#|;|--)\s*SPDX-License-Identifier:\s*(.*?)\s*"
     r"|/\*\s*SPDX-License-Identifier:\s*(.*?)\s*\*/\s*"
@@ -48,6 +57,15 @@ def _spdx_expressions(text: str) -> list[str]:
         elif "-->" in line:
             in_html_comment = False
     return expressions
+
+
+def _spdx_expression_allowed(rel: Path, expression: str) -> bool:
+    """Accept plain MPL-2.0 anywhere; compound forms only in overlay roots."""
+    if expression == "MPL-2.0":
+        return True
+    return expression == COMPOUND_SPDX_EXPRESSION and any(
+        rel.is_relative_to(root) for root in COMPOUND_SPDX_ROOTS
+    )
 
 
 def _header_spdx_expressions(text: str, path: Path) -> list[str]:
@@ -146,8 +164,11 @@ def validate(root: Path = ROOT) -> list[str]:
             and (path.suffix in CODE_SUFFIXES or path.name in COMMENTED_BUILD_FILES)
             and not rel.is_relative_to(Path("tools/third_party"))
         )
-        if is_managed_code and ids and any(identifier != "MPL-2.0" for identifier in ids):
-            errors.append(f"{rel}: unexpected SPDX license identifier(s): {', '.join(sorted(set(ids)))}")
+        if is_managed_code and ids:
+            for expression in ids:
+                if _spdx_expression_allowed(rel, expression):
+                    continue
+                errors.append(f"{rel}: unexpected SPDX license identifier(s): {expression}")
 
     for path in files:
         rel = path.relative_to(root)
@@ -162,7 +183,11 @@ def validate(root: Path = ROOT) -> list[str]:
         except (UnicodeDecodeError, OSError):
             errors.append(f"{rel}: cannot read managed file for SPDX validation")
             continue
-        if "MPL-2.0" not in _header_spdx_expressions(text, path):
+        header_expressions = _header_spdx_expressions(text, path)
+        if not any(
+            _spdx_expression_allowed(rel, expression)
+            for expression in header_expressions
+        ):
             errors.append(f"{rel}: missing MPL-2.0 SPDX header")
     return errors
 

@@ -4,8 +4,8 @@
 | --------------------------------: | :------------------------------------- |
 | Project                          | frick-fsw                              |
 | Document id                      | FRICK-QUAL-PA-001                      |
-| Revision                          | 0.4                                    |
-| Date                              | 2026-10-13                             |
+| Revision                          | 0.6                                    |
+| Date                              | 2026-11-17                             |
 | References                        | ECSS-Q-ST-80C, `docs/rules.md`, `docs/quality/ecss-compliance-matrix.md` |
 
 ## 1. Scope and objectives
@@ -56,11 +56,28 @@ The continuous pipeline (build, tests, Lean, traceability, format, docs,
 smoke) is the automated audit; it runs on both forges (norm N6). Manual audits
 are the periodic milestone reviews (R1/R2/R3/R4) and the per-phase PA review (N20).
 
+## 6. Recorded authority dispositions
+
+This register records decisions that were explicitly taken by the project owner
+(or by an engineering role acting under an explicit owner delegation), so that
+they are not re-opened or re-requested by later cycles. It records the decision
+and its conditions; it does not claim that an independent reviewer, a mission/
+customer authority, or a certification authority approved anything. Dispositions
+that require an external authority stay OPEN until that authority acts.
+
+| ID | Date | Subject | Decision | Recorded in | Conditions / residual |
+| -- | ---- | ------- | -------- | ----------- | --------------------- |
+| AD-001 | 2026-11-14 | NC-EXT-94 and NC-EXT-95 (ICD §4 S1 subservice 6 and S20 TC[20,1]) | The owner confirmed that ICD rev 1.9 / commit `fc68b9d` **is** the authoritative disposition (implement the TM[1,6] progress-failure emission; annotate subservice 4 as reserved/not emitted; document the registered TC[20,1] set) and **directed that both NCs be CLOSED**. No further owner decision is required for these two NCs. | `docs/planning/sprint-plan.md` NC-EXT-94/95 rows; `docs/interfaces/ICD.md` rev 1.9 §4 + history; `docs/architecture/pus-c-from-scratch-assessment.md` rev 0.4; `CHANGELOG.md` | Closure is supported by `src/pus/pus.c` + `tests/unit/test_pus_s11_residual.c` (checks=1206, failures=0) and oracle `N22-TS1-105`. The implementation is uncommitted working-tree state: it **must** be committed together with ICD rev 1.9 (already at HEAD) or HEAD stays internally inconsistent. Closure does not imply PUS-C compliance, does not approve the change, and does not dispose of NC-EXT-249 (S1 ordering / TM[1,6]+TM[1,8] co-occurrence) or NC-EXT-250 (SRS-REQ-006 no-handler path), which remain separate and OPEN. |
+| AD-002 | 2026-11-14 | SPDX labelling of `tools/patches/n7s-obcp/src/modifications/py/vm.c` | Under explicit owner delegation, the FSW engineer chose the **factually accurate compound expression** `MIT AND MPL-2.0` (inherited MicroPython code is MIT; the project-owned modifications are MPL-2.0) instead of a single `MPL-2.0` label, and extended `tools/scripts/license_check.py` with a narrow rule: the exact compound expression `MIT AND MPL-2.0` is accepted only under `tools/patches/`; alternate operators, parentheses, and any other identifiers are rejected. | `docs/quality/licensing.md` §5.1; `tools/scripts/license_check.py`; `tools/patches/n7s-obcp/src/modifications/py/vm.c` header | The label is a representation rule, not a legal or compatibility conclusion. Upstream notice completeness, provenance and combined-distribution compatibility remain **OPEN** under NC-EXT-43; the checker semantic change and its qualification remain **OPEN** under NC-EXT-44 (N10/T21). A single `MPL-2.0` label was rejected because it would misstate the inherited MIT code. |
+| AD-003 | 2026-11-17 | OBCP/PUS S18 engine direction and NC-EXT-43 verification | The owner confirmed **Route A** for the OBCP engine (controlled N7 runtime patch with an execution quota plus safe abort/cleanup), accepted keeping PUS Service 18 **provisional and default-off** (`FF_USE_PUS_S18_PROVISIONAL=OFF`) with a conditional host/emulator-only interim evidence plan if target/HIL is unavailable, and directed that **NC-EXT-43 license/provenance verification be postponed indefinitely** and marked non-blocking. | `docs/status/nc-s9-01-authority-decision-package.md` rev0.4; `docs/quality/licensing.md` rev2.0; `docs/planning/sprint-plan.md`; commit `c166cea` | The direction is a scope and sequencing decision. It does **not** approve the provisional S18 mission interface, does not constitute safety acceptance or target qualification, does not resolve license compatibility, and does not close NC-EXT-43 or NC-S9-01. NC-EXT-43 remains OPEN with the release/redistribution gate retained; NC-S9-01 remains OPEN for production bindings, target/HIL evidence, RTEMS/RISC-V portability, license disposition and independent reviews. |
+
 ## History
 
 | Rev | Date       | Author    | Reason |
 | --- | ---------- | --------- | ------ |
-| 0.1 | 2026-10-10 | frick-fsw | Initial software product/quality assurance plan |
-| 0.2 | 2026-10-11 | frick-fsw | Add the N20 Senior SW PA review of every phase product (scope, independence, records) (PA-07) |
-| 0.3 | 2026-10-13 | frick-fsw | Clarify that ECSS Category B is the project target only and does not claim a mission/customer assignment; NC-EXT-11 remains open pending authority input and independent review. |
+| 0.6 | 2026-11-17 | frick-fsw | Register owner decision AD-003 (Route A engine direction, provisional/default-off S18, indefinite NC-EXT-43 verification deferral) and record the 2026-11-17 increment. Records decisions only; no NC closed, no gate waived, no approval or release claim |
+| 0.5 | 2026-11-14 | frick-fsw | Add §6 recorded authority dispositions (AD-001: owner confirms ICD rev 1.9/`fc68b9d` as the NC-EXT-94/95 disposition and directs closure; AD-002: compound `MIT AND MPL-2.0` overlay label with a narrow checker rule under owner delegation). Records decisions only; no approval, compliance or certification claim |
 | 0.4 | 2026-10-13 | frick-fsw | Clarify retention versus publication timing for review and PA evidence; NC-EXT-32 remains open pending independent verification |
+| 0.3 | 2026-10-13 | frick-fsw | Clarify that ECSS Category B is the project target only and does not claim a mission/customer assignment; NC-EXT-11 remains open pending authority input and independent review. |
+| 0.2 | 2026-10-11 | frick-fsw | Add the N20 Senior SW PA review of every phase product (scope, independence, records) (PA-07) |
+| 0.1 | 2026-10-10 | frick-fsw | Initial software product/quality assurance plan |

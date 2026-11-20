@@ -1,0 +1,36 @@
+python3 tests/python/test_ff_gsw.py
+............
+----------------------------------------------------------------------
+Ran 12 tests in 0.006s
+
+OK
+python3 tests/python/test_metrics.py
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+OK
+python3 tests/python/test_license_check.py
+....F.........
+======================================================================
+FAIL: test_current_repository_license_policy (__main__.LicenseCheckTests.test_current_repository_license_policy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/nicola/fsw/frick-fsw/tests/python/test_license_check.py", line 18, in test_current_repository_license_policy
+    self.assertEqual(license_check.validate(), [])
+AssertionError: Lists differ: ['tools/patches/n7s-obcp/src/modifications[34 chars]der'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'tools/patches/n7s-obcp/src/modifications/py/vm.c: missing MPL-2.0 SPDX header'
+
++ []
+- ['tools/patches/n7s-obcp/src/modifications/py/vm.c: missing MPL-2.0 SPDX '
+-  'header']
+
+----------------------------------------------------------------------
+Ran 14 tests in 55.434s
+
+FAILED (failures=1)
+make: *** [Makefile:49: gsw-selfcheck] Errore 1
+GSW_EXIT=2

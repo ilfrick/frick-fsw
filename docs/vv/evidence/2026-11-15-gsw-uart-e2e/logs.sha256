@@ -1,0 +1,11 @@
+2b14544146d0e9746b6482c01342a1db4f7b3b4999a2c941b7266c206bbd1e1a  docs/vv/evidence/2026-11-15-gsw-uart-e2e/final-build.log
+ca30f9e96d9407f69ad5396a530e1a0c1edc4a149a182b3ee55941871008ff06  docs/vv/evidence/2026-11-15-gsw-uart-e2e/format-check.log
+0ad93881787aa48b7b83268b24eff7a09bb265e330afbcf6070f2dc903d8cc56  docs/vv/evidence/2026-11-15-gsw-uart-e2e/full-host-test.log
+acfdbe1aa5c06ba85012cfbe1b2d200ae335e14c5345cdb46f9b9cd60e5328ab  docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-selfcheck.log
+fe30bdfcea41152a2b7a650e2896d1caa683a1dce14e5af67b28b35fd8eeb923  docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-uart-e2e-build.log
+99925de9bec28e8173991ece7c1ce05dce252cbf52cbddcc0f5e135ae8575cb7  docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-uart-e2e-ctest.log
+0fa6e9196f096183c02cc2acc9c66c1dc944647981973bb5cc84a89647a36d1e  docs/vv/evidence/2026-11-15-gsw-uart-e2e/gsw-unit.log
+caa03785b6c9ba3832d909e8cb256757fcdc0d13c2b44f8d16bcbfb3e6d4c4fd  docs/vv/evidence/2026-11-15-gsw-uart-e2e/smoke.log
+de5a1b22657bc50e2498a86bd765cffa7e4259a6b7c31bc59c863d6b0d35700e  docs/vv/evidence/2026-11-15-gsw-uart-e2e/trace.log
+d28cb4bcb6e80cbafd53e4a3946febbb760c605cc4aec00ee44a6860bd133f6d  docs/vv/evidence/2026-11-15-gsw-uart-e2e/trace-post-mapping.log
+a998040a39aa2f76019f3acffd05ab6ca8b995c347a3c8e6bd57d0f8ab386e5f  docs/vv/evidence/2026-11-15-gsw-uart-e2e/verify-lean.log

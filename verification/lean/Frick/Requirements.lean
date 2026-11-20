@@ -67,11 +67,19 @@ theorem req_srs006_acceptance_completion {a : AckFlags}
 -- =====================================================================
 -- SRS-REQ-007 : TM message type counter monotonicity + 14 bit bound.
 -- =====================================================================
-theorem req_srs007_counter_increases (c : Nat) : nextTm c > c := by
-  exact Nat.lt_succ_self c
-theorem req_srs007_counter_wrap_bounded (c : Nat) : wrapTm c < 16384 := by
-  unfold wrapTm
-  exact Nat.mod_lt c (by omega)
+/-- While the field is not exhausted the shipped advance `(c+1) mod 16384`
+    strictly increases the counter (SRS-REQ-007, first clause). -/
+theorem req_srs007_counter_increases (c : Nat) (h : c < 16383) : tmStep c > c :=
+  tm_counter_strictly_increases c h
+/-- Every advance stays inside the 14 bit field, and the last value wraps to
+    zero (SRS-REQ-007, "wrap modulo 16384" clause). -/
+theorem req_srs007_counter_wrap_bounded (c : Nat) : tmStep c < 16384 :=
+  tm_step_bounded c
+/-- The advance is injective on the field: no two transmitted frames can share a
+    counter value (SRS-REQ-007, one shared sequence). -/
+theorem req_srs007_counter_no_duplicate (a b : Nat) (ha : a < 16384) (hb : b < 16384)
+    (h : tmStep a = tmStep b) : a = b :=
+  tm_step_injective a b ha hb h
 
 -- =====================================================================
 -- SRS-REQ-001 : Software Bus delivery semantics (model checks).

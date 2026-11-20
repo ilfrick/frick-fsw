@@ -2,8 +2,8 @@
 
 | Document id | FRICK-ICD-001 |
 | ----------- | ------------- |
-| Revision    | 1.8 |
-| Date        | 2026-11-13 |
+| Revision    | 2.1 |
+| Date        | 2026-11-16 |
 | Profile     | PUS-C (ECSS-E-ST-70-41C) over CCSDS Space Packets (CCSDS 133.0-B-2) |
 
 ## 1. Scope
@@ -118,7 +118,8 @@ provisional-profile note at the end of this section.
 | 6  | 2 / 6 | memory dump (TC[6,2] -> TM[6,6]) | TC/TM | TC payload: provisional profile: region id[1] + byte offset[4, big-endian] + length[2, big-endian] (7-octet payload, exactly); length bounded by the registered region and `FF_PUS_MAX_TM_FRAME`. TM[6,6] payload: the **raw region octets only** (no header, no region/offset/length echo). Refused with `FF_BAD_SIZE` when `region id == 0`, `length == 0` or `length` exceeds `FF_PUS_MAX_TM_FRAME`; with `FF_NOT_FOUND` when no registered region carries the identifier, and with `FF_INVALID_ARGUMENT` when the region exists but `offset + length` lies outside it (region resolution precedes the range check, so an unknown region is never reported as a range refusal). These causes are **distinct in software** but **none of them is distinguishable on the wire by design**: every refusal surfaces as S1(1,8) with `FF_PUS_FAIL_EXECUTION` when the completion ack flag is set, and produces no response when it is clear. Validation precedence is: payload length, then `region id`/`length` range, then region resolution, then region bounds. The PUS-C failure-code allocation that would separate the causes on the wire is an interface-authority decision and is not made here (NC-EXT-18) |
 | 8  | - | function call | TC (dispatch) | function id |
 | 9  | 1 / 2 | time set / CUC report | TC/TM | 6-octet CUC T-field (P-field implicit; section 5) |
-| 11 | 1 / 2 | on-board control procedure (OBCP) activation — **stub** | TC | registered and answerable, but returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); no OBCP engine or script execution exists in this release (M15; NC-S9-01) |
+| 11 | 1 / 2 | on-board control procedure activation — **stub** | TC | registered and returns `FF_NOT_IMPLEMENTED` (plus an EVS warning); this service is not the OBCP execution interface |
+| 18 | 1 / 3 / 5 | OBCP load/start / abort / status — **provisional** | TC/TM | Compiled only when `FF_USE_N7_OBCP` and `FF_USE_PUS_S18_PROVISIONAL` are enabled (the latter defaults OFF). TC[18,1] carries `max_vm_instructions[4, big-endian]` followed by a non-empty script without embedded NUL; the handler executes and emits provisional TM[18,1] with `[state][budget_exhausted][engine_reported_success][status]`. TC[18,3] requests cooperative abort and emits TM[18,1] in the same four-byte layout. TC[18,5] requests status and emits TM[18,25] with `[state][budget_exhausted][engine_reported_success][0]`. Wire layout and service/subservice tailoring are provisional and not approved for mission use (NC-S9-01). |
 | 17 | 1 / 2 | test (ping / pong) | TC/TM | echo of the TC user data |
 | 20 | 1 | parameter set | TC | parameter id[1] + value[N]; returns `FF_NOT_FOUND` for unknown id |
 | 20 | 3 / 4 | parameter report | TM | table-backed parameters; emitted by `svc20_report` |
@@ -136,6 +137,33 @@ wrap policy remain authority-owned (NC-EXT-208, ESC-HK-05, ESC-HK-06).
 
 Verification error codes: `FF_PUS_FAIL_*` (unknown service/subservice,
 illegal APID, execution failure).
+
+**Dispatch serialisation and telemetry-emission re-entrancy (NC-EXT-251
+correction; interface behaviour, SRS text pending under NC-EXT-252).** Two
+properties of the service-1 path are visible to any ground segment or on-board
+caller and are therefore stated here as interface behaviour:
+
+1. *Dispatch is serialised.* Only one telecommand is dispatched at a time. A
+   telecommand that reaches the ingress path while another dispatch is in
+   progress is refused with `FF_BUSY` and produces no service 1 verification of
+   its own; the refusal is independent of the ACK flags the second telecommand
+   requests. A registered service handler may therefore assume it is the only
+   handler running, and handler state needs no additional synchronisation.
+2. *Telemetry emission is not re-entrant.* A call to `FF_PusSendTm` made while
+   another emission is in progress — in particular a call made from inside the
+   configured telemetry sink — is refused with `FF_BUSY` and emits nothing. A
+   sink that wants to react to a frame must queue that reaction and emit it
+   after returning, not emit from within the sink.
+
+A requested service 1 verification that cannot be emitted because emission stays
+contended is **not discarded silently**: it is counted
+(`FF_PusPeekAckDropped()`) and reported as an event-services error. A non-zero
+count means the ground did not receive an acknowledgement that was owed.
+
+The telemetry counter (section 3) is a single modulo-16384 sequence shared by
+every emission path, including the lock-free reset/panic path, and a value is
+consumed only for a frame that is actually transmitted; a frame that is refused
+or never handed to a sink leaves no gap in the sequence.
 
 **Event-id catalogue note (interface-authority item, NC-EXT-102).** §4 documents
 the S5 *format* (`event id[@2], type, text`) but this ICD does **not** yet hold a
@@ -253,3 +281,5 @@ ICD is performed by the R1/R3 reviewer profiles when the profile changes.
 | 1.7 | 2026-11-11 | frick-fsw | NC-EXT-237: the §4 S5 row now records that the `event id[@2, big-endian]` + `type[1]` header is built by `FF_PusEmitEvent` from its `event_id`/`evs_type` arguments and that callers pass auxiliary data only; the event-id catalogue note points at that contract. **No wire behavior changed**: the encoded octets are identical to those previously produced by callers that embedded the header themselves |
 | 1.8 | 2026-11-13 | frick-fsw | Correct the §4 S3/S6 dispatch contract to the implemented wire behaviour approved as provisional mission tailoring on 2026-11-10 (NC-EXT-16/17/18): S3 rows now read 1=Enable, 2=Disable, 3=Periodic (alias of Enable), 4=Request, 25=HK report TM, 128=Create (6-octet `report id + provider id + period_s[4 BE]`), 129=Delete, replacing the superseded 1/3/5/6/27 rows; the S6 dump row now reads TC[6,2] instead of TC[6,5]; add the periodic-emission caveat (no production caller, ESC-HK-02) and the create-payload/`period_s` authority caveats (ESC-HK-01/05/06, NC-EXT-208/210). **No production code changed by this revision**; it removes a documented-vs-implemented divergence that would have mis-dispatched a ground command (a create built to the old row would have been executed as an enable) |
 | 1.9 | 2026-11-14 | frick-fsw | NC-EXT-94/95: align ICD §4 with implemented wire behaviour. S1 row split: subservice 4 = start failure (reserved, not emitted), subservice 6 = progress failure (emitted by `FF_PusSendVerification` when `FF_PUS_STAGE_PROGRESS` is called with `success=0`, i.e. handler returns error with `ack_progress` set). S20 row split: subservice 1 = parameter set (TC[20,1], implemented by `svc20_set`), subservice 3/4 = parameter report (TM[20,4], implemented by `svc20_report`). Wire behaviour changed: TM[1,6] is now emitted on handler error with `ack_progress` set; TC[20,1] is now accepted on the wire. |
+| 2.1 | 2026-11-18 | frick-fsw | Add the interface-visible dispatch-serialisation, telemetry-emission non-re-entrancy, dropped-verification accounting and single-shared-counter rules introduced by the NC-EXT-251 correction. The requirement text these properties rest on is tracked separately as NC-EXT-252 pending requirements-authority disposition, so this section states implemented interface behaviour and claims no PUS-C compliance. No wire layout changed by this documentation revision. |
+| 2.0 | 2026-11-16 | frick-fsw | Correct stale Service 11 OBCP wording and document the compiled-but-disabled-by-default provisional Service 18 handlers/subservices and TM layouts, explicitly not approved for mission use (NC-S9-01). No production wire behavior changed by this documentation revision. |

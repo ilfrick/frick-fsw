@@ -1,4 +1,15 @@
 /*
+ * SPDX-License-Identifier: MIT AND MPL-2.0
+ *
+ * Provenance: this overlay is a project-owned modification of the pinned
+ * upstream MicroPython `py/vm.c`, which is licensed MIT (notice below,
+ * retained unmodified). The MIT terms apply to the inherited upstream code;
+ * the project-owned modifications in this overlay are MPL-2.0. Both apply to
+ * this file as a whole, hence the compound SPDX expression. The narrow
+ * compound-expression rule and its allowlist are documented in
+ * docs/quality/licensing.md §5.1; provenance/notice completeness for the
+ * combined distribution remains tracked by NC-EXT-43.
+ *
  * This file is part of the MicroPython project, http://micropython.org/
  *
  * The MIT License (MIT)
